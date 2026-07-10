@@ -35,10 +35,10 @@ pytest_plugins = ("pytest_asyncio",)
 
 @pytest.mark.asyncio
 async def test_timeout_is_set(client):
-    agent_engine = client.agent_engines.get(
+    agent_engine = client.runtimes.get(
         name="projects/932854658080/locations/us-central1/reasoningEngines/857830725653626880",
     )
-    assert isinstance(agent_engine, types.AgentEngine)
+    assert isinstance(agent_engine, types.Runtime)
 
     message_data = {
         "messageId": "msg-123",
@@ -87,6 +87,6 @@ async def test_timeout_is_set(client):
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
-    test_method="agent_engines.get",
+    test_method="runtimes.get",
     http_options=_api_client.HttpOptions(timeout=99000),
 )

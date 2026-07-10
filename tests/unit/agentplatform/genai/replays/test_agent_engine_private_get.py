@@ -19,7 +19,7 @@ from agentplatform._genai import types
 
 
 def test_private_get(client):
-    agent_engine = client.agent_engines._get(
+    agent_engine = client.runtimes._get(
         name="reasoningEngines/2886612747586371584",
     )
     assert isinstance(agent_engine, types.ReasoningEngine)
@@ -29,5 +29,5 @@ def test_private_get(client):
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
-    test_method="agent_engines._get",
+    test_method="runtimes._get",
 )

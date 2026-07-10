@@ -13,15 +13,15 @@
 # limitations under the License.
 #
 import importlib
+import os
 from typing import Optional
 from unittest import mock
 
 from google import auth
 import agentplatform
-from google.cloud.aiplatform import initializer
-from agentplatform import agent_engines
+from agentplatform import frameworks
 
-from agentplatform._genai import _agent_engines_utils
+from agentplatform._genai import _runtimes_utils
 import pytest
 
 
@@ -90,7 +90,7 @@ def langchain_dump_mock():
 @pytest.fixture
 def cloud_trace_exporter_mock():
     with mock.patch.object(
-        _agent_engines_utils,
+        _runtimes_utils,
         "_import_cloud_trace_exporter_or_warn",
     ) as cloud_trace_exporter_mock:
         yield cloud_trace_exporter_mock
@@ -113,7 +113,7 @@ def simple_span_processor_mock():
 @pytest.fixture
 def langchain_instrumentor_mock():
     with mock.patch.object(
-        _agent_engines_utils,
+        _runtimes_utils,
         "_import_openinference_langchain_or_warn",
     ) as langchain_instrumentor_mock:
         yield langchain_instrumentor_mock
@@ -122,7 +122,7 @@ def langchain_instrumentor_mock():
 @pytest.fixture
 def langchain_instrumentor_none_mock():
     with mock.patch.object(
-        _agent_engines_utils,
+        _runtimes_utils,
         "_import_openinference_langchain_or_warn",
     ) as langchain_instrumentor_mock:
         langchain_instrumentor_mock.return_value = None
@@ -132,12 +132,11 @@ def langchain_instrumentor_none_mock():
 @pytest.mark.usefixtures("google_auth_mock")
 class TestLangchainAgent:
     def setup_method(self):
-        importlib.reload(initializer)
         importlib.reload(agentplatform)
-        agentplatform.init(
-            project=_TEST_PROJECT,
-            location=_TEST_LOCATION,
-        )
+        # The agent frameworks source project and location from environment
+        # variables (not the global initializer).
+        os.environ["GOOGLE_CLOUD_PROJECT"] = _TEST_PROJECT
+        os.environ["GOOGLE_CLOUD_LOCATION"] = _TEST_LOCATION
         self.prompt = {
             "input": lambda x: x["input"],
             "agent_scratchpad": (
@@ -152,13 +151,20 @@ class TestLangchainAgent:
         self.output_parser = mock.Mock()
 
     def teardown_method(self):
-        initializer.global_pool.shutdown(wait=True)
+        for key in [
+            "GOOGLE_CLOUD_PROJECT",
+            "GOOGLE_CLOUD_AGENT_ENGINE_LOCATION",
+            "GOOGLE_CLOUD_LOCATION",
+        ]:
+            os.environ.pop(key, None)
 
     def test_initialization(self):
-        agent = agent_engines.LangchainAgent(model=_TEST_MODEL)
+        agent = frameworks.LangchainAgent(model=_TEST_MODEL)
         assert agent._tmpl_attrs.get("model_name") == _TEST_MODEL
-        assert agent._tmpl_attrs.get("project") == _TEST_PROJECT
-        assert agent._tmpl_attrs.get("location") == _TEST_LOCATION
+        # Project and location are no longer stored as template attributes; they
+        # are sourced from environment variables during set_up().
+        assert agent._tmpl_attrs.get("project") is None
+        assert agent._tmpl_attrs.get("location") is None
         assert agent._tmpl_attrs.get("runnable") is None
 
     def test_initialization_with_tools(self):
@@ -166,7 +172,7 @@ class TestLangchainAgent:
             place_tool_query,
             StructuredTool.from_function(place_photo_query),
         ]
-        agent = agent_engines.LangchainAgent(
+        agent = frameworks.LangchainAgent(
             model=_TEST_MODEL,
             system_instruction=_TEST_SYSTEM_INSTRUCTION,
             tools=tools,
@@ -180,7 +186,7 @@ class TestLangchainAgent:
         assert agent._tmpl_attrs.get("runnable") is not None
 
     def test_set_up(self):
-        agent = agent_engines.LangchainAgent(
+        agent = frameworks.LangchainAgent(
             model=_TEST_MODEL,
             prompt=self.prompt,
             output_parser=self.output_parser,
@@ -192,7 +198,7 @@ class TestLangchainAgent:
         assert agent._tmpl_attrs.get("runnable") is not None
 
     def test_clone(self):
-        agent = agent_engines.LangchainAgent(
+        agent = frameworks.LangchainAgent(
             model=_TEST_MODEL,
             prompt=self.prompt,
             output_parser=self.output_parser,
@@ -208,7 +214,7 @@ class TestLangchainAgent:
         assert agent_clone._tmpl_attrs.get("runnable") is not None
 
     def test_query(self, langchain_dump_mock):
-        agent = agent_engines.LangchainAgent(
+        agent = frameworks.LangchainAgent(
             model=_TEST_MODEL,
             prompt=self.prompt,
             output_parser=self.output_parser,
@@ -222,7 +228,7 @@ class TestLangchainAgent:
         )
 
     def test_stream_query(self, langchain_dump_mock):
-        agent = agent_engines.LangchainAgent(model=_TEST_MODEL)
+        agent = frameworks.LangchainAgent(model=_TEST_MODEL)
         agent._tmpl_attrs["runnable"] = mock.Mock()
         agent._tmpl_attrs["runnable"].stream.return_value = []
         list(agent.stream_query(input="test stream query"))
@@ -240,7 +246,7 @@ class TestLangchainAgent:
         simple_span_processor_mock,
         langchain_instrumentor_mock,
     ):
-        agent = agent_engines.LangchainAgent(
+        agent = frameworks.LangchainAgent(
             model=_TEST_MODEL,
             prompt=self.prompt,
             output_parser=self.output_parser,
@@ -257,7 +263,7 @@ class TestLangchainAgent:
 
     @pytest.mark.usefixtures("caplog")
     def test_enable_tracing_warning(self, caplog, langchain_instrumentor_none_mock):
-        agent = agent_engines.LangchainAgent(
+        agent = frameworks.LangchainAgent(
             model=_TEST_MODEL,
             prompt=self.prompt,
             output_parser=self.output_parser,
@@ -277,7 +283,7 @@ def _return_input_no_typing(input_):
 class TestConvertToolsOrRaiseErrors:
     def test_raise_untyped_input_args(self, agentplatform_init_mock):
         with pytest.raises(TypeError, match=r"has untyped input_arg"):
-            agent_engines.LangchainAgent(
+            frameworks.LangchainAgent(
                 model=_TEST_MODEL,
                 tools=[_return_input_no_typing],
             )
@@ -289,7 +295,7 @@ class TestSystemInstructionAndPromptRaisesErrors:
             ValueError,
             match=r"Only one of `prompt` or `system_instruction` should be specified.",
         ):
-            agent_engines.LangchainAgent(
+            frameworks.LangchainAgent(
                 model=_TEST_MODEL,
                 system_instruction=_TEST_SYSTEM_INSTRUCTION,
                 prompt=prompts.ChatPromptTemplate.from_messages(

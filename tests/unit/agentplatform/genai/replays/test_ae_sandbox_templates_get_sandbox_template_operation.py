@@ -23,7 +23,7 @@ def test_get_sandbox_template_operation(client):
         "projects/254005681254/locations/us-central1/operations/7252775414349692928"
     )
 
-    sandbox_template_operation = client.agent_engines.sandboxes.templates.get_sandbox_environment_template_operation(
+    sandbox_template_operation = client.sandboxes.templates.get_sandbox_environment_template_operation(
         operation_name=operation_name
     )
     assert isinstance(
@@ -35,5 +35,5 @@ def test_get_sandbox_template_operation(client):
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
-    test_method="agent_engines.sandboxes.templates.get_sandbox_environment_template_operation",
+    test_method="sandboxes.templates.get_sandbox_environment_template_operation",
 )

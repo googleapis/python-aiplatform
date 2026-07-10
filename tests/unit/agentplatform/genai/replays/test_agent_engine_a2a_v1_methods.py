@@ -49,10 +49,10 @@ def _build_send_message_request() -> "a2a_types.SendMessageRequest":
 
 @pytest.mark.asyncio
 async def test_timeout_is_set(client):
-    agent_engine = client.agent_engines.get(
+    agent_engine = client.runtimes.get(
         name="projects/964831358985/locations/us-central1/reasoningEngines/6859679872613089280",
     )
-    assert isinstance(agent_engine, types.AgentEngine)
+    assert isinstance(agent_engine, types.Runtime)
 
     with mock.patch(
         "httpx.AsyncClient", spec=httpx.AsyncClient
@@ -97,6 +97,6 @@ async def test_timeout_is_set(client):
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
-    test_method="agent_engines.get",
+    test_method="runtimes.get",
     http_options=_api_client.HttpOptions(timeout=99000),
 )

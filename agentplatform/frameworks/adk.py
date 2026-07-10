@@ -252,13 +252,13 @@ class _StreamingRunResponse:
         # The session ID.
 
     def dump(self) -> Dict[str, Any]:
-        from agentplatform._genai import _agent_engines_utils
+        from agentplatform._genai import _runtimes_utils
 
         result = {}
         if self.events:
             result["events"] = []
             for event in self.events:
-                event_dict = _agent_engines_utils.dump_event_for_json(event)
+                event_dict = _runtimes_utils.dump_event_for_json(event)
                 event_dict["invocation_id"] = event_dict.get("invocation_id", "")
                 result["events"].append(event_dict)
         if self.artifacts:
@@ -477,9 +477,9 @@ def _default_instrumentor_builder(
         # Avoids AttributeError:
         # 'ProxyTracerProvider' and 'NoOpTracerProvider' objects has no
         # attribute 'add_span_processor'.
-        from agentplatform._genai import _agent_engines_utils
+        from agentplatform._genai import _runtimes_utils
 
-        if _agent_engines_utils.is_noop_or_proxy_tracer_provider(tracer_provider):
+        if _runtimes_utils.is_noop_or_proxy_tracer_provider(tracer_provider):
             tracer_provider = opentelemetry.sdk.trace.TracerProvider(resource=resource)
             opentelemetry.trace.set_tracer_provider(tracer_provider)
         # Avoids OpenTelemetry client already exists error.
@@ -736,7 +736,6 @@ class AdkApp:
                 This parameter is ignored if `enable_tracing` is False.
         """
         import os
-        from google.cloud.aiplatform import initializer
 
         adk_version = get_adk_version()
         if not is_version_sufficient("1.5.0"):
@@ -763,8 +762,6 @@ class AdkApp:
                 )
 
         self._tmpl_attrs: Dict[str, Any] = {
-            "project": initializer.global_config.project,
-            "location": initializer.global_config.location,
             "agent": agent,
             "app": app,
             "app_name": app_name,
@@ -775,9 +772,7 @@ class AdkApp:
             "memory_service_builder": memory_service_builder,
             "credential_service_builder": credential_service_builder,
             "instrumentor_builder": instrumentor_builder,
-            "express_mode_api_key": (
-                initializer.global_config.api_key or os.environ.get("GOOGLE_API_KEY")
-            ),
+            "express_mode_api_key": os.environ.get("GOOGLE_API_KEY"),
         }
 
     def _serialize(self, obj: Any) -> Any:
@@ -947,19 +942,16 @@ class AdkApp:
         )
 
         os.environ["GOOGLE_GENAI_USE_VERTEXAI"] = "1"
-        project = self._tmpl_attrs.get("project")
-        if project:
-            os.environ["GOOGLE_CLOUD_PROJECT"] = project
-        location = self._tmpl_attrs.get("location")
+        project = os.environ.get("GOOGLE_CLOUD_PROJECT")
+        location = os.getenv("GOOGLE_CLOUD_AGENT_ENGINE_LOCATION") or os.getenv(
+            "GOOGLE_CLOUD_LOCATION"
+        )
         if location:
             if "GOOGLE_CLOUD_AGENT_ENGINE_LOCATION" not in os.environ:
                 os.environ["GOOGLE_CLOUD_AGENT_ENGINE_LOCATION"] = location
             if "GOOGLE_CLOUD_LOCATION" not in os.environ:
                 os.environ["GOOGLE_CLOUD_LOCATION"] = location
-        agent_engine_location = os.environ.get(
-            "GOOGLE_CLOUD_AGENT_ENGINE_LOCATION",  # the runtime env var (if set)
-            location,  # the location set in the AdkApp template
-        )
+        agent_engine_location = location
         express_mode_api_key = self._tmpl_attrs.get("express_mode_api_key")
         if express_mode_api_key and not project:
             os.environ["GOOGLE_API_KEY"] = express_mode_api_key
@@ -1010,12 +1002,13 @@ class AdkApp:
                 ),
             )
 
+        project_id = self._get_project_id(project)
         if custom_instrumentor and self._tracing_enabled():
-            self._tmpl_attrs["instrumentor"] = custom_instrumentor(self.project_id())
+            self._tmpl_attrs["instrumentor"] = custom_instrumentor(project_id)
 
         if not custom_instrumentor:
             self._tmpl_attrs["instrumentor"] = _default_instrumentor_builder(
-                self.project_id(),
+                project_id,
                 enable_tracing=self._tracing_enabled(),
                 enable_logging=enable_logging,
             )
@@ -1184,7 +1177,7 @@ class AdkApp:
             a Content object.
             ValueError: If both session_id and session_events are specified.
         """
-        from agentplatform._genai import _agent_engines_utils
+        from agentplatform._genai import _runtimes_utils
         from google.genai import types
 
         if isinstance(message, Dict):
@@ -1244,7 +1237,7 @@ class AdkApp:
         try:
             async for event in events_async:
                 # Yield the event data as a dictionary
-                yield _agent_engines_utils.dump_event_for_json(event)
+                yield _runtimes_utils.dump_event_for_json(event)
         finally:
             # Avoid telemetry data loss having to do with CPU throttling on instance turndown
             _ = await _force_flush_otel(
@@ -1294,7 +1287,7 @@ class AdkApp:
             DeprecationWarning,
             stacklevel=2,
         )
-        from agentplatform._genai import _agent_engines_utils
+        from agentplatform._genai import _runtimes_utils
         from google.genai import types
 
         if isinstance(message, Dict):
@@ -1321,7 +1314,7 @@ class AdkApp:
                 run_config=run_config,
                 **kwargs,
             ):
-                yield _agent_engines_utils.dump_event_for_json(event)
+                yield _runtimes_utils.dump_event_for_json(event)
         else:
             for event in self._tmpl_attrs.get("runner").run(
                 user_id=user_id,
@@ -1329,7 +1322,7 @@ class AdkApp:
                 new_message=content,
                 **kwargs,
             ):
-                yield _agent_engines_utils.dump_event_for_json(event)
+                yield _runtimes_utils.dump_event_for_json(event)
 
     async def streaming_agent_run_with_events(self, request_json: str):
         """Streams responses asynchronously from the ADK application.
@@ -2138,8 +2131,8 @@ class AdkApp:
             and is_version_sufficient("1.17.0")
         )
 
-    def project_id(self) -> Optional[str]:
-        if project := self._tmpl_attrs.get("project"):
+    def _get_project_id(self, project: str) -> Optional[str]:
+        if project:
             try:
                 from google.cloud.aiplatform.utils import (
                     resource_manager_utils,

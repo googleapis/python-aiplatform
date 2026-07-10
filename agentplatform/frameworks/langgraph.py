@@ -21,34 +21,29 @@ from typing import (
     Iterable,
     Mapping,
     Optional,
+    Sequence,
     Union,
 )
 
 if TYPE_CHECKING:
     try:
-        from langchain_core import runnables
-        from langchain_core import tools as lc_tools
         from langchain_core.language_models import base as lc_language_models
 
-        BaseTool = lc_tools.BaseTool
         BaseLanguageModel = lc_language_models.BaseLanguageModel
-        GetSessionHistoryCallable = runnables.history.GetSessionHistoryCallable
-        RunnableConfig = runnables.RunnableConfig
-        RunnableSerializable = runnables.RunnableSerializable
     except ImportError:
-        BaseTool = Any
         BaseLanguageModel = Any
-        GetSessionHistoryCallable = Any
-        RunnableConfig = Any
-        RunnableSerializable = Any
 
     try:
         from langchain_google_genai.functions_utils import _ToolsType
+
+        _ToolLike = _ToolsType
     except ImportError:
         try:
             from langchain_google_vertexai.functions_utils import _ToolsType
+
+            _ToolLike = _ToolsType
         except ImportError:
-            _ToolsType = Any
+            _ToolLike = Any
 
     try:
         from opentelemetry.sdk import trace
@@ -61,37 +56,17 @@ if TYPE_CHECKING:
         SpanProcessor = Any
         SynchronousMultiSpanProcessor = Any
 
-
-def _default_runnable_kwargs(has_history: bool) -> Mapping[str, Any]:
-    # https://github.com/langchain-ai/langchain/blob/5784dfed001730530637793bea1795d9d5a7c244/libs/core/langchain_core/runnables/history.py#L237-L241
-    runnable_kwargs = {
-        # input_messages_key (str): Must be specified if the underlying
-        # agent accepts a dict as input.
-        "input_messages_key": "input",
-        # output_messages_key (str): Must be specified if the underlying
-        # agent returns a dict as output.
-        "output_messages_key": "output",
-    }
-    if has_history:
-        # history_messages_key (str): Must be specified if the underlying
-        # agent accepts a dict as input and a separate key for historical
-        # messages.
-        runnable_kwargs["history_messages_key"] = "history"
-    return runnable_kwargs
-
-
-def _default_output_parser():
     try:
-        from langchain_classic.agents.output_parsers.tools import ToolsAgentOutputParser
-    except (ModuleNotFoundError, ImportError):
+        from langgraph_checkpoint.checkpoint import base
+
+        BaseCheckpointSaver = base.BaseCheckpointSaver
+    except ImportError:
         try:
-            from langchain.agents.output_parsers.tools import ToolsAgentOutputParser
-        except (ModuleNotFoundError, ImportError):
-            # Fallback to an older version if needed.
-            from langchain.agents.output_parsers.openai_tools import (
-                OpenAIToolsAgentOutputParser as ToolsAgentOutputParser,
-            )
-    return ToolsAgentOutputParser()
+            from langgraph.checkpoint import base
+
+            BaseCheckpointSaver = base.BaseCheckpointSaver
+        except ImportError:
+            BaseCheckpointSaver = Any
 
 
 def _default_model_builder(
@@ -101,6 +76,22 @@ def _default_model_builder(
     location: str,
     model_kwargs: Optional[Mapping[str, Any]] = None,
 ) -> "BaseLanguageModel":
+    """Default callable for building a language model.
+
+    Args:
+        model_name (str):
+            Required. The name of the model (e.g. "gemini-1.0-pro").
+        project (str):
+            Required. The Google Cloud project ID.
+        location (str):
+            Required. The Google Cloud location.
+        model_kwargs (Mapping[str, Any]):
+            Optional. Additional keyword arguments for the constructor of
+            chat_models.ChatVertexAI.
+
+    Returns:
+        BaseLanguageModel: The language model.
+    """
     model_kwargs = model_kwargs or {}
     try:
         from langchain_google_genai import ChatGoogleGenerativeAI
@@ -114,95 +105,72 @@ def _default_model_builder(
         )
         return model
     except ImportError:
-        import agentplatform
-        from google.cloud.aiplatform import initializer
         from langchain_google_vertexai import ChatVertexAI
 
-        current_project = initializer.global_config.project
-        current_location = initializer.global_config.location
-        agentplatform.init(project=project, location=location)
-        model = ChatVertexAI(model_name=model_name, **model_kwargs)
-        agentplatform.init(project=current_project, location=current_location)
+        model = ChatVertexAI(
+            model_name=model_name, project=project, location=location, **model_kwargs
+        )
         return model
 
 
 def _default_runnable_builder(
     model: "BaseLanguageModel",
     *,
-    system_instruction: Optional[str] = None,
-    tools: Optional["_ToolsType"] = None,
-    prompt: Optional["RunnableSerializable"] = None,
-    output_parser: Optional["RunnableSerializable"] = None,
-    chat_history: Optional["GetSessionHistoryCallable"] = None,
+    tools: Optional[Sequence["_ToolLike"]] = None,
+    checkpointer: Optional[Any] = None,
     model_tool_kwargs: Optional[Mapping[str, Any]] = None,
-    agent_executor_kwargs: Optional[Mapping[str, Any]] = None,
     runnable_kwargs: Optional[Mapping[str, Any]] = None,
-) -> "RunnableSerializable":
-    from langchain_core import tools as lc_tools
+):
+    """Default callable for building a runnable.
 
-    try:
-        from langchain_classic.agents import AgentExecutor
-    except ImportError:
-        from langchain.agents import AgentExecutor
+    Args:
+        model (BaseLanguageModel):
+            Required. The language model.
+        tools (Optional[Sequence[_ToolLike]]):
+            Optional. The tools for the agent to be able to use.
+        checkpointer (Optional[Checkpointer]):
+            Optional. The checkpointer for the agent.
+        model_tool_kwargs (Optional[Mapping[str, Any]]):
+            Optional. Additional keyword arguments when binding tools to the model.
+        runnable_kwargs (Optional[Mapping[str, Any]]):
+            Optional. Additional keyword arguments for the runnable.
 
-    try:
-        from langchain_core.tools import StructuredTool
-    except ImportError:
-        from langchain.tools.base import StructuredTool
+    Returns:
+        RunnableSerializable: The runnable.
+    """
+    from langgraph import prebuilt as langgraph_prebuilt
 
-    # The prompt template and runnable_kwargs needs to be customized depending
-    # on whether the user intends for the agent to have history. The way the
-    # user would reflect that is by setting chat_history (which defaults to
-    # None).
-    has_history: bool = chat_history is not None
-    prompt = prompt or _default_prompt(
-        has_history=has_history,
-        system_instruction=system_instruction,
-    )
-    output_parser = output_parser or _default_output_parser()
     model_tool_kwargs = model_tool_kwargs or {}
-    agent_executor_kwargs = agent_executor_kwargs or {}
-    runnable_kwargs = runnable_kwargs or _default_runnable_kwargs(has_history)
+    runnable_kwargs = runnable_kwargs or {}
     if tools:
         model = model.bind_tools(tools=tools, **model_tool_kwargs)
     else:
         tools = []
-    agent_executor = AgentExecutor(
-        agent=prompt | model | output_parser,
-        tools=[
-            (
-                tool
-                if isinstance(tool, lc_tools.BaseTool)
-                else StructuredTool.from_function(tool)
-            )
-            for tool in tools
-            if isinstance(tool, (Callable, lc_tools.BaseTool))
-        ],
-        **agent_executor_kwargs,
-    )
-    if has_history:
-        from langchain_core.runnables.history import RunnableWithMessageHistory
+    if checkpointer:
+        if "checkpointer" in runnable_kwargs:
+            from google.cloud.aiplatform import base
 
-        return RunnableWithMessageHistory(
-            runnable=agent_executor,
-            get_session_history=chat_history,
-            **runnable_kwargs,
-        )
-    return agent_executor
+            base.Logger(__name__).warning(
+                "checkpointer is being specified in both checkpointer_builder "
+                "and runnable_kwargs. Please specify it in only one of them. "
+                "Overriding the checkpointer in runnable_kwargs."
+            )
+        runnable_kwargs["checkpointer"] = checkpointer
+    return langgraph_prebuilt.create_react_agent(
+        model,
+        tools=tools,
+        **runnable_kwargs,
+    )
 
 
 def _default_instrumentor_builder(project_id: str):
-    from agentplatform._genai import _agent_engines_utils
+    from agentplatform._genai import _runtimes_utils
 
-    cloud_trace_exporter = _agent_engines_utils._import_cloud_trace_exporter_or_warn()
-    cloud_trace_v2 = _agent_engines_utils._import_cloud_trace_v2_or_warn()
-    openinference_langchain = (
-        _agent_engines_utils._import_openinference_langchain_or_warn()
-    )
-    opentelemetry = _agent_engines_utils._import_opentelemetry_or_warn()
-    opentelemetry_sdk_trace = (
-        _agent_engines_utils._import_opentelemetry_sdk_trace_or_warn()
-    )
+    cloud_trace_exporter = _runtimes_utils._import_cloud_trace_exporter_or_warn()
+    cloud_trace_v2 = _runtimes_utils._import_cloud_trace_v2_or_warn()
+    openinference_langchain = _runtimes_utils._import_openinference_langchain_or_warn()
+    opentelemetry = _runtimes_utils._import_opentelemetry_or_warn()
+    opentelemetry_sdk_trace = _runtimes_utils._import_opentelemetry_sdk_trace_or_warn()
     if all(
         (
             cloud_trace_exporter,
@@ -237,8 +205,7 @@ def _default_instrumentor_builder(project_id: str):
         if not tracer_provider:
             from google.cloud.aiplatform import base
 
-            _LOGGER = base.Logger(__name__)
-            _LOGGER.warning(
+            base.Logger(__name__).warning(
                 "No tracer provider. By default, "
                 "we should get one of the following providers: "
                 "OTEL_PYTHON_TRACER_PROVIDER, _TRACER_PROVIDER, "
@@ -249,7 +216,7 @@ def _default_instrumentor_builder(project_id: str):
         # Avoids AttributeError:
         # 'ProxyTracerProvider' and 'NoOpTracerProvider' objects has no
         # attribute 'add_span_processor'.
-        if _agent_engines_utils.is_noop_or_proxy_tracer_provider(tracer_provider):
+        if _runtimes_utils.is_noop_or_proxy_tracer_provider(tracer_provider):
             tracer_provider = opentelemetry_sdk_trace.TracerProvider()
             opentelemetry.trace.set_tracer_provider(tracer_provider)
         # Avoids OpenTelemetry client already exists error.
@@ -281,63 +248,17 @@ def _default_instrumentor_builder(project_id: str):
         return None
 
 
-def _default_prompt(
-    has_history: bool,
-    system_instruction: Optional[str] = None,
-) -> "RunnableSerializable":
-    from langchain_core import prompts
-
-    try:
-        from langchain_classic.agents.format_scratchpad.tools import (
-            format_to_tool_messages,
-        )
-    except (ModuleNotFoundError, ImportError):
-        try:
-            from langchain.agents.format_scratchpad.tools import format_to_tool_messages
-        except (ModuleNotFoundError, ImportError):
-            from langchain.agents.format_scratchpad.openai_tools import (
-                format_to_openai_tool_messages as format_to_tool_messages,
-            )
-
-    system_instructions = []
-    if system_instruction:
-        system_instructions = [("system", system_instruction)]
-
-    if has_history:
-        return {
-            "history": lambda x: x["history"],
-            "input": lambda x: x["input"],
-            "agent_scratchpad": (
-                lambda x: format_to_tool_messages(x["intermediate_steps"])
-            ),
-        } | prompts.ChatPromptTemplate.from_messages(
-            system_instructions
-            + [
-                prompts.MessagesPlaceholder(variable_name="history"),
-                ("user", "{input}"),
-                prompts.MessagesPlaceholder(variable_name="agent_scratchpad"),
-            ]
-        )
-    else:
-        return {
-            "input": lambda x: x["input"],
-            "agent_scratchpad": (
-                lambda x: format_to_tool_messages(x["intermediate_steps"])
-            ),
-        } | prompts.ChatPromptTemplate.from_messages(
-            system_instructions
-            + [
-                ("user", "{input}"),
-                prompts.MessagesPlaceholder(variable_name="agent_scratchpad"),
-            ]
-        )
-
-
 def _validate_callable_parameters_are_annotated(callable: Callable):
     """Validates that the parameters of the callable have type annotations.
 
     This ensures that they can be used for constructing LangChain tools that are
     usable with Gemini function calling.
+
+    Args:
+        callable (Callable): The callable to validate.
+
+    Raises:
+        TypeError: If any parameter is not annotated.
     """
     import inspect
 
@@ -350,8 +271,15 @@ def _validate_callable_parameters_are_annotated(callable: Callable):
             )
 
 
-def _validate_tools(tools: "_ToolsType"):
-    """Validates that the tools are usable for tool calling."""
+def _validate_tools(tools: Sequence["_ToolLike"]):
+    """Validates that the tools are usable for tool calling.
+
+    Args:
+        tools (Sequence[_ToolLike]): The tools to validate.
+
+    Raises:
+        TypeError: If any tool is a callable with untyped parameters.
+    """
     for tool in tools:
         if isinstance(tool, Callable):
             _validate_callable_parameters_are_annotated(tool)
@@ -385,91 +313,93 @@ def _override_active_span_processor(
     tracer_provider._active_span_processor = active_span_processor
 
 
-class LangchainAgent:
-    """A Langchain Agent.
+class LanggraphAgent:
+    """A LangGraph Agent."""
 
-    See https://cloud.google.com/vertex-ai/generative-ai/docs/reasoning-engine/develop
-    for details.
-    """
-
-    agent_framework = "langchain"
+    agent_framework = "langgraph"
 
     def __init__(
         self,
         model: str,
         *,
-        system_instruction: Optional[str] = None,
-        prompt: Optional["RunnableSerializable"] = None,
-        tools: Optional["_ToolsType"] = None,
-        output_parser: Optional["RunnableSerializable"] = None,
-        chat_history: Optional["GetSessionHistoryCallable"] = None,
+        tools: Optional[Sequence["_ToolLike"]] = None,
         model_kwargs: Optional[Mapping[str, Any]] = None,
         model_tool_kwargs: Optional[Mapping[str, Any]] = None,
-        agent_executor_kwargs: Optional[Mapping[str, Any]] = None,
+        model_builder: Optional[Callable[..., "BaseLanguageModel"]] = None,
         runnable_kwargs: Optional[Mapping[str, Any]] = None,
-        model_builder: Optional[Callable] = None,
-        runnable_builder: Optional[Callable] = None,
+        runnable_builder: Optional[Callable[..., Any]] = None,
+        checkpointer_kwargs: Optional[Mapping[str, Any]] = None,
+        checkpointer_builder: Optional[Callable[..., "BaseCheckpointSaver"]] = None,
         enable_tracing: bool = False,
         instrumentor_builder: Optional[Callable[..., Any]] = None,
     ):
-        """Initializes the LangchainAgent.
+        """Initializes the LangGraph Agent.
 
         Under-the-hood, assuming .set_up() is called, this will correspond to
-
-        ```
+        ```python
         model = model_builder(model_name=model, model_kwargs=model_kwargs)
         runnable = runnable_builder(
-            prompt=prompt,
             model=model,
             tools=tools,
-            output_parser=output_parser,
-            chat_history=chat_history,
-            agent_executor_kwargs=agent_executor_kwargs,
+            model_tool_kwargs=model_tool_kwargs,
             runnable_kwargs=runnable_kwargs,
         )
         ```
 
         When everything is based on their default values, this corresponds to
-        ```
+        ```python
         # model_builder
         from langchain_google_vertexai import ChatVertexAI
         llm = ChatVertexAI(model_name=model, **model_kwargs)
 
         # runnable_builder
-        from langchain import agents
-        from langchain_core.runnables.history import RunnableWithMessageHistory
+        from langgraph.prebuilt import create_react_agent
         llm_with_tools = llm.bind_tools(tools=tools, **model_tool_kwargs)
-        agent_executor = agents.AgentExecutor(
-            agent=prompt | llm_with_tools | output_parser,
+        runnable = create_react_agent(
+            llm_with_tools,
             tools=tools,
-            **agent_executor_kwargs,
-        )
-        runnable = RunnableWithMessageHistory(
-            runnable=agent_executor,
-            get_session_history=chat_history,
             **runnable_kwargs,
         )
         ```
 
+        By default, no checkpointer is used (i.e. there is no state history). To
+        enable checkpointing, provide a `checkpointer_builder` function that
+        returns a checkpointer instance.
+
+        **Example using Spanner:**
+        ```python
+        def checkpointer_builder(instance_id, database_id, project_id, **kwargs):
+            from langchain_google_spanner import SpannerCheckpointSaver
+
+            checkpointer = SpannerCheckpointSaver(instance_id, database_id, project_id)
+            with checkpointer.cursor() as cur:
+                cur.execute("DROP TABLE IF EXISTS checkpoints")
+                cur.execute("DROP TABLE IF EXISTS checkpoint_writes")
+            checkpointer.setup()
+
+            return checkpointer
+        ```
+
+        **Example using an in-memory checkpointer:**
+        ```python
+        def checkpointer_builder(**kwargs):
+            from langgraph.checkpoint.memory import MemorySaver
+
+            return MemorySaver()
+        ```
+
+        The `checkpointer_builder` function will be called with any keyword
+        arguments passed to the agent's constructor.  Ensure your
+        `checkpointer_builder` function accepts `**kwargs` to handle these
+        arguments, even if unused.
+
         Args:
             model (str):
                 Optional. The name of the model (e.g. "gemini-1.0-pro").
-            system_instruction (str):
-                Optional. The system instruction to use for the agent. This
-                argument should not be specified if `prompt` is specified.
-            prompt (langchain_core.runnables.RunnableSerializable):
-                Optional. The prompt template for the model. Defaults to a
-                ChatPromptTemplate.
             tools (Sequence[langchain_core.tools.BaseTool, Callable]):
                 Optional. The tools for the agent to be able to use. All input
                 callables (e.g. function or class method) will be converted
                 to a langchain.tools.base.StructuredTool. Defaults to None.
-            output_parser (langchain_core.runnables.RunnableSerializable):
-                Optional. The output parser for the model. Defaults to an
-                output parser that works with Gemini function-calling.
-            chat_history (langchain_core.runnables.history.GetSessionHistoryCallable):
-                Optional. Callable that returns a new BaseChatMessageHistory.
-                Defaults to None, i.e. chat_history is not preserved.
             model_kwargs (Mapping[str, Any]):
                 Optional. Additional keyword arguments for the constructor of
                 chat_models.ChatVertexAI. An example would be
@@ -494,39 +424,26 @@ class LangchainAgent:
             model_tool_kwargs (Mapping[str, Any]):
                 Optional. Additional keyword arguments when binding tools to the
                 model using `model.bind_tools()`.
-            agent_executor_kwargs (Mapping[str, Any]):
-                Optional. Additional keyword arguments for the constructor of
-                langchain.agents.AgentExecutor. An example would be
-                ```
-                {
-                    # Whether to return the agent's trajectory of intermediate
-                    # steps at the end in addition to the final output.
-                    "return_intermediate_steps": False,
-                    # The maximum number of steps to take before ending the
-                    # execution loop.
-                    "max_iterations": 15,
-                    # The method to use for early stopping if the agent never
-                    # returns `AgentFinish`. Either 'force' or 'generate'.
-                    "early_stopping_method": "force",
-                    # How to handle errors raised by the agent's output parser.
-                    # Defaults to `False`, which raises the error.
-                    "handle_parsing_errors": False,
-                }
-                ```
+            model_builder (Callable[..., BaseLanguageModel]):
+                Optional. Callable that returns a new language model. Defaults
+                to a a callable that returns ChatVertexAI based on `model`,
+                `model_kwargs` and the parameters in `agentplatform.init`.
             runnable_kwargs (Mapping[str, Any]):
                 Optional. Additional keyword arguments for the constructor of
                 langchain.runnables.history.RunnableWithMessageHistory if
                 chat_history is specified. If chat_history is None, this will be
                 ignored.
-            model_builder (Callable):
-                Optional. Callable that returns a new language model. Defaults
-                to a a callable that returns ChatVertexAI based on `model`,
-                `model_kwargs` and the parameters in `agentplatform.init`.
-            runnable_builder (Callable):
+            runnable_builder (Callable[..., RunnableSerializable]):
                 Optional. Callable that returns a new runnable. This can be used
                 for customizing the orchestration logic of the Agent based on
                 the model returned by `model_builder` and the rest of the input
                 arguments.
+            checkpointer_kwargs (Mapping[str, Any]):
+                Optional. Additional keyword arguments for the constructor of
+                the checkpointer returned by `checkpointer_builder`.
+            checkpointer_builder (Callable[..., "BaseCheckpointSaver"]):
+                Optional. Callable that returns a checkpointer. This can be used
+                for defining the checkpointer of the Agent. Defaults to None.
             enable_tracing (bool):
                 Optional. Whether to enable tracing in Cloud Trace. Defaults to
                 False.
@@ -537,30 +454,23 @@ class LangchainAgent:
                 This parameter is ignored if `enable_tracing` is False.
 
         Raises:
-            ValueError: If both `prompt` and `system_instruction` are specified.
             TypeError: If there is an invalid tool (e.g. function with an input
             that did not specify its type).
         """
-        from google.cloud.aiplatform import initializer
-
         self._tmpl_attrs: dict[str, Any] = {
-            "project": initializer.global_config.project,
-            "location": initializer.global_config.location,
             "tools": [],
             "model_name": model,
-            "system_instruction": system_instruction,
-            "prompt": prompt,
-            "output_parser": output_parser,
-            "chat_history": chat_history,
             "model_kwargs": model_kwargs,
             "model_tool_kwargs": model_tool_kwargs,
-            "agent_executor_kwargs": agent_executor_kwargs,
             "runnable_kwargs": runnable_kwargs,
-            "model_builder": model_builder,
-            "runnable_builder": runnable_builder,
-            "enable_tracing": enable_tracing,
+            "checkpointer_kwargs": checkpointer_kwargs,
             "model": None,
+            "model_builder": model_builder,
             "runnable": None,
+            "runnable_builder": runnable_builder,
+            "checkpointer": None,
+            "checkpointer_builder": checkpointer_builder,
+            "enable_tracing": enable_tracing,
             "instrumentor": None,
             "instrumentor_builder": instrumentor_builder,
         }
@@ -569,12 +479,6 @@ class LangchainAgent:
             # they are deployed.
             _validate_tools(tools)
             self._tmpl_attrs["tools"] = tools
-        if prompt and system_instruction:
-            raise ValueError(
-                "Only one of `prompt` or `system_instruction` should be specified. "
-                "Consider incorporating the system instruction into the prompt "
-                "rather than passing it separately as an argument."
-            )
 
     def set_up(self):
         """Sets up the agent for execution of queries at runtime.
@@ -582,59 +486,64 @@ class LangchainAgent:
         It initializes the model, binds the model with tools, and connects it
         with the prompt template and output parser.
 
-        This method should not be called for an object being passed to the
-        service for deployment, as it might initialize clients that can not be
-        serialized.
+        This method should not be called for an object that being passed to
+        the ReasoningEngine service for deployment, as it initializes clients
+        that can not be serialized.
         """
+        import os
+
+        project = os.environ.get("GOOGLE_CLOUD_PROJECT")
+        location = os.getenv("GOOGLE_CLOUD_AGENT_ENGINE_LOCATION") or os.getenv(
+            "GOOGLE_CLOUD_LOCATION"
+        )
         if self._tmpl_attrs.get("enable_tracing"):
             instrumentor_builder = (
                 self._tmpl_attrs.get("instrumentor_builder")
                 or _default_instrumentor_builder
             )
             self._tmpl_attrs["instrumentor"] = instrumentor_builder(
-                project_id=self._tmpl_attrs.get("project")
+                project_id=project,
             )
         model_builder = self._tmpl_attrs.get("model_builder") or _default_model_builder
         self._tmpl_attrs["model"] = model_builder(
             model_name=self._tmpl_attrs.get("model_name"),
             model_kwargs=self._tmpl_attrs.get("model_kwargs"),
-            project=self._tmpl_attrs.get("project"),
-            location=self._tmpl_attrs.get("location"),
+            project=project,
+            location=location,
         )
+        checkpointer_builder = self._tmpl_attrs.get("checkpointer_builder")
+        if checkpointer_builder:
+            checkpointer_kwargs = self._tmpl_attrs.get("checkpointer_kwargs") or {}
+            self._tmpl_attrs["checkpointer"] = checkpointer_builder(
+                **checkpointer_kwargs
+            )
         runnable_builder = (
             self._tmpl_attrs.get("runnable_builder") or _default_runnable_builder
         )
         self._tmpl_attrs["runnable"] = runnable_builder(
-            prompt=self._tmpl_attrs.get("prompt"),
             model=self._tmpl_attrs.get("model"),
             tools=self._tmpl_attrs.get("tools"),
-            system_instruction=self._tmpl_attrs.get("system_instruction"),
-            output_parser=self._tmpl_attrs.get("output_parser"),
-            chat_history=self._tmpl_attrs.get("chat_history"),
+            checkpointer=self._tmpl_attrs.get("checkpointer"),
             model_tool_kwargs=self._tmpl_attrs.get("model_tool_kwargs"),
-            agent_executor_kwargs=self._tmpl_attrs.get("agent_executor_kwargs"),
             runnable_kwargs=self._tmpl_attrs.get("runnable_kwargs"),
         )
 
-    def clone(self) -> "LangchainAgent":
-        """Returns a clone of the LangchainAgent."""
+    def clone(self) -> "LanggraphAgent":
+        """Returns a clone of the LanggraphAgent."""
         import copy
 
-        return LangchainAgent(
+        return LanggraphAgent(
             model=self._tmpl_attrs.get("model_name"),
-            system_instruction=self._tmpl_attrs.get("system_instruction"),
-            prompt=copy.deepcopy(self._tmpl_attrs.get("prompt")),
             tools=copy.deepcopy(self._tmpl_attrs.get("tools")),
-            output_parser=copy.deepcopy(self._tmpl_attrs.get("output_parser")),
-            chat_history=copy.deepcopy(self._tmpl_attrs.get("chat_history")),
             model_kwargs=copy.deepcopy(self._tmpl_attrs.get("model_kwargs")),
             model_tool_kwargs=copy.deepcopy(self._tmpl_attrs.get("model_tool_kwargs")),
-            agent_executor_kwargs=copy.deepcopy(
-                self._tmpl_attrs.get("agent_executor_kwargs")
-            ),
             runnable_kwargs=copy.deepcopy(self._tmpl_attrs.get("runnable_kwargs")),
+            checkpointer_kwargs=copy.deepcopy(
+                self._tmpl_attrs.get("checkpointer_kwargs")
+            ),
             model_builder=self._tmpl_attrs.get("model_builder"),
             runnable_builder=self._tmpl_attrs.get("runnable_builder"),
+            checkpointer_builder=self._tmpl_attrs.get("checkpointer_builder"),
             enable_tracing=self._tmpl_attrs.get("enable_tracing"),
             instrumentor_builder=self._tmpl_attrs.get("instrumentor_builder"),
         )
@@ -643,7 +552,7 @@ class LangchainAgent:
         self,
         *,
         input: Union[str, Mapping[str, Any]],
-        config: Optional["RunnableConfig"] = None,
+        config: Optional[dict[str, Any]] = None,
         **kwargs: Any,
     ) -> Dict[str, Any]:
         """Queries the Agent with the given input and config.
@@ -663,12 +572,10 @@ class LangchainAgent:
         try:
             from langchain_core.load import dumpd
         except ImportError:
-            from langchain.load import dump as langchain_load_dump
-
-            dumpd = langchain_load_dump.dumpd
+            from langchain.load.dump import dumpd
 
         if isinstance(input, str):
-            input = {"input": input}
+            input = {"input": input, "messages": [("user", input)]}
         if not self._tmpl_attrs.get("runnable"):
             self.set_up()
         return dumpd(
@@ -681,7 +588,7 @@ class LangchainAgent:
         self,
         *,
         input: Union[str, Mapping[str, Any]],
-        config: Optional["RunnableConfig"] = None,
+        config: Optional[dict[str, Any]] = None,
         **kwargs,
     ) -> Iterable[Any]:
         """Stream queries the Agent with the given input and config.
@@ -701,12 +608,10 @@ class LangchainAgent:
         try:
             from langchain_core.load import dumpd
         except ImportError:
-            from langchain.load import dump as langchain_load_dump
-
-            dumpd = langchain_load_dump.dumpd
+            from langchain.load.dump import dumpd
 
         if isinstance(input, str):
-            input = {"input": input}
+            input = {"input": input, "messages": [("user", input)]}
         if not self._tmpl_attrs.get("runnable"):
             self.set_up()
         for chunk in self._tmpl_attrs.get("runnable").stream(
@@ -715,3 +620,88 @@ class LangchainAgent:
             **kwargs,
         ):
             yield dumpd(chunk)
+
+    def get_state_history(
+        self,
+        config: Optional[dict[str, Any]] = None,
+        **kwargs: Any,
+    ) -> Iterable[Any]:
+        """Gets the state history of the Agent.
+
+        Args:
+            config (Optional[RunnableConfig]):
+                Optional. The config for invoking the Agent.
+            **kwargs:
+                Optional. Additional keyword arguments for the `.invoke()` method.
+
+        Yields:
+            Dict[str, Any]: The state history of the Agent.
+        """
+        if not self._tmpl_attrs.get("runnable"):
+            self.set_up()
+        for state_snapshot in self._tmpl_attrs.get("runnable").get_state_history(
+            config=config,
+            **kwargs,
+        ):
+            yield state_snapshot._asdict()
+
+    def get_state(
+        self,
+        config: Optional[dict[str, Any]] = None,
+        **kwargs: Any,
+    ) -> Dict[str, Any]:
+        """Gets the current state of the Agent.
+
+        Args:
+            config (Optional[RunnableConfig]):
+                Optional. The config for invoking the Agent.
+            **kwargs:
+                Optional. Additional keyword arguments for the `.invoke()` method.
+
+        Returns:
+            Dict[str, Any]: The current state of the Agent.
+        """
+        if not self._tmpl_attrs.get("runnable"):
+            self.set_up()
+        return (
+            self._tmpl_attrs.get("runnable")
+            .get_state(config=config, **kwargs)
+            ._asdict()
+        )
+
+    def update_state(
+        self,
+        config: Optional[dict[str, Any]] = None,
+        **kwargs: Any,
+    ) -> Dict[str, Any]:
+        """Updates the state of the Agent.
+
+        Args:
+            config (Optional[RunnableConfig]):
+                Optional. The config for invoking the Agent.
+            **kwargs:
+                Optional. Additional keyword arguments for the `.invoke()` method.
+
+        Returns:
+            Dict[str, Any]: The updated state of the Agent.
+        """
+        if not self._tmpl_attrs.get("runnable"):
+            self.set_up()
+        return self._tmpl_attrs.get("runnable").update_state(config=config, **kwargs)
+
+    def register_operations(self) -> Mapping[str, Sequence[str]]:
+        """Registers the operations of the Agent.
+
+        This mapping defines how different operation modes (e.g., "", "stream")
+        are implemented by specific methods of the Agent.  The "default" mode,
+        represented by the empty string ``, is associated with the `query` API,
+        while the "stream" mode is associated with the `stream_query` API.
+
+        Returns:
+            Mapping[str, Sequence[str]]: A mapping of operation modes to a list
+            of method names that implement those operation modes.
+        """
+        return {
+            "": ["query", "get_state", "update_state"],
+            "stream": ["stream_query", "get_state_history"],
+        }

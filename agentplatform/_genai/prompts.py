@@ -164,6 +164,22 @@ def _CustomJob_from_vertex(
     if getv(from_object, ["webAccessUris"]) is not None:
         setv(to_object, ["web_access_uris"], getv(from_object, ["webAccessUris"]))
 
+    if (
+        getv(from_object, ["placeholderToMakeTrialInfoOneofWorkInGeneratedProto"])
+        is not None
+    ):
+        setv(
+            to_object,
+            ["placeholder_to_make_trial_info_oneof_work_in_generated_proto"],
+            getv(from_object, ["placeholderToMakeTrialInfoOneofWorkInGeneratedProto"]),
+        )
+
+    if getv(from_object, ["description"]) is not None:
+        setv(to_object, ["description"], getv(from_object, ["description"]))
+
+    if getv(from_object, ["pubsubTopic"]) is not None:
+        setv(to_object, ["pubsub_topic"], getv(from_object, ["pubsubTopic"]))
+
     return to_object
 
 
@@ -213,6 +229,28 @@ def _CustomJob_to_vertex(
 
     if getv(from_object, ["web_access_uris"]) is not None:
         setv(to_object, ["webAccessUris"], getv(from_object, ["web_access_uris"]))
+
+    if (
+        getv(
+            from_object,
+            ["placeholder_to_make_trial_info_oneof_work_in_generated_proto"],
+        )
+        is not None
+    ):
+        setv(
+            to_object,
+            ["placeholderToMakeTrialInfoOneofWorkInGeneratedProto"],
+            getv(
+                from_object,
+                ["placeholder_to_make_trial_info_oneof_work_in_generated_proto"],
+            ),
+        )
+
+    if getv(from_object, ["description"]) is not None:
+        setv(to_object, ["description"], getv(from_object, ["description"]))
+
+    if getv(from_object, ["pubsub_topic"]) is not None:
+        setv(to_object, ["pubsubTopic"], getv(from_object, ["pubsub_topic"]))
 
     return to_object
 

@@ -23,6 +23,8 @@ from typing import (
     Sequence,
     Union,
 )
+import os
+import copy
 
 if TYPE_CHECKING:
     try:
@@ -89,15 +91,13 @@ def _default_runnable_builder(
 
 
 def _default_instrumentor_builder(project_id: str):
-    from agentplatform._genai import _agent_engines_utils
+    from agentplatform._genai import _runtimes_utils
 
-    cloud_trace_exporter = _agent_engines_utils._import_cloud_trace_exporter_or_warn()
-    cloud_trace_v2 = _agent_engines_utils._import_cloud_trace_v2_or_warn()
-    openinference_autogen = _agent_engines_utils._import_openinference_autogen_or_warn()
-    opentelemetry = _agent_engines_utils._import_opentelemetry_or_warn()
-    opentelemetry_sdk_trace = (
-        _agent_engines_utils._import_opentelemetry_sdk_trace_or_warn()
-    )
+    cloud_trace_exporter = _runtimes_utils._import_cloud_trace_exporter_or_warn()
+    cloud_trace_v2 = _runtimes_utils._import_cloud_trace_v2_or_warn()
+    openinference_autogen = _runtimes_utils._import_openinference_autogen_or_warn()
+    opentelemetry = _runtimes_utils._import_opentelemetry_or_warn()
+    opentelemetry_sdk_trace = _runtimes_utils._import_opentelemetry_sdk_trace_or_warn()
     if all(
         (
             cloud_trace_exporter,
@@ -144,7 +144,7 @@ def _default_instrumentor_builder(project_id: str):
         # Avoids AttributeError:
         # 'ProxyTracerProvider' and 'NoOpTracerProvider' objects has no
         # attribute 'add_span_processor'.
-        if _agent_engines_utils.is_noop_or_proxy_tracer_provider(tracer_provider):
+        if _runtimes_utils.is_noop_or_proxy_tracer_provider(tracer_provider):
             tracer_provider = opentelemetry_sdk_trace.TracerProvider()
             opentelemetry.trace.set_tracer_provider(tracer_provider)
         # Avoids OpenTelemetry client already exists error.
@@ -337,11 +337,7 @@ class AG2Agent:
                 If not provided, a default instrumentor builder will be used.
                 This parameter is ignored if `enable_tracing` is False.
         """
-        from google.cloud.aiplatform import initializer
-
         self._tmpl_attrs: dict[str, Any] = {
-            "project": initializer.global_config.project,
-            "location": initializer.global_config.location,
             "model_name": model,
             "api_type": api_type or "google",
             "system_instruction": system_instruction,
@@ -353,26 +349,10 @@ class AG2Agent:
             "instrumentor": None,
             "instrumentor_builder": instrumentor_builder,
             "enable_tracing": enable_tracing,
+            "provided_llm_config": copy.deepcopy(llm_config),
+            "provided_runnable_kwargs": copy.deepcopy(runnable_kwargs),
         }
-        self._tmpl_attrs["llm_config"] = llm_config or {
-            "config_list": [
-                {
-                    "project_id": self._tmpl_attrs.get("project"),
-                    "location": self._tmpl_attrs.get("location"),
-                    "model": self._tmpl_attrs.get("model_name"),
-                    "api_type": self._tmpl_attrs.get("api_type"),
-                }
-            ]
-        }
-        self._tmpl_attrs["runnable_kwargs"] = _prepare_runnable_kwargs(
-            runnable_kwargs=runnable_kwargs,
-            llm_config=self._tmpl_attrs.get("llm_config"),
-            system_instruction=self._tmpl_attrs.get("system_instruction"),
-            runnable_name=self._tmpl_attrs.get("runnable_name"),
-        )
         if tools:
-            # We validate tools at initialization for actionable feedback before
-            # they are deployed.
             _validate_tools(tools)
             self._tmpl_attrs["tools"] = tools
 
@@ -380,18 +360,40 @@ class AG2Agent:
         """Sets up the agent for execution of queries at runtime.
 
         It initializes the runnable, binds the runnable with tools.
-
-        This method should not be called for an object that being passed to
-        the ReasoningEngine service for deployment, as it initializes clients
-        that can not be serialized.
+        Project and Location are sourced from environment variables.
         """
+        project = os.environ.get("GOOGLE_CLOUD_PROJECT")
+        location = os.getenv("GOOGLE_CLOUD_AGENT_ENGINE_LOCATION") or os.getenv(
+            "GOOGLE_CLOUD_LOCATION"
+        )
+
+        llm_config = {
+            "config_list": [
+                {
+                    "project_id": project,
+                    "location": location,
+                    "model": self._tmpl_attrs.get("model_name"),
+                    "api_type": self._tmpl_attrs.get("api_type"),
+                }
+            ]
+        }
+        if self._tmpl_attrs.get("provided_llm_config"):
+            llm_config = self._tmpl_attrs.get("provided_llm_config")
+
+        runnable_kwargs = _prepare_runnable_kwargs(
+            runnable_kwargs=self._tmpl_attrs.get("provided_runnable_kwargs"),
+            llm_config=llm_config,
+            system_instruction=self._tmpl_attrs.get("system_instruction"),
+            runnable_name=self._tmpl_attrs.get("runnable_name"),
+        )
+
         if self._tmpl_attrs.get("enable_tracing"):
             instrumentor_builder = (
                 self._tmpl_attrs.get("instrumentor_builder")
                 or _default_instrumentor_builder
             )
             self._tmpl_attrs["instrumentor"] = instrumentor_builder(
-                project_id=self._tmpl_attrs.get("project")
+                project_id=project,
             )
 
         # Set up tools.
@@ -399,10 +401,10 @@ class AG2Agent:
         ag2_tool_objects = self._tmpl_attrs.get("ag2_tool_objects")
         if tools and not ag2_tool_objects:
             from agentplatform._genai import (
-                _agent_engines_utils,
+                _runtimes_utils,
             )
 
-            autogen_tools = _agent_engines_utils._import_autogen_tools_or_warn()
+            autogen_tools = _runtimes_utils._import_autogen_tools_or_warn()
             if autogen_tools:
                 for tool in tools:
                     ag2_tool_objects.append(autogen_tools.Tool(func_or_tool=tool))
@@ -411,22 +413,21 @@ class AG2Agent:
         runnable_builder = (
             self._tmpl_attrs.get("runnable_builder") or _default_runnable_builder
         )
-        self._tmpl_attrs["runnable"] = runnable_builder(
-            **self._tmpl_attrs.get("runnable_kwargs")
-        )
+        self._tmpl_attrs["runnable"] = runnable_builder(**runnable_kwargs)
 
     def clone(self) -> "AG2Agent":
         """Returns a clone of the AG2Agent."""
-        import copy
 
         return AG2Agent(
             model=self._tmpl_attrs.get("model_name"),
             api_type=self._tmpl_attrs.get("api_type"),
-            llm_config=copy.deepcopy(self._tmpl_attrs.get("llm_config")),
+            llm_config=copy.deepcopy(self._tmpl_attrs.get("provided_llm_config")),
             system_instruction=self._tmpl_attrs.get("system_instruction"),
             runnable_name=self._tmpl_attrs.get("runnable_name"),
             tools=copy.deepcopy(self._tmpl_attrs.get("tools")),
-            runnable_kwargs=copy.deepcopy(self._tmpl_attrs.get("runnable_kwargs")),
+            runnable_kwargs=copy.deepcopy(
+                self._tmpl_attrs.get("provided_runnable_kwargs")
+            ),
             runnable_builder=self._tmpl_attrs.get("runnable_builder"),
             enable_tracing=self._tmpl_attrs.get("enable_tracing"),
             instrumentor_builder=self._tmpl_attrs.get("instrumentor_builder"),
@@ -488,6 +489,6 @@ class AG2Agent:
             **kwargs,
         )
 
-        from agentplatform._genai import _agent_engines_utils
+        from agentplatform._genai import _runtimes_utils
 
-        return _agent_engines_utils.to_json_serializable_autogen_object(response)
+        return _runtimes_utils.to_json_serializable_autogen_object(response)

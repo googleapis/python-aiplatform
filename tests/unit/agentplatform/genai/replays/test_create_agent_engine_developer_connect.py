@@ -57,7 +57,7 @@ def test_create_with_developer_connect_source(client):
         revision="main",
         dir="test",
     )
-    agent_engine = client.agent_engines.create(
+    agent_engine = client.runtimes.create(
         config={
             "display_name": "test-agent-engine-dev-connect",
             "developer_connect_source": developer_connect_source_config,
@@ -84,11 +84,11 @@ def test_create_with_developer_connect_source(client):
         == developer_connect_source_config.dir
     )
     # Clean up resources.
-    client.agent_engines.delete(name=agent_engine.api_resource.name, force=True)
+    client.runtimes.delete(name=agent_engine.api_resource.name, force=True)
 
 
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
-    test_method="agent_engines.create",
+    test_method="runtimes.create",
 )

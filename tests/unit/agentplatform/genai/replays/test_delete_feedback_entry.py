@@ -33,8 +33,8 @@ pytest_plugins = ("pytest_asyncio",)
 
 
 def test_delete(client):
-    agent_engine = client.agent_engines.create()
-    assert isinstance(agent_engine, types.AgentEngine)
+    agent_engine = client.runtimes.create()
+    assert isinstance(agent_engine, types.Runtime)
     assert isinstance(agent_engine.api_resource, types.ReasoningEngine)
 
     try:
@@ -59,7 +59,7 @@ def test_delete(client):
             client.feedback_entries.get(name=create_operation.response.name)
     finally:
         # Clean up resources.
-        client.agent_engines.delete(
+        client.runtimes.delete(
             name=agent_engine.api_resource.name,
             force=True,
         )
@@ -67,8 +67,8 @@ def test_delete(client):
 
 @pytest.mark.asyncio
 async def test_delete_async(client):
-    agent_engine = client.agent_engines.create()
-    assert isinstance(agent_engine, types.AgentEngine)
+    agent_engine = client.runtimes.create()
+    assert isinstance(agent_engine, types.Runtime)
     assert isinstance(agent_engine.api_resource, types.ReasoningEngine)
 
     try:
@@ -92,7 +92,7 @@ async def test_delete_async(client):
             await client.aio.feedback_entries.get(name=create_operation.response.name)
     finally:
         # Clean up resources.
-        await client.aio.agent_engines.delete(
+        await client.aio.runtimes.delete(
             name=agent_engine.api_resource.name,
             force=True,
         )

@@ -22,7 +22,7 @@ from agentplatform._genai import types
 
 def test_get_sandbox_snapshot(client):
     snapshot_name = "projects/802583348448/locations/us-central1/reasoningEngines/6130241318758121472/sandboxEnvironmentSnapshots/2433069698686910464"
-    fetched_snapshot = client.agent_engines.sandboxes.snapshots._get(
+    fetched_snapshot = client.sandboxes.snapshots._get(
         name=snapshot_name,
     )
 
@@ -33,5 +33,5 @@ def test_get_sandbox_snapshot(client):
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
-    test_method="agent_engines.sandboxes.snapshots._get",
+    test_method="sandboxes.snapshots._get",
 )

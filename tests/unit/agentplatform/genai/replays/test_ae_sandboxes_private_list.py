@@ -19,7 +19,7 @@ from agentplatform._genai import types
 
 
 def test_private_list(client):
-    agent_engine_sandbox_list_operation = client.agent_engines.sandboxes._list(
+    agent_engine_sandbox_list_operation = client.sandboxes._list(
         name=("reasoningEngines/2886612747586371584"),
     )
     assert isinstance(
@@ -27,12 +27,12 @@ def test_private_list(client):
         types.SandboxEnvironment,
     )
     assert isinstance(
-        agent_engine_sandbox_list_operation, types.ListAgentEngineSandboxesResponse
+        agent_engine_sandbox_list_operation, types.ListRuntimeSandboxesResponse
     )
 
 
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
-    test_method="agent_engines.sandboxes._list",
+    test_method="sandboxes._list",
 )

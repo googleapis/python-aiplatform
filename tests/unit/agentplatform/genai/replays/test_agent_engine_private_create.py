@@ -20,14 +20,14 @@ from agentplatform._genai import types
 
 def test_private_create_with_labels(client):
     labels = {"test-label": "test-value"}
-    agent_engine_operation = client.agent_engines._create(
+    agent_engine_operation = client.runtimes._create(
         config={"labels": labels},
     )
-    assert isinstance(agent_engine_operation, types.AgentEngineOperation)
+    assert isinstance(agent_engine_operation, types.RuntimeOperation)
 
 
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
-    test_method="agent_engines._create",
+    test_method="runtimes._create",
 )

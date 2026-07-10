@@ -48,7 +48,7 @@ def test_sandbox_templates_byoc_create(client):
             "internet_access": True,
         },
     }
-    sandbox_template_operation = client.agent_engines.sandboxes.templates.create(
+    sandbox_template_operation = client.sandboxes.templates.create(
         name=(
             "projects/802583348448/locations/us-central1/reasoningEngines/6130241318758121472"
         ),
@@ -63,5 +63,5 @@ def test_sandbox_templates_byoc_create(client):
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
-    test_method="agent_engines.sandboxes.templates.create",
+    test_method="sandboxes.templates.create",
 )

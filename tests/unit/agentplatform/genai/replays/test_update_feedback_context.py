@@ -33,7 +33,7 @@ pytest_plugins = ("pytest_asyncio",)
 
 
 def test_update_and_get(client):
-    agent_engine = client.agent_engines.create()
+    agent_engine = client.runtimes.create()
 
     try:
         operation = client.feedback_entries.create(
@@ -110,7 +110,7 @@ def test_update_and_get(client):
 
     finally:
         # Clean up resources.
-        client.agent_engines.delete(
+        client.runtimes.delete(
             name=agent_engine.api_resource.name,
             force=True,
         )
@@ -118,7 +118,7 @@ def test_update_and_get(client):
 
 @pytest.mark.asyncio
 async def test_update_and_get_async(client):
-    agent_engine = client.agent_engines.create()
+    agent_engine = client.runtimes.create()
 
     try:
         operation = await client.aio.feedback_entries.create(
@@ -195,7 +195,7 @@ async def test_update_and_get_async(client):
 
     finally:
         # Clean up resources.
-        await client.aio.agent_engines.delete(
+        await client.aio.runtimes.delete(
             name=agent_engine.api_resource.name,
             force=True,
         )

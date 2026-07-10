@@ -21,7 +21,7 @@ from agentplatform._genai import types
 def test_sandbox_templates_get(client):
     sandbox_template_name = "projects/254005681254/locations/us-central1/reasoningEngines/208148546254274560/sandboxEnvironmentTemplates/4632233691727265792"
 
-    sandbox_template = client.agent_engines.sandboxes.templates.get(
+    sandbox_template = client.sandboxes.templates.get(
         name=sandbox_template_name
     )
     assert isinstance(sandbox_template, types.SandboxEnvironmentTemplate)
@@ -31,5 +31,5 @@ def test_sandbox_templates_get(client):
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
-    test_method="agent_engines.sandboxes.templates.get",
+    test_method="sandboxes.templates.get",
 )

@@ -962,6 +962,9 @@ def _RagFileParsingConfigLlmParser_from_vertex(
     if getv(from_object, ["modelName"]) is not None:
         setv(to_object, ["model_name"], getv(from_object, ["modelName"]))
 
+    if getv(from_object, ["memoryMode"]) is not None:
+        setv(to_object, ["memory_mode"], getv(from_object, ["memoryMode"]))
+
     return to_object
 
 
@@ -993,6 +996,9 @@ def _RagFileParsingConfigLlmParser_to_vertex(
 
     if getv(from_object, ["model_name"]) is not None:
         setv(to_object, ["modelName"], getv(from_object, ["model_name"]))
+
+    if getv(from_object, ["memory_mode"]) is not None:
+        setv(to_object, ["memoryMode"], getv(from_object, ["memory_mode"]))
 
     return to_object
 
@@ -1592,6 +1598,23 @@ def _UploadRagFileConfig_to_vertex(
             to_object,
             ["ragFileTransformationConfig"],
             getv(from_object, ["rag_file_transformation_config"]),
+        )
+
+    if getv(from_object, ["inline_metadata"]) is not None:
+        setv(to_object, ["inlineMetadata"], getv(from_object, ["inline_metadata"]))
+
+    if getv(from_object, ["max_embedding_requests_per_min"]) is not None:
+        setv(
+            to_object,
+            ["maxEmbeddingRequestsPerMin"],
+            getv(from_object, ["max_embedding_requests_per_min"]),
+        )
+
+    if getv(from_object, ["global_max_embedding_requests_per_min"]) is not None:
+        setv(
+            to_object,
+            ["globalMaxEmbeddingRequestsPerMin"],
+            getv(from_object, ["global_max_embedding_requests_per_min"]),
         )
 
     return to_object

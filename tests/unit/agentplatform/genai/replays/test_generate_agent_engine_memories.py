@@ -24,15 +24,15 @@ from google.genai import types as genai_types
 
 
 def test_generate_and_rollback_memories(client):
-    agent_engine = client.agent_engines.create()
+    agent_engine = client.runtimes.create()
     assert not list(
-        client.agent_engines.memories.list(
+        client.runtimes.memories.list(
             name=agent_engine.api_resource.name,
         )
     )
     # Generate memories using source content. This result is non-deterministic,
     # because an LLM is used to generate the memories.
-    client.agent_engines.memories.generate(
+    client.runtimes.memories.generate(
         name=agent_engine.api_resource.name,
         scope={"user_id": "test-user-id"},
         direct_contents_source=types.GenerateMemoriesRequestDirectContentsSource(
@@ -49,12 +49,12 @@ def test_generate_and_rollback_memories(client):
                 )
             ]
         ),
-        config=types.GenerateAgentEngineMemoriesConfig(
+        config=types.GenerateRuntimeMemoriesConfig(
             revision_labels={"key": "value"}
         ),
     )
     memories = list(
-        client.agent_engines.memories.list(
+        client.runtimes.memories.list(
             name=agent_engine.api_resource.name,
         )
     )
@@ -62,7 +62,7 @@ def test_generate_and_rollback_memories(client):
 
     # Every action that modifies a memory creates a new revision.
     memory_revisions = list(
-        client.agent_engines.memories.revisions.list(
+        client.runtimes.memories.revisions.list(
             name=memories[0].name,
         )
     )
@@ -72,28 +72,28 @@ def test_generate_and_rollback_memories(client):
     revision_name = memory_revisions[0].name
 
     # Update the memory.
-    client.agent_engines.memories._update(
+    client.runtimes.memories._update(
         name=memories[0].name,
         fact="This is temporary",
         scope={"user_id": "test-user-id"},
     )
-    memory = client.agent_engines.memories.get(name=memories[0].name)
+    memory = client.runtimes.memories.get(name=memories[0].name)
     assert memory.fact == "This is temporary"
 
     # Rollback to the revision with the original fact that was created by the
     # generation request.
-    client.agent_engines.memories.rollback(
+    client.runtimes.memories.rollback(
         name=memories[0].name,
         target_revision_id=revision_name.split("/")[-1],
     )
-    memory = client.agent_engines.memories.get(name=memories[0].name)
+    memory = client.runtimes.memories.get(name=memories[0].name)
     assert memory.fact == memory_revisions[0].fact
 
     # Update the memory again using generation. We use the original source
     # content to ensure that the original memory is updated. The response should
     # refer to the previous revision.
     pre_extracted_fact = "I am a software engineer focusing in security"
-    response = client.agent_engines.memories.generate(
+    response = client.runtimes.memories.generate(
         name=agent_engine.api_resource.name,
         scope={"user_id": "test-user-id"},
         direct_memories_source=types.GenerateMemoriesRequestDirectMemoriesSource(
@@ -107,18 +107,18 @@ def test_generate_and_rollback_memories(client):
     # The memory was updated, so the previous revision is set.
     assert response.response.generated_memories[0].previous_revision is not None
     memory_revisions = list(
-        client.agent_engines.memories.revisions.list(name=memories[0].name)
+        client.runtimes.memories.revisions.list(name=memories[0].name)
     )
     # Memory Revisions are returned in descending order by revision create time.
     # We can't make an assertion on the actual value, since it's
     # generated and thus non-deterministic.
     assert memory_revisions[0].extracted_memories[0].fact is not None
-    client.agent_engines.delete(name=agent_engine.api_resource.name, force=True)
+    client.runtimes.delete(name=agent_engine.api_resource.name, force=True)
 
 
 def test_generate_memories_direct_memories_source(client):
-    agent_engine = client.agent_engines.create()
-    client.agent_engines.memories.generate(
+    agent_engine = client.runtimes.create()
+    client.runtimes.memories.generate(
         name=agent_engine.api_resource.name,
         scope={"user_id": "test-user-id"},
         direct_memories_source=types.GenerateMemoriesRequestDirectMemoriesSource(
@@ -131,23 +131,23 @@ def test_generate_memories_direct_memories_source(client):
                 ),
             ]
         ),
-        config=types.GenerateAgentEngineMemoriesConfig(wait_for_completion=True),
+        config=types.GenerateRuntimeMemoriesConfig(wait_for_completion=True),
     )
     assert (
         len(
             list(
-                client.agent_engines.memories.list(
+                client.runtimes.memories.list(
                     name=agent_engine.api_resource.name,
                 )
             )
         )
         >= 1
     )
-    client.agent_engines.delete(name=agent_engine.api_resource.name, force=True)
+    client.runtimes.delete(name=agent_engine.api_resource.name, force=True)
 
 
 def test_generate_memories_with_metadata(client):
-    agent_engine = client.agent_engines.create()
+    agent_engine = client.runtimes.create()
     metadata = {
         "my_string_key": types.MemoryMetadataValue(string_value="my_string_value"),
         "my_double_key": types.MemoryMetadataValue(double_value=123.456),
@@ -169,14 +169,14 @@ def test_generate_memories_with_metadata(client):
     )
     scope = {"user_id": "test-user-id"}
 
-    operation = client.agent_engines.memories.generate(
+    operation = client.runtimes.memories.generate(
         name=agent_engine.api_resource.name,
         scope=scope,
         direct_memories_source=direct_memories_source,
-        config=types.GenerateAgentEngineMemoriesConfig(metadata=metadata),
+        config=types.GenerateRuntimeMemoriesConfig(metadata=metadata),
     )
     assert len(operation.response.generated_memories) >= 1
-    memory = client.agent_engines.memories.get(
+    memory = client.runtimes.memories.get(
         name=operation.response.generated_memories[0].memory.name
     )
     assert memory.metadata == metadata
@@ -185,11 +185,11 @@ def test_generate_memories_with_metadata(client):
     overwrite_metadata = {
         "my_string_key": types.MemoryMetadataValue(string_value="new_value"),
     }
-    operation = client.agent_engines.memories.generate(
+    operation = client.runtimes.memories.generate(
         name=agent_engine.api_resource.name,
         scope=scope,
         direct_memories_source=direct_memories_source,
-        config=types.GenerateAgentEngineMemoriesConfig(
+        config=types.GenerateRuntimeMemoriesConfig(
             metadata=overwrite_metadata,
             metadata_merge_strategy=types.MemoryMetadataMergeStrategy.OVERWRITE,
         ),
@@ -199,7 +199,7 @@ def test_generate_memories_with_metadata(client):
         operation.response.generated_memories[0].action
         == types.GenerateMemoriesResponseGeneratedMemoryAction.UPDATED
     )
-    memory = client.agent_engines.memories.get(
+    memory = client.runtimes.memories.get(
         name=operation.response.generated_memories[0].memory.name
     )
     assert memory.metadata == overwrite_metadata
@@ -208,11 +208,11 @@ def test_generate_memories_with_metadata(client):
     new_metadata = {
         "my_double_key": types.MemoryMetadataValue(double_value=123.456),
     }
-    operation = client.agent_engines.memories.generate(
+    operation = client.runtimes.memories.generate(
         name=agent_engine.api_resource.name,
         scope=scope,
         direct_memories_source=direct_memories_source,
-        config=types.GenerateAgentEngineMemoriesConfig(
+        config=types.GenerateRuntimeMemoriesConfig(
             metadata=new_metadata,
             metadata_merge_strategy=types.MemoryMetadataMergeStrategy.MERGE,
         ),
@@ -222,7 +222,7 @@ def test_generate_memories_with_metadata(client):
         operation.response.generated_memories[0].action
         == types.GenerateMemoriesResponseGeneratedMemoryAction.UPDATED
     )
-    memory = client.agent_engines.memories.get(
+    memory = client.runtimes.memories.get(
         name=operation.response.generated_memories[0].memory.name
     )
     assert memory.metadata == {**overwrite_metadata, **new_metadata}
@@ -233,11 +233,11 @@ def test_generate_memories_with_metadata(client):
     restricted_metadata = {
         "my_string_key": types.MemoryMetadataValue(string_value="new_value2"),
     }
-    operation = client.agent_engines.memories.generate(
+    operation = client.runtimes.memories.generate(
         name=agent_engine.api_resource.name,
         scope=scope,
         direct_memories_source=direct_memories_source,
-        config=types.GenerateAgentEngineMemoriesConfig(
+        config=types.GenerateRuntimeMemoriesConfig(
             metadata=restricted_metadata,
             metadata_merge_strategy="REQUIRE_EXACT_MATCH",
         ),
@@ -248,18 +248,18 @@ def test_generate_memories_with_metadata(client):
         operation.response.generated_memories[0].action
         == types.GenerateMemoriesResponseGeneratedMemoryAction.CREATED
     )
-    memory = client.agent_engines.memories.get(
+    memory = client.runtimes.memories.get(
         name=operation.response.generated_memories[0].memory.name
     )
     assert memory.metadata == restricted_metadata
 
     # Send a second request where the metadata matches only one of the existing
     # memories.
-    operation = client.agent_engines.memories.generate(
+    operation = client.runtimes.memories.generate(
         name=agent_engine.api_resource.name,
         scope=scope,
         direct_memories_source=direct_memories_source,
-        config=types.GenerateAgentEngineMemoriesConfig(
+        config=types.GenerateRuntimeMemoriesConfig(
             metadata=restricted_metadata,
             metadata_merge_strategy="REQUIRE_EXACT_MATCH",
         ),
@@ -271,13 +271,13 @@ def test_generate_memories_with_metadata(client):
     )
     assert operation.response.generated_memories[0].memory.name == memory.name
 
-    client.agent_engines.delete(name=agent_engine.api_resource.name, force=True)
+    client.runtimes.delete(name=agent_engine.api_resource.name, force=True)
 
 
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
-    test_method="agent_engines.generate_memories",
+    test_method="runtimes.generate_memories",
 )
 
 
@@ -286,8 +286,8 @@ pytest_plugins = ("pytest_asyncio",)
 
 @pytest.mark.asyncio
 async def test_generate_and_rollback_memories_async(client):
-    agent_engine = client.agent_engines.create()
-    await client.aio.agent_engines.memories.generate(
+    agent_engine = client.runtimes.create()
+    await client.aio.runtimes.memories.generate(
         name=agent_engine.api_resource.name,
         scope={"user_id": "test-user-id"},
         direct_memories_source=types.GenerateMemoriesRequestDirectMemoriesSource(
@@ -300,15 +300,15 @@ async def test_generate_and_rollback_memories_async(client):
                 ),
             ]
         ),
-        config=types.GenerateAgentEngineMemoriesConfig(wait_for_completion=True),
+        config=types.GenerateRuntimeMemoriesConfig(wait_for_completion=True),
     )
-    memories_pager = await client.aio.agent_engines.memories.list(
+    memories_pager = await client.aio.runtimes.memories.list(
         name=agent_engine.api_resource.name
     )
     memory_list = [item async for item in memories_pager]
     assert len(memory_list) >= 1
 
-    revisions_pager = await client.aio.agent_engines.memories.revisions.list(
+    revisions_pager = await client.aio.runtimes.memories.revisions.list(
         name=memory_list[0].name
     )
     memory_revisions = [item async for item in revisions_pager]
@@ -316,31 +316,31 @@ async def test_generate_and_rollback_memories_async(client):
     revision_name = memory_revisions[0].name
 
     # Update the memory.
-    client.agent_engines.memories._update(
+    client.runtimes.memories._update(
         name=memory_list[0].name,
         fact="This is temporary",
         scope={"user_id": "test-user-id"},
     )
-    memory = await client.aio.agent_engines.memories.get(name=memory_list[0].name)
+    memory = await client.aio.runtimes.memories.get(name=memory_list[0].name)
     assert memory.fact == "This is temporary"
 
     # Rollback to the revision with the original fact that was created by the
     # generation request.
-    await client.aio.agent_engines.memories.rollback(
+    await client.aio.runtimes.memories.rollback(
         name=memory_list[0].name,
         target_revision_id=revision_name.split("/")[-1],
     )
-    memory = await client.aio.agent_engines.memories.get(name=memory_list[0].name)
+    memory = await client.aio.runtimes.memories.get(name=memory_list[0].name)
     assert memory.fact == memory_revisions[0].fact
 
-    await client.aio.agent_engines.delete(
+    await client.aio.runtimes.delete(
         name=agent_engine.api_resource.name, force=True
     )
 
 
 def test_generate_memories_with_allowed_topics(client):
-    agent_engine = client.agent_engines.create()
-    client.agent_engines.memories.generate(
+    agent_engine = client.runtimes.create()
+    client.runtimes.memories.generate(
         name=agent_engine.api_resource.name,
         scope={"user_id": "test-user-id"},
         direct_contents_source=types.GenerateMemoriesRequestDirectContentsSource(
@@ -359,7 +359,7 @@ def test_generate_memories_with_allowed_topics(client):
                 ),
             ]
         ),
-        config=types.GenerateAgentEngineMemoriesConfig(
+        config=types.GenerateRuntimeMemoriesConfig(
             allowed_topics=[
                 types.MemoryTopicId(
                     managed_memory_topic=types.ManagedTopicEnum.USER_PREFERENCES
@@ -371,11 +371,11 @@ def test_generate_memories_with_allowed_topics(client):
     assert (
         len(
             list(
-                client.agent_engines.memories.list(
+                client.runtimes.memories.list(
                     name=agent_engine.api_resource.name,
                 )
             )
         )
         == 1
     )
-    client.agent_engines.delete(name=agent_engine.api_resource.name, force=True)
+    client.runtimes.delete(name=agent_engine.api_resource.name, force=True)

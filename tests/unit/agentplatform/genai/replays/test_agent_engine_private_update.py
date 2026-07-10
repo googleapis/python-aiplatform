@@ -19,15 +19,15 @@ from agentplatform._genai import types
 
 
 def test_private_update(client):
-    agent_engine_operation = client.agent_engines._update(
+    agent_engine_operation = client.runtimes._update(
         name="reasoningEngines/2886612747586371584",
-        config=types.UpdateAgentEngineConfig(display_name="test-agent-engine-updated"),
+        config=types.UpdateRuntimeConfig(display_name="test-agent-engine-updated"),
     )
-    assert isinstance(agent_engine_operation, types.AgentEngineOperation)
+    assert isinstance(agent_engine_operation, types.RuntimeOperation)
 
 
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
-    test_method="agent_engines._update",
+    test_method="runtimes._update",
 )

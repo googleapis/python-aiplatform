@@ -19,14 +19,14 @@ from agentplatform._genai import types
 
 
 def test_private_delete(client):
-    agent_engine_operation = client.agent_engines._delete(
+    agent_engine_operation = client.runtimes._delete(
         name="reasoningEngines/7571341522470174720",
     )
-    assert isinstance(agent_engine_operation, types.DeleteAgentEngineOperation)
+    assert isinstance(agent_engine_operation, types.DeleteRuntimeOperation)
 
 
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
-    test_method="agent_engines._delete",
+    test_method="runtimes._delete",
 )

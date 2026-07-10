@@ -20,16 +20,16 @@ from agentplatform._genai import types
 
 def test_private_update_memory(client):
     memory_name = "projects/964831358985/locations/us-central1/reasoningEngines/2886612747586371584/memories/3858070028511346688"
-    memory_update_operation = client.agent_engines.memories._update(
+    memory_update_operation = client.runtimes.memories._update(
         name=memory_name,
         fact="memory_fact_updated",
         scope={"user_id": "123"},
     )
-    assert isinstance(memory_update_operation, types.AgentEngineMemoryOperation)
+    assert isinstance(memory_update_operation, types.RuntimeMemoryOperation)
 
 
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
-    test_method="agent_engines.memories._update",
+    test_method="runtimes.memories._update",
 )

@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Utility functions for agent engines."""
+"""Utility functions for runtimes."""
 
 import abc
 import asyncio
@@ -182,9 +182,9 @@ _DEFAULT_ASYNC_STREAM_METHOD_NAME = "async_stream_query"
 _DEFAULT_ASYNC_STREAM_METHOD_RETURN_TYPE = "AsyncIterable[Any]"
 _DEFAULT_GCS_DIR_NAME = "agent_engine"
 _DEFAULT_METHOD_DOCSTRING_TEMPLATE = """
-    Runs the Agent Engine to serve the user request.
+    Runs the Agent Runtime to serve the user request.
     This will be based on the `.{method_name}(...)` of the python object that
-    was passed in when creating the Agent Engine. The method will invoke the
+    was passed in when creating the Agent Runtime. The method will invoke the
     `{default_method_name}` API client of the python object.
     Args:
         **kwargs:
@@ -236,25 +236,25 @@ logger = logging.getLogger("agentplatform_genai.agentengines")
 
 @typing.runtime_checkable
 class Queryable(Protocol):
-    """Protocol for Agent Engines that can be queried."""
+    """Protocol for Agent Runtimes that can be queried."""
 
     @abc.abstractmethod
     def query(self, **kwargs):  # type: ignore[no-untyped-def]
-        """Runs the Agent Engine to serve the user query."""
+        """Runs the Agent Runtime to serve the user query."""
 
 
 @typing.runtime_checkable
 class AsyncQueryable(Protocol):
-    """Protocol for Agent Engines that can be queried asynchronously."""
+    """Protocol for Agent Runtimes that can be queried asynchronously."""
 
     @abc.abstractmethod
     def async_query(self, **kwargs):  # type: ignore[no-untyped-def]
-        """Runs the Agent Engine to serve the user query asynchronously."""
+        """Runs the Agent Runtime to serve the user query asynchronously."""
 
 
 @typing.runtime_checkable
 class AsyncStreamQueryable(Protocol):
-    """Protocol for Agent Engines that can stream responses asynchronously."""
+    """Protocol for Agent Runtimes that can stream responses asynchronously."""
 
     @abc.abstractmethod
     async def async_stream_query(self, **kwargs) -> AsyncIterator[Any]:  # type: ignore[no-untyped-def]
@@ -263,7 +263,7 @@ class AsyncStreamQueryable(Protocol):
 
 @typing.runtime_checkable
 class StreamQueryable(Protocol):
-    """Protocol for Agent Engines that can stream responses."""
+    """Protocol for Agent Runtimes that can stream responses."""
 
     @abc.abstractmethod
     def stream_query(self, **kwargs) -> Iterator[Any]:  # type: ignore[no-untyped-def]
@@ -272,7 +272,7 @@ class StreamQueryable(Protocol):
 
 @typing.runtime_checkable
 class BidiStreamQueryable(Protocol):
-    """Protocol for Agent Engines that can stream requests and responses."""
+    """Protocol for Agent Runtimes that can stream requests and responses."""
 
     @abc.abstractmethod
     async def bidi_stream_query(
@@ -283,7 +283,7 @@ class BidiStreamQueryable(Protocol):
 
 @typing.runtime_checkable
 class Cloneable(Protocol):
-    """Protocol for Agent Engines that can be cloned."""
+    """Protocol for Agent Runtimes that can be cloned."""
 
     @abc.abstractmethod
     def clone(self) -> Any:
@@ -312,7 +312,7 @@ else:
     except (ImportError, AttributeError):
         ADKAgent = None  # type: ignore[no-redef]
 
-_AgentEngineInterface = Union[
+_RuntimeInterface = Union[
     ADKAgent,
     AsyncQueryable,
     AsyncStreamQueryable,
@@ -328,7 +328,7 @@ class _ModuleAgentAttributes(TypedDict, total=False):
     agent_name: str
     register_operations: Dict[str, list[str]]
     sys_paths: Optional[Sequence[str]]
-    agent: _AgentEngineInterface
+    agent: _RuntimeInterface
 
 
 class ModuleAgent(Cloneable, OperationRegistrable):
@@ -441,24 +441,22 @@ class _RequirementsValidationResult(TypedDict):
     actions: _RequirementsValidationActions
 
 
-AgentEngineOperationUnion = Union[
-    genai_types.AgentEngineOperation,
-    genai_types.AgentEngineMemoryOperation,
-    genai_types.AgentEngineGenerateMemoriesOperation,
+RuntimeOperationUnion = Union[
+    genai_types.RuntimeOperation,
+    genai_types.RuntimeMemoryOperation,
+    genai_types.RuntimeGenerateMemoriesOperation,
 ]
 
 
 class GetOperationFunction(Protocol):
-    def __call__(
-        self, *, operation_name: str, **kwargs: Any
-    ) -> AgentEngineOperationUnion:
+    def __call__(self, *, operation_name: str, **kwargs: Any) -> RuntimeOperationUnion:
         pass
 
 
 class GetAsyncOperationFunction(Protocol):
     async def __call__(
         self, *, operation_name: str, **kwargs: Any
-    ) -> AgentEngineOperationUnion:
+    ) -> RuntimeOperationUnion:
         pass
 
 
@@ -490,8 +488,7 @@ def _get_reasoning_engine_id(operation_name: str = "", resource_name: str = "") 
     if match:
         return match.group(1)
     raise ValueError(
-        "Failed to parse reasoning engine ID from operation name: "
-        f"`{operation_name}`"
+        f"Failed to parse reasoning engine ID from operation name: `{operation_name}`"
     )
 
 
@@ -501,11 +498,11 @@ async def _await_async_operation(
     get_operation_fn: GetAsyncOperationFunction,
     poll_interval_seconds: float = 10,
 ) -> Any:
-    """Waits for the operation for creating an agent engine to complete.
+    """Waits for the operation for creating an agent runtime to complete.
 
     Args:
         operation_name (str):
-            Required. The name of the operation for creating the Agent Engine.
+            Required. The name of the operation for creating the Agent Runtime.
         poll_interval_seconds (float):
             The number of seconds to wait between each poll.
         get_operation_fn (Callable[[str], Awaitable[Any]]):
@@ -529,11 +526,11 @@ def _await_operation(
     get_operation_fn: GetOperationFunction,
     poll_interval_seconds: float = 10,
 ) -> Any:
-    """Waits for the operation for creating an agent engine to complete.
+    """Waits for the operation for creating an agent runtime to complete.
 
     Args:
         operation_name (str):
-            Required. The name of the operation for creating the Agent Engine.
+            Required. The name of the operation for creating the Agent Runtime.
         poll_interval_seconds (float):
             The number of seconds to wait between each poll.
         get_operation_fn (Callable[[str], Any]):
@@ -569,7 +566,7 @@ def _compare_requirements(
         required_packages (Iterator[str]):
             Optional. The set of packages that are required to be in the
             constraints. It defaults to the set of packages that are required
-            for deployment on Agent Engine.
+            for deployment on Agent Runtime.
 
     Returns:
         dict[str, dict[str, Any]]: The comparison result as a dictionary containing:
@@ -611,7 +608,7 @@ def _compare_requirements(
 
 def _generate_class_methods_spec_or_raise(
     *,
-    agent: _AgentEngineInterface,
+    agent: _RuntimeInterface,
     operations: Dict[str, List[str]],
 ) -> List[proto.Message]:
     """Generates a ReasoningEngineSpec based on the registered operations.
@@ -628,7 +625,7 @@ def _generate_class_methods_spec_or_raise(
         the AgentEngine.
     """
     if isinstance(agent, ModuleAgent):
-        # We do a dry-run of setting up the agent engine to have the operations
+        # We do a dry-run of setting up the agent runtime to have the operations
         # needed for registration.
         agent: ModuleAgent = agent.clone()  # type: ignore[no-redef]
         try:
@@ -755,7 +752,8 @@ def _generate_schema(
         )
         # For a bidi endpoint, it requires an asyncio.Queue as the input, but
         # it is not JSON serializable. We hence exclude it from the schema.
-        and param.annotation != asyncio.Queue and _is_pydantic_serializable(param)
+        and param.annotation != asyncio.Queue
+        and _is_pydantic_serializable(param)
     }
     parameters = pydantic.create_model(f.__name__, **fields_dict).schema()
     # Postprocessing
@@ -811,7 +809,7 @@ def _generate_schema(
 def _get_agent_framework(
     *,
     agent_framework: Optional[str],
-    agent: _AgentEngineInterface,
+    agent: _RuntimeInterface,
 ) -> Union[str, Any]:
     """Gets the agent framework to use.
 
@@ -823,8 +821,8 @@ def _get_agent_framework(
     Args:
         agent_framework (str):
             The agent framework provided by the user.
-        agent (_AgentEngineInterface):
-            The agent engine instance.
+        agent (_RuntimeInterface):
+            The agent runtime instance.
 
     Returns:
         str: The name of the agent framework to use.
@@ -871,7 +869,7 @@ def _get_gcs_bucket(
 
 def _get_registered_operations(
     *,
-    agent: _AgentEngineInterface,
+    agent: _RuntimeInterface,
 ) -> dict[str, list[str]]:
     """Retrieves registered operations for a AgentEngine."""
     if isinstance(agent, OperationRegistrable):
@@ -985,7 +983,7 @@ def _parse_constraints(
 
 def _prepare(
     *,
-    agent: Optional[_AgentEngineInterface],
+    agent: Optional[_RuntimeInterface],
     requirements: Optional[Sequence[str]],
     extra_packages: Optional[Sequence[str]],
     project: str,
@@ -994,16 +992,16 @@ def _prepare(
     gcs_dir_name: str,
     credentials: Optional[Any] = None,
 ) -> None:
-    """Prepares the agent engine for creation or updates in Vertex AI.
+    """Prepares the agent runtime for creation or updates in Vertex AI.
 
     This involves packaging and uploading artifacts to Cloud Storage. Note that
-    1. This does not actually update the Agent Engine in Vertex AI.
+    1. This does not actually update the Agent Runtime in Vertex AI.
     2. This will only generate and upload a pickled object if specified.
     3. This will only generate and upload the dependencies.tar.gz file if
     extra_packages is non-empty.
 
     Args:
-        agent: The agent engine to be prepared.
+        agent: The agent runtime to be prepared.
         requirements (Sequence[str]): The set of PyPI dependencies needed.
         extra_packages (Sequence[str]): The set of extra user-provided packages.
         project (str): The project for the staging bucket.
@@ -1042,12 +1040,12 @@ def _prepare(
 
 def _register_api_methods_or_raise(
     *,
-    agent_engine: genai_types.AgentEngine | genai_types.AgentEngineRuntimeRevision,
+    agent_engine: genai_types.Runtime | genai_types.RuntimeRevision,
     wrap_operation_fn: Optional[
         dict[str, Callable[[str, str], Callable[..., Any]]]
     ] = None,
 ) -> None:
-    """Registers Agent Engine API methods based on operation schemas.
+    """Registers Agent Runtime API methods based on operation schemas.
 
     This function iterates through operation schemas provided by the
     `agent_engine`.  Each schema defines an API mode and method name.
@@ -1126,9 +1124,7 @@ def _register_api_methods_or_raise(
         # Bind the method to the object.
         if api_mode == _A2A_EXTENSION_MODE:
             agent_card = operation_schema.get(_A2A_AGENT_CARD)
-            method = _wrap_operation(
-                method_name=method_name, agent_card=agent_card
-            )  # type: ignore[call-arg]
+            method = _wrap_operation(method_name=method_name, agent_card=agent_card)  # type: ignore[call-arg]
         else:
             method = _wrap_operation(method_name=method_name)  # type: ignore[call-arg]
         method.__name__ = method_name
@@ -1243,11 +1239,11 @@ def _to_proto(
 
 def _upload_agent_engine(
     *,
-    agent: _AgentEngineInterface,
+    agent: _RuntimeInterface,
     gcs_bucket: _StorageBucket,
     gcs_dir_name: str,
 ) -> None:
-    """Uploads the agent engine to GCS."""
+    """Uploads the agent runtime to GCS."""
     cloudpickle = _import_cloudpickle_or_raise()
     blob = gcs_bucket.blob(f"{gcs_dir_name}/{_BLOB_FILENAME}")
     with blob.open("wb") as f:
@@ -1255,7 +1251,7 @@ def _upload_agent_engine(
             cloudpickle.dump(agent, f)
         except Exception as e:
             url = "https://cloud.google.com/vertex-ai/generative-ai/docs/agent-engine/develop/custom#deployment-considerations"
-            error_msg = f"Failed to serialize agent engine. Visit {url} for details."
+            error_msg = f"Failed to serialize agent runtime. Visit {url} for details."
             if "google._upb._message" in str(e) or "Descriptor" in str(e):
                 error_msg += (
                     " This is often caused by protobuf objects (like Part, AgentCard) "
@@ -1269,7 +1265,7 @@ def _upload_agent_engine(
         try:
             _ = cloudpickle.load(f)
         except Exception as e:
-            raise TypeError("Agent engine serialized to an invalid format") from e
+            raise TypeError("agent runtime serialized to an invalid format") from e
     dir_name = f"gs://{gcs_bucket.name}/{gcs_dir_name}"
     logger.info(f"Wrote to {dir_name}/{_BLOB_FILENAME}")
 
@@ -1412,7 +1408,7 @@ def _validate_staging_bucket_or_raise(*, staging_bucket: str) -> str:
     """Tries to validate the staging bucket."""
     if not staging_bucket:
         raise ValueError(
-            "Please provide a `staging_bucket` in `client.agent_engines.create(...)`."
+            "Please provide a `staging_bucket` in `client.runtimes.create(...)`."
         )
     if not staging_bucket.startswith("gs://"):
         raise ValueError(f"{staging_bucket=} must start with `gs://`")
@@ -1475,11 +1471,11 @@ def _validate_requirements_or_raise(
 
 def _validate_agent_or_raise(
     *,
-    agent: _AgentEngineInterface,
-) -> _AgentEngineInterface:
-    """Tries to validate the agent engine.
+    agent: _RuntimeInterface,
+) -> _RuntimeInterface:
+    """Tries to validate the agent runtime.
 
-    The agent engine must have one of the following:
+    The agent runtime must have one of the following:
     * a callable method named `query`
     * a callable method named `stream_query`
     * a callable method named `async_stream_query`
@@ -1490,7 +1486,7 @@ def _validate_agent_or_raise(
         agent: The agent to be validated.
 
     Returns:
-        The validated agent engine.
+        The validated agent runtime.
 
     Raises:
         TypeError: If `agent_engine` has no callable method named `query`,
@@ -1503,9 +1499,9 @@ def _validate_agent_or_raise(
 
         if isinstance(agent, BaseAgent):
             logger.info("Deploying google.adk.agents.Agent as an application.")
-            from agentplatform import agent_engines
+            from agentplatform import frameworks
 
-            agent = agent_engines.AdkApp(agent=agent)
+            agent = frameworks.AdkApp(agent=agent)
     except Exception:
         pass
     is_queryable = isinstance(agent, Queryable) and callable(agent.query)
@@ -1613,10 +1609,10 @@ def _wrap_agent_operation(*, agent: Any, operation: str) -> Callable[..., Any]:
 
 
 def _wrap_query_operation(*, method_name: str) -> Callable[..., Any]:
-    """Wraps an Agent Engine method, creating a callable for `query` API.
+    """Wraps an Agent Runtime method, creating a callable for `query` API.
 
     This function creates a callable object that executes the specified
-    Agent Engine method using the `query` API.  It handles the creation of
+    Agent Runtime method using the `query` API.  It handles the creation of
     the API request and the processing of the API response.
 
     The reserved keyword argument `http_options` is consumed by this
@@ -1632,15 +1628,15 @@ def _wrap_query_operation(*, method_name: str) -> Callable[..., Any]:
         )
 
     Args:
-        method_name: The name of the Agent Engine method to call.
+        method_name: The name of the Agent Runtime method to call.
         doc: Documentation string for the method.
 
     Returns:
-        A callable object that executes the method on the Agent Engine via
+        A callable object that executes the method on the Agent Runtime via
         the `query` API.
     """
 
-    def _method(self: genai_types.AgentEngine, **kwargs) -> Any:  # type: ignore[no-untyped-def]
+    def _method(self: genai_types.Runtime, **kwargs) -> Any:  # type: ignore[no-untyped-def]
         if not self.api_client:
             raise ValueError("api_client is not initialized.")
         if not self.api_resource:
@@ -1663,10 +1659,10 @@ def _wrap_query_operation(*, method_name: str) -> Callable[..., Any]:
 def _wrap_async_query_operation(
     *, method_name: str
 ) -> Callable[..., Coroutine[Any, Any, Any]]:
-    """Wraps an Agent Engine method, creating an async callable for `query` API.
+    """Wraps an Agent Runtime method, creating an async callable for `query` API.
 
     This function creates a callable object that executes the specified
-    Agent Engine method asynchronously using the `query` API. It handles the
+    Agent Runtime method asynchronously using the `query` API. It handles the
     creation of the API request and the processing of the API response.
 
     The reserved keyword argument `http_options` is consumed by this
@@ -1674,16 +1670,16 @@ def _wrap_async_query_operation(
     `input`) and is propagated to the underlying HTTP call.
 
     Args:
-        method_name: The name of the Agent Engine method to call.
+        method_name: The name of the Agent Runtime method to call.
         doc: Documentation string for the method.
 
     Returns:
-        A callable object that executes the method on the Agent Engine via
+        A callable object that executes the method on the Agent Runtime via
         the `query` API.
     """
 
     async def _method(
-        self: genai_types.AgentEngine, **kwargs: Any
+        self: genai_types.Runtime, **kwargs: Any
     ) -> Union[Coroutine[Any, Any, Any], Any]:
         if not self.api_async_client:
             raise ValueError("api_async_client is not initialized.")
@@ -1705,10 +1701,10 @@ def _wrap_async_query_operation(
 
 
 def _wrap_stream_query_operation(*, method_name: str) -> Callable[..., Iterator[Any]]:
-    """Wraps an Agent Engine method, creating a callable for `stream_query` API.
+    """Wraps an Agent Runtime method, creating a callable for `stream_query` API.
 
     This function creates a callable object that executes the specified
-    Agent Engine method using the `stream_query` API.  It handles the
+    Agent Runtime method using the `stream_query` API.  It handles the
     creation of the API request and the processing of the API response.
 
     The reserved keyword argument `http_options` is consumed by this
@@ -1716,15 +1712,15 @@ def _wrap_stream_query_operation(*, method_name: str) -> Callable[..., Iterator[
     `input`) and is propagated to the underlying HTTP call.
 
     Args:
-        method_name: The name of the Agent Engine method to call.
+        method_name: The name of the Agent Runtime method to call.
         doc: Documentation string for the method.
 
     Returns:
-        A callable object that executes the method on the Agent Engine via
+        A callable object that executes the method on the Agent Runtime via
         the `stream_query` API.
     """
 
-    def _method(self: genai_types.AgentEngine, **kwargs) -> Iterator[Any]:  # type: ignore[no-untyped-def]
+    def _method(self: genai_types.Runtime, **kwargs) -> Iterator[Any]:  # type: ignore[no-untyped-def]
         if not self.api_client:
             raise ValueError("api_client is not initialized.")
         if not self.api_resource:
@@ -1749,10 +1745,10 @@ def _wrap_stream_query_operation(*, method_name: str) -> Callable[..., Iterator[
 def _wrap_async_stream_query_operation(
     *, method_name: str
 ) -> Callable[..., AsyncIterator[Any]]:
-    """Wraps an Agent Engine method, creating an async callable for `stream_query` API.
+    """Wraps an Agent Runtime method, creating an async callable for `stream_query` API.
 
     This function creates a callable object that executes the specified
-    Agent Engine method using the `stream_query` API.  It handles the
+    Agent Runtime method using the `stream_query` API.  It handles the
     creation of the API request and the processing of the API response.
 
     The reserved keyword argument `http_options` is consumed by this
@@ -1760,15 +1756,15 @@ def _wrap_async_stream_query_operation(
     `input`) and is propagated to the underlying HTTP call.
 
     Args:
-        method_name: The name of the Agent Engine method to call.
+        method_name: The name of the Agent Runtime method to call.
         doc: Documentation string for the method.
 
     Returns:
-        A callable object that executes the method on the Agent Engine via
+        A callable object that executes the method on the Agent Runtime via
         the `stream_query` API.
     """
 
-    async def _method(self: genai_types.AgentEngine, **kwargs) -> AsyncIterator[Any]:  # type: ignore[no-untyped-def]
+    async def _method(self: genai_types.Runtime, **kwargs) -> AsyncIterator[Any]:  # type: ignore[no-untyped-def]
         if not self.api_client:
             raise ValueError("api_client is not initialized.")
         if not self.api_resource:
@@ -1791,10 +1787,10 @@ def _wrap_async_stream_query_operation(
 
 
 def _wrap_a2a_operation(method_name: str, agent_card: str) -> Callable[..., list[Any]]:
-    """Wraps an Agent Engine method, creating a callable for A2A API.
+    """Wraps an Agent Runtime method, creating a callable for A2A API.
 
     Args:
-        method_name: The name of the Agent Engine method to call.
+        method_name: The name of the Agent Runtime method to call.
         agent_card: The agent card to use for the A2A API call.
             Example: { 'name': 'Sample Agent', 'description': ( 'A helpful
               assistant agent that can answer questions.' ),
@@ -1810,7 +1806,7 @@ def _wrap_a2a_operation(method_name: str, agent_card: str) -> Callable[..., list
               ], 'inputModes': ['text'], 'outputModes': ['text'], }], }
 
     Returns:
-        A callable object that executes the method on the Agent Engine via
+        A callable object that executes the method on the Agent Runtime via
         the A2A API.
     """
 
@@ -1836,9 +1832,9 @@ def _wrap_a2a_operation(method_name: str, agent_card: str) -> Callable[..., list
 
         base_url = self.api_client._api_client._http_options.base_url.rstrip("/")
         api_version = self.api_client._api_client._http_options.api_version
-        a2a_agent_card.supported_interfaces[0].url = (
-            f"{base_url}/{api_version}/{self.api_resource.name}/a2a"
-        )
+        a2a_agent_card.supported_interfaces[
+            0
+        ].url = f"{base_url}/{api_version}/{self.api_resource.name}/a2a"
 
         config = ClientConfig(
             supported_protocol_bindings=[
@@ -1991,7 +1987,7 @@ def _validate_resource_limits_or_raise(resource_limits: dict[str, str]) -> None:
 
     if cpu not in [1, 2, 4, 6, 8]:
         raise ValueError(
-            "resource_limits['cpu'] must be one of 1, 2, 4, 6, 8. Got" f" {cpu}"
+            f"resource_limits['cpu'] must be one of 1, 2, 4, 6, 8. Got {cpu}"
         )
 
     if not isinstance(memory_str, str) or not memory_str.endswith("Gi"):
@@ -2004,8 +2000,7 @@ def _validate_resource_limits_or_raise(resource_limits: dict[str, str]) -> None:
         memory_gb = int(memory_str[:-2])
     except ValueError:
         raise ValueError(
-            f"Invalid memory value: {memory_str}. Must be an integer"
-            " followed by 'Gi'."
+            f"Invalid memory value: {memory_str}. Must be an integer followed by 'Gi'."
         )
 
     # https://cloud.google.com/run/docs/configuring/memory-limits
@@ -2026,28 +2021,27 @@ def _validate_resource_limits_or_raise(resource_limits: dict[str, str]) -> None:
 
     if cpu < min_cpu:
         raise ValueError(
-            f"Memory size of {memory_str} requires at least {min_cpu} CPUs."
-            f" Got {cpu}"
+            f"Memory size of {memory_str} requires at least {min_cpu} CPUs. Got {cpu}"
         )
 
 
-def _is_adk_agent(agent_engine: _AgentEngineInterface) -> bool:
-    """Checks if the agent engine is an ADK agent.
+def _is_adk_agent(agent_engine: _RuntimeInterface) -> bool:
+    """Checks if the agent runtime is an ADK agent.
 
     Args:
-        agent_engine: The agent engine to check.
+        agent_engine: The agent runtime to check.
 
     Returns:
-        True if the agent engine is an ADK agent, False otherwise.
+        True if the agent runtime is an ADK agent, False otherwise.
     """
 
-    from agentplatform.agent_engines.templates import adk
+    from agentplatform.frameworks import AdkApp
 
-    return isinstance(agent_engine, adk.AdkApp)
+    return isinstance(agent_engine, AdkApp)
 
 
 def _add_telemetry_enablement_env(
-    env_vars: Optional[Dict[str, Union[str, Any]]]
+    env_vars: Optional[Dict[str, Union[str, Any]]],
 ) -> Optional[Dict[str, Union[str, Any]]]:
     """Adds telemetry enablement env var to the env vars.
 

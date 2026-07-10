@@ -30,7 +30,7 @@ from google.genai._common import get_value_by_path as getv
 from google.genai._common import set_value_by_path as setv
 from google.genai.pagers import AsyncPager, Pager
 
-from . import _agent_engines_utils
+from . import _runtimes_utils
 from . import types
 
 if typing.TYPE_CHECKING:
@@ -44,60 +44,7 @@ logger = logging.getLogger("agentplatform_genai.memories")
 logger.setLevel(logging.INFO)
 
 
-def _AgentEngineMemoryConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-
-    if getv(from_object, ["display_name"]) is not None:
-        setv(parent_object, ["displayName"], getv(from_object, ["display_name"]))
-
-    if getv(from_object, ["description"]) is not None:
-        setv(parent_object, ["description"], getv(from_object, ["description"]))
-
-    if getv(from_object, ["ttl"]) is not None:
-        setv(parent_object, ["ttl"], getv(from_object, ["ttl"]))
-
-    if getv(from_object, ["expire_time"]) is not None:
-        setv(parent_object, ["expireTime"], getv(from_object, ["expire_time"]))
-
-    if getv(from_object, ["revision_expire_time"]) is not None:
-        setv(
-            parent_object,
-            ["revisionExpireTime"],
-            getv(from_object, ["revision_expire_time"]),
-        )
-
-    if getv(from_object, ["revision_ttl"]) is not None:
-        setv(parent_object, ["revisionTtl"], getv(from_object, ["revision_ttl"]))
-
-    if getv(from_object, ["disable_memory_revisions"]) is not None:
-        setv(
-            parent_object,
-            ["disableMemoryRevisions"],
-            getv(from_object, ["disable_memory_revisions"]),
-        )
-
-    if getv(from_object, ["topics"]) is not None:
-        setv(
-            parent_object, ["topics"], [item for item in getv(from_object, ["topics"])]
-        )
-
-    if getv(from_object, ["metadata"]) is not None:
-        setv(
-            parent_object,
-            ["metadata"],
-            {k: v for k, v in getv(from_object, ["metadata"]).items()},
-        )
-
-    if getv(from_object, ["memory_id"]) is not None:
-        setv(parent_object, ["_query", "memoryId"], getv(from_object, ["memory_id"]))
-
-    return to_object
-
-
-def _CreateAgentEngineMemoryRequestParameters_to_vertex(
+def _CreateRuntimeMemoryRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
@@ -112,12 +59,12 @@ def _CreateAgentEngineMemoryRequestParameters_to_vertex(
         setv(to_object, ["scope"], getv(from_object, ["scope"]))
 
     if getv(from_object, ["config"]) is not None:
-        _AgentEngineMemoryConfig_to_vertex(getv(from_object, ["config"]), to_object)
+        _RuntimeMemoryConfig_to_vertex(getv(from_object, ["config"]), to_object)
 
     return to_object
 
 
-def _DeleteAgentEngineMemoryRequestParameters_to_vertex(
+def _DeleteRuntimeMemoryRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
@@ -128,7 +75,7 @@ def _DeleteAgentEngineMemoryRequestParameters_to_vertex(
     return to_object
 
 
-def _GenerateAgentEngineMemoriesConfig_to_vertex(
+def _GenerateRuntimeMemoriesConfig_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
@@ -185,7 +132,7 @@ def _GenerateAgentEngineMemoriesConfig_to_vertex(
     return to_object
 
 
-def _GenerateAgentEngineMemoriesRequestParameters_to_vertex(
+def _GenerateRuntimeMemoriesRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
@@ -218,14 +165,14 @@ def _GenerateAgentEngineMemoriesRequestParameters_to_vertex(
         setv(to_object, ["scope"], getv(from_object, ["scope"]))
 
     if getv(from_object, ["config"]) is not None:
-        _GenerateAgentEngineMemoriesConfig_to_vertex(
+        _GenerateRuntimeMemoriesConfig_to_vertex(
             getv(from_object, ["config"]), to_object
         )
 
     return to_object
 
 
-def _GetAgentEngineGenerateMemoriesOperationParameters_to_vertex(
+def _GetRuntimeGenerateMemoriesOperationParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
@@ -238,7 +185,7 @@ def _GetAgentEngineGenerateMemoriesOperationParameters_to_vertex(
     return to_object
 
 
-def _GetAgentEngineMemoryOperationParameters_to_vertex(
+def _GetRuntimeMemoryOperationParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
@@ -251,7 +198,7 @@ def _GetAgentEngineMemoryOperationParameters_to_vertex(
     return to_object
 
 
-def _GetAgentEngineMemoryRequestParameters_to_vertex(
+def _GetRuntimeMemoryRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
@@ -342,7 +289,7 @@ def _IngestEventsRequestParameters_to_vertex(
     return to_object
 
 
-def _ListAgentEngineMemoryConfig_to_vertex(
+def _ListRuntimeMemoryConfig_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
@@ -363,7 +310,7 @@ def _ListAgentEngineMemoryConfig_to_vertex(
     return to_object
 
 
-def _ListAgentEngineMemoryRequestParameters_to_vertex(
+def _ListRuntimeMemoryRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
@@ -372,12 +319,12 @@ def _ListAgentEngineMemoryRequestParameters_to_vertex(
         setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
 
     if getv(from_object, ["config"]) is not None:
-        _ListAgentEngineMemoryConfig_to_vertex(getv(from_object, ["config"]), to_object)
+        _ListRuntimeMemoryConfig_to_vertex(getv(from_object, ["config"]), to_object)
 
     return to_object
 
 
-def _PurgeAgentEngineMemoriesRequestParameters_to_vertex(
+def _PurgeRuntimeMemoriesRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
@@ -401,7 +348,21 @@ def _PurgeAgentEngineMemoriesRequestParameters_to_vertex(
     return to_object
 
 
-def _RetrieveAgentEngineMemoriesConfig_to_vertex(
+def _RetrieveMemoryProfilesRequestParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["name"]) is not None:
+        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
+
+    if getv(from_object, ["scope"]) is not None:
+        setv(to_object, ["scope"], getv(from_object, ["scope"]))
+
+    return to_object
+
+
+def _RetrieveRuntimeMemoriesConfig_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
@@ -423,7 +384,7 @@ def _RetrieveAgentEngineMemoriesConfig_to_vertex(
     return to_object
 
 
-def _RetrieveAgentEngineMemoriesRequestParameters_to_vertex(
+def _RetrieveRuntimeMemoriesRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
@@ -449,28 +410,14 @@ def _RetrieveAgentEngineMemoriesRequestParameters_to_vertex(
         )
 
     if getv(from_object, ["config"]) is not None:
-        _RetrieveAgentEngineMemoriesConfig_to_vertex(
+        _RetrieveRuntimeMemoriesConfig_to_vertex(
             getv(from_object, ["config"]), to_object
         )
 
     return to_object
 
 
-def _RetrieveMemoryProfilesRequestParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["scope"]) is not None:
-        setv(to_object, ["scope"], getv(from_object, ["scope"]))
-
-    return to_object
-
-
-def _RollbackAgentEngineMemoryRequestParameters_to_vertex(
+def _RollbackRuntimeMemoryRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
@@ -484,7 +431,60 @@ def _RollbackAgentEngineMemoryRequestParameters_to_vertex(
     return to_object
 
 
-def _UpdateAgentEngineMemoryConfig_to_vertex(
+def _RuntimeMemoryConfig_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+
+    if getv(from_object, ["display_name"]) is not None:
+        setv(parent_object, ["displayName"], getv(from_object, ["display_name"]))
+
+    if getv(from_object, ["description"]) is not None:
+        setv(parent_object, ["description"], getv(from_object, ["description"]))
+
+    if getv(from_object, ["ttl"]) is not None:
+        setv(parent_object, ["ttl"], getv(from_object, ["ttl"]))
+
+    if getv(from_object, ["expire_time"]) is not None:
+        setv(parent_object, ["expireTime"], getv(from_object, ["expire_time"]))
+
+    if getv(from_object, ["revision_expire_time"]) is not None:
+        setv(
+            parent_object,
+            ["revisionExpireTime"],
+            getv(from_object, ["revision_expire_time"]),
+        )
+
+    if getv(from_object, ["revision_ttl"]) is not None:
+        setv(parent_object, ["revisionTtl"], getv(from_object, ["revision_ttl"]))
+
+    if getv(from_object, ["disable_memory_revisions"]) is not None:
+        setv(
+            parent_object,
+            ["disableMemoryRevisions"],
+            getv(from_object, ["disable_memory_revisions"]),
+        )
+
+    if getv(from_object, ["topics"]) is not None:
+        setv(
+            parent_object, ["topics"], [item for item in getv(from_object, ["topics"])]
+        )
+
+    if getv(from_object, ["metadata"]) is not None:
+        setv(
+            parent_object,
+            ["metadata"],
+            {k: v for k, v in getv(from_object, ["metadata"]).items()},
+        )
+
+    if getv(from_object, ["memory_id"]) is not None:
+        setv(parent_object, ["_query", "memoryId"], getv(from_object, ["memory_id"]))
+
+    return to_object
+
+
+def _UpdateRuntimeMemoryConfig_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
@@ -542,7 +542,7 @@ def _UpdateAgentEngineMemoryConfig_to_vertex(
     return to_object
 
 
-def _UpdateAgentEngineMemoryRequestParameters_to_vertex(
+def _UpdateRuntimeMemoryRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
@@ -557,9 +557,7 @@ def _UpdateAgentEngineMemoryRequestParameters_to_vertex(
         setv(to_object, ["scope"], getv(from_object, ["scope"]))
 
     if getv(from_object, ["config"]) is not None:
-        _UpdateAgentEngineMemoryConfig_to_vertex(
-            getv(from_object, ["config"]), to_object
-        )
+        _UpdateRuntimeMemoryConfig_to_vertex(getv(from_object, ["config"]), to_object)
 
     return to_object
 
@@ -572,13 +570,13 @@ class Memories(_api_module.BaseModule):
         name: str,
         fact: str,
         scope: dict[str, str],
-        config: Optional[types.AgentEngineMemoryConfigOrDict] = None,
-    ) -> types.AgentEngineMemoryOperation:
+        config: Optional[types.RuntimeMemoryConfigOrDict] = None,
+    ) -> types.RuntimeMemoryOperation:
         """
-        Creates a new memory in the Agent Engine.
+        Creates a new memory in the Agent Runtime.
         """
 
-        parameter_model = types._CreateAgentEngineMemoryRequestParameters(
+        parameter_model = types._CreateRuntimeMemoryRequestParameters(
             name=name,
             fact=fact,
             scope=scope,
@@ -591,7 +589,7 @@ class Memories(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _CreateAgentEngineMemoryRequestParameters_to_vertex(
+            request_dict = _CreateRuntimeMemoryRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -620,7 +618,7 @@ class Memories(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
-        return_value = types.AgentEngineMemoryOperation._from_response(
+        return_value = types.RuntimeMemoryOperation._from_response(
             response=response_dict,
             kwargs=(
                 {
@@ -648,21 +646,21 @@ class Memories(_api_module.BaseModule):
         self,
         *,
         name: str,
-        config: Optional[types.DeleteAgentEngineMemoryConfigOrDict] = None,
-    ) -> types.DeleteAgentEngineMemoryOperation:
+        config: Optional[types.DeleteRuntimeMemoryConfigOrDict] = None,
+    ) -> types.DeleteRuntimeMemoryOperation:
         """
-        Delete an Agent Engine memory.
+        Delete an Agent Runtime memory.
 
         Args:
             name (str):
-                Required. The name of the Agent Engine memory to be deleted. Format:
+                Required. The name of the Agent Runtime memory to be deleted. Format:
                 `projects/{project}/locations/{location}/reasoningEngines/{resource_id}/memories/{memory}`.
-            config (DeleteAgentEngineMemoryConfig):
-                Optional. Additional configurations for deleting the Agent Engine.
+            config (DeleteRuntimeMemoryConfig):
+                Optional. Additional configurations for deleting the Agent Runtime.
 
         """
 
-        parameter_model = types._DeleteAgentEngineMemoryRequestParameters(
+        parameter_model = types._DeleteRuntimeMemoryRequestParameters(
             name=name,
             config=config,
         )
@@ -673,7 +671,7 @@ class Memories(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _DeleteAgentEngineMemoryRequestParameters_to_vertex(
+            request_dict = _DeleteRuntimeMemoryRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -702,7 +700,7 @@ class Memories(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
-        return_value = types.DeleteAgentEngineMemoryOperation._from_response(
+        return_value = types.DeleteRuntimeMemoryOperation._from_response(
             response=response_dict,
             kwargs=(
                 {
@@ -740,13 +738,13 @@ class Memories(_api_module.BaseModule):
             types.GenerateMemoriesRequestDirectMemoriesSourceOrDict
         ] = None,
         scope: Optional[dict[str, str]] = None,
-        config: Optional[types.GenerateAgentEngineMemoriesConfigOrDict] = None,
-    ) -> types.AgentEngineGenerateMemoriesOperation:
+        config: Optional[types.GenerateRuntimeMemoriesConfigOrDict] = None,
+    ) -> types.RuntimeGenerateMemoriesOperation:
         """
-        Generates memories for an Agent Engine.
+        Generates memories for an Agent Runtime.
         """
 
-        parameter_model = types._GenerateAgentEngineMemoriesRequestParameters(
+        parameter_model = types._GenerateRuntimeMemoriesRequestParameters(
             name=name,
             vertex_session_source=vertex_session_source,
             direct_contents_source=direct_contents_source,
@@ -761,7 +759,7 @@ class Memories(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GenerateAgentEngineMemoriesRequestParameters_to_vertex(
+            request_dict = _GenerateRuntimeMemoriesRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -790,7 +788,7 @@ class Memories(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
-        return_value = types.AgentEngineGenerateMemoriesOperation._from_response(
+        return_value = types.RuntimeGenerateMemoriesOperation._from_response(
             response=response_dict,
             kwargs=(
                 {
@@ -815,13 +813,10 @@ class Memories(_api_module.BaseModule):
         return return_value
 
     def get(
-        self,
-        *,
-        name: str,
-        config: Optional[types.GetAgentEngineMemoryConfigOrDict] = None,
+        self, *, name: str, config: Optional[types.GetRuntimeMemoryConfigOrDict] = None
     ) -> types.Memory:
         """
-        Gets an agent engine memory.
+        Gets an agent runtime memory.
 
         Args:
             name (str): Required. A fully-qualified resource name or ID such as
@@ -830,7 +825,7 @@ class Memories(_api_module.BaseModule):
 
         """
 
-        parameter_model = types._GetAgentEngineMemoryRequestParameters(
+        parameter_model = types._GetRuntimeMemoryRequestParameters(
             name=name,
             config=config,
         )
@@ -841,9 +836,7 @@ class Memories(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetAgentEngineMemoryRequestParameters_to_vertex(
-                parameter_model
-            )
+            request_dict = _GetRuntimeMemoryRequestParameters_to_vertex(parameter_model)
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}".format_map(request_url_dict)
@@ -979,16 +972,13 @@ class Memories(_api_module.BaseModule):
         return return_value
 
     def _list(
-        self,
-        *,
-        name: str,
-        config: Optional[types.ListAgentEngineMemoryConfigOrDict] = None,
+        self, *, name: str, config: Optional[types.ListRuntimeMemoryConfigOrDict] = None
     ) -> types.ListReasoningEnginesMemoriesResponse:
         """
-        Lists Agent Engine memories.
+        Lists Agent Runtime memories.
         """
 
-        parameter_model = types._ListAgentEngineMemoryRequestParameters(
+        parameter_model = types._ListRuntimeMemoryRequestParameters(
             name=name,
             config=config,
         )
@@ -999,7 +989,7 @@ class Memories(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _ListAgentEngineMemoryRequestParameters_to_vertex(
+            request_dict = _ListRuntimeMemoryRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -1056,9 +1046,9 @@ class Memories(_api_module.BaseModule):
         self,
         *,
         operation_name: str,
-        config: Optional[types.GetAgentEngineOperationConfigOrDict] = None,
-    ) -> types.AgentEngineMemoryOperation:
-        parameter_model = types._GetAgentEngineMemoryOperationParameters(
+        config: Optional[types.GetRuntimeOperationConfigOrDict] = None,
+    ) -> types.RuntimeMemoryOperation:
+        parameter_model = types._GetRuntimeMemoryOperationParameters(
             operation_name=operation_name,
             config=config,
         )
@@ -1069,7 +1059,7 @@ class Memories(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetAgentEngineMemoryOperationParameters_to_vertex(
+            request_dict = _GetRuntimeMemoryOperationParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -1098,7 +1088,7 @@ class Memories(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
-        return_value = types.AgentEngineMemoryOperation._from_response(
+        return_value = types.RuntimeMemoryOperation._from_response(
             response=response_dict,
             kwargs=(
                 {
@@ -1126,9 +1116,9 @@ class Memories(_api_module.BaseModule):
         self,
         *,
         operation_name: str,
-        config: Optional[types.GetAgentEngineOperationConfigOrDict] = None,
-    ) -> types.AgentEngineGenerateMemoriesOperation:
-        parameter_model = types._GetAgentEngineGenerateMemoriesOperationParameters(
+        config: Optional[types.GetRuntimeOperationConfigOrDict] = None,
+    ) -> types.RuntimeGenerateMemoriesOperation:
+        parameter_model = types._GetRuntimeGenerateMemoriesOperationParameters(
             operation_name=operation_name,
             config=config,
         )
@@ -1139,7 +1129,7 @@ class Memories(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetAgentEngineGenerateMemoriesOperationParameters_to_vertex(
+            request_dict = _GetRuntimeGenerateMemoriesOperationParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -1168,7 +1158,7 @@ class Memories(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
-        return_value = types.AgentEngineGenerateMemoriesOperation._from_response(
+        return_value = types.RuntimeGenerateMemoriesOperation._from_response(
             response=response_dict,
             kwargs=(
                 {
@@ -1203,13 +1193,13 @@ class Memories(_api_module.BaseModule):
         simple_retrieval_params: Optional[
             types.RetrieveMemoriesRequestSimpleRetrievalParamsOrDict
         ] = None,
-        config: Optional[types.RetrieveAgentEngineMemoriesConfigOrDict] = None,
+        config: Optional[types.RetrieveRuntimeMemoriesConfigOrDict] = None,
     ) -> types.RetrieveMemoriesResponse:
         """
-        Retrieves memories for an Agent Engine.
+        Retrieves memories for an Agent Runtime.
         """
 
-        parameter_model = types._RetrieveAgentEngineMemoriesRequestParameters(
+        parameter_model = types._RetrieveRuntimeMemoriesRequestParameters(
             name=name,
             scope=scope,
             similarity_search_params=similarity_search_params,
@@ -1223,7 +1213,7 @@ class Memories(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _RetrieveAgentEngineMemoriesRequestParameters_to_vertex(
+            request_dict = _RetrieveRuntimeMemoriesRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -1284,13 +1274,13 @@ class Memories(_api_module.BaseModule):
         config: Optional[types.RetrieveMemoryProfilesConfigOrDict] = None,
     ) -> types.RetrieveProfilesResponse:
         """
-        Retrieves memory profiles for an Agent Engine.
+        Retrieves memory profiles for an Agent Runtime.
 
         For example, you can use the following code to retrieve all memory profiles
         for scope `{'user_id': '123'}`:
 
         ```python
-        result = client.agent_engines.memories.retrieve_profiles(
+        result = client.runtimes.memories.retrieve_profiles(
             name="projects/123/locations/us-central1/reasoningEngines/456",
             scope={"user_id": "123"}
         )
@@ -1383,13 +1373,13 @@ class Memories(_api_module.BaseModule):
         *,
         name: str,
         target_revision_id: str,
-        config: Optional[types.RollbackAgentEngineMemoryConfigOrDict] = None,
-    ) -> types.AgentEngineRollbackMemoryOperation:
+        config: Optional[types.RollbackRuntimeMemoryConfigOrDict] = None,
+    ) -> types.RuntimeRollbackMemoryOperation:
         """
         Rollback a memory to a previous revision.
         """
 
-        parameter_model = types._RollbackAgentEngineMemoryRequestParameters(
+        parameter_model = types._RollbackRuntimeMemoryRequestParameters(
             name=name,
             target_revision_id=target_revision_id,
             config=config,
@@ -1401,7 +1391,7 @@ class Memories(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _RollbackAgentEngineMemoryRequestParameters_to_vertex(
+            request_dict = _RollbackRuntimeMemoryRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -1430,7 +1420,7 @@ class Memories(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
-        return_value = types.AgentEngineRollbackMemoryOperation._from_response(
+        return_value = types.RuntimeRollbackMemoryOperation._from_response(
             response=response_dict,
             kwargs=(
                 {
@@ -1460,13 +1450,13 @@ class Memories(_api_module.BaseModule):
         name: str,
         fact: Optional[str] = None,
         scope: Optional[dict[str, str]] = None,
-        config: Optional[types.UpdateAgentEngineMemoryConfigOrDict] = None,
-    ) -> types.AgentEngineMemoryOperation:
+        config: Optional[types.UpdateRuntimeMemoryConfigOrDict] = None,
+    ) -> types.RuntimeMemoryOperation:
         """
-        Updates an Agent Engine memory.
+        Updates an Agent Runtime memory.
         """
 
-        parameter_model = types._UpdateAgentEngineMemoryRequestParameters(
+        parameter_model = types._UpdateRuntimeMemoryRequestParameters(
             name=name,
             fact=fact,
             scope=scope,
@@ -1479,7 +1469,7 @@ class Memories(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _UpdateAgentEngineMemoryRequestParameters_to_vertex(
+            request_dict = _UpdateRuntimeMemoryRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -1508,7 +1498,7 @@ class Memories(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
-        return_value = types.AgentEngineMemoryOperation._from_response(
+        return_value = types.RuntimeMemoryOperation._from_response(
             response=response_dict,
             kwargs=(
                 {
@@ -1541,13 +1531,13 @@ class Memories(_api_module.BaseModule):
             builtins.list[types.MemoryConjunctionFilterOrDict]
         ] = None,
         force: Optional[bool] = None,
-        config: Optional[types.PurgeAgentEngineMemoriesConfigOrDict] = None,
-    ) -> types.AgentEnginePurgeMemoriesOperation:
+        config: Optional[types.PurgeRuntimeMemoriesConfigOrDict] = None,
+    ) -> types.RuntimePurgeMemoriesOperation:
         """
-        Purges memories from an Agent Engine.
+        Purges memories from an Agent Runtime.
         """
 
-        parameter_model = types._PurgeAgentEngineMemoriesRequestParameters(
+        parameter_model = types._PurgeRuntimeMemoriesRequestParameters(
             name=name,
             filter=filter,
             filter_groups=filter_groups,
@@ -1561,7 +1551,7 @@ class Memories(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _PurgeAgentEngineMemoriesRequestParameters_to_vertex(
+            request_dict = _PurgeRuntimeMemoriesRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -1590,7 +1580,7 @@ class Memories(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
-        return_value = types.AgentEnginePurgeMemoriesOperation._from_response(
+        return_value = types.RuntimePurgeMemoriesOperation._from_response(
             response=response_dict,
             kwargs=(
                 {
@@ -1627,7 +1617,7 @@ class Memories(_api_module.BaseModule):
                 )
             except ImportError as e:
                 raise ImportError(
-                    "The 'agent_engines.memories.revisions' module requires "
+                    "The 'runtimes.memories.revisions' module requires "
                     "additional packages. Please install them using pip install "
                     "google-cloud-aiplatform[agent_engines]"
                 ) from e
@@ -1639,9 +1629,9 @@ class Memories(_api_module.BaseModule):
         name: str,
         fact: str,
         scope: dict[str, str],
-        config: Optional[types.AgentEngineMemoryConfigOrDict] = None,
-    ) -> types.AgentEngineMemoryOperation:
-        """Creates a new memory in the Agent Engine.
+        config: Optional[types.RuntimeMemoryConfigOrDict] = None,
+    ) -> types.RuntimeMemoryOperation:
+        """Creates a new memory in the Agent Runtime.
 
         Args:
             name (str):
@@ -1650,16 +1640,16 @@ class Memories(_api_module.BaseModule):
                 Required. The fact to be stored in the memory.
             scope (dict[str, str]):
                 Required. The scope of the memory. For example, {"user_id": "123"}.
-            config (AgentEngineMemoryConfigOrDict):
+            config (RuntimeMemoryConfigOrDict):
                 Optional. The configuration for the memory.
 
         Returns:
-            AgentEngineMemoryOperation: The operation for creating the memory.
+            RuntimeMemoryOperation: The operation for creating the memory.
         """
         if config is None:
-            config = types.AgentEngineMemoryConfig()
+            config = types.RuntimeMemoryConfig()
         elif isinstance(config, dict):
-            config = types.AgentEngineMemoryConfig.model_validate(config)
+            config = types.RuntimeMemoryConfig.model_validate(config)
         operation = self._create(
             name=name,
             fact=fact,
@@ -1668,7 +1658,7 @@ class Memories(_api_module.BaseModule):
         )
         if config.wait_for_completion:
             if not operation.done:
-                operation = _agent_engines_utils._await_operation(
+                operation = _runtimes_utils._await_operation(
                     operation_name=operation.name,
                     get_operation_fn=self._get_memory_operation,
                     poll_interval_seconds=0.5,
@@ -1697,13 +1687,13 @@ class Memories(_api_module.BaseModule):
             types.GenerateMemoriesRequestDirectMemoriesSourceOrDict
         ] = None,
         scope: Optional[dict[str, str]] = None,
-        config: Optional[types.GenerateAgentEngineMemoriesConfigOrDict] = None,
-    ) -> types.AgentEngineGenerateMemoriesOperation:
-        """Generates memories for the agent engine.
+        config: Optional[types.GenerateRuntimeMemoriesConfigOrDict] = None,
+    ) -> types.RuntimeGenerateMemoriesOperation:
+        """Generates memories for the agent runtime.
 
         Args:
             name (str):
-                Required. The name of the agent engine to generate memories for.
+                Required. The name of the agent runtime to generate memories for.
             vertex_session_source (GenerateMemoriesRequestVertexSessionSource):
                 Optional. The vertex session source to use for generating
                 memories. Only one of vertex_session_source,
@@ -1724,13 +1714,13 @@ class Memories(_api_module.BaseModule):
                 Optional. The configuration for the memories to generate.
 
         Returns:
-            AgentEngineGenerateMemoriesOperation:
+            RuntimeGenerateMemoriesOperation:
                 The operation for generating the memories.
         """
         if config is None:
-            config = types.GenerateAgentEngineMemoriesConfig()
+            config = types.GenerateRuntimeMemoriesConfig()
         elif isinstance(config, dict):
-            config = types.GenerateAgentEngineMemoriesConfig.model_validate(config)
+            config = types.GenerateRuntimeMemoriesConfig.model_validate(config)
         operation = self._generate(
             name=name,
             vertex_session_source=vertex_session_source,
@@ -1740,7 +1730,7 @@ class Memories(_api_module.BaseModule):
             config=config,
         )
         if config.wait_for_completion and not operation.done:
-            operation = _agent_engines_utils._await_operation(
+            operation = _runtimes_utils._await_operation(
                 operation_name=operation.name,
                 get_operation_fn=self._get_generate_memories_operation,
                 poll_interval_seconds=0.5,
@@ -1753,14 +1743,14 @@ class Memories(_api_module.BaseModule):
         self,
         *,
         name: str,
-        config: Optional[types.ListAgentEngineMemoryConfigOrDict] = None,
+        config: Optional[types.ListRuntimeMemoryConfigOrDict] = None,
     ) -> Iterator[types.Memory]:
-        """Lists Agent Engine memories.
+        """Lists Agent Runtime memories.
 
         Args:
             name (str):
-                Required. The name of the agent engine to list memories for.
-            config (ListAgentEngineMemoryConfig):
+                Required. The name of the agent runtime to list memories for.
+            config (ListRuntimeMemoryConfig):
                 Optional. The configuration for the memories to list.
 
         Returns:
@@ -1785,13 +1775,13 @@ class Memories(_api_module.BaseModule):
         simple_retrieval_params: Optional[
             types.RetrieveMemoriesRequestSimpleRetrievalParamsOrDict
         ] = None,
-        config: Optional[types.RetrieveAgentEngineMemoriesConfigOrDict] = None,
+        config: Optional[types.RetrieveRuntimeMemoriesConfigOrDict] = None,
     ) -> Iterator[types.RetrieveMemoriesResponseRetrievedMemory]:
         """Retrieves memories for the agent.
 
         Args:
             name (str):
-                Required. The name of the agent engine to retrieve memories for.
+                Required. The name of the agent runtime to retrieve memories for.
             scope (dict[str, str]):
                 Required. The scope of the memories to retrieve. For example,
                 {"user_id": "123"}.
@@ -1801,7 +1791,7 @@ class Memories(_api_module.BaseModule):
             simple_retrieval_params (RetrieveMemoriesRequestSimpleRetrievalParams):
                 Optional. The simple retrieval parameters to use for retrieving
                 memories.
-            config (RetrieveAgentEngineMemoriesConfig):
+            config (RetrieveRuntimeMemoriesConfig):
                 Optional. The configuration for the memories to retrieve.
 
         Returns:
@@ -1832,8 +1822,8 @@ class Memories(_api_module.BaseModule):
         *,
         name: str,
         target_revision_id: str,
-        config: Optional[types.RollbackAgentEngineMemoryConfigOrDict] = None,
-    ) -> types.AgentEngineRollbackMemoryOperation:
+        config: Optional[types.RollbackRuntimeMemoryConfigOrDict] = None,
+    ) -> types.RuntimeRollbackMemoryOperation:
         """Rolls back a memory to a previous revision.
 
         Args:
@@ -1841,24 +1831,24 @@ class Memories(_api_module.BaseModule):
                 Required. The name of the memory to rollback.
             target_revision_id (str):
                 Required. The revision ID to roll back to
-            config (RollbackAgentEngineMemoryConfig):
+            config (RollbackRuntimeMemoryConfig):
                 Optional. The configuration for the rollback.
 
         Returns:
-            AgentEngineRollbackMemoryOperation:
+            RuntimeRollbackMemoryOperation:
                 The operation for rolling back the memory.
         """
         if config is None:
-            config = types.RollbackAgentEngineMemoryConfig()
+            config = types.RollbackRuntimeMemoryConfig()
         elif isinstance(config, dict):
-            config = types.RollbackAgentEngineMemoryConfig.model_validate(config)
+            config = types.RollbackRuntimeMemoryConfig.model_validate(config)
         operation = self._rollback(
             name=name,
             target_revision_id=target_revision_id,
             config=config,
         )
         if config.wait_for_completion and not operation.done:
-            operation = _agent_engines_utils._await_operation(
+            operation = _runtimes_utils._await_operation(
                 operation_name=operation.name,
                 get_operation_fn=self._get_memory_operation,
                 poll_interval_seconds=0.5,
@@ -1874,13 +1864,13 @@ class Memories(_api_module.BaseModule):
         filter: Optional[str] = None,
         filter_groups: Optional[List[types.MemoryConjunctionFilter]] = None,
         force: bool = False,
-        config: Optional[types.PurgeAgentEngineMemoriesConfigOrDict] = None,
-    ) -> types.AgentEnginePurgeMemoriesOperation:
-        """Purges memories from an Agent Engine.
+        config: Optional[types.PurgeRuntimeMemoriesConfigOrDict] = None,
+    ) -> types.RuntimePurgeMemoriesOperation:
+        """Purges memories from an Agent Runtime.
 
         Args:
             name (str):
-                Required. The name of the Agent Engine to purge memories from.
+                Required. The name of the Agent Runtime to purge memories from.
             filter (str):
                 Optional. The standard list filter to determine which memories to purge.
             filter_groups (list[MemoryConjunctionFilter]):
@@ -1890,17 +1880,17 @@ class Memories(_api_module.BaseModule):
             force (bool):
                 Optional. Whether to force the purge operation. If false, the
                 operation will be staged but not executed.
-            config (PurgeAgentEngineMemoriesConfig):
+            config (PurgeRuntimeMemoriesConfig):
                 Optional. The configuration for the purge operation.
 
         Returns:
-            AgentEnginePurgeMemoriesOperation:
+            RuntimePurgeMemoriesOperation:
                 The operation for purging the memories.
         """
         if config is None:
-            config = types.PurgeAgentEngineMemoriesConfig()
+            config = types.PurgeRuntimeMemoriesConfig()
         elif isinstance(config, dict):
-            config = types.PurgeAgentEngineMemoriesConfig.model_validate(config)
+            config = types.PurgeRuntimeMemoriesConfig.model_validate(config)
         operation = self._purge(
             name=name,
             filter=filter,
@@ -1909,7 +1899,7 @@ class Memories(_api_module.BaseModule):
             config=config,
         )
         if config.wait_for_completion and not operation.done:
-            operation = _agent_engines_utils._await_operation(
+            operation = _runtimes_utils._await_operation(
                 operation_name=operation.name,
                 get_operation_fn=self._get_memory_operation,
                 poll_interval_seconds=0.5,
@@ -1932,11 +1922,11 @@ class Memories(_api_module.BaseModule):
         ] = None,
         config: Optional[types.IngestEventsConfigOrDict] = None,
     ) -> types.MemoryBankIngestEventsOperation:
-        """Ingests events into an Agent Engine.
+        """Ingests events into an Agent Runtime.
 
         Example usage:
         ```
-        client.agent_engines.memories.ingest_events(
+        client.runtimes.memories.ingest_events(
             name="projects/test-project/locations/us-central1/reasoningEngines/test-agent-engine",
             scope={"user_id": "test-user-id"},
             direct_contents_source={
@@ -1961,7 +1951,7 @@ class Memories(_api_module.BaseModule):
 
         Args:
             name (str):
-                Required. The name of the Agent Engine to ingest events into.
+                Required. The name of the Agent Runtime to ingest events into.
             scope (dict[str, str]):
                 Required. The scope of the events to ingest. For example,
                 {"user_id": "123"}.
@@ -1976,7 +1966,7 @@ class Memories(_api_module.BaseModule):
                 Optional. The configuration for the ingest events operation.
 
         Returns:
-            AgentEngineIngestEventsOperation:
+            RuntimeIngestEventsOperation:
                 The operation for ingesting the events.
         """
         if config is None:
@@ -1992,7 +1982,7 @@ class Memories(_api_module.BaseModule):
             config=config,
         )
         if config.wait_for_completion and not operation.done:
-            operation = _agent_engines_utils._await_operation(
+            operation = _runtimes_utils._await_operation(
                 operation_name=operation.name,
                 get_operation_fn=self._get_memory_operation,
                 poll_interval_seconds=0.5,
@@ -2010,13 +2000,13 @@ class AsyncMemories(_api_module.BaseModule):
         name: str,
         fact: str,
         scope: dict[str, str],
-        config: Optional[types.AgentEngineMemoryConfigOrDict] = None,
-    ) -> types.AgentEngineMemoryOperation:
+        config: Optional[types.RuntimeMemoryConfigOrDict] = None,
+    ) -> types.RuntimeMemoryOperation:
         """
-        Creates a new memory in the Agent Engine.
+        Creates a new memory in the Agent Runtime.
         """
 
-        parameter_model = types._CreateAgentEngineMemoryRequestParameters(
+        parameter_model = types._CreateRuntimeMemoryRequestParameters(
             name=name,
             fact=fact,
             scope=scope,
@@ -2029,7 +2019,7 @@ class AsyncMemories(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _CreateAgentEngineMemoryRequestParameters_to_vertex(
+            request_dict = _CreateRuntimeMemoryRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -2060,7 +2050,7 @@ class AsyncMemories(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
-        return_value = types.AgentEngineMemoryOperation._from_response(
+        return_value = types.RuntimeMemoryOperation._from_response(
             response=response_dict,
             kwargs=(
                 {
@@ -2088,21 +2078,21 @@ class AsyncMemories(_api_module.BaseModule):
         self,
         *,
         name: str,
-        config: Optional[types.DeleteAgentEngineMemoryConfigOrDict] = None,
-    ) -> types.DeleteAgentEngineMemoryOperation:
+        config: Optional[types.DeleteRuntimeMemoryConfigOrDict] = None,
+    ) -> types.DeleteRuntimeMemoryOperation:
         """
-        Delete an Agent Engine memory.
+        Delete an Agent Runtime memory.
 
         Args:
             name (str):
-                Required. The name of the Agent Engine memory to be deleted. Format:
+                Required. The name of the Agent Runtime memory to be deleted. Format:
                 `projects/{project}/locations/{location}/reasoningEngines/{resource_id}/memories/{memory}`.
-            config (DeleteAgentEngineMemoryConfig):
-                Optional. Additional configurations for deleting the Agent Engine.
+            config (DeleteRuntimeMemoryConfig):
+                Optional. Additional configurations for deleting the Agent Runtime.
 
         """
 
-        parameter_model = types._DeleteAgentEngineMemoryRequestParameters(
+        parameter_model = types._DeleteRuntimeMemoryRequestParameters(
             name=name,
             config=config,
         )
@@ -2113,7 +2103,7 @@ class AsyncMemories(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _DeleteAgentEngineMemoryRequestParameters_to_vertex(
+            request_dict = _DeleteRuntimeMemoryRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -2144,7 +2134,7 @@ class AsyncMemories(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
-        return_value = types.DeleteAgentEngineMemoryOperation._from_response(
+        return_value = types.DeleteRuntimeMemoryOperation._from_response(
             response=response_dict,
             kwargs=(
                 {
@@ -2182,13 +2172,13 @@ class AsyncMemories(_api_module.BaseModule):
             types.GenerateMemoriesRequestDirectMemoriesSourceOrDict
         ] = None,
         scope: Optional[dict[str, str]] = None,
-        config: Optional[types.GenerateAgentEngineMemoriesConfigOrDict] = None,
-    ) -> types.AgentEngineGenerateMemoriesOperation:
+        config: Optional[types.GenerateRuntimeMemoriesConfigOrDict] = None,
+    ) -> types.RuntimeGenerateMemoriesOperation:
         """
-        Generates memories for an Agent Engine.
+        Generates memories for an Agent Runtime.
         """
 
-        parameter_model = types._GenerateAgentEngineMemoriesRequestParameters(
+        parameter_model = types._GenerateRuntimeMemoriesRequestParameters(
             name=name,
             vertex_session_source=vertex_session_source,
             direct_contents_source=direct_contents_source,
@@ -2203,7 +2193,7 @@ class AsyncMemories(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GenerateAgentEngineMemoriesRequestParameters_to_vertex(
+            request_dict = _GenerateRuntimeMemoriesRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -2234,7 +2224,7 @@ class AsyncMemories(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
-        return_value = types.AgentEngineGenerateMemoriesOperation._from_response(
+        return_value = types.RuntimeGenerateMemoriesOperation._from_response(
             response=response_dict,
             kwargs=(
                 {
@@ -2259,13 +2249,10 @@ class AsyncMemories(_api_module.BaseModule):
         return return_value
 
     async def get(
-        self,
-        *,
-        name: str,
-        config: Optional[types.GetAgentEngineMemoryConfigOrDict] = None,
+        self, *, name: str, config: Optional[types.GetRuntimeMemoryConfigOrDict] = None
     ) -> types.Memory:
         """
-        Gets an agent engine memory.
+        Gets an agent runtime memory.
 
         Args:
             name (str): Required. A fully-qualified resource name or ID such as
@@ -2274,7 +2261,7 @@ class AsyncMemories(_api_module.BaseModule):
 
         """
 
-        parameter_model = types._GetAgentEngineMemoryRequestParameters(
+        parameter_model = types._GetRuntimeMemoryRequestParameters(
             name=name,
             config=config,
         )
@@ -2285,9 +2272,7 @@ class AsyncMemories(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetAgentEngineMemoryRequestParameters_to_vertex(
-                parameter_model
-            )
+            request_dict = _GetRuntimeMemoryRequestParameters_to_vertex(parameter_model)
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}".format_map(request_url_dict)
@@ -2427,16 +2412,13 @@ class AsyncMemories(_api_module.BaseModule):
         return return_value
 
     async def _list(
-        self,
-        *,
-        name: str,
-        config: Optional[types.ListAgentEngineMemoryConfigOrDict] = None,
+        self, *, name: str, config: Optional[types.ListRuntimeMemoryConfigOrDict] = None
     ) -> types.ListReasoningEnginesMemoriesResponse:
         """
-        Lists Agent Engine memories.
+        Lists Agent Runtime memories.
         """
 
-        parameter_model = types._ListAgentEngineMemoryRequestParameters(
+        parameter_model = types._ListRuntimeMemoryRequestParameters(
             name=name,
             config=config,
         )
@@ -2447,7 +2429,7 @@ class AsyncMemories(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _ListAgentEngineMemoryRequestParameters_to_vertex(
+            request_dict = _ListRuntimeMemoryRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -2506,9 +2488,9 @@ class AsyncMemories(_api_module.BaseModule):
         self,
         *,
         operation_name: str,
-        config: Optional[types.GetAgentEngineOperationConfigOrDict] = None,
-    ) -> types.AgentEngineMemoryOperation:
-        parameter_model = types._GetAgentEngineMemoryOperationParameters(
+        config: Optional[types.GetRuntimeOperationConfigOrDict] = None,
+    ) -> types.RuntimeMemoryOperation:
+        parameter_model = types._GetRuntimeMemoryOperationParameters(
             operation_name=operation_name,
             config=config,
         )
@@ -2519,7 +2501,7 @@ class AsyncMemories(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetAgentEngineMemoryOperationParameters_to_vertex(
+            request_dict = _GetRuntimeMemoryOperationParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -2550,7 +2532,7 @@ class AsyncMemories(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
-        return_value = types.AgentEngineMemoryOperation._from_response(
+        return_value = types.RuntimeMemoryOperation._from_response(
             response=response_dict,
             kwargs=(
                 {
@@ -2578,9 +2560,9 @@ class AsyncMemories(_api_module.BaseModule):
         self,
         *,
         operation_name: str,
-        config: Optional[types.GetAgentEngineOperationConfigOrDict] = None,
-    ) -> types.AgentEngineGenerateMemoriesOperation:
-        parameter_model = types._GetAgentEngineGenerateMemoriesOperationParameters(
+        config: Optional[types.GetRuntimeOperationConfigOrDict] = None,
+    ) -> types.RuntimeGenerateMemoriesOperation:
+        parameter_model = types._GetRuntimeGenerateMemoriesOperationParameters(
             operation_name=operation_name,
             config=config,
         )
@@ -2591,7 +2573,7 @@ class AsyncMemories(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetAgentEngineGenerateMemoriesOperationParameters_to_vertex(
+            request_dict = _GetRuntimeGenerateMemoriesOperationParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -2622,7 +2604,7 @@ class AsyncMemories(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
-        return_value = types.AgentEngineGenerateMemoriesOperation._from_response(
+        return_value = types.RuntimeGenerateMemoriesOperation._from_response(
             response=response_dict,
             kwargs=(
                 {
@@ -2657,13 +2639,13 @@ class AsyncMemories(_api_module.BaseModule):
         simple_retrieval_params: Optional[
             types.RetrieveMemoriesRequestSimpleRetrievalParamsOrDict
         ] = None,
-        config: Optional[types.RetrieveAgentEngineMemoriesConfigOrDict] = None,
+        config: Optional[types.RetrieveRuntimeMemoriesConfigOrDict] = None,
     ) -> types.RetrieveMemoriesResponse:
         """
-        Retrieves memories for an Agent Engine.
+        Retrieves memories for an Agent Runtime.
         """
 
-        parameter_model = types._RetrieveAgentEngineMemoriesRequestParameters(
+        parameter_model = types._RetrieveRuntimeMemoriesRequestParameters(
             name=name,
             scope=scope,
             similarity_search_params=similarity_search_params,
@@ -2677,7 +2659,7 @@ class AsyncMemories(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _RetrieveAgentEngineMemoriesRequestParameters_to_vertex(
+            request_dict = _RetrieveRuntimeMemoriesRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -2740,13 +2722,13 @@ class AsyncMemories(_api_module.BaseModule):
         config: Optional[types.RetrieveMemoryProfilesConfigOrDict] = None,
     ) -> types.RetrieveProfilesResponse:
         """
-        Retrieves memory profiles for an Agent Engine.
+        Retrieves memory profiles for an Agent Runtime.
 
         For example, you can use the following code to retrieve all memory profiles
         for scope `{'user_id': '123'}`:
 
         ```python
-        result = client.agent_engines.memories.retrieve_profiles(
+        result = client.runtimes.memories.retrieve_profiles(
             name="projects/123/locations/us-central1/reasoningEngines/456",
             scope={"user_id": "123"}
         )
@@ -2841,13 +2823,13 @@ class AsyncMemories(_api_module.BaseModule):
         *,
         name: str,
         target_revision_id: str,
-        config: Optional[types.RollbackAgentEngineMemoryConfigOrDict] = None,
-    ) -> types.AgentEngineRollbackMemoryOperation:
+        config: Optional[types.RollbackRuntimeMemoryConfigOrDict] = None,
+    ) -> types.RuntimeRollbackMemoryOperation:
         """
         Rollback a memory to a previous revision.
         """
 
-        parameter_model = types._RollbackAgentEngineMemoryRequestParameters(
+        parameter_model = types._RollbackRuntimeMemoryRequestParameters(
             name=name,
             target_revision_id=target_revision_id,
             config=config,
@@ -2859,7 +2841,7 @@ class AsyncMemories(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _RollbackAgentEngineMemoryRequestParameters_to_vertex(
+            request_dict = _RollbackRuntimeMemoryRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -2890,7 +2872,7 @@ class AsyncMemories(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
-        return_value = types.AgentEngineRollbackMemoryOperation._from_response(
+        return_value = types.RuntimeRollbackMemoryOperation._from_response(
             response=response_dict,
             kwargs=(
                 {
@@ -2920,13 +2902,13 @@ class AsyncMemories(_api_module.BaseModule):
         name: str,
         fact: Optional[str] = None,
         scope: Optional[dict[str, str]] = None,
-        config: Optional[types.UpdateAgentEngineMemoryConfigOrDict] = None,
-    ) -> types.AgentEngineMemoryOperation:
+        config: Optional[types.UpdateRuntimeMemoryConfigOrDict] = None,
+    ) -> types.RuntimeMemoryOperation:
         """
-        Updates an Agent Engine memory.
+        Updates an Agent Runtime memory.
         """
 
-        parameter_model = types._UpdateAgentEngineMemoryRequestParameters(
+        parameter_model = types._UpdateRuntimeMemoryRequestParameters(
             name=name,
             fact=fact,
             scope=scope,
@@ -2939,7 +2921,7 @@ class AsyncMemories(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _UpdateAgentEngineMemoryRequestParameters_to_vertex(
+            request_dict = _UpdateRuntimeMemoryRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -2970,7 +2952,7 @@ class AsyncMemories(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
-        return_value = types.AgentEngineMemoryOperation._from_response(
+        return_value = types.RuntimeMemoryOperation._from_response(
             response=response_dict,
             kwargs=(
                 {
@@ -3003,13 +2985,13 @@ class AsyncMemories(_api_module.BaseModule):
             builtins.list[types.MemoryConjunctionFilterOrDict]
         ] = None,
         force: Optional[bool] = None,
-        config: Optional[types.PurgeAgentEngineMemoriesConfigOrDict] = None,
-    ) -> types.AgentEnginePurgeMemoriesOperation:
+        config: Optional[types.PurgeRuntimeMemoriesConfigOrDict] = None,
+    ) -> types.RuntimePurgeMemoriesOperation:
         """
-        Purges memories from an Agent Engine.
+        Purges memories from an Agent Runtime.
         """
 
-        parameter_model = types._PurgeAgentEngineMemoriesRequestParameters(
+        parameter_model = types._PurgeRuntimeMemoriesRequestParameters(
             name=name,
             filter=filter,
             filter_groups=filter_groups,
@@ -3023,7 +3005,7 @@ class AsyncMemories(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _PurgeAgentEngineMemoriesRequestParameters_to_vertex(
+            request_dict = _PurgeRuntimeMemoriesRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -3054,7 +3036,7 @@ class AsyncMemories(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
-        return_value = types.AgentEnginePurgeMemoriesOperation._from_response(
+        return_value = types.RuntimePurgeMemoriesOperation._from_response(
             response=response_dict,
             kwargs=(
                 {
@@ -3091,7 +3073,7 @@ class AsyncMemories(_api_module.BaseModule):
                 )
             except ImportError as e:
                 raise ImportError(
-                    "The 'agent_engines.memories.revisions' module requires "
+                    "The 'runtimes.memories.revisions' module requires "
                     "additional packages. Please install them using pip install "
                     "google-cloud-aiplatform[agent_engines]"
                 ) from e
@@ -3103,9 +3085,9 @@ class AsyncMemories(_api_module.BaseModule):
         name: str,
         fact: str,
         scope: dict[str, str],
-        config: Optional[types.AgentEngineMemoryConfigOrDict] = None,
-    ) -> types.AgentEngineMemoryOperation:
-        """Creates a new memory in the Agent Engine.
+        config: Optional[types.RuntimeMemoryConfigOrDict] = None,
+    ) -> types.RuntimeMemoryOperation:
+        """Creates a new memory in the Agent Runtime.
 
         Args:
             name (str):
@@ -3114,16 +3096,16 @@ class AsyncMemories(_api_module.BaseModule):
                 Required. The fact to be stored in the memory.
             scope (dict[str, str]):
                 Required. The scope of the memory. For example, {"user_id": "123"}.
-            config (AgentEngineMemoryConfigOrDict):
+            config (RuntimeMemoryConfigOrDict):
                 Optional. The configuration for the memory.
 
         Returns:
-            AgentEngineMemoryOperation: The operation for creating the memory.
+            RuntimeMemoryOperation: The operation for creating the memory.
         """
         if config is None:
-            config = types.AgentEngineMemoryConfig()
+            config = types.RuntimeMemoryConfig()
         elif isinstance(config, dict):
-            config = types.AgentEngineMemoryConfig.model_validate(config)
+            config = types.RuntimeMemoryConfig.model_validate(config)
         operation = await self._create(
             name=name,
             fact=fact,
@@ -3132,7 +3114,7 @@ class AsyncMemories(_api_module.BaseModule):
         )
         if config.wait_for_completion:
             if not operation.done:
-                operation = await _agent_engines_utils._await_async_operation(
+                operation = await _runtimes_utils._await_async_operation(
                     operation_name=operation.name,
                     get_operation_fn=self._get_memory_operation,
                     poll_interval_seconds=0.5,
@@ -3161,13 +3143,13 @@ class AsyncMemories(_api_module.BaseModule):
             types.GenerateMemoriesRequestDirectMemoriesSourceOrDict
         ] = None,
         scope: Optional[dict[str, str]] = None,
-        config: Optional[types.GenerateAgentEngineMemoriesConfigOrDict] = None,
-    ) -> types.AgentEngineGenerateMemoriesOperation:
-        """Generates memories for the agent engine.
+        config: Optional[types.GenerateRuntimeMemoriesConfigOrDict] = None,
+    ) -> types.RuntimeGenerateMemoriesOperation:
+        """Generates memories for the agent runtime.
 
         Args:
             name (str):
-                Required. The name of the agent engine to generate memories for.
+                Required. The name of the agent runtime to generate memories for.
             vertex_session_source (GenerateMemoriesRequestVertexSessionSource):
                 Optional. The vertex session source to use for generating
                 memories. Only one of vertex_session_source,
@@ -3188,13 +3170,13 @@ class AsyncMemories(_api_module.BaseModule):
                 Optional. The configuration for the memories to generate.
 
         Returns:
-            AgentEngineGenerateMemoriesOperation:
+            RuntimeGenerateMemoriesOperation:
                 The operation for generating the memories.
         """
         if config is None:
-            config = types.GenerateAgentEngineMemoriesConfig()
+            config = types.GenerateRuntimeMemoriesConfig()
         elif isinstance(config, dict):
-            config = types.GenerateAgentEngineMemoriesConfig.model_validate(config)
+            config = types.GenerateRuntimeMemoriesConfig.model_validate(config)
         operation = await self._generate(
             name=name,
             vertex_session_source=vertex_session_source,
@@ -3204,7 +3186,7 @@ class AsyncMemories(_api_module.BaseModule):
             config=config,
         )
         if config.wait_for_completion and not operation.done:
-            operation = await _agent_engines_utils._await_async_operation(
+            operation = await _runtimes_utils._await_async_operation(
                 operation_name=operation.name,
                 get_operation_fn=self._get_generate_memories_operation,
                 poll_interval_seconds=0.5,
@@ -3217,14 +3199,14 @@ class AsyncMemories(_api_module.BaseModule):
         self,
         *,
         name: str,
-        config: Optional[types.ListAgentEngineMemoryConfigOrDict] = None,
+        config: Optional[types.ListRuntimeMemoryConfigOrDict] = None,
     ) -> AsyncPager[types.Memory]:
-        """Lists Agent Engine memories.
+        """Lists Agent Runtime memories.
 
         Args:
             name (str):
-                Required. The name of the agent engine to list memories for.
-            config (ListAgentEngineMemoryConfig):
+                Required. The name of the agent runtime to list memories for.
+            config (ListRuntimeMemoryConfig):
                 Optional. The configuration for the memories to list.
 
         Returns:
@@ -3249,13 +3231,13 @@ class AsyncMemories(_api_module.BaseModule):
         simple_retrieval_params: Optional[
             types.RetrieveMemoriesRequestSimpleRetrievalParamsOrDict
         ] = None,
-        config: Optional[types.RetrieveAgentEngineMemoriesConfigOrDict] = None,
+        config: Optional[types.RetrieveRuntimeMemoriesConfigOrDict] = None,
     ) -> AsyncPager[types.RetrieveMemoriesResponseRetrievedMemory]:
         """Retrieves memories for the agent.
 
         Args:
             name (str):
-                Required. The name of the agent engine to retrieve memories for.
+                Required. The name of the agent runtime to retrieve memories for.
             scope (dict[str, str]):
                 Required. The scope of the memories to retrieve. For example,
                 {"user_id": "123"}.
@@ -3265,7 +3247,7 @@ class AsyncMemories(_api_module.BaseModule):
             simple_retrieval_params (RetrieveMemoriesRequestSimpleRetrievalParams):
                 Optional. The simple retrieval parameters to use for retrieving
                 memories.
-            config (RetrieveAgentEngineMemoriesConfig):
+            config (RetrieveRuntimeMemoriesConfig):
                 Optional. The configuration for the memories to retrieve.
 
         Returns:
@@ -3296,8 +3278,8 @@ class AsyncMemories(_api_module.BaseModule):
         *,
         name: str,
         target_revision_id: str,
-        config: Optional[types.RollbackAgentEngineMemoryConfigOrDict] = None,
-    ) -> types.AgentEngineRollbackMemoryOperation:
+        config: Optional[types.RollbackRuntimeMemoryConfigOrDict] = None,
+    ) -> types.RuntimeRollbackMemoryOperation:
         """Rolls back a memory to a previous revision.
 
         Args:
@@ -3305,24 +3287,24 @@ class AsyncMemories(_api_module.BaseModule):
                 Required. The name of the memory to rollback.
             target_revision_id (str):
                 Required. The revision ID to roll back to
-            config (RollbackAgentEngineMemoryConfig):
+            config (RollbackRuntimeMemoryConfig):
                 Optional. The configuration for the rollback.
 
         Returns:
-            AgentEngineRollbackMemoryOperation:
+            RuntimeRollbackMemoryOperation:
                 The operation for rolling back the memory.
         """
         if config is None:
-            config = types.RollbackAgentEngineMemoryConfig()
+            config = types.RollbackRuntimeMemoryConfig()
         elif isinstance(config, dict):
-            config = types.RollbackAgentEngineMemoryConfig.model_validate(config)
+            config = types.RollbackRuntimeMemoryConfig.model_validate(config)
         operation = await self._rollback(
             name=name,
             target_revision_id=target_revision_id,
             config=config,
         )
         if config.wait_for_completion and not operation.done:
-            operation = await _agent_engines_utils._await_async_operation(
+            operation = await _runtimes_utils._await_async_operation(
                 operation_name=operation.name,
                 get_operation_fn=self._get_memory_operation,
                 poll_interval_seconds=0.5,
@@ -3338,13 +3320,13 @@ class AsyncMemories(_api_module.BaseModule):
         filter: Optional[str] = None,
         filter_groups: Optional[List[types.MemoryConjunctionFilter]] = None,
         force: bool = False,
-        config: Optional[types.PurgeAgentEngineMemoriesConfigOrDict] = None,
-    ) -> types.AgentEnginePurgeMemoriesOperation:
-        """Purges memories from an Agent Engine.
+        config: Optional[types.PurgeRuntimeMemoriesConfigOrDict] = None,
+    ) -> types.RuntimePurgeMemoriesOperation:
+        """Purges memories from an Agent Runtime.
 
         Args:
             name (str):
-                Required. The name of the Agent Engine to purge memories from.
+                Required. The name of the Agent Runtime to purge memories from.
             filter (str):
                 Optional. The standard list filter to determine which memories to purge.
             filter_groups (list[MemoryConjunctionFilter]):
@@ -3354,17 +3336,17 @@ class AsyncMemories(_api_module.BaseModule):
             force (bool):
                 Optional. Whether to force the purge operation. If false, the
                 operation will be staged but not executed.
-            config (PurgeAgentEngineMemoriesConfig):
+            config (PurgeRuntimeMemoriesConfig):
                 Optional. The configuration for the purge operation.
 
         Returns:
-            AgentEnginePurgeMemoriesOperation:
+            RuntimePurgeMemoriesOperation:
                 The operation for purging the memories.
         """
         if config is None:
-            config = types.PurgeAgentEngineMemoriesConfig()
+            config = types.PurgeRuntimeMemoriesConfig()
         elif isinstance(config, dict):
-            config = types.PurgeAgentEngineMemoriesConfig.model_validate(config)
+            config = types.PurgeRuntimeMemoriesConfig.model_validate(config)
         operation = await self._purge(
             name=name,
             filter=filter,
@@ -3373,7 +3355,7 @@ class AsyncMemories(_api_module.BaseModule):
             config=config,
         )
         if config.wait_for_completion and not operation.done:
-            operation = await _agent_engines_utils._await_async_operation(
+            operation = await _runtimes_utils._await_async_operation(
                 operation_name=operation.name,
                 get_operation_fn=self._get_memory_operation,
                 poll_interval_seconds=0.5,
@@ -3396,11 +3378,11 @@ class AsyncMemories(_api_module.BaseModule):
         ] = None,
         config: Optional[types.IngestEventsConfigOrDict] = None,
     ) -> types.MemoryBankIngestEventsOperation:
-        """Ingests events into an Agent Engine.
+        """Ingests events into an Agent Runtime.
 
         Example usage:
         ```
-        await client.aio.agent_engines.memories.ingest_events(
+        await client.aio.runtimes.memories.ingest_events(
             name="projects/test-project/locations/us-central1/reasoningEngines/test-agent-engine",
             scope={"user_id": "test-user-id"},
             direct_contents_source={
@@ -3425,7 +3407,7 @@ class AsyncMemories(_api_module.BaseModule):
 
         Args:
             name (str):
-                Required. The name of the Agent Engine to ingest events into.
+                Required. The name of the Agent Runtime to ingest events into.
             scope (dict[str, str]):
                 Required. The scope of the events to ingest. For example,
                 {"user_id": "123"}.
@@ -3440,7 +3422,7 @@ class AsyncMemories(_api_module.BaseModule):
                 Optional. The configuration for the ingest events operation.
 
         Returns:
-            AgentEngineIngestEventsOperation:
+            RuntimeIngestEventsOperation:
                 The operation for ingesting the events.
         """
         if config is None:
@@ -3456,7 +3438,7 @@ class AsyncMemories(_api_module.BaseModule):
             config=config,
         )
         if config.wait_for_completion and not operation.done:
-            operation = await _agent_engines_utils._await_async_operation(
+            operation = await _runtimes_utils._await_async_operation(
                 operation_name=operation.name,
                 get_operation_fn=self._get_memory_operation,
                 poll_interval_seconds=0.5,

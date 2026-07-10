@@ -19,18 +19,18 @@ from agentplatform._genai import types
 
 
 def test_private_delete(client):
-    agent_engine_sandbox_delete_operation = client.agent_engines.sandboxes._delete(
+    agent_engine_sandbox_delete_operation = client.sandboxes._delete(
         name=(
             "reasoningEngines/2886612747586371584/sandboxEnvironments/6068475153556176896"
         ),
     )
     assert isinstance(
-        agent_engine_sandbox_delete_operation, types.DeleteAgentEngineSandboxOperation
+        agent_engine_sandbox_delete_operation, types.DeleteRuntimeSandboxOperation
     )
 
 
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
-    test_method="agent_engines.sandboxes._delete",
+    test_method="sandboxes._delete",
 )

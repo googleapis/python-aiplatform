@@ -19,17 +19,17 @@ from agentplatform._genai import types
 
 
 def test_private_purge(client):
-    ae_memory_purge_operation = client.agent_engines.memories._purge(
+    ae_memory_purge_operation = client.runtimes.memories._purge(
         name="projects/964831358985/locations/us-central1/reasoningEngines/6086402690647064576",
         filter="scope.user_id=123",
     )
     assert isinstance(
-        ae_memory_purge_operation, types.AgentEnginePurgeMemoriesOperation
+        ae_memory_purge_operation, types.RuntimePurgeMemoriesOperation
     )
 
 
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
-    test_method="agent_engines.memories._purge",
+    test_method="runtimes.memories._purge",
 )

@@ -125,7 +125,7 @@ def _get_api_client_with_location(
 
 def _get_agent_engine_instance(
     agent_name: str, api_client: BaseApiClient
-) -> Union[types.AgentEngine, Any]:
+) -> Union[types.Runtime, Any]:
     """Gets or creates an agent engine instance for the current thread."""
     if not hasattr(_thread_local_data, "agent_engine_instances"):
         _thread_local_data.agent_engine_instances = {}
@@ -135,7 +135,7 @@ def _get_agent_engine_instance(
             location=api_client.location,
         )
         _thread_local_data.agent_engine_instances[agent_name] = (
-            client.agent_engines.get(name=agent_name)
+            client.runtimes.get(name=agent_name)
         )
     return _thread_local_data.agent_engine_instances[agent_name]
 
@@ -1695,7 +1695,7 @@ def _execute_inference_concurrently(
     model_or_fn: Optional[Union[str, Callable[[Any], Any]]] = None,
     gemini_config: Optional[genai_types.GenerateContentConfig] = None,
     inference_fn: Optional[Callable[..., Any]] = None,
-    agent_engine: Optional[Union[str, types.AgentEngine]] = None,
+    agent_engine: Optional[Union[str, types.Runtime]] = None,
     agent: Optional["LlmAgent"] = None,  # type: ignore # noqa: F821
     user_simulator_config: Optional[types.evals.UserSimulatorConfig] = None,
 ) -> list[
@@ -2450,7 +2450,7 @@ def _execute_inference(
     api_client: BaseApiClient,
     src: Union[str, pd.DataFrame],
     model: Optional[Union[Callable[[Any], Any], str]] = None,
-    agent_engine: Optional[Union[str, types.AgentEngine]] = None,
+    agent_engine: Optional[Union[str, types.Runtime]] = None,
     agent: Optional["LlmAgent"] = None,  # type: ignore # noqa: F821
     gemini_agent: Optional[str] = None,
     dest: Optional[str] = None,
@@ -2469,7 +2469,7 @@ def _execute_inference(
         model: The model to use for inference. Can be a callable function or a
           string representing a model.
         agent_engine: The agent engine to use for inference. Can be a resource
-          name string or an `AgentEngine` instance.
+          name string or an `Runtime` instance.
         agent: The local agent to use for inference. Can be an ADK agent instance.
         gemini_agent: The Gemini Agents API agent resource name to run inference
           against via the Interactions API.
@@ -2569,14 +2569,14 @@ def _execute_inference(
             and not isinstance(agent_engine, str)
             and not (
                 hasattr(agent_engine, "api_client")
-                and type(agent_engine).__name__ == "AgentEngine"
+                and type(agent_engine).__name__ == "Runtime"
             )
         ):
             raise TypeError(
                 f"Unsupported agent_engine type: {type(agent_engine)}. Expecting a"
                 " string (agent engine resource name in"
                 " 'projects/{project_id}/locations/{location_id}/reasoningEngines/{reasoning_engine_id}'"
-                " format) or a types.AgentEngine instance."
+                " format) or a types.Runtime instance."
             )
         if (
             _evals_constant.INTERMEDIATE_EVENTS in prompt_dataset.columns
@@ -3204,7 +3204,7 @@ def _create_agent_results_dataframe(
 
 def _run_agent_internal(
     api_client: BaseApiClient,
-    agent_engine: Optional[Union[str, types.AgentEngine]],
+    agent_engine: Optional[Union[str, types.Runtime]],
     agent: Optional["LlmAgent"],  # type: ignore # noqa: F821
     prompt_dataset: pd.DataFrame,
     user_simulator_config: Optional[types.evals.UserSimulatorConfig] = None,
@@ -3255,7 +3255,7 @@ def _run_agent_internal(
 
 def _run_agent(
     api_client: BaseApiClient,
-    agent_engine: Optional[Union[str, types.AgentEngine]],
+    agent_engine: Optional[Union[str, types.Runtime]],
     agent: Optional["LlmAgent"],  # type: ignore # noqa: F821
     prompt_dataset: pd.DataFrame,
     user_simulator_config: Optional[types.evals.UserSimulatorConfig] = None,
@@ -3300,7 +3300,7 @@ def _run_agent(
 
 def _create_agent_engine_session(
     *,
-    agent_engine: types.AgentEngine,
+    agent_engine: types.Runtime,
     user_id: str,
     session_state: Optional[dict[str, Any]] = None,
 ) -> Any:
@@ -3312,7 +3312,7 @@ def _create_agent_engine_session(
     Sessions API.
 
     Args:
-        agent_engine: The AgentEngine instance.
+        agent_engine: The Runtime instance.
         user_id: The user ID for the session.
         session_state: Optional initial state for the session.
 
@@ -3347,7 +3347,7 @@ def _create_agent_engine_session(
         operation = agent_engine.api_client.sessions.create(
             name=agent_engine.api_resource.name,
             user_id=user_id,
-            config=types.CreateAgentEngineSessionConfig(
+            config=types.CreateRuntimeSessionConfig(
                 session_state=session_state,
             ),
         )
@@ -3369,7 +3369,7 @@ def _create_agent_engine_session(
 def _execute_agent_run_with_retry(
     row: pd.Series,
     contents: Union[genai_types.ContentListUnion, genai_types.ContentListUnionDict],
-    agent_engine: types.AgentEngine,
+    agent_engine: types.Runtime,
     max_retries: int = 3,
 ) -> Union[list[dict[str, Any]], dict[str, Any]]:
     """Executes agent run over agent engine for a single prompt."""
@@ -3416,7 +3416,7 @@ def _execute_agent_run_with_retry(
                 author=ag_event.author or "user",
                 invocation_id="history",
                 timestamp=base_ts + datetime.timedelta(seconds=i),
-                config=types.AppendAgentEngineSessionEventConfig(
+                config=types.AppendRuntimeSessionEventConfig(
                     content=ag_event.content,
                 ),
             )

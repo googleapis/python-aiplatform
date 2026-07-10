@@ -38,7 +38,7 @@ def test_list_runtime_revisions(
         mock_agent_engine_create_base64_encoded_tarball,
         mock_agent_engine_create_path_exists,
     ):
-        agent_engine = client.agent_engines.create(
+        agent_engine = client.runtimes.create(
             config={
                 "display_name": "test-agent-engine-list-runtime-revisions",
                 "source_packages": [
@@ -58,12 +58,12 @@ def test_list_runtime_revisions(
         agent_engine.api_resource.display_name
         == "test-agent-engine-list-runtime-revisions"
     )
-    runtime_revisions_iter = client.agent_engines.runtimes.revisions.list(
+    runtime_revisions_iter = client.runtimes.revisions.list(
         name=agent_engine.api_resource.name,
     )
     runtime_revisions_list = list(runtime_revisions_iter)
     assert len(runtime_revisions_list) == 1
-    assert isinstance(runtime_revisions_list[0], types.AgentEngineRuntimeRevision)
+    assert isinstance(runtime_revisions_list[0], types.RuntimeRevision)
     assert isinstance(
         runtime_revisions_list[0].api_resource, types.ReasoningEngineRuntimeRevision
     )
@@ -74,7 +74,7 @@ def test_list_runtime_revisions(
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
-    test_method="agent_engines.runtimes.revisions.list",
+    test_method="runtimes.revisions.list",
 )
 
 pytest_plugins = ("pytest_asyncio",)
@@ -95,7 +95,7 @@ async def test_async_list_runtime_revisions(
         mock_agent_engine_create_base64_encoded_tarball,
         mock_agent_engine_create_path_exists,
     ):
-        agent_engine = client.agent_engines.create(
+        agent_engine = client.runtimes.create(
             config={
                 "display_name": "test-agent-engine-list-runtime-revisions",
                 "source_packages": [
@@ -115,18 +115,18 @@ async def test_async_list_runtime_revisions(
         agent_engine.api_resource.display_name
         == "test-agent-engine-list-runtime-revisions"
     )
-    runtime_revisions_iter = client.aio.agent_engines.runtimes.revisions.list(
+    runtime_revisions_iter = client.aio.runtimes.revisions.list(
         name=agent_engine.api_resource.name,
     )
     runtime_revisions_list = []
     async for revision in runtime_revisions_iter:
         runtime_revisions_list.append(revision)
     assert len(runtime_revisions_list) == 1
-    assert isinstance(runtime_revisions_list[0], types.AgentEngineRuntimeRevision)
+    assert isinstance(runtime_revisions_list[0], types.RuntimeRevision)
     assert isinstance(
         runtime_revisions_list[0].api_resource, types.ReasoningEngineRuntimeRevision
     )
     # Clean up resources.
-    await client.aio.agent_engines.delete(
+    await client.aio.runtimes.delete(
         name=agent_engine.api_resource.name, force=True
     )

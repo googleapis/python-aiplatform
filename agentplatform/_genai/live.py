@@ -29,7 +29,7 @@ logger = logging.getLogger("google_genai.live")
 
 if TYPE_CHECKING:
     from agentplatform._genai import (
-        live_agent_engines as live_agent_engines_module,
+        live_runtimes as live_runtimes_module,
     )
 
 
@@ -38,27 +38,27 @@ class AsyncLive(_api_module.BaseModule):
 
     def __init__(self, api_client: BaseApiClient):
         super().__init__(api_client)
-        self._agent_engines: Optional[ModuleType] = None
+        self._runtimes: Optional[ModuleType] = None
 
     @property
     @_common.experimental_warning(
-        "The Vertex SDK GenAI agent engines module is experimental, "
+        "The Vertex SDK GenAI runtimes module is experimental, "
         "and may change in future versions."
     )
-    def agent_engines(self) -> "live_agent_engines_module.AsyncLiveAgentEngines":
-        if self._agent_engines is None:
+    def runtimes(self) -> "live_runtimes_module.AsyncLiveRuntimes":
+        if self._runtimes is None:
             try:
-                # We need to lazy load the live_agent_engines module to handle
+                # We need to lazy load the live_runtimes module to handle
                 # the possibility of ImportError when dependencies are not
                 # installed.
-                self._agent_engines = importlib.import_module(
-                    ".live_agent_engines",
+                self._runtimes = importlib.import_module(
+                    ".live_runtimes",
                     __package__,
                 )
             except ImportError as e:
                 raise ImportError(
-                    "The 'agent_engines' module requires 'additional packages'. "
+                    "The 'runtimes' module requires 'additional packages'. "
                     "Please install them using pip install "
                     "google-cloud-aiplatform[agent_engines]"
                 ) from e
-        return self._agent_engines.AsyncLiveAgentEngines(self._api_client)  # type: ignore[no-any-return]
+        return self._runtimes.AsyncLiveRuntimes(self._api_client)  # type: ignore[no-any-return]

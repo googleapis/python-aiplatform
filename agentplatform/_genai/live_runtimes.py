@@ -13,7 +13,7 @@
 # limitations under the License.
 #
 
-"""Live AgentEngine API client."""
+"""Live Runtime API client."""
 
 import contextlib
 import json
@@ -21,7 +21,7 @@ from typing import Any, AsyncIterator, Dict, Optional
 import google.auth
 
 from google.genai import _api_module
-from .types import QueryAgentEngineConfig, QueryAgentEngineConfigOrDict
+from .types import QueryRuntimeConfig, QueryRuntimeConfigOrDict
 
 
 try:
@@ -33,8 +33,8 @@ except ModuleNotFoundError:
     from websockets.client import connect as ws_connect  # type: ignore
 
 
-class AsyncLiveAgentEngineSession:
-    """AsyncLiveAgentEngineSession."""
+class AsyncLiveRuntimeSession:
+    """AsyncLiveRuntimeSession."""
 
     def __init__(self, websocket: ClientConnection):
         self._ws = websocket
@@ -50,7 +50,7 @@ class AsyncLiveAgentEngineSession:
             json_request = json.dumps({"bidi_stream_input": query_input})
         except Exception as exc:
             raise ValueError(
-                "Failed to encode query input to JSON in live_agent_engines: "
+                "Failed to encode query input to JSON in live_runtimes: "
                 f"{str(query_input)}"
             ) from exc
         await self._ws.send(json_request)
@@ -70,7 +70,7 @@ class AsyncLiveAgentEngineSession:
             return json.loads(response)
         except json.decoder.JSONDecodeError as exc:
             raise ValueError(
-                "Failed to parse response to JSON in live_agent_engines: "
+                "Failed to parse response to JSON in live_runtimes: "
                 f"{str(response)}"
             ) from exc
 
@@ -79,8 +79,8 @@ class AsyncLiveAgentEngineSession:
         await self._ws.close()
 
 
-class AsyncLiveAgentEngines(_api_module.BaseModule):
-    """AsyncLiveAgentEngines.
+class AsyncLiveRuntimes(_api_module.BaseModule):
+    """AsyncLiveRuntimes.
 
     Example usage:
 
@@ -91,16 +91,16 @@ class AsyncLiveAgentEngines(_api_module.BaseModule):
       from google import genai
       from google.genai import types
 
-      class MyAgentEngine(client):
+      class MyRuntime(client):
         def bidi_stream_query(self, input_queue: asyncio.Queue):
           while True:
             input = await input_queue.get()
             yield {"output": f"Agent received {input}!"}
 
       client = agentplatform.Client(project="my-project", location="us-central1")
-      agent_engine = client.agent_engines.create(agent)
+      agent_engine = client.runtimes.create(agent)
 
-      async with client.aio.live.agent_engines.connect(
+      async with client.aio.live.runtimes.connect(
           agent_engine=agent_engine.api_resource.name,
           setup={"class_method": "bidi_stream_query"},
       ) as session:
@@ -116,8 +116,8 @@ class AsyncLiveAgentEngines(_api_module.BaseModule):
         self,
         *,
         agent_engine: str,
-        config: Optional[QueryAgentEngineConfigOrDict] = None,
-    ) -> AsyncIterator[AsyncLiveAgentEngineSession]:
+        config: Optional[QueryRuntimeConfigOrDict] = None,
+    ) -> AsyncIterator[AsyncLiveRuntimeSession]:
         """Connect to the agent deployed to Agent Engine in a live (bidirectional streaming) session.
 
         Args:
@@ -129,10 +129,10 @@ class AsyncLiveAgentEngines(_api_module.BaseModule):
             "bidi_stream_query" will be used by the Agent Engine.
 
         Yields:
-          An AsyncLiveAgentEngineSession object.
+          An AsyncLiveRuntimeSession object.
         """
         if isinstance(config, dict):
-            config = QueryAgentEngineConfig(**config)
+            config = QueryRuntimeConfig(**config)
 
         agent_engine_resource_name = agent_engine
         if not agent_engine_resource_name.startswith("projects/"):
@@ -176,4 +176,4 @@ class AsyncLiveAgentEngines(_api_module.BaseModule):
             uri, additional_headers=headers, **self._api_client._websocket_ssl_ctx
         ) as ws:
             await ws.send(request)
-            yield AsyncLiveAgentEngineSession(websocket=ws)
+            yield AsyncLiveRuntimeSession(websocket=ws)

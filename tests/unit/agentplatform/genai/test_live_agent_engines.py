@@ -21,7 +21,7 @@ import google.auth.credentials
 from google.cloud import aiplatform
 import agentplatform
 from google.cloud.aiplatform import initializer as aiplatform_initializer
-from agentplatform._genai import live_agent_engines
+from agentplatform._genai import live_runtimes
 import pytest
 
 
@@ -30,7 +30,7 @@ _TEST_LOCATION = "us-central1"
 pytestmark = pytest.mark.usefixtures("google_auth_mock")
 
 
-class TestLiveAgentEngines:
+class TestLiveRuntimes:
     """Unit tests for the GenAI client."""
 
     def setup_method(self):
@@ -44,12 +44,12 @@ class TestLiveAgentEngines:
 
     @pytest.mark.asyncio
     @pytest.mark.usefixtures("google_auth_mock")
-    @mock.patch.object(live_agent_engines, "ws_connect")
+    @mock.patch.object(live_runtimes, "ws_connect")
     @mock.patch.object(google.auth, "default")
-    async def test_async_live_agent_engines_connect(
+    async def test_async_live_runtimes_connect(
         self, mock_auth_default, mock_ws_connect
     ):
-        """Tests the AsyncLiveAgentEngines.connect method, as well as the AsyncLiveAgentEngineSession methods."""
+        """Tests the AsyncLiveRuntimes.connect method, as well as the AsyncLiveRuntimeSession methods."""
         # Mock credentials to avoid refresh issues
         mock_creds = mock.Mock(spec=google.auth.credentials.Credentials)
         mock_creds.token = "test-token"
@@ -67,7 +67,7 @@ class TestLiveAgentEngines:
             json.dumps({"output": "WORLD"}).encode("utf-8"),
         ]
 
-        async with test_client.aio.live.agent_engines.connect(
+        async with test_client.aio.live.runtimes.connect(
             agent_engine="test-agent-engine",
             config={"class_method": "bidi_stream_query", "input": {"query": "hello"}},
         ) as session:

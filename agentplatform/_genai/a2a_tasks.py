@@ -42,7 +42,7 @@ logger = logging.getLogger("agentplatform_genai.a2atasks")
 logger.setLevel(logging.INFO)
 
 
-def _CreateAgentEngineTaskConfig_to_vertex(
+def _CreateRuntimeTaskConfig_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
@@ -63,7 +63,7 @@ def _CreateAgentEngineTaskConfig_to_vertex(
     return to_object
 
 
-def _CreateAgentEngineTaskRequestParameters_to_vertex(
+def _CreateRuntimeTaskRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
@@ -75,12 +75,12 @@ def _CreateAgentEngineTaskRequestParameters_to_vertex(
         setv(to_object, ["_query", "a2a_task_id"], getv(from_object, ["a2a_task_id"]))
 
     if getv(from_object, ["config"]) is not None:
-        _CreateAgentEngineTaskConfig_to_vertex(getv(from_object, ["config"]), to_object)
+        _CreateRuntimeTaskConfig_to_vertex(getv(from_object, ["config"]), to_object)
 
     return to_object
 
 
-def _DeleteAgentEngineTaskRequestParameters_to_vertex(
+def _DeleteRuntimeTaskRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
@@ -91,7 +91,7 @@ def _DeleteAgentEngineTaskRequestParameters_to_vertex(
     return to_object
 
 
-def _GetAgentEngineTaskRequestParameters_to_vertex(
+def _GetRuntimeTaskRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
@@ -102,7 +102,7 @@ def _GetAgentEngineTaskRequestParameters_to_vertex(
     return to_object
 
 
-def _ListAgentEngineTasksConfig_to_vertex(
+def _ListRuntimeTasksConfig_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
@@ -123,7 +123,7 @@ def _ListAgentEngineTasksConfig_to_vertex(
     return to_object
 
 
-def _ListAgentEngineTasksRequestParameters_to_vertex(
+def _ListRuntimeTasksRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
@@ -132,7 +132,7 @@ def _ListAgentEngineTasksRequestParameters_to_vertex(
         setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
 
     if getv(from_object, ["config"]) is not None:
-        _ListAgentEngineTasksConfig_to_vertex(getv(from_object, ["config"]), to_object)
+        _ListRuntimeTasksConfig_to_vertex(getv(from_object, ["config"]), to_object)
 
     return to_object
 
@@ -140,26 +140,23 @@ def _ListAgentEngineTasksRequestParameters_to_vertex(
 class A2aTasks(_api_module.BaseModule):
 
     def delete(
-        self,
-        *,
-        name: str,
-        config: Optional[types.DeleteAgentEngineTaskConfigOrDict] = None,
+        self, *, name: str, config: Optional[types.DeleteRuntimeTaskConfigOrDict] = None
     ) -> None:
         """
-        Deletes an agent engine task.
+        Deletes an agent runtime task.
 
         Args:
-            name (str): Required. The name of the Agent Engine task to delete. Format:
+            name (str): Required. The name of the Agent Runtime task to delete. Format:
                 `projects/{project}/locations/{location}/reasoningEngines/{resource_id}/a2aTasks/{task_id}`.
-            config (DeleteAgentEngineTaskConfig):
-                Optional. Additional configurations for deleting the Agent Engine task.
+            config (DeleteRuntimeTaskConfig):
+                Optional. Additional configurations for deleting the Agent Runtime task.
 
         Returns:
             None
 
         """
 
-        parameter_model = types._DeleteAgentEngineTaskRequestParameters(
+        parameter_model = types._DeleteRuntimeTaskRequestParameters(
             name=name,
             config=config,
         )
@@ -170,7 +167,7 @@ class A2aTasks(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _DeleteAgentEngineTaskRequestParameters_to_vertex(
+            request_dict = _DeleteRuntimeTaskRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -198,26 +195,23 @@ class A2aTasks(_api_module.BaseModule):
         self._api_client.request("delete", path, request_dict, http_options)
 
     def get(
-        self,
-        *,
-        name: str,
-        config: Optional[types.GetAgentEngineTaskConfigOrDict] = None,
+        self, *, name: str, config: Optional[types.GetRuntimeTaskConfigOrDict] = None
     ) -> types.A2aTask:
         """
-        Gets an agent engine task.
+        Gets an agent runtime task.
 
         Args:
-            name (str): Required. The name of the Agent Engine task to get. Format:
+            name (str): Required. The name of the Agent Runtime task to get. Format:
                 `projects/{project}/locations/{location}/reasoningEngines/{resource_id}/a2aTasks/{task_id}`.
-            config (GetAgentEngineTaskConfig):
-                Optional. Additional configurations for getting the Agent Engine task.
+            config (GetRuntimeTaskConfig):
+                Optional. Additional configurations for getting the Agent Runtime task.
 
         Returns:
-            AgentEngineTask: The requested Agent Engine task.
+            RuntimeTask: The requested Agent Runtime task.
 
         """
 
-        parameter_model = types._GetAgentEngineTaskRequestParameters(
+        parameter_model = types._GetRuntimeTaskRequestParameters(
             name=name,
             config=config,
         )
@@ -228,9 +222,7 @@ class A2aTasks(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetAgentEngineTaskRequestParameters_to_vertex(
-                parameter_model
-            )
+            request_dict = _GetRuntimeTaskRequestParameters_to_vertex(parameter_model)
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}".format_map(request_url_dict)
@@ -282,26 +274,23 @@ class A2aTasks(_api_module.BaseModule):
         return return_value
 
     def _list(
-        self,
-        *,
-        name: str,
-        config: Optional[types.ListAgentEngineTasksConfigOrDict] = None,
-    ) -> types.ListAgentEngineTasksResponse:
+        self, *, name: str, config: Optional[types.ListRuntimeTasksConfigOrDict] = None
+    ) -> types.ListRuntimeTasksResponse:
         """
-        Lists Agent Engine tasks.
+        Lists Agent Runtime tasks.
 
         Args:
-            name (str): Required. The name of the Agent Engine to list tasks for. Format:
+            name (str): Required. The name of the Agent Runtime to list tasks for. Format:
                 `projects/{project}/locations/{location}/reasoningEngines/{resource_id}`.
-            config (ListAgentEngineTasksConfig):
-                Optional. Additional configurations for listing the Agent Engine tasks.
+            config (ListRuntimeTasksConfig):
+                Optional. Additional configurations for listing the Agent Runtime tasks.
 
         Returns:
-            ListAgentEngineTasksResponse: The requested Agent Engine tasks.
+            ListRuntimeTasksResponse: The requested Agent Runtime tasks.
 
         """
 
-        parameter_model = types._ListAgentEngineTasksRequestParameters(
+        parameter_model = types._ListRuntimeTasksRequestParameters(
             name=name,
             config=config,
         )
@@ -312,9 +301,7 @@ class A2aTasks(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _ListAgentEngineTasksRequestParameters_to_vertex(
-                parameter_model
-            )
+            request_dict = _ListRuntimeTasksRequestParameters_to_vertex(parameter_model)
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}/a2aTasks".format_map(request_url_dict)
@@ -341,7 +328,7 @@ class A2aTasks(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
-        return_value = types.ListAgentEngineTasksResponse._from_response(
+        return_value = types.ListRuntimeTasksResponse._from_response(
             response=response_dict,
             kwargs=(
                 {
@@ -370,25 +357,25 @@ class A2aTasks(_api_module.BaseModule):
         *,
         name: str,
         a2a_task_id: str,
-        config: Optional[types.CreateAgentEngineTaskConfigOrDict] = None,
+        config: Optional[types.CreateRuntimeTaskConfigOrDict] = None,
     ) -> types.A2aTask:
         """
-        Creates a new task in the Agent Engine.
+        Creates a new task in the Agent Runtime.
 
         Args:
-            name (str): Required. The name of the Agent Engine to create the task under. Format:
+            name (str): Required. The name of the Agent Runtime to create the task under. Format:
                 `projects/{project}/locations/{location}/reasoningEngines/{resource_id}`.
             a2a_task_id (str): Required. The user ID of the task.
             context_id (str): Required. The ID of the context to use for the task.
-            config (CreateAgentEngineTaskConfig):
-                Optional. Additional configurations for creating the Agent Engine task.
+            config (CreateRuntimeTaskConfig):
+                Optional. Additional configurations for creating the Agent Runtime task.
 
         Returns:
-            A2aTask: The created Agent Engine task.
+            A2aTask: The created Agent Runtime task.
 
         """
 
-        parameter_model = types._CreateAgentEngineTaskRequestParameters(
+        parameter_model = types._CreateRuntimeTaskRequestParameters(
             name=name,
             a2a_task_id=a2a_task_id,
             config=config,
@@ -400,7 +387,7 @@ class A2aTasks(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _CreateAgentEngineTaskRequestParameters_to_vertex(
+            request_dict = _CreateRuntimeTaskRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -459,13 +446,13 @@ class A2aTasks(_api_module.BaseModule):
         self,
         *,
         name: str,
-        config: Optional[types.ListAgentEngineTasksConfigOrDict] = None,
+        config: Optional[types.ListRuntimeTasksConfigOrDict] = None,
     ) -> Iterator[types.A2aTask]:
-        """Lists the A2A tasks of an Agent Engine.
+        """Lists the A2A tasks of an Agent Runtime.
 
         Args:
             name (str):
-                Required. The name of the agent engine to list tasks for.
+                Required. The name of the agent runtime to list tasks for.
             config (List):
                 Optional. The configuration for the tasks to list.
 
@@ -489,7 +476,7 @@ class A2aTasks(_api_module.BaseModule):
                 self._events = importlib.import_module(".a2a_task_events", __package__)
             except ImportError as e:
                 raise ImportError(
-                    "The 'agent_engines.a2a_tasks.events' module requires additional "
+                    "The 'runtimes.a2a_tasks.events' module requires additional "
                     "packages. Please install them using pip install "
                     "google-cloud-aiplatform[agent_engines]"
                 ) from e
@@ -499,26 +486,23 @@ class A2aTasks(_api_module.BaseModule):
 class AsyncA2aTasks(_api_module.BaseModule):
 
     async def delete(
-        self,
-        *,
-        name: str,
-        config: Optional[types.DeleteAgentEngineTaskConfigOrDict] = None,
+        self, *, name: str, config: Optional[types.DeleteRuntimeTaskConfigOrDict] = None
     ) -> None:
         """
-        Deletes an agent engine task.
+        Deletes an agent runtime task.
 
         Args:
-            name (str): Required. The name of the Agent Engine task to delete. Format:
+            name (str): Required. The name of the Agent Runtime task to delete. Format:
                 `projects/{project}/locations/{location}/reasoningEngines/{resource_id}/a2aTasks/{task_id}`.
-            config (DeleteAgentEngineTaskConfig):
-                Optional. Additional configurations for deleting the Agent Engine task.
+            config (DeleteRuntimeTaskConfig):
+                Optional. Additional configurations for deleting the Agent Runtime task.
 
         Returns:
             None
 
         """
 
-        parameter_model = types._DeleteAgentEngineTaskRequestParameters(
+        parameter_model = types._DeleteRuntimeTaskRequestParameters(
             name=name,
             config=config,
         )
@@ -529,7 +513,7 @@ class AsyncA2aTasks(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _DeleteAgentEngineTaskRequestParameters_to_vertex(
+            request_dict = _DeleteRuntimeTaskRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -557,26 +541,23 @@ class AsyncA2aTasks(_api_module.BaseModule):
         await self._api_client.async_request("delete", path, request_dict, http_options)
 
     async def get(
-        self,
-        *,
-        name: str,
-        config: Optional[types.GetAgentEngineTaskConfigOrDict] = None,
+        self, *, name: str, config: Optional[types.GetRuntimeTaskConfigOrDict] = None
     ) -> types.A2aTask:
         """
-        Gets an agent engine task.
+        Gets an agent runtime task.
 
         Args:
-            name (str): Required. The name of the Agent Engine task to get. Format:
+            name (str): Required. The name of the Agent Runtime task to get. Format:
                 `projects/{project}/locations/{location}/reasoningEngines/{resource_id}/a2aTasks/{task_id}`.
-            config (GetAgentEngineTaskConfig):
-                Optional. Additional configurations for getting the Agent Engine task.
+            config (GetRuntimeTaskConfig):
+                Optional. Additional configurations for getting the Agent Runtime task.
 
         Returns:
-            AgentEngineTask: The requested Agent Engine task.
+            RuntimeTask: The requested Agent Runtime task.
 
         """
 
-        parameter_model = types._GetAgentEngineTaskRequestParameters(
+        parameter_model = types._GetRuntimeTaskRequestParameters(
             name=name,
             config=config,
         )
@@ -587,9 +568,7 @@ class AsyncA2aTasks(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetAgentEngineTaskRequestParameters_to_vertex(
-                parameter_model
-            )
+            request_dict = _GetRuntimeTaskRequestParameters_to_vertex(parameter_model)
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}".format_map(request_url_dict)
@@ -643,26 +622,23 @@ class AsyncA2aTasks(_api_module.BaseModule):
         return return_value
 
     async def _list(
-        self,
-        *,
-        name: str,
-        config: Optional[types.ListAgentEngineTasksConfigOrDict] = None,
-    ) -> types.ListAgentEngineTasksResponse:
+        self, *, name: str, config: Optional[types.ListRuntimeTasksConfigOrDict] = None
+    ) -> types.ListRuntimeTasksResponse:
         """
-        Lists Agent Engine tasks.
+        Lists Agent Runtime tasks.
 
         Args:
-            name (str): Required. The name of the Agent Engine to list tasks for. Format:
+            name (str): Required. The name of the Agent Runtime to list tasks for. Format:
                 `projects/{project}/locations/{location}/reasoningEngines/{resource_id}`.
-            config (ListAgentEngineTasksConfig):
-                Optional. Additional configurations for listing the Agent Engine tasks.
+            config (ListRuntimeTasksConfig):
+                Optional. Additional configurations for listing the Agent Runtime tasks.
 
         Returns:
-            ListAgentEngineTasksResponse: The requested Agent Engine tasks.
+            ListRuntimeTasksResponse: The requested Agent Runtime tasks.
 
         """
 
-        parameter_model = types._ListAgentEngineTasksRequestParameters(
+        parameter_model = types._ListRuntimeTasksRequestParameters(
             name=name,
             config=config,
         )
@@ -673,9 +649,7 @@ class AsyncA2aTasks(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _ListAgentEngineTasksRequestParameters_to_vertex(
-                parameter_model
-            )
+            request_dict = _ListRuntimeTasksRequestParameters_to_vertex(parameter_model)
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}/a2aTasks".format_map(request_url_dict)
@@ -704,7 +678,7 @@ class AsyncA2aTasks(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
-        return_value = types.ListAgentEngineTasksResponse._from_response(
+        return_value = types.ListRuntimeTasksResponse._from_response(
             response=response_dict,
             kwargs=(
                 {
@@ -733,25 +707,25 @@ class AsyncA2aTasks(_api_module.BaseModule):
         *,
         name: str,
         a2a_task_id: str,
-        config: Optional[types.CreateAgentEngineTaskConfigOrDict] = None,
+        config: Optional[types.CreateRuntimeTaskConfigOrDict] = None,
     ) -> types.A2aTask:
         """
-        Creates a new task in the Agent Engine.
+        Creates a new task in the Agent Runtime.
 
         Args:
-            name (str): Required. The name of the Agent Engine to create the task under. Format:
+            name (str): Required. The name of the Agent Runtime to create the task under. Format:
                 `projects/{project}/locations/{location}/reasoningEngines/{resource_id}`.
             a2a_task_id (str): Required. The user ID of the task.
             context_id (str): Required. The ID of the context to use for the task.
-            config (CreateAgentEngineTaskConfig):
-                Optional. Additional configurations for creating the Agent Engine task.
+            config (CreateRuntimeTaskConfig):
+                Optional. Additional configurations for creating the Agent Runtime task.
 
         Returns:
-            A2aTask: The created Agent Engine task.
+            A2aTask: The created Agent Runtime task.
 
         """
 
-        parameter_model = types._CreateAgentEngineTaskRequestParameters(
+        parameter_model = types._CreateRuntimeTaskRequestParameters(
             name=name,
             a2a_task_id=a2a_task_id,
             config=config,
@@ -763,7 +737,7 @@ class AsyncA2aTasks(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _CreateAgentEngineTaskRequestParameters_to_vertex(
+            request_dict = _CreateRuntimeTaskRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -824,13 +798,13 @@ class AsyncA2aTasks(_api_module.BaseModule):
         self,
         *,
         name: str,
-        config: Optional[types.ListAgentEngineTasksConfigOrDict] = None,
+        config: Optional[types.ListRuntimeTasksConfigOrDict] = None,
     ) -> AsyncPager[types.A2aTask]:
-        """Lists the A2A tasks of an Agent Engine.
+        """Lists the A2A tasks of an Agent Runtime.
 
         Args:
             name (str):
-                Required. The name of the agent engine to list tasks for.
+                Required. The name of the agent runtime to list tasks for.
             config (List):
                 Optional. The configuration for the tasks to list.
 
@@ -854,7 +828,7 @@ class AsyncA2aTasks(_api_module.BaseModule):
                 self._events = importlib.import_module(".a2a_task_events", __package__)
             except ImportError as e:
                 raise ImportError(
-                    "The 'agent_engines.a2a_tasks.events' module requires additional "
+                    "The 'runtimes.a2a_tasks.events' module requires additional "
                     "packages. Please install them using pip install "
                     "google-cloud-aiplatform[agent_engines]"
                 ) from e

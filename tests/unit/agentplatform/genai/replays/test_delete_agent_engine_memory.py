@@ -22,23 +22,23 @@ from agentplatform._genai import types
 
 
 def test_delete_memory(client):
-    agent_engine = client.agent_engines.create()
-    operation = client.agent_engines.memories.create(
+    agent_engine = client.runtimes.create()
+    operation = client.runtimes.memories.create(
         name=agent_engine.api_resource.name,
         fact="memory_fact",
         scope={"user_id": "123"},
     )
     memory = operation.response
-    operation = client.agent_engines.memories.delete(name=memory.name)
-    assert isinstance(operation, types.DeleteAgentEngineMemoryOperation)
+    operation = client.runtimes.memories.delete(name=memory.name)
+    assert isinstance(operation, types.DeleteRuntimeMemoryOperation)
     assert operation.name.startswith(memory.name + "/operations/")
-    client.agent_engines.delete(name=agent_engine.api_resource.name, force=True)
+    client.runtimes.delete(name=agent_engine.api_resource.name, force=True)
 
 
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
-    test_method="agent_engines.delete_memory",
+    test_method="runtimes.delete_memory",
 )
 
 
@@ -47,16 +47,16 @@ pytest_plugins = ("pytest_asyncio",)
 
 @pytest.mark.asyncio
 async def test_delete_memory_async(client):
-    agent_engine = client.agent_engines.create()
-    operation = await client.aio.agent_engines.memories.create(
+    agent_engine = client.runtimes.create()
+    operation = await client.aio.runtimes.memories.create(
         name=agent_engine.api_resource.name,
         fact="memory_fact",
         scope={"user_id": "123"},
     )
     memory = operation.response
-    operation = await client.aio.agent_engines.memories.delete(name=memory.name)
-    assert isinstance(operation, types.DeleteAgentEngineMemoryOperation)
+    operation = await client.aio.runtimes.memories.delete(name=memory.name)
+    assert isinstance(operation, types.DeleteRuntimeMemoryOperation)
     assert operation.name.startswith(memory.name + "/operations/")
-    await client.aio.agent_engines.delete(
+    await client.aio.runtimes.delete(
         name=agent_engine.api_resource.name, force=True
     )

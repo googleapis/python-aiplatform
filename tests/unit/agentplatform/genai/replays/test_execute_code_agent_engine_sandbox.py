@@ -19,20 +19,20 @@ from agentplatform._genai import types
 
 
 def test_execute_code_sandbox(client):
-    agent_engine = client.agent_engines.create()
-    assert isinstance(agent_engine, types.AgentEngine)
+    agent_engine = client.runtimes.create()
+    assert isinstance(agent_engine, types.Runtime)
     assert isinstance(agent_engine.api_resource, types.ReasoningEngine)
 
-    operation = client.agent_engines.sandboxes.create(
+    operation = client.sandboxes.create(
         name=agent_engine.api_resource.name,
         spec={
             "code_execution_environment": {
                 "machineConfig": "MACHINE_CONFIG_VCPU4_RAM4GIB"
             }
         },
-        config=types.CreateAgentEngineSandboxConfig(display_name="test_sandbox"),
+        config=types.CreateRuntimeSandboxConfig(display_name="test_sandbox"),
     )
-    assert isinstance(operation, types.AgentEngineSandboxOperation)
+    assert isinstance(operation, types.RuntimeSandboxOperation)
 
     code = """
 with open("test.txt", "r") as input:
@@ -50,7 +50,7 @@ with open("test.txt", "r") as input:
             }
         ],
     }
-    response = client.agent_engines.sandboxes.execute_code(
+    response = client.sandboxes.execute_code(
         name=operation.response.name,
         input_data=input_data,
     )
@@ -62,5 +62,5 @@ with open("test.txt", "r") as input:
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
-    test_method="agent_engines.sandboxes.execute_code",
+    test_method="sandboxes.execute_code",
 )

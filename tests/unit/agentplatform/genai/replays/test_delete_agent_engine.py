@@ -24,17 +24,17 @@ from agentplatform._genai import types
 
 def test_agent_engine_delete(client, caplog):
     caplog.set_level(logging.INFO)
-    agent_engine = client.agent_engines.create()
-    operation = client.agent_engines.delete(name=agent_engine.api_resource.name)
-    assert isinstance(operation, types.DeleteAgentEngineOperation)
-    assert "Deleting AgentEngine resource" in caplog.text
-    assert f"Started AgentEngine delete operation: {operation.name}" in caplog.text
+    agent_engine = client.runtimes.create()
+    operation = client.runtimes.delete(name=agent_engine.api_resource.name)
+    assert isinstance(operation, types.DeleteRuntimeOperation)
+    assert "Deleting Runtime resource" in caplog.text
+    assert f"Started Runtime delete operation: {operation.name}" in caplog.text
 
 
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
-    test_method="agent_engines.delete",
+    test_method="runtimes.delete",
 )
 
 
@@ -45,10 +45,10 @@ pytest_plugins = ("pytest_asyncio",)
 async def test_agent_engine_delete_async(client, caplog):
     caplog.set_level(logging.INFO)
     # TODO(b/431785750): use async methods for create() when available
-    agent_engine = client.agent_engines.create()
-    operation = await client.aio.agent_engines.delete(
+    agent_engine = client.runtimes.create()
+    operation = await client.aio.runtimes.delete(
         name=agent_engine.api_resource.name
     )
-    assert isinstance(operation, types.DeleteAgentEngineOperation)
-    assert "Deleting AgentEngine resource" in caplog.text
-    assert f"Started AgentEngine delete operation: {operation.name}" in caplog.text
+    assert isinstance(operation, types.DeleteRuntimeOperation)
+    assert "Deleting Runtime resource" in caplog.text
+    assert f"Started Runtime delete operation: {operation.name}" in caplog.text
