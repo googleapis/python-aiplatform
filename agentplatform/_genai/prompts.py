@@ -2369,7 +2369,7 @@ class Prompts(_api_module.BaseModule):
 
         # Step 1: Update the dataset resource for the prompt and wait for the operation to complete.
         updated_dataset_resource = self._update_dataset_resource(
-            name=f"projects/{self._api_client.project}/locations/{self._api_client.location}",
+            name=f"projects/{self._api_client.project}/locations/{self._api_client.location}/datasets/{prompt_id}",
             dataset_id=prompt_id,
             display_name=(
                 config.prompt_display_name
@@ -3709,7 +3709,7 @@ class AsyncPrompts(_api_module.BaseModule):
 
         # Step 1: Update the dataset resource for the prompt and wait for the operation to complete.
         updated_dataset_resource = await self._update_dataset_resource(
-            name=f"projects/{self._api_client.project}/locations/{self._api_client.location}",
+            name=f"projects/{self._api_client.project}/locations/{self._api_client.location}/datasets/{prompt_id}",
             dataset_id=prompt_id,
             display_name=(
                 config.prompt_display_name
