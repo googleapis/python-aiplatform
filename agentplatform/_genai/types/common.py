@@ -23581,7 +23581,7 @@ _GetPublisherModelRequestParametersOrDict = Union[
 ]
 
 
-class CreateAgentEngineFeedbackEntryConfig(_common.BaseModel):
+class CreateRuntimeFeedbackEntryConfig(_common.BaseModel):
     """Config for creating a Feedback Entry."""
 
     http_options: Optional[genai_types.HttpOptions] = Field(
@@ -23611,7 +23611,7 @@ class CreateAgentEngineFeedbackEntryConfig(_common.BaseModel):
     )
 
 
-class CreateAgentEngineFeedbackEntryConfigDict(TypedDict, total=False):
+class CreateRuntimeFeedbackEntryConfigDict(TypedDict, total=False):
     """Config for creating a Feedback Entry."""
 
     http_options: Optional[genai_types.HttpOptions]
@@ -23636,17 +23636,17 @@ class CreateAgentEngineFeedbackEntryConfigDict(TypedDict, total=False):
     """Waits for the operation to complete before returning."""
 
 
-CreateAgentEngineFeedbackEntryConfigOrDict = Union[
-    CreateAgentEngineFeedbackEntryConfig, CreateAgentEngineFeedbackEntryConfigDict
+CreateRuntimeFeedbackEntryConfigOrDict = Union[
+    CreateRuntimeFeedbackEntryConfig, CreateRuntimeFeedbackEntryConfigDict
 ]
 
 
-class _CreateAgentEngineFeedbackEntryRequestParameters(_common.BaseModel):
+class _CreateRuntimeFeedbackEntryRequestParameters(_common.BaseModel):
     """Parameters for creating a Feedback Entry."""
 
     name: Optional[str] = Field(
         default=None,
-        description="""Resource name of the reasoning engine to create the feedback entry in.""",
+        description="""Resource name of the Runtime to create the Feedback Entry in.""",
     )
     feedback_type: Optional[FeedbackType] = Field(
         default=None, description="""The type of feedback provided."""
@@ -23659,16 +23659,16 @@ class _CreateAgentEngineFeedbackEntryRequestParameters(_common.BaseModel):
         default=None,
         description="""The ID of the event to which the feedback relates to.""",
     )
-    config: Optional[CreateAgentEngineFeedbackEntryConfig] = Field(
+    config: Optional[CreateRuntimeFeedbackEntryConfig] = Field(
         default=None, description=""""""
     )
 
 
-class _CreateAgentEngineFeedbackEntryRequestParametersDict(TypedDict, total=False):
+class _CreateRuntimeFeedbackEntryRequestParametersDict(TypedDict, total=False):
     """Parameters for creating a Feedback Entry."""
 
     name: Optional[str]
-    """Resource name of the reasoning engine to create the feedback entry in."""
+    """Resource name of the Runtime to create the Feedback Entry in."""
 
     feedback_type: Optional[FeedbackType]
     """The type of feedback provided."""
@@ -23679,18 +23679,18 @@ class _CreateAgentEngineFeedbackEntryRequestParametersDict(TypedDict, total=Fals
     event_id: Optional[str]
     """The ID of the event to which the feedback relates to."""
 
-    config: Optional[CreateAgentEngineFeedbackEntryConfigDict]
+    config: Optional[CreateRuntimeFeedbackEntryConfigDict]
     """"""
 
 
-_CreateAgentEngineFeedbackEntryRequestParametersOrDict = Union[
-    _CreateAgentEngineFeedbackEntryRequestParameters,
-    _CreateAgentEngineFeedbackEntryRequestParametersDict,
+_CreateRuntimeFeedbackEntryRequestParametersOrDict = Union[
+    _CreateRuntimeFeedbackEntryRequestParameters,
+    _CreateRuntimeFeedbackEntryRequestParametersDict,
 ]
 
 
 class FeedbackEntry(_common.BaseModel):
-    """A feedback entry."""
+    """A Feedback Entry."""
 
     create_time: Optional[datetime.datetime] = Field(
         default=None,
@@ -23737,7 +23737,7 @@ class FeedbackEntry(_common.BaseModel):
 
 
 class FeedbackEntryDict(TypedDict, total=False):
-    """A feedback entry."""
+    """A Feedback Entry."""
 
     create_time: Optional[datetime.datetime]
     """Output only. Timestamp when the feedback entry was created."""
@@ -23776,8 +23776,8 @@ class FeedbackEntryDict(TypedDict, total=False):
 FeedbackEntryOrDict = Union[FeedbackEntry, FeedbackEntryDict]
 
 
-class AgentEngineFeedbackEntryOperation(_common.BaseModel):
-    """Operation that has an agent engine feedback entry as a response."""
+class RuntimeFeedbackEntryOperation(_common.BaseModel):
+    """Operation that has a Runtime Feedback Entry as a response."""
 
     name: Optional[str] = Field(
         default=None,
@@ -23796,12 +23796,12 @@ class AgentEngineFeedbackEntryOperation(_common.BaseModel):
         description="""The error result of the operation in case of failure or cancellation.""",
     )
     response: Optional[FeedbackEntry] = Field(
-        default=None, description="""The Agent Engine Feedback Entry."""
+        default=None, description="""The Runtime Feedback Entry."""
     )
 
 
-class AgentEngineFeedbackEntryOperationDict(TypedDict, total=False):
-    """Operation that has an agent engine feedback entry as a response."""
+class RuntimeFeedbackEntryOperationDict(TypedDict, total=False):
+    """Operation that has a Runtime Feedback Entry as a response."""
 
     name: Optional[str]
     """The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`."""
@@ -23816,15 +23816,15 @@ class AgentEngineFeedbackEntryOperationDict(TypedDict, total=False):
     """The error result of the operation in case of failure or cancellation."""
 
     response: Optional[FeedbackEntryDict]
-    """The Agent Engine Feedback Entry."""
+    """The Runtime Feedback Entry."""
 
 
-AgentEngineFeedbackEntryOperationOrDict = Union[
-    AgentEngineFeedbackEntryOperation, AgentEngineFeedbackEntryOperationDict
+RuntimeFeedbackEntryOperationOrDict = Union[
+    RuntimeFeedbackEntryOperation, RuntimeFeedbackEntryOperationDict
 ]
 
 
-class DeleteAgentEngineFeedbackEntryConfig(_common.BaseModel):
+class DeleteRuntimeFeedbackEntryConfig(_common.BaseModel):
     """Config for deleting a Feedback Entry."""
 
     http_options: Optional[genai_types.HttpOptions] = Field(
@@ -23836,7 +23836,7 @@ class DeleteAgentEngineFeedbackEntryConfig(_common.BaseModel):
     )
 
 
-class DeleteAgentEngineFeedbackEntryConfigDict(TypedDict, total=False):
+class DeleteRuntimeFeedbackEntryConfigDict(TypedDict, total=False):
     """Config for deleting a Feedback Entry."""
 
     http_options: Optional[genai_types.HttpOptions]
@@ -23846,39 +23846,39 @@ class DeleteAgentEngineFeedbackEntryConfigDict(TypedDict, total=False):
     """Waits for the operation to complete before returning."""
 
 
-DeleteAgentEngineFeedbackEntryConfigOrDict = Union[
-    DeleteAgentEngineFeedbackEntryConfig, DeleteAgentEngineFeedbackEntryConfigDict
+DeleteRuntimeFeedbackEntryConfigOrDict = Union[
+    DeleteRuntimeFeedbackEntryConfig, DeleteRuntimeFeedbackEntryConfigDict
 ]
 
 
-class _DeleteAgentEngineFeedbackEntryRequestParameters(_common.BaseModel):
+class _DeleteRuntimeFeedbackEntryRequestParameters(_common.BaseModel):
     """Parameters for deleting a Feedback Entry."""
 
     name: Optional[str] = Field(
-        default=None, description="""Name of the feedback entry to delete."""
+        default=None, description="""Name of the Feedback Entry to delete."""
     )
-    config: Optional[DeleteAgentEngineFeedbackEntryConfig] = Field(
+    config: Optional[DeleteRuntimeFeedbackEntryConfig] = Field(
         default=None, description=""""""
     )
 
 
-class _DeleteAgentEngineFeedbackEntryRequestParametersDict(TypedDict, total=False):
+class _DeleteRuntimeFeedbackEntryRequestParametersDict(TypedDict, total=False):
     """Parameters for deleting a Feedback Entry."""
 
     name: Optional[str]
-    """Name of the feedback entry to delete."""
+    """Name of the Feedback Entry to delete."""
 
-    config: Optional[DeleteAgentEngineFeedbackEntryConfigDict]
+    config: Optional[DeleteRuntimeFeedbackEntryConfigDict]
     """"""
 
 
-_DeleteAgentEngineFeedbackEntryRequestParametersOrDict = Union[
-    _DeleteAgentEngineFeedbackEntryRequestParameters,
-    _DeleteAgentEngineFeedbackEntryRequestParametersDict,
+_DeleteRuntimeFeedbackEntryRequestParametersOrDict = Union[
+    _DeleteRuntimeFeedbackEntryRequestParameters,
+    _DeleteRuntimeFeedbackEntryRequestParametersDict,
 ]
 
 
-class DeleteAgentEngineFeedbackEntryOperation(_common.BaseModel):
+class DeleteRuntimeFeedbackEntryOperation(_common.BaseModel):
     """Operation for deleting a Feedback Entry."""
 
     name: Optional[str] = Field(
@@ -23899,7 +23899,7 @@ class DeleteAgentEngineFeedbackEntryOperation(_common.BaseModel):
     )
 
 
-class DeleteAgentEngineFeedbackEntryOperationDict(TypedDict, total=False):
+class DeleteRuntimeFeedbackEntryOperationDict(TypedDict, total=False):
     """Operation for deleting a Feedback Entry."""
 
     name: Optional[str]
@@ -23915,12 +23915,12 @@ class DeleteAgentEngineFeedbackEntryOperationDict(TypedDict, total=False):
     """The error result of the operation in case of failure or cancellation."""
 
 
-DeleteAgentEngineFeedbackEntryOperationOrDict = Union[
-    DeleteAgentEngineFeedbackEntryOperation, DeleteAgentEngineFeedbackEntryOperationDict
+DeleteRuntimeFeedbackEntryOperationOrDict = Union[
+    DeleteRuntimeFeedbackEntryOperation, DeleteRuntimeFeedbackEntryOperationDict
 ]
 
 
-class GetAgentEngineFeedbackConfig(_common.BaseModel):
+class GetRuntimeFeedbackConfig(_common.BaseModel):
     """Config for getting a Feedback Entry."""
 
     http_options: Optional[genai_types.HttpOptions] = Field(
@@ -23928,47 +23928,44 @@ class GetAgentEngineFeedbackConfig(_common.BaseModel):
     )
 
 
-class GetAgentEngineFeedbackConfigDict(TypedDict, total=False):
+class GetRuntimeFeedbackConfigDict(TypedDict, total=False):
     """Config for getting a Feedback Entry."""
 
     http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
 
-GetAgentEngineFeedbackConfigOrDict = Union[
-    GetAgentEngineFeedbackConfig, GetAgentEngineFeedbackConfigDict
+GetRuntimeFeedbackConfigOrDict = Union[
+    GetRuntimeFeedbackConfig, GetRuntimeFeedbackConfigDict
 ]
 
 
-class _GetAgentEngineFeedbackRequestParameters(_common.BaseModel):
-    """Parameters for getting Agent Engine Feedback."""
+class _GetRuntimeFeedbackRequestParameters(_common.BaseModel):
+    """Parameters for getting a Runtime Feedback Entry."""
 
     name: Optional[str] = Field(
         default=None, description="""The name of the feedback entry to retrieve."""
     )
-    config: Optional[GetAgentEngineFeedbackConfig] = Field(
-        default=None, description=""""""
-    )
+    config: Optional[GetRuntimeFeedbackConfig] = Field(default=None, description="""""")
 
 
-class _GetAgentEngineFeedbackRequestParametersDict(TypedDict, total=False):
-    """Parameters for getting Agent Engine Feedback."""
+class _GetRuntimeFeedbackRequestParametersDict(TypedDict, total=False):
+    """Parameters for getting a Runtime Feedback Entry."""
 
     name: Optional[str]
     """The name of the feedback entry to retrieve."""
 
-    config: Optional[GetAgentEngineFeedbackConfigDict]
+    config: Optional[GetRuntimeFeedbackConfigDict]
     """"""
 
 
-_GetAgentEngineFeedbackRequestParametersOrDict = Union[
-    _GetAgentEngineFeedbackRequestParameters,
-    _GetAgentEngineFeedbackRequestParametersDict,
+_GetRuntimeFeedbackRequestParametersOrDict = Union[
+    _GetRuntimeFeedbackRequestParameters, _GetRuntimeFeedbackRequestParametersDict
 ]
 
 
-class ListAgentEngineFeedbackEntriesConfig(_common.BaseModel):
-    """Config for listing feedback entries."""
+class ListRuntimeFeedbackEntriesConfig(_common.BaseModel):
+    """Config for listing Feedback Entries."""
 
     http_options: Optional[genai_types.HttpOptions] = Field(
         default=None, description="""Used to override HTTP request options."""
@@ -23984,8 +23981,8 @@ class ListAgentEngineFeedbackEntriesConfig(_common.BaseModel):
     )
 
 
-class ListAgentEngineFeedbackEntriesConfigDict(TypedDict, total=False):
-    """Config for listing feedback entries."""
+class ListRuntimeFeedbackEntriesConfigDict(TypedDict, total=False):
+    """Config for listing Feedback Entries."""
 
     http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
@@ -24003,53 +24000,53 @@ class ListAgentEngineFeedbackEntriesConfigDict(TypedDict, total=False):
     """A comma-separated list of fields to order by."""
 
 
-ListAgentEngineFeedbackEntriesConfigOrDict = Union[
-    ListAgentEngineFeedbackEntriesConfig, ListAgentEngineFeedbackEntriesConfigDict
+ListRuntimeFeedbackEntriesConfigOrDict = Union[
+    ListRuntimeFeedbackEntriesConfig, ListRuntimeFeedbackEntriesConfigDict
 ]
 
 
-class _ListAgentEngineFeedbackEntriesRequestParameters(_common.BaseModel):
-    """Parameters for listing feedback entries."""
+class _ListRuntimeFeedbackEntriesRequestParameters(_common.BaseModel):
+    """Parameters for listing Feedback Entries."""
 
     parent: Optional[str] = Field(
         default=None,
-        description="""Resource name of the reasoning engine to list the feedback entries from.""",
+        description="""Resource name of the Runtime to list the Feedback Entries from.""",
     )
-    config: Optional[ListAgentEngineFeedbackEntriesConfig] = Field(
+    config: Optional[ListRuntimeFeedbackEntriesConfig] = Field(
         default=None, description=""""""
     )
 
 
-class _ListAgentEngineFeedbackEntriesRequestParametersDict(TypedDict, total=False):
-    """Parameters for listing feedback entries."""
+class _ListRuntimeFeedbackEntriesRequestParametersDict(TypedDict, total=False):
+    """Parameters for listing Feedback Entries."""
 
     parent: Optional[str]
-    """Resource name of the reasoning engine to list the feedback entries from."""
+    """Resource name of the Runtime to list the Feedback Entries from."""
 
-    config: Optional[ListAgentEngineFeedbackEntriesConfigDict]
+    config: Optional[ListRuntimeFeedbackEntriesConfigDict]
     """"""
 
 
-_ListAgentEngineFeedbackEntriesRequestParametersOrDict = Union[
-    _ListAgentEngineFeedbackEntriesRequestParameters,
-    _ListAgentEngineFeedbackEntriesRequestParametersDict,
+_ListRuntimeFeedbackEntriesRequestParametersOrDict = Union[
+    _ListRuntimeFeedbackEntriesRequestParameters,
+    _ListRuntimeFeedbackEntriesRequestParametersDict,
 ]
 
 
-class ListAgentEngineFeedbackEntriesResponse(_common.BaseModel):
-    """Response for listing feedback entries."""
+class ListRuntimeFeedbackEntriesResponse(_common.BaseModel):
+    """Response for listing Feedback Entries."""
 
     sdk_http_response: Optional[genai_types.HttpResponse] = Field(
         default=None, description="""Used to retain the full HTTP response."""
     )
     next_page_token: Optional[str] = Field(default=None, description="""""")
     feedback_entries: Optional[list[FeedbackEntry]] = Field(
-        default=None, description="""List of feedback entries."""
+        default=None, description="""List of Feedback Entries."""
     )
 
 
-class ListAgentEngineFeedbackEntriesResponseDict(TypedDict, total=False):
-    """Response for listing feedback entries."""
+class ListRuntimeFeedbackEntriesResponseDict(TypedDict, total=False):
+    """Response for listing Feedback Entries."""
 
     sdk_http_response: Optional[genai_types.HttpResponse]
     """Used to retain the full HTTP response."""
@@ -24058,15 +24055,15 @@ class ListAgentEngineFeedbackEntriesResponseDict(TypedDict, total=False):
     """"""
 
     feedback_entries: Optional[list[FeedbackEntryDict]]
-    """List of feedback entries."""
+    """List of Feedback Entries."""
 
 
-ListAgentEngineFeedbackEntriesResponseOrDict = Union[
-    ListAgentEngineFeedbackEntriesResponse, ListAgentEngineFeedbackEntriesResponseDict
+ListRuntimeFeedbackEntriesResponseOrDict = Union[
+    ListRuntimeFeedbackEntriesResponse, ListRuntimeFeedbackEntriesResponseDict
 ]
 
 
-class UpdateAgentEngineFeedbackEntryConfig(_common.BaseModel):
+class UpdateRuntimeFeedbackEntryConfig(_common.BaseModel):
     """Config for updating a Feedback Entry."""
 
     http_options: Optional[genai_types.HttpOptions] = Field(
@@ -24112,7 +24109,7 @@ class UpdateAgentEngineFeedbackEntryConfig(_common.BaseModel):
     )
 
 
-class UpdateAgentEngineFeedbackEntryConfigDict(TypedDict, total=False):
+class UpdateRuntimeFeedbackEntryConfigDict(TypedDict, total=False):
     """Config for updating a Feedback Entry."""
 
     http_options: Optional[genai_types.HttpOptions]
@@ -24150,66 +24147,85 @@ class UpdateAgentEngineFeedbackEntryConfigDict(TypedDict, total=False):
     """Waits for the operation to complete before returning."""
 
 
-UpdateAgentEngineFeedbackEntryConfigOrDict = Union[
-    UpdateAgentEngineFeedbackEntryConfig, UpdateAgentEngineFeedbackEntryConfigDict
+UpdateRuntimeFeedbackEntryConfigOrDict = Union[
+    UpdateRuntimeFeedbackEntryConfig, UpdateRuntimeFeedbackEntryConfigDict
 ]
 
 
-class _UpdateAgentEngineFeedbackEntryRequestParameters(_common.BaseModel):
+class _UpdateRuntimeFeedbackEntryRequestParameters(_common.BaseModel):
     """Parameters for updating a Feedback Entry."""
 
     name: Optional[str] = Field(
         default=None, description="""Name of the Feedback Entry."""
     )
-    config: Optional[UpdateAgentEngineFeedbackEntryConfig] = Field(
+    config: Optional[UpdateRuntimeFeedbackEntryConfig] = Field(
         default=None, description="""Config for updating a Feedback Entry."""
     )
 
 
-class _UpdateAgentEngineFeedbackEntryRequestParametersDict(TypedDict, total=False):
+class _UpdateRuntimeFeedbackEntryRequestParametersDict(TypedDict, total=False):
     """Parameters for updating a Feedback Entry."""
 
     name: Optional[str]
     """Name of the Feedback Entry."""
 
-    config: Optional[UpdateAgentEngineFeedbackEntryConfigDict]
+    config: Optional[UpdateRuntimeFeedbackEntryConfigDict]
     """Config for updating a Feedback Entry."""
 
 
-_UpdateAgentEngineFeedbackEntryRequestParametersOrDict = Union[
-    _UpdateAgentEngineFeedbackEntryRequestParameters,
-    _UpdateAgentEngineFeedbackEntryRequestParametersDict,
+_UpdateRuntimeFeedbackEntryRequestParametersOrDict = Union[
+    _UpdateRuntimeFeedbackEntryRequestParameters,
+    _UpdateRuntimeFeedbackEntryRequestParametersDict,
 ]
 
 
-class _GetAgentEngineFeedbackOperationParameters(_common.BaseModel):
-    """Parameters for getting an operation with a feedback entry as a response."""
+class GetRuntimeFeedbackEntryConfig(_common.BaseModel):
+    """Config for getting a Feedback Entry."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class GetRuntimeFeedbackEntryConfigDict(TypedDict, total=False):
+    """Config for getting a Feedback Entry."""
+
+    http_options: Optional[genai_types.HttpOptions]
+    """Used to override HTTP request options."""
+
+
+GetRuntimeFeedbackEntryConfigOrDict = Union[
+    GetRuntimeFeedbackEntryConfig, GetRuntimeFeedbackEntryConfigDict
+]
+
+
+class _GetRuntimeFeedbackOperationParameters(_common.BaseModel):
+    """Parameters for getting an operation with a Feedback Entry as a response."""
 
     operation_name: Optional[str] = Field(
         default=None, description="""The server-assigned name for the operation."""
     )
-    config: Optional[GetAgentEngineOperationConfig] = Field(
+    config: Optional[GetRuntimeFeedbackEntryConfig] = Field(
         default=None, description="""Used to override the default configuration."""
     )
 
 
-class _GetAgentEngineFeedbackOperationParametersDict(TypedDict, total=False):
-    """Parameters for getting an operation with a feedback entry as a response."""
+class _GetRuntimeFeedbackOperationParametersDict(TypedDict, total=False):
+    """Parameters for getting an operation with a Feedback Entry as a response."""
 
     operation_name: Optional[str]
     """The server-assigned name for the operation."""
 
-    config: Optional[GetAgentEngineOperationConfigDict]
+    config: Optional[GetRuntimeFeedbackEntryConfigDict]
     """Used to override the default configuration."""
 
 
-_GetAgentEngineFeedbackOperationParametersOrDict = Union[
-    _GetAgentEngineFeedbackOperationParameters,
-    _GetAgentEngineFeedbackOperationParametersDict,
+_GetRuntimeFeedbackOperationParametersOrDict = Union[
+    _GetRuntimeFeedbackOperationParameters, _GetRuntimeFeedbackOperationParametersDict
 ]
 
 
-class GetAgentEngineFeedbackContextConfig(_common.BaseModel):
+class GetRuntimeFeedbackContextConfig(_common.BaseModel):
     """Config for getting a Feedback Context."""
 
     http_options: Optional[genai_types.HttpOptions] = Field(
@@ -24217,47 +24233,47 @@ class GetAgentEngineFeedbackContextConfig(_common.BaseModel):
     )
 
 
-class GetAgentEngineFeedbackContextConfigDict(TypedDict, total=False):
+class GetRuntimeFeedbackContextConfigDict(TypedDict, total=False):
     """Config for getting a Feedback Context."""
 
     http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
 
-GetAgentEngineFeedbackContextConfigOrDict = Union[
-    GetAgentEngineFeedbackContextConfig, GetAgentEngineFeedbackContextConfigDict
+GetRuntimeFeedbackContextConfigOrDict = Union[
+    GetRuntimeFeedbackContextConfig, GetRuntimeFeedbackContextConfigDict
 ]
 
 
-class _GetAgentEngineFeedbackContextRequestParameters(_common.BaseModel):
-    """Parameters for getting Agent Engine Feedback Context."""
+class _GetRuntimeFeedbackContextRequestParameters(_common.BaseModel):
+    """Parameters for getting a Runtime Feedback Context."""
 
     name: Optional[str] = Field(
-        default=None, description="""The name of the feedback context to retrieve."""
+        default=None, description="""The name of the Feedback Context to retrieve."""
     )
-    config: Optional[GetAgentEngineFeedbackContextConfig] = Field(
+    config: Optional[GetRuntimeFeedbackContextConfig] = Field(
         default=None, description=""""""
     )
 
 
-class _GetAgentEngineFeedbackContextRequestParametersDict(TypedDict, total=False):
-    """Parameters for getting Agent Engine Feedback Context."""
+class _GetRuntimeFeedbackContextRequestParametersDict(TypedDict, total=False):
+    """Parameters for getting a Runtime Feedback Context."""
 
     name: Optional[str]
-    """The name of the feedback context to retrieve."""
+    """The name of the Feedback Context to retrieve."""
 
-    config: Optional[GetAgentEngineFeedbackContextConfigDict]
+    config: Optional[GetRuntimeFeedbackContextConfigDict]
     """"""
 
 
-_GetAgentEngineFeedbackContextRequestParametersOrDict = Union[
-    _GetAgentEngineFeedbackContextRequestParameters,
-    _GetAgentEngineFeedbackContextRequestParametersDict,
+_GetRuntimeFeedbackContextRequestParametersOrDict = Union[
+    _GetRuntimeFeedbackContextRequestParameters,
+    _GetRuntimeFeedbackContextRequestParametersDict,
 ]
 
 
 class FeedbackContext(_common.BaseModel):
-    """A feedback context."""
+    """A Feedback Context."""
 
     context_events: Optional[list[SessionEvent]] = Field(
         default=None,
@@ -24270,7 +24286,7 @@ class FeedbackContext(_common.BaseModel):
 
 
 class FeedbackContextDict(TypedDict, total=False):
-    """A feedback context."""
+    """A Feedback Context."""
 
     context_events: Optional[list[SessionEventDict]]
     """Optional. Events from the conversation relevant to the parent feedback entry."""
@@ -24282,35 +24298,56 @@ class FeedbackContextDict(TypedDict, total=False):
 FeedbackContextOrDict = Union[FeedbackContext, FeedbackContextDict]
 
 
-class _GetAgentEngineFeedbackContextOperationParameters(_common.BaseModel):
-    """Parameters for getting an operation with a feedback context as a response."""
+class GetRuntimeFeedbackContextOperationConfig(_common.BaseModel):
+    """Config for getting a Feedback Context."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class GetRuntimeFeedbackContextOperationConfigDict(TypedDict, total=False):
+    """Config for getting a Feedback Context."""
+
+    http_options: Optional[genai_types.HttpOptions]
+    """Used to override HTTP request options."""
+
+
+GetRuntimeFeedbackContextOperationConfigOrDict = Union[
+    GetRuntimeFeedbackContextOperationConfig,
+    GetRuntimeFeedbackContextOperationConfigDict,
+]
+
+
+class _GetRuntimeFeedbackContextOperationParameters(_common.BaseModel):
+    """Parameters for getting an operation with a Feedback Context as a response."""
 
     operation_name: Optional[str] = Field(
         default=None, description="""The server-assigned name for the operation."""
     )
-    config: Optional[GetAgentEngineOperationConfig] = Field(
+    config: Optional[GetRuntimeFeedbackContextOperationConfig] = Field(
         default=None, description="""Used to override the default configuration."""
     )
 
 
-class _GetAgentEngineFeedbackContextOperationParametersDict(TypedDict, total=False):
-    """Parameters for getting an operation with a feedback context as a response."""
+class _GetRuntimeFeedbackContextOperationParametersDict(TypedDict, total=False):
+    """Parameters for getting an operation with a Feedback Context as a response."""
 
     operation_name: Optional[str]
     """The server-assigned name for the operation."""
 
-    config: Optional[GetAgentEngineOperationConfigDict]
+    config: Optional[GetRuntimeFeedbackContextOperationConfigDict]
     """Used to override the default configuration."""
 
 
-_GetAgentEngineFeedbackContextOperationParametersOrDict = Union[
-    _GetAgentEngineFeedbackContextOperationParameters,
-    _GetAgentEngineFeedbackContextOperationParametersDict,
+_GetRuntimeFeedbackContextOperationParametersOrDict = Union[
+    _GetRuntimeFeedbackContextOperationParameters,
+    _GetRuntimeFeedbackContextOperationParametersDict,
 ]
 
 
-class AgentEngineFeedbackContextOperation(_common.BaseModel):
-    """Operation that has an agent engine feedback context as a response."""
+class RuntimeFeedbackContextOperation(_common.BaseModel):
+    """Operation that has a Runtime Feedback Context as a response."""
 
     name: Optional[str] = Field(
         default=None,
@@ -24329,12 +24366,12 @@ class AgentEngineFeedbackContextOperation(_common.BaseModel):
         description="""The error result of the operation in case of failure or cancellation.""",
     )
     response: Optional[FeedbackContext] = Field(
-        default=None, description="""The Agent Engine Feedback Context."""
+        default=None, description="""The Runtime Feedback Context."""
     )
 
 
-class AgentEngineFeedbackContextOperationDict(TypedDict, total=False):
-    """Operation that has an agent engine feedback context as a response."""
+class RuntimeFeedbackContextOperationDict(TypedDict, total=False):
+    """Operation that has a Runtime Feedback Context as a response."""
 
     name: Optional[str]
     """The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`."""
@@ -24349,15 +24386,15 @@ class AgentEngineFeedbackContextOperationDict(TypedDict, total=False):
     """The error result of the operation in case of failure or cancellation."""
 
     response: Optional[FeedbackContextDict]
-    """The Agent Engine Feedback Context."""
+    """The Runtime Feedback Context."""
 
 
-AgentEngineFeedbackContextOperationOrDict = Union[
-    AgentEngineFeedbackContextOperation, AgentEngineFeedbackContextOperationDict
+RuntimeFeedbackContextOperationOrDict = Union[
+    RuntimeFeedbackContextOperation, RuntimeFeedbackContextOperationDict
 ]
 
 
-class UpdateAgentEngineFeedbackContextConfig(_common.BaseModel):
+class UpdateRuntimeFeedbackContextConfig(_common.BaseModel):
     """Config for updating a Feedback Context."""
 
     http_options: Optional[genai_types.HttpOptions] = Field(
@@ -24374,7 +24411,7 @@ class UpdateAgentEngineFeedbackContextConfig(_common.BaseModel):
     )
 
 
-class UpdateAgentEngineFeedbackContextConfigDict(TypedDict, total=False):
+class UpdateRuntimeFeedbackContextConfigDict(TypedDict, total=False):
     """Config for updating a Feedback Context."""
 
     http_options: Optional[genai_types.HttpOptions]
@@ -24388,12 +24425,12 @@ class UpdateAgentEngineFeedbackContextConfigDict(TypedDict, total=False):
     """Waits for the operation to complete before returning."""
 
 
-UpdateAgentEngineFeedbackContextConfigOrDict = Union[
-    UpdateAgentEngineFeedbackContextConfig, UpdateAgentEngineFeedbackContextConfigDict
+UpdateRuntimeFeedbackContextConfigOrDict = Union[
+    UpdateRuntimeFeedbackContextConfig, UpdateRuntimeFeedbackContextConfigDict
 ]
 
 
-class _UpdateAgentEngineFeedbackContextRequestParameters(_common.BaseModel):
+class _UpdateRuntimeFeedbackContextRequestParameters(_common.BaseModel):
     """Parameters for updating a Feedback Context."""
 
     name: Optional[str] = Field(
@@ -24402,29 +24439,29 @@ class _UpdateAgentEngineFeedbackContextRequestParameters(_common.BaseModel):
     )
     context_events: Optional[list[SessionEvent]] = Field(
         default=None,
-        description="""Events from the conversation relevant to the parent feedback entry.""",
+        description="""Events from the conversation relevant to the parent Feedback Entry.""",
     )
-    config: Optional[UpdateAgentEngineFeedbackContextConfig] = Field(
+    config: Optional[UpdateRuntimeFeedbackContextConfig] = Field(
         default=None, description=""""""
     )
 
 
-class _UpdateAgentEngineFeedbackContextRequestParametersDict(TypedDict, total=False):
+class _UpdateRuntimeFeedbackContextRequestParametersDict(TypedDict, total=False):
     """Parameters for updating a Feedback Context."""
 
     name: Optional[str]
     """Name of the Feedback Context. Format: projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/feedbackEntries/{feedback_entry}/feedbackContext"""
 
     context_events: Optional[list[SessionEventDict]]
-    """Events from the conversation relevant to the parent feedback entry."""
+    """Events from the conversation relevant to the parent Feedback Entry."""
 
-    config: Optional[UpdateAgentEngineFeedbackContextConfigDict]
+    config: Optional[UpdateRuntimeFeedbackContextConfigDict]
     """"""
 
 
-_UpdateAgentEngineFeedbackContextRequestParametersOrDict = Union[
-    _UpdateAgentEngineFeedbackContextRequestParameters,
-    _UpdateAgentEngineFeedbackContextRequestParametersDict,
+_UpdateRuntimeFeedbackContextRequestParametersOrDict = Union[
+    _UpdateRuntimeFeedbackContextRequestParameters,
+    _UpdateRuntimeFeedbackContextRequestParametersDict,
 ]
 
 

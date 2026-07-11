@@ -29,7 +29,6 @@ from .common import _AssembleDatasetParameters
 from .common import _AssessDatasetParameters
 from .common import _CancelQueryJobAgentEngineRequestParameters
 from .common import _CheckQueryJobAgentEngineRequestParameters
-from .common import _CreateAgentEngineFeedbackEntryRequestParameters
 from .common import _CreateAgentEngineMemoryRequestParameters
 from .common import _CreateAgentEngineRequestParameters
 from .common import _CreateAgentEngineSandboxRequestParameters
@@ -43,12 +42,12 @@ from .common import _CreateEvaluationRunParameters
 from .common import _CreateEvaluationSetParameters
 from .common import _CreateMultimodalDatasetParameters
 from .common import _CreateRagCorpusRequestParameters
+from .common import _CreateRuntimeFeedbackEntryRequestParameters
 from .common import _CreateSandboxEnvironmentSnapshotRequestParameters
 from .common import _CreateSandboxEnvironmentTemplateRequestParameters
 from .common import _CreateSkillRequestParameters
 from .common import _CustomJobParameters
 from .common import _CustomJobParameters
-from .common import _DeleteAgentEngineFeedbackEntryRequestParameters
 from .common import _DeleteAgentEngineMemoryRequestParameters
 from .common import _DeleteAgentEngineRequestParameters
 from .common import _DeleteAgentEngineRuntimeRevisionRequestParameters
@@ -61,6 +60,7 @@ from .common import _DeleteMultimodalDatasetRequestParameters
 from .common import _DeletePromptVersionRequestParameters
 from .common import _DeleteRagCorpusRequestParameters
 from .common import _DeleteRagFileRequestParameters
+from .common import _DeleteRuntimeFeedbackEntryRequestParameters
 from .common import _DeleteSandboxEnvironmentSnapshotRequestParameters
 from .common import _DeleteSandboxEnvironmentTemplateRequestParameters
 from .common import _DeleteSkillRequestParameters
@@ -70,11 +70,6 @@ from .common import _GenerateAgentEngineMemoriesRequestParameters
 from .common import _GenerateInstanceRubricsRequest
 from .common import _GenerateLossClustersParameters
 from .common import _GenerateUserScenariosParameters
-from .common import _GetAgentEngineFeedbackContextOperationParameters
-from .common import _GetAgentEngineFeedbackContextRequestParameters
-from .common import _GetAgentEngineFeedbackOperationParameters
-from .common import _GetAgentEngineFeedbackOperationParameters
-from .common import _GetAgentEngineFeedbackRequestParameters
 from .common import _GetAgentEngineGenerateMemoriesOperationParameters
 from .common import _GetAgentEngineMemoryOperationParameters
 from .common import _GetAgentEngineMemoryRequestParameters
@@ -107,6 +102,11 @@ from .common import _GetRagConfigOperationParameters
 from .common import _GetRagConfigRequestParameters
 from .common import _GetRagCorpusRequestParameters
 from .common import _GetRagFileRequestParameters
+from .common import _GetRuntimeFeedbackContextOperationParameters
+from .common import _GetRuntimeFeedbackContextRequestParameters
+from .common import _GetRuntimeFeedbackOperationParameters
+from .common import _GetRuntimeFeedbackOperationParameters
+from .common import _GetRuntimeFeedbackRequestParameters
 from .common import _GetSandboxEnvironmentSnapshotRequestParameters
 from .common import _GetSandboxEnvironmentTemplateOperationParameters
 from .common import _GetSandboxEnvironmentTemplateRequestParameters
@@ -115,7 +115,6 @@ from .common import _GetSkillRequestParameters
 from .common import _GetSkillRevisionRequestParameters
 from .common import _ImportRagFilesRequestParameters
 from .common import _IngestEventsRequestParameters
-from .common import _ListAgentEngineFeedbackEntriesRequestParameters
 from .common import _ListAgentEngineMemoryRequestParameters
 from .common import _ListAgentEngineMemoryRevisionsRequestParameters
 from .common import _ListAgentEngineRequestParameters
@@ -132,6 +131,7 @@ from .common import _ListMultimodalDatasetsRequestParameters
 from .common import _ListPublisherModelsRequestParameters
 from .common import _ListRagCorporaRequestParameters
 from .common import _ListRagFilesRequestParameters
+from .common import _ListRuntimeFeedbackEntriesRequestParameters
 from .common import _ListSandboxEnvironmentSnapshotsRequestParameters
 from .common import _ListSandboxEnvironmentTemplatesRequestParameters
 from .common import _ListSkillRevisionsRequestParameters
@@ -151,8 +151,6 @@ from .common import _RunQueryJobAgentEngineConfig
 from .common import _RunQueryJobAgentEngineConfigDict
 from .common import _RunQueryJobAgentEngineConfigOrDict
 from .common import _RunQueryJobAgentEngineRequestParameters
-from .common import _UpdateAgentEngineFeedbackContextRequestParameters
-from .common import _UpdateAgentEngineFeedbackEntryRequestParameters
 from .common import _UpdateAgentEngineMemoryRequestParameters
 from .common import _UpdateAgentEngineRequestParameters
 from .common import _UpdateAgentEngineSessionRequestParameters
@@ -160,6 +158,8 @@ from .common import _UpdateDatasetParameters
 from .common import _UpdateMultimodalDatasetParameters
 from .common import _UpdateRagConfigRequestParameters
 from .common import _UpdateRagCorpusRequestParameters
+from .common import _UpdateRuntimeFeedbackContextRequestParameters
+from .common import _UpdateRuntimeFeedbackEntryRequestParameters
 from .common import _UpdateSkillRequestParameters
 from .common import _UploadRagFileParameters
 from .common import A2aTask
@@ -172,12 +172,6 @@ from .common import AgentEngineConfig
 from .common import AgentEngineConfigDict
 from .common import AgentEngineConfigOrDict
 from .common import AgentEngineDict
-from .common import AgentEngineFeedbackContextOperation
-from .common import AgentEngineFeedbackContextOperationDict
-from .common import AgentEngineFeedbackContextOperationOrDict
-from .common import AgentEngineFeedbackEntryOperation
-from .common import AgentEngineFeedbackEntryOperationDict
-from .common import AgentEngineFeedbackEntryOperationOrDict
 from .common import AgentEngineGenerateMemoriesOperation
 from .common import AgentEngineGenerateMemoriesOperationDict
 from .common import AgentEngineGenerateMemoriesOperationOrDict
@@ -327,9 +321,6 @@ from .common import CorpusStatusOrDict
 from .common import CreateAgentEngineConfig
 from .common import CreateAgentEngineConfigDict
 from .common import CreateAgentEngineConfigOrDict
-from .common import CreateAgentEngineFeedbackEntryConfig
-from .common import CreateAgentEngineFeedbackEntryConfigDict
-from .common import CreateAgentEngineFeedbackEntryConfigOrDict
 from .common import CreateAgentEngineSandboxConfig
 from .common import CreateAgentEngineSandboxConfigDict
 from .common import CreateAgentEngineSandboxConfigOrDict
@@ -375,6 +366,9 @@ from .common import CreateRagCorpusConfigOrDict
 from .common import CreateRagCorpusOperation
 from .common import CreateRagCorpusOperationDict
 from .common import CreateRagCorpusOperationOrDict
+from .common import CreateRuntimeFeedbackEntryConfig
+from .common import CreateRuntimeFeedbackEntryConfigDict
+from .common import CreateRuntimeFeedbackEntryConfigOrDict
 from .common import CreateSandboxEnvironmentTemplateConfig
 from .common import CreateSandboxEnvironmentTemplateConfigDict
 from .common import CreateSandboxEnvironmentTemplateConfigOrDict
@@ -409,12 +403,6 @@ from .common import DefaultContainerCategory
 from .common import DeleteAgentEngineConfig
 from .common import DeleteAgentEngineConfigDict
 from .common import DeleteAgentEngineConfigOrDict
-from .common import DeleteAgentEngineFeedbackEntryConfig
-from .common import DeleteAgentEngineFeedbackEntryConfigDict
-from .common import DeleteAgentEngineFeedbackEntryConfigOrDict
-from .common import DeleteAgentEngineFeedbackEntryOperation
-from .common import DeleteAgentEngineFeedbackEntryOperationDict
-from .common import DeleteAgentEngineFeedbackEntryOperationOrDict
 from .common import DeleteAgentEngineMemoryConfig
 from .common import DeleteAgentEngineMemoryConfigDict
 from .common import DeleteAgentEngineMemoryConfigOrDict
@@ -472,6 +460,12 @@ from .common import DeleteRagFileConfigOrDict
 from .common import DeleteRagFileOperation
 from .common import DeleteRagFileOperationDict
 from .common import DeleteRagFileOperationOrDict
+from .common import DeleteRuntimeFeedbackEntryConfig
+from .common import DeleteRuntimeFeedbackEntryConfigDict
+from .common import DeleteRuntimeFeedbackEntryConfigOrDict
+from .common import DeleteRuntimeFeedbackEntryOperation
+from .common import DeleteRuntimeFeedbackEntryOperationDict
+from .common import DeleteRuntimeFeedbackEntryOperationOrDict
 from .common import DeleteSandboxEnvironmentSnapshotConfig
 from .common import DeleteSandboxEnvironmentSnapshotConfigDict
 from .common import DeleteSandboxEnvironmentSnapshotConfigOrDict
@@ -693,12 +687,6 @@ from .common import GenerateUserScenariosResponseOrDict
 from .common import GetAgentEngineConfig
 from .common import GetAgentEngineConfigDict
 from .common import GetAgentEngineConfigOrDict
-from .common import GetAgentEngineFeedbackConfig
-from .common import GetAgentEngineFeedbackConfigDict
-from .common import GetAgentEngineFeedbackConfigOrDict
-from .common import GetAgentEngineFeedbackContextConfig
-from .common import GetAgentEngineFeedbackContextConfigDict
-from .common import GetAgentEngineFeedbackContextConfigOrDict
 from .common import GetAgentEngineMemoryConfig
 from .common import GetAgentEngineMemoryConfigDict
 from .common import GetAgentEngineMemoryConfigOrDict
@@ -765,6 +753,18 @@ from .common import GetRagCorpusConfigOrDict
 from .common import GetRagFileConfig
 from .common import GetRagFileConfigDict
 from .common import GetRagFileConfigOrDict
+from .common import GetRuntimeFeedbackConfig
+from .common import GetRuntimeFeedbackConfigDict
+from .common import GetRuntimeFeedbackConfigOrDict
+from .common import GetRuntimeFeedbackContextConfig
+from .common import GetRuntimeFeedbackContextConfigDict
+from .common import GetRuntimeFeedbackContextConfigOrDict
+from .common import GetRuntimeFeedbackContextOperationConfig
+from .common import GetRuntimeFeedbackContextOperationConfigDict
+from .common import GetRuntimeFeedbackContextOperationConfigOrDict
+from .common import GetRuntimeFeedbackEntryConfig
+from .common import GetRuntimeFeedbackEntryConfigDict
+from .common import GetRuntimeFeedbackEntryConfigOrDict
 from .common import GetSandboxEnvironmentSnapshotConfig
 from .common import GetSandboxEnvironmentSnapshotConfigDict
 from .common import GetSandboxEnvironmentSnapshotConfigOrDict
@@ -839,12 +839,6 @@ from .common import LaunchStage
 from .common import ListAgentEngineConfig
 from .common import ListAgentEngineConfigDict
 from .common import ListAgentEngineConfigOrDict
-from .common import ListAgentEngineFeedbackEntriesConfig
-from .common import ListAgentEngineFeedbackEntriesConfigDict
-from .common import ListAgentEngineFeedbackEntriesConfigOrDict
-from .common import ListAgentEngineFeedbackEntriesResponse
-from .common import ListAgentEngineFeedbackEntriesResponseDict
-from .common import ListAgentEngineFeedbackEntriesResponseOrDict
 from .common import ListAgentEngineMemoryConfig
 from .common import ListAgentEngineMemoryConfigDict
 from .common import ListAgentEngineMemoryConfigOrDict
@@ -944,6 +938,12 @@ from .common import ListReasoningEnginesRuntimeRevisionsResponseOrDict
 from .common import ListReasoningEnginesSessionsResponse
 from .common import ListReasoningEnginesSessionsResponseDict
 from .common import ListReasoningEnginesSessionsResponseOrDict
+from .common import ListRuntimeFeedbackEntriesConfig
+from .common import ListRuntimeFeedbackEntriesConfigDict
+from .common import ListRuntimeFeedbackEntriesConfigOrDict
+from .common import ListRuntimeFeedbackEntriesResponse
+from .common import ListRuntimeFeedbackEntriesResponseDict
+from .common import ListRuntimeFeedbackEntriesResponseOrDict
 from .common import ListSandboxEnvironmentSnapshotsConfig
 from .common import ListSandboxEnvironmentSnapshotsConfigDict
 from .common import ListSandboxEnvironmentSnapshotsConfigOrDict
@@ -1569,6 +1569,12 @@ from .common import RunQueryJobAgentEngineConfigOrDict
 from .common import RunQueryJobResult
 from .common import RunQueryJobResultDict
 from .common import RunQueryJobResultOrDict
+from .common import RuntimeFeedbackContextOperation
+from .common import RuntimeFeedbackContextOperationDict
+from .common import RuntimeFeedbackContextOperationOrDict
+from .common import RuntimeFeedbackEntryOperation
+from .common import RuntimeFeedbackEntryOperationDict
+from .common import RuntimeFeedbackEntryOperationOrDict
 from .common import SamplingConfig
 from .common import SamplingConfigDict
 from .common import SamplingConfigOrDict
@@ -1856,12 +1862,6 @@ from .common import UnifiedMetricOrDict
 from .common import UpdateAgentEngineConfig
 from .common import UpdateAgentEngineConfigDict
 from .common import UpdateAgentEngineConfigOrDict
-from .common import UpdateAgentEngineFeedbackContextConfig
-from .common import UpdateAgentEngineFeedbackContextConfigDict
-from .common import UpdateAgentEngineFeedbackContextConfigOrDict
-from .common import UpdateAgentEngineFeedbackEntryConfig
-from .common import UpdateAgentEngineFeedbackEntryConfigDict
-from .common import UpdateAgentEngineFeedbackEntryConfigOrDict
 from .common import UpdateAgentEngineMemoryConfig
 from .common import UpdateAgentEngineMemoryConfigDict
 from .common import UpdateAgentEngineMemoryConfigOrDict
@@ -1883,6 +1883,12 @@ from .common import UpdateRagCorpusConfigOrDict
 from .common import UpdateRagCorpusOperation
 from .common import UpdateRagCorpusOperationDict
 from .common import UpdateRagCorpusOperationOrDict
+from .common import UpdateRuntimeFeedbackContextConfig
+from .common import UpdateRuntimeFeedbackContextConfigDict
+from .common import UpdateRuntimeFeedbackContextConfigOrDict
+from .common import UpdateRuntimeFeedbackEntryConfig
+from .common import UpdateRuntimeFeedbackEntryConfigDict
+from .common import UpdateRuntimeFeedbackEntryConfigOrDict
 from .common import UpdateSkillConfig
 from .common import UpdateSkillConfigDict
 from .common import UpdateSkillConfigOrDict
@@ -3428,45 +3434,51 @@ __all__ = [
     "GetPublisherModelConfig",
     "GetPublisherModelConfigDict",
     "GetPublisherModelConfigOrDict",
-    "CreateAgentEngineFeedbackEntryConfig",
-    "CreateAgentEngineFeedbackEntryConfigDict",
-    "CreateAgentEngineFeedbackEntryConfigOrDict",
+    "CreateRuntimeFeedbackEntryConfig",
+    "CreateRuntimeFeedbackEntryConfigDict",
+    "CreateRuntimeFeedbackEntryConfigOrDict",
     "FeedbackEntry",
     "FeedbackEntryDict",
     "FeedbackEntryOrDict",
-    "AgentEngineFeedbackEntryOperation",
-    "AgentEngineFeedbackEntryOperationDict",
-    "AgentEngineFeedbackEntryOperationOrDict",
-    "DeleteAgentEngineFeedbackEntryConfig",
-    "DeleteAgentEngineFeedbackEntryConfigDict",
-    "DeleteAgentEngineFeedbackEntryConfigOrDict",
-    "DeleteAgentEngineFeedbackEntryOperation",
-    "DeleteAgentEngineFeedbackEntryOperationDict",
-    "DeleteAgentEngineFeedbackEntryOperationOrDict",
-    "GetAgentEngineFeedbackConfig",
-    "GetAgentEngineFeedbackConfigDict",
-    "GetAgentEngineFeedbackConfigOrDict",
-    "ListAgentEngineFeedbackEntriesConfig",
-    "ListAgentEngineFeedbackEntriesConfigDict",
-    "ListAgentEngineFeedbackEntriesConfigOrDict",
-    "ListAgentEngineFeedbackEntriesResponse",
-    "ListAgentEngineFeedbackEntriesResponseDict",
-    "ListAgentEngineFeedbackEntriesResponseOrDict",
-    "UpdateAgentEngineFeedbackEntryConfig",
-    "UpdateAgentEngineFeedbackEntryConfigDict",
-    "UpdateAgentEngineFeedbackEntryConfigOrDict",
-    "GetAgentEngineFeedbackContextConfig",
-    "GetAgentEngineFeedbackContextConfigDict",
-    "GetAgentEngineFeedbackContextConfigOrDict",
+    "RuntimeFeedbackEntryOperation",
+    "RuntimeFeedbackEntryOperationDict",
+    "RuntimeFeedbackEntryOperationOrDict",
+    "DeleteRuntimeFeedbackEntryConfig",
+    "DeleteRuntimeFeedbackEntryConfigDict",
+    "DeleteRuntimeFeedbackEntryConfigOrDict",
+    "DeleteRuntimeFeedbackEntryOperation",
+    "DeleteRuntimeFeedbackEntryOperationDict",
+    "DeleteRuntimeFeedbackEntryOperationOrDict",
+    "GetRuntimeFeedbackConfig",
+    "GetRuntimeFeedbackConfigDict",
+    "GetRuntimeFeedbackConfigOrDict",
+    "ListRuntimeFeedbackEntriesConfig",
+    "ListRuntimeFeedbackEntriesConfigDict",
+    "ListRuntimeFeedbackEntriesConfigOrDict",
+    "ListRuntimeFeedbackEntriesResponse",
+    "ListRuntimeFeedbackEntriesResponseDict",
+    "ListRuntimeFeedbackEntriesResponseOrDict",
+    "UpdateRuntimeFeedbackEntryConfig",
+    "UpdateRuntimeFeedbackEntryConfigDict",
+    "UpdateRuntimeFeedbackEntryConfigOrDict",
+    "GetRuntimeFeedbackEntryConfig",
+    "GetRuntimeFeedbackEntryConfigDict",
+    "GetRuntimeFeedbackEntryConfigOrDict",
+    "GetRuntimeFeedbackContextConfig",
+    "GetRuntimeFeedbackContextConfigDict",
+    "GetRuntimeFeedbackContextConfigOrDict",
     "FeedbackContext",
     "FeedbackContextDict",
     "FeedbackContextOrDict",
-    "AgentEngineFeedbackContextOperation",
-    "AgentEngineFeedbackContextOperationDict",
-    "AgentEngineFeedbackContextOperationOrDict",
-    "UpdateAgentEngineFeedbackContextConfig",
-    "UpdateAgentEngineFeedbackContextConfigDict",
-    "UpdateAgentEngineFeedbackContextConfigOrDict",
+    "GetRuntimeFeedbackContextOperationConfig",
+    "GetRuntimeFeedbackContextOperationConfigDict",
+    "GetRuntimeFeedbackContextOperationConfigOrDict",
+    "RuntimeFeedbackContextOperation",
+    "RuntimeFeedbackContextOperationDict",
+    "RuntimeFeedbackContextOperationOrDict",
+    "UpdateRuntimeFeedbackContextConfig",
+    "UpdateRuntimeFeedbackContextConfigDict",
+    "UpdateRuntimeFeedbackContextConfigOrDict",
     "PromptOptimizerConfig",
     "PromptOptimizerConfigDict",
     "PromptOptimizerConfigOrDict",
@@ -3758,16 +3770,16 @@ __all__ = [
     "_ListSkillRevisionsRequestParameters",
     "_ListPublisherModelsRequestParameters",
     "_GetPublisherModelRequestParameters",
-    "_CreateAgentEngineFeedbackEntryRequestParameters",
-    "_DeleteAgentEngineFeedbackEntryRequestParameters",
-    "_GetAgentEngineFeedbackRequestParameters",
-    "_ListAgentEngineFeedbackEntriesRequestParameters",
-    "_UpdateAgentEngineFeedbackEntryRequestParameters",
-    "_GetAgentEngineFeedbackOperationParameters",
-    "_GetAgentEngineFeedbackOperationParameters",
-    "_GetAgentEngineFeedbackContextRequestParameters",
-    "_GetAgentEngineFeedbackContextOperationParameters",
-    "_UpdateAgentEngineFeedbackContextRequestParameters",
+    "_CreateRuntimeFeedbackEntryRequestParameters",
+    "_DeleteRuntimeFeedbackEntryRequestParameters",
+    "_GetRuntimeFeedbackRequestParameters",
+    "_ListRuntimeFeedbackEntriesRequestParameters",
+    "_UpdateRuntimeFeedbackEntryRequestParameters",
+    "_GetRuntimeFeedbackOperationParameters",
+    "_GetRuntimeFeedbackOperationParameters",
+    "_GetRuntimeFeedbackContextRequestParameters",
+    "_GetRuntimeFeedbackContextOperationParameters",
+    "_UpdateRuntimeFeedbackContextRequestParameters",
     "evals",
     "agent_engines",
     "prompts",

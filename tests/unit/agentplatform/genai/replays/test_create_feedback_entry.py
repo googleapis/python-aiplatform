@@ -42,7 +42,7 @@ def test_create(client):
             session_id="session_123",
             event_id="event_456",
             feedback_type=types.FeedbackType.THUMBS_UP,
-            config=types.CreateAgentEngineFeedbackEntryConfig(
+            config=types.CreateRuntimeFeedbackEntryConfig(
                 feedback_text="Great response!",
                 feedback_labels=["incomplete", "inaccurate"],
                 user_id="user_789",
@@ -50,7 +50,7 @@ def test_create(client):
                 custom_metadata={"key1": "val1", "key2": "val2"},
             ),
         )
-        assert isinstance(operation, types.AgentEngineFeedbackEntryOperation)
+        assert isinstance(operation, types.RuntimeFeedbackEntryOperation)
         assert operation.done
 
         assert operation.response is not None
@@ -86,7 +86,7 @@ async def test_create_async(client):
             session_id="session_123",
             event_id="event_456",
             feedback_type=types.FeedbackType.THUMBS_UP,
-            config=types.CreateAgentEngineFeedbackEntryConfig(
+            config=types.CreateRuntimeFeedbackEntryConfig(
                 feedback_text="Great response!",
                 feedback_labels=["incomplete", "inaccurate"],
                 user_id="user_789",
@@ -94,7 +94,7 @@ async def test_create_async(client):
                 custom_metadata={"key1": "val1", "key2": "val2"},
             ),
         )
-        assert isinstance(operation, types.AgentEngineFeedbackEntryOperation)
+        assert isinstance(operation, types.RuntimeFeedbackEntryOperation)
         assert operation.done
 
         assert operation.response is not None

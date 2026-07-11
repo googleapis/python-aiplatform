@@ -43,7 +43,7 @@ def test_list(client):
             session_id="session_123",
             event_id="event_456",
             feedback_type=types.FeedbackType.THUMBS_UP,
-            config=types.CreateAgentEngineFeedbackEntryConfig(
+            config=types.CreateRuntimeFeedbackEntryConfig(
                 feedback_text="Great response!",
                 feedback_labels=["incomplete", "inaccurate"],
                 user_id="user_789",
@@ -51,7 +51,7 @@ def test_list(client):
                 custom_metadata={"key1": "val1", "key2": "val2"},
             ),
         )
-        assert isinstance(operation_up, types.AgentEngineFeedbackEntryOperation)
+        assert isinstance(operation_up, types.RuntimeFeedbackEntryOperation)
         assert operation_up.done
 
         # Create THUMBS_DOWN feedback entry.
@@ -60,7 +60,7 @@ def test_list(client):
             session_id="session_abc",
             event_id="event_xyz",
             feedback_type=types.FeedbackType.THUMBS_DOWN,
-            config=types.CreateAgentEngineFeedbackEntryConfig(
+            config=types.CreateRuntimeFeedbackEntryConfig(
                 feedback_text="Response was incorrect.",
                 feedback_labels=["off_topic", "hallucination"],
                 user_id="user_789",
@@ -68,7 +68,7 @@ def test_list(client):
                 custom_metadata={"key_a": "val_a"},
             ),
         )
-        assert isinstance(operation_down, types.AgentEngineFeedbackEntryOperation)
+        assert isinstance(operation_down, types.RuntimeFeedbackEntryOperation)
         assert operation_down.done
 
         # List and verify the feedback entries.
@@ -123,7 +123,7 @@ async def test_list_async(client):
             session_id="session_123",
             event_id="event_456",
             feedback_type=types.FeedbackType.THUMBS_UP,
-            config=types.CreateAgentEngineFeedbackEntryConfig(
+            config=types.CreateRuntimeFeedbackEntryConfig(
                 feedback_text="Great response!",
                 feedback_labels=["incomplete", "inaccurate"],
                 user_id="user_789",
@@ -131,7 +131,7 @@ async def test_list_async(client):
                 custom_metadata={"key1": "val1", "key2": "val2"},
             ),
         )
-        assert isinstance(operation_up, types.AgentEngineFeedbackEntryOperation)
+        assert isinstance(operation_up, types.RuntimeFeedbackEntryOperation)
         assert operation_up.done
 
         # Create THUMBS_DOWN feedback entry.
@@ -140,7 +140,7 @@ async def test_list_async(client):
             session_id="session_abc",
             event_id="event_xyz",
             feedback_type=types.FeedbackType.THUMBS_DOWN,
-            config=types.CreateAgentEngineFeedbackEntryConfig(
+            config=types.CreateRuntimeFeedbackEntryConfig(
                 feedback_text="Response was incorrect.",
                 feedback_labels=["off_topic", "hallucination"],
                 user_id="user_789",
@@ -148,7 +148,7 @@ async def test_list_async(client):
                 custom_metadata={"key_a": "val_a"},
             ),
         )
-        assert isinstance(operation_down, types.AgentEngineFeedbackEntryOperation)
+        assert isinstance(operation_down, types.RuntimeFeedbackEntryOperation)
         assert operation_down.done
 
         # List and verify the feedback entries.

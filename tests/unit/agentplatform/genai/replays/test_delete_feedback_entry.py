@@ -51,7 +51,7 @@ def test_delete(client):
         )
         assert isinstance(
             delete_operation,
-            types.DeleteAgentEngineFeedbackEntryOperation,
+            types.DeleteRuntimeFeedbackEntryOperation,
         )
         assert delete_operation.done
 
@@ -85,7 +85,7 @@ async def test_delete_async(client):
         )
         assert isinstance(
             delete_operation,
-            types.DeleteAgentEngineFeedbackEntryOperation,
+            types.DeleteRuntimeFeedbackEntryOperation,
         )
 
         with pytest.raises(errors.ClientError, match="404 NOT_FOUND"):

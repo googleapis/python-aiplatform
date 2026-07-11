@@ -43,7 +43,7 @@ logger = logging.getLogger("agentplatform_genai.feedbackentries")
 logger.setLevel(logging.INFO)
 
 
-def _CreateAgentEngineFeedbackEntryConfig_to_vertex(
+def _CreateRuntimeFeedbackEntryConfig_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
@@ -67,7 +67,7 @@ def _CreateAgentEngineFeedbackEntryConfig_to_vertex(
     return to_object
 
 
-def _CreateAgentEngineFeedbackEntryRequestParameters_to_vertex(
+def _CreateRuntimeFeedbackEntryRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
@@ -85,14 +85,14 @@ def _CreateAgentEngineFeedbackEntryRequestParameters_to_vertex(
         setv(to_object, ["eventId"], getv(from_object, ["event_id"]))
 
     if getv(from_object, ["config"]) is not None:
-        _CreateAgentEngineFeedbackEntryConfig_to_vertex(
+        _CreateRuntimeFeedbackEntryConfig_to_vertex(
             getv(from_object, ["config"]), to_object
         )
 
     return to_object
 
 
-def _DeleteAgentEngineFeedbackEntryRequestParameters_to_vertex(
+def _DeleteRuntimeFeedbackEntryRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
@@ -103,7 +103,7 @@ def _DeleteAgentEngineFeedbackEntryRequestParameters_to_vertex(
     return to_object
 
 
-def _GetAgentEngineFeedbackOperationParameters_to_vertex(
+def _GetRuntimeFeedbackOperationParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
@@ -116,7 +116,7 @@ def _GetAgentEngineFeedbackOperationParameters_to_vertex(
     return to_object
 
 
-def _GetAgentEngineFeedbackRequestParameters_to_vertex(
+def _GetRuntimeFeedbackRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
@@ -127,7 +127,7 @@ def _GetAgentEngineFeedbackRequestParameters_to_vertex(
     return to_object
 
 
-def _ListAgentEngineFeedbackEntriesConfig_to_vertex(
+def _ListRuntimeFeedbackEntriesConfig_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
@@ -148,7 +148,7 @@ def _ListAgentEngineFeedbackEntriesConfig_to_vertex(
     return to_object
 
 
-def _ListAgentEngineFeedbackEntriesRequestParameters_to_vertex(
+def _ListRuntimeFeedbackEntriesRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
@@ -157,14 +157,14 @@ def _ListAgentEngineFeedbackEntriesRequestParameters_to_vertex(
         setv(to_object, ["_url", "parent"], getv(from_object, ["parent"]))
 
     if getv(from_object, ["config"]) is not None:
-        _ListAgentEngineFeedbackEntriesConfig_to_vertex(
+        _ListRuntimeFeedbackEntriesConfig_to_vertex(
             getv(from_object, ["config"]), to_object
         )
 
     return to_object
 
 
-def _UpdateAgentEngineFeedbackEntryConfig_to_vertex(
+def _UpdateRuntimeFeedbackEntryConfig_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
@@ -202,7 +202,7 @@ def _UpdateAgentEngineFeedbackEntryConfig_to_vertex(
     return to_object
 
 
-def _UpdateAgentEngineFeedbackEntryRequestParameters_to_vertex(
+def _UpdateRuntimeFeedbackEntryRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
@@ -211,7 +211,7 @@ def _UpdateAgentEngineFeedbackEntryRequestParameters_to_vertex(
         setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
 
     if getv(from_object, ["config"]) is not None:
-        _UpdateAgentEngineFeedbackEntryConfig_to_vertex(
+        _UpdateRuntimeFeedbackEntryConfig_to_vertex(
             getv(from_object, ["config"]), to_object
         )
 
@@ -227,9 +227,9 @@ class FeedbackEntries(_api_module.BaseModule):
         feedback_type: types.FeedbackType,
         session_id: str,
         event_id: str,
-        config: Optional[types.CreateAgentEngineFeedbackEntryConfigOrDict] = None,
-    ) -> types.AgentEngineFeedbackEntryOperation:
-        parameter_model = types._CreateAgentEngineFeedbackEntryRequestParameters(
+        config: Optional[types.CreateRuntimeFeedbackEntryConfigOrDict] = None,
+    ) -> types.RuntimeFeedbackEntryOperation:
+        parameter_model = types._CreateRuntimeFeedbackEntryRequestParameters(
             name=name,
             feedback_type=feedback_type,
             session_id=session_id,
@@ -243,7 +243,7 @@ class FeedbackEntries(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _CreateAgentEngineFeedbackEntryRequestParameters_to_vertex(
+            request_dict = _CreateRuntimeFeedbackEntryRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -272,7 +272,7 @@ class FeedbackEntries(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
-        return_value = types.AgentEngineFeedbackEntryOperation._from_response(
+        return_value = types.RuntimeFeedbackEntryOperation._from_response(
             response=response_dict,
             kwargs=(
                 {
@@ -300,9 +300,9 @@ class FeedbackEntries(_api_module.BaseModule):
         self,
         *,
         name: str,
-        config: Optional[types.DeleteAgentEngineFeedbackEntryConfigOrDict] = None,
-    ) -> types.DeleteAgentEngineFeedbackEntryOperation:
-        parameter_model = types._DeleteAgentEngineFeedbackEntryRequestParameters(
+        config: Optional[types.DeleteRuntimeFeedbackEntryConfigOrDict] = None,
+    ) -> types.DeleteRuntimeFeedbackEntryOperation:
+        parameter_model = types._DeleteRuntimeFeedbackEntryRequestParameters(
             name=name,
             config=config,
         )
@@ -313,7 +313,7 @@ class FeedbackEntries(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _DeleteAgentEngineFeedbackEntryRequestParameters_to_vertex(
+            request_dict = _DeleteRuntimeFeedbackEntryRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -342,7 +342,7 @@ class FeedbackEntries(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
-        return_value = types.DeleteAgentEngineFeedbackEntryOperation._from_response(
+        return_value = types.DeleteRuntimeFeedbackEntryOperation._from_response(
             response=response_dict,
             kwargs=(
                 {
@@ -370,23 +370,23 @@ class FeedbackEntries(_api_module.BaseModule):
         self,
         *,
         name: str,
-        config: Optional[types.GetAgentEngineFeedbackConfigOrDict] = None,
+        config: Optional[types.GetRuntimeFeedbackConfigOrDict] = None,
     ) -> types.FeedbackEntry:
         """
-        Gets an agent engine feedback entry.
+        Gets a Runtime Feedback Entry.
 
         Args:
-            name (str): Required. The name of the feedback entry to retrieve. Format:
+            name (str): Required. The name of the Feedback Entry to retrieve. Format:
                 `projects/{project}/locations/{location}/reasoningEngines/{resource_id}/feedbackEntries/{feedback_entry_id}`.
-            config (GetAgentEngineFeedbackConfig):
-                Optional. The configuration for getting the feedback entry.
+            config (GetRuntimeFeedbackConfig):
+                Optional. The configuration for getting the Feedback Entry.
 
         Returns:
-            FeedbackEntry: The requested feedback entry.
+            FeedbackEntry: The requested Feedback Entry.
 
         """
 
-        parameter_model = types._GetAgentEngineFeedbackRequestParameters(
+        parameter_model = types._GetRuntimeFeedbackRequestParameters(
             name=name,
             config=config,
         )
@@ -397,7 +397,7 @@ class FeedbackEntries(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetAgentEngineFeedbackRequestParameters_to_vertex(
+            request_dict = _GetRuntimeFeedbackRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -454,9 +454,9 @@ class FeedbackEntries(_api_module.BaseModule):
         self,
         *,
         parent: str,
-        config: Optional[types.ListAgentEngineFeedbackEntriesConfigOrDict] = None,
-    ) -> types.ListAgentEngineFeedbackEntriesResponse:
-        parameter_model = types._ListAgentEngineFeedbackEntriesRequestParameters(
+        config: Optional[types.ListRuntimeFeedbackEntriesConfigOrDict] = None,
+    ) -> types.ListRuntimeFeedbackEntriesResponse:
+        parameter_model = types._ListRuntimeFeedbackEntriesRequestParameters(
             parent=parent,
             config=config,
         )
@@ -467,7 +467,7 @@ class FeedbackEntries(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _ListAgentEngineFeedbackEntriesRequestParameters_to_vertex(
+            request_dict = _ListRuntimeFeedbackEntriesRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -496,7 +496,7 @@ class FeedbackEntries(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
-        return_value = types.ListAgentEngineFeedbackEntriesResponse._from_response(
+        return_value = types.ListRuntimeFeedbackEntriesResponse._from_response(
             response=response_dict,
             kwargs=(
                 {
@@ -524,23 +524,23 @@ class FeedbackEntries(_api_module.BaseModule):
         self,
         *,
         name: str,
-        config: Optional[types.UpdateAgentEngineFeedbackEntryConfigOrDict] = None,
-    ) -> types.AgentEngineFeedbackEntryOperation:
+        config: Optional[types.UpdateRuntimeFeedbackEntryConfigOrDict] = None,
+    ) -> types.RuntimeFeedbackEntryOperation:
         """
         Updates a Feedback Entry.
 
         Args:
-            name (str): Required. Name of the feedback entry to update. Format:
+            name (str): Required. Name of the Feedback Entry to update. Format:
                 `projects/{project}/locations/{location}/reasoningEngines/{resource_id}/feedbackEntries/{feedback_entry_id}`.
             feedback_type (shared.FeedbackType): Optional. The type of feedback provided.
-            config (UpdateAgentEngineFeedbackEntryConfig): Optional. The configuration for updating the feedback entry.
+            config (UpdateRuntimeFeedbackEntryConfig): Optional. The configuration for updating the Feedback Entry.
 
         Returns:
-            AgentEngineFeedbackEntryOperation: Operation for updating a Feedback Entry.
+            RuntimeFeedbackEntryOperation: Operation for updating a Feedback Entry.
 
         """
 
-        parameter_model = types._UpdateAgentEngineFeedbackEntryRequestParameters(
+        parameter_model = types._UpdateRuntimeFeedbackEntryRequestParameters(
             name=name,
             config=config,
         )
@@ -551,7 +551,7 @@ class FeedbackEntries(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _UpdateAgentEngineFeedbackEntryRequestParameters_to_vertex(
+            request_dict = _UpdateRuntimeFeedbackEntryRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -580,7 +580,7 @@ class FeedbackEntries(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
-        return_value = types.AgentEngineFeedbackEntryOperation._from_response(
+        return_value = types.RuntimeFeedbackEntryOperation._from_response(
             response=response_dict,
             kwargs=(
                 {
@@ -608,9 +608,9 @@ class FeedbackEntries(_api_module.BaseModule):
         self,
         *,
         operation_name: str,
-        config: Optional[types.GetAgentEngineOperationConfigOrDict] = None,
-    ) -> types.AgentEngineFeedbackEntryOperation:
-        parameter_model = types._GetAgentEngineFeedbackOperationParameters(
+        config: Optional[types.GetRuntimeFeedbackEntryConfigOrDict] = None,
+    ) -> types.RuntimeFeedbackEntryOperation:
+        parameter_model = types._GetRuntimeFeedbackOperationParameters(
             operation_name=operation_name,
             config=config,
         )
@@ -621,7 +621,7 @@ class FeedbackEntries(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetAgentEngineFeedbackOperationParameters_to_vertex(
+            request_dict = _GetRuntimeFeedbackOperationParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -650,7 +650,7 @@ class FeedbackEntries(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
-        return_value = types.AgentEngineFeedbackEntryOperation._from_response(
+        return_value = types.RuntimeFeedbackEntryOperation._from_response(
             response=response_dict,
             kwargs=(
                 {
@@ -678,9 +678,9 @@ class FeedbackEntries(_api_module.BaseModule):
         self,
         *,
         operation_name: str,
-        config: Optional[types.GetAgentEngineOperationConfigOrDict] = None,
-    ) -> types.DeleteAgentEngineFeedbackEntryOperation:
-        parameter_model = types._GetAgentEngineFeedbackOperationParameters(
+        config: Optional[types.GetRuntimeFeedbackEntryConfigOrDict] = None,
+    ) -> types.DeleteRuntimeFeedbackEntryOperation:
+        parameter_model = types._GetRuntimeFeedbackOperationParameters(
             operation_name=operation_name,
             config=config,
         )
@@ -691,7 +691,7 @@ class FeedbackEntries(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetAgentEngineFeedbackOperationParameters_to_vertex(
+            request_dict = _GetRuntimeFeedbackOperationParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -720,7 +720,7 @@ class FeedbackEntries(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
-        return_value = types.DeleteAgentEngineFeedbackEntryOperation._from_response(
+        return_value = types.DeleteRuntimeFeedbackEntryOperation._from_response(
             response=response_dict,
             kwargs=(
                 {
@@ -757,7 +757,7 @@ class FeedbackEntries(_api_module.BaseModule):
                 )
             except ImportError as e:
                 raise ImportError(
-                    "The 'agent_engines.feedback_contexts' module requires additional "
+                    "The 'feedback_entries.feedback_contexts' module requires additional "
                     "packages. Please install them using pip install "
                     "google-cloud-aiplatform[agent_engines]"
                 ) from e
@@ -772,30 +772,30 @@ class FeedbackEntries(_api_module.BaseModule):
         feedback_type: str,
         session_id: str,
         event_id: str,
-        config: Optional[types.CreateAgentEngineFeedbackEntryConfigOrDict] = None,
-    ) -> types.AgentEngineFeedbackEntryOperation:
-        """Creates a new feedback entry in the Agent Engine.
+        config: Optional[types.CreateRuntimeFeedbackEntryConfigOrDict] = None,
+    ) -> types.RuntimeFeedbackEntryOperation:
+        """Creates a new Feedback Entry in the Runtime.
 
         Args:
-            name (str): Required. Resource name of the reasoning engine to create the
-                feedback entry in. Format:
+            name (str): Required. Resource name of the Runtime to create the
+                Feedback Entry in. Format:
                 `projects/{project}/locations/{location}/reasoningEngines/{resource_id}`.
             feedback_type (FeedbackType): Required. The type of feedback provided.
             session_id (str): Required. The ID of the session to which the feedback
                 relates to.
             event_id (str): Required. The ID of the event to which the feedback
                 relates to.
-            config (CreateAgentEngineFeedbackEntryConfig):
-                Optional. Additional configurations for creating the feedback entry.
+            config (CreateRuntimeFeedbackEntryConfig):
+                Optional. Additional configurations for creating the Feedback Entry.
 
         Returns:
-            AgentEngineFeedbackEntryOperation: The operation for creating the
-                feedback entry.
+            RuntimeFeedbackEntryOperation: The operation for creating the
+                Feedback Entry.
         """
         if config is None:
-            config = types.CreateAgentEngineFeedbackEntryConfig()
+            config = types.CreateRuntimeFeedbackEntryConfig()
         elif isinstance(config, dict):
-            config = types.CreateAgentEngineFeedbackEntryConfig.model_validate(config)
+            config = types.CreateRuntimeFeedbackEntryConfig.model_validate(config)
         operation = self._create(
             name=name,
             session_id=session_id,
@@ -812,7 +812,7 @@ class FeedbackEntries(_api_module.BaseModule):
                 )
             if operation.error:
                 raise RuntimeError(
-                    f"Failed to create feedback entry: {operation.error}"
+                    f"Failed to create Feedback Entry: {operation.error}"
                 )
         return operation
 
@@ -820,20 +820,20 @@ class FeedbackEntries(_api_module.BaseModule):
         self,
         *,
         parent: str,
-        config: Optional[types.ListAgentEngineFeedbackEntriesConfigOrDict] = None,
+        config: Optional[types.ListRuntimeFeedbackEntriesConfigOrDict] = None,
     ) -> Iterator[types.FeedbackEntry]:
         """
-    Lists Agent Engine feedback entries.
+    Lists Feedback Entries in the Runtime.
 
     Args:
-        parent (str): Required. Resource name of the agent engine to list the
-            feedback entries from. Format:
+        parent (str): Required. Resource name of the Runtime to list the
+            Feedback Entries from. Format:
             `projects/{project}/locations/{location}/reasoningEngines/{resource_id}`.
-        config (ListAgentEngineFeedbackEntriesConfig):
-            Optional. The configuration for listing feedback entries.
+        config (ListRuntimeFeedbackEntriesConfig):
+            Optional. The configuration for listing Feedback Entries.
 
     Returns:
-        Iterable[FeedbackEntry]: A pager of feedback entries.
+        Iterable[FeedbackEntry]: A pager of Feedback Entries.
     """,
 
         return Pager(
@@ -847,25 +847,25 @@ class FeedbackEntries(_api_module.BaseModule):
         self,
         *,
         name: str,
-        config: Optional[types.UpdateAgentEngineFeedbackEntryConfigOrDict] = None,
-    ) -> types.AgentEngineFeedbackEntryOperation:
-        """Updates a feedback entry in the Agent Engine.
+        config: Optional[types.UpdateRuntimeFeedbackEntryConfigOrDict] = None,
+    ) -> types.RuntimeFeedbackEntryOperation:
+        """Updates a Feedback Entry in the Runtime.
 
         Args:
             name (str): Required. Name of the Feedback Entry. Format:
                 `projects/{project}/locations/{location}/reasoningEngines/{resource_id}/feedbackEntries/{feedback_entry_id}`.
             feedback_type (str): Optional. The type of feedback provided.
-            config (UpdateAgentEngineFeedbackEntryConfig):
-                Optional. Additional configurations for updating the feedback entry.
+            config (UpdateRuntimeFeedbackEntryConfig):
+                Optional. Additional configurations for updating the Feedback Entry.
 
         Returns:
-            AgentEngineFeedbackEntryOperation: The operation for updating
-                the feedback entry.
+            RuntimeFeedbackEntryOperation: The operation for updating
+                the Feedback Entry.
         """
         if config is None:
-            config = types.UpdateAgentEngineFeedbackEntryConfig()
+            config = types.UpdateRuntimeFeedbackEntryConfig()
         elif isinstance(config, dict):
-            config = types.UpdateAgentEngineFeedbackEntryConfig.model_validate(config)
+            config = types.UpdateRuntimeFeedbackEntryConfig.model_validate(config)
         operation = self._update(
             name=name,
             config=config,
@@ -879,7 +879,7 @@ class FeedbackEntries(_api_module.BaseModule):
                 )
             if operation.error:
                 raise RuntimeError(
-                    f"Failed to update feedback entry: {operation.error}"
+                    f"Failed to update Feedback Entry: {operation.error}"
                 )
         return operation
 
@@ -887,24 +887,24 @@ class FeedbackEntries(_api_module.BaseModule):
         self,
         *,
         name: str,
-        config: Optional[types.DeleteAgentEngineFeedbackEntryConfigOrDict] = None,
-    ) -> types.DeleteAgentEngineFeedbackEntryOperation:
-        """Deletes a feedback entry from the Agent Engine.
+        config: Optional[types.DeleteRuntimeFeedbackEntryConfigOrDict] = None,
+    ) -> types.DeleteRuntimeFeedbackEntryOperation:
+        """Deletes a Feedback Entry from the Runtime.
 
         Args:
             name (str): Required. Name of the Feedback Entry to delete. Format:
                 `projects/{project}/locations/{location}/reasoningEngines/{resource_id}/feedbackEntries/{feedback_entry_id}`.
-            config (DeleteAgentEngineFeedbackEntryConfig):
+            config (DeleteRuntimeFeedbackEntryConfig):
                 Optional. The configuration for deleting the Feedback Entry.
 
         Returns:
-            DeleteAgentEngineFeedbackEntryOperation: The operation for deleting
+            DeleteRuntimeFeedbackEntryOperation: The operation for deleting
                 the Feedback Entry.
         """
         if config is None:
-            config = types.DeleteAgentEngineFeedbackEntryConfig()
+            config = types.DeleteRuntimeFeedbackEntryConfig()
         elif isinstance(config, dict):
-            config = types.DeleteAgentEngineFeedbackEntryConfig.model_validate(config)
+            config = types.DeleteRuntimeFeedbackEntryConfig.model_validate(config)
         operation = self._delete(
             name=name,
             config=config,
@@ -918,7 +918,7 @@ class FeedbackEntries(_api_module.BaseModule):
                 )
             if operation.error:
                 raise RuntimeError(
-                    f"Failed to delete feedback entry: {operation.error}"
+                    f"Failed to delete Feedback Entry: {operation.error}"
                 )
         return operation
 
@@ -932,9 +932,9 @@ class AsyncFeedbackEntries(_api_module.BaseModule):
         feedback_type: types.FeedbackType,
         session_id: str,
         event_id: str,
-        config: Optional[types.CreateAgentEngineFeedbackEntryConfigOrDict] = None,
-    ) -> types.AgentEngineFeedbackEntryOperation:
-        parameter_model = types._CreateAgentEngineFeedbackEntryRequestParameters(
+        config: Optional[types.CreateRuntimeFeedbackEntryConfigOrDict] = None,
+    ) -> types.RuntimeFeedbackEntryOperation:
+        parameter_model = types._CreateRuntimeFeedbackEntryRequestParameters(
             name=name,
             feedback_type=feedback_type,
             session_id=session_id,
@@ -948,7 +948,7 @@ class AsyncFeedbackEntries(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _CreateAgentEngineFeedbackEntryRequestParameters_to_vertex(
+            request_dict = _CreateRuntimeFeedbackEntryRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -979,7 +979,7 @@ class AsyncFeedbackEntries(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
-        return_value = types.AgentEngineFeedbackEntryOperation._from_response(
+        return_value = types.RuntimeFeedbackEntryOperation._from_response(
             response=response_dict,
             kwargs=(
                 {
@@ -1007,9 +1007,9 @@ class AsyncFeedbackEntries(_api_module.BaseModule):
         self,
         *,
         name: str,
-        config: Optional[types.DeleteAgentEngineFeedbackEntryConfigOrDict] = None,
-    ) -> types.DeleteAgentEngineFeedbackEntryOperation:
-        parameter_model = types._DeleteAgentEngineFeedbackEntryRequestParameters(
+        config: Optional[types.DeleteRuntimeFeedbackEntryConfigOrDict] = None,
+    ) -> types.DeleteRuntimeFeedbackEntryOperation:
+        parameter_model = types._DeleteRuntimeFeedbackEntryRequestParameters(
             name=name,
             config=config,
         )
@@ -1020,7 +1020,7 @@ class AsyncFeedbackEntries(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _DeleteAgentEngineFeedbackEntryRequestParameters_to_vertex(
+            request_dict = _DeleteRuntimeFeedbackEntryRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -1051,7 +1051,7 @@ class AsyncFeedbackEntries(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
-        return_value = types.DeleteAgentEngineFeedbackEntryOperation._from_response(
+        return_value = types.DeleteRuntimeFeedbackEntryOperation._from_response(
             response=response_dict,
             kwargs=(
                 {
@@ -1079,23 +1079,23 @@ class AsyncFeedbackEntries(_api_module.BaseModule):
         self,
         *,
         name: str,
-        config: Optional[types.GetAgentEngineFeedbackConfigOrDict] = None,
+        config: Optional[types.GetRuntimeFeedbackConfigOrDict] = None,
     ) -> types.FeedbackEntry:
         """
-        Gets an agent engine feedback entry.
+        Gets a Runtime Feedback Entry.
 
         Args:
-            name (str): Required. The name of the feedback entry to retrieve. Format:
+            name (str): Required. The name of the Feedback Entry to retrieve. Format:
                 `projects/{project}/locations/{location}/reasoningEngines/{resource_id}/feedbackEntries/{feedback_entry_id}`.
-            config (GetAgentEngineFeedbackConfig):
-                Optional. The configuration for getting the feedback entry.
+            config (GetRuntimeFeedbackConfig):
+                Optional. The configuration for getting the Feedback Entry.
 
         Returns:
-            FeedbackEntry: The requested feedback entry.
+            FeedbackEntry: The requested Feedback Entry.
 
         """
 
-        parameter_model = types._GetAgentEngineFeedbackRequestParameters(
+        parameter_model = types._GetRuntimeFeedbackRequestParameters(
             name=name,
             config=config,
         )
@@ -1106,7 +1106,7 @@ class AsyncFeedbackEntries(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetAgentEngineFeedbackRequestParameters_to_vertex(
+            request_dict = _GetRuntimeFeedbackRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -1165,9 +1165,9 @@ class AsyncFeedbackEntries(_api_module.BaseModule):
         self,
         *,
         parent: str,
-        config: Optional[types.ListAgentEngineFeedbackEntriesConfigOrDict] = None,
-    ) -> types.ListAgentEngineFeedbackEntriesResponse:
-        parameter_model = types._ListAgentEngineFeedbackEntriesRequestParameters(
+        config: Optional[types.ListRuntimeFeedbackEntriesConfigOrDict] = None,
+    ) -> types.ListRuntimeFeedbackEntriesResponse:
+        parameter_model = types._ListRuntimeFeedbackEntriesRequestParameters(
             parent=parent,
             config=config,
         )
@@ -1178,7 +1178,7 @@ class AsyncFeedbackEntries(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _ListAgentEngineFeedbackEntriesRequestParameters_to_vertex(
+            request_dict = _ListRuntimeFeedbackEntriesRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -1209,7 +1209,7 @@ class AsyncFeedbackEntries(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
-        return_value = types.ListAgentEngineFeedbackEntriesResponse._from_response(
+        return_value = types.ListRuntimeFeedbackEntriesResponse._from_response(
             response=response_dict,
             kwargs=(
                 {
@@ -1237,23 +1237,23 @@ class AsyncFeedbackEntries(_api_module.BaseModule):
         self,
         *,
         name: str,
-        config: Optional[types.UpdateAgentEngineFeedbackEntryConfigOrDict] = None,
-    ) -> types.AgentEngineFeedbackEntryOperation:
+        config: Optional[types.UpdateRuntimeFeedbackEntryConfigOrDict] = None,
+    ) -> types.RuntimeFeedbackEntryOperation:
         """
         Updates a Feedback Entry.
 
         Args:
-            name (str): Required. Name of the feedback entry to update. Format:
+            name (str): Required. Name of the Feedback Entry to update. Format:
                 `projects/{project}/locations/{location}/reasoningEngines/{resource_id}/feedbackEntries/{feedback_entry_id}`.
             feedback_type (shared.FeedbackType): Optional. The type of feedback provided.
-            config (UpdateAgentEngineFeedbackEntryConfig): Optional. The configuration for updating the feedback entry.
+            config (UpdateRuntimeFeedbackEntryConfig): Optional. The configuration for updating the Feedback Entry.
 
         Returns:
-            AgentEngineFeedbackEntryOperation: Operation for updating a Feedback Entry.
+            RuntimeFeedbackEntryOperation: Operation for updating a Feedback Entry.
 
         """
 
-        parameter_model = types._UpdateAgentEngineFeedbackEntryRequestParameters(
+        parameter_model = types._UpdateRuntimeFeedbackEntryRequestParameters(
             name=name,
             config=config,
         )
@@ -1264,7 +1264,7 @@ class AsyncFeedbackEntries(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _UpdateAgentEngineFeedbackEntryRequestParameters_to_vertex(
+            request_dict = _UpdateRuntimeFeedbackEntryRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -1295,7 +1295,7 @@ class AsyncFeedbackEntries(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
-        return_value = types.AgentEngineFeedbackEntryOperation._from_response(
+        return_value = types.RuntimeFeedbackEntryOperation._from_response(
             response=response_dict,
             kwargs=(
                 {
@@ -1323,9 +1323,9 @@ class AsyncFeedbackEntries(_api_module.BaseModule):
         self,
         *,
         operation_name: str,
-        config: Optional[types.GetAgentEngineOperationConfigOrDict] = None,
-    ) -> types.AgentEngineFeedbackEntryOperation:
-        parameter_model = types._GetAgentEngineFeedbackOperationParameters(
+        config: Optional[types.GetRuntimeFeedbackEntryConfigOrDict] = None,
+    ) -> types.RuntimeFeedbackEntryOperation:
+        parameter_model = types._GetRuntimeFeedbackOperationParameters(
             operation_name=operation_name,
             config=config,
         )
@@ -1336,7 +1336,7 @@ class AsyncFeedbackEntries(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetAgentEngineFeedbackOperationParameters_to_vertex(
+            request_dict = _GetRuntimeFeedbackOperationParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -1367,7 +1367,7 @@ class AsyncFeedbackEntries(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
-        return_value = types.AgentEngineFeedbackEntryOperation._from_response(
+        return_value = types.RuntimeFeedbackEntryOperation._from_response(
             response=response_dict,
             kwargs=(
                 {
@@ -1395,9 +1395,9 @@ class AsyncFeedbackEntries(_api_module.BaseModule):
         self,
         *,
         operation_name: str,
-        config: Optional[types.GetAgentEngineOperationConfigOrDict] = None,
-    ) -> types.DeleteAgentEngineFeedbackEntryOperation:
-        parameter_model = types._GetAgentEngineFeedbackOperationParameters(
+        config: Optional[types.GetRuntimeFeedbackEntryConfigOrDict] = None,
+    ) -> types.DeleteRuntimeFeedbackEntryOperation:
+        parameter_model = types._GetRuntimeFeedbackOperationParameters(
             operation_name=operation_name,
             config=config,
         )
@@ -1408,7 +1408,7 @@ class AsyncFeedbackEntries(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetAgentEngineFeedbackOperationParameters_to_vertex(
+            request_dict = _GetRuntimeFeedbackOperationParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -1439,7 +1439,7 @@ class AsyncFeedbackEntries(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
-        return_value = types.DeleteAgentEngineFeedbackEntryOperation._from_response(
+        return_value = types.DeleteRuntimeFeedbackEntryOperation._from_response(
             response=response_dict,
             kwargs=(
                 {
@@ -1476,7 +1476,7 @@ class AsyncFeedbackEntries(_api_module.BaseModule):
                 )
             except ImportError as e:
                 raise ImportError(
-                    "The 'agent_engines.feedback_contexts' module requires additional "
+                    "The 'feedback_entries.feedback_contexts' module requires additional "
                     "packages. Please install them using pip install "
                     "google-cloud-aiplatform[agent_engines]"
                 ) from e
@@ -1491,32 +1491,32 @@ class AsyncFeedbackEntries(_api_module.BaseModule):
         feedback_type: types.FeedbackType,
         session_id: str,
         event_id: str,
-        config: Optional[types.CreateAgentEngineFeedbackEntryConfigOrDict] = None,
-    ) -> types.AgentEngineFeedbackEntryOperation:
+        config: Optional[types.CreateRuntimeFeedbackEntryConfigOrDict] = None,
+    ) -> types.RuntimeFeedbackEntryOperation:
         """
-        Creates a new feedback entry in the Agent Engine.
+        Creates a new Feedback Entry in the Runtime.
 
         Args:
-            name (str): Required. Resource name of the reasoning engine to create
-                the feedback entry in. Format:
+            name (str): Required. Resource name of the Runtime to create
+                the Feedback Entry in. Format:
                 `projects/{project}/locations/{location}/reasoningEngines/{resource_id}`.
             feedback_type (FeedbackType): Required. The type of feedback provided.
             session_id (str): Required. The ID of the session to which the feedback
                 relates to.
             event_id (str): Required. The ID of the event to which the feedback
                 relates to.
-            config (CreateAgentEngineFeedbackEntryConfig):
-                Optional. Additional configurations for creating the feedback entry.
+            config (CreateRuntimeFeedbackEntryConfig):
+                Optional. Additional configurations for creating the Feedback Entry.
 
         Returns:
-            AgentEngineFeedbackEntryOperation: The operation for creating the
-                feedback entry.
+            RuntimeFeedbackEntryOperation: The operation for creating the
+                Feedback Entry.
 
         """
         if config is None:
-            config = types.CreateAgentEngineFeedbackEntryConfig()
+            config = types.CreateRuntimeFeedbackEntryConfig()
         elif isinstance(config, dict):
-            config = types.CreateAgentEngineFeedbackEntryConfig.model_validate(config)
+            config = types.CreateRuntimeFeedbackEntryConfig.model_validate(config)
         operation = await self._create(
             name=name,
             session_id=session_id,
@@ -1533,7 +1533,7 @@ class AsyncFeedbackEntries(_api_module.BaseModule):
                 )
             if operation.error:
                 raise RuntimeError(
-                    f"Failed to create feedback entry: {operation.error}"
+                    f"Failed to create Feedback Entry: {operation.error}"
                 )
         return operation
 
@@ -1541,20 +1541,20 @@ class AsyncFeedbackEntries(_api_module.BaseModule):
         self,
         *,
         parent: str,
-        config: Optional[types.ListAgentEngineFeedbackEntriesConfigOrDict] = None,
+        config: Optional[types.ListRuntimeFeedbackEntriesConfigOrDict] = None,
     ) -> AsyncIterator[types.FeedbackEntry]:
         """
-    Lists feedback entries in the Agent Engine.
+    Lists Feedback Entries in the Runtime.
 
     Args:
-        parent (str): Required. Resource name of the agent engine to list the
-            feedback entries from. Format:
+        parent (str): Required. Resource name of the Runtime to list the
+            Feedback Entries from. Format:
             `projects/{project}/locations/{location}/reasoningEngines/{resource_id}`.
-        config (ListAgentEngineFeedbackEntriesConfigOrDict):
-            Optional. The configuration for listing feedback entries.
+        config (ListRuntimeFeedbackEntriesConfigOrDict):
+            Optional. The configuration for listing Feedback Entries.
 
     Returns:
-        AsyncPager[FeedbackEntry]: An async pager of feedback entries.
+        AsyncPager[FeedbackEntry]: An async pager of Feedback Entries.
     """,
 
         return AsyncPager(
@@ -1568,25 +1568,25 @@ class AsyncFeedbackEntries(_api_module.BaseModule):
         self,
         *,
         name: str,
-        config: Optional[types.UpdateAgentEngineFeedbackEntryConfigOrDict] = None,
-    ) -> types.AgentEngineFeedbackEntryOperation:
-        """Updates a feedback entry in the Agent Engine.
+        config: Optional[types.UpdateRuntimeFeedbackEntryConfigOrDict] = None,
+    ) -> types.RuntimeFeedbackEntryOperation:
+        """Updates a Feedback Entry in the Runtime.
 
         Args:
             name (str): Required. Name of the Feedback Entry. Format:
                 `projects/{project}/locations/{location}/reasoningEngines/{resource_id}/feedbackEntries/{feedback_entry_id}`.
             feedback_type (str): Optional. The type of feedback provided.
-            config (UpdateAgentEngineFeedbackEntryConfig):
-                Optional. Additional configurations for updating the feedback entry.
+            config (UpdateRuntimeFeedbackEntryConfig):
+                Optional. Additional configurations for updating the Feedback Entry.
 
         Returns:
-            AgentEngineFeedbackEntryOperation: The operation for updating
-                the feedback entry.
+            RuntimeFeedbackEntryOperation: The operation for updating
+                the Feedback Entry.
         """
         if config is None:
-            config = types.UpdateAgentEngineFeedbackEntryConfig()
+            config = types.UpdateRuntimeFeedbackEntryConfig()
         elif isinstance(config, dict):
-            config = types.UpdateAgentEngineFeedbackEntryConfig.model_validate(config)
+            config = types.UpdateRuntimeFeedbackEntryConfig.model_validate(config)
         operation = await self._update(
             name=name,
             config=config,
@@ -1600,7 +1600,7 @@ class AsyncFeedbackEntries(_api_module.BaseModule):
                 )
             if operation.error:
                 raise RuntimeError(
-                    f"Failed to update feedback entry: {operation.error}"
+                    f"Failed to update Feedback Entry: {operation.error}"
                 )
         return operation
 
@@ -1608,24 +1608,24 @@ class AsyncFeedbackEntries(_api_module.BaseModule):
         self,
         *,
         name: str,
-        config: Optional[types.DeleteAgentEngineFeedbackEntryConfigOrDict] = None,
-    ) -> types.DeleteAgentEngineFeedbackEntryOperation:
-        """Deletes a feedback entry from the Agent Engine.
+        config: Optional[types.DeleteRuntimeFeedbackEntryConfigOrDict] = None,
+    ) -> types.DeleteRuntimeFeedbackEntryOperation:
+        """Deletes a Feedback Entry from the Runtime.
 
         Args:
             name (str): Required. Name of the Feedback Entry to delete. Format:
                 `projects/{project}/locations/{location}/reasoningEngines/{resource_id}/feedbackEntries/{feedback_entry_id}`.
-            config (DeleteAgentEngineFeedbackEntryConfig):
+            config (DeleteRuntimeFeedbackEntryConfig):
                 Optional. The configuration for deleting the Feedback Entry.
 
         Returns:
-            DeleteAgentEngineFeedbackEntryOperation: The operation for deleting
+            DeleteRuntimeFeedbackEntryOperation: The operation for deleting
                 the Feedback Entry.
         """
         if config is None:
-            config = types.DeleteAgentEngineFeedbackEntryConfig()
+            config = types.DeleteRuntimeFeedbackEntryConfig()
         elif isinstance(config, dict):
-            config = types.DeleteAgentEngineFeedbackEntryConfig.model_validate(config)
+            config = types.DeleteRuntimeFeedbackEntryConfig.model_validate(config)
         operation = await self._delete(
             name=name,
             config=config,
@@ -1639,6 +1639,6 @@ class AsyncFeedbackEntries(_api_module.BaseModule):
                 )
             if operation.error:
                 raise RuntimeError(
-                    f"Failed to delete feedback entry: {operation.error}"
+                    f"Failed to delete Feedback Entry: {operation.error}"
                 )
         return operation

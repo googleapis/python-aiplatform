@@ -56,7 +56,7 @@ def test_update_and_get(client):
             ],
         )
 
-        assert isinstance(update_operation, types.AgentEngineFeedbackContextOperation)
+        assert isinstance(update_operation, types.RuntimeFeedbackContextOperation)
         assert update_operation.done
 
         updated_context = update_operation.response
@@ -91,7 +91,7 @@ def test_update_and_get(client):
                 ),
             ],
         )
-        assert isinstance(update_operation, types.AgentEngineFeedbackContextOperation)
+        assert isinstance(update_operation, types.RuntimeFeedbackContextOperation)
         assert update_operation.done
 
         updated_context = update_operation.response
@@ -102,7 +102,7 @@ def test_update_and_get(client):
             parent=feedback_entry.name,
             context_events=[],
         )
-        assert isinstance(update_operation, types.AgentEngineFeedbackContextOperation)
+        assert isinstance(update_operation, types.RuntimeFeedbackContextOperation)
         assert update_operation.done
 
         updated_context = update_operation.response
@@ -141,7 +141,7 @@ async def test_update_and_get_async(client):
             ],
         )
 
-        assert isinstance(update_operation, types.AgentEngineFeedbackContextOperation)
+        assert isinstance(update_operation, types.RuntimeFeedbackContextOperation)
         assert update_operation.done
 
         updated_context = update_operation.response
@@ -176,7 +176,7 @@ async def test_update_and_get_async(client):
                 ),
             ],
         )
-        assert isinstance(update_operation, types.AgentEngineFeedbackContextOperation)
+        assert isinstance(update_operation, types.RuntimeFeedbackContextOperation)
         assert update_operation.done
 
         updated_context = update_operation.response
@@ -187,7 +187,7 @@ async def test_update_and_get_async(client):
             parent=feedback_entry.name,
             context_events=[],
         )
-        assert isinstance(update_operation, types.AgentEngineFeedbackContextOperation)
+        assert isinstance(update_operation, types.RuntimeFeedbackContextOperation)
         assert update_operation.done
 
         updated_context = update_operation.response

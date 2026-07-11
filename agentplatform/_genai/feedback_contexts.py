@@ -33,7 +33,7 @@ logger = logging.getLogger("agentplatform_genai.feedbackcontexts")
 logger.setLevel(logging.INFO)
 
 
-def _GetAgentEngineFeedbackContextOperationParameters_to_vertex(
+def _GetRuntimeFeedbackContextOperationParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
@@ -46,7 +46,7 @@ def _GetAgentEngineFeedbackContextOperationParameters_to_vertex(
     return to_object
 
 
-def _GetAgentEngineFeedbackContextRequestParameters_to_vertex(
+def _GetRuntimeFeedbackContextRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
@@ -57,7 +57,7 @@ def _GetAgentEngineFeedbackContextRequestParameters_to_vertex(
     return to_object
 
 
-def _UpdateAgentEngineFeedbackContextConfig_to_vertex(
+def _UpdateRuntimeFeedbackContextConfig_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
@@ -71,7 +71,7 @@ def _UpdateAgentEngineFeedbackContextConfig_to_vertex(
     return to_object
 
 
-def _UpdateAgentEngineFeedbackContextRequestParameters_to_vertex(
+def _UpdateRuntimeFeedbackContextRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
@@ -87,7 +87,7 @@ def _UpdateAgentEngineFeedbackContextRequestParameters_to_vertex(
         )
 
     if getv(from_object, ["config"]) is not None:
-        _UpdateAgentEngineFeedbackContextConfig_to_vertex(
+        _UpdateRuntimeFeedbackContextConfig_to_vertex(
             getv(from_object, ["config"]), to_object
         )
 
@@ -100,23 +100,23 @@ class FeedbackContexts(_api_module.BaseModule):
         self,
         *,
         name: str,
-        config: Optional[types.GetAgentEngineFeedbackContextConfigOrDict] = None,
+        config: Optional[types.GetRuntimeFeedbackContextConfigOrDict] = None,
     ) -> types.FeedbackContext:
         """
-        Gets an agent engine feedback context.
+        Gets a Runtime Feedback Context.
 
         Args:
-            name (str): Required. The name of the feedback context to retrieve. Format:
+            name (str): Required. The name of the Feedback Context to retrieve. Format:
                 `projects/{project}/locations/{location}/reasoningEngines/{resource_id}/feedbackEntries/{feedback_entry_id}/feedbackContext`.
-            config (GetAgentEngineFeedbackContextConfig):
-                Optional. The configuration for getting the feedback context.
+            config (GetRuntimeFeedbackContextConfig):
+                Optional. The configuration for getting the Feedback Context.
 
         Returns:
-            FeedbackContext: The requested feedback context.
+            FeedbackContext: The requested Feedback Context.
 
         """
 
-        parameter_model = types._GetAgentEngineFeedbackContextRequestParameters(
+        parameter_model = types._GetRuntimeFeedbackContextRequestParameters(
             name=name,
             config=config,
         )
@@ -127,7 +127,7 @@ class FeedbackContexts(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetAgentEngineFeedbackContextRequestParameters_to_vertex(
+            request_dict = _GetRuntimeFeedbackContextRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -184,9 +184,9 @@ class FeedbackContexts(_api_module.BaseModule):
         self,
         *,
         operation_name: str,
-        config: Optional[types.GetAgentEngineOperationConfigOrDict] = None,
-    ) -> types.AgentEngineFeedbackContextOperation:
-        parameter_model = types._GetAgentEngineFeedbackContextOperationParameters(
+        config: Optional[types.GetRuntimeFeedbackContextOperationConfigOrDict] = None,
+    ) -> types.RuntimeFeedbackContextOperation:
+        parameter_model = types._GetRuntimeFeedbackContextOperationParameters(
             operation_name=operation_name,
             config=config,
         )
@@ -197,7 +197,7 @@ class FeedbackContexts(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetAgentEngineFeedbackContextOperationParameters_to_vertex(
+            request_dict = _GetRuntimeFeedbackContextOperationParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -226,7 +226,7 @@ class FeedbackContexts(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
-        return_value = types.AgentEngineFeedbackContextOperation._from_response(
+        return_value = types.RuntimeFeedbackContextOperation._from_response(
             response=response_dict,
             kwargs=(
                 {
@@ -255,13 +255,13 @@ class FeedbackContexts(_api_module.BaseModule):
         *,
         name: str,
         context_events: Optional[list[types.SessionEventOrDict]] = None,
-        config: Optional[types.UpdateAgentEngineFeedbackContextConfigOrDict] = None,
-    ) -> types.AgentEngineFeedbackContextOperation:
+        config: Optional[types.UpdateRuntimeFeedbackContextConfigOrDict] = None,
+    ) -> types.RuntimeFeedbackContextOperation:
         """
         Updates a Feedback Context.
         """
 
-        parameter_model = types._UpdateAgentEngineFeedbackContextRequestParameters(
+        parameter_model = types._UpdateRuntimeFeedbackContextRequestParameters(
             name=name,
             context_events=context_events,
             config=config,
@@ -273,7 +273,7 @@ class FeedbackContexts(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _UpdateAgentEngineFeedbackContextRequestParameters_to_vertex(
+            request_dict = _UpdateRuntimeFeedbackContextRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -302,7 +302,7 @@ class FeedbackContexts(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
-        return_value = types.AgentEngineFeedbackContextOperation._from_response(
+        return_value = types.RuntimeFeedbackContextOperation._from_response(
             response=response_dict,
             kwargs=(
                 {
@@ -330,23 +330,23 @@ class FeedbackContexts(_api_module.BaseModule):
         self,
         *,
         parent: str,
-        config: Optional[types.GetAgentEngineFeedbackContextConfigOrDict] = None,
+        config: Optional[types.GetRuntimeFeedbackContextConfigOrDict] = None,
     ) -> types.FeedbackContext:
-        """Gets the feedback context in the Agent Engine.
+        """Gets the Feedback Context from the Runtime.
 
         Args:
-            parent (str): Required. Resource name of the parent feedback entry. Format:
+            parent (str): Required. Resource name of the parent Feedback Entry. Format:
                 `projects/{project}/locations/{location}/reasoningEngines/{resource_id}/feedbackEntries/{feedback_entry_id}`.
-            config (GetAgentEngineFeedbackContextConfig):
-                Optional. Additional configurations for getting the feedback context.
+            config (GetRuntimeFeedbackContextConfig):
+                Optional. Additional configurations for getting the Feedback Context.
 
         Returns:
-            FeedbackContext: The requested feedback context.
+            FeedbackContext: The requested Feedback Context.
         """
         if config is None:
-            config = types.GetAgentEngineFeedbackContextConfig()
+            config = types.GetRuntimeFeedbackContextConfig()
         elif isinstance(config, dict):
-            config = types.GetAgentEngineFeedbackContextConfig.model_validate(config)
+            config = types.GetRuntimeFeedbackContextConfig.model_validate(config)
         return self._get(
             name=f"{parent}/feedbackContext",
             config=config,
@@ -357,24 +357,24 @@ class FeedbackContexts(_api_module.BaseModule):
         *,
         parent: str,
         context_events: Optional[list[types.SessionEvent]] = None,
-        config: Optional[types.UpdateAgentEngineFeedbackContextConfigOrDict] = None,
-    ) -> types.AgentEngineFeedbackContextOperation:
-        """Updates a feedback context in the Agent Engine.
+        config: Optional[types.UpdateRuntimeFeedbackContextConfigOrDict] = None,
+    ) -> types.RuntimeFeedbackContextOperation:
+        """Updates a Feedback Context in the Runtime.
 
         Args:
-            parent (str): Required. Resource name of the parent feedback entry. Format:
+            parent (str): Required. Resource name of the parent Feedback Entry. Format:
                 `projects/{project}/locations/{location}/reasoningEngines/{resource_id}/feedbackEntries/{feedback_entry_id}`.
-            context_events (list[SessionEvent]): Optional. Events from the conversation relevant to the parent feedback entry.
-            config (UpdateAgentEngineFeedbackContextConfig):
-                Optional. Additional configurations for updating the feedback context.
+            context_events (list[SessionEvent]): Optional. Events from the conversation relevant to the parent Feedback Entry.
+            config (UpdateRuntimeFeedbackContextConfig):
+                Optional. Additional configurations for updating the Feedback Context.
 
         Returns:
-            AgentEngineFeedbackContextOperation: The operation for updating the feedback context.
+            RuntimeFeedbackContextOperation: The operation for updating the Feedback Context.
         """
         if config is None:
-            config = types.UpdateAgentEngineFeedbackContextConfig()
+            config = types.UpdateRuntimeFeedbackContextConfig()
         elif isinstance(config, dict):
-            config = types.UpdateAgentEngineFeedbackContextConfig.model_validate(config)
+            config = types.UpdateRuntimeFeedbackContextConfig.model_validate(config)
         operation = self._update(
             name=f"{parent}/feedbackContext",
             context_events=context_events,
@@ -389,7 +389,7 @@ class FeedbackContexts(_api_module.BaseModule):
                 )
             if operation.error:
                 raise RuntimeError(
-                    f"Failed to update feedback context: {operation.error}"
+                    f"Failed to update Feedback Context: {operation.error}"
                 )
         return operation
 
@@ -400,23 +400,23 @@ class AsyncFeedbackContexts(_api_module.BaseModule):
         self,
         *,
         name: str,
-        config: Optional[types.GetAgentEngineFeedbackContextConfigOrDict] = None,
+        config: Optional[types.GetRuntimeFeedbackContextConfigOrDict] = None,
     ) -> types.FeedbackContext:
         """
-        Gets an agent engine feedback context.
+        Gets a Runtime Feedback Context.
 
         Args:
-            name (str): Required. The name of the feedback context to retrieve. Format:
+            name (str): Required. The name of the Feedback Context to retrieve. Format:
                 `projects/{project}/locations/{location}/reasoningEngines/{resource_id}/feedbackEntries/{feedback_entry_id}/feedbackContext`.
-            config (GetAgentEngineFeedbackContextConfig):
-                Optional. The configuration for getting the feedback context.
+            config (GetRuntimeFeedbackContextConfig):
+                Optional. The configuration for getting the Feedback Context.
 
         Returns:
-            FeedbackContext: The requested feedback context.
+            FeedbackContext: The requested Feedback Context.
 
         """
 
-        parameter_model = types._GetAgentEngineFeedbackContextRequestParameters(
+        parameter_model = types._GetRuntimeFeedbackContextRequestParameters(
             name=name,
             config=config,
         )
@@ -427,7 +427,7 @@ class AsyncFeedbackContexts(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetAgentEngineFeedbackContextRequestParameters_to_vertex(
+            request_dict = _GetRuntimeFeedbackContextRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -486,9 +486,9 @@ class AsyncFeedbackContexts(_api_module.BaseModule):
         self,
         *,
         operation_name: str,
-        config: Optional[types.GetAgentEngineOperationConfigOrDict] = None,
-    ) -> types.AgentEngineFeedbackContextOperation:
-        parameter_model = types._GetAgentEngineFeedbackContextOperationParameters(
+        config: Optional[types.GetRuntimeFeedbackContextOperationConfigOrDict] = None,
+    ) -> types.RuntimeFeedbackContextOperation:
+        parameter_model = types._GetRuntimeFeedbackContextOperationParameters(
             operation_name=operation_name,
             config=config,
         )
@@ -499,7 +499,7 @@ class AsyncFeedbackContexts(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetAgentEngineFeedbackContextOperationParameters_to_vertex(
+            request_dict = _GetRuntimeFeedbackContextOperationParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -530,7 +530,7 @@ class AsyncFeedbackContexts(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
-        return_value = types.AgentEngineFeedbackContextOperation._from_response(
+        return_value = types.RuntimeFeedbackContextOperation._from_response(
             response=response_dict,
             kwargs=(
                 {
@@ -559,13 +559,13 @@ class AsyncFeedbackContexts(_api_module.BaseModule):
         *,
         name: str,
         context_events: Optional[list[types.SessionEventOrDict]] = None,
-        config: Optional[types.UpdateAgentEngineFeedbackContextConfigOrDict] = None,
-    ) -> types.AgentEngineFeedbackContextOperation:
+        config: Optional[types.UpdateRuntimeFeedbackContextConfigOrDict] = None,
+    ) -> types.RuntimeFeedbackContextOperation:
         """
         Updates a Feedback Context.
         """
 
-        parameter_model = types._UpdateAgentEngineFeedbackContextRequestParameters(
+        parameter_model = types._UpdateRuntimeFeedbackContextRequestParameters(
             name=name,
             context_events=context_events,
             config=config,
@@ -577,7 +577,7 @@ class AsyncFeedbackContexts(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _UpdateAgentEngineFeedbackContextRequestParameters_to_vertex(
+            request_dict = _UpdateRuntimeFeedbackContextRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -608,7 +608,7 @@ class AsyncFeedbackContexts(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
-        return_value = types.AgentEngineFeedbackContextOperation._from_response(
+        return_value = types.RuntimeFeedbackContextOperation._from_response(
             response=response_dict,
             kwargs=(
                 {
@@ -636,23 +636,23 @@ class AsyncFeedbackContexts(_api_module.BaseModule):
         self,
         *,
         parent: str,
-        config: Optional[types.GetAgentEngineFeedbackContextConfigOrDict] = None,
+        config: Optional[types.GetRuntimeFeedbackContextConfigOrDict] = None,
     ) -> types.FeedbackContext:
-        """Gets the feedback context in the Agent Engine.
+        """Gets the Feedback Context from the Runtime.
 
         Args:
-            parent (str): Required. Resource name of the parent feedback entry. Format:
+            parent (str): Required. Resource name of the parent Feedback Entry. Format:
                 `projects/{project}/locations/{location}/reasoningEngines/{resource_id}/feedbackEntries/{feedback_entry_id}`.
-            config (GetAgentEngineFeedbackContextConfig):
-                Optional. Additional configurations for getting the feedback context.
+            config (GetRuntimeFeedbackContextConfig):
+                Optional. Additional configurations for getting the Feedback Context.
 
         Returns:
-            FeedbackContext: The requested feedback context.
+            FeedbackContext: The requested Feedback Context.
         """
         if config is None:
-            config = types.GetAgentEngineFeedbackContextConfig()
+            config = types.GetRuntimeFeedbackContextConfig()
         elif isinstance(config, dict):
-            config = types.GetAgentEngineFeedbackContextConfig.model_validate(config)
+            config = types.GetRuntimeFeedbackContextConfig.model_validate(config)
         return await self._get(
             name=f"{parent}/feedbackContext",
             config=config,
@@ -663,24 +663,24 @@ class AsyncFeedbackContexts(_api_module.BaseModule):
         *,
         parent: str,
         context_events: Optional[list[types.SessionEvent]] = None,
-        config: Optional[types.UpdateAgentEngineFeedbackContextConfigOrDict] = None,
-    ) -> types.AgentEngineFeedbackContextOperation:
-        """Updates a feedback context in the Agent Engine.
+        config: Optional[types.UpdateRuntimeFeedbackContextConfigOrDict] = None,
+    ) -> types.RuntimeFeedbackContextOperation:
+        """Updates a Feedback Context in the Runtime.
 
         Args:
-            parent (str): Required. Resource name of the parent feedback entry. Format:
+            parent (str): Required. Resource name of the parent Feedback Entry. Format:
                 `projects/{project}/locations/{location}/reasoningEngines/{resource_id}/feedbackEntries/{feedback_entry_id}`.
-            context_events (list[SessionEvent]): Optional. Events from the conversation relevant to the parent feedback entry.
-            config (UpdateAgentEngineFeedbackContextConfig):
-                Optional. Additional configurations for updating the feedback context.
+            context_events (list[SessionEvent]): Optional. Events from the conversation relevant to the parent Feedback Entry.
+            config (UpdateRuntimeFeedbackContextConfig):
+                Optional. Additional configurations for updating the Feedback Context.
 
         Returns:
-            AgentEngineFeedbackContextOperation: The operation for updating the feedback context.
+            RuntimeFeedbackContextOperation: The operation for updating the Feedback Context.
         """
         if config is None:
-            config = types.UpdateAgentEngineFeedbackContextConfig()
+            config = types.UpdateRuntimeFeedbackContextConfig()
         elif isinstance(config, dict):
-            config = types.UpdateAgentEngineFeedbackContextConfig.model_validate(config)
+            config = types.UpdateRuntimeFeedbackContextConfig.model_validate(config)
         operation = await self._update(
             name=f"{parent}/feedbackContext",
             context_events=context_events,
@@ -695,6 +695,6 @@ class AsyncFeedbackContexts(_api_module.BaseModule):
                 )
             if operation.error:
                 raise RuntimeError(
-                    f"Failed to update feedback context: {operation.error}"
+                    f"Failed to update Feedback Context: {operation.error}"
                 )
         return operation

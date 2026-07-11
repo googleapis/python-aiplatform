@@ -42,7 +42,7 @@ def test_update(client):
             session_id="session_123",
             event_id="event_456",
             feedback_type=types.FeedbackType.THUMBS_UP,
-            config=types.CreateAgentEngineFeedbackEntryConfig(
+            config=types.CreateRuntimeFeedbackEntryConfig(
                 feedback_text="Great response!",
                 feedback_labels=["incomplete"],
                 user_id="user_789",
@@ -50,7 +50,7 @@ def test_update(client):
                 custom_metadata={"key1": "val1", "key2": "val2"},
             ),
         )
-        assert isinstance(operation, types.AgentEngineFeedbackEntryOperation)
+        assert isinstance(operation, types.RuntimeFeedbackEntryOperation)
         assert operation.done
 
         assert operation.response is not None
@@ -60,7 +60,7 @@ def test_update(client):
 
         update_operation = client.feedback_entries.update(
             name=feedback_entry.name,
-            config=types.UpdateAgentEngineFeedbackEntryConfig(
+            config=types.UpdateRuntimeFeedbackEntryConfig(
                 update_mask="feedbackType,feedbackText,feedbackLabels,userId,source,customMetadata",
                 feedback_type=types.FeedbackType.THUMBS_DOWN,
                 feedback_text="Actually bad response!",
@@ -71,7 +71,7 @@ def test_update(client):
             ),
         )
 
-        assert isinstance(update_operation, types.AgentEngineFeedbackEntryOperation)
+        assert isinstance(update_operation, types.RuntimeFeedbackEntryOperation)
         assert update_operation.done
 
         updated_feedback = update_operation.response
@@ -89,16 +89,14 @@ def test_update(client):
         # Second update: change only session_id and event_id via a scoped mask.
         session_update_operation = client.feedback_entries.update(
             name=feedback_entry.name,
-            config=types.UpdateAgentEngineFeedbackEntryConfig(
+            config=types.UpdateRuntimeFeedbackEntryConfig(
                 update_mask="sessionId,eventId",
                 session_id="session_new_456",
                 event_id="event_new_789",
             ),
         )
 
-        assert isinstance(
-            session_update_operation, types.AgentEngineFeedbackEntryOperation
-        )
+        assert isinstance(session_update_operation, types.RuntimeFeedbackEntryOperation)
         assert session_update_operation.done
 
         session_updated_feedback = session_update_operation.response
@@ -133,7 +131,7 @@ async def test_update_async(client):
             session_id="session_123",
             event_id="event_456",
             feedback_type=types.FeedbackType.THUMBS_UP,
-            config=types.CreateAgentEngineFeedbackEntryConfig(
+            config=types.CreateRuntimeFeedbackEntryConfig(
                 feedback_text="Great response!",
                 feedback_labels=["incomplete"],
                 user_id="user_789",
@@ -141,7 +139,7 @@ async def test_update_async(client):
                 custom_metadata={"key1": "val1", "key2": "val2"},
             ),
         )
-        assert isinstance(operation, types.AgentEngineFeedbackEntryOperation)
+        assert isinstance(operation, types.RuntimeFeedbackEntryOperation)
         assert operation.done
 
         assert operation.response is not None
@@ -151,7 +149,7 @@ async def test_update_async(client):
 
         update_operation = await client.aio.feedback_entries.update(
             name=feedback_entry.name,
-            config=types.UpdateAgentEngineFeedbackEntryConfig(
+            config=types.UpdateRuntimeFeedbackEntryConfig(
                 update_mask="feedbackType,feedbackText,feedbackLabels,userId,source,customMetadata",
                 feedback_type=types.FeedbackType.THUMBS_DOWN,
                 feedback_text="Actually bad response!",
@@ -162,7 +160,7 @@ async def test_update_async(client):
             ),
         )
 
-        assert isinstance(update_operation, types.AgentEngineFeedbackEntryOperation)
+        assert isinstance(update_operation, types.RuntimeFeedbackEntryOperation)
         assert update_operation.done
 
         updated_feedback = update_operation.response
@@ -180,16 +178,14 @@ async def test_update_async(client):
         # Second update: change only session_id and event_id via a scoped mask.
         session_update_operation = await client.aio.feedback_entries.update(
             name=feedback_entry.name,
-            config=types.UpdateAgentEngineFeedbackEntryConfig(
+            config=types.UpdateRuntimeFeedbackEntryConfig(
                 update_mask="sessionId,eventId",
                 session_id="session_new_456",
                 event_id="event_new_789",
             ),
         )
 
-        assert isinstance(
-            session_update_operation, types.AgentEngineFeedbackEntryOperation
-        )
+        assert isinstance(session_update_operation, types.RuntimeFeedbackEntryOperation)
         assert session_update_operation.done
 
         session_updated_feedback = session_update_operation.response
