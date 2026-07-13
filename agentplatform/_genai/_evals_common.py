@@ -923,6 +923,90 @@ def _fetch_agent_config_dict(
     )
 
 
+def _get_resolved_location(api_client: Any) -> Optional[str]:
+    """Returns the location configured on the API client."""
+    return getattr(api_client, "location", None)
+
+
+def _normalize_interaction_resource(
+    interaction: str, agent: str, location: Optional[str]
+) -> str:
+    """Normalizes an interaction id into a full resource name.
+
+    A bare interaction id is expanded to
+    `projects/{project}/locations/{location}/interactions/{id}` using the
+    project and location parsed from the agent resource name. Fully-qualified
+    interaction resource names are returned unchanged.
+    """
+    if interaction.startswith("projects/"):
+        return interaction
+    parts = agent.split("/")
+    project = parts[1]
+    agent_location = parts[3] if len(parts) > 3 else (location or "global")
+    return f"projects/{project}/locations/{agent_location}/interactions/{interaction}"
+
+
+def _build_interaction_id_dataset(
+    loaded_data: list[dict[str, Any]],
+    agent: Optional[str],
+    location: Optional[str],
+) -> Optional[types.EvaluationDataset]:
+    """Builds an EvaluationDataset from rows that carry an `interaction_id`.
+
+    When the dataset contains an `interaction_id` column, each row is turned
+    into an EvalCase whose `interactions_data_source` references the interaction
+    and the Gemini agent. The backend resolves the interaction trace and agent
+    config; no client-side prompt/response is required. Returns None if the
+    data does not contain interaction ids.
+    """
+    has_interaction_id = bool(loaded_data) and any(
+        _evals_constant.INTERACTION_ID in row for row in loaded_data
+    )
+    if not has_interaction_id:
+        if agent:
+            raise ValueError(
+                "An `agent` was provided but the dataset does not contain an"
+                " `interaction_id` column. The `agent` argument is only used to"
+                " resolve an `interaction_id` dataset column (so the backend can"
+                " fetch the interaction trace and Agent config). To evaluate"
+                " with an agent, provide a dataset with an `interaction_id`"
+                " column; otherwise omit `agent`."
+            )
+        return None
+
+    if not agent:
+        raise ValueError(
+            "An `agent` resource name is required when the dataset contains an"
+            " `interaction_id` column, so the backend can resolve the Agent"
+            " config for each interaction."
+        )
+    if not _is_gemini_agent_resource(agent):
+        raise ValueError(
+            "`agent` must be a Gemini Agents API resource name of the form"
+            " projects/{project}/locations/{location}/agents/{agent} when"
+            f" evaluating interaction ids. Got: {agent}"
+        )
+
+    gemini_agent_config = types.GeminiAgentConfig(gemini_agent=agent)
+    eval_cases = []
+    for i, row in enumerate(loaded_data):
+        interaction = row.get(_evals_constant.INTERACTION_ID)
+        if not interaction:
+            raise ValueError(f"Missing `interaction_id` value for row {i}.")
+        eval_cases.append(
+            types.EvalCase(
+                eval_case_id=f"eval_case_{i}",
+                interactions_data_source=types.InteractionsDataSource(
+                    interaction=_normalize_interaction_resource(
+                        str(interaction), agent, location
+                    ),
+                    gemini_agent_config=gemini_agent_config,
+                ),
+            )
+        )
+    return types.EvaluationDataset(eval_cases=eval_cases)
+
+
 def _add_evaluation_run_labels(
     labels: Optional[dict[str, str]] = None,
     agent: Optional[str] = None,
@@ -1939,6 +2023,8 @@ def _resolve_dataset_inputs(
     dataset_schema: Optional[Literal["GEMINI", "FLATTEN", "OPENAI"]],
     loader: "_evals_utils.EvalDatasetLoader",
     agent_info: Optional[types.evals.AgentInfo] = None,
+    agent: Optional[str] = None,
+    api_client: Any = None,
 ) -> tuple[types.EvaluationDataset, int]:
     """Loads and processes single or multiple datasets for evaluation.
 
@@ -1987,6 +2073,21 @@ def _resolve_dataset_inputs(
 
         ds_source_for_loader = _get_dataset_source(ds_item)
         current_loaded_data = loader.load(ds_source_for_loader)
+
+        interaction_dataset = _build_interaction_id_dataset(
+            current_loaded_data, agent, _get_resolved_location(api_client)
+        )
+        if interaction_dataset is not None:
+            if dataset_schema:
+                raise ValueError(
+                    "`dataset_schema` is not supported for datasets with an"
+                    " `interaction_id` column. The interaction trace and agent"
+                    " config are resolved by the backend, so no client-side"
+                    " schema conversion is applied. Omit `dataset_schema` when"
+                    " evaluating an interaction_id dataset."
+                )
+            parsed_evaluation_datasets.append(interaction_dataset)
+            continue
 
         if dataset_schema:
             current_schema = _evals_data_converters.EvalDatasetSchema(dataset_schema)
@@ -2145,6 +2246,7 @@ def _execute_evaluation(  # type: ignore[no-untyped-def]
     api_client: Any,
     dataset: Union[types.EvaluationDataset, list[types.EvaluationDataset]],
     metrics: list[types.Metric],
+    agent: Optional[str] = None,
     dataset_schema: Optional[Literal["GEMINI", "FLATTEN", "OPENAI"]] = None,
     dest: Optional[str] = None,
     location: Optional[str] = None,
@@ -2225,6 +2327,8 @@ def _execute_evaluation(  # type: ignore[no-untyped-def]
         dataset_schema=dataset_schema,
         loader=loader,
         agent_info=validated_agent_info,
+        agent=agent,
+        api_client=api_client,
     )
 
     resolved_metrics = _resolve_metrics(metrics, api_client)

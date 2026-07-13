@@ -57,6 +57,7 @@ CONTENT = "content"
 PARTS = "parts"
 USER_AUTHOR = "user"
 AGENT_DATA = "agent_data"
+INTERACTION_ID = "interaction_id"
 STARTING_PROMPT = "starting_prompt"
 CONVERSATION_PLAN = "conversation_plan"
 HISTORY = "history"
@@ -74,5 +75,6 @@ COMMON_DATASET_COLUMNS = frozenset(
         STARTING_PROMPT,
         CONVERSATION_PLAN,
         AGENT_DATA,
+        INTERACTION_ID,
     }
 )

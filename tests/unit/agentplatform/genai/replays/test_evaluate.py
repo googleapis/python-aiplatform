@@ -582,6 +582,33 @@ def test_evaluation_single_turn_agent_data(client):
     assert len(evaluation_result.eval_case_results) == 1
 
 
+def test_evaluation_with_interaction_id(client):
+    """Tests evaluate() an interaction_id dataset with the `agent` parameter."""
+    client._api_client._http_options.api_version = "v1beta1"
+    eval_dataset = types.EvaluationDataset(
+        eval_dataset_df=pd.DataFrame(
+            {"interaction_id": ["ChA5YTc2MWEzZmIxNWQyY2Y2EAgaATAqBG1haW4"]}
+        )
+    )
+
+    evaluation_result = client.evals.evaluate(
+        dataset=eval_dataset,
+        agent=("projects/model-evaluation-dev/locations/global/agents/test-agent-eval"),
+        metrics=[types.RubricMetric.MULTI_TURN_TASK_SUCCESS],
+    )
+
+    assert isinstance(evaluation_result, types.EvaluationResult)
+    assert evaluation_result.summary_metrics is not None
+    assert len(evaluation_result.summary_metrics) > 0
+    for summary in evaluation_result.summary_metrics:
+        assert isinstance(summary, types.AggregatedMetricResult)
+        assert summary.metric_name is not None
+        assert summary.mean_score is not None
+
+    assert evaluation_result.eval_case_results is not None
+    assert len(evaluation_result.eval_case_results) == 1
+
+
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),

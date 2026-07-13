@@ -2214,6 +2214,7 @@ class Evals(_api_module.BaseModule):
             list[types.EvaluationDatasetOrDict],
         ],
         metrics: Optional[list[types.MetricOrDict]] = None,
+        agent: Optional[str] = None,
         location: Optional[str] = None,
         config: Optional[types.EvaluateMethodConfigOrDict] = None,
         **kwargs: Any,
@@ -2222,8 +2223,15 @@ class Evals(_api_module.BaseModule):
 
         Args:
           dataset: The dataset(s) to evaluate. Can be a pandas DataFrame, a single
-            `types.EvaluationDataset` or a list of `types.EvaluationDataset`.
+            `types.EvaluationDataset` or a list of `types.EvaluationDataset`. To
+            evaluate existing interactions, provide a dataset with an
+            `interaction_id` column; each interaction is resolved by the backend
+            using `agent` to populate the agent data for evaluation.
           metrics: The list of metrics to use for evaluation.
+          agent: Optional Gemini Agents API agent resource name
+            (`projects/{project}/locations/{location}/agents/{agent}`). Required
+            when the dataset contains an `interaction_id` column: the backend uses
+            it to resolve the Agent config for each referenced interaction.
           location: The location to use for the evaluation service. If not specified,
              the location configured in the client will be used. If specified,
              this will override the location set in `agentplatform.Client` only for
@@ -2274,6 +2282,7 @@ class Evals(_api_module.BaseModule):
             api_client=self._api_client,
             dataset=dataset,
             metrics=metrics,
+            agent=agent,
             dataset_schema=config.dataset_schema,
             dest=config.dest,
             location=location,

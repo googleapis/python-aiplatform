@@ -9905,6 +9905,101 @@ class TestEvaluateInstancesInteractionsDataSource:
         assert data_source["gemini_agent_config"]["gemini_agent"] == _TEST_GEMINI_AGENT
 
 
+class TestEvaluateInteractionIdDataset:
+    """CUJ1 via evaluate(): interaction_id column + agent -> data source."""
+
+    def test_build_interaction_id_dataset_from_column(self):
+        loaded = [
+            {"interaction_id": "abc123"},
+            {"interaction_id": ("projects/p/locations/global/interactions/def456")},
+        ]
+        dataset = _evals_common._build_interaction_id_dataset(
+            loaded, _TEST_GEMINI_AGENT, "global"
+        )
+
+        assert dataset is not None
+        assert len(dataset.eval_cases) == 2
+        ds0 = dataset.eval_cases[0].interactions_data_source
+        assert ds0.gemini_agent_config.gemini_agent == _TEST_GEMINI_AGENT
+        assert ds0.interaction == (
+            "projects/test-project/locations/us-central1/interactions/abc123"
+        )
+        assert (
+            dataset.eval_cases[1].interactions_data_source.interaction
+            == "projects/p/locations/global/interactions/def456"
+        )
+        assert dataset.eval_cases[0].agent_data is None
+
+    def test_build_interaction_id_dataset_requires_agent(self):
+        with pytest.raises(ValueError, match="agent.*required"):
+            _evals_common._build_interaction_id_dataset(
+                [{"interaction_id": "abc123"}], None, "global"
+            )
+
+    def test_build_interaction_id_dataset_rejects_non_gemini_agent(self):
+        with pytest.raises(ValueError, match="Gemini Agents API resource name"):
+            _evals_common._build_interaction_id_dataset(
+                [{"interaction_id": "abc123"}],
+                "projects/p/locations/us-central1/reasoningEngines/123",
+                "global",
+            )
+
+    def test_build_interaction_id_dataset_none_without_column_and_no_agent(self):
+        assert (
+            _evals_common._build_interaction_id_dataset(
+                [{"prompt": "hi", "response": "yo"}], None, "global"
+            )
+            is None
+        )
+
+    def test_build_interaction_id_dataset_agent_without_column_raises(self):
+        with pytest.raises(ValueError, match="interaction_id"):
+            _evals_common._build_interaction_id_dataset(
+                [{"prompt": "hi", "response": "yo"}], _TEST_GEMINI_AGENT, "global"
+            )
+
+    @mock.patch.object(_evals_utils, "EvalDatasetLoader")
+    def test_evaluate_agent_without_interaction_id_column_raises(
+        self, mock_eval_dataset_loader
+    ):
+        agentplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        client = agentplatform.Client(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        mock_df = pd.DataFrame([{"prompt": "p1", "response": "r1"}])
+        mock_eval_dataset_loader.return_value.load.return_value = mock_df.to_dict(
+            orient="records"
+        )
+        dataset = agentplatform_genai_types.EvaluationDataset(eval_dataset_df=mock_df)
+
+        with pytest.raises(ValueError, match="interaction_id"):
+            client.evals.evaluate(
+                dataset=dataset,
+                metrics=[agentplatform_genai_types.Metric(name="exact_match")],
+                agent=_TEST_GEMINI_AGENT,
+            )
+
+    @mock.patch.object(_evals_utils, "EvalDatasetLoader")
+    def test_evaluate_interaction_id_with_dataset_schema_raises(
+        self, mock_eval_dataset_loader
+    ):
+        agentplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        client = agentplatform.Client(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        mock_df = pd.DataFrame([{"interaction_id": "i1"}])
+        mock_eval_dataset_loader.return_value.load.return_value = mock_df.to_dict(
+            orient="records"
+        )
+        dataset = agentplatform_genai_types.EvaluationDataset(eval_dataset_df=mock_df)
+
+        with pytest.raises(ValueError, match="dataset_schema"):
+            client.evals.evaluate(
+                dataset=dataset,
+                metrics=[agentplatform_genai_types.Metric(name="exact_match")],
+                agent=_TEST_GEMINI_AGENT,
+                config=agentplatform_genai_types.EvaluateMethodConfig(
+                    dataset_schema="GEMINI"
+                ),
+            )
+
+
 class TestCreateEvaluationRunGeminiAgent:
     """CUJ2: scrape a Gemini agent via create_evaluation_run."""
 
