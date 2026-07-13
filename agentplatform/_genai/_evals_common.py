@@ -32,6 +32,11 @@ from google.api_core import exceptions as api_exceptions
 import agentplatform
 from google.genai import types as genai_types
 from google.genai._api_client import BaseApiClient
+from google.genai._gaos.types.interactions import interaction as interaction_types
+from google.genai._gaos.types.interactions import functioncallstep
+from google.genai._gaos.types.interactions import functionresultstep
+from google.genai._gaos.types.interactions import modeloutputstep
+from google.genai._gaos.types.interactions import userinputstep
 from google.genai.models import Models
 import pandas as pd
 from tqdm import tqdm
@@ -572,6 +577,349 @@ def _is_gemini_agent_resource(agent: str) -> bool:
         and bool(parts[1])
         and bool(parts[3])
         and bool(parts[5])
+    )
+
+
+def _step_to_agent_event(step: Any) -> Optional[types.evals.AgentEvent]:
+    """Converts a typed GenAI SDK Interaction step to an AgentEvent.
+
+    Uses ``isinstance`` checks against the GenAI SDK step classes so that
+    attribute access stays in sync with SDK/proto changes.
+
+    Args:
+        step: A step from ``Interaction.steps`` (a GenAI SDK step type).
+
+    Returns:
+        An AgentEvent, or ``None`` if the step type is not handled.
+    """
+    if isinstance(step, userinputstep.UserInputStep):
+        return _text_step_to_event(step, author="user", role="user")
+    elif isinstance(step, modeloutputstep.ModelOutputStep):
+        return _text_step_to_event(step, author="agent", role="model")
+    elif isinstance(step, functioncallstep.FunctionCallStep):
+        return _function_call_step_to_event(step)
+    elif isinstance(step, functionresultstep.FunctionResultStep):
+        return _function_response_step_to_event(step)
+    else:
+        logger.info("Skipping unhandled interaction step type: %s", type(step).__name__)
+        return None
+
+
+def _function_response_step_to_event(
+    step: functionresultstep.FunctionResultStep,
+) -> types.evals.AgentEvent:
+    """Converts a FunctionResultStep to an AgentEvent."""
+    result = step.result
+    if isinstance(result, dict):
+        result_str = json.dumps(result)
+    elif isinstance(result, str):
+        result_str = result
+    else:
+        result_str = str(result) if result is not None else ""
+    return types.evals.AgentEvent(  # pytype: disable=missing-parameter
+        author="user",
+        content=genai_types.Content(
+            role="user",
+            parts=[
+                genai_types.Part(
+                    function_response=genai_types.FunctionResponse(
+                        name=step.name or "",
+                        response={"result": result_str},
+                        id=step.call_id or "",
+                    )
+                )
+            ],
+        ),
+    )
+
+
+def _function_call_step_to_event(
+    step: functioncallstep.FunctionCallStep,
+) -> types.evals.AgentEvent:
+    """Converts a FunctionCallStep to an AgentEvent."""
+    return types.evals.AgentEvent(  # pytype: disable=missing-parameter
+        author="agent",
+        content=genai_types.Content(
+            role="model",
+            parts=[
+                genai_types.Part(
+                    function_call=genai_types.FunctionCall(
+                        name=step.name or "",
+                        args=step.arguments or {},
+                        id=step.id or "",
+                    )
+                )
+            ],
+        ),
+    )
+
+
+def _text_step_to_event(
+    step: Any, *, author: str, role: str
+) -> Optional[types.evals.AgentEvent]:
+    """Converts a text-bearing step (UserInputStep / ModelOutputStep) to an AgentEvent.
+
+    Args:
+        step: A GenAI SDK step with a ``content`` attribute.
+        author: The event author (``"user"`` or ``"agent"``).
+        role: The content role (``"user"`` or ``"model"``).
+
+    Returns:
+        An AgentEvent, or ``None`` if no text parts were found.
+    """
+    parts = []
+    for content_item in step.content or []:
+        if getattr(content_item, "text", None):
+            parts.append(genai_types.Part(text=content_item.text))
+    if not parts:
+        return None
+    return types.evals.AgentEvent(  # pytype: disable=missing-parameter
+        author=author,
+        content=genai_types.Content(role=role, parts=parts),
+    )
+
+
+def _interaction_steps_to_events(
+    steps: list[Any],
+) -> list[tuple[types.evals.AgentEvent, type]]:
+    """Converts a list of typed Interaction steps to AgentEvents.
+
+    Each step is mapped via ``_step_to_agent_event``. Steps whose type is
+    not handled are skipped with a log message.  The originating SDK step
+    class is returned alongside each event so callers can determine turn
+    boundaries without inspecting event content.
+
+    Args:
+        steps: The ``steps`` list from a GenAI SDK ``Interaction`` object.
+
+    Returns:
+        A list of ``(AgentEvent, step_class)`` tuples.
+    """
+    events: list[tuple[types.evals.AgentEvent, type]] = []
+    for step in steps:
+        event = _step_to_agent_event(step)
+        if event is not None:
+            events.append((event, type(step)))
+    return events
+
+
+def _interaction_dict_to_agent_data(
+    interaction: dict[str, Any],
+) -> types.evals.AgentData:
+    """Converts an Interaction API JSON response to an AgentData object.
+
+    Parses the raw dict into a typed ``Interaction`` object (from the GenAI
+    SDK) so that step conversion uses ``isinstance`` checks and typed
+    attribute access.  Steps are grouped into ConversationTurns -- each
+    ``UserInputStep`` starts a new turn, so multi-turn conversations
+    produce multiple turns.
+
+    Args:
+        interaction: A dict from the Interactions API GET response.
+
+    Returns:
+        An AgentData object with one or more ConversationTurns.
+    """
+    typed_interaction = interaction_types.Interaction.model_validate(interaction)
+    all_events = _interaction_steps_to_events(typed_interaction.steps or [])
+
+    # Group events into turns. Each UserInputStep starts a new turn.
+    grouped: list[list[types.evals.AgentEvent]] = []
+    for event, step_type in all_events:
+        if not grouped or step_type is userinputstep.UserInputStep:
+            grouped.append([])
+        grouped[-1].append(event)
+
+    if not grouped:
+        return types.evals.AgentData(  # pytype: disable=missing-parameter
+            turns=[
+                types.evals.ConversationTurn(  # pytype: disable=missing-parameter
+                    turn_index=0, events=[]
+                )
+            ]
+        )
+    return types.evals.AgentData(  # pytype: disable=missing-parameter
+        turns=[
+            types.evals.ConversationTurn(  # pytype: disable=missing-parameter
+                turn_index=i, events=events
+            )
+            for i, events in enumerate(grouped)
+        ]
+    )
+
+
+def _merge_text_parts_in_agent_data(
+    agent_data: types.evals.AgentData,
+) -> None:
+    """Merges consecutive text events and parts for cleaner trace display.
+
+    The Interaction API may return multiple consecutive ``model_output``
+    steps (one per paragraph) and/or multiple text content items within a
+    single step.  ``_interaction_dict_to_agent_data`` maps each step to a
+    separate event, and each content item to a separate ``part``, causing
+    the trace renderer to display them as separate visual blocks.
+
+    This function performs two merges:
+
+    1. **Event merge** -- consecutive events from the same author that
+       contain only text parts are collapsed into a single event.
+    2. **Part merge** -- within each (possibly merged) event, consecutive
+       text-only parts are collapsed into a single part.
+
+    Mutates ``agent_data`` in place.
+
+    Args:
+        agent_data: An AgentData object to merge in place.
+    """
+    for turn in agent_data.turns or []:
+        events = turn.events
+        if not events:
+            continue
+
+        # --- Pass 1: merge consecutive text-only events from the same author ---
+        merged_events: list[types.evals.AgentEvent] = []
+        for event in events:
+            parts = (event.content.parts if event.content else None) or []
+            is_text_only = parts and all(
+                p.text is not None
+                and p.function_call is None
+                and p.function_response is None
+                for p in parts
+            )
+            if (
+                merged_events
+                and is_text_only
+                and event.author == merged_events[-1].author
+            ):
+                prev_content = merged_events[-1].content
+                prev_parts = (prev_content.parts if prev_content else None) or []
+                prev_parts.extend(parts)
+                continue
+            merged_events.append(event)
+        turn.events = merged_events
+
+        # --- Pass 2: merge consecutive text parts within each event ---
+        for event in turn.events:
+            content = event.content
+            if not content:
+                continue
+            parts = content.parts
+            if not parts or len(parts) <= 1:
+                continue
+            merged_parts: list[genai_types.Part] = []
+            text_buffer: list[str] = []
+            for part in parts:
+                if (
+                    part.text is not None
+                    and part.function_call is None
+                    and part.function_response is None
+                ):
+                    text_buffer.append(part.text)
+                else:
+                    if text_buffer:
+                        merged_parts.append(
+                            genai_types.Part(text="\n".join(text_buffer))
+                        )
+                        text_buffer = []
+                    merged_parts.append(part)
+            if text_buffer:
+                merged_parts.append(genai_types.Part(text="\n".join(text_buffer)))
+            content.parts = merged_parts
+
+
+def _agent_tools_to_config_tools(
+    agent_tools: Optional[list[Any]],
+) -> Optional[list[genai_types.Tool]]:
+    """Maps Gemini Agents API tools to ``genai_types.Tool`` for an AgentConfig.
+
+    The Gemini Agents API returns built-in tool variants (``google_search``,
+    ``code_execution``, ``url_context``) whose schema differs from
+    ``genai_types.Tool``.  Each recognised built-in variant is mapped to the
+    matching ``genai_types.Tool`` field.  Tools with a non-empty body after
+    stripping the ``type`` key (e.g. ``function_declarations``) are passed
+    through ``model_validate``.  Variants without a ``genai_types.Tool``
+    equivalent (e.g. ``filesystem``, ``mcp_server``) are skipped.
+
+    Args:
+        agent_tools: The ``tools`` list from a fetched Gemini agent dict.
+
+    Returns:
+        A list of ``genai_types.Tool``, or ``None`` if there are no mappable
+        tools.
+    """
+    if not agent_tools:
+        return None
+    tools: list[genai_types.Tool] = []
+    for tool in agent_tools:
+        if not isinstance(tool, dict):
+            continue
+        tool_type = tool.get("type")
+        if tool_type == "google_search":
+            tools.append(genai_types.Tool(google_search=genai_types.GoogleSearch()))
+        elif tool_type == "code_execution":
+            tools.append(
+                genai_types.Tool(code_execution=genai_types.ToolCodeExecution())
+            )
+        elif tool_type == "url_context":
+            tools.append(genai_types.Tool(url_context=genai_types.UrlContext()))
+        else:
+            # For non-built-in tools (e.g. function_declarations), strip the
+            # type key and validate through genai_types.Tool.
+            remainder = {k: v for k, v in tool.items() if k != "type"}
+            if remainder:
+                tools.append(genai_types.Tool.model_validate(remainder))
+    return tools or None
+
+
+def _fetch_agent_config_dict(
+    api_client: BaseApiClient,
+    agent_resource_name: str,
+) -> types.evals.AgentConfig:
+    """Fetches an agent's config from the Agent API and returns an AgentConfig.
+
+    Fetches the Agent resource via ``GET agents/{id}`` and extracts the
+    system instruction, description, base agent type, and tools.  Built-in
+    tools (``google_search``, ``code_execution``, ``url_context``) are mapped
+    to their ``genai_types.Tool`` equivalents via
+    ``_agent_tools_to_config_tools``.
+
+    Args:
+        api_client: The API client used to fetch the agent.
+        agent_resource_name: Full resource name of the agent, e.g.
+            ``projects/p/locations/l/agents/my-agent``.
+
+    Returns:
+        An AgentConfig with ``agent_id`` and, when available,
+        ``instruction``, ``description``, ``agent_type``, and ``tools``.
+    """
+    agent_short_id = agent_resource_name.split("/")[-1] or "agent"
+
+    instruction: Optional[str] = None
+    description: Optional[str] = None
+    agent_type: Optional[str] = None
+    tools: Optional[list[genai_types.Tool]] = None
+
+    try:
+        agent_resp = api_client.request("get", f"agents/{agent_short_id}", {}, None)
+        if agent_resp.body:
+            agent_dict = json.loads(agent_resp.body)
+            instruction = agent_dict.get("system_instruction") or None
+            description = agent_dict.get("description") or None
+            agent_type = agent_dict.get("base_agent") or None
+            tools = _agent_tools_to_config_tools(agent_dict.get("tools"))
+    except Exception as e:  # pylint: disable=broad-exception-caught
+        logger.warning(
+            "Failed to fetch agent config for '%s' (continuing without it): %s",
+            agent_resource_name,
+            e,
+        )
+
+    return types.evals.AgentConfig(  # pytype: disable=missing-parameter
+        agent_id=agent_short_id,
+        instruction=instruction,
+        description=description,
+        agent_type=agent_type,
+        tools=tools,
     )
 
 

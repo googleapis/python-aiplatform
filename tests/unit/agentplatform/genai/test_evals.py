@@ -9989,3 +9989,378 @@ class TestCreateEvaluationRunGeminiAgent:
         agent_run_config = self._agent_run_config(request_body)
         assert "gemini_agent_config" not in agent_run_config
         assert agent_run_config["agent_engine"] == _TEST_AGENT_ENGINE
+
+
+class TestStepToAgentEvent:
+    """Tests for _step_to_agent_event using typed GenAI SDK step objects."""
+
+    def test_user_input_step(self):
+        from google.genai._gaos.types.interactions import textcontent  # pylint: disable=g-import-not-at-top
+        from google.genai._gaos.types.interactions import userinputstep  # pylint: disable=g-import-not-at-top
+
+        step = userinputstep.UserInputStep(
+            content=[textcontent.TextContent(text="hello")],
+        )
+        event = _evals_common._step_to_agent_event(step)
+        assert event is not None
+        assert event.author == "user"
+        assert event.content.parts[0].text == "hello"
+
+    def test_model_output_step(self):
+        from google.genai._gaos.types.interactions import modeloutputstep  # pylint: disable=g-import-not-at-top
+        from google.genai._gaos.types.interactions import textcontent  # pylint: disable=g-import-not-at-top
+
+        step = modeloutputstep.ModelOutputStep(
+            content=[textcontent.TextContent(text="world")],
+        )
+        event = _evals_common._step_to_agent_event(step)
+        assert event is not None
+        assert event.author == "agent"
+        assert event.content.parts[0].text == "world"
+
+    def test_function_call_step(self):
+        from google.genai._gaos.types.interactions import functioncallstep  # pylint: disable=g-import-not-at-top
+
+        step = functioncallstep.FunctionCallStep(
+            name="get_weather",
+            arguments={"city": "NYC"},
+            id="call_1",
+        )
+        event = _evals_common._step_to_agent_event(step)
+        assert event.content.parts[0].function_call.name == "get_weather"
+
+    def test_function_result_step(self):
+        from google.genai._gaos.types.interactions import functionresultstep  # pylint: disable=g-import-not-at-top
+
+        step = functionresultstep.FunctionResultStep(
+            name="get_weather",
+            call_id="call_1",
+            result={"temp": "72F"},
+        )
+        event = _evals_common._step_to_agent_event(step)
+        assert event.author == "user"
+        assert event.content.parts[0].function_response.id == "call_1"
+
+    def test_unknown_step_returns_none(self):
+        """An unrecognised step type returns None."""
+        step = mock.MagicMock()
+        step.type = "some_future_step"
+        event = _evals_common._step_to_agent_event(step)
+        assert event is None
+
+    def test_empty_text_content_returns_none(self):
+        from google.genai._gaos.types.interactions import userinputstep  # pylint: disable=g-import-not-at-top
+
+        step = userinputstep.UserInputStep(content=[])
+        event = _evals_common._step_to_agent_event(step)
+        assert event is None
+
+
+class TestInteractionDictToAgentData:
+    """Tests for _interaction_dict_to_agent_data."""
+
+    def test_single_turn_conversation(self):
+        """One user_input + model_output produces one turn."""
+        interaction_dict = {
+            "status": "completed",
+            "steps": [
+                {
+                    "type": "user_input",
+                    "content": [{"type": "text", "text": "Hello agent"}],
+                },
+                {
+                    "type": "model_output",
+                    "content": [
+                        {"type": "text", "text": "Hello! How can I help?"}
+                    ],
+                },
+            ]
+        }
+        result = _evals_common._interaction_dict_to_agent_data(
+            interaction_dict
+        )
+        assert len(result.turns) == 1
+        events = result.turns[0].events
+        assert len(events) == 2
+        assert events[0].author == "user"
+        assert events[0].content.parts[0].text == "Hello agent"
+        assert events[1].author == "agent"
+        assert events[1].content.parts[0].text == "Hello! How can I help?"
+
+    def test_multi_turn_conversation(self):
+        """Multiple user_input steps produce multiple turns."""
+        interaction_dict = {
+            "status": "completed",
+            "steps": [
+                {
+                    "type": "user_input",
+                    "content": [{"type": "text", "text": "Turn 1 user"}],
+                },
+                {
+                    "type": "model_output",
+                    "content": [{"type": "text", "text": "Turn 1 model"}],
+                },
+                {
+                    "type": "user_input",
+                    "content": [{"type": "text", "text": "Turn 2 user"}],
+                },
+                {
+                    "type": "model_output",
+                    "content": [{"type": "text", "text": "Turn 2 model"}],
+                },
+            ]
+        }
+        result = _evals_common._interaction_dict_to_agent_data(
+            interaction_dict
+        )
+        assert len(result.turns) == 2
+        assert result.turns[0].turn_index == 0
+        assert result.turns[1].turn_index == 1
+        # Turn 1 events
+        assert result.turns[0].events[0].content.parts[0].text == "Turn 1 user"
+        # Turn 2 events
+        assert result.turns[1].events[0].content.parts[0].text == "Turn 2 user"
+
+    def test_with_tool_calls(self):
+        """Function call/result in same turn as user_input."""
+        interaction_dict = {
+            "status": "completed",
+            "steps": [
+                {
+                    "type": "user_input",
+                    "content": [{"type": "text", "text": "What is the weather?"}],
+                },
+                {
+                    "type": "function_call",
+                    "name": "get_weather",
+                    "arguments": {"city": "NYC"},
+                    "id": "call_1",
+                },
+                {
+                    "type": "function_result",
+                    "name": "get_weather",
+                    "call_id": "call_1",
+                    "result": {"temp": "72F"},
+                },
+                {
+                    "type": "model_output",
+                    "content": [{"type": "text", "text": "It is 72F in NYC."}],
+                },
+            ]
+        }
+        result = _evals_common._interaction_dict_to_agent_data(
+            interaction_dict
+        )
+        # All in one turn since there's only one user_input.
+        assert len(result.turns) == 1
+        events = result.turns[0].events
+        assert len(events) == 4
+        assert events[1].content.parts[0].function_call.name == "get_weather"
+
+    def test_empty_interaction(self):
+        """Empty interaction produces a single turn with no events."""
+        result = _evals_common._interaction_dict_to_agent_data(
+            {"status": "completed", "steps": []}
+        )
+        assert len(result.turns) == 1
+        assert result.turns[0].events == []
+
+    def test_unknown_steps_skipped(self):
+        """Unrecognised step types are skipped, not included as events."""
+        interaction_dict = {
+            "status": "completed",
+            "steps": [
+                {
+                    "type": "user_input",
+                    "content": [{"type": "text", "text": "hello"}],
+                },
+                {"type": "some_future_type", "data": "payload"},
+                {
+                    "type": "model_output",
+                    "content": [{"type": "text", "text": "hi"}],
+                },
+            ]
+        }
+        result = _evals_common._interaction_dict_to_agent_data(
+            interaction_dict
+        )
+        events = result.turns[0].events
+        assert len(events) == 2
+
+
+class TestMergeTextPartsInAgentData:
+    """Tests for _merge_text_parts_in_agent_data."""
+
+    def _make_agent_data(self, turns_dict):
+        from agentplatform._genai.types import evals as evals_types  # pylint: disable=g-import-not-at-top
+        return evals_types.AgentData.model_validate({"turns": turns_dict})
+
+    def test_consecutive_agent_events_merged(self):
+        """Multiple consecutive model_output events are merged into one."""
+        agent_data = self._make_agent_data([{
+            "turn_index": 0,
+            "events": [
+                {"author": "agent", "content": {
+                    "role": "model",
+                    "parts": [{"text": "Paragraph 1."}],
+                }},
+                {"author": "agent", "content": {
+                    "role": "model",
+                    "parts": [{"text": "Paragraph 2."}],
+                }},
+                {"author": "agent", "content": {
+                    "role": "model",
+                    "parts": [{"text": "Paragraph 3."}],
+                }},
+            ],
+        }])
+        _evals_common._merge_text_parts_in_agent_data(agent_data)
+        events = agent_data.turns[0].events
+        assert len(events) == 1
+        assert len(events[0].content.parts) == 1
+        text = events[0].content.parts[0].text
+        assert "Paragraph 1." in text
+        assert "Paragraph 2." in text
+        assert "Paragraph 3." in text
+
+    def test_different_authors_not_merged(self):
+        """Events from different authors are not merged."""
+        agent_data = self._make_agent_data([{
+            "turn_index": 0,
+            "events": [
+                {"author": "user", "content": {
+                    "role": "user",
+                    "parts": [{"text": "hi"}],
+                }},
+                {"author": "agent", "content": {
+                    "role": "model",
+                    "parts": [{"text": "hello"}],
+                }},
+            ],
+        }])
+        _evals_common._merge_text_parts_in_agent_data(agent_data)
+        events = agent_data.turns[0].events
+        assert len(events) == 2
+
+    def test_function_call_events_not_merged(self):
+        """Events with function_call parts are not merged with text events."""
+        agent_data = self._make_agent_data([{
+            "turn_index": 0,
+            "events": [
+                {"author": "agent", "content": {
+                    "role": "model",
+                    "parts": [{"text": "Let me check."}],
+                }},
+                {"author": "agent", "content": {
+                    "role": "model",
+                    "parts": [{"function_call": {"name": "search"}}],
+                }},
+            ],
+        }])
+        _evals_common._merge_text_parts_in_agent_data(agent_data)
+        events = agent_data.turns[0].events
+        assert len(events) == 2
+
+    def test_multiple_text_parts_within_event_merged(self):
+        """Multiple text parts within a single event are merged."""
+        agent_data = self._make_agent_data([{
+            "turn_index": 0,
+            "events": [
+                {"author": "agent", "content": {
+                    "role": "model",
+                    "parts": [
+                        {"text": "Part A"},
+                        {"text": "Part B"},
+                    ],
+                }},
+            ],
+        }])
+        _evals_common._merge_text_parts_in_agent_data(agent_data)
+        parts = agent_data.turns[0].events[0].content.parts
+        assert len(parts) == 1
+        assert "Part A" in parts[0].text
+        assert "Part B" in parts[0].text
+
+
+class TestFetchAgentConfigDict:
+    """Tests for _fetch_agent_config_dict."""
+
+    def _make_api_response(self, body_dict):
+        resp = mock.MagicMock()
+        resp.body = json.dumps(body_dict)
+        return resp
+
+    def test_extracts_full_config(self):
+        """Extracts instruction, description, agent_type, and tools."""
+        agent_json = {
+            "system_instruction": "You are helpful.",
+            "description": "A helpful agent.",
+            "base_agent": "gemini-2.0-flash",
+            "tools": [
+                {"type": "code_execution"},
+                {"type": "google_search"},
+                {
+                    "type": "function",
+                    "function_declarations": [
+                        {"name": "search", "description": "Search"}
+                    ],
+                },
+            ],
+        }
+        mock_api_client = mock.MagicMock()
+        mock_api_client.request.return_value = self._make_api_response(
+            agent_json
+        )
+
+        result = _evals_common._fetch_agent_config_dict(
+            mock_api_client,
+            "projects/p/locations/l/agents/my-agent",
+        )
+        assert result.agent_id == "my-agent"
+        assert result.instruction == "You are helpful."
+        assert result.description == "A helpful agent."
+        assert result.agent_type == "gemini-2.0-flash"
+        # Built-in tools are mapped to typed Tool objects; function tool also included.
+        assert len(result.tools) == 3
+        assert any(t.code_execution is not None for t in result.tools)
+        assert any(t.google_search is not None for t in result.tools)
+        assert any(t.function_declarations is not None for t in result.tools)
+
+    def test_fetch_failure_returns_minimal_config(self):
+        """If the API call fails, returns just the agent_id."""
+        mock_api_client = mock.MagicMock()
+        mock_api_client.request.side_effect = RuntimeError("not found")
+
+        result = _evals_common._fetch_agent_config_dict(
+            mock_api_client,
+            "projects/p/locations/l/agents/broken-agent",
+        )
+        assert result.agent_id == "broken-agent"
+        assert result.instruction is None
+        assert result.tools is None
+
+    def test_empty_response_body_returns_minimal_config(self):
+        """If the response body is falsy, returns just the agent_id."""
+        mock_api_client = mock.MagicMock()
+        resp = mock.MagicMock()
+        resp.body = None
+        mock_api_client.request.return_value = resp
+
+        result = _evals_common._fetch_agent_config_dict(
+            mock_api_client,
+            "projects/p/locations/l/agents/my-agent",
+        )
+        assert result.agent_id == "my-agent"
+        assert result.instruction is None
+        assert result.tools is None
+
+    def test_empty_resource_name_uses_default_agent_id(self):
+        """An empty resource name falls back to 'agent' as the agent_id."""
+        mock_api_client = mock.MagicMock()
+        mock_api_client.request.side_effect = RuntimeError("irrelevant")
+
+        result = _evals_common._fetch_agent_config_dict(
+            mock_api_client,
+            "",
+        )
+        assert result.agent_id == "agent"
