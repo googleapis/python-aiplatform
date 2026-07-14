@@ -252,6 +252,33 @@ def test_export_open_model_invalid_name_raises(client):
     )
 
 
+# TODO(gshuoy): restore the recorded deploy replays (open w/ machine
+# config, Hugging Face, async) once they are re-recorded against the
+# wait_for_completion LRO flow. The previous recordings polled a
+# hand-rolled loop that no longer exists, and their recorded URL
+# (``.../locations/{location}:deploy``) is not redacted by
+# ``_redact_request_url``, so they only replayed under the exact project
+# and location they were recorded in. Behavior stays covered by the mocked
+# unit tests in ``tests/unit/agentplatform/genai/test_genai_model_garden.py``.
+
+
+def test_deploy_publisher_model_invalid_name_raises(client):
+  """Invalid model name is rejected client-side; no RPC needed."""
+  with pytest.raises(ValueError, match="not a valid publisher model name"):
+    client.model_garden.deploy_publisher_model(model="not-a-valid-name")
+
+
+def test_deploy_publisher_model_container_override_without_image_raises(client):
+  """Container overrides without an image URI are rejected client-side."""
+  with pytest.raises(ValueError, match="require serving_container_image_uri"):
+    client.model_garden.deploy_publisher_model(
+        model="google/gemma2@gemma-2-2b-it",
+        config=types.DeployPublisherModelConfig(
+            container_variables={"MODEL_ID": "gemma-2-2b-it"},
+        ),
+    )
+
+
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
