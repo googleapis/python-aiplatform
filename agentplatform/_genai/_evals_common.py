@@ -64,6 +64,7 @@ _thread_local_data = threading.local()
 
 MAX_WORKERS = 100
 AGENT_MAX_WORKERS = 20
+_MAX_INTERACTION_CHAIN_DEPTH = 10
 CONTENT = _evals_constant.CONTENT
 PARTS = _evals_constant.PARTS
 USER_AUTHOR = _evals_constant.USER_AUTHOR
@@ -1005,6 +1006,157 @@ def _build_interaction_id_dataset(
             )
         )
     return types.EvaluationDataset(eval_cases=eval_cases)
+
+
+def _has_interactions_data_source(
+    eval_cases: list[types.EvalCase],
+) -> bool:
+    """Returns True if any EvalCase has interactions_data_source set."""
+    return any(case.interactions_data_source is not None for case in eval_cases)
+
+
+def _resolve_interactions_to_eval_cases(
+    api_client: BaseApiClient,
+    eval_cases: list[types.EvalCase],
+) -> list[types.EvalCase]:
+    """Resolves EvalCases with interactions_data_source to agent_data.
+
+    For each EvalCase that has interactions_data_source set, fetches the
+    Interaction via the SDK's interactions.get() API, converts the steps
+    to AgentData, and returns a new EvalCase with agent_data populated.
+
+    Args:
+        api_client: The API client (must have an interactions module).
+        eval_cases: EvalCases with interactions_data_source set.
+
+    Returns:
+        New list of EvalCases with agent_data populated from resolved
+        interactions.
+
+    Raises:
+        ValueError: If eval_cases have missing interaction references.
+    """
+    # Validate all cases up front before making any API calls.
+    for case in eval_cases:
+        ids = case.interactions_data_source
+        if ids is None:
+            raise ValueError(
+                "All eval_cases must have interactions_data_source set when"
+                " using interaction resolution. Found a case without it. Do"
+                " not mix interaction-based and prompt-based eval cases."
+            )
+        if not ids.interaction:
+            raise ValueError(
+                "interactions_data_source.interaction is required. Each"
+                " EvalCase must reference an existing Interaction resource."
+            )
+
+    resolved_cases = []
+
+    for case in eval_cases:
+        if case.agent_data:
+            resolved_cases.append(case)
+            continue
+        ids = case.interactions_data_source
+
+        # Extract the interaction short ID from the resource name.
+        # Handles both full resource names (projects/.../interactions/{id})
+        # and bare IDs by always taking the last path component.
+        interaction_id = ids.interaction.split("/")[-1]
+
+        logger.info("Fetching interaction: %s", ids.interaction)
+
+        current_interaction_id = interaction_id
+        interactions = []
+        seen_ids = set()
+        for _ in range(_MAX_INTERACTION_CHAIN_DEPTH):
+            if current_interaction_id in seen_ids:
+                break
+            seen_ids.add(current_interaction_id)
+            path = f"interactions/{current_interaction_id}"
+            response = api_client.request("get", path, {}, None)
+            if not response.body:
+                if not interactions:
+                    logger.warning(
+                        "Empty response fetching interaction %s.",
+                        ids.interaction,
+                    )
+                break
+            interaction_dict = json.loads(response.body)
+            try:
+                typed_interaction = interaction_types.Interaction.model_validate(
+                    interaction_dict
+                )
+            except Exception as e:
+                logger.warning("Failed to validate interaction model: %s", e)
+                break
+
+            interactions.append(typed_interaction)
+            if not typed_interaction.previous_interaction_id:
+                break
+            current_interaction_id = typed_interaction.previous_interaction_id.split(
+                "/"
+            )[-1]
+
+        if not interactions:
+            agent_data = types.evals.AgentData(turns=[])  # Fallback
+        else:
+            interactions.reverse()  # chronological order
+            all_steps = []
+            for i_typed in interactions:
+                all_steps.extend(i_typed.steps or [])
+
+            combined_interaction = interactions[-1].model_dump()
+            combined_interaction["steps"] = all_steps
+            agent_data = _interaction_dict_to_agent_data(combined_interaction)
+
+        # Best-effort: fetch the agent config (instruction, tools,
+        # description) from the Agent API so the display can render
+        # the System Topology section.
+        gemini_cfg = ids.gemini_agent_config
+        agent_name = gemini_cfg.gemini_agent if gemini_cfg else None
+        agent_config = _fetch_agent_config_dict(api_client, agent_name or "")
+        agent_data.agents = {agent_config.agent_id: agent_config}
+
+        # Merge consecutive text events and parts so multi-paragraph
+        # responses render as a single block in the trace display.
+        _merge_text_parts_in_agent_data(agent_data)
+
+        # Preserve all original EvalCase fields; only update agent_data
+        # and clear the now-resolved interactions_data_source.
+        resolved_cases.append(
+            case.model_copy(
+                update={
+                    "agent_data": agent_data,
+                    "interactions_data_source": None,
+                }
+            )
+        )
+
+    return resolved_cases
+
+
+def _resolve_interactions_for_display(
+    api_client: BaseApiClient,
+    dataset_list: list[types.EvaluationDataset],
+) -> list[types.EvaluationDataset]:
+    """Resolves Interaction traces for visualization."""
+    resolved_datasets = []
+    for dataset in dataset_list:
+        if dataset.eval_cases and _has_interactions_data_source(dataset.eval_cases):
+            try:
+                resolved_cases = _resolve_interactions_to_eval_cases(
+                    api_client, dataset.eval_cases
+                )
+                resolved_datasets.append(
+                    dataset.model_copy(update={"eval_cases": resolved_cases})
+                )
+            except Exception as e:
+                logger.warning("Failed to resolve interactions for display: %s", e)
+                resolved_datasets.append(dataset)
+        else:
+            resolved_datasets.append(dataset)
+    return resolved_datasets
 
 
 def _add_evaluation_run_labels(
@@ -2348,6 +2500,11 @@ def _execute_evaluation(  # type: ignore[no-untyped-def]
     )
     t2 = time.perf_counter()
     logger.info("Evaluation took: %f seconds", t2 - t1)
+
+    # Resolve interactions_data_source to agent_data for display.
+    # This fetches Interaction trace data client-side so that show() can
+    # render the System Topology and Conversation Trace sections.
+    dataset_list = _resolve_interactions_for_display(api_client, dataset_list)
 
     evaluation_result.evaluation_dataset = dataset_list
     evaluation_result.agent_info = validated_agent_info

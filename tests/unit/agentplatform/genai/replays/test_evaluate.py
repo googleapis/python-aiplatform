@@ -609,6 +609,57 @@ def test_evaluation_with_interaction_id(client):
     assert len(evaluation_result.eval_case_results) == 1
 
 
+def test_evaluation_with_interaction_resolution(client):
+    """Tests evaluate() resolves interaction trace + agent config for display."""
+    interaction_id = "ChAxMDE5YTgzOGU3Mjg4NDE4EAgaATAqBG1haW4"
+    agent = (
+        "projects/model-evaluation-dev/locations/global/agents/"
+        "async-scrape-test-fe111cc6"
+    )
+    eval_dataset = types.EvaluationDataset(
+        eval_cases=[
+            types.EvalCase(
+                interactions_data_source=types.InteractionsDataSource(
+                    interaction=(
+                        "projects/model-evaluation-dev/locations/global"
+                        f"/interactions/{interaction_id}"
+                    ),
+                    gemini_agent_config=types.GeminiAgentConfig(
+                        gemini_agent=agent,
+                    ),
+                ),
+            )
+        ]
+    )
+
+    evaluation_result = client.evals.evaluate(
+        dataset=eval_dataset,
+        metrics=[types.RubricMetric.MULTI_TURN_TASK_SUCCESS],
+    )
+
+    assert isinstance(evaluation_result, types.EvaluationResult)
+    assert evaluation_result.summary_metrics is not None
+    assert len(evaluation_result.summary_metrics) > 0
+
+    assert evaluation_result.eval_case_results is not None
+    assert len(evaluation_result.eval_case_results) == 1
+
+    # Verify the interaction was resolved for display: agent_data should
+    # be populated with conversation trace and agent topology.
+    eval_dataset_list = evaluation_result.evaluation_dataset
+    assert eval_dataset_list is not None
+    assert len(eval_dataset_list) > 0
+    resolved_case = eval_dataset_list[0].eval_cases[0]
+    assert resolved_case.agent_data is not None
+    # Conversation trace: at least one turn with events.
+    assert resolved_case.agent_data.turns is not None
+    assert len(resolved_case.agent_data.turns) > 0
+    assert len(resolved_case.agent_data.turns[0].events) > 0
+    # Agent topology: agents map populated with agent config.
+    assert resolved_case.agent_data.agents is not None
+    assert len(resolved_case.agent_data.agents) > 0
+
+
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
