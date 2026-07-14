@@ -87,7 +87,34 @@ class ReasoningEngineSpec(proto.Message):
             develop the agent. Currently supported values:
             "google-adk", "langchain", "langgraph", "ag2",
             "llama-index", "custom".
+        identity_type (google.cloud.aiplatform_v1beta1.types.ReasoningEngineSpec.IdentityType):
+            Optional. The identity type to use for the Reasoning Engine.
+            If not specified, the ``service_account`` field will be used
+            if set, otherwise the default Vertex AI Reasoning Engine
+            Service Agent in the project will be used.
     """
+
+    class IdentityType(proto.Enum):
+        r"""The identity type to use for the Reasoning Engine.
+
+        Values:
+            IDENTITY_TYPE_UNSPECIFIED (0):
+                Default value. Use a custom service account if the
+                ``service_account`` field is set, otherwise use the default
+                Vertex AI Reasoning Engine Service Agent in the project.
+                Same behavior as SERVICE_ACCOUNT.
+            SERVICE_ACCOUNT (2):
+                Use a custom service account if the ``service_account``
+                field is set, otherwise use the default Vertex AI Reasoning
+                Engine Service Agent in the project.
+            AGENT_IDENTITY (3):
+                Use Agent Identity. The ``service_account`` field must not
+                be set.
+        """
+
+        IDENTITY_TYPE_UNSPECIFIED = 0
+        SERVICE_ACCOUNT = 2
+        AGENT_IDENTITY = 3
 
     class PackageSpec(proto.Message):
         r"""User-provided package specification, containing pickled
@@ -454,6 +481,11 @@ class ReasoningEngineSpec(proto.Message):
     agent_framework: str = proto.Field(
         proto.STRING,
         number=5,
+    )
+    identity_type: IdentityType = proto.Field(
+        proto.ENUM,
+        number=12,
+        enum=IdentityType,
     )
 
 
