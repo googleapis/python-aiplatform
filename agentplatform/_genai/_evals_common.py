@@ -1019,11 +1019,17 @@ _INTERACTION_TERMINAL_STATES = frozenset(
     ["completed", "failed", "cancelled", "incomplete", "budget_exceeded"]
 )
 
+_INITIAL_POLL_INTERVAL_SECONDS = 2.0
+_MAX_POLL_INTERVAL_SECONDS = 30.0
+_POLL_BACKOFF_MULTIPLIER = 2.0
+
 
 def _await_interaction(
     interactions_client: "_InteractionsRestClient",
     interaction: dict[str, Any],
-    poll_interval_seconds: float = 2.0,
+    initial_poll_interval_seconds: float = _INITIAL_POLL_INTERVAL_SECONDS,
+    max_poll_interval_seconds: float = _MAX_POLL_INTERVAL_SECONDS,
+    poll_backoff_multiplier: float = _POLL_BACKOFF_MULTIPLIER,
     timeout_seconds: float = 600.0,
 ) -> dict[str, Any]:
     """Polls a background interaction until it reaches a terminal state.
@@ -1031,12 +1037,16 @@ def _await_interaction(
     Gemini agent interactions must run in the background (`background=True`), so
     `create` returns before the model output is ready. This polls
     `interactions.get` until the interaction reaches a terminal state and then
-    returns the resolved interaction.
+    returns the resolved interaction. The delay between polls grows
+    exponentially (capped at `max_poll_interval_seconds`) to avoid hitting rate
+    limits when evaluating large datasets.
 
     Args:
         interactions_client: The interactions client used to poll.
         interaction: The interaction returned by `create`.
-        poll_interval_seconds: Delay between poll attempts.
+        initial_poll_interval_seconds: Delay before the first poll.
+        max_poll_interval_seconds: Upper bound for the poll interval.
+        poll_backoff_multiplier: Factor the interval grows by after each poll.
         timeout_seconds: Maximum time to wait before raising.
 
     Returns:
@@ -1049,11 +1059,18 @@ def _await_interaction(
         return interaction
     interaction_id = interaction.get("id")
     deadline = time.monotonic() + timeout_seconds
-    while time.monotonic() < deadline:
-        time.sleep(poll_interval_seconds)
+    poll_interval = initial_poll_interval_seconds
+    while True:
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            break
+        time.sleep(min(poll_interval, remaining))
         interaction = interactions_client.get(interaction_id)
         if interaction.get("status") in _INTERACTION_TERMINAL_STATES:
             return interaction
+        poll_interval = min(
+            poll_interval * poll_backoff_multiplier, max_poll_interval_seconds
+        )
     raise TimeoutError(
         f"Interaction {interaction_id} did not complete within"
         f" {timeout_seconds} seconds."

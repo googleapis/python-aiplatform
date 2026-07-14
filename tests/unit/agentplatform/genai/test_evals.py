@@ -4293,6 +4293,86 @@ class TestEvalsRunInference:
 
 
 @pytest.mark.usefixtures("google_auth_mock")
+class TestAwaitInteraction:
+    """Unit tests for _await_interaction polling behavior."""
+
+    def test_await_interaction_returns_immediately_when_terminal(self):
+        client = mock.Mock()
+        interaction = {"id": "i1", "status": "completed"}
+        result = _evals_common._await_interaction(client, interaction)
+        assert result is interaction
+        client.get.assert_not_called()
+
+    def test_await_interaction_polls_with_exponential_backoff(self):
+        client = mock.Mock()
+        client.get.side_effect = [
+            {"id": "i1", "status": "in_progress"},
+            {"id": "i1", "status": "in_progress"},
+            {"id": "i1", "status": "completed"},
+        ]
+        sleeps = []
+        with mock.patch.object(_evals_common.time, "sleep", sleeps.append):
+            result = _evals_common._await_interaction(
+                client,
+                {"id": "i1", "status": "in_progress"},
+                initial_poll_interval_seconds=2.0,
+                max_poll_interval_seconds=30.0,
+                poll_backoff_multiplier=2.0,
+            )
+        assert result["status"] == "completed"
+        assert sleeps == [2.0, 4.0, 8.0]
+
+    def test_await_interaction_caps_poll_interval(self):
+        client = mock.Mock()
+        client.get.side_effect = [
+            {"id": "i1", "status": "in_progress"},
+            {"id": "i1", "status": "completed"},
+        ]
+        sleeps = []
+        with mock.patch.object(_evals_common.time, "sleep", sleeps.append):
+            _evals_common._await_interaction(
+                client,
+                {"id": "i1", "status": "in_progress"},
+                initial_poll_interval_seconds=25.0,
+                max_poll_interval_seconds=30.0,
+                poll_backoff_multiplier=2.0,
+            )
+        assert sleeps == [25.0, 30.0]
+
+    def test_await_interaction_clamps_sleep_to_deadline(self):
+        client = mock.Mock()
+        client.get.return_value = {"id": "i1", "status": "in_progress"}
+        # monotonic: 0 (deadline calc) -> 0 (loop check, remaining=5) -> 5
+        # (loop check, remaining=0 -> break).
+        times = iter([0.0, 0.0, 5.0])
+        sleeps = []
+        with (
+            mock.patch.object(_evals_common.time, "monotonic", lambda: next(times)),
+            mock.patch.object(_evals_common.time, "sleep", sleeps.append),
+        ):
+            with pytest.raises(TimeoutError, match="did not complete"):
+                _evals_common._await_interaction(
+                    client,
+                    {"id": "i1", "status": "in_progress"},
+                    initial_poll_interval_seconds=30.0,
+                    timeout_seconds=5.0,
+                )
+        # Sleep is clamped to the 5s remaining, never the full 30s interval.
+        assert sleeps == [5.0]
+
+    def test_await_interaction_raises_on_timeout(self):
+        client = mock.Mock()
+        client.get.return_value = {"id": "i1", "status": "in_progress"}
+        with mock.patch.object(_evals_common.time, "sleep"):
+            with pytest.raises(TimeoutError, match="did not complete"):
+                _evals_common._await_interaction(
+                    client,
+                    {"id": "i1", "status": "in_progress"},
+                    timeout_seconds=-1.0,
+                )
+
+
+@pytest.mark.usefixtures("google_auth_mock")
 class TestEvalsMetricHandlers:
     """Unit tests for utility functions in _evals_metric_handlers."""
 
@@ -9793,9 +9873,7 @@ class TestResolveDatasetWithInteractions:
     def test_has_interactions_data_source_false(self):
         cases = [
             agentplatform_genai_types.EvalCase(
-                prompt=genai_types.Content(
-                    parts=[genai_types.Part(text="test")]
-                ),
+                prompt=genai_types.Content(parts=[genai_types.Part(text="test")]),
             )
         ]
         assert not _evals_common._has_interactions_data_source(cases)
@@ -9809,9 +9887,7 @@ class TestResolveDatasetWithInteractions:
                 )
             ),
             agentplatform_genai_types.EvalCase(
-                prompt=genai_types.Content(
-                    parts=[genai_types.Part(text="test")]
-                ),
+                prompt=genai_types.Content(parts=[genai_types.Part(text="test")]),
             ),
         ]
         with pytest.raises(ValueError, match="interactions_data_source"):
@@ -9846,16 +9922,12 @@ class TestResolveDatasetWithInteractions:
                 },
                 {
                     "type": "model_output",
-                    "content": [
-                        {"type": "text", "text": "Hello! How can I help?"}
-                    ],
+                    "content": [{"type": "text", "text": "Hello! How can I help?"}],
                 },
-            ]
+            ],
         }
 
-        result = _evals_common._interaction_dict_to_agent_data(
-            interaction_dict
-        )
+        result = _evals_common._interaction_dict_to_agent_data(interaction_dict)
 
         assert len(result.turns) == 1
         events = result.turns[0].events
@@ -9882,12 +9954,10 @@ class TestResolveDatasetWithInteractions:
                     "call_id": "call_1",
                     "result": {"temp": "72F"},
                 },
-            ]
+            ],
         }
 
-        result = _evals_common._interaction_dict_to_agent_data(
-            interaction_dict
-        )
+        result = _evals_common._interaction_dict_to_agent_data(interaction_dict)
 
         events = result.turns[0].events
         assert len(events) == 2
@@ -9899,23 +9969,27 @@ class TestResolveDatasetWithInteractions:
 
     def test_resolve_interactions_to_eval_cases_happy_path(self):
         """Fetches an interaction and populates agent_data on the EvalCase."""
-        interaction_body = json.dumps({
-            "status": "completed",
-            "steps": [
-                {
-                    "type": "user_input",
-                    "content": [{"type": "text", "text": "What is the weather?"}],
-                },
-                {
-                    "type": "model_output",
-                    "content": [{"type": "text", "text": "It is sunny."}],
-                },
-            ]
-        })
-        agent_body = json.dumps({
-            "system_instruction": "You are helpful.",
-            "base_agent": "gemini-2.0-flash",
-        })
+        interaction_body = json.dumps(
+            {
+                "status": "completed",
+                "steps": [
+                    {
+                        "type": "user_input",
+                        "content": [{"type": "text", "text": "What is the weather?"}],
+                    },
+                    {
+                        "type": "model_output",
+                        "content": [{"type": "text", "text": "It is sunny."}],
+                    },
+                ],
+            }
+        )
+        agent_body = json.dumps(
+            {
+                "system_instruction": "You are helpful.",
+                "base_agent": "gemini-2.0-flash",
+            }
+        )
 
         def mock_request(method, path, *args, **kwargs):
             resp = mock.MagicMock()
@@ -10528,13 +10602,9 @@ class TestResolveInteractionsForDisplay:
     def test_no_interactions_data_source_is_noop(self):
         """Cases without interactions_data_source are returned as-is."""
         case = agentplatform_genai_types.EvalCase(
-            prompt=genai_types.Content(
-                parts=[genai_types.Part(text="hello")]
-            ),
+            prompt=genai_types.Content(parts=[genai_types.Part(text="hello")]),
         )
-        dataset = agentplatform_genai_types.EvaluationDataset(
-            eval_cases=[case]
-        )
+        dataset = agentplatform_genai_types.EvaluationDataset(eval_cases=[case])
         mock_api_client = mock.MagicMock()
         result = _evals_common._resolve_interactions_for_display(
             mock_api_client, [dataset]
@@ -10546,17 +10616,13 @@ class TestResolveInteractionsForDisplay:
         """When interactions_data_source is present, agent_data is populated."""
         case = agentplatform_genai_types.EvalCase(
             interactions_data_source=agentplatform_genai_types.InteractionsDataSource(
-                interaction=(
-                    "projects/p/locations/l/interactions/test-id"
-                ),
+                interaction=("projects/p/locations/l/interactions/test-id"),
                 gemini_agent_config=agentplatform_genai_types.GeminiAgentConfig(
                     gemini_agent="projects/p/locations/l/agents/my-agent",
                 ),
             )
         )
-        dataset = agentplatform_genai_types.EvaluationDataset(
-            eval_cases=[case]
-        )
+        dataset = agentplatform_genai_types.EvaluationDataset(eval_cases=[case])
 
         interaction_json = {
             "status": "completed",
@@ -10569,7 +10635,7 @@ class TestResolveInteractionsForDisplay:
                     "type": "model_output",
                     "content": [{"type": "text", "text": "hi there"}],
                 },
-            ]
+            ],
         }
         agent_json = {"system_instruction": "Be helpful"}
 
@@ -10592,12 +10658,8 @@ class TestResolveInteractionsForDisplay:
 
         # Verify the interaction and agent were fetched.
         assert mock_api_client.request.call_count == 2
-        mock_api_client.request.assert_any_call(
-            "get", "interactions/test-id", {}, None
-        )
-        mock_api_client.request.assert_any_call(
-            "get", "agents/my-agent", {}, None
-        )
+        mock_api_client.request.assert_any_call("get", "interactions/test-id", {}, None)
+        mock_api_client.request.assert_any_call("get", "agents/my-agent", {}, None)
 
     def test_agents_map_populated_with_full_config(self):
         """The agents dict includes instruction and tools from the Agent API."""
@@ -10609,9 +10671,7 @@ class TestResolveInteractionsForDisplay:
                 ),
             )
         )
-        dataset = agentplatform_genai_types.EvaluationDataset(
-            eval_cases=[case]
-        )
+        dataset = agentplatform_genai_types.EvaluationDataset(eval_cases=[case])
         interaction_json = {"status": "completed", "steps": []}
         agent_json = {
             "system_instruction": "You are a weather assistant.",
@@ -10665,9 +10725,7 @@ class TestResolveInteractionsForDisplay:
                 ),
             )
         )
-        dataset = agentplatform_genai_types.EvaluationDataset(
-            eval_cases=[case]
-        )
+        dataset = agentplatform_genai_types.EvaluationDataset(eval_cases=[case])
         # Simulate multiple model_output steps (one per paragraph).
         interaction_json = {
             "status": "completed",
@@ -10684,7 +10742,7 @@ class TestResolveInteractionsForDisplay:
                     "type": "model_output",
                     "content": [{"type": "text", "text": "Paragraph 3."}],
                 },
-            ]
+            ],
         }
 
         def mock_request(method, path, *args, **kwargs):
@@ -10713,12 +10771,16 @@ class TestResolveInteractionsForDisplay:
     def test_existing_agent_data_not_overwritten(self):
         """Cases that already have agent_data are not resolved again."""
         existing_ad = agentplatform_genai_types.evals.AgentData(
-            turns=[agentplatform_genai_types.evals.ConversationTurn(
-                turn_index=0, events=[]
-            )],
-            agents={"existing": agentplatform_genai_types.evals.AgentConfig(
-                agent_id="existing"
-            )},
+            turns=[
+                agentplatform_genai_types.evals.ConversationTurn(
+                    turn_index=0, events=[]
+                )
+            ],
+            agents={
+                "existing": agentplatform_genai_types.evals.AgentConfig(
+                    agent_id="existing"
+                )
+            },
         )
         case = agentplatform_genai_types.EvalCase(
             agent_data=existing_ad,
@@ -10726,9 +10788,7 @@ class TestResolveInteractionsForDisplay:
                 interaction="projects/p/locations/l/interactions/test-id",
             ),
         )
-        dataset = agentplatform_genai_types.EvaluationDataset(
-            eval_cases=[case]
-        )
+        dataset = agentplatform_genai_types.EvaluationDataset(eval_cases=[case])
 
         mock_api_client = mock.MagicMock()
         result = _evals_common._resolve_interactions_for_display(
@@ -10748,9 +10808,7 @@ class TestResolveInteractionsForDisplay:
                 ),
             )
         )
-        dataset = agentplatform_genai_types.EvaluationDataset(
-            eval_cases=[case]
-        )
+        dataset = agentplatform_genai_types.EvaluationDataset(eval_cases=[case])
 
         mock_api_client = mock.MagicMock()
         mock_api_client.request.side_effect = RuntimeError("API error")
@@ -10772,9 +10830,7 @@ class TestResolveInteractionsForDisplay:
                 ),
             )
         )
-        dataset = agentplatform_genai_types.EvaluationDataset(
-            eval_cases=[case]
-        )
+        dataset = agentplatform_genai_types.EvaluationDataset(eval_cases=[case])
         interaction_json = {
             "status": "completed",
             "steps": [
@@ -10782,7 +10838,7 @@ class TestResolveInteractionsForDisplay:
                     "type": "user_input",
                     "content": [{"type": "text", "text": "hi"}],
                 },
-            ]
+            ],
         }
 
         def mock_request(method, path, *args, **kwargs):
@@ -10806,6 +10862,7 @@ class TestResolveInteractionsForDisplay:
         agent_cfg = resolved_case.agent_data.agents["bad-agent"]
         assert agent_cfg.agent_id == "bad-agent"
         assert agent_cfg.instruction is None
+
 
 class TestStepToAgentEvent:
     """Tests for _step_to_agent_event using typed GenAI SDK step objects."""
