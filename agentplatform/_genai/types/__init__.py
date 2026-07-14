@@ -64,6 +64,7 @@ from .common import _DeleteRuntimeFeedbackEntryRequestParameters
 from .common import _DeleteSandboxEnvironmentSnapshotRequestParameters
 from .common import _DeleteSandboxEnvironmentTemplateRequestParameters
 from .common import _DeleteSkillRequestParameters
+from .common import _DeployRequestParameters
 from .common import _EvaluateInstancesRequestParameters
 from .common import _ExecuteCodeAgentEngineSandboxRequestParameters
 from .common import _GenerateAgentEngineMemoriesRequestParameters
@@ -485,9 +486,33 @@ from .common import DeleteSkillConfigOrDict
 from .common import DeleteSkillOperation
 from .common import DeleteSkillOperationDict
 from .common import DeleteSkillOperationOrDict
+from .common import DeployConfig
+from .common import DeployConfigDict
+from .common import DeployConfigOrDict
+from .common import DeployModelOperation
+from .common import DeployModelOperationDict
+from .common import DeployModelOperationOrDict
 from .common import DeployOption
 from .common import DeployOptionDict
 from .common import DeployOptionOrDict
+from .common import DeployPublisherModelConfig
+from .common import DeployPublisherModelConfigDict
+from .common import DeployPublisherModelConfigOrDict
+from .common import DeployRequestCustomModel
+from .common import DeployRequestCustomModelDict
+from .common import DeployRequestCustomModelOrDict
+from .common import DeployRequestDeployConfig
+from .common import DeployRequestDeployConfigDict
+from .common import DeployRequestDeployConfigOrDict
+from .common import DeployRequestEndpointConfig
+from .common import DeployRequestEndpointConfigDict
+from .common import DeployRequestEndpointConfigOrDict
+from .common import DeployRequestModelConfig
+from .common import DeployRequestModelConfigDict
+from .common import DeployRequestModelConfigOrDict
+from .common import DeployResponse
+from .common import DeployResponseDict
+from .common import DeployResponseOrDict
 from .common import DirectUploadSource
 from .common import DirectUploadSourceDict
 from .common import DirectUploadSourceOrDict
@@ -1146,6 +1171,9 @@ from .common import PostSnapshotAction
 from .common import PredictSchemata
 from .common import PredictSchemataDict
 from .common import PredictSchemataOrDict
+from .common import PrivateServiceConnectConfig
+from .common import PrivateServiceConnectConfigDict
+from .common import PrivateServiceConnectConfigOrDict
 from .common import Probe
 from .common import ProbeDict
 from .common import ProbeExecAction
@@ -1187,6 +1215,10 @@ from .common import PromptVersionRef
 from .common import PromptVersionRefDict
 from .common import PromptVersionRefOrDict
 from .common import Protocol
+from .common import PSCAutomationConfig
+from .common import PSCAutomationConfigDict
+from .common import PSCAutomationConfigOrDict
+from .common import PscAutomationState
 from .common import PscInterfaceConfig
 from .common import PscInterfaceConfigDict
 from .common import PscInterfaceConfigOrDict
@@ -3463,6 +3495,33 @@ __all__ = [
     "RecommendSpecResponse",
     "RecommendSpecResponseDict",
     "RecommendSpecResponseOrDict",
+    "DeployConfig",
+    "DeployConfigDict",
+    "DeployConfigOrDict",
+    "DeployRequestCustomModel",
+    "DeployRequestCustomModelDict",
+    "DeployRequestCustomModelOrDict",
+    "DeployRequestModelConfig",
+    "DeployRequestModelConfigDict",
+    "DeployRequestModelConfigOrDict",
+    "PSCAutomationConfig",
+    "PSCAutomationConfigDict",
+    "PSCAutomationConfigOrDict",
+    "PrivateServiceConnectConfig",
+    "PrivateServiceConnectConfigDict",
+    "PrivateServiceConnectConfigOrDict",
+    "DeployRequestEndpointConfig",
+    "DeployRequestEndpointConfigDict",
+    "DeployRequestEndpointConfigOrDict",
+    "DeployRequestDeployConfig",
+    "DeployRequestDeployConfigDict",
+    "DeployRequestDeployConfigOrDict",
+    "DeployResponse",
+    "DeployResponseDict",
+    "DeployResponseOrDict",
+    "DeployModelOperation",
+    "DeployModelOperationDict",
+    "DeployModelOperationOrDict",
     "CreateRuntimeFeedbackEntryConfig",
     "CreateRuntimeFeedbackEntryConfigDict",
     "CreateRuntimeFeedbackEntryConfigOrDict",
@@ -3613,6 +3672,9 @@ __all__ = [
     "ListCustomModelDeployOptionsConfig",
     "ListCustomModelDeployOptionsConfigDict",
     "ListCustomModelDeployOptionsConfigOrDict",
+    "DeployPublisherModelConfig",
+    "DeployPublisherModelConfigDict",
+    "DeployPublisherModelConfigOrDict",
     "DeployOption",
     "DeployOptionDict",
     "DeployOptionOrDict",
@@ -3642,6 +3704,7 @@ __all__ = [
     "OpenSourceCategory",
     "VersionState",
     "QuotaState",
+    "PscAutomationState",
     "FeedbackType",
     "EvaluationItemType",
     "SamplingMethod",
@@ -3804,6 +3867,7 @@ __all__ = [
     "_ListPublisherModelsRequestParameters",
     "_GetPublisherModelRequestParameters",
     "_RecommendSpecRequestParameters",
+    "_DeployRequestParameters",
     "_CreateRuntimeFeedbackEntryRequestParameters",
     "_DeleteRuntimeFeedbackEntryRequestParameters",
     "_GetRuntimeFeedbackRequestParameters",
