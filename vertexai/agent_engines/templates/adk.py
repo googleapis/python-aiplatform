@@ -355,7 +355,6 @@ def _default_instrumentor_builder(
         import opentelemetry
         import opentelemetry.trace
         import opentelemetry._logs
-        import opentelemetry._events
     except (ImportError, AttributeError):
         return _warn_missing_dependency(
             "opentelemetry-api", needed_for_tracing=True, needed_for_logging=True
@@ -367,7 +366,6 @@ def _default_instrumentor_builder(
         import opentelemetry.sdk.trace.export
         import opentelemetry.sdk._logs
         import opentelemetry.sdk._logs.export
-        import opentelemetry.sdk._events
     except (ImportError, AttributeError):
         return _warn_missing_dependency(
             "opentelemetry-sdk", needed_for_tracing=True, needed_for_logging=True
@@ -525,14 +523,8 @@ def _default_instrumentor_builder(
                     ),
                 )
             )
-        event_logger_provider = opentelemetry.sdk._events.EventLoggerProvider(
-            logger_provider=logger_provider
-        )
 
         opentelemetry._logs.set_logger_provider(logger_provider=logger_provider)
-        opentelemetry._events.set_event_logger_provider(
-            event_logger_provider=event_logger_provider
-        )
 
     try:
         from opentelemetry.instrumentation import google_genai

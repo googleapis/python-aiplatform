@@ -369,7 +369,8 @@ def _default_instrumentor_builder(
 
     if project_id is None:
         _warn(
-            "telemetry is only supported when project is specified, proceeding with no telemetry"
+            "telemetry is only supported when project is specified, proceeding with"
+            " no telemetry"
         )
         return None
 
@@ -382,10 +383,19 @@ def _default_instrumentor_builder(
         needed_for_tracing: bool = False,
     ) -> None:
         _warn(
-            f"{package} is not installed. Please call 'pip install google-cloud-aiplatform[agent_engines]'."
+            f"{package} is not installed. Please call 'pip install"
+            " google-cloud-aiplatform[agent_engines]'."
         )
-        MISSING_TRACE_IMPORT_ERROR_MESSAGE = "proceeding with tracing disabled because not all packages (i.e. `google-cloud-trace`, `opentelemetry-sdk`, `opentelemetry-exporter-gcp-trace`) for tracing have been installed"
-        MISSING_LOGGING_IMPORT_ERROR_MESSAGE = "proceeding with logging disabled because not all packages (i.e. `google-cloud-logging`, `opentelemetry-sdk`, `opentelemetry-exporter-gcp-logging`) for tracing have been installed"
+        MISSING_TRACE_IMPORT_ERROR_MESSAGE = (
+            "proceeding with tracing disabled because not all packages (i.e."
+            " `google-cloud-trace`, `opentelemetry-sdk`,"
+            " `opentelemetry-exporter-gcp-trace`) for tracing have been installed"
+        )
+        MISSING_LOGGING_IMPORT_ERROR_MESSAGE = (
+            "proceeding with logging disabled because not all packages (i.e."
+            " `google-cloud-logging`, `opentelemetry-sdk`,"
+            " `opentelemetry-exporter-gcp-logging`) for tracing have been installed"
+        )
 
         if needed_for_tracing and enable_tracing:
             _warn(MISSING_TRACE_IMPORT_ERROR_MESSAGE)
@@ -406,7 +416,6 @@ def _default_instrumentor_builder(
         import opentelemetry
         import opentelemetry.trace
         import opentelemetry._logs
-        import opentelemetry._events
     except (ImportError, AttributeError):
         return _warn_missing_dependency(
             "opentelemetry-api", needed_for_tracing=True, needed_for_logging=True
@@ -418,7 +427,6 @@ def _default_instrumentor_builder(
         import opentelemetry.sdk.trace.export
         import opentelemetry.sdk._logs
         import opentelemetry.sdk._logs.export
-        import opentelemetry.sdk._events
     except (ImportError, AttributeError):
         return _warn_missing_dependency(
             "opentelemetry-sdk", needed_for_tracing=True, needed_for_logging=True
@@ -465,7 +473,10 @@ def _default_instrumentor_builder(
         credentials, _ = google.auth.default()
         vertex_sdk_version = aip_version.__version__
         otlp_http_version = opentelemetry.exporter.otlp.proto.http.version.__version__
-        user_agent = f"Vertex-Agent-Engine/{vertex_sdk_version} OTel-OTLP-Exporter-Python/{otlp_http_version}"
+        user_agent = (
+            f"Vertex-Agent-Engine/{vertex_sdk_version}"
+            f" OTel-OTLP-Exporter-Python/{otlp_http_version}"
+        )
 
         session = requests_auth.AuthorizedSession(credentials=credentials)
 
@@ -534,6 +545,7 @@ def _default_instrumentor_builder(
         class _SimpleLogRecordProcessor(
             opentelemetry.sdk._logs.export.SimpleLogRecordProcessor
         ):
+
             def force_flush(
                 self, timeout_millis: int = 30000
             ) -> bool:  # pylint: disable=no-self-use
@@ -572,14 +584,8 @@ def _default_instrumentor_builder(
                     ),
                 )
             )
-        event_logger_provider = opentelemetry.sdk._events.EventLoggerProvider(
-            logger_provider=logger_provider
-        )
 
         opentelemetry._logs.set_logger_provider(logger_provider=logger_provider)
-        opentelemetry._events.set_event_logger_provider(
-            event_logger_provider=event_logger_provider
-        )
 
     try:
         from opentelemetry.instrumentation import google_genai
@@ -587,7 +593,9 @@ def _default_instrumentor_builder(
         google_genai.GoogleGenAiSdkInstrumentor().instrument()
     except (ImportError, AttributeError):
         _warn(
-            "telemetry enabled but proceeding without GenAI instrumentation, because not all packages (i.e. opentelemetry-instrumentation-google-genai) have been installed"
+            "telemetry enabled but proceeding without GenAI instrumentation,"
+            " because not all packages (i.e."
+            " opentelemetry-instrumentation-google-genai) have been installed"
         )
 
     return None
