@@ -1977,6 +1977,11 @@ class GroundingMetadata(proto.Message):
             following-up web searches.
 
             This field is a member of `oneof`_ ``_search_entry_point``.
+        retrieval_queries (MutableSequence[str]):
+            Optional. The queries that were executed by
+            the retrieval tools. This field is populated
+            only when the grounding source is a retrieval
+            tool, such as Vertex AI Search.
         grounding_chunks (MutableSequence[google.cloud.aiplatform_v1.types.GroundingChunk]):
             List of supporting references retrieved from
             specified grounding source.
@@ -2034,6 +2039,10 @@ class GroundingMetadata(proto.Message):
         number=4,
         optional=True,
         message="SearchEntryPoint",
+    )
+    retrieval_queries: MutableSequence[str] = proto.RepeatedField(
+        proto.STRING,
+        number=3,
     )
     grounding_chunks: MutableSequence["GroundingChunk"] = proto.RepeatedField(
         proto.MESSAGE,
