@@ -9563,6 +9563,230 @@ class TestResolveDataset:
         assert "conversation_history" in ptd_values
 
 
+class TestResolveDatasetWithInteractions:
+    """Tests for resolving interactions_data_source in _resolve_dataset."""
+
+    def setup_method(self):
+        self.mock_api_client = mock.Mock()
+        self.mock_api_client.project = "test-project"
+        self.mock_api_client.location = "us-central1"
+
+    def test_has_interactions_data_source_true(self):
+        cases = [
+            agentplatform_genai_types.EvalCase(
+                interactions_data_source=agentplatform_genai_types.InteractionsDataSource(
+                    gemini_agent_config=agentplatform_genai_types.GeminiAgentConfig(
+                        gemini_agent="projects/p/locations/l/agents/a"
+                    ),
+                    interaction="projects/p/locations/l/interactions/i1",
+                )
+            )
+        ]
+        assert _evals_common._has_interactions_data_source(cases)
+
+    def test_has_interactions_data_source_false(self):
+        cases = [
+            agentplatform_genai_types.EvalCase(
+                prompt=genai_types.Content(
+                    parts=[genai_types.Part(text="test")]
+                ),
+            )
+        ]
+        assert not _evals_common._has_interactions_data_source(cases)
+
+    def test_resolve_rejects_mixed_cases(self):
+        """Mixing interaction-based and prompt-based cases raises ValueError."""
+        cases = [
+            agentplatform_genai_types.EvalCase(
+                interactions_data_source=agentplatform_genai_types.InteractionsDataSource(
+                    interaction="projects/p/locations/l/interactions/i1",
+                )
+            ),
+            agentplatform_genai_types.EvalCase(
+                prompt=genai_types.Content(
+                    parts=[genai_types.Part(text="test")]
+                ),
+            ),
+        ]
+        with pytest.raises(ValueError, match="interactions_data_source"):
+            _evals_common._resolve_interactions_to_eval_cases(
+                self.mock_api_client, cases
+            )
+
+    def test_resolve_rejects_missing_interaction(self):
+        """EvalCase with interactions_data_source but no interaction raises."""
+        cases = [
+            agentplatform_genai_types.EvalCase(
+                interactions_data_source=agentplatform_genai_types.InteractionsDataSource(
+                    gemini_agent_config=agentplatform_genai_types.GeminiAgentConfig(
+                        gemini_agent="projects/p/locations/l/agents/a"
+                    ),
+                )
+            ),
+        ]
+        with pytest.raises(ValueError, match="interaction is required"):
+            _evals_common._resolve_interactions_to_eval_cases(
+                self.mock_api_client, cases
+            )
+
+    def test_interaction_dict_to_agent_data_text_conversation(self):
+        """Converts user_input + model_output steps to agent_data."""
+        interaction_dict = {
+            "status": "completed",
+            "steps": [
+                {
+                    "type": "user_input",
+                    "content": [{"type": "text", "text": "Hello agent"}],
+                },
+                {
+                    "type": "model_output",
+                    "content": [
+                        {"type": "text", "text": "Hello! How can I help?"}
+                    ],
+                },
+            ]
+        }
+
+        result = _evals_common._interaction_dict_to_agent_data(
+            interaction_dict
+        )
+
+        assert len(result.turns) == 1
+        events = result.turns[0].events
+        assert len(events) == 2
+        assert events[0].author == "user"
+        assert events[0].content.parts[0].text == "Hello agent"
+        assert events[1].author == "agent"
+        assert events[1].content.parts[0].text == "Hello! How can I help?"
+
+    def test_interaction_dict_to_agent_data_with_tool_calls(self):
+        """Converts function_call + function_result steps."""
+        interaction_dict = {
+            "status": "completed",
+            "steps": [
+                {
+                    "type": "function_call",
+                    "name": "get_weather",
+                    "arguments": {"city": "NYC"},
+                    "id": "call_1",
+                },
+                {
+                    "type": "function_result",
+                    "name": "get_weather",
+                    "call_id": "call_1",
+                    "result": {"temp": "72F"},
+                },
+            ]
+        }
+
+        result = _evals_common._interaction_dict_to_agent_data(
+            interaction_dict
+        )
+
+        events = result.turns[0].events
+        assert len(events) == 2
+        fc_event = events[0]
+        assert fc_event.author == "agent"
+        assert fc_event.content.parts[0].function_call.name == "get_weather"
+        fr_event = events[1]
+        assert fr_event.content.parts[0].function_response.id == "call_1"
+
+    def test_resolve_interactions_to_eval_cases_happy_path(self):
+        """Fetches an interaction and populates agent_data on the EvalCase."""
+        interaction_body = json.dumps({
+            "status": "completed",
+            "steps": [
+                {
+                    "type": "user_input",
+                    "content": [{"type": "text", "text": "What is the weather?"}],
+                },
+                {
+                    "type": "model_output",
+                    "content": [{"type": "text", "text": "It is sunny."}],
+                },
+            ]
+        })
+        agent_body = json.dumps({
+            "system_instruction": "You are helpful.",
+            "base_agent": "gemini-2.0-flash",
+        })
+
+        def mock_request(method, path, *args, **kwargs):
+            resp = mock.MagicMock()
+            if path.startswith("interactions/"):
+                resp.body = interaction_body
+            elif path.startswith("agents/"):
+                resp.body = agent_body
+            else:
+                resp.body = None
+            return resp
+
+        self.mock_api_client.request.side_effect = mock_request
+
+        original_case = agentplatform_genai_types.EvalCase(
+            interactions_data_source=agentplatform_genai_types.InteractionsDataSource(
+                gemini_agent_config=agentplatform_genai_types.GeminiAgentConfig(
+                    gemini_agent="projects/p/locations/l/agents/my-agent",
+                ),
+                interaction="projects/p/locations/l/interactions/i1",
+            ),
+        )
+
+        resolved = _evals_common._resolve_interactions_to_eval_cases(
+            self.mock_api_client, [original_case]
+        )
+
+        assert len(resolved) == 1
+        result_case = resolved[0]
+
+        # interactions_data_source should be cleared after resolution.
+        assert result_case.interactions_data_source is None
+
+        # agent_data should be populated with the interaction content.
+        agent_data = result_case.agent_data
+        assert agent_data is not None
+        assert len(agent_data.turns) == 1
+        events = agent_data.turns[0].events
+        assert len(events) == 2
+        assert events[0].author == "user"
+        assert events[0].content.parts[0].text == "What is the weather?"
+        assert events[1].author == "agent"
+        assert events[1].content.parts[0].text == "It is sunny."
+
+        # agents map should be populated with config from the Agent API.
+        assert "my-agent" in agent_data.agents
+        agent_config = agent_data.agents["my-agent"]
+        assert agent_config.agent_id == "my-agent"
+        assert agent_config.instruction == "You are helpful."
+        assert agent_config.agent_type == "gemini-2.0-flash"
+
+    def test_resolve_preserves_original_eval_case_fields(self):
+        """Fields other than agent_data are preserved on the resolved EvalCase."""
+        interaction_body = json.dumps({"status": "completed", "steps": []})
+
+        def mock_request(method, path, *args, **kwargs):
+            resp = mock.MagicMock()
+            resp.body = interaction_body
+            return resp
+
+        self.mock_api_client.request.side_effect = mock_request
+
+        original_case = agentplatform_genai_types.EvalCase(
+            interactions_data_source=agentplatform_genai_types.InteractionsDataSource(
+                interaction="projects/p/locations/l/interactions/i1",
+            ),
+        )
+
+        resolved = _evals_common._resolve_interactions_to_eval_cases(
+            self.mock_api_client, [original_case]
+        )
+
+        assert len(resolved) == 1
+        # agent_data is populated and interactions_data_source cleared.
+        assert resolved[0].agent_data is not None
+        assert resolved[0].interactions_data_source is None
+
+
 class TestRateLimiter:
     """Tests for the RateLimiter class in _evals_utils."""
 

@@ -709,6 +709,42 @@ def test_create_eval_run_with_metric_resource_name(mock_uuid4, client):
 #             == INPUT_DF_WITH_CONTEXT_AND_HISTORY.iloc[i]["response"]
 #         )
 #     assert evaluation_run.error is None
+@mock.patch("uuid.uuid4")
+def test_create_eval_run_with_interactions_data_source(mock_uuid4, client):
+    """Tests create_evaluation_run() with EvalCases using interactions_data_source.
+
+    The SDK resolves each interaction client-side (GET interactions/{id} and
+    GET agents/{id}) before uploading the EvalCases to the evaluation pipeline.
+    """
+    mock_uuid4.return_value = uuid.UUID("a1b2c3d4-e5f6-7890-abcd-ef1234567890")
+    client._api_client._http_options.api_version = "v1beta1"
+    interaction_id = "ChA2YzllYzk0MjY1NjZjODM5EAgaATAqBG1haW4"
+    gemini_agent = (
+        "projects/model-evaluation-dev/locations/global/agents/test-agent-eval"
+    )
+    eval_case = types.EvalCase(
+        interactions_data_source=types.InteractionsDataSource(
+            interaction=(
+                f"projects/model-evaluation-dev/locations/global"
+                f"/interactions/{interaction_id}"
+            ),
+            gemini_agent_config=types.GeminiAgentConfig(
+                gemini_agent=gemini_agent,
+            ),
+        )
+    )
+    evaluation_run = client.evals.create_evaluation_run(
+        name="test_interactions_data_source",
+        display_name="test_interactions_data_source",
+        dataset=types.EvaluationDataset(eval_cases=[eval_case]),
+        dest=GCS_DEST,
+        metrics=[GENERAL_QUALITY_METRIC],
+    )
+    assert isinstance(evaluation_run, types.EvaluationRun)
+    assert evaluation_run.state == types.EvaluationRunState.PENDING
+    assert evaluation_run.error is None
+
+
 def test_create_eval_run_with_red_teaming_config(client):
     """Tests that create_evaluation_run() with red_teaming_config sends analysisConfigs."""
     evaluation_run = client.evals.create_evaluation_run(

@@ -434,6 +434,15 @@ def _resolve_dataset(
 ) -> types.EvaluationRunDataSource:
     """Resolves dataset for the evaluation run."""
     if isinstance(dataset, types.EvaluationDataset):
+        # Resolve EvalCases with interactions_data_source by fetching
+        # each interaction and converting it to agent_data, then flowing
+        # through the normal DataFrame/GCS pipeline.
+        if dataset.eval_cases and _has_interactions_data_source(dataset.eval_cases):
+            resolved_cases = _resolve_interactions_to_eval_cases(
+                api_client, dataset.eval_cases
+            )
+            dataset = types.EvaluationDataset(eval_cases=resolved_cases)
+
         candidate_name = _get_candidate_name(dataset, parsed_agent_info)
         eval_df = dataset.eval_dataset_df
         if eval_df is None and dataset.eval_cases:
