@@ -2956,7 +2956,8 @@ class Evals(_api_module.BaseModule):
     def generate_conversation_scenarios(
         self,
         *,
-        agent_info: evals_types.AgentInfoOrDict,
+        agent_info: Optional[evals_types.AgentInfoOrDict] = None,
+        agent: Optional[str] = None,
         config: evals_types.UserScenarioGenerationConfigOrDict,
         allow_cross_region_model: Optional[bool] = None,
     ) -> types.EvaluationDataset:
@@ -2964,8 +2965,17 @@ class Evals(_api_module.BaseModule):
            which helps to generate conversations between a simulated user
            and the agent under test.
 
+        Exactly one of `agent_info` or `agent` must be provided. When `agent` is
+        a Gemini Agents API agent resource name, the agent is fetched and an
+        `AgentInfo` is derived from it.
+
         Args:
-            agent_info: The agent info to generate user scenarios for.
+            agent_info: The agent info to generate user scenarios for. Mutually
+                exclusive with `agent`.
+            agent: A Gemini Agents API agent resource name
+                (`projects/{p}/locations/{l}/agents/{name}`). When provided, the
+                agent is fetched and its configuration is used to build the agent
+                info. Mutually exclusive with `agent_info`.
             config: Configuration for generating user scenarios.
             allow_cross_region_model: Opt-in flag to authorize cross-region
                 routing for model inference.
@@ -2973,11 +2983,27 @@ class Evals(_api_module.BaseModule):
         Returns:
             An EvaluationDataset containing the generated user scenarios.
         """
-        parsed_agent_info = (
-            evals_types.AgentInfo.model_validate(agent_info)
-            if isinstance(agent_info, dict)
-            else agent_info
-        )
+        if agent is not None and agent_info is not None:
+            raise ValueError(
+                "Only one of `agent` or `agent_info` may be provided, not both."
+            )
+        if agent is None and agent_info is None:
+            raise ValueError("One of `agent` or `agent_info` must be provided.")
+        if agent is not None:
+            if not _evals_common._is_gemini_agent_resource(agent):
+                raise ValueError(
+                    "`agent` must be a Gemini Agents API agent resource name of the"
+                    " form projects/{project}/locations/{location}/agents/{agent}."
+                )
+            parsed_agent_info = _evals_common._agent_resource_to_agent_info(
+                agent, self._api_client
+            )
+        else:
+            parsed_agent_info = (
+                evals_types.AgentInfo.model_validate(agent_info)
+                if isinstance(agent_info, dict)
+                else agent_info
+            )
         response = self._generate_user_scenarios(
             agents=parsed_agent_info.agents,
             root_agent_id=parsed_agent_info.root_agent_id,
@@ -4769,7 +4795,8 @@ class AsyncEvals(_api_module.BaseModule):
     async def generate_conversation_scenarios(
         self,
         *,
-        agent_info: evals_types.AgentInfoOrDict,
+        agent_info: Optional[evals_types.AgentInfoOrDict] = None,
+        agent: Optional[str] = None,
         config: evals_types.UserScenarioGenerationConfigOrDict,
         allow_cross_region_model: Optional[bool] = None,
     ) -> types.EvaluationDataset:
@@ -4777,8 +4804,17 @@ class AsyncEvals(_api_module.BaseModule):
            which helps to generate conversations between a simulated user
            and the agent under test.
 
+        Exactly one of `agent_info` or `agent` must be provided. When `agent` is
+        a Gemini Agents API agent resource name, the agent is fetched and an
+        `AgentInfo` is derived from it.
+
         Args:
-            agent_info: The agent info to generate user scenarios for.
+            agent_info: The agent info to generate user scenarios for. Mutually
+                exclusive with `agent`.
+            agent: A Gemini Agents API agent resource name
+                (`projects/{p}/locations/{l}/agents/{name}`). When provided, the
+                agent is fetched and its configuration is used to build the agent
+                info. Mutually exclusive with `agent_info`.
             config: Configuration for generating user scenarios.
             allow_cross_region_model: Opt-in flag to authorize cross-region
                 routing for model inference.
@@ -4786,11 +4822,27 @@ class AsyncEvals(_api_module.BaseModule):
         Returns:
             An EvaluationDataset containing the generated user scenarios.
         """
-        parsed_agent_info = (
-            evals_types.AgentInfo.model_validate(agent_info)
-            if isinstance(agent_info, dict)
-            else agent_info
-        )
+        if agent is not None and agent_info is not None:
+            raise ValueError(
+                "Only one of `agent` or `agent_info` may be provided, not both."
+            )
+        if agent is None and agent_info is None:
+            raise ValueError("One of `agent` or `agent_info` must be provided.")
+        if agent is not None:
+            if not _evals_common._is_gemini_agent_resource(agent):
+                raise ValueError(
+                    "`agent` must be a Gemini Agents API agent resource name of the"
+                    " form projects/{project}/locations/{location}/agents/{agent}."
+                )
+            parsed_agent_info = _evals_common._agent_resource_to_agent_info(
+                agent, self._api_client
+            )
+        else:
+            parsed_agent_info = (
+                evals_types.AgentInfo.model_validate(agent_info)
+                if isinstance(agent_info, dict)
+                else agent_info
+            )
         response = await self._generate_user_scenarios(
             agents=parsed_agent_info.agents,
             root_agent_id=parsed_agent_info.root_agent_id,

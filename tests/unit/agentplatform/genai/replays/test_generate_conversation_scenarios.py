@@ -103,6 +103,30 @@ async def test_gen_conversation_scenarios_async(client):
     assert eval_dataset.eval_cases[1].user_scenario.conversation_plan
 
 
+def test_scenarios_from_gemini_agent(client):
+    """Tests generate_conversation_scenarios() against a Gemini Agents API agent.
+
+    Fetches the agent via google.genai agents.get, derives an AgentInfo from it,
+    and generates user scenarios from the derived config.
+    """
+    eval_dataset = client.evals.generate_conversation_scenarios(
+        agent=("projects/model-evaluation-dev/locations/global/agents/test-agent-eval"),
+        config=types.evals.UserScenarioGenerationConfig(
+            count=2,
+            generation_instruction=(
+                "Generate scenarios where the user tries to book a flight but"
+                " changes their mind about the destination."
+            ),
+            environment_context="Today is Monday. Flights to Paris are available.",
+            model_name="gemini-2.5-flash",
+        ),
+    )
+    assert isinstance(eval_dataset, types.EvaluationDataset)
+    assert len(eval_dataset.eval_cases) == 2
+    assert eval_dataset.eval_cases[0].user_scenario.starting_prompt
+    assert eval_dataset.eval_cases[0].user_scenario.conversation_plan
+
+
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),

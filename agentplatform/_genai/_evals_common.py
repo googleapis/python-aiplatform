@@ -988,6 +988,33 @@ def _agent_data_response_text(agent_data: types.evals.AgentData) -> Optional[str
     return "".join(text_parts) or None
 
 
+def _agent_resource_to_agent_info(
+    agent: str, api_client: BaseApiClient
+) -> "types.evals.AgentInfo":
+    """Builds an `AgentInfo` from a Gemini Agents API agent resource name.
+
+    Fetches the agent through the SDK's `api_client` (so replay recording is
+    preserved) via `_fetch_agent_config_dict` and derives a single-agent
+    `AgentInfo`: the agent's short name is the agents-map key and
+    `root_agent_id`.
+
+    Args:
+        agent: The Gemini Agents API agent resource name
+          (`projects/{p}/locations/{l}/agents/{name}`).
+        api_client: The API client used to fetch the agent.
+
+    Returns:
+        An `AgentInfo` describing the fetched agent.
+    """
+    agent_config = _fetch_agent_config_dict(api_client, agent)
+    short_name = agent_config.agent_id
+    return types.evals.AgentInfo(  # pytype: disable=missing-parameter
+        name=short_name,
+        agents={short_name: agent_config},
+        root_agent_id=short_name,
+    )
+
+
 _INTERACTION_TERMINAL_STATES = frozenset(
     ["completed", "failed", "cancelled", "incomplete", "budget_exceeded"]
 )
