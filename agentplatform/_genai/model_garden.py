@@ -119,6 +119,42 @@ def _ListPublisherModelsRequestParameters_to_vertex(
     return to_object
 
 
+def _RecommendSpecConfig_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+
+    if getv(from_object, ["check_machine_availability"]) is not None:
+        setv(
+            parent_object,
+            ["checkMachineAvailability"],
+            getv(from_object, ["check_machine_availability"]),
+        )
+
+    if getv(from_object, ["check_user_quota"]) is not None:
+        setv(parent_object, ["checkUserQuota"], getv(from_object, ["check_user_quota"]))
+
+    return to_object
+
+
+def _RecommendSpecRequestParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["parent"]) is not None:
+        setv(to_object, ["_url", "parent"], getv(from_object, ["parent"]))
+
+    if getv(from_object, ["gcs_uri"]) is not None:
+        setv(to_object, ["gcsUri"], getv(from_object, ["gcs_uri"]))
+
+    if getv(from_object, ["config"]) is not None:
+        _RecommendSpecConfig_to_vertex(getv(from_object, ["config"]), to_object)
+
+    return to_object
+
+
 class ModelGarden(_api_module.BaseModule):
     """Model Garden module."""
 
@@ -244,6 +280,80 @@ class ModelGarden(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.PublisherModel._from_response(
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    def _recommend_spec(
+        self,
+        *,
+        parent: str,
+        gcs_uri: str,
+        config: Optional[types.RecommendSpecConfigOrDict] = None,
+    ) -> types.RecommendSpecResponse:
+        """
+        Recommends spec for a custom model (internal).
+        """
+
+        parameter_model = types._RecommendSpecRequestParameters(
+            parent=parent,
+            gcs_uri=gcs_uri,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
+        else:
+            request_dict = _RecommendSpecRequestParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{parent}:recommendSpec".format_map(request_url_dict)
+            else:
+                path = "{parent}:recommendSpec"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = self._api_client.request("post", path, request_dict, http_options)
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.RecommendSpecResponse._from_response(
             response=response_dict,
             kwargs=(
                 {
@@ -771,6 +881,152 @@ class ModelGarden(_api_module.BaseModule):
 
         return options
 
+    @staticmethod
+    def _extract_recommend_spec(spec) -> dict[str, Any]:
+        """Extracts machine spec fields from a single recommend-spec entry.
+
+        Args:
+          spec: A ``RecommendSpecResponseMachineAndModelContainerSpec`` describing a
+            recommended machine and container configuration.
+
+        Returns:
+          A dict with the ``machine_type``, ``accelerator_type`` and
+          ``accelerator_count`` of the spec (values may be ``None``).
+        """
+        machine_spec = spec.machine_spec
+        machine_type = None
+        accelerator_type = None
+        accelerator_count = None
+
+        if machine_spec:
+            machine_type = getattr(machine_spec, "machine_type", None)
+            accelerator_enum = getattr(machine_spec, "accelerator_type", None)
+            if accelerator_enum:
+                accelerator_type = getattr(accelerator_enum, "name", None)
+            accelerator_count = getattr(machine_spec, "accelerator_count", None)
+
+        return {
+            "machine_type": machine_type,
+            "accelerator_type": accelerator_type,
+            "accelerator_count": accelerator_count,
+        }
+
+    @staticmethod
+    def _extract_recommendation(recommendation) -> dict[str, Any]:
+        """Extracts the spec, region and user quota state from a recommendation.
+
+        Args:
+          recommendation: A ``RecommendSpecResponseRecommendation`` returned when
+            machine availability is requested.
+
+        Returns:
+          A dict with the machine spec fields plus ``region`` and, when known, the
+          ``user_quota_state``.
+        """
+        extracted_spec = ModelGarden._extract_recommend_spec(recommendation.spec)
+        extracted_spec["region"] = getattr(recommendation, "region", None)
+        if (
+            recommendation.user_quota_state
+            and recommendation.user_quota_state
+            != types.QuotaState.QUOTA_STATE_UNSPECIFIED
+        ):
+            extracted_spec["user_quota_state"] = recommendation.user_quota_state.name
+        return extracted_spec
+
+    @staticmethod
+    def _format_custom_deploy_options(options: list[dict[str, Any]]) -> str:
+        """Formats custom model deploy options into a human-readable string.
+
+        Mirrors the legacy ``vertexai.model_garden`` ``CustomModel`` SDK output:
+        each option is rendered as an ``[Option N]`` block followed by its non-null
+        fields; ``accelerator_count`` is rendered unquoted.
+
+        Args:
+          options: The extracted deploy option dicts to format.
+
+        Returns:
+          A human-readable, multi-line string describing the deploy options.
+        """
+        return "\n\n".join(
+            f"[Option {i + 1}]\n"
+            + ",\n".join(
+                f'    {k}="{v}"' if k != "accelerator_count" else f"    {k}={v}"
+                for k, v in option.items()
+                if v is not None
+            )
+            for i, option in enumerate(options)
+        )
+
+    def list_custom_model_deploy_options(
+        self,
+        src: str,
+        config: Optional[types.ListCustomModelDeployOptionsConfigOrDict] = None,
+    ) -> str:
+        """Lists the recommended deploy options for a Model Garden custom model.
+
+        Args:
+          src: The Google Cloud Storage URI of the custom model, storing the model
+            weights and config files (e.g. ``'gs://my-bucket/weights/'``).
+          config: Optional configuration. Accepts a
+            ``ListCustomModelDeployOptionsConfig`` instance or an equivalent dict.
+
+        Returns:
+          A human-readable string describing the recommended deploy options
+          (machine type, accelerator type/count, region and, when available, the
+          user quota state).
+
+        Raises:
+          ValueError: If ``src`` is not specified, or if no deploy options are
+            returned by the API (either because the backend produced none or
+            because the ``filter_by_user_quota`` filter dropped them all).
+        """
+        if not src:
+            raise ValueError("src must be specified.")
+        if config is None:
+            config = types.ListCustomModelDeployOptionsConfig()
+        if isinstance(config, dict):
+            config = types.ListCustomModelDeployOptionsConfig.model_validate(config)
+
+        parent = (
+            f"projects/{self._api_client.project}/locations/"
+            f"{self._api_client.location}"
+        )
+
+        api_config = types.RecommendSpecConfig(
+            check_machine_availability=config.check_machine_availability,
+            check_user_quota=config.filter_by_user_quota,
+        )
+
+        response = self._recommend_spec(
+            parent=parent,
+            gcs_uri=src,
+            config=api_config,
+        )
+
+        options = []
+        if response.recommendations:
+            options = [
+                self._extract_recommendation(recommendation)
+                for recommendation in response.recommendations
+                if recommendation.spec
+            ]
+            if config.filter_by_user_quota:
+                options = [
+                    option
+                    for option in options
+                    if option.get("user_quota_state")
+                    == types.QuotaState.QUOTA_STATE_USER_HAS_QUOTA.name
+                ]
+        elif response.specs:
+            options = [
+                self._extract_recommend_spec(spec) for spec in response.specs if spec
+            ]
+
+        if not options:
+            raise ValueError("No deploy options found.")
+
+        return self._format_custom_deploy_options(options)
+
 
 class AsyncModelGarden(_api_module.BaseModule):
     """Model Garden module."""
@@ -901,6 +1157,82 @@ class AsyncModelGarden(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.PublisherModel._from_response(
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    async def _recommend_spec(
+        self,
+        *,
+        parent: str,
+        gcs_uri: str,
+        config: Optional[types.RecommendSpecConfigOrDict] = None,
+    ) -> types.RecommendSpecResponse:
+        """
+        Recommends spec for a custom model (internal).
+        """
+
+        parameter_model = types._RecommendSpecRequestParameters(
+            parent=parent,
+            gcs_uri=gcs_uri,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
+        else:
+            request_dict = _RecommendSpecRequestParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{parent}:recommendSpec".format_map(request_url_dict)
+            else:
+                path = "{parent}:recommendSpec"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = await self._api_client.async_request(
+            "post", path, request_dict, http_options
+        )
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.RecommendSpecResponse._from_response(
             response=response_dict,
             kwargs=(
                 {
@@ -1108,3 +1440,75 @@ class AsyncModelGarden(_api_module.BaseModule):
             return ModelGarden._format_concise_deploy_options(options)
 
         return options
+
+    async def list_custom_model_deploy_options(
+        self,
+        src: str,
+        config: Optional[types.ListCustomModelDeployOptionsConfigOrDict] = None,
+    ) -> str:
+        """Lists the recommended deploy options for a Model Garden custom model.
+
+        Args:
+          src: The Google Cloud Storage URI of the custom model, storing the model
+            weights and config files (e.g. ``'gs://my-bucket/weights/'``).
+          config: Optional configuration. Accepts a
+            ``ListCustomModelDeployOptionsConfig`` instance or an equivalent dict.
+
+        Returns:
+          A human-readable string describing the recommended deploy options
+          (machine type, accelerator type/count, region and, when available, the
+          user quota state).
+
+        Raises:
+          ValueError: If ``src`` is not specified, or if no deploy options are
+            returned by the API (either because the backend produced none or
+            because the ``filter_by_user_quota`` filter dropped them all).
+        """
+        if not src:
+            raise ValueError("src must be specified.")
+        if config is None:
+            config = types.ListCustomModelDeployOptionsConfig()
+        if isinstance(config, dict):
+            config = types.ListCustomModelDeployOptionsConfig.model_validate(config)
+
+        parent = (
+            f"projects/{self._api_client.project}/locations/"
+            f"{self._api_client.location}"
+        )
+
+        api_config = types.RecommendSpecConfig(
+            check_machine_availability=config.check_machine_availability,
+            check_user_quota=config.filter_by_user_quota,
+        )
+
+        response = await self._recommend_spec(
+            parent=parent,
+            gcs_uri=src,
+            config=api_config,
+        )
+
+        options = []
+        if response.recommendations:
+            options = [
+                ModelGarden._extract_recommendation(recommendation)
+                for recommendation in response.recommendations
+                if recommendation.spec
+            ]
+            if config.filter_by_user_quota:
+                options = [
+                    option
+                    for option in options
+                    if option.get("user_quota_state")
+                    == types.QuotaState.QUOTA_STATE_USER_HAS_QUOTA.name
+                ]
+        elif response.specs:
+            options = [
+                ModelGarden._extract_recommend_spec(spec)
+                for spec in response.specs
+                if spec
+            ]
+
+        if not options:
+            raise ValueError("No deploy options found.")
+
+        return ModelGarden._format_custom_deploy_options(options)

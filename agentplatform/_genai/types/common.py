@@ -476,6 +476,17 @@ class VersionState(_common.CaseInSensitiveEnum):
     """Used to indicate the version is unstable."""
 
 
+class QuotaState(_common.CaseInSensitiveEnum):
+    """Output only. The user accelerator quota state."""
+
+    QUOTA_STATE_UNSPECIFIED = "QUOTA_STATE_UNSPECIFIED"
+    """Unspecified quota state. Quota information not available."""
+    QUOTA_STATE_USER_HAS_QUOTA = "QUOTA_STATE_USER_HAS_QUOTA"
+    """User has enough accelerator quota for the machine type."""
+    QUOTA_STATE_NO_USER_QUOTA = "QUOTA_STATE_NO_USER_QUOTA"
+    """User does not have enough accelerator quota for the machine type."""
+
+
 class FeedbackType(_common.CaseInSensitiveEnum):
     """The type of the feedback."""
 
@@ -23581,6 +23592,157 @@ _GetPublisherModelRequestParametersOrDict = Union[
 ]
 
 
+class RecommendSpecConfig(_common.BaseModel):
+    """Config for recommending spec."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    check_machine_availability: Optional[bool] = Field(
+        default=None,
+        description="""Whether to check per-region machine availability.""",
+    )
+    check_user_quota: Optional[bool] = Field(
+        default=None,
+        description="""Whether to filter to regions with user accelerator quota.""",
+    )
+
+
+class RecommendSpecConfigDict(TypedDict, total=False):
+    """Config for recommending spec."""
+
+    http_options: Optional[genai_types.HttpOptions]
+    """Used to override HTTP request options."""
+
+    check_machine_availability: Optional[bool]
+    """Whether to check per-region machine availability."""
+
+    check_user_quota: Optional[bool]
+    """Whether to filter to regions with user accelerator quota."""
+
+
+RecommendSpecConfigOrDict = Union[RecommendSpecConfig, RecommendSpecConfigDict]
+
+
+class _RecommendSpecRequestParameters(_common.BaseModel):
+    """Parameters for recommending spec."""
+
+    parent: Optional[str] = Field(default=None, description="""""")
+    gcs_uri: Optional[str] = Field(default=None, description="""""")
+    config: Optional[RecommendSpecConfig] = Field(default=None, description="""""")
+
+
+class _RecommendSpecRequestParametersDict(TypedDict, total=False):
+    """Parameters for recommending spec."""
+
+    parent: Optional[str]
+    """"""
+
+    gcs_uri: Optional[str]
+    """"""
+
+    config: Optional[RecommendSpecConfigDict]
+    """"""
+
+
+_RecommendSpecRequestParametersOrDict = Union[
+    _RecommendSpecRequestParameters, _RecommendSpecRequestParametersDict
+]
+
+
+class RecommendSpecResponseMachineAndModelContainerSpec(_common.BaseModel):
+    """A machine and model container spec."""
+
+    container_spec: Optional[ModelContainerSpec] = Field(
+        default=None, description="""Output only. The model container spec."""
+    )
+    machine_spec: Optional[MachineSpec] = Field(
+        default=None, description="""Output only. The machine spec."""
+    )
+
+
+class RecommendSpecResponseMachineAndModelContainerSpecDict(TypedDict, total=False):
+    """A machine and model container spec."""
+
+    container_spec: Optional[ModelContainerSpecDict]
+    """Output only. The model container spec."""
+
+    machine_spec: Optional[MachineSpecDict]
+    """Output only. The machine spec."""
+
+
+RecommendSpecResponseMachineAndModelContainerSpecOrDict = Union[
+    RecommendSpecResponseMachineAndModelContainerSpec,
+    RecommendSpecResponseMachineAndModelContainerSpecDict,
+]
+
+
+class RecommendSpecResponseRecommendation(_common.BaseModel):
+    """Recommendation of one deployment option for the given custom weights model in one region. Contains the machine and container spec, and user accelerator quota state."""
+
+    region: Optional[str] = Field(
+        default=None, description="""The region for the deployment spec (machine)."""
+    )
+    spec: Optional[RecommendSpecResponseMachineAndModelContainerSpec] = Field(
+        default=None,
+        description="""Output only. The machine and model container specs.""",
+    )
+    user_quota_state: Optional[QuotaState] = Field(
+        default=None, description="""Output only. The user accelerator quota state."""
+    )
+
+
+class RecommendSpecResponseRecommendationDict(TypedDict, total=False):
+    """Recommendation of one deployment option for the given custom weights model in one region. Contains the machine and container spec, and user accelerator quota state."""
+
+    region: Optional[str]
+    """The region for the deployment spec (machine)."""
+
+    spec: Optional[RecommendSpecResponseMachineAndModelContainerSpecDict]
+    """Output only. The machine and model container specs."""
+
+    user_quota_state: Optional[QuotaState]
+    """Output only. The user accelerator quota state."""
+
+
+RecommendSpecResponseRecommendationOrDict = Union[
+    RecommendSpecResponseRecommendation, RecommendSpecResponseRecommendationDict
+]
+
+
+class RecommendSpecResponse(_common.BaseModel):
+    """Response for recommending spec."""
+
+    base_model: Optional[str] = Field(
+        default=None,
+        description="""Output only. The base model used to finetune the custom model.""",
+    )
+    recommendations: Optional[list[RecommendSpecResponseRecommendation]] = Field(
+        default=None,
+        description="""Output only. Recommendations of deployment options for the given custom weights model.""",
+    )
+    specs: Optional[list[RecommendSpecResponseMachineAndModelContainerSpec]] = Field(
+        default=None,
+        description="""Output only. The machine and model container specs.""",
+    )
+
+
+class RecommendSpecResponseDict(TypedDict, total=False):
+    """Response for recommending spec."""
+
+    base_model: Optional[str]
+    """Output only. The base model used to finetune the custom model."""
+
+    recommendations: Optional[list[RecommendSpecResponseRecommendationDict]]
+    """Output only. Recommendations of deployment options for the given custom weights model."""
+
+    specs: Optional[list[RecommendSpecResponseMachineAndModelContainerSpecDict]]
+    """Output only. The machine and model container specs."""
+
+
+RecommendSpecResponseOrDict = Union[RecommendSpecResponse, RecommendSpecResponseDict]
+
+
 class CreateRuntimeFeedbackEntryConfig(_common.BaseModel):
     """Config for creating a Feedback Entry."""
 
@@ -26570,6 +26732,56 @@ class ListPublisherModelDeployOptionsConfigDict(TypedDict, total=False):
 
 ListPublisherModelDeployOptionsConfigOrDict = Union[
     ListPublisherModelDeployOptionsConfig, ListPublisherModelDeployOptionsConfigDict
+]
+
+
+class ListCustomModelDeployOptionsConfig(_common.BaseModel):
+    """Config for listing custom model deploy options."""
+
+    filter_by_user_quota: Optional[bool] = Field(
+        default=True,
+        description="""Whether to filter recommendations to regions with user quota.
+
+      Only takes effect when ``check_machine_availability=True``; the specs
+      fallback returned when ``check_machine_availability=False`` carries no
+      per-region quota information, so this flag is ignored in that mode.
+      """,
+    )
+    check_machine_availability: Optional[bool] = Field(
+        default=True,
+        description="""Whether to check per-region machine availability.
+
+      When True (the default), the API returns per-region recommendations
+      that include the machine spec, region and user quota state. When
+      False, the API returns a flat list of specs without per-region or
+      quota information (and ``filter_by_user_quota`` has no effect).
+      """,
+    )
+
+
+class ListCustomModelDeployOptionsConfigDict(TypedDict, total=False):
+    """Config for listing custom model deploy options."""
+
+    filter_by_user_quota: Optional[bool]
+    """Whether to filter recommendations to regions with user quota.
+
+      Only takes effect when ``check_machine_availability=True``; the specs
+      fallback returned when ``check_machine_availability=False`` carries no
+      per-region quota information, so this flag is ignored in that mode.
+      """
+
+    check_machine_availability: Optional[bool]
+    """Whether to check per-region machine availability.
+
+      When True (the default), the API returns per-region recommendations
+      that include the machine spec, region and user quota state. When
+      False, the API returns a flat list of specs without per-region or
+      quota information (and ``filter_by_user_quota`` has no effect).
+      """
+
+
+ListCustomModelDeployOptionsConfigOrDict = Union[
+    ListCustomModelDeployOptionsConfig, ListCustomModelDeployOptionsConfigDict
 ]
 
 

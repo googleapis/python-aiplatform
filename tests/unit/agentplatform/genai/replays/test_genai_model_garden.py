@@ -102,6 +102,65 @@ def test_list_publisher_model_deploy_options_no_deploy_support(client):
     )
 
 
+# A GCS folder holding a custom model (config.json + a weights file) that
+# RecommendSpec maps to a supported base model (gemma-3-1b).
+_CUSTOM_MODEL_SRC = "gs://sdk-mg-custom-model-replay/gemma-1b"
+
+
+def test_list_custom_model_deploy_options(client):
+  """Default config: machine availability + user-quota filter.
+
+  Exercises the RecommendSpec backend (distinct from the GetPublisherModel
+  path used by publisher models) and the human-readable string return type.
+  With ``check_machine_availability`` defaulting to True, the response is
+  the per-region ``recommendations`` list, so each option carries a
+  ``region``.
+  """
+  options = client.model_garden.list_custom_model_deploy_options(
+      src=_CUSTOM_MODEL_SRC,
+  )
+  assert isinstance(options, str)
+  assert "[Option 1]" in options
+  assert "region=" in options
+
+
+def test_list_custom_model_deploy_options_check_machine_availability_false(
+    client,
+):
+  """check_machine_availability=False -> RecommendSpec 'specs' path (no region field)."""
+  options = client.model_garden.list_custom_model_deploy_options(
+      src=_CUSTOM_MODEL_SRC,
+      config=types.ListCustomModelDeployOptionsConfig(
+          check_machine_availability=False
+      ),
+  )
+  assert isinstance(options, str)
+  assert "[Option 1]" in options
+  assert "region=" not in options
+
+
+def test_list_custom_model_deploy_options_no_user_quota_filter(client):
+  """filter_by_user_quota=False -> recommendations returned without quota filtering."""
+  options = client.model_garden.list_custom_model_deploy_options(
+      src=_CUSTOM_MODEL_SRC,
+      config=types.ListCustomModelDeployOptionsConfig(filter_by_user_quota=False),
+  )
+  assert isinstance(options, str)
+  assert "[Option 1]" in options
+  assert "region=" in options
+
+
+def test_list_custom_model_deploy_options_dict_config(client):
+  """The config may be passed as a plain dict instead of the typed config."""
+  options = client.model_garden.list_custom_model_deploy_options(
+      src=_CUSTOM_MODEL_SRC,
+      config={"check_machine_availability": False},
+  )
+  assert isinstance(options, str)
+  assert "[Option 1]" in options
+  assert "region=" not in options
+
+
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
@@ -147,3 +206,17 @@ async def test_list_publisher_model_deploy_options_async(client):
   assert len(options) > 0
   assert isinstance(options[0], types.DeployOption)
   assert options[0].serving_container_image_uri
+
+
+@pytest.mark.asyncio
+async def test_list_custom_model_deploy_options_async(client):
+  """Tests listing the recommended deploy options for a custom model async."""
+  options = await client.aio.model_garden.list_custom_model_deploy_options(
+      src=_CUSTOM_MODEL_SRC,
+      config=types.ListCustomModelDeployOptionsConfig(
+          filter_by_user_quota=False,
+      ),
+  )
+  assert isinstance(options, str)
+  assert "[Option 1]" in options
+  assert "region=" in options

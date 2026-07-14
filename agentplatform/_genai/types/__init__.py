@@ -141,6 +141,7 @@ from .common import _OptimizeRequestParameters
 from .common import _PurgeAgentEngineMemoriesRequestParameters
 from .common import _QueryAgentEngineRequestParameters
 from .common import _QueryAgentEngineRuntimeRevisionRequestParameters
+from .common import _RecommendSpecRequestParameters
 from .common import _RestoreVersionRequestParameters
 from .common import _RetrieveAgentEngineMemoriesRequestParameters
 from .common import _RetrieveMemoryProfilesRequestParameters
@@ -878,6 +879,9 @@ from .common import ListAgentEngineTasksConfigOrDict
 from .common import ListAgentEngineTasksResponse
 from .common import ListAgentEngineTasksResponseDict
 from .common import ListAgentEngineTasksResponseOrDict
+from .common import ListCustomModelDeployOptionsConfig
+from .common import ListCustomModelDeployOptionsConfigDict
+from .common import ListCustomModelDeployOptionsConfigOrDict
 from .common import ListDatasetsResponse
 from .common import ListDatasetsResponseDict
 from .common import ListDatasetsResponseOrDict
@@ -1243,6 +1247,7 @@ from .common import QueryAgentEngineRuntimeRevisionConfigOrDict
 from .common import QueryReasoningEngineResponse
 from .common import QueryReasoningEngineResponseDict
 from .common import QueryReasoningEngineResponseOrDict
+from .common import QuotaState
 from .common import RagContexts
 from .common import RagContextsContext
 from .common import RagContextsContextDict
@@ -1464,6 +1469,18 @@ from .common import ReasoningEngineTrafficConfigTrafficSplitManualOrDict
 from .common import ReasoningEngineTrafficConfigTrafficSplitManualTarget
 from .common import ReasoningEngineTrafficConfigTrafficSplitManualTargetDict
 from .common import ReasoningEngineTrafficConfigTrafficSplitManualTargetOrDict
+from .common import RecommendSpecConfig
+from .common import RecommendSpecConfigDict
+from .common import RecommendSpecConfigOrDict
+from .common import RecommendSpecResponse
+from .common import RecommendSpecResponseDict
+from .common import RecommendSpecResponseMachineAndModelContainerSpec
+from .common import RecommendSpecResponseMachineAndModelContainerSpecDict
+from .common import RecommendSpecResponseMachineAndModelContainerSpecOrDict
+from .common import RecommendSpecResponseOrDict
+from .common import RecommendSpecResponseRecommendation
+from .common import RecommendSpecResponseRecommendationDict
+from .common import RecommendSpecResponseRecommendationOrDict
 from .common import RedTeamingAnalysisConfig
 from .common import RedTeamingAnalysisConfigDict
 from .common import RedTeamingAnalysisConfigOrDict
@@ -3434,6 +3451,18 @@ __all__ = [
     "GetPublisherModelConfig",
     "GetPublisherModelConfigDict",
     "GetPublisherModelConfigOrDict",
+    "RecommendSpecConfig",
+    "RecommendSpecConfigDict",
+    "RecommendSpecConfigOrDict",
+    "RecommendSpecResponseMachineAndModelContainerSpec",
+    "RecommendSpecResponseMachineAndModelContainerSpecDict",
+    "RecommendSpecResponseMachineAndModelContainerSpecOrDict",
+    "RecommendSpecResponseRecommendation",
+    "RecommendSpecResponseRecommendationDict",
+    "RecommendSpecResponseRecommendationOrDict",
+    "RecommendSpecResponse",
+    "RecommendSpecResponseDict",
+    "RecommendSpecResponseOrDict",
     "CreateRuntimeFeedbackEntryConfig",
     "CreateRuntimeFeedbackEntryConfigDict",
     "CreateRuntimeFeedbackEntryConfigOrDict",
@@ -3581,6 +3610,9 @@ __all__ = [
     "ListPublisherModelDeployOptionsConfig",
     "ListPublisherModelDeployOptionsConfigDict",
     "ListPublisherModelDeployOptionsConfigOrDict",
+    "ListCustomModelDeployOptionsConfig",
+    "ListCustomModelDeployOptionsConfigDict",
+    "ListCustomModelDeployOptionsConfigOrDict",
     "DeployOption",
     "DeployOptionDict",
     "DeployOptionOrDict",
@@ -3609,6 +3641,7 @@ __all__ = [
     "LaunchStage",
     "OpenSourceCategory",
     "VersionState",
+    "QuotaState",
     "FeedbackType",
     "EvaluationItemType",
     "SamplingMethod",
@@ -3770,6 +3803,7 @@ __all__ = [
     "_ListSkillRevisionsRequestParameters",
     "_ListPublisherModelsRequestParameters",
     "_GetPublisherModelRequestParameters",
+    "_RecommendSpecRequestParameters",
     "_CreateRuntimeFeedbackEntryRequestParameters",
     "_DeleteRuntimeFeedbackEntryRequestParameters",
     "_GetRuntimeFeedbackRequestParameters",

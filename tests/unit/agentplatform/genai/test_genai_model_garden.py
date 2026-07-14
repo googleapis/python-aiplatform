@@ -1129,3 +1129,273 @@ def test_list_publisher_model_deploy_options_concise_async(mock_async_client):
 
     assert isinstance(result, str)
     assert result.startswith("[Option 1: option-1]")
+
+
+def test_list_custom_model_deploy_options_specs_path(mock_client):
+  """Tests the specs branch is extracted and formatted like the legacy SDK."""
+  dummy_response = types.RecommendSpecResponse(
+      specs=[
+          types.RecommendSpecResponseMachineAndModelContainerSpec(
+              machine_spec=types.MachineSpec(
+                  machine_type="g2-standard-12",
+                  accelerator_type="NVIDIA_L4",
+                  accelerator_count=1,
+              )
+          )
+      ]
+  )
+
+  with mock.patch.object(
+      mock_client, "_recommend_spec", return_value=dummy_response
+  ):
+    result = mock_client.list_custom_model_deploy_options(src="gs://weights")
+
+    expected = (
+        "[Option 1]\n"
+        '    machine_type="g2-standard-12",\n'
+        '    accelerator_type="NVIDIA_L4",\n'
+        "    accelerator_count=1"
+    )
+    assert result == expected
+
+
+def test_list_custom_model_deploy_options_request_config(mock_client):
+  """Tests the parent, gcs_uri and RecommendSpecConfig are passed through."""
+  dummy_response = types.RecommendSpecResponse(
+      specs=[
+          types.RecommendSpecResponseMachineAndModelContainerSpec(
+              machine_spec=types.MachineSpec(machine_type="g2-standard-12")
+          )
+      ]
+  )
+
+  with mock.patch.object(
+      mock_client, "_recommend_spec", return_value=dummy_response
+  ) as mock_recommend:
+    mock_client.list_custom_model_deploy_options(src="gs://weights")
+
+    mock_recommend.assert_called_once_with(
+        parent=f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}",
+        gcs_uri="gs://weights",
+        config=types.RecommendSpecConfig(
+            check_machine_availability=True,
+            check_user_quota=True,
+        ),
+    )
+
+
+def test_list_custom_model_deploy_options_config_flags_forwarded(mock_client):
+  """Tests check_machine_availability/filter_by_user_quota map to the API config."""
+  dummy_response = types.RecommendSpecResponse(
+      specs=[
+          types.RecommendSpecResponseMachineAndModelContainerSpec(
+              machine_spec=types.MachineSpec(machine_type="g2-standard-12")
+          )
+      ]
+  )
+
+  with mock.patch.object(
+      mock_client, "_recommend_spec", return_value=dummy_response
+  ) as mock_recommend:
+    mock_client.list_custom_model_deploy_options(
+        src="gs://weights",
+        config=types.ListCustomModelDeployOptionsConfig(
+            check_machine_availability=False,
+            filter_by_user_quota=False,
+        ),
+    )
+
+    _, kwargs = mock_recommend.call_args
+    assert kwargs["config"] == types.RecommendSpecConfig(
+        check_machine_availability=False,
+        check_user_quota=False,
+    )
+
+
+def test_list_custom_model_deploy_options_recommendations_quota_filter(
+    mock_client,
+):
+  """Tests recommendations are filtered to QUOTA_STATE_USER_HAS_QUOTA by default."""
+  dummy_response = types.RecommendSpecResponse(
+      recommendations=[
+          types.RecommendSpecResponseRecommendation(
+              region="us-central1",
+              spec=types.RecommendSpecResponseMachineAndModelContainerSpec(
+                  machine_spec=types.MachineSpec(
+                      machine_type="g2-standard-12",
+                      accelerator_type="NVIDIA_L4",
+                      accelerator_count=1,
+                  )
+              ),
+              user_quota_state="QUOTA_STATE_USER_HAS_QUOTA",
+          ),
+          types.RecommendSpecResponseRecommendation(
+              region="us-west1",
+              spec=types.RecommendSpecResponseMachineAndModelContainerSpec(
+                  machine_spec=types.MachineSpec(
+                      machine_type="a3-highgpu-8g",
+                      accelerator_type="NVIDIA_H100_80GB",
+                      accelerator_count=8,
+                  )
+              ),
+              user_quota_state="QUOTA_STATE_NO_USER_QUOTA",
+          ),
+      ]
+  )
+
+  with mock.patch.object(
+      mock_client, "_recommend_spec", return_value=dummy_response
+  ):
+    result = mock_client.list_custom_model_deploy_options(src="gs://weights")
+
+    expected = (
+        "[Option 1]\n"
+        '    machine_type="g2-standard-12",\n'
+        '    accelerator_type="NVIDIA_L4",\n'
+        "    accelerator_count=1,\n"
+        '    region="us-central1",\n'
+        '    user_quota_state="QUOTA_STATE_USER_HAS_QUOTA"'
+    )
+    assert result == expected
+
+
+def test_list_custom_model_deploy_options_recommendations_no_quota_filter(
+    mock_client,
+):
+  """Tests filter_by_user_quota=False keeps every recommendation."""
+  dummy_response = types.RecommendSpecResponse(
+      recommendations=[
+          types.RecommendSpecResponseRecommendation(
+              region="us-central1",
+              spec=types.RecommendSpecResponseMachineAndModelContainerSpec(
+                  machine_spec=types.MachineSpec(machine_type="g2-standard-12")
+              ),
+              user_quota_state="QUOTA_STATE_USER_HAS_QUOTA",
+          ),
+          types.RecommendSpecResponseRecommendation(
+              region="us-west1",
+              spec=types.RecommendSpecResponseMachineAndModelContainerSpec(
+                  machine_spec=types.MachineSpec(machine_type="a3-highgpu-8g")
+              ),
+              user_quota_state="QUOTA_STATE_NO_USER_QUOTA",
+          ),
+      ]
+  )
+
+  with mock.patch.object(
+      mock_client, "_recommend_spec", return_value=dummy_response
+  ):
+    result = mock_client.list_custom_model_deploy_options(
+        src="gs://weights",
+        config=types.ListCustomModelDeployOptionsConfig(
+            filter_by_user_quota=False
+        ),
+    )
+
+    assert "[Option 1]" in result
+    assert "[Option 2]" in result
+    assert "us-west1" in result
+
+
+def test_list_custom_model_deploy_options_src_required_raises(mock_client):
+  """Tests an empty src raises ValueError, matching the legacy SDK guard."""
+  with pytest.raises(ValueError, match="src must be specified"):
+    mock_client.list_custom_model_deploy_options(src="")
+
+
+def test_list_custom_model_deploy_options_empty_options_raises(mock_client):
+  """Tests an empty API response raises, matching the publisher-model sibling."""
+  dummy_response = types.RecommendSpecResponse(specs=[])
+
+  with mock.patch.object(
+      mock_client, "_recommend_spec", return_value=dummy_response
+  ):
+    with pytest.raises(ValueError, match="No deploy options found"):
+      mock_client.list_custom_model_deploy_options(src="gs://weights")
+
+
+def test_list_custom_model_deploy_options_quota_filter_empty_raises(
+    mock_client,
+):
+  """Tests filter_by_user_quota dropping every recommendation raises."""
+  dummy_response = types.RecommendSpecResponse(
+      recommendations=[
+          types.RecommendSpecResponseRecommendation(
+              region="us-central1",
+              spec=types.RecommendSpecResponseMachineAndModelContainerSpec(
+                  machine_spec=types.MachineSpec(machine_type="g2-standard-12")
+              ),
+              user_quota_state="QUOTA_STATE_NO_USER_QUOTA",
+          ),
+      ]
+  )
+
+  with mock.patch.object(
+      mock_client, "_recommend_spec", return_value=dummy_response
+  ):
+    with pytest.raises(ValueError, match="No deploy options found"):
+      mock_client.list_custom_model_deploy_options(src="gs://weights")
+
+
+def test_list_custom_model_deploy_options_dict_config(mock_client):
+  """Tests a dict config is validated into ListCustomModelDeployOptionsConfig."""
+  dummy_response = types.RecommendSpecResponse(
+      specs=[
+          types.RecommendSpecResponseMachineAndModelContainerSpec(
+              machine_spec=types.MachineSpec(machine_type="g2-standard-12")
+          )
+      ]
+  )
+
+  with mock.patch.object(
+      mock_client, "_recommend_spec", return_value=dummy_response
+  ) as mock_recommend:
+    mock_client.list_custom_model_deploy_options(
+        src="gs://weights",
+        config={
+            "check_machine_availability": False,
+            "filter_by_user_quota": False,
+        },
+    )
+
+    _, kwargs = mock_recommend.call_args
+    assert kwargs["config"] == types.RecommendSpecConfig(
+        check_machine_availability=False,
+        check_user_quota=False,
+    )
+
+
+def test_list_custom_model_deploy_options_async(mock_async_client):
+  """Tests the async client returns the formatted deploy options string."""
+  dummy_response = types.RecommendSpecResponse(
+      specs=[
+          types.RecommendSpecResponseMachineAndModelContainerSpec(
+              machine_spec=types.MachineSpec(
+                  machine_type="g2-standard-12",
+                  accelerator_type="NVIDIA_L4",
+                  accelerator_count=1,
+              )
+          )
+      ]
+  )
+
+  with mock.patch.object(
+      mock_async_client,
+      "_recommend_spec",
+      new=mock.AsyncMock(return_value=dummy_response),
+  ):
+    result = asyncio.run(
+        mock_async_client.list_custom_model_deploy_options(src="gs://weights")
+    )
+
+    assert isinstance(result, str)
+    assert result.startswith("[Option 1]")
+    assert 'machine_type="g2-standard-12"' in result
+
+
+def test_list_custom_model_deploy_options_async_src_required_raises(
+    mock_async_client,
+):
+  """Tests the async client also validates src."""
+  with pytest.raises(ValueError, match="src must be specified"):
+    asyncio.run(mock_async_client.list_custom_model_deploy_options(src=""))
