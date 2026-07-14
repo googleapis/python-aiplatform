@@ -938,6 +938,176 @@ def _get_resolved_location(api_client: Any) -> Optional[str]:
     return getattr(api_client, "location", None)
 
 
+class _InteractionsRestClient:
+    """Minimal Interactions API client issued through the SDK api_client.
+
+    Calls go through `api_client.request()` (rather than the google.genai
+    `_gaos` client) so that the `ReplayApiClient` records and replays them.
+    Requests and responses are plain dicts.
+    """
+
+    def __init__(self, api_client: BaseApiClient):
+        self._api_client = api_client
+
+    def create(self, request_dict: dict[str, Any]) -> dict[str, Any]:
+        response = self._api_client.request("post", "interactions", request_dict)
+        return json.loads(response.body) if response.body else {}
+
+    def get(self, interaction_id: str) -> dict[str, Any]:
+        response = self._api_client.request("get", f"interactions/{interaction_id}", {})
+        return json.loads(response.body) if response.body else {}
+
+
+def _get_interactions_client(api_client: BaseApiClient) -> _InteractionsRestClient:
+    """Returns an Interactions API client bound to `api_client`.
+
+    The client issues calls through the SDK's existing `api_client` (a
+    `BaseApiClient`, or a `ReplayApiClient` in tests) so that replay recording
+    captures the interaction calls.
+
+    Args:
+        api_client: The API client used to issue interaction calls.
+
+    Returns:
+        An `_InteractionsRestClient`.
+    """
+    return _InteractionsRestClient(api_client)
+
+
+def _agent_data_response_text(agent_data: types.evals.AgentData) -> Optional[str]:
+    """Concatenates the text of all model-role events in an AgentData."""
+    text_parts: list[str] = []
+    for turn in agent_data.turns or []:
+        for event in turn.events or []:
+            content = event.content
+            if not content or content.role != _evals_constant.MODEL_AUTHOR:
+                continue
+            for part in content.parts or []:
+                if part.text:
+                    text_parts.append(part.text)
+    return "".join(text_parts) or None
+
+
+_INTERACTION_TERMINAL_STATES = frozenset(
+    ["completed", "failed", "cancelled", "incomplete", "budget_exceeded"]
+)
+
+
+def _await_interaction(
+    interactions_client: "_InteractionsRestClient",
+    interaction: dict[str, Any],
+    poll_interval_seconds: float = 2.0,
+    timeout_seconds: float = 600.0,
+) -> dict[str, Any]:
+    """Polls a background interaction until it reaches a terminal state.
+
+    Gemini agent interactions must run in the background (`background=True`), so
+    `create` returns before the model output is ready. This polls
+    `interactions.get` until the interaction reaches a terminal state and then
+    returns the resolved interaction.
+
+    Args:
+        interactions_client: The interactions client used to poll.
+        interaction: The interaction returned by `create`.
+        poll_interval_seconds: Delay between poll attempts.
+        timeout_seconds: Maximum time to wait before raising.
+
+    Returns:
+        The resolved interaction once it reaches a terminal state.
+
+    Raises:
+        TimeoutError: If the interaction does not complete within the timeout.
+    """
+    if interaction.get("status") in _INTERACTION_TERMINAL_STATES:
+        return interaction
+    interaction_id = interaction.get("id")
+    deadline = time.monotonic() + timeout_seconds
+    while time.monotonic() < deadline:
+        time.sleep(poll_interval_seconds)
+        interaction = interactions_client.get(interaction_id)
+        if interaction.get("status") in _INTERACTION_TERMINAL_STATES:
+            return interaction
+    raise TimeoutError(
+        f"Interaction {interaction_id} did not complete within"
+        f" {timeout_seconds} seconds."
+    )
+
+
+def _run_gemini_agent_inference(
+    *,
+    api_client: BaseApiClient,
+    gemini_agent: str,
+    prompt_dataset: pd.DataFrame,
+) -> pd.DataFrame:
+    """Runs inference against a Gemini Agents API agent via the Interactions API.
+
+    For each prompt row, creates an interaction against `gemini_agent` and
+    collects the interaction id, response text, and agent data.
+
+    Args:
+        api_client: The API client used to issue interaction calls.
+        gemini_agent: The Gemini Agents API agent resource name.
+        prompt_dataset: The prompt DataFrame. The prompt is read from the
+          `request` column if present, otherwise from the `prompt` column.
+
+    Returns:
+        A DataFrame with columns prompt, response, interaction_id, agent_data.
+    """
+    prompt_column = (
+        "request" if "request" in prompt_dataset.columns else _evals_constant.PROMPT
+    )
+    if prompt_column not in prompt_dataset.columns:
+        raise ValueError(
+            "The eval dataset provided for Gemini agent inference must contain a"
+            f" '{_evals_constant.PROMPT}' or 'request' column."
+        )
+
+    interactions_client = _get_interactions_client(api_client)
+
+    agent_short_id = gemini_agent.split("/")[-1]
+    prompts: list[str] = []
+    responses: list[Optional[str]] = []
+    interaction_ids: list[Optional[str]] = []
+    agent_data: list[dict[str, Any]] = []
+    for prompt in tqdm(
+        prompt_dataset[prompt_column].tolist(), desc="Gemini Agent Inference"
+    ):
+        prompts.append(prompt)
+        try:
+            interaction = interactions_client.create(
+                {
+                    "agent": agent_short_id,
+                    "input": [{"type": "text", "text": prompt}],
+                    "store": True,
+                    "background": True,
+                }
+            )
+            interaction = _await_interaction(interactions_client, interaction)
+            agent_data_obj = _interaction_dict_to_agent_data(interaction)
+            _merge_text_parts_in_agent_data(agent_data_obj)
+            responses.append(_agent_data_response_text(agent_data_obj))
+            interaction_ids.append(interaction.get("id"))
+            agent_data.append(agent_data_obj.model_dump(mode="json", exclude_none=True))
+        except Exception as e:  # pylint: disable=broad-exception-caught
+            logger.warning(
+                "Gemini agent inference failed for a prompt (recording an empty"
+                " row and continuing): %s",
+                e,
+            )
+            responses.append(None)
+            interaction_ids.append(None)
+            agent_data.append({})
+
+    return pd.DataFrame(
+        {
+            _evals_constant.PROMPT: prompts,
+            _evals_constant.RESPONSE: responses,
+            _evals_constant.INTERACTION_ID: interaction_ids,
+            _evals_constant.AGENT_DATA: agent_data,
+        }
+    )
+
+
 def _normalize_interaction_resource(
     interaction: str, agent: str, location: Optional[str]
 ) -> str:
@@ -1999,6 +2169,7 @@ def _execute_inference(
     model: Optional[Union[Callable[[Any], Any], str]] = None,
     agent_engine: Optional[Union[str, types.AgentEngine]] = None,
     agent: Optional["LlmAgent"] = None,  # type: ignore # noqa: F821
+    gemini_agent: Optional[str] = None,
     dest: Optional[str] = None,
     config: Optional[genai_types.GenerateContentConfig] = None,
     prompt_template: Optional[Union[str, types.PromptTemplateOrDict]] = None,
@@ -2017,6 +2188,8 @@ def _execute_inference(
         agent_engine: The agent engine to use for inference. Can be a resource
           name string or an `AgentEngine` instance.
         agent: The local agent to use for inference. Can be an ADK agent instance.
+        gemini_agent: The Gemini Agents API agent resource name to run inference
+          against via the Interactions API.
         dest: The destination to save the inference results. Can be a string
           representing a file path or a GCS URI.
         config: The generation configuration for the model.
@@ -2034,9 +2207,10 @@ def _execute_inference(
     if location:
         api_client = _get_api_client_with_location(api_client, location)
 
-    if sum(x is not None for x in [model, agent_engine, agent]) != 1:
+    if sum(x is not None for x in [model, agent_engine, agent, gemini_agent]) != 1:
         raise ValueError(
-            "Exactly one of model, agent_engine, or agent must be provided."
+            "Exactly one of model, agent_engine, agent, or gemini_agent must be"
+            " provided."
         )
 
     prompt_dataset = _load_dataframe(api_client, src)
@@ -2049,7 +2223,24 @@ def _execute_inference(
 
         _apply_prompt_template(prompt_dataset, prompt_template)
 
-    if model:
+    if gemini_agent:
+        start_time = time.time()
+        logger.debug("Starting Gemini Agent inference process ...")
+        results_df = _run_gemini_agent_inference(
+            api_client=api_client,
+            gemini_agent=gemini_agent,
+            prompt_dataset=prompt_dataset,
+        )
+        end_time = time.time()
+        logger.info(
+            "Gemini Agent inference completed in %.2f seconds.",
+            end_time - start_time,
+        )
+        return types.EvaluationDataset(
+            eval_dataset_df=results_df,
+            candidate_name=gemini_agent.split("/")[-1],
+        )
+    elif model:
         start_time = time.time()
         logger.debug("Starting inference process ...")
         results_df = _run_inference_internal(

@@ -2185,8 +2185,13 @@ class Evals(_api_module.BaseModule):
 
         agent_engine_instance = None
         agent_instance = None
+        gemini_agent_instance = None
         if agent:
-            if isinstance(agent, str) or isinstance(agent, types.AgentEngine):
+            if isinstance(agent, str) and _evals_common._is_gemini_agent_resource(
+                agent
+            ):
+                gemini_agent_instance = agent
+            elif isinstance(agent, str) or isinstance(agent, types.AgentEngine):
                 agent_engine_instance = agent
             else:
                 agent_instance = agent
@@ -2196,6 +2201,7 @@ class Evals(_api_module.BaseModule):
             model=model,
             agent_engine=agent_engine_instance,
             agent=agent_instance,
+            gemini_agent=gemini_agent_instance,
             src=src,
             dest=config.dest,
             prompt_template=config.prompt_template,

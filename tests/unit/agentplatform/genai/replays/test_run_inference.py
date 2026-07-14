@@ -300,6 +300,31 @@ def test_inference_with_completed_and_incomplete_agent_data(client):
     assert len(row1_response) > 0
 
 
+def test_inference_with_gemini_agent(client):
+    """Tests run_inference() against a Gemini Agents API agent.
+
+    Drives the Interactions API client-side (one interaction per prompt) and
+    returns an EvaluationDataset with prompt/response/interaction_id/agent_data.
+    """
+    import pandas as pd
+
+    prompts_df = pd.DataFrame({"prompt": ["What is Taylor Swift's most recent album?"]})
+
+    eval_dataset = client.evals.run_inference(
+        src=prompts_df,
+        agent="projects/model-evaluation-dev/locations/global/agents/test-agent-eval",
+    )
+
+    assert isinstance(eval_dataset, types.EvaluationDataset)
+    result_df = eval_dataset.eval_dataset_df
+    assert result_df is not None
+    assert set(["prompt", "response", "interaction_id", "agent_data"]).issubset(
+        set(result_df.columns)
+    )
+    assert len(result_df) == 1
+    assert result_df["interaction_id"].iloc[0]
+
+
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),

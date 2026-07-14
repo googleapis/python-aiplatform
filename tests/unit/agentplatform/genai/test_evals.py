@@ -4147,6 +4147,150 @@ class TestEvalsRunInference:
         assert call_kwargs["model"] == "gpt-4o"
         pd.testing.assert_frame_equal(call_kwargs["prompt_dataset"], mock_df)
 
+    @mock.patch.object(_evals_common, "_get_interactions_client")
+    @mock.patch.object(_evals_utils, "EvalDatasetLoader")
+    def test_run_inference_with_gemini_agent(
+        self, mock_eval_dataset_loader, mock_get_interactions_client
+    ):
+        mock_df = pd.DataFrame({"prompt": ["p1", "p2"]})
+        mock_eval_dataset_loader.return_value.load.return_value = mock_df.to_dict(
+            orient="records"
+        )
+
+        def make_interaction(interaction_id, prompt_text, output_text):
+            return {
+                "id": interaction_id,
+                "status": "completed",
+                "steps": [
+                    {
+                        "type": "user_input",
+                        "content": [{"type": "text", "text": prompt_text}],
+                    },
+                    {
+                        "type": "model_output",
+                        "content": [{"type": "text", "text": output_text}],
+                    },
+                ],
+            }
+
+        mock_interactions = mock.Mock()
+        mock_interactions.create.side_effect = [
+            make_interaction("interaction-1", "p1", "response 1"),
+            make_interaction("interaction-2", "p2", "response 2"),
+        ]
+        mock_get_interactions_client.return_value = mock_interactions
+
+        inference_result = self.client.evals.run_inference(
+            src=mock_df,
+            agent=_TEST_GEMINI_AGENT,
+        )
+
+        result_df = inference_result.eval_dataset_df
+        assert set(result_df.columns) == {
+            "prompt",
+            "response",
+            "interaction_id",
+            "agent_data",
+        }
+        assert result_df["prompt"].tolist() == ["p1", "p2"]
+        assert result_df["response"].tolist() == ["response 1", "response 2"]
+        assert result_df["interaction_id"].tolist() == [
+            "interaction-1",
+            "interaction-2",
+        ]
+        assert mock_interactions.create.call_count == 2
+        first_call_request = mock_interactions.create.call_args_list[0].args[0]
+        assert first_call_request["agent"] == _TEST_GEMINI_AGENT.split("/")[-1]
+        assert first_call_request["input"] == [{"type": "text", "text": "p1"}]
+        assert first_call_request["background"] is True
+        agent_data_0 = result_df["agent_data"].tolist()[0]
+        turn_events = agent_data_0["turns"][0]["events"]
+        assert turn_events[0]["author"] == "user"
+        assert turn_events[0]["content"]["parts"][0]["text"] == "p1"
+        assert turn_events[1]["content"]["role"] == "model"
+        assert turn_events[1]["content"]["parts"][0]["text"] == "response 1"
+        assert inference_result.candidate_name == "test-agent"
+
+    @mock.patch.object(_evals_common, "_get_interactions_client")
+    @mock.patch.object(_evals_utils, "EvalDatasetLoader")
+    def test_run_inference_gemini_agent_continues_on_failure(
+        self, mock_eval_dataset_loader, mock_get_interactions_client
+    ):
+        mock_df = pd.DataFrame({"prompt": ["p1", "p2"]})
+        mock_eval_dataset_loader.return_value.load.return_value = mock_df.to_dict(
+            orient="records"
+        )
+
+        mock_interactions = mock.Mock()
+        mock_interactions.create.side_effect = [
+            RuntimeError("interaction failed"),
+            {
+                "id": "interaction-2",
+                "status": "completed",
+                "steps": [
+                    {
+                        "type": "model_output",
+                        "content": [{"type": "text", "text": "response 2"}],
+                    }
+                ],
+            },
+        ]
+        mock_get_interactions_client.return_value = mock_interactions
+
+        inference_result = self.client.evals.run_inference(
+            src=mock_df,
+            agent=_TEST_GEMINI_AGENT,
+        )
+
+        result_df = inference_result.eval_dataset_df
+        assert result_df["prompt"].tolist() == ["p1", "p2"]
+        assert pd.isna(result_df["response"].iloc[0])
+        assert result_df["response"].iloc[1] == "response 2"
+        assert pd.isna(result_df["interaction_id"].iloc[0])
+        assert result_df["interaction_id"].iloc[1] == "interaction-2"
+        assert result_df["agent_data"].tolist()[0] == {}
+        assert mock_interactions.create.call_count == 2
+
+    @mock.patch.object(_evals_common, "_get_interactions_client")
+    @mock.patch.object(_evals_utils, "EvalDatasetLoader")
+    @mock.patch.object(_evals_common.agentplatform, "Client")
+    def test_run_inference_non_gemini_agent_routes_to_agent_engine(
+        self,
+        mock_agentplatform_client,
+        mock_eval_dataset_loader,
+        mock_get_interactions_client,
+    ):
+        mock_df = pd.DataFrame({"prompt": ["agent prompt"]})
+        mock_eval_dataset_loader.return_value.load.return_value = mock_df.to_dict(
+            orient="records"
+        )
+
+        mock_agent_engine = mock.Mock()
+        mock_agent_engine.create_session.return_value = {"id": "session1"}
+        mock_agent_engine.stream_query.return_value = iter(
+            [
+                {
+                    "id": "1",
+                    "content": {"parts": [{"text": "agent response"}]},
+                    "timestamp": 124,
+                    "author": "model",
+                }
+            ]
+        )
+        mock_agentplatform_client.return_value.agent_engines.get.return_value = (
+            mock_agent_engine
+        )
+
+        self.client.evals.run_inference(
+            src=mock_df,
+            agent=_TEST_AGENT_ENGINE,
+        )
+
+        mock_agentplatform_client.return_value.agent_engines.get.assert_called_once_with(
+            name=_TEST_AGENT_ENGINE
+        )
+        mock_get_interactions_client.assert_not_called()
+
 
 @pytest.mark.usefixtures("google_auth_mock")
 class TestEvalsMetricHandlers:
@@ -10605,8 +10749,12 @@ class TestStepToAgentEvent:
     """Tests for _step_to_agent_event using typed GenAI SDK step objects."""
 
     def test_user_input_step(self):
-        from google.genai._gaos.types.interactions import textcontent  # pylint: disable=g-import-not-at-top
-        from google.genai._gaos.types.interactions import userinputstep  # pylint: disable=g-import-not-at-top
+        from google.genai._gaos.types.interactions import (
+            textcontent,
+        )  # pylint: disable=g-import-not-at-top
+        from google.genai._gaos.types.interactions import (
+            userinputstep,
+        )  # pylint: disable=g-import-not-at-top
 
         step = userinputstep.UserInputStep(
             content=[textcontent.TextContent(text="hello")],
@@ -10617,8 +10765,12 @@ class TestStepToAgentEvent:
         assert event.content.parts[0].text == "hello"
 
     def test_model_output_step(self):
-        from google.genai._gaos.types.interactions import modeloutputstep  # pylint: disable=g-import-not-at-top
-        from google.genai._gaos.types.interactions import textcontent  # pylint: disable=g-import-not-at-top
+        from google.genai._gaos.types.interactions import (
+            modeloutputstep,
+        )  # pylint: disable=g-import-not-at-top
+        from google.genai._gaos.types.interactions import (
+            textcontent,
+        )  # pylint: disable=g-import-not-at-top
 
         step = modeloutputstep.ModelOutputStep(
             content=[textcontent.TextContent(text="world")],
@@ -10629,7 +10781,9 @@ class TestStepToAgentEvent:
         assert event.content.parts[0].text == "world"
 
     def test_function_call_step(self):
-        from google.genai._gaos.types.interactions import functioncallstep  # pylint: disable=g-import-not-at-top
+        from google.genai._gaos.types.interactions import (
+            functioncallstep,
+        )  # pylint: disable=g-import-not-at-top
 
         step = functioncallstep.FunctionCallStep(
             name="get_weather",
@@ -10640,7 +10794,9 @@ class TestStepToAgentEvent:
         assert event.content.parts[0].function_call.name == "get_weather"
 
     def test_function_result_step(self):
-        from google.genai._gaos.types.interactions import functionresultstep  # pylint: disable=g-import-not-at-top
+        from google.genai._gaos.types.interactions import (
+            functionresultstep,
+        )  # pylint: disable=g-import-not-at-top
 
         step = functionresultstep.FunctionResultStep(
             name="get_weather",
@@ -10659,7 +10815,9 @@ class TestStepToAgentEvent:
         assert event is None
 
     def test_empty_text_content_returns_none(self):
-        from google.genai._gaos.types.interactions import userinputstep  # pylint: disable=g-import-not-at-top
+        from google.genai._gaos.types.interactions import (
+            userinputstep,
+        )  # pylint: disable=g-import-not-at-top
 
         step = userinputstep.UserInputStep(content=[])
         event = _evals_common._step_to_agent_event(step)
@@ -10680,15 +10838,11 @@ class TestInteractionDictToAgentData:
                 },
                 {
                     "type": "model_output",
-                    "content": [
-                        {"type": "text", "text": "Hello! How can I help?"}
-                    ],
+                    "content": [{"type": "text", "text": "Hello! How can I help?"}],
                 },
-            ]
+            ],
         }
-        result = _evals_common._interaction_dict_to_agent_data(
-            interaction_dict
-        )
+        result = _evals_common._interaction_dict_to_agent_data(interaction_dict)
         assert len(result.turns) == 1
         events = result.turns[0].events
         assert len(events) == 2
@@ -10718,11 +10872,9 @@ class TestInteractionDictToAgentData:
                     "type": "model_output",
                     "content": [{"type": "text", "text": "Turn 2 model"}],
                 },
-            ]
+            ],
         }
-        result = _evals_common._interaction_dict_to_agent_data(
-            interaction_dict
-        )
+        result = _evals_common._interaction_dict_to_agent_data(interaction_dict)
         assert len(result.turns) == 2
         assert result.turns[0].turn_index == 0
         assert result.turns[1].turn_index == 1
@@ -10756,11 +10908,9 @@ class TestInteractionDictToAgentData:
                     "type": "model_output",
                     "content": [{"type": "text", "text": "It is 72F in NYC."}],
                 },
-            ]
+            ],
         }
-        result = _evals_common._interaction_dict_to_agent_data(
-            interaction_dict
-        )
+        result = _evals_common._interaction_dict_to_agent_data(interaction_dict)
         # All in one turn since there's only one user_input.
         assert len(result.turns) == 1
         events = result.turns[0].events
@@ -10789,11 +10939,9 @@ class TestInteractionDictToAgentData:
                     "type": "model_output",
                     "content": [{"type": "text", "text": "hi"}],
                 },
-            ]
+            ],
         }
-        result = _evals_common._interaction_dict_to_agent_data(
-            interaction_dict
-        )
+        result = _evals_common._interaction_dict_to_agent_data(interaction_dict)
         events = result.turns[0].events
         assert len(events) == 2
 
@@ -10802,28 +10950,44 @@ class TestMergeTextPartsInAgentData:
     """Tests for _merge_text_parts_in_agent_data."""
 
     def _make_agent_data(self, turns_dict):
-        from agentplatform._genai.types import evals as evals_types  # pylint: disable=g-import-not-at-top
+        from agentplatform._genai.types import (
+            evals as evals_types,
+        )  # pylint: disable=g-import-not-at-top
+
         return evals_types.AgentData.model_validate({"turns": turns_dict})
 
     def test_consecutive_agent_events_merged(self):
         """Multiple consecutive model_output events are merged into one."""
-        agent_data = self._make_agent_data([{
-            "turn_index": 0,
-            "events": [
-                {"author": "agent", "content": {
-                    "role": "model",
-                    "parts": [{"text": "Paragraph 1."}],
-                }},
-                {"author": "agent", "content": {
-                    "role": "model",
-                    "parts": [{"text": "Paragraph 2."}],
-                }},
-                {"author": "agent", "content": {
-                    "role": "model",
-                    "parts": [{"text": "Paragraph 3."}],
-                }},
-            ],
-        }])
+        agent_data = self._make_agent_data(
+            [
+                {
+                    "turn_index": 0,
+                    "events": [
+                        {
+                            "author": "agent",
+                            "content": {
+                                "role": "model",
+                                "parts": [{"text": "Paragraph 1."}],
+                            },
+                        },
+                        {
+                            "author": "agent",
+                            "content": {
+                                "role": "model",
+                                "parts": [{"text": "Paragraph 2."}],
+                            },
+                        },
+                        {
+                            "author": "agent",
+                            "content": {
+                                "role": "model",
+                                "parts": [{"text": "Paragraph 3."}],
+                            },
+                        },
+                    ],
+                }
+            ]
+        )
         _evals_common._merge_text_parts_in_agent_data(agent_data)
         events = agent_data.turns[0].events
         assert len(events) == 1
@@ -10835,56 +10999,83 @@ class TestMergeTextPartsInAgentData:
 
     def test_different_authors_not_merged(self):
         """Events from different authors are not merged."""
-        agent_data = self._make_agent_data([{
-            "turn_index": 0,
-            "events": [
-                {"author": "user", "content": {
-                    "role": "user",
-                    "parts": [{"text": "hi"}],
-                }},
-                {"author": "agent", "content": {
-                    "role": "model",
-                    "parts": [{"text": "hello"}],
-                }},
-            ],
-        }])
+        agent_data = self._make_agent_data(
+            [
+                {
+                    "turn_index": 0,
+                    "events": [
+                        {
+                            "author": "user",
+                            "content": {
+                                "role": "user",
+                                "parts": [{"text": "hi"}],
+                            },
+                        },
+                        {
+                            "author": "agent",
+                            "content": {
+                                "role": "model",
+                                "parts": [{"text": "hello"}],
+                            },
+                        },
+                    ],
+                }
+            ]
+        )
         _evals_common._merge_text_parts_in_agent_data(agent_data)
         events = agent_data.turns[0].events
         assert len(events) == 2
 
     def test_function_call_events_not_merged(self):
         """Events with function_call parts are not merged with text events."""
-        agent_data = self._make_agent_data([{
-            "turn_index": 0,
-            "events": [
-                {"author": "agent", "content": {
-                    "role": "model",
-                    "parts": [{"text": "Let me check."}],
-                }},
-                {"author": "agent", "content": {
-                    "role": "model",
-                    "parts": [{"function_call": {"name": "search"}}],
-                }},
-            ],
-        }])
+        agent_data = self._make_agent_data(
+            [
+                {
+                    "turn_index": 0,
+                    "events": [
+                        {
+                            "author": "agent",
+                            "content": {
+                                "role": "model",
+                                "parts": [{"text": "Let me check."}],
+                            },
+                        },
+                        {
+                            "author": "agent",
+                            "content": {
+                                "role": "model",
+                                "parts": [{"function_call": {"name": "search"}}],
+                            },
+                        },
+                    ],
+                }
+            ]
+        )
         _evals_common._merge_text_parts_in_agent_data(agent_data)
         events = agent_data.turns[0].events
         assert len(events) == 2
 
     def test_multiple_text_parts_within_event_merged(self):
         """Multiple text parts within a single event are merged."""
-        agent_data = self._make_agent_data([{
-            "turn_index": 0,
-            "events": [
-                {"author": "agent", "content": {
-                    "role": "model",
-                    "parts": [
-                        {"text": "Part A"},
-                        {"text": "Part B"},
+        agent_data = self._make_agent_data(
+            [
+                {
+                    "turn_index": 0,
+                    "events": [
+                        {
+                            "author": "agent",
+                            "content": {
+                                "role": "model",
+                                "parts": [
+                                    {"text": "Part A"},
+                                    {"text": "Part B"},
+                                ],
+                            },
+                        },
                     ],
-                }},
-            ],
-        }])
+                }
+            ]
+        )
         _evals_common._merge_text_parts_in_agent_data(agent_data)
         parts = agent_data.turns[0].events[0].content.parts
         assert len(parts) == 1
@@ -10918,9 +11109,7 @@ class TestFetchAgentConfigDict:
             ],
         }
         mock_api_client = mock.MagicMock()
-        mock_api_client.request.return_value = self._make_api_response(
-            agent_json
-        )
+        mock_api_client.request.return_value = self._make_api_response(agent_json)
 
         result = _evals_common._fetch_agent_config_dict(
             mock_api_client,
