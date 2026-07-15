@@ -372,19 +372,36 @@ def get_evaluation_html(eval_result_json: str) -> str:
         function formatToolDeclarations(toolDeclarations) {{
             if (!toolDeclarations) return '';
             let functions = [];
-            if (Array.isArray(toolDeclarations)) {{
-                toolDeclarations.forEach(tool => {{
-                    if (tool.function_declarations) {{
-                        functions = functions.concat(tool.function_declarations);
-                    }} else if (tool.name && tool.parameters) {{
-                        functions.push(tool);
-                    }}
+            const builtins = [];
+
+            function collectFromTool(tool) {{
+                if (!tool || typeof tool !== 'object') return;
+                if (Array.isArray(tool.function_declarations) && tool.function_declarations.length > 0) {{
+                    functions = functions.concat(tool.function_declarations);
+                    return;
+                }}
+                if (tool.name && tool.parameters) {{
+                    functions.push(tool);
+                    return;
+                }}
+                Object.keys(tool).forEach(k => {{
+                    if (k === 'function_declarations') return;
+                    if (tool[k] === null || tool[k] === undefined) return;
+                    builtins.push(k);
                 }});
-            }} else if (typeof toolDeclarations === 'object' && toolDeclarations.function_declarations) {{
-                functions = toolDeclarations.function_declarations;
             }}
 
-            if (functions.length === 0) {{
+            if (Array.isArray(toolDeclarations)) {{
+                toolDeclarations.forEach(collectFromTool);
+            }} else if (typeof toolDeclarations === 'object') {{
+                if (toolDeclarations.function_declarations) {{
+                    functions = functions.concat(toolDeclarations.function_declarations);
+                }} else {{
+                    collectFromTool(toolDeclarations);
+                }}
+            }}
+
+            if (functions.length === 0 && builtins.length === 0) {{
                  return `<pre class="raw-json-container">${{DOMPurify.sanitize(JSON.stringify(toolDeclarations, null, 2))}}</pre>`;
             }}
 
@@ -401,6 +418,9 @@ def get_evaluation_html(eval_result_json: str) -> str:
                     html += `&nbsp;&nbsp;- ${{DOMPurify.sanitize(p)}}: ${{DOMPurify.sanitize(params[p].description || '')}} ${{requiredParams.has(p) ? '<strong>(required)</strong>' : ''}}<br>`;
                 }});
                 html += '</div>';
+            }});
+            builtins.forEach(name => {{
+                html += `<div class="tool-declaration"><strong>${{DOMPurify.sanitize(name)}}</strong> <em>(built-in tool)</em></div>`;
             }});
             html += '</div>';
             return html;
@@ -914,19 +934,36 @@ def get_comparison_html(eval_result_json: str) -> str:
         function formatToolDeclarations(toolDeclarations) {{
             if (!toolDeclarations) return '';
             let functions = [];
-            if (Array.isArray(toolDeclarations)) {{
-                toolDeclarations.forEach(tool => {{
-                    if (tool.function_declarations) {{
-                        functions = functions.concat(tool.function_declarations);
-                    }} else if (tool.name && tool.parameters) {{
-                        functions.push(tool);
-                    }}
+            const builtins = [];
+
+            function collectFromTool(tool) {{
+                if (!tool || typeof tool !== 'object') return;
+                if (Array.isArray(tool.function_declarations) && tool.function_declarations.length > 0) {{
+                    functions = functions.concat(tool.function_declarations);
+                    return;
+                }}
+                if (tool.name && tool.parameters) {{
+                    functions.push(tool);
+                    return;
+                }}
+                Object.keys(tool).forEach(k => {{
+                    if (k === 'function_declarations') return;
+                    if (tool[k] === null || tool[k] === undefined) return;
+                    builtins.push(k);
                 }});
-            }} else if (typeof toolDeclarations === 'object' && toolDeclarations.function_declarations) {{
-                functions = toolDeclarations.function_declarations;
             }}
 
-            if (functions.length === 0) {{
+            if (Array.isArray(toolDeclarations)) {{
+                toolDeclarations.forEach(collectFromTool);
+            }} else if (typeof toolDeclarations === 'object') {{
+                if (toolDeclarations.function_declarations) {{
+                    functions = functions.concat(toolDeclarations.function_declarations);
+                }} else {{
+                    collectFromTool(toolDeclarations);
+                }}
+            }}
+
+            if (functions.length === 0 && builtins.length === 0) {{
                  return `<pre class="raw-json-container">${{DOMPurify.sanitize(JSON.stringify(toolDeclarations, null, 2))}}</pre>`;
             }}
 
@@ -943,6 +980,9 @@ def get_comparison_html(eval_result_json: str) -> str:
                     html += `&nbsp;&nbsp;- ${{DOMPurify.sanitize(p)}}: ${{DOMPurify.sanitize(params[p].description || '')}} ${{requiredParams.has(p) ? '<strong>(required)</strong>' : ''}}<br>`;
                 }});
                 html += '</div>';
+            }});
+            builtins.forEach(name => {{
+                html += `<div class="tool-declaration"><strong>${{DOMPurify.sanitize(name)}}</strong> <em>(built-in tool)</em></div>`;
             }});
             html += '</div>';
             return html;

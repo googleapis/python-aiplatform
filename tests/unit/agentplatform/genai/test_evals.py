@@ -4147,11 +4147,24 @@ class TestEvalsRunInference:
         assert call_kwargs["model"] == "gpt-4o"
         pd.testing.assert_frame_equal(call_kwargs["prompt_dataset"], mock_df)
 
+    @mock.patch.object(_evals_common, "_fetch_agent_config_dict")
     @mock.patch.object(_evals_common, "_get_interactions_client")
     @mock.patch.object(_evals_utils, "EvalDatasetLoader")
     def test_run_inference_with_gemini_agent(
-        self, mock_eval_dataset_loader, mock_get_interactions_client
+        self, mock_eval_dataset_loader, mock_get_interactions_client,
+        mock_fetch_agent_config
     ):
+        mock_fetch_agent_config.return_value = (
+            agentplatform_genai_types.evals.AgentConfig(
+                agent_id="test-agent",
+                instruction="You are helpful.",
+                tools=[
+                    genai_types.Tool(
+                        code_execution=genai_types.ToolCodeExecution()
+                    ),
+                ],
+            )
+        )
         mock_df = pd.DataFrame({"prompt": ["p1", "p2"]})
         mock_eval_dataset_loader.return_value.load.return_value = mock_df.to_dict(
             orient="records"
@@ -4210,12 +4223,20 @@ class TestEvalsRunInference:
         assert turn_events[1]["content"]["role"] == "model"
         assert turn_events[1]["content"]["parts"][0]["text"] == "response 1"
         assert inference_result.candidate_name == "test-agent"
+        # agents map must be populated for System Topology rendering.
+        assert "agents" in agent_data_0
+        assert "test-agent" in agent_data_0["agents"]
 
+    @mock.patch.object(_evals_common, "_fetch_agent_config_dict")
     @mock.patch.object(_evals_common, "_get_interactions_client")
     @mock.patch.object(_evals_utils, "EvalDatasetLoader")
     def test_run_inference_gemini_agent_continues_on_failure(
-        self, mock_eval_dataset_loader, mock_get_interactions_client
+        self, mock_eval_dataset_loader, mock_get_interactions_client,
+        mock_fetch_agent_config,
     ):
+        mock_fetch_agent_config.return_value = (
+            agentplatform_genai_types.evals.AgentConfig(agent_id="test-agent")
+        )
         mock_df = pd.DataFrame({"prompt": ["p1", "p2"]})
         mock_eval_dataset_loader.return_value.load.return_value = mock_df.to_dict(
             orient="records"
@@ -9213,19 +9234,9 @@ class TestEvalsGenerateConversationScenarios:
         request_body = call_args[0][2]  # Third positional arg is the request dict
         assert request_body.get("allowCrossRegionModel") is True
 
-    @mock.patch.object(_evals_common, "_fetch_agent_config_dict")
-    def test_generate_conversation_scenarios_from_gemini_agent(
-        self, mock_fetch_agent_config
-    ):
-        mock_fetch_agent_config.return_value = (
-            agentplatform_genai_types.evals.AgentConfig(
-                agent_id="test-agent",
-                instruction="You are a helpful travel assistant.",
-                description="An agent that books flights.",
-                tools=[genai_types.Tool(google_search=genai_types.GoogleSearch())],
-            )
-        )
-
+    def test_generate_conversation_scenarios_from_gemini_agent(self):
+        """When `agent` is a Gemini agent resource, gemini_agent_config is
+        forwarded to the server (no client-side synthesis)."""
         evals_module = evals.Evals(api_client_=self.mock_api_client)
 
         with mock.patch.object(
@@ -9237,18 +9248,10 @@ class TestEvalsGenerateConversationScenarios:
                 config={"count": 2},
             )
 
-        mock_fetch_agent_config.assert_called_once_with(
-            self.mock_api_client, _TEST_GEMINI_AGENT
-        )
         call_kwargs = mock_generate_user_scenarios.call_args.kwargs
-        assert call_kwargs["root_agent_id"] == "test-agent"
-        agents = call_kwargs["agents"]
-        assert "test-agent" in agents
-        derived_config = agents["test-agent"]
-        assert derived_config.instruction == "You are a helpful travel assistant."
-        assert derived_config.description == "An agent that books flights."
-        assert derived_config.tools is not None
-        assert derived_config.tools[0].google_search is not None
+        assert call_kwargs["gemini_agent_config"].gemini_agent == _TEST_GEMINI_AGENT
+        assert call_kwargs.get("agents") is None
+        assert call_kwargs.get("root_agent_id") is None
 
     def test_generate_conversation_scenarios_agent_and_agent_info_raises(self):
         evals_module = evals.Evals(api_client_=self.mock_api_client)
@@ -10708,12 +10711,19 @@ class TestResolveInteractionsForDisplay:
         assert agent_cfg.instruction == "You are a weather assistant."
         assert agent_cfg.description == "Helps with weather queries."
         assert agent_cfg.agent_type == "gemini-2.0-flash"
-        # Built-in tools are mapped to typed Tool objects; function tool also included.
+        # code_execution is expanded via catalog to run_command;
+        # google_search keeps its typed variant; function tool passes through.
         assert agent_cfg.tools is not None
         assert len(agent_cfg.tools) == 3
-        assert any(t.code_execution is not None for t in agent_cfg.tools)
+        decl_names = {
+            fd.name
+            for t in agent_cfg.tools
+            if t.function_declarations
+            for fd in t.function_declarations
+        }
+        assert "run_command" in decl_names
+        assert "get_weather" in decl_names
         assert any(t.google_search is not None for t in agent_cfg.tools)
-        assert any(t.function_declarations is not None for t in agent_cfg.tools)
 
     def test_consecutive_model_output_steps_merged(self):
         """Multiple consecutive model_output steps are merged into one event."""
@@ -11238,11 +11248,19 @@ class TestFetchAgentConfigDict:
         assert result.instruction == "You are helpful."
         assert result.description == "A helpful agent."
         assert result.agent_type == "gemini-2.0-flash"
-        # Built-in tools are mapped to typed Tool objects; function tool also included.
+        # code_execution is expanded via the catalog to run_command;
+        # google_search keeps its typed variant; function tool passes through.
         assert len(result.tools) == 3
-        assert any(t.code_execution is not None for t in result.tools)
+        # code_execution -> run_command with full parameter schema.
+        decl_names = {
+            fd.name
+            for t in result.tools
+            if t.function_declarations
+            for fd in t.function_declarations
+        }
+        assert "run_command" in decl_names
+        assert "search" in decl_names  # pass-through function tool
         assert any(t.google_search is not None for t in result.tools)
-        assert any(t.function_declarations is not None for t in result.tools)
 
     def test_fetch_failure_returns_minimal_config(self):
         """If the API call fails, returns just the agent_id."""
@@ -11282,3 +11300,79 @@ class TestFetchAgentConfigDict:
             "",
         )
         assert result.agent_id == "agent"
+
+    def test_code_execution_expands_to_run_command(self):
+        """code_execution is expanded to run_command with parameters."""
+        agent_json = {"tools": [{"type": "code_execution"}]}
+        mock_api_client = mock.MagicMock()
+        mock_api_client.request.return_value = self._make_api_response(agent_json)
+        result = _evals_common._fetch_agent_config_dict(
+            mock_api_client, "projects/p/locations/l/agents/a",
+        )
+        assert len(result.tools) == 1
+        decls = result.tools[0].function_declarations
+        assert len(decls) == 1
+        assert decls[0].name == "run_command"
+        assert decls[0].parameters is not None
+        assert "CommandLine" in decls[0].parameters.properties
+
+    def test_filesystem_expands_to_file_tools(self):
+        """filesystem is expanded to view_file, create_file, etc."""
+        agent_json = {"tools": [{"type": "filesystem"}]}
+        mock_api_client = mock.MagicMock()
+        mock_api_client.request.return_value = self._make_api_response(agent_json)
+        result = _evals_common._fetch_agent_config_dict(
+            mock_api_client, "projects/p/locations/l/agents/a",
+        )
+        assert len(result.tools) == 1
+        names = {fd.name for fd in result.tools[0].function_declarations}
+        assert names == {
+            "view_file", "create_file", "edit_file",
+            "list_dir", "delete_file", "move_file",
+        }
+
+    def test_environment_adds_sandbox_tools(self):
+        """When agent has environment_config, sandbox tools are appended."""
+        agent_json = {
+            "tools": [{"type": "code_execution"}],
+            "environment_config": {"some_field": "value"},
+        }
+        mock_api_client = mock.MagicMock()
+        mock_api_client.request.return_value = self._make_api_response(agent_json)
+        result = _evals_common._fetch_agent_config_dict(
+            mock_api_client, "projects/p/locations/l/agents/a",
+        )
+        # code_execution + sandbox tool
+        assert len(result.tools) == 2
+        all_decl_names = {
+            fd.name
+            for t in result.tools
+            if t.function_declarations
+            for fd in t.function_declarations
+        }
+        assert "run_command" in all_decl_names
+        assert "provision_sandbox" in all_decl_names
+        assert "load_sandbox" in all_decl_names
+
+    def test_mcp_server_kept_as_named_declaration(self):
+        """mcp_server entries are kept as named declarations, not dropped."""
+        agent_json = {
+            "tools": [
+                {"type": "google_search"},
+                {"type": "mcp_server", "name": "my-mcp", "url": "https://x.com"},
+            ],
+        }
+        mock_api_client = mock.MagicMock()
+        mock_api_client.request.return_value = self._make_api_response(agent_json)
+        result = _evals_common._fetch_agent_config_dict(
+            mock_api_client, "projects/p/locations/l/agents/a",
+        )
+        assert len(result.tools) == 2
+        assert any(t.google_search is not None for t in result.tools)
+        mcp_tool = [
+            t for t in result.tools
+            if t.function_declarations
+            and t.function_declarations[0].name == "mcp_server"
+        ]
+        assert len(mcp_tool) == 1
+        assert "my-mcp" in mcp_tool[0].function_declarations[0].description
