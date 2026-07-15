@@ -1,5 +1,35 @@
 # Changelog
 
+## [1.161.0](https://github.com/googleapis/python-aiplatform/compare/v1.160.0...v1.161.0) (2026-07-14)
+
+
+### Features
+
+* Add FeedbackService to Agent Platform Python SDK ([f6ecd67](https://github.com/googleapis/python-aiplatform/commit/f6ecd6773ab95e1e1492d91d77af1f1e019479d0))
+* Add identity_type to Reasoning Engine public protos ([66d4837](https://github.com/googleapis/python-aiplatform/commit/66d48376ed9e2ec65daa2200e478f9f1a54e6eea))
+* Add identity_type to Reasoning Engine public protos ([66d4837](https://github.com/googleapis/python-aiplatform/commit/66d48376ed9e2ec65daa2200e478f9f1a54e6eea))
+* Add support for FeedbackContext to Agent Platform Python SDK ([f5f750c](https://github.com/googleapis/python-aiplatform/commit/f5f750c572b8ce0bfce05f04c15502b10c765b83))
+* Expose retrieval_queries in GroundingMetadata for the v1 API ([66d4837](https://github.com/googleapis/python-aiplatform/commit/66d48376ed9e2ec65daa2200e478f9f1a54e6eea))
+* GenAI Client(evals) - evaluate Gemini Agents API agents via interaction ([a44c520](https://github.com/googleapis/python-aiplatform/commit/a44c5209c2b4656ce44f0c5510c543844eb27fdb))
+* GenAI Client(evals) - evaluate() agent parameter for interaction-id datasets ([135224c](https://github.com/googleapis/python-aiplatform/commit/135224cacfd13901d101f3b10be6478ffbb5c07c))
+* GenAI Client(evals) - exponential backoff for Gemini agent interaction polling ([1f3c074](https://github.com/googleapis/python-aiplatform/commit/1f3c0748394a002abcc9642d29674bb267bc18cc))
+* GenAI Client(evals) - generate_conversation_scenarios support for Gemini Agents API agents ([df4e672](https://github.com/googleapis/python-aiplatform/commit/df4e67201d905829a3a5f3c2b6c1ce0819bf519f))
+* GenAI Client(evals) - run_inference support for Gemini Agents API agents ([852c546](https://github.com/googleapis/python-aiplatform/commit/852c546df44c064332be67a89e4abb343517a4e1))
+* Onboard Vertex Model Garden to GenAI Python SDK: Add list_custom_model_deploy_options support ([239bc13](https://github.com/googleapis/python-aiplatform/commit/239bc1303157448b02d879764961e6d3bb3dc439))
+* Resolve Interactions API data for agent trace display in eval results. ([f158517](https://github.com/googleapis/python-aiplatform/commit/f1585179ef51fa1bf223dbeaeb8d7412aeb997fa))
+* Support creating evaluation runs from pre-existing Interactions API data ([b430014](https://github.com/googleapis/python-aiplatform/commit/b430014af02c7f4657ce394f7b908bee38cfb467))
+* Support Prompt Management in the JS GenAI Modules ([89d2b91](https://github.com/googleapis/python-aiplatform/commit/89d2b917b47b9c0c9c4a376a7157533d7c870b53))
+
+
+### Bug Fixes
+
+* Remove OpenTelemetry event logger setup since the Events API/SDK has been deprecated and is soon being removed entirely. ([73fde8d](https://github.com/googleapis/python-aiplatform/commit/73fde8dfee08b385e9a63eeeb48b8ed95c1bfa5f))
+
+
+### Documentation
+
+* Add result_parsing_function field to LLMMetric SDK types ([8f1a0a1](https://github.com/googleapis/python-aiplatform/commit/8f1a0a14e361b0bc6c82a7192438c88983862d68))
+
 ## [1.160.0](https://github.com/googleapis/python-aiplatform/compare/v1.159.0...v1.160.0) (2026-07-07)
 
 
