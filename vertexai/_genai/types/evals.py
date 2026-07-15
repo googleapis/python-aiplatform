@@ -490,10 +490,7 @@ AgentInfoOrDict = Union[AgentInfo, AgentInfoDict]
 
 
 class SessionInput(_common.BaseModel):
-    """This field is experimental and may change in future versions.
-
-    Input to initialize a session and run an agent, used for agent evaluation.
-    """
+    """Input to initialize a session and run an agent, used for agent evaluation."""
 
     user_id: Optional[str] = Field(default=None, description="""The user id.""")
     state: Optional[dict[str, str]] = Field(
@@ -506,10 +503,7 @@ class SessionInput(_common.BaseModel):
 
 
 class SessionInputDict(TypedDict, total=False):
-    """This field is experimental and may change in future versions.
-
-    Input to initialize a session and run an agent, used for agent evaluation.
-    """
+    """Input to initialize a session and run an agent, used for agent evaluation."""
 
     user_id: Optional[str]
     """The user id."""
