@@ -1298,7 +1298,7 @@ def set_backend_config(
     if backend_config.vector_db is not None:
         vector_config = backend_config.vector_db
         if vector_config is None:
-            rag_corpus.vector_db_config.rag_managed_db.CopyFrom(
+            rag_corpus.vector_db_config.rag_managed_db = (
                 GapicRagVectorDbConfig.RagManagedDb()
             )
         elif isinstance(vector_config, RagManagedDb):

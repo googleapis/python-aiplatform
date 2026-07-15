@@ -490,6 +490,18 @@ class TestRagDataManagement:
 
         rag_corpus_eq(rag_corpus, test_rag_constants.TEST_RAG_CORPUS)
 
+    @pytest.mark.usefixtures("create_rag_corpus_mock")
+    def test_create_corpus_rag_managed_db_success(self):
+        backend_config = rag.RagVectorDbConfig(
+            vector_db=rag.RagManagedDb()
+        )
+        rag_corpus = rag.create_corpus(
+            display_name=test_rag_constants.TEST_CORPUS_DISPLAY_NAME,
+            backend_config=backend_config,
+        )
+
+        rag_corpus_eq(rag_corpus, test_rag_constants.TEST_RAG_CORPUS)
+
     @pytest.mark.usefixtures("create_rag_corpus_mock_vertex_vector_search")
     def test_create_corpus_vertex_vector_search_success(self):
         rag_corpus = rag.create_corpus(
