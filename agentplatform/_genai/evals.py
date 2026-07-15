@@ -706,6 +706,13 @@ def _GenerateUserScenariosParameters_to_vertex(
     if getv(from_object, ["root_agent_id"]) is not None:
         setv(to_object, ["rootAgentId"], getv(from_object, ["root_agent_id"]))
 
+    if getv(from_object, ["gemini_agent_config", "gemini_agent"]) is not None:
+        setv(
+            to_object,
+            ["geminiAgentConfig", "geminiAgent"],
+            getv(from_object, ["gemini_agent_config", "gemini_agent"]),
+        )
+
     if getv(from_object, ["user_scenario_generation_config"]) is not None:
         setv(
             to_object,
@@ -1513,6 +1520,7 @@ class Evals(_api_module.BaseModule):
         location: Optional[str] = None,
         agents: Optional[dict[str, evals_types.AgentConfigOrDict]] = None,
         root_agent_id: Optional[str] = None,
+        gemini_agent_config: Optional[types.GeminiAgentConfigOrDict] = None,
         user_scenario_generation_config: Optional[
             evals_types.UserScenarioGenerationConfigOrDict
         ] = None,
@@ -1527,6 +1535,7 @@ class Evals(_api_module.BaseModule):
             location=location,
             agents=agents,
             root_agent_id=root_agent_id,
+            gemini_agent_config=gemini_agent_config,
             user_scenario_generation_config=user_scenario_generation_config,
             config=config,
             allow_cross_region_model=allow_cross_region_model,
@@ -2938,16 +2947,17 @@ class Evals(_api_module.BaseModule):
            and the agent under test.
 
         Exactly one of `agent_info` or `agent` must be provided. When `agent` is
-        a Gemini Agents API agent resource name, the agent is fetched and an
-        `AgentInfo` is derived from it.
+        a Gemini Agents API agent resource name, the agent resource is passed to
+        the server, which resolves its configuration (instruction and tools,
+        including built-in tool expansion) into the agents map.
 
         Args:
             agent_info: The agent info to generate user scenarios for. Mutually
                 exclusive with `agent`.
             agent: A Gemini Agents API agent resource name
                 (`projects/{p}/locations/{l}/agents/{name}`). When provided, the
-                agent is fetched and its configuration is used to build the agent
-                info. Mutually exclusive with `agent_info`.
+                agent resource is sent to the server, which resolves its
+                configuration server-side. Mutually exclusive with `agent_info`.
             config: Configuration for generating user scenarios.
             allow_cross_region_model: Opt-in flag to authorize cross-region
                 routing for model inference.
@@ -2967,8 +2977,13 @@ class Evals(_api_module.BaseModule):
                     "`agent` must be a Gemini Agents API agent resource name of the"
                     " form projects/{project}/locations/{location}/agents/{agent}."
                 )
-            parsed_agent_info = _evals_common._agent_resource_to_agent_info(
-                agent, self._api_client
+            # Pass the agent resource to the server so it resolves the agent's
+            # tools/instruction (with full built-in tool expansion) itself,
+            # rather than synthesizing a low-fidelity AgentConfig client-side.
+            response = self._generate_user_scenarios(
+                gemini_agent_config=types.GeminiAgentConfig(gemini_agent=agent),
+                user_scenario_generation_config=config,
+                allow_cross_region_model=allow_cross_region_model,
             )
         else:
             parsed_agent_info = (
@@ -2976,12 +2991,12 @@ class Evals(_api_module.BaseModule):
                 if isinstance(agent_info, dict)
                 else agent_info
             )
-        response = self._generate_user_scenarios(
-            agents=parsed_agent_info.agents,
-            root_agent_id=parsed_agent_info.root_agent_id,
-            user_scenario_generation_config=config,
-            allow_cross_region_model=allow_cross_region_model,
-        )
+            response = self._generate_user_scenarios(
+                agents=parsed_agent_info.agents,
+                root_agent_id=parsed_agent_info.root_agent_id,
+                user_scenario_generation_config=config,
+                allow_cross_region_model=allow_cross_region_model,
+            )
         return _evals_utils._postprocess_user_scenarios_response(response)
 
     def generate_loss_clusters(
@@ -3678,6 +3693,7 @@ class AsyncEvals(_api_module.BaseModule):
         location: Optional[str] = None,
         agents: Optional[dict[str, evals_types.AgentConfigOrDict]] = None,
         root_agent_id: Optional[str] = None,
+        gemini_agent_config: Optional[types.GeminiAgentConfigOrDict] = None,
         user_scenario_generation_config: Optional[
             evals_types.UserScenarioGenerationConfigOrDict
         ] = None,
@@ -3692,6 +3708,7 @@ class AsyncEvals(_api_module.BaseModule):
             location=location,
             agents=agents,
             root_agent_id=root_agent_id,
+            gemini_agent_config=gemini_agent_config,
             user_scenario_generation_config=user_scenario_generation_config,
             config=config,
             allow_cross_region_model=allow_cross_region_model,
@@ -4729,16 +4746,17 @@ class AsyncEvals(_api_module.BaseModule):
            and the agent under test.
 
         Exactly one of `agent_info` or `agent` must be provided. When `agent` is
-        a Gemini Agents API agent resource name, the agent is fetched and an
-        `AgentInfo` is derived from it.
+        a Gemini Agents API agent resource name, the agent resource is passed to
+        the server, which resolves its configuration (instruction and tools,
+        including built-in tool expansion) into the agents map.
 
         Args:
             agent_info: The agent info to generate user scenarios for. Mutually
                 exclusive with `agent`.
             agent: A Gemini Agents API agent resource name
                 (`projects/{p}/locations/{l}/agents/{name}`). When provided, the
-                agent is fetched and its configuration is used to build the agent
-                info. Mutually exclusive with `agent_info`.
+                agent resource is sent to the server, which resolves its
+                configuration server-side. Mutually exclusive with `agent_info`.
             config: Configuration for generating user scenarios.
             allow_cross_region_model: Opt-in flag to authorize cross-region
                 routing for model inference.
@@ -4758,8 +4776,13 @@ class AsyncEvals(_api_module.BaseModule):
                     "`agent` must be a Gemini Agents API agent resource name of the"
                     " form projects/{project}/locations/{location}/agents/{agent}."
                 )
-            parsed_agent_info = _evals_common._agent_resource_to_agent_info(
-                agent, self._api_client
+            # Pass the agent resource to the server so it resolves the agent's
+            # tools/instruction (with full built-in tool expansion) itself,
+            # rather than synthesizing a low-fidelity AgentConfig client-side.
+            response = await self._generate_user_scenarios(
+                gemini_agent_config=types.GeminiAgentConfig(gemini_agent=agent),
+                user_scenario_generation_config=config,
+                allow_cross_region_model=allow_cross_region_model,
             )
         else:
             parsed_agent_info = (
@@ -4767,12 +4790,12 @@ class AsyncEvals(_api_module.BaseModule):
                 if isinstance(agent_info, dict)
                 else agent_info
             )
-        response = await self._generate_user_scenarios(
-            agents=parsed_agent_info.agents,
-            root_agent_id=parsed_agent_info.root_agent_id,
-            user_scenario_generation_config=config,
-            allow_cross_region_model=allow_cross_region_model,
-        )
+            response = await self._generate_user_scenarios(
+                agents=parsed_agent_info.agents,
+                root_agent_id=parsed_agent_info.root_agent_id,
+                user_scenario_generation_config=config,
+                allow_cross_region_model=allow_cross_region_model,
+            )
         return _evals_utils._postprocess_user_scenarios_response(response)
 
     async def generate_loss_clusters(

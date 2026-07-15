@@ -4147,11 +4147,27 @@ class TestEvalsRunInference:
         assert call_kwargs["model"] == "gpt-4o"
         pd.testing.assert_frame_equal(call_kwargs["prompt_dataset"], mock_df)
 
+    @mock.patch.object(_evals_common, "_fetch_agent_config_dict")
     @mock.patch.object(_evals_common, "_get_interactions_client")
     @mock.patch.object(_evals_utils, "EvalDatasetLoader")
     def test_run_inference_with_gemini_agent(
-        self, mock_eval_dataset_loader, mock_get_interactions_client
+        self, mock_eval_dataset_loader, mock_get_interactions_client,
+        mock_fetch_agent_config,
     ):
+        mock_fetch_agent_config.return_value = (
+            agentplatform_genai_types.evals.AgentConfig(
+                agent_id="test-agent",
+                instruction="You are helpful.",
+                tools=[
+                    genai_types.Tool(
+                        code_execution=genai_types.ToolCodeExecution()
+                    ),
+                    genai_types.Tool(
+                        google_search=genai_types.GoogleSearch()
+                    ),
+                ],
+            )
+        )
         mock_df = pd.DataFrame({"prompt": ["p1", "p2"]})
         mock_eval_dataset_loader.return_value.load.return_value = mock_df.to_dict(
             orient="records"
@@ -4211,11 +4227,28 @@ class TestEvalsRunInference:
         assert turn_events[1]["content"]["parts"][0]["text"] == "response 1"
         assert inference_result.candidate_name == "test-agent"
 
+        # The agents map must be populated so the display renders the
+        # System Topology section (the real bug that was reported).
+        assert "agents" in agent_data_0, (
+            "agent_data must contain an 'agents' map so the System Topology "
+            "section renders in show(). Keys present: "
+            + str(list(agent_data_0.keys()))
+        )
+        assert "test-agent" in agent_data_0["agents"]
+        agent_cfg = agent_data_0["agents"]["test-agent"]
+        assert agent_cfg["instruction"] == "You are helpful."
+        assert len(agent_cfg["tools"]) == 2
+
+    @mock.patch.object(_evals_common, "_fetch_agent_config_dict")
     @mock.patch.object(_evals_common, "_get_interactions_client")
     @mock.patch.object(_evals_utils, "EvalDatasetLoader")
     def test_run_inference_gemini_agent_continues_on_failure(
-        self, mock_eval_dataset_loader, mock_get_interactions_client
+        self, mock_eval_dataset_loader, mock_get_interactions_client,
+        mock_fetch_agent_config,
     ):
+        mock_fetch_agent_config.return_value = (
+            agentplatform_genai_types.evals.AgentConfig(agent_id="test-agent")
+        )
         mock_df = pd.DataFrame({"prompt": ["p1", "p2"]})
         mock_eval_dataset_loader.return_value.load.return_value = mock_df.to_dict(
             orient="records"
@@ -9213,19 +9246,10 @@ class TestEvalsGenerateConversationScenarios:
         request_body = call_args[0][2]  # Third positional arg is the request dict
         assert request_body.get("allowCrossRegionModel") is True
 
-    @mock.patch.object(_evals_common, "_fetch_agent_config_dict")
-    def test_generate_conversation_scenarios_from_gemini_agent(
-        self, mock_fetch_agent_config
-    ):
-        mock_fetch_agent_config.return_value = (
-            agentplatform_genai_types.evals.AgentConfig(
-                agent_id="test-agent",
-                instruction="You are a helpful travel assistant.",
-                description="An agent that books flights.",
-                tools=[genai_types.Tool(google_search=genai_types.GoogleSearch())],
-            )
-        )
-
+    def test_generate_conversation_scenarios_from_gemini_agent(self):
+        """When `agent` is a Gemini agent resource, the resource is forwarded to
+        the server via `gemini_agent_config` and no client-side agent config is
+        synthesized (the server resolves the tools/instruction itself)."""
         evals_module = evals.Evals(api_client_=self.mock_api_client)
 
         with mock.patch.object(
@@ -9237,18 +9261,28 @@ class TestEvalsGenerateConversationScenarios:
                 config={"count": 2},
             )
 
-        mock_fetch_agent_config.assert_called_once_with(
-            self.mock_api_client, _TEST_GEMINI_AGENT
-        )
         call_kwargs = mock_generate_user_scenarios.call_args.kwargs
-        assert call_kwargs["root_agent_id"] == "test-agent"
-        agents = call_kwargs["agents"]
-        assert "test-agent" in agents
-        derived_config = agents["test-agent"]
-        assert derived_config.instruction == "You are a helpful travel assistant."
-        assert derived_config.description == "An agent that books flights."
-        assert derived_config.tools is not None
-        assert derived_config.tools[0].google_search is not None
+        assert call_kwargs["gemini_agent_config"].gemini_agent == _TEST_GEMINI_AGENT
+        # The client must not synthesize a low-fidelity agents map / root_agent_id;
+        # the server resolves them from the referenced agent resource.
+        assert call_kwargs.get("agents") is None
+        assert call_kwargs.get("root_agent_id") is None
+
+    def test_generate_conversation_scenarios_from_gemini_agent_request_body(self):
+        """The generated request forwards geminiAgentConfig and omits the
+        client-side agents map."""
+        evals_module = evals.Evals(api_client_=self.mock_api_client)
+
+        evals_module.generate_conversation_scenarios(
+            agent=_TEST_GEMINI_AGENT,
+            config={"count": 2},
+        )
+
+        self.mock_api_client.request.assert_called_once()
+        request_body = self.mock_api_client.request.call_args[0][2]
+        assert request_body["geminiAgentConfig"]["geminiAgent"] == _TEST_GEMINI_AGENT
+        assert "agents" not in request_body
+        assert "rootAgentId" not in request_body
 
     def test_generate_conversation_scenarios_agent_and_agent_info_raises(self):
         evals_module = evals.Evals(api_client_=self.mock_api_client)
@@ -11282,3 +11316,248 @@ class TestFetchAgentConfigDict:
             "",
         )
         assert result.agent_id == "agent"
+
+    def test_builtin_tools_without_variant_are_kept_as_named_declarations(self):
+        """Built-in tool types with no genai_types.Tool variant (e.g.
+        `filesystem`, `mcp_server`) must be represented by name rather than
+        dropped, so the display can still show them."""
+        agent_json = {
+            "tools": [
+                {"type": "filesystem"},
+                {"type": "url_context"},
+                {
+                    "type": "mcp_server",
+                    "name": "my-mcp",
+                    "url": "https://example.com/mcp",
+                },
+            ],
+        }
+        mock_api_client = mock.MagicMock()
+        mock_api_client.request.return_value = self._make_api_response(agent_json)
+
+        result = _evals_common._fetch_agent_config_dict(
+            mock_api_client,
+            "projects/p/locations/l/agents/my-agent",
+        )
+        # None of the three tools are dropped.
+        assert len(result.tools) == 3
+        # url_context keeps its typed variant.
+        assert any(t.url_context is not None for t in result.tools)
+        # filesystem and mcp_server become named function declarations.
+        named = {
+            fd.name: fd
+            for t in result.tools
+            if t.function_declarations
+            for fd in t.function_declarations
+        }
+        assert "filesystem" in named
+        assert "mcp_server" in named
+        # mcp_server carries a human-readable label in its description.
+        assert "my-mcp" in (named["mcp_server"].description or "")
+
+    def test_mcp_server_tool_does_not_drop_other_tools(self):
+        """An `mcp_server` entry must not raise and wipe out the whole tools
+        list (regression: model_validate on the mcp body used to fail)."""
+        agent_json = {
+            "tools": [
+                {"type": "google_search"},
+                {"type": "mcp_server", "url": "https://example.com/mcp"},
+            ],
+        }
+        mock_api_client = mock.MagicMock()
+        mock_api_client.request.return_value = self._make_api_response(agent_json)
+
+        result = _evals_common._fetch_agent_config_dict(
+            mock_api_client,
+            "projects/p/locations/l/agents/my-agent",
+        )
+        assert len(result.tools) == 2
+        assert any(t.google_search is not None for t in result.tools)
+
+
+class TestEvalsVisualizationSystemTopology:
+    """Tests that the System Topology section renders agent tools end-to-end."""
+
+    def _build_dataset_with_tools(self):
+        agent_config = agentplatform_genai_types.evals.AgentConfig(
+            agent_id="travel-agent",
+            instruction="You are a travel agent.",
+            tools=[
+                genai_types.Tool(google_search=genai_types.GoogleSearch()),
+                # Built-in type with no genai variant, kept as a named decl.
+                genai_types.Tool(
+                    function_declarations=[
+                        genai_types.FunctionDeclaration(name="filesystem")
+                    ]
+                ),
+                # Real function tool with a parameter schema.
+                genai_types.Tool(
+                    function_declarations=[
+                        genai_types.FunctionDeclaration(
+                            name="run_command",
+                            description="Runs a shell command.",
+                            parameters=genai_types.Schema(
+                                type="OBJECT",
+                                properties={
+                                    "CommandLine": genai_types.Schema(
+                                        type="STRING",
+                                        description="The command to run.",
+                                    )
+                                },
+                                required=["CommandLine"],
+                            ),
+                        )
+                    ]
+                ),
+            ],
+        )
+        agent_data = agentplatform_genai_types.evals.AgentData(
+            agents={"travel-agent": agent_config},
+            turns=[
+                agentplatform_genai_types.evals.ConversationTurn(
+                    turn_index=0,
+                    turn_id="turn_0",
+                    events=[
+                        agentplatform_genai_types.evals.AgentEvent(
+                            author="user",
+                            content=genai_types.Content(
+                                parts=[genai_types.Part(text="hi")]
+                            ),
+                        ),
+                        agentplatform_genai_types.evals.AgentEvent(
+                            author="model",
+                            content=genai_types.Content(
+                                parts=[genai_types.Part(text="hello")]
+                            ),
+                        ),
+                    ],
+                )
+            ],
+        )
+        case = agentplatform_genai_types.EvalCase(agent_data=agent_data)
+        return agentplatform_genai_types.EvaluationDataset(eval_cases=[case])
+
+    def _decode_payload(self, html):
+        match = re.search(r'atob\("([A-Za-z0-9+/=]+)"\)', html)
+        assert match, "Could not find embedded base64 payload in HTML."
+        return json.loads(base64.b64decode(match.group(1)).decode("utf-8"))
+
+    def test_system_topology_includes_tools(self):
+        dataset = self._build_dataset_with_tools()
+        rows = _evals_visualization._extract_dataset_rows(dataset)
+        result_dump = {
+            "summary_metrics": [],
+            "eval_case_results": [
+                {
+                    "eval_case_index": 0,
+                    "response_candidate_results": [{}],
+                }
+            ],
+            "metadata": {"dataset": rows},
+        }
+
+        html = _evals_visualization.get_evaluation_html(json.dumps(result_dump))
+
+        # The section and its renderer must be present in the template.
+        assert "System Topology" in html
+        assert "formatSystemTopology" in html
+
+        # The embedded payload must carry the agents map with all three tools
+        # (none dropped), so the client renders them by name.
+        payload = self._decode_payload(html)
+        agent_data = json.loads(payload["metadata"]["dataset"][0]["agent_data"])
+        tools = agent_data["agents"]["travel-agent"]["tools"]
+        assert len(tools) == 3
+
+        # google_search is preserved as a built-in variant (rendered by name).
+        assert any("google_search" in t for t in tools)
+        # filesystem and run_command are present as named function declarations.
+        decl_names = {
+            fd["name"]
+            for t in tools
+            if t.get("function_declarations")
+            for fd in t["function_declarations"]
+        }
+        assert "filesystem" in decl_names
+        assert "run_command" in decl_names
+
+    def test_builtin_tool_serialization_roundtrip(self):
+        """Tests that built-in Tool variants survive the exclude_none=True
+        serialization that _extract_dataset_rows uses, so they don't become
+        empty objects that the JS renderer ignores."""
+        # These are the three Tool variants the user's agent has.
+        builtin_tools = [
+            genai_types.Tool(code_execution=genai_types.ToolCodeExecution()),
+            genai_types.Tool(google_search=genai_types.GoogleSearch()),
+            genai_types.Tool(url_context=genai_types.UrlContext()),
+        ]
+        agent_config = agentplatform_genai_types.evals.AgentConfig(
+            agent_id="test-agent",
+            tools=builtin_tools,
+        )
+        agent_data = agentplatform_genai_types.evals.AgentData(
+            agents={"test-agent": agent_config},
+            turns=[],
+        )
+        # This is the serialization path used by _extract_dataset_rows (line 205)
+        dumped = agent_data.model_dump(mode="json", exclude_none=True)
+        agent_tools = dumped["agents"]["test-agent"].get("tools", [])
+
+        # Each tool must still have at least one non-null key so the JS
+        # renderer can identify it by name.
+        for i, t in enumerate(agent_tools):
+            non_null_keys = [k for k, v in t.items() if v is not None]
+            assert non_null_keys, (
+                f"Tool[{i}] serialized as empty object — the JS renderer "
+                f"will not display it. Full dump: {json.dumps(t)}"
+            )
+
+    def test_builtin_tools_via_extract_dataset_rows(self):
+        """End-to-end: tools from _agent_tools_to_config_tools survive through
+        _extract_dataset_rows into the HTML payload agent_data JSON."""
+        # Simulate what _fetch_agent_config_dict returns for the user's agent:
+        # the agent API returns [code_execution, google_search, url_context]
+        mapped = _evals_common._agent_tools_to_config_tools([
+            {"type": "code_execution"},
+            {"type": "google_search"},
+            {"type": "url_context"},
+        ])
+        assert mapped is not None, "Mapped tools should not be None"
+        assert len(mapped) == 3, f"Expected 3 tools, got {len(mapped)}"
+
+        agent_config = agentplatform_genai_types.evals.AgentConfig(
+            agent_id="test-agent",
+            tools=mapped,
+        )
+        agent_data = agentplatform_genai_types.evals.AgentData(
+            agents={"test-agent": agent_config},
+            turns=[
+                agentplatform_genai_types.evals.ConversationTurn(
+                    turn_index=0, turn_id="t0", events=[
+                        agentplatform_genai_types.evals.AgentEvent(
+                            author="user",
+                            content=genai_types.Content(
+                                parts=[genai_types.Part(text="hi")]
+                            ),
+                        ),
+                    ],
+                ),
+            ],
+        )
+        case = agentplatform_genai_types.EvalCase(agent_data=agent_data)
+        ds = agentplatform_genai_types.EvaluationDataset(eval_cases=[case])
+        rows = _evals_visualization._extract_dataset_rows(ds)
+        assert rows, "Expected at least one row"
+
+        ad_json = rows[0].get("agent_data")
+        assert ad_json, "agent_data should be a non-empty JSON string"
+        ad = json.loads(ad_json)
+        agents = ad.get("agents", {})
+        assert "test-agent" in agents, f"Missing agent. keys: {list(agents.keys())}"
+        tools = agents["test-agent"].get("tools", [])
+        assert len(tools) == 3, (
+            f"Expected 3 tools in serialized payload, got {len(tools)}. "
+            f"Serialized tools: {json.dumps(tools)}"
+        )
+
+

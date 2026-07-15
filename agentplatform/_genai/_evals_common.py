@@ -840,15 +840,28 @@ def _merge_text_parts_in_agent_data(
 def _agent_tools_to_config_tools(
     agent_tools: Optional[list[Any]],
 ) -> Optional[list[genai_types.Tool]]:
-    """Maps Gemini Agents API tools to ``genai_types.Tool`` for an AgentConfig.
+    """Maps Gemini Agents API tools to ``genai_types.Tool`` for display.
 
-    The Gemini Agents API returns built-in tool variants (``google_search``,
-    ``code_execution``, ``url_context``) whose schema differs from
-    ``genai_types.Tool``.  Each recognised built-in variant is mapped to the
-    matching ``genai_types.Tool`` field.  Tools with a non-empty body after
-    stripping the ``type`` key (e.g. ``function_declarations``) are passed
-    through ``model_validate``.  Variants without a ``genai_types.Tool``
-    equivalent (e.g. ``filesystem``, ``mcp_server``) are skipped.
+    NOTE: This is a low-fidelity, DISPLAY-ONLY mapping. The Gemini Agents API
+    (``GET agents/{id}``) returns each tool as a bare type discriminator
+    (e.g. ``{"type": "code_execution"}``) with no parameter schema or
+    description. The authoritative, full-fidelity expansion of built-in tool
+    types into function declarations (e.g. ``code_execution`` -> ``run_command``
+    with parameters, ``filesystem`` -> file tools, sandbox tools) is performed
+    server-side in ``interaction_converter.py`` whenever the server is handed a
+    ``gemini_agent_config``. The result of this function must therefore only be
+    used to render the local System Topology in ``show()`` and must never be
+    sent to the server-side autorater or scenario generator (which resolve the
+    agent's tools themselves).
+
+    Mapping rules:
+      * Recognised built-in variants (``google_search``, ``code_execution``,
+        ``url_context``) are mapped to the matching ``genai_types.Tool`` field.
+      * Tools that already carry ``function_declarations`` are passed through
+        via ``model_validate`` so real function tools keep their full schema.
+      * Any other typed built-in (e.g. ``filesystem``, ``mcp_server``) is
+        represented as a single named ``FunctionDeclaration`` so the tool is
+        still shown by name in the display instead of being dropped.
 
     Args:
         agent_tools: The ``tools`` list from a fetched Gemini agent dict.
@@ -864,6 +877,7 @@ def _agent_tools_to_config_tools(
         if not isinstance(tool, dict):
             continue
         tool_type = tool.get("type")
+        remainder = {k: v for k, v in tool.items() if k != "type"}
         if tool_type == "google_search":
             tools.append(genai_types.Tool(google_search=genai_types.GoogleSearch()))
         elif tool_type == "code_execution":
@@ -872,12 +886,31 @@ def _agent_tools_to_config_tools(
             )
         elif tool_type == "url_context":
             tools.append(genai_types.Tool(url_context=genai_types.UrlContext()))
-        else:
-            # For non-built-in tools (e.g. function_declarations), strip the
-            # type key and validate through genai_types.Tool.
-            remainder = {k: v for k, v in tool.items() if k != "type"}
-            if remainder:
-                tools.append(genai_types.Tool.model_validate(remainder))
+        elif "function_declarations" in remainder:
+            # Real function tool with explicit declarations: pass through so
+            # the display shows the full name/parameter schema.
+            tools.append(genai_types.Tool.model_validate(remainder))
+        elif tool_type:
+            # Other built-in tool type with no genai_types.Tool variant (e.g.
+            # "filesystem", "mcp_server"). Represent it as a named declaration
+            # so it is shown by name rather than dropped. Full parameter
+            # schemas are only available from the server-side expansion.
+            description = None
+            if tool_type == "mcp_server":
+                label = remainder.get("name") or remainder.get("url")
+                description = f"MCP server: {label}" if label else "MCP server."
+            tools.append(
+                genai_types.Tool(
+                    function_declarations=[
+                        genai_types.FunctionDeclaration(
+                            name=tool_type, description=description
+                        )
+                    ]
+                )
+            )
+        elif remainder:
+            # Untyped tool body: best-effort pass-through.
+            tools.append(genai_types.Tool.model_validate(remainder))
     return tools or None
 
 
@@ -988,33 +1021,6 @@ def _agent_data_response_text(agent_data: types.evals.AgentData) -> Optional[str
     return "".join(text_parts) or None
 
 
-def _agent_resource_to_agent_info(
-    agent: str, api_client: BaseApiClient
-) -> "types.evals.AgentInfo":
-    """Builds an `AgentInfo` from a Gemini Agents API agent resource name.
-
-    Fetches the agent through the SDK's `api_client` (so replay recording is
-    preserved) via `_fetch_agent_config_dict` and derives a single-agent
-    `AgentInfo`: the agent's short name is the agents-map key and
-    `root_agent_id`.
-
-    Args:
-        agent: The Gemini Agents API agent resource name
-          (`projects/{p}/locations/{l}/agents/{name}`).
-        api_client: The API client used to fetch the agent.
-
-    Returns:
-        An `AgentInfo` describing the fetched agent.
-    """
-    agent_config = _fetch_agent_config_dict(api_client, agent)
-    short_name = agent_config.agent_id
-    return types.evals.AgentInfo(  # pytype: disable=missing-parameter
-        name=short_name,
-        agents={short_name: agent_config},
-        root_agent_id=short_name,
-    )
-
-
 _INTERACTION_TERMINAL_STATES = frozenset(
     ["completed", "failed", "cancelled", "incomplete", "budget_exceeded"]
 )
@@ -1109,6 +1115,12 @@ def _run_gemini_agent_inference(
     interactions_client = _get_interactions_client(api_client)
 
     agent_short_id = gemini_agent.split("/")[-1]
+
+    # Best-effort: fetch the agent config (instruction, tools, description)
+    # once, so every row's agent_data carries the agents map and the display
+    # can render the System Topology section.
+    agent_config = _fetch_agent_config_dict(api_client, gemini_agent)
+
     prompts: list[str] = []
     responses: list[Optional[str]] = []
     interaction_ids: list[Optional[str]] = []
@@ -1128,6 +1140,7 @@ def _run_gemini_agent_inference(
             )
             interaction = _await_interaction(interactions_client, interaction)
             agent_data_obj = _interaction_dict_to_agent_data(interaction)
+            agent_data_obj.agents = {agent_config.agent_id: agent_config}
             _merge_text_parts_in_agent_data(agent_data_obj)
             responses.append(_agent_data_response_text(agent_data_obj))
             interaction_ids.append(interaction.get("id"))

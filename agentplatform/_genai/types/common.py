@@ -5491,6 +5491,13 @@ class _GenerateUserScenariosParameters(_common.BaseModel):
         default=None, description=""""""
     )
     root_agent_id: Optional[str] = Field(default=None, description="""""")
+    gemini_agent_config: Optional[GeminiAgentConfig] = Field(
+        default=None,
+        description="""If set, the server derives the `agents` map and `root_agent_id`
+      from the referenced Gemini Agent, resolving its tools (including
+      built-in tool expansion) server-side. Mutually exclusive with
+      `agents`/`root_agent_id`.""",
+    )
     user_scenario_generation_config: Optional[
         evals_types.UserScenarioGenerationConfig
     ] = Field(default=None, description="""""")
@@ -5514,6 +5521,11 @@ class _GenerateUserScenariosParametersDict(TypedDict, total=False):
 
     root_agent_id: Optional[str]
     """"""
+
+    gemini_agent_config: Optional[GeminiAgentConfigDict]
+    """If set, the server derives the `agents` map and `root_agent_id` from the
+      referenced Gemini Agent, resolving its tools (including built-in tool
+      expansion) server-side. Mutually exclusive with `agents`/`root_agent_id`."""
 
     user_scenario_generation_config: Optional[evals_types.UserScenarioGenerationConfig]
     """"""
