@@ -468,6 +468,7 @@ def _get_default_prompt_template(
                 and eval_item.evaluation_request
                 and eval_item.evaluation_request.prompt
                 and eval_item.evaluation_request.prompt.prompt_template_data
+                and eval_item.evaluation_request.prompt.prompt_template_data.values
             ):
                 if (
                     "prompt"
