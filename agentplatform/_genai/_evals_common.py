@@ -484,10 +484,10 @@ def _get_default_prompt_template(
                 and eval_item.evaluation_request.prompt
                 and eval_item.evaluation_request.prompt.prompt_template_data
             ):
-                if (
-                    "prompt"
-                    in eval_item.evaluation_request.prompt.prompt_template_data.values
-                ):
+                template_values = (
+                    eval_item.evaluation_request.prompt.prompt_template_data.values
+                )
+                if template_values and "prompt" in template_values:
                     return "{prompt}"
     except Exception as e:
         logger.warning("Failed to get prompt template from evaluation set: %s", e)
