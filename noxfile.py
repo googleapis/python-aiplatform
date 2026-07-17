@@ -110,6 +110,7 @@ nox.options.sessions = [
     "unit_agentplatform_langchain",
     "unit_agentplatform_ag2",
     "unit_agentplatform_llama_index",
+    "unit_agentplatform_a2a",
     "unit_a2a",
     "system",
     "cover",
@@ -426,6 +427,35 @@ def unit_agentplatform_llama_index(session):
             "agentplatform",
             "frameworks",
             "test_frameworks_llama_index.py",
+        ),
+        *session.posargs,
+    )
+
+
+@nox.session(python=["3.14"])
+def unit_agentplatform_a2a(session):
+    # Install all test dependencies, then install this package in-place.
+
+    constraints_path = str(CURRENT_DIRECTORY / "testing" / "constraints-a2a.txt")
+    install_unittest_dependencies(session, "-c", constraints_path)
+    session.install("a2a-sdk", "-c", constraints_path)
+
+    # Run py.test against the unit tests.
+    session.run(
+        "py.test",
+        "--quiet",
+        "--junitxml=unit_agentplatform_a2a_sponge_log.xml",
+        "--cov=google",
+        "--cov-append",
+        "--cov-config=.coveragerc",
+        "--cov-report=",
+        "--cov-fail-under=0",
+        os.path.join(
+            "tests",
+            "unit",
+            "agentplatform",
+            "frameworks",
+            "test_frameworks_a2a.py",
         ),
         *session.posargs,
     )
