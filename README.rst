@@ -1,9 +1,16 @@
-Vertex AI SDK for Python
-=================================================
+Google Gemini Enterprise Agent Platform SDK for Python
+======================================================
 
 |GA| |pypi| |versions| |unit-tests| |system-tests| |sample-tests|
 
-`Vertex AI`_: Google Vertex AI is an integrated suite of machine learning tools and services for building and using ML models with AutoML or custom code. It offers both novices and experts the best workbench for the entire machine learning development lifecycle.
+> **Note:** The Gemini Enterprise Agent Platform was formerly known as
+> Vertex AI.
+
+> **Note:** The **agent_engines** module will be rebranded as **runtimes** in
+> an upcoming major release (not before 7/31/2026). See [Agent Runtime](https://docs.cloud.google.com/gemini-enterprise-agent-platform/scale#agent-runtime) for details.
+
+
+`Gemini Enterprise Agent Platform`_: Gemini Enterprise Agent Platform is Google Cloud's comprehensive platform for developers to build, scale, govern and optimize agents.
 
 - `Client Library Documentation`_
 - `Product Documentation`_
@@ -20,7 +27,7 @@ Vertex AI SDK for Python
    :target: https://storage.googleapis.com/cloud-devrel-public/python-aiplatform/badges/sdk-system-tests.html
 .. |sample-tests| image:: https://storage.googleapis.com/cloud-devrel-public/python-aiplatform/badges/sdk-sample-tests.svg
    :target: https://storage.googleapis.com/cloud-devrel-public/python-aiplatform/badges/sdk-sample-tests.html
-.. _Vertex AI: https://cloud.google.com/vertex-ai/docs
+.. _Gemini Enterprise Agent Platform: https://cloud.google.com/vertex-ai/docs
 .. _Client Library Documentation: https://cloud.google.com/python/docs/reference/aiplatform/latest
 .. _Product Documentation:  https://cloud.google.com/vertex-ai/docs
 
@@ -38,10 +45,10 @@ With :code:`uv`:
 
     uv pip install google-cloud-aiplatform
 
-Generative AI in the Vertex AI SDK
+Generative AI in the Gemini Enterprise Agent Platform SDK
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To use Gen AI features from the Vertex AI SDK, you can instantiate a Vertex SDK client with the following:
+To use Gen AI features from the Gemini Enterprise Agent Platform SDK, you can instantiate a Vertex SDK client with the following:
 
 .. code-block:: Python
 
@@ -134,7 +141,7 @@ Next, define an ADK Agent:
     from vertexai.agent_engines import AdkApp
 
     app = AdkApp(agent=Agent(
-        model="gemini-2.0-flash",        # Required.
+        model="gemini-3.5-flash",        # Required.
         name='currency_exchange_agent',  # Required.
         tools=[get_exchange_rate],       # Optional.
     ))
@@ -153,6 +160,7 @@ To deploy the agent to Agent Engine:
 
 .. code-block:: Python
 
+    # Replace with client.runtimes.create in a future major release.
     remote_app = client.agent_engines.create(
         agent=app,
         config={
@@ -185,7 +193,7 @@ method.
       print(response.parsed_response.suggested_prompt)
 
 To call the data-driven prompt optimization, call the `launch_optimization_job` method.
-In this case however, we need to provide a VAPO (Vertex AI Prompt Optimizer) config. This config needs to
+In this case however, we need to provide a VAPO (Gemini Enterprise Agent Platform Prompt Optimizer) config. This config needs to
 have either service account or project **number** and the config path.
 Please refer to this [tutorial](https://cloud.google.com/vertex-ai/generative-ai/docs/learn/prompts/data-driven-optimizer)
 for more details on config parameter.
@@ -368,11 +376,11 @@ Delete a skill when it is no longer required.
 
 .. note::
 
-   The following Generative AI modules in the Vertex AI SDK are deprecated as of June 24, 2025 and will be removed on June 24, 2026:
+   The following Generative AI modules in the Gemini Enterprise Agent Platform SDK are deprecated as of June 24, 2025 and will be removed on June 24, 2026:
    `vertexai.generative_models`, `vertexai.language_models`, `vertexai.vision_models`, `vertexai.tuning`, `vertexai.caching`. Please use the
    [Google Gen AI SDK](https://pypi.org/project/google-genai/) to access these features. See
    [the migration guide](https://cloud.google.com/vertex-ai/generative-ai/docs/deprecations/genai-vertexai-sdk) for details.
-   You can continue using all other Vertex AI SDK modules, as they are the recommended way to use the API.
+   You can continue using all other Gemini Enterprise Agent Platform SDK modules, as they are the recommended way to use the API.
 
 Quick Start
 -----------
@@ -381,12 +389,12 @@ In order to use this library, you first need to go through the following steps:
 
 1. `Select or create a Cloud Platform project.`_
 2. `Enable billing for your project.`_
-3. `Enable the Vertex AI API.`_
+3. `Enable the Gemini Enterprise Agent Platform API.`_
 4. `Setup Authentication.`_
 
 .. _Select or create a Cloud Platform project.: https://console.cloud.google.com/project
 .. _Enable billing for your project.: https://cloud.google.com/billing/docs/how-to/modify-project#enable_billing_for_a_project
-.. _Enable the Vertex AI API.:  https://cloud.google.com/vertex-ai/docs/start/use-vertex-ai-python-sdk
+.. _Enable the Gemini Enterprise Agent Platform API.:  https://cloud.google.com/vertex-ai/docs/start/use-vertex-ai-python-sdk
 .. _Setup Authentication.: https://googleapis.dev/python/google-api-core/latest/auth.html
 
 
@@ -406,7 +414,7 @@ The last version of this library compatible with Python 3.6 is google-cloud-aipl
 
 Overview
 ~~~~~~~~
-This section provides a brief overview of the Vertex AI SDK for Python. You can also reference the notebooks in `vertex-ai-samples`_ for examples.
+This section provides a brief overview of the Gemini Enterprise Agent Platform SDK for Python. You can also reference the notebooks in `vertex-ai-samples`_ for examples.
 
 .. _vertex-ai-samples: https://github.com/GoogleCloudPlatform/vertex-ai-samples/tree/main/notebooks/community/sdk
 
@@ -425,7 +433,7 @@ If none of the above scenarios could help you find the right tools for your task
 
 Importing
 ^^^^^^^^^
-Vertex AI SDK resource based functionality can be used by importing the following namespace:
+Gemini Enterprise Agent Platform SDK resource based functionality can be used by importing the following namespace:
 
 .. code-block:: Python
 
@@ -442,7 +450,7 @@ Initialize the SDK to store common configurations that you use with the SDK.
         # environment default used is not set
         project='my-project',
 
-        # the Vertex AI region you will use
+        # the Gemini Enterprise Agent Platform region you will use
         # defaults to us-central1
         location='us-central1',
 
@@ -455,7 +463,7 @@ Initialize the SDK to store common configurations that you use with the SDK.
         credentials=my_credentials,
 
         # customer managed encryption key resource name
-        # will be applied to all Vertex AI resources if set
+        # will be applied to all Gemini Enterprise Agent Platform resources if set
         encryption_spec_key_name=my_encryption_key_name,
 
         # the name of the experiment to use to track
@@ -468,7 +476,7 @@ Initialize the SDK to store common configurations that you use with the SDK.
 
 Datasets
 ^^^^^^^^
-Vertex AI provides managed tabular, text, image, and video datasets. In the SDK, datasets can be used downstream to
+Gemini Enterprise Agent Platform provides managed tabular, text, image, and video datasets. In the SDK, datasets can be used downstream to
 train models.
 
 To create a tabular dataset:
@@ -498,7 +506,7 @@ To get a previously created Dataset:
 
   dataset = aiplatform.ImageDataset('projects/my-project/location/us-central1/datasets/{DATASET_ID}')
 
-Vertex AI supports a variety of dataset schemas. References to these schemas are available under the
+Gemini Enterprise Agent Platform supports a variety of dataset schemas. References to these schemas are available under the
 :code:`aiplatform.schema.dataset` namespace. For more information on the supported dataset schemas please refer to the
 `Preparing data docs`_.
 
@@ -506,13 +514,13 @@ Vertex AI supports a variety of dataset schemas. References to these schemas are
 
 Training
 ^^^^^^^^
-The Vertex AI SDK for Python allows you train Custom and AutoML Models.
+The Gemini Enterprise Agent Platform SDK for Python allows you train Custom and AutoML Models.
 
 You can train custom models using a custom Python script, custom Python package, or container.
 
 **Preparing Your Custom Code**
 
-Vertex AI custom training enables you to train on Vertex AI datasets and produce Vertex AI models. To do so your
+Gemini Enterprise Agent Platform custom training enables you to train on Gemini Enterprise Agent Platform datasets and produce Gemini Enterprise Agent Platform models. To do so your
 script must adhere to the following contract:
 
 It must read datasets from the environment variables populated by the training service:
@@ -552,12 +560,12 @@ It must write the model artifact to the environment variable populated by the tr
                   accelerator_type='NVIDIA_TESLA_K80',
                   accelerator_count=1)
 
-In the code block above `my_dataset` is managed dataset created in the `Dataset` section above. The `model` variable is a managed Vertex AI model that can be deployed or exported.
+In the code block above `my_dataset` is managed dataset created in the `Dataset` section above. The `model` variable is a managed Gemini Enterprise Agent Platform model that can be deployed or exported.
 
 
 AutoMLs
 -------
-The Vertex AI SDK for Python supports AutoML tabular, image, text, video, and forecasting.
+The Gemini Enterprise Agent Platform SDK for Python supports AutoML tabular, image, text, video, and forecasting.
 
 To train an AutoML tabular model:
 
@@ -619,14 +627,14 @@ To deploy a model:
                           accelerator_count=1)
 
 
-Please visit `Importing models to Vertex AI`_ for a detailed overview:
+Please visit `Importing models to Gemini Enterprise Agent Platform`_ for a detailed overview:
 
-.. _Importing models to Vertex AI: https://cloud.google.com/vertex-ai/docs/general/import-model
+.. _Importing models to Gemini Enterprise Agent Platform: https://cloud.google.com/vertex-ai/docs/general/import-model
 
 Model Evaluation
 ----------------
 
-The Vertex AI SDK for Python currently supports getting model evaluation metrics for all AutoML models.
+The Gemini Enterprise Agent Platform SDK for Python currently supports getting model evaluation metrics for all AutoML models.
 
 To list all model evaluations for a model:
 
@@ -743,7 +751,7 @@ To delete an endpoint:
 Pipelines
 ---------
 
-To create a Vertex AI Pipeline run and monitor until completion:
+To create a Gemini Enterprise Agent Platform Pipeline run and monitor until completion:
 
 .. code-block:: Python
 
@@ -767,7 +775,7 @@ To create a Vertex AI Pipeline run and monitor until completion:
       pipeline_root=pipeline_root,
   )
 
-  # Execute pipeline in Vertex AI and monitor until completion
+  # Execute pipeline in Gemini Enterprise Agent Platform and monitor until completion
   pl.run(
     # Email address of service account to use for the pipeline run
     # You must have iam.serviceAccounts.actAs permission on the service account to use it
@@ -778,7 +786,7 @@ To create a Vertex AI Pipeline run and monitor until completion:
     sync=True
   )
 
-To create a Vertex AI Pipeline without monitoring until completion, use `submit` instead of `run`:
+To create a Gemini Enterprise Agent Platform Pipeline without monitoring until completion, use `submit` instead of `run`:
 
 .. code-block:: Python
 
@@ -802,7 +810,7 @@ To create a Vertex AI Pipeline without monitoring until completion, use `submit`
       pipeline_root=pipeline_root,
   )
 
-  # Submit the Pipeline to Vertex AI
+  # Submit the Pipeline to Gemini Enterprise Agent Platform
   pl.submit(
     # Email address of service account to use for the pipeline run
     # You must have iam.serviceAccounts.actAs permission on the service account to use it
@@ -852,7 +860,7 @@ To use Explanation Metadata in endpoint deployment and model upload:
 Cloud Profiler
 ----------------------------
 
-Cloud Profiler allows you to profile your remote Vertex AI Training jobs on demand and visualize the results in Vertex AI Tensorboard.
+Cloud Profiler allows you to profile your remote Gemini Enterprise Agent Platform Training jobs on demand and visualize the results in Gemini Enterprise Agent Platform Tensorboard.
 
 To start using the profiler with TensorFlow, update your training script to include the following:
 
@@ -862,7 +870,7 @@ To start using the profiler with TensorFlow, update your training script to incl
     ...
     cloud_profiler.init()
 
-Next, run the job with with a Vertex AI TensorBoard instance. For full details on how to do this, visit https://cloud.google.com/vertex-ai/docs/experiments/tensorboard-overview
+Next, run the job with with a Gemini Enterprise Agent Platform TensorBoard instance. For full details on how to do this, visit https://cloud.google.com/vertex-ai/docs/experiments/tensorboard-overview
 
 Finally, visit your TensorBoard in your Google Cloud Console, navigate to the "Profile" tab, and click the `Capture Profile` button. This will allow users to capture profiling statistics for the running jobs.
 
@@ -870,12 +878,12 @@ Finally, visit your TensorBoard in your Google Cloud Console, navigate to the "P
 Next Steps
 ~~~~~~~~~~
 
--  Read the `Client Library Documentation`_ for Vertex AI
+-  Read the `Client Library Documentation`_ for Gemini Enterprise Agent Platform
    API to see other available methods on the client.
--  Read the `Vertex AI API Product documentation`_ to learn
+-  Read the `Gemini Enterprise Agent Platform API Product documentation`_ to learn
    more about the product and see How-to Guides.
 -  View this `README`_ to see the full list of Cloud
    APIs that we cover.
 
-.. _Vertex AI API Product documentation:  https://cloud.google.com/vertex-ai/docs
+.. _Gemini Enterprise Agent Platform API Product documentation:  https://cloud.google.com/vertex-ai/docs
 .. _README: https://github.com/googleapis/google-cloud-python/blob/main/README.rst
