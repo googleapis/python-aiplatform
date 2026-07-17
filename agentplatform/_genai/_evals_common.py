@@ -29,6 +29,7 @@ from typing import Any, Callable, Literal, Optional, Union, cast
 import uuid
 
 from google.api_core import exceptions as api_exceptions
+from google.genai import errors as genai_errors
 import agentplatform
 from google.genai import types as genai_types
 from google.genai._api_client import BaseApiClient
@@ -65,6 +66,23 @@ _thread_local_data = threading.local()
 MAX_WORKERS = 100
 AGENT_MAX_WORKERS = 20
 _MAX_INTERACTION_CHAIN_DEPTH = 10
+# Default per-request timeout (milliseconds) for a user simulator model turn.
+_USER_SIMULATOR_TIMEOUT_MS = 300000
+# Per-request timeout (milliseconds) for individual Interactions API calls so a
+# single create/poll cannot block forever.
+_INTERACTION_REQUEST_TIMEOUT_MS = 60000
+# Hard ceiling (seconds) for a single multi-turn simulated conversation.
+_USER_SIMULATION_SCENARIO_TIMEOUT_SECONDS = 1200.0
+# Expected, per-scenario failures during user simulation. These are recorded as
+# an empty row so one bad scenario does not abort the whole batch; anything else
+# propagates.
+_USER_SIMULATION_SCENARIO_ERRORS = (
+    TimeoutError,
+    ValueError,
+    RuntimeError,
+    genai_errors.APIError,
+    api_exceptions.GoogleAPICallError,
+)
 CONTENT = _evals_constant.CONTENT
 PARTS = _evals_constant.PARTS
 USER_AUTHOR = _evals_constant.USER_AUTHOR
@@ -950,11 +968,21 @@ class _InteractionsRestClient:
         self._api_client = api_client
 
     def create(self, request_dict: dict[str, Any]) -> dict[str, Any]:
-        response = self._api_client.request("post", "interactions", request_dict)
+        response = self._api_client.request(
+            "post",
+            "interactions",
+            request_dict,
+            http_options={"timeout": _INTERACTION_REQUEST_TIMEOUT_MS},
+        )
         return json.loads(response.body) if response.body else {}
 
     def get(self, interaction_id: str) -> dict[str, Any]:
-        response = self._api_client.request("get", f"interactions/{interaction_id}", {})
+        response = self._api_client.request(
+            "get",
+            f"interactions/{interaction_id}",
+            {},
+            http_options={"timeout": _INTERACTION_REQUEST_TIMEOUT_MS},
+        )
         return json.loads(response.body) if response.body else {}
 
 
@@ -1150,6 +1178,306 @@ def _run_gemini_agent_inference(
             _evals_constant.AGENT_DATA: agent_data,
         }
     )
+
+
+def _build_user_simulator(
+    row: pd.Series,
+    config: Optional[types.evals.UserSimulatorConfig],
+    api_client: BaseApiClient,
+) -> Any:
+    """Builds an ADK `LlmBackedUserSimulator` for a scenario row.
+
+    Reads `starting_prompt` and `conversation_plan` from the row and maps the
+    SDK `UserSimulatorConfig` fields onto ADK's `LlmBackedUserSimulatorConfig`
+    (`model`, `model_configuration`, `max_allowed_invocations`).
+
+    The simulator's model runs in the caller's region. When the installed ADK
+    exposes the `Gemini.client_kwargs` field, the model is pinned to
+    `api_client`'s project and location; otherwise it inherits the ambient
+    client configuration (the SDK client and the ADK model read the same
+    environment). Either way it is never routed to a different region, and the
+    environment is never mutated. A default request timeout is applied so an
+    individual simulator turn cannot hang indefinitely.
+
+    Args:
+        row: A prompt DataFrame row carrying `starting_prompt` and
+          `conversation_plan`.
+        config: The SDK user simulator config, or None to use ADK defaults. It
+          is read only, never mutated.
+        api_client: The SDK API client; its project and location pin the
+          simulator model's region when supported by ADK.
+
+    Returns:
+        A configured `LlmBackedUserSimulator`.
+
+    Raises:
+        ValueError: If `starting_prompt` or `conversation_plan` is missing.
+    """
+    from google.adk.evaluation.conversation_scenarios import ConversationScenario
+    from google.adk.evaluation.simulation.llm_backed_user_simulator import (
+        LlmBackedUserSimulator,
+    )
+    from google.adk.evaluation.simulation.llm_backed_user_simulator import (
+        LlmBackedUserSimulatorConfig,
+    )
+
+    starting_prompt = row.get("starting_prompt")
+    conversation_plan = row.get("conversation_plan")
+    if not starting_prompt or not conversation_plan:
+        raise ValueError(
+            "User simulation requires 'starting_prompt' and 'conversation_plan'"
+            " columns."
+        )
+
+    scenario = ConversationScenario(
+        starting_prompt=starting_prompt,
+        conversation_plan=conversation_plan,
+        user_persona="EVALUATOR",
+    )
+
+    simulator_kwargs: dict[str, Any] = {}
+    model_configuration: dict[str, Any] = {}
+    if config:
+        if config.model_name:
+            simulator_kwargs["model"] = config.model_name
+        if config.model_configuration is not None:
+            model_configuration = config.model_configuration.model_dump(
+                exclude_none=True
+            )
+        if config.max_turn is not None:
+            simulator_kwargs["max_allowed_invocations"] = config.max_turn
+
+    # Bound each simulator turn so a single model call cannot hang forever.
+    http_options = model_configuration.setdefault("http_options", {})
+    http_options.setdefault("timeout", _USER_SIMULATOR_TIMEOUT_MS)
+    simulator_kwargs["model_configuration"] = model_configuration
+
+    simulator = LlmBackedUserSimulator(
+        conversation_scenario=scenario,
+        config=LlmBackedUserSimulatorConfig(**simulator_kwargs),
+    )
+    # Pin the simulator's model to the api_client's project and location so the
+    # simulated-user traffic stays in the caller's region (never routed
+    # elsewhere). ADK builds the model's google.genai client from client_kwargs
+    # when that field is available; otherwise the model inherits the ambient
+    # client configuration (same region as the SDK client).
+    llm = simulator._llm  # pylint: disable=protected-access
+    if "client_kwargs" in getattr(type(llm), "model_fields", {}):
+        setattr(
+            llm,
+            "client_kwargs",
+            {
+                "vertexai": True,
+                "project": api_client.project,
+                "location": api_client.location,
+            },
+        )
+    return simulator
+
+
+def _agent_events_to_adk_events(
+    events: list[types.evals.AgentEvent],
+) -> list[Any]:
+    """Converts AgentEvents into ADK `Event`s for the user simulator.
+
+    The user simulator's `get_next_user_message` reads only `author` and
+    `content` off each event, so a minimal ADK `Event` is sufficient.
+
+    Args:
+        events: The conversation history as AgentEvents.
+
+    Returns:
+        A list of ADK `Event` objects.
+    """
+    from google.adk.events.event import Event as AdkEvent
+
+    return [
+        AdkEvent(
+            author=event.author or _evals_constant.MODEL_AUTHOR,
+            content=event.content,
+            invocation_id="user_simulation",
+        )
+        for event in events
+    ]
+
+
+async def _simulate_scenario(
+    *,
+    api_client: BaseApiClient,
+    interactions_client: "_InteractionsRestClient",
+    agent_short_id: str,
+    row: pd.Series,
+    user_simulator_config: Optional[types.evals.UserSimulatorConfig],
+) -> tuple[Optional[str], list[types.evals.ConversationTurn]]:
+    """Runs a single multi-turn simulated conversation for one scenario row.
+
+    Drives the Interactions API turn by turn: the user simulator generates each
+    user message, which is sent to the agent and chained via
+    `previous_interaction_id`. Each interaction's steps are appended as
+    ConversationTurns. Stops when the simulator returns a non-SUCCESS status.
+
+    The loop cannot hang indefinitely: the turn count is bounded by the
+    simulator's `max_allowed_invocations`, each simulator model call and each
+    Interactions API call has a per-request timeout, and the caller wraps this
+    coroutine in an overall per-scenario timeout.
+
+    This coroutine must run inside a single event loop for the whole
+    conversation: the ADK simulator's async HTTP client binds to the running
+    loop, so awaiting each turn on one loop (rather than a per-turn
+    ``asyncio.run``) avoids "Event loop is closed" errors on turn two onward.
+
+    Args:
+        api_client: The SDK API client; pins the simulator model's region.
+        interactions_client: The Interactions API client.
+        agent_short_id: The agent's short id (last path segment).
+        row: The scenario row with `starting_prompt` and `conversation_plan`.
+        user_simulator_config: The user simulator configuration.
+
+    Returns:
+        A tuple of (last interaction id, list of ConversationTurns).
+
+    Raises:
+        RuntimeError: If no turns are produced for the scenario.
+    """
+    from google.adk.evaluation.simulation.user_simulator import Status
+
+    simulator = _build_user_simulator(row, user_simulator_config, api_client)
+    turns: list[types.evals.ConversationTurn] = []
+    conversation: list[types.evals.AgentEvent] = []
+    previous_interaction_id: Optional[str] = None
+
+    while True:
+        next_message = await simulator.get_next_user_message(
+            _agent_events_to_adk_events(conversation)
+        )
+        if next_message.status != Status.SUCCESS:
+            break
+
+        request: dict[str, Any] = {
+            "agent": agent_short_id,
+            "input": [
+                {
+                    "type": "text",
+                    "text": _evals_data_converters._get_content_text(
+                        next_message.user_message
+                    ),
+                }
+            ],
+            "store": True,
+            "background": True,
+        }
+        if previous_interaction_id:
+            request["previous_interaction_id"] = previous_interaction_id
+
+        interaction = interactions_client.create(request)
+        interaction = _await_interaction(interactions_client, interaction)
+        previous_interaction_id = interaction.get("id")
+
+        turn_data = _interaction_dict_to_agent_data(interaction)
+        _merge_text_parts_in_agent_data(turn_data)
+        for turn in turn_data.turns or []:
+            turn.turn_index = len(turns)
+            turns.append(turn)
+            conversation.extend(turn.events or [])
+
+    if not turns:
+        raise RuntimeError("User simulation produced no turns for a scenario.")
+    return previous_interaction_id, turns
+
+
+def _run_gemini_agent_user_simulation(
+    *,
+    api_client: BaseApiClient,
+    gemini_agent: str,
+    prompt_dataset: pd.DataFrame,
+    user_simulator_config: Optional[types.evals.UserSimulatorConfig] = None,
+    allow_cross_region_model: bool = False,
+) -> pd.DataFrame:
+    """Runs multi-turn user simulation against a Gemini Agents API agent.
+
+    For each scenario row, an ADK `LlmBackedUserSimulator` generates the user
+    turns while the conversation is driven client-side through the Interactions
+    API. Turns are chained with `previous_interaction_id` (stateful mode) so the
+    backend maintains conversation history. The loop stops when the simulator
+    signals completion (turn limit, stop signal, or no message). The simulator
+    model runs in `api_client`'s project and location.
+
+    Args:
+        api_client: The API client used to issue interaction calls and to pin
+          the simulator model's region.
+        gemini_agent: The Gemini Agents API agent resource name.
+        prompt_dataset: The scenario DataFrame. Each row must contain
+          `starting_prompt` and `conversation_plan` columns.
+        user_simulator_config: The user simulator configuration. `model_name`
+          selects the simulator model and `max_turn` caps invocations.
+        allow_cross_region_model: Accepted for API compatibility. The simulator
+          always runs in `api_client`'s region and is never routed elsewhere.
+
+    Returns:
+        A DataFrame with columns starting_prompt, conversation_plan,
+        interaction_id (the last interaction id of the chain), and agent_data
+        (the full multi-turn trace).
+    """
+    del allow_cross_region_model  # Simulator always runs in the client region.
+    interactions_client = _get_interactions_client(api_client)
+    agent_short_id = gemini_agent.split("/")[-1]
+
+    def _simulate_one(
+        row: pd.Series,
+    ) -> tuple[Optional[str], dict[str, Any]]:
+        # Run the scenario's async loop in this worker thread. Using
+        # ``asyncio.run`` here (rather than on the calling thread) keeps the
+        # path usable from environments that already run an event loop, such as
+        # Colab or Jupyter, where a top-level ``asyncio.run`` would raise
+        # "asyncio.run() cannot be called from a running event loop".
+        last_interaction_id, turns = asyncio.run(
+            asyncio.wait_for(
+                _simulate_scenario(
+                    api_client=api_client,
+                    interactions_client=interactions_client,
+                    agent_short_id=agent_short_id,
+                    row=row,
+                    user_simulator_config=user_simulator_config,
+                ),
+                timeout=_USER_SIMULATION_SCENARIO_TIMEOUT_SECONDS,
+            )
+        )
+        return last_interaction_id, types.evals.AgentData(
+            turns=turns
+        ).model_dump(  # pytype: disable=missing-parameter
+            mode="json", exclude_none=True
+        )
+
+    num_rows = len(prompt_dataset)
+    interaction_ids: list[Optional[str]] = [None] * num_rows
+    agent_data: list[dict[str, Any]] = [{}] * num_rows
+    max_workers = max(1, min(num_rows, AGENT_MAX_WORKERS))
+    with tqdm(total=num_rows, desc="Gemini Agent User Simulation") as pbar:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+            future_to_index = {
+                executor.submit(_simulate_one, row): index
+                for index, (_, row) in enumerate(prompt_dataset.iterrows())
+            }
+            for future in concurrent.futures.as_completed(future_to_index):
+                index = future_to_index[future]
+                try:
+                    interaction_ids[index], agent_data[index] = future.result()
+                except _USER_SIMULATION_SCENARIO_ERRORS:
+                    logger.exception(
+                        "Gemini agent user simulation failed for a scenario"
+                        " (recording an empty row and continuing)."
+                    )
+                pbar.update(1)
+
+    results_df = prompt_dataset.reset_index(drop=True).copy()
+    overlap = results_df.columns.intersection(
+        [_evals_constant.INTERACTION_ID, _evals_constant.AGENT_DATA]
+    )
+    if not overlap.empty:
+        results_df = results_df.drop(columns=overlap)
+    results_df[_evals_constant.INTERACTION_ID] = interaction_ids
+    results_df[_evals_constant.AGENT_DATA] = agent_data
+    return results_df
 
 
 def _normalize_interaction_resource(
@@ -1554,6 +1882,7 @@ def _execute_inference_concurrently(
                                 contents=contents_arg,
                                 user_simulator_config=user_simulator_config_arg,
                                 agent=agent_arg,
+                                api_client=api_client_arg,
                             )
 
                     future = executor.submit(
@@ -2011,52 +2340,16 @@ def _run_inference_internal(
 async def _run_adk_user_simulation(
     row: pd.Series,
     agent: "LlmAgent",  # type: ignore # noqa: F821
+    api_client: BaseApiClient,
     config: Optional[types.evals.UserSimulatorConfig] = None,
 ) -> list[dict[str, Any]]:
     """Runs a multi-turn user simulation using ADK's EvaluationGenerator."""
     # Lazy-import ADK dependencies to avoid top-level import failures when
     # google-adk is not installed.
-    from google.adk.evaluation.conversation_scenarios import ConversationScenario
     from google.adk.evaluation.eval_case import SessionInput as ADK_SessionInput
     from google.adk.evaluation.evaluation_generator import EvaluationGenerator
-    from google.adk.evaluation.simulation.llm_backed_user_simulator import (
-        LlmBackedUserSimulator,
-    )
-    from google.adk.evaluation.simulation.llm_backed_user_simulator import (
-        LlmBackedUserSimulatorConfig,
-    )
 
-    starting_prompt = row.get("starting_prompt")
-    conversation_plan = row.get("conversation_plan")
-    user_persona = "EVALUATOR"
-
-    if not starting_prompt or not conversation_plan:
-        raise ValueError(
-            "User simulation requires 'starting_prompt' and 'conversation_plan'"
-            " columns."
-        )
-
-    scenario = ConversationScenario(
-        starting_prompt=starting_prompt,
-        conversation_plan=conversation_plan,
-        user_persona=user_persona,
-    )
-
-    user_simulator_kwargs: dict[str, Any] = {}
-    if config:
-        if config.model_name:
-            user_simulator_kwargs["model"] = config.model_name
-        if config.model_configuration is not None:
-            user_simulator_kwargs["model_configuration"] = (
-                config.model_configuration.model_dump(exclude_none=True)
-            )
-        if config.max_turn is not None:
-            user_simulator_kwargs["max_allowed_invocations"] = config.max_turn
-
-    user_simulator_config = LlmBackedUserSimulatorConfig(**user_simulator_kwargs)
-    user_simulator = LlmBackedUserSimulator(
-        conversation_scenario=scenario, config=user_simulator_config
-    )
+    user_simulator = _build_user_simulator(row, config, api_client)
 
     try:
         initial_session = _get_session_inputs(row)
@@ -2269,12 +2562,22 @@ def _execute_inference(
 
     if gemini_agent:
         start_time = time.time()
-        logger.debug("Starting Gemini Agent inference process ...")
-        results_df = _run_gemini_agent_inference(
-            api_client=api_client,
-            gemini_agent=gemini_agent,
-            prompt_dataset=prompt_dataset,
-        )
+        if _is_multi_turn_agent_simulation(user_simulator_config, prompt_dataset):
+            logger.debug("Starting Gemini Agent user simulation process ...")
+            results_df = _run_gemini_agent_user_simulation(
+                api_client=api_client,
+                gemini_agent=gemini_agent,
+                prompt_dataset=prompt_dataset,
+                user_simulator_config=user_simulator_config,
+                allow_cross_region_model=allow_cross_region_model,
+            )
+        else:
+            logger.debug("Starting Gemini Agent inference process ...")
+            results_df = _run_gemini_agent_inference(
+                api_client=api_client,
+                gemini_agent=gemini_agent,
+                prompt_dataset=prompt_dataset,
+            )
         end_time = time.time()
         logger.info(
             "Gemini Agent inference completed in %.2f seconds.",
@@ -3018,61 +3321,35 @@ def _run_agent(
         genai_types.GenerateContentResponse,
     ]
 ]:
-    """Internal helper to run inference using Gemini model with concurrency."""
-    original_location = os.environ.get("GOOGLE_CLOUD_LOCATION")
-    location_overridden = False
+    """Internal helper to run inference using Gemini model with concurrency.
 
-    if user_simulator_config and user_simulator_config.model_name:
-        model_name = user_simulator_config.model_name
-        if model_name.startswith("gemini-3") and "/" not in model_name:
-            current_location = original_location or api_client.location or "us-central1"
-            if current_location != "global" and not allow_cross_region_model:
-                raise ValueError(
-                    f"The model '{model_name}' is currently only available in the"
-                    " 'global' region. Because this request originated in"
-                    f" '{current_location}', you must explicitly set"
-                    " allow_cross_region_model=True to allow your data to be routed"
-                    " outside of your request's region."
-                )
-
-            logger.warning(
-                "Model %s is only available in the global region. Routing to global.",
-                model_name,
-            )
-            user_simulator_config.model_name = f"projects/{api_client.project}/locations/global/publishers/google/models/{model_name}"
-            if original_location != "global":
-                os.environ["GOOGLE_CLOUD_LOCATION"] = "global"
-                location_overridden = True
-
-    try:
-        if agent_engine:
-            return _execute_inference_concurrently(
-                api_client=api_client,
-                agent_engine=agent_engine,
-                prompt_dataset=prompt_dataset,
-                progress_desc="Agent Run",
-                gemini_config=None,
-                user_simulator_config=None,
-                inference_fn=_execute_agent_run_with_retry,
-            )
-        elif agent:
-            return _execute_inference_concurrently(
-                api_client=api_client,
-                agent=agent,
-                prompt_dataset=prompt_dataset,
-                progress_desc="Local Agent Run",
-                gemini_config=None,
-                user_simulator_config=user_simulator_config,
-                inference_fn=_execute_local_agent_run_with_retry,
-            )
-        else:
-            raise ValueError("Neither agent_engine nor agent is provided.")
-    finally:
-        if location_overridden:
-            if original_location is None:
-                del os.environ["GOOGLE_CLOUD_LOCATION"]
-            else:
-                os.environ["GOOGLE_CLOUD_LOCATION"] = original_location
+    The simulator model (when user simulation is enabled) runs in `api_client`'s
+    region; `allow_cross_region_model` is accepted for API compatibility but the
+    simulator is never routed to a different region.
+    """
+    del allow_cross_region_model  # Simulator always runs in the client region.
+    if agent_engine:
+        return _execute_inference_concurrently(
+            api_client=api_client,
+            agent_engine=agent_engine,
+            prompt_dataset=prompt_dataset,
+            progress_desc="Agent Run",
+            gemini_config=None,
+            user_simulator_config=None,
+            inference_fn=_execute_agent_run_with_retry,
+        )
+    elif agent:
+        return _execute_inference_concurrently(
+            api_client=api_client,
+            agent=agent,
+            prompt_dataset=prompt_dataset,
+            progress_desc="Local Agent Run",
+            gemini_config=None,
+            user_simulator_config=user_simulator_config,
+            inference_fn=_execute_local_agent_run_with_retry,
+        )
+    else:
+        raise ValueError("Neither agent_engine nor agent is provided.")
 
 
 def _create_agent_engine_session(
@@ -3239,13 +3516,14 @@ def _execute_local_agent_run_with_retry(
     row: pd.Series,
     contents: Union[genai_types.ContentListUnion, genai_types.ContentListUnionDict],
     agent: "LlmAgent",  # type: ignore # noqa: F821
+    api_client: BaseApiClient,
     max_retries: int = 3,
     user_simulator_config: Optional[types.evals.UserSimulatorConfig] = None,
 ) -> Union[list[dict[str, Any]], dict[str, Any]]:
     """Executes agent run locally for a single prompt synchronously."""
     return asyncio.run(
         _execute_local_agent_run_with_retry_async(
-            row, contents, agent, max_retries, user_simulator_config
+            row, contents, agent, api_client, max_retries, user_simulator_config
         )
     )
 
@@ -3254,6 +3532,7 @@ async def _execute_local_agent_run_with_retry_async(
     row: pd.Series,
     contents: Union[genai_types.ContentListUnion, genai_types.ContentListUnionDict],
     agent: "LlmAgent",  # type: ignore # noqa: F821
+    api_client: BaseApiClient,
     max_retries: int = 3,
     user_simulator_config: Optional[types.evals.UserSimulatorConfig] = None,
 ) -> Union[list[dict[str, Any]], dict[str, Any]]:
@@ -3266,7 +3545,9 @@ async def _execute_local_agent_run_with_retry_async(
     # Multi-turn agent scraping with user simulation.
     if user_simulator_config or "conversation_plan" in row:
         try:
-            return await _run_adk_user_simulation(row, agent, user_simulator_config)
+            return await _run_adk_user_simulation(
+                row, agent, api_client, user_simulator_config
+            )
         except Exception as e:  # pylint: disable=broad-exception-caught
             logger.error("Multi-turn agent run with user simulation failed: %s", e)
             return {"error": f"Multi-turn agent run with user simulation failed: {e}"}

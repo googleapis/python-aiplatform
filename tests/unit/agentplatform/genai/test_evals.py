@@ -15,6 +15,8 @@
 # pylint: disable=protected-access,bad-continuation,
 import base64
 import builtins
+import asyncio
+import enum
 import importlib
 import json
 import os
@@ -4291,6 +4293,226 @@ class TestEvalsRunInference:
         )
         mock_get_interactions_client.assert_not_called()
 
+    def _build_user_simulation_adk_modules(self):
+        """Builds mock ADK modules for the Gemini-agent user simulation path.
+
+        Returns the sys.modules patch dict, a fake `Status` enum, and the mock
+        simulator whose `get_next_user_message` the test scripts directly.
+        """
+
+        class _Status(enum.Enum):
+            SUCCESS = "success"
+            TURN_LIMIT_REACHED = "turn_limit_reached"
+            STOP_SIGNAL_DETECTED = "stop_signal_detected"
+            NO_MESSAGE_GENERATED = "no_message_generated"
+
+        class _FakeGemini:
+            model_fields = {"client_kwargs": None}
+
+            def __init__(self):
+                self.client_kwargs = None
+
+        mock_simulator = mock.Mock()
+        mock_simulator._llm = _FakeGemini()
+        mock_simulator.get_next_user_message = mock.AsyncMock()
+        mock_simulator_cls = mock.Mock(return_value=mock_simulator)
+
+        mock_modules = {
+            "google.adk": mock.MagicMock(),
+            "google.adk.evaluation": mock.MagicMock(),
+            "google.adk.evaluation.conversation_scenarios": mock.MagicMock(
+                ConversationScenario=mock.MagicMock()
+            ),
+            "google.adk.evaluation.simulation": mock.MagicMock(),
+            "google.adk.evaluation.simulation.llm_backed_user_simulator": mock.MagicMock(
+                LlmBackedUserSimulator=mock_simulator_cls,
+                LlmBackedUserSimulatorConfig=mock.MagicMock(),
+            ),
+            "google.adk.evaluation.simulation.user_simulator": mock.MagicMock(
+                Status=_Status
+            ),
+            "google.adk.events": mock.MagicMock(),
+            "google.adk.events.event": mock.MagicMock(Event=mock.MagicMock()),
+        }
+        return mock_modules, _Status, mock_simulator
+
+    @mock.patch.object(_evals_common, "_get_interactions_client")
+    @mock.patch.object(_evals_utils, "EvalDatasetLoader")
+    def test_run_inference_gemini_agent_user_simulation(
+        self, mock_eval_dataset_loader, mock_get_interactions_client
+    ):
+        mock_df = pd.DataFrame(
+            {
+                "starting_prompt": ["Plan my weekend trip."],
+                "conversation_plan": ["Step 1: ask. Step 2: cheaper. Step 3: recap."],
+            }
+        )
+        mock_eval_dataset_loader.return_value.load.return_value = mock_df.to_dict(
+            orient="records"
+        )
+
+        def make_interaction(interaction_id, user_text, output_text):
+            return {
+                "id": interaction_id,
+                "status": "completed",
+                "steps": [
+                    {
+                        "type": "user_input",
+                        "content": [{"type": "text", "text": user_text}],
+                    },
+                    {
+                        "type": "model_output",
+                        "content": [{"type": "text", "text": output_text}],
+                    },
+                ],
+            }
+
+        mock_interactions = mock.Mock()
+        mock_interactions.create.side_effect = [
+            make_interaction(
+                "interaction-1", "Plan my weekend trip.", "How about Paris?"
+            ),
+            make_interaction("interaction-2", "Somewhere cheaper?", "Try Lisbon."),
+        ]
+        mock_get_interactions_client.return_value = mock_interactions
+
+        mock_modules, status_cls, mock_simulator = (
+            self._build_user_simulation_adk_modules()
+        )
+        mock_simulator.get_next_user_message.side_effect = [
+            self._next_message(status_cls.SUCCESS, "Plan my weekend trip."),
+            self._next_message(status_cls.SUCCESS, "Somewhere cheaper?"),
+            self._next_message(status_cls.STOP_SIGNAL_DETECTED, None),
+        ]
+
+        with mock.patch.dict(os.environ, {"GOOGLE_CLOUD_LOCATION": "us-central1"}):
+            with mock.patch.dict(sys.modules, mock_modules):
+                inference_result = self.client.evals.run_inference(
+                    src=mock_df,
+                    agent=_TEST_GEMINI_AGENT,
+                    config=agentplatform_genai_types.EvalRunInferenceConfig(
+                        user_simulator_config=agentplatform_genai_types.evals.UserSimulatorConfig(
+                            model_name="gemini-2.5-flash", max_turn=3
+                        )
+                    ),
+                )
+            # Compliance: the env location is never mutated.
+            assert os.environ["GOOGLE_CLOUD_LOCATION"] == "us-central1"
+
+        result_df = inference_result.eval_dataset_df
+        assert result_df["interaction_id"].tolist() == ["interaction-2"]
+        assert mock_interactions.create.call_count == 2
+        first_request = mock_interactions.create.call_args_list[0].args[0]
+        assert "previous_interaction_id" not in first_request
+        assert first_request["input"] == [
+            {"type": "text", "text": "Plan my weekend trip."}
+        ]
+        second_request = mock_interactions.create.call_args_list[1].args[0]
+        assert second_request["previous_interaction_id"] == "interaction-1"
+        agent_data = result_df["agent_data"].tolist()[0]
+        assert len(agent_data["turns"]) == 2
+        assert agent_data["turns"][0]["turn_index"] == 0
+        assert agent_data["turns"][1]["turn_index"] == 1
+        # Compliance: the simulator model is pinned to the client's region.
+        client_kwargs = mock_simulator._llm.client_kwargs
+        assert client_kwargs["location"] == self.client._api_client.location
+        assert client_kwargs["project"] == self.client._api_client.project
+
+    @mock.patch.object(_evals_common, "_get_interactions_client")
+    @mock.patch.object(_evals_utils, "EvalDatasetLoader")
+    def test_run_inference_gemini_agent_user_simulation_from_running_loop(
+        self, mock_eval_dataset_loader, mock_get_interactions_client
+    ):
+        mock_df = pd.DataFrame(
+            {
+                "starting_prompt": ["Plan my weekend trip."],
+                "conversation_plan": ["Step 1: ask. Step 2: recap."],
+            }
+        )
+        mock_eval_dataset_loader.return_value.load.return_value = mock_df.to_dict(
+            orient="records"
+        )
+
+        mock_interactions = mock.Mock()
+        mock_interactions.create.return_value = {
+            "id": "interaction-1",
+            "status": "completed",
+            "steps": [
+                {
+                    "type": "user_input",
+                    "content": [{"type": "text", "text": "Plan my weekend trip."}],
+                },
+                {
+                    "type": "model_output",
+                    "content": [{"type": "text", "text": "How about Paris?"}],
+                },
+            ],
+        }
+        mock_get_interactions_client.return_value = mock_interactions
+
+        mock_modules, status_cls, mock_simulator = (
+            self._build_user_simulation_adk_modules()
+        )
+        mock_simulator.get_next_user_message.side_effect = [
+            self._next_message(status_cls.SUCCESS, "Plan my weekend trip."),
+            self._next_message(status_cls.STOP_SIGNAL_DETECTED, None),
+        ]
+
+        async def _call_from_running_loop():
+            return self.client.evals.run_inference(
+                src=mock_df,
+                agent=_TEST_GEMINI_AGENT,
+                config=agentplatform_genai_types.EvalRunInferenceConfig(
+                    user_simulator_config=agentplatform_genai_types.evals.UserSimulatorConfig(
+                        model_name="gemini-2.5-flash", max_turn=2
+                    )
+                ),
+            )
+
+        with mock.patch.dict(sys.modules, mock_modules):
+            inference_result = asyncio.run(_call_from_running_loop())
+
+        result_df = inference_result.eval_dataset_df
+        assert result_df["interaction_id"].tolist() == ["interaction-1"]
+        assert result_df["agent_data"].tolist()[0]["turns"]
+
+    @mock.patch.object(_evals_common, "_get_interactions_client")
+    @mock.patch.object(_evals_utils, "EvalDatasetLoader")
+    def test_run_inference_gemini_agent_user_simulation_missing_columns(
+        self, mock_eval_dataset_loader, mock_get_interactions_client
+    ):
+        mock_df = pd.DataFrame({"prompt": ["no plan here"]})
+        mock_eval_dataset_loader.return_value.load.return_value = mock_df.to_dict(
+            orient="records"
+        )
+        mock_get_interactions_client.return_value = mock.Mock()
+
+        mock_modules, _, _ = self._build_user_simulation_adk_modules()
+        with mock.patch.dict(sys.modules, mock_modules):
+            inference_result = self.client.evals.run_inference(
+                src=mock_df,
+                agent=_TEST_GEMINI_AGENT,
+                config=agentplatform_genai_types.EvalRunInferenceConfig(
+                    user_simulator_config=agentplatform_genai_types.evals.UserSimulatorConfig(
+                        max_turn=3
+                    )
+                ),
+            )
+
+        result_df = inference_result.eval_dataset_df
+        assert pd.isna(result_df["interaction_id"].iloc[0])
+        assert result_df["agent_data"].iloc[0] == {}
+
+    def _next_message(self, status, text):
+        msg = mock.Mock()
+        msg.status = status
+        msg.user_message = (
+            genai_types.Content(parts=[genai_types.Part(text=text)], role="user")
+            if text is not None
+            else None
+        )
+        return msg
+
 
 @pytest.mark.usefixtures("google_auth_mock")
 class TestAwaitInteraction:
@@ -4452,7 +4674,7 @@ class TestRunAgent:
     """Unit tests for the _run_agent function."""
 
     @mock.patch.object(_evals_common, "_execute_inference_concurrently")
-    def test_run_agent_rewrites_gemini_3_model_name(
+    def test_run_agent_does_not_mutate_env_or_config(
         self, mock_execute_inference_concurrently, mock_api_client_fixture
     ):
         mock_execute_inference_concurrently.return_value = []
@@ -4464,7 +4686,7 @@ class TestRunAgent:
             os.environ["GOOGLE_CLOUD_LOCATION"] = "us-central1"
 
             def mock_execute(*args, **kwargs):
-                assert os.environ["GOOGLE_CLOUD_LOCATION"] == "global"
+                assert os.environ["GOOGLE_CLOUD_LOCATION"] == "us-central1"
                 return []
 
             mock_execute_inference_concurrently.side_effect = mock_execute
@@ -4478,38 +4700,11 @@ class TestRunAgent:
                 allow_cross_region_model=True,
             )
 
-            assert (
-                user_simulator_config.model_name
-                == f"projects/{mock_api_client_fixture.project}/locations/global/publishers/google/models/gemini-3-preview"
-            )
+            assert user_simulator_config.model_name == "gemini-3-preview"
             assert os.environ.get("GOOGLE_CLOUD_LOCATION") == "us-central1"
 
     @mock.patch.object(_evals_common, "_execute_inference_concurrently")
-    def test_run_agent_raises_error_if_gemini_3_and_allow_cross_region_model_false(
-        self, mock_execute_inference_concurrently, mock_api_client_fixture
-    ):
-        user_simulator_config = agentplatform_genai_types.evals.UserSimulatorConfig(
-            model_name="gemini-3-preview"
-        )
-        prompt_dataset = pd.DataFrame({"prompt": ["prompt1"]})
-        with mock.patch.dict(os.environ, clear=True):
-            os.environ["GOOGLE_CLOUD_LOCATION"] = "us-central1"
-
-            with pytest.raises(
-                ValueError,
-                match="The model 'gemini-3-preview' is currently only available in the 'global' region.",
-            ):
-                _evals_common._run_agent(
-                    api_client=mock_api_client_fixture,
-                    agent_engine=mock.Mock(),
-                    agent=None,
-                    prompt_dataset=prompt_dataset,
-                    user_simulator_config=user_simulator_config,
-                    allow_cross_region_model=False,
-                )
-
-    @mock.patch.object(_evals_common, "_execute_inference_concurrently")
-    def test_run_agent_rewrites_gemini_3_model_name_empty_env(
+    def test_run_agent_does_not_raise_for_gemini_3_model(
         self, mock_execute_inference_concurrently, mock_api_client_fixture
     ):
         mock_execute_inference_concurrently.return_value = []
@@ -4518,27 +4713,15 @@ class TestRunAgent:
         )
         prompt_dataset = pd.DataFrame({"prompt": ["prompt1"]})
         with mock.patch.dict(os.environ, clear=True):
-
-            def mock_execute(*args, **kwargs):
-                assert os.environ["GOOGLE_CLOUD_LOCATION"] == "global"
-                return []
-
-            mock_execute_inference_concurrently.side_effect = mock_execute
-
+            os.environ["GOOGLE_CLOUD_LOCATION"] = "us-central1"
             _evals_common._run_agent(
                 api_client=mock_api_client_fixture,
                 agent_engine=mock.Mock(),
                 agent=None,
                 prompt_dataset=prompt_dataset,
                 user_simulator_config=user_simulator_config,
-                allow_cross_region_model=True,
+                allow_cross_region_model=False,
             )
-
-            assert (
-                user_simulator_config.model_name
-                == f"projects/{mock_api_client_fixture.project}/locations/global/publishers/google/models/gemini-3-preview"
-            )
-            assert "GOOGLE_CLOUD_LOCATION" not in os.environ
 
 
 class TestRunAgentInternal:
@@ -4772,7 +4955,11 @@ class TestRunAgentInternal:
                 "google.adk.evaluation.simulation.llm_backed_user_simulator": mock_adk_simulator_module,
             },
         ):
-            turns = await _evals_common._run_adk_user_simulation(row, mock_agent)
+            turns = await _evals_common._run_adk_user_simulation(
+                row,
+                mock_agent,
+                mock.Mock(project="test-project", location="us-central1"),
+            )
 
         assert len(turns) == 1
         turn = turns[0]
@@ -7888,8 +8075,11 @@ class TestRunAdkUserSimulation:
             return_value=[mock_invocation]
         )
 
+        mock_api_client = mock.Mock(project="test-project", location="us-central1")
         with mock.patch.dict(sys.modules, mock_modules):
-            turns = await _evals_common._run_adk_user_simulation(row, mock_agent)
+            turns = await _evals_common._run_adk_user_simulation(
+                row, mock_agent, mock_api_client
+            )
 
         assert len(turns) == 1
         turn = turns[0]
@@ -7913,10 +8103,13 @@ class TestRunAdkUserSimulation:
         mock_modules, _, _, _, _, _ = self._build_adk_mock_modules()
         row = pd.Series({"conversation_plan": "plan"})
         mock_agent = mock.Mock()
+        mock_api_client = mock.Mock(project="test-project", location="us-central1")
 
         with mock.patch.dict(sys.modules, mock_modules):
             with pytest.raises(ValueError, match="User simulation requires"):
-                await _evals_common._run_adk_user_simulation(row, mock_agent)
+                await _evals_common._run_adk_user_simulation(
+                    row, mock_agent, mock_api_client
+                )
 
     @pytest.mark.asyncio
     async def test_run_adk_user_simulation_missing_session_inputs(self):
@@ -7945,9 +8138,12 @@ class TestRunAdkUserSimulation:
         mock_generator_cls._generate_inferences_from_root_agent = mock.AsyncMock(
             return_value=[mock_invocation]
         )
+        mock_api_client = mock.Mock(project="test-project", location="us-central1")
 
         with mock.patch.dict(sys.modules, mock_modules):
-            await _evals_common._run_adk_user_simulation(row, mock_agent)
+            await _evals_common._run_adk_user_simulation(
+                row, mock_agent, mock_api_client
+            )
 
         mock_scenario_cls.assert_called_once_with(
             starting_prompt="start",

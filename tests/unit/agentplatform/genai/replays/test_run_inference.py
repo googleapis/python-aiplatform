@@ -325,6 +325,51 @@ def test_inference_with_gemini_agent(client):
     assert result_df["interaction_id"].iloc[0]
 
 
+def test_inference_with_gemini_agent_user_simulation(client):
+    """Tests multi-turn user simulation against a Gemini Agents API agent.
+
+    An ADK LlmBackedUserSimulator generates the user turns while the
+    conversation is driven client-side through the Interactions API, chaining
+    turns via previous_interaction_id. The result is a multi-turn agent_data
+    trace per scenario.
+    """
+    import pandas as pd
+
+    prompts_df = pd.DataFrame(
+        {
+            "starting_prompt": [
+                "I'm planning a weekend trip. Can you help me pick a destination?"
+            ],
+            "conversation_plan": [
+                "Step 1: User asks for help planning a weekend trip. "
+                "Step 2: User asks for a cheaper alternative destination. "
+                "Step 3: User asks the assistant to summarize the final plan."
+            ],
+        }
+    )
+
+    eval_dataset = client.evals.run_inference(
+        src=prompts_df,
+        agent="projects/model-evaluation-dev/locations/global/agents/test-agent-eval",
+        config=types.EvalRunInferenceConfig(
+            user_simulator_config=types.evals.UserSimulatorConfig(
+                model_name="gemini-2.5-flash",
+                max_turn=3,
+            )
+        ),
+    )
+
+    assert isinstance(eval_dataset, types.EvaluationDataset)
+    result_df = eval_dataset.eval_dataset_df
+    assert result_df is not None
+    assert set(["interaction_id", "agent_data"]).issubset(set(result_df.columns))
+    assert len(result_df) == 1
+    assert result_df["interaction_id"].iloc[0]
+    agent_data = result_df["agent_data"].iloc[0]
+    assert agent_data
+    assert len(agent_data["turns"]) >= 2
+
+
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
