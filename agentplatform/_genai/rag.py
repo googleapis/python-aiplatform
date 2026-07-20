@@ -2926,6 +2926,17 @@ class Rag(_api_module.BaseModule):
 
         Returns:
           The created RagCorpus.
+
+        Example usage:
+
+        ```
+        corpus = client.rag.create_corpus(
+            rag_corpus=types.RagCorpus(
+                display_name="test-corpus",
+                name="projects/test-project/locations/us-central1/ragCorpora/123456789",
+            ),
+        )
+        ```
         """
         operation = self._create_corpus(rag_corpus=rag_corpus, config=config)
 
@@ -2954,6 +2965,14 @@ class Rag(_api_module.BaseModule):
           name: The name of the RagCorpus to delete, formatted as
             `projects/{project}/locations/{location}/ragCorpora/{corpus_id}`.
           config: The configuration to use for the RagCorpus delete request.
+
+        Example usage:
+
+        ```
+        client.rag.delete_corpus(
+            name="projects/test-project/locations/us-central1/ragCorpora/123456789",
+        )
+        ```
         """
 
         operation = self._delete_corpus(name=name, config=config)
@@ -2983,6 +3002,14 @@ class Rag(_api_module.BaseModule):
           name: The name of the RagFile to delete, formatted as
             `projects/{project}/locations/{location}/ragCorpora/{corpus_id}/ragFiles/{file_id}`.
           config: The configuration to use for the RagFile delete request.
+
+        Example usage:
+
+        ```
+        client.rag.delete_file(
+            name="projects/test-project/locations/us-central1/ragCorpora/123456789/ragFiles/987654321",
+        )
+        ```
         """
         operation = self._delete_file(name=name, config=config)
 
@@ -3016,7 +3043,19 @@ class Rag(_api_module.BaseModule):
 
         Returns:
           The updated RagCorpus.
+
+        Example usage:
+
+        ```
+        client.rag.update_corpus(
+            name="projects/test-project/locations/us-central1/ragCorpora/123456789",
+            rag_corpus=types.RagCorpus(
+                display_name="Updated corpus name",
+            ),
+        )
+        ```
         """
+
         operation = self._update_corpus(name=name, rag_corpus=rag_corpus, config=config)
 
         operation = _operations_utils.await_operation(
@@ -3046,6 +3085,19 @@ class Rag(_api_module.BaseModule):
 
         Returns:
           The updated RagEngineConfig.
+
+        Example usage:
+
+        ```
+        client.rag.update_config(
+            updated_config=types.RagEngineConfig(
+                name="projects/test-project/locations/us-central1/ragCorpora/123456789/ragEngineConfig/123456789",
+                rag_managed_db_config=types.RagManagedDbConfig(
+                    basic=types.RagManagedDbConfigBasic()
+                ),
+            ),
+        )
+        ```
         """
         operation = self._update_config(
             updated_config=updated_config, config=request_config
@@ -3073,17 +3125,6 @@ class Rag(_api_module.BaseModule):
         """
         Imports files into a Rag Corpus. To get a list of all files on the corpus after calling import_files, call list_files.
 
-        Example usage:
-
-        ```
-        client.rag.import_files(
-            name="projects/test-project/locations/us-central1/ragCorpora/123456789",
-            import_config=types.ImportRagFilesConfig(
-                gcs_source=types.GcsSource(uris=["gs://test-bucket/test-file.pdf"]),
-            ),
-        )
-        ```
-
         Args:
           name: The name of the Rag Corpus to import files into, format:
             `projects/{project}/locations/{location}/ragCorpora/{rag_corpus_id}`
@@ -3092,6 +3133,17 @@ class Rag(_api_module.BaseModule):
 
         Returns:
           The ImportRagFilesResponse from the import files operation.
+
+        Example usage:
+
+        ```
+        import_files_response = client.rag.import_files(
+            name="projects/test-project/locations/us-central1/ragCorpora/123456789",
+            import_config=types.ImportRagFilesConfig(
+                gcs_source=types.GcsSource(uris=["gs://test-bucket/test-file.pdf"]),
+            ),
+        )
+        ```
         """
         if isinstance(import_config, dict):
             import_config = types.ImportRagFilesConfig.model_validate(import_config)
@@ -3148,6 +3200,22 @@ class Rag(_api_module.BaseModule):
 
         Returns:
           The uploaded RagFile.
+
+        Example usage:
+
+        ```
+        rag_file = client.rag.upload_file(
+            corpus_name="projects/test-project/locations/us-central1/ragCorpora/123456789",
+            path="/path/to/file.pdf",
+            display_name="test-file",
+            upload_rag_file_config=types.UploadRagFileConfig(
+                chunk_config=types.ChunkConfig(
+                    chunk_size=1024,
+                    chunk_overlap=128,
+                ),
+            ),
+        )
+        ```
         """
 
         if not display_name:
@@ -4534,6 +4602,17 @@ class AsyncRag(_api_module.BaseModule):
 
         Returns:
           The created RagCorpus.
+
+        Example usage:
+
+        ```
+        corpus = await client.aio.rag.create_corpus(
+            rag_corpus=types.RagCorpus(
+                display_name="test-corpus",
+                name="projects/test-project/locations/us-central1/ragCorpora/123456789",
+            ),
+        )
+        ```
         """
         operation = await self._create_corpus(rag_corpus=rag_corpus, config=config)
 
@@ -4562,6 +4641,14 @@ class AsyncRag(_api_module.BaseModule):
           name: The name of the RagCorpus to delete, formatted as
             `projects/{project}/locations/{location}/ragCorpora/{corpus_id}`.
           config: The configuration to use for the RagCorpus delete request.
+
+        Example usage:
+
+        ```
+        await client.aio.rag.delete_corpus(
+            name="projects/test-project/locations/us-central1/ragCorpora/123456789",
+        )
+        ```
         """
         operation = await self._delete_corpus(name=name, config=config)
 
@@ -4590,6 +4677,14 @@ class AsyncRag(_api_module.BaseModule):
           name: The name of the RagFile to delete, formatted as
             `projects/{project}/locations/{location}/ragCorpora/{corpus_id}/ragFiles/{file_id}`.
           config: The configuration to use for the RagFile delete request.
+
+        Example usage:
+
+        ```
+        await client.aio.rag.delete_file(
+            name="projects/test-project/locations/us-central1/ragCorpora/123456789/ragFiles/987654321",
+        )
+        ```
         """
         operation = await self._delete_file(name=name, config=config)
 
@@ -4623,6 +4718,17 @@ class AsyncRag(_api_module.BaseModule):
 
         Returns:
           The updated RagCorpus.
+
+        Example usage:
+
+        ```
+        await client.aio.rag.update_corpus(
+            name="projects/test-project/locations/us-central1/ragCorpora/123456789",
+            rag_corpus=types.RagCorpus(
+                display_name="Updated corpus name",
+            ),
+        )
+        ```
         """
         operation = await self._update_corpus(
             name=name, rag_corpus=rag_corpus, config=config
@@ -4655,6 +4761,19 @@ class AsyncRag(_api_module.BaseModule):
 
         Returns:
           The updated RagEngineConfig.
+
+        Example usage:
+
+        ```
+        await client.aio.rag.update_config(
+            updated_config=types.RagEngineConfig(
+                name="projects/test-project/locations/us-central1/ragCorpora/123456789/ragEngineConfig/123456789",
+                rag_managed_db_config=types.RagManagedDbConfig(
+                    basic=types.RagManagedDbConfigBasic()
+                )
+            ),
+        )
+        ```
         """
         operation = await self._update_config(
             updated_config=updated_config, config=request_config
@@ -4685,7 +4804,7 @@ class AsyncRag(_api_module.BaseModule):
         Example usage:
 
         ```
-        client.rag.import_files(
+        import_files_response = await client.aio.rag.import_files(
             name="projects/test-project/locations/us-central1/ragCorpora/123456789",
             import_config=types.ImportRagFilesConfig(
                 gcs_source=types.GcsSource(uris=["gs://test-bucket/test-file.pdf"]),
@@ -4758,6 +4877,22 @@ class AsyncRag(_api_module.BaseModule):
 
         Returns:
           The uploaded RagFile.
+
+        Example usage:
+
+        ```
+        rag_file = await client.aio.rag.upload_file(
+            corpus_name="projects/test-project/locations/us-central1/ragCorpora/123456789",
+            path="/path/to/file.pdf",
+            display_name="test-file",
+            upload_rag_file_config=types.UploadRagFileConfig(
+                chunk_config=types.ChunkConfig(
+                    chunk_size=1024,
+                    chunk_overlap=128,
+                ),
+            ),
+        )
+        ```
         """
 
         if not display_name:
