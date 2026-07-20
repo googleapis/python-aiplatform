@@ -13363,6 +13363,24 @@ _GetRagFileRequestParametersOrDict = Union[
 ]
 
 
+class RagFileStatus(_common.BaseModel):
+    """RagFile status."""
+
+    state: Optional[RagFileState] = Field(
+        default=None, description="""The state of the RagFile."""
+    )
+
+
+class RagFileStatusDict(TypedDict, total=False):
+    """RagFile status."""
+
+    state: Optional[RagFileState]
+    """The state of the RagFile."""
+
+
+RagFileStatusOrDict = Union[RagFileStatus, RagFileStatusDict]
+
+
 class DirectUploadSource(_common.BaseModel):
     """The input content is encapsulated and uploaded in the request."""
 
@@ -13675,7 +13693,7 @@ class RagFile(_common.BaseModel):
         default=None,
         description="""Required. The display name of the RagFile. The name can be up to 128 characters long and can consist of any UTF-8 characters.""",
     )
-    file_status: Optional[genai_types.FileStatus] = Field(
+    file_status: Optional[RagFileStatus] = Field(
         default=None, description="""Output only. State of the RagFile."""
     )
     gcs_source: Optional[genai_types.GcsSource] = Field(
@@ -13730,7 +13748,7 @@ class RagFileDict(TypedDict, total=False):
     display_name: Optional[str]
     """Required. The display name of the RagFile. The name can be up to 128 characters long and can consist of any UTF-8 characters."""
 
-    file_status: Optional[genai_types.FileStatusDict]
+    file_status: Optional[RagFileStatusDict]
     """Output only. State of the RagFile."""
 
     gcs_source: Optional[genai_types.GcsSourceDict]

@@ -1312,6 +1312,9 @@ from .common import RagFileParsingConfigLlmParserDict
 from .common import RagFileParsingConfigLlmParserOrDict
 from .common import RagFileParsingConfigOrDict
 from .common import RagFileState
+from .common import RagFileStatus
+from .common import RagFileStatusDict
+from .common import RagFileStatusOrDict
 from .common import RagFileTransformationConfig
 from .common import RagFileTransformationConfigDict
 from .common import RagFileTransformationConfigOrDict
@@ -2806,6 +2809,9 @@ __all__ = [
     "GetRagFileConfig",
     "GetRagFileConfigDict",
     "GetRagFileConfigOrDict",
+    "RagFileStatus",
+    "RagFileStatusDict",
+    "RagFileStatusOrDict",
     "DirectUploadSource",
     "DirectUploadSourceDict",
     "DirectUploadSourceOrDict",
