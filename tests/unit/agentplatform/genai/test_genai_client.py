@@ -17,12 +17,15 @@
 
 import importlib
 import pytest
+import warnings
 from unittest import mock
 
 from google.cloud import aiplatform
 import agentplatform
 from agentplatform._genai import client as agentplatform_client
 from google.cloud.aiplatform import initializer as aiplatform_initializer
+import vertexai
+from vertexai._genai import client as vertexai_client
 
 
 _TEST_PROJECT = "test-project"
@@ -106,3 +109,16 @@ class TestGenAiClient:
             ).aio
             await async_client.aclose()
             mock_aclose.assert_called()
+
+    @pytest.mark.usefixtures("google_auth_mock")
+    def test_vertexai_client_deprecation_warning(self):
+
+        with mock.patch.object(vertexai_client, "_CLIENT_WARNING_SHOWN", False):
+            # Assert that the warning is triggered on the first instantiation
+            with pytest.warns(FutureWarning, match="The vertexai.Client class is deprecated"):
+                _ = vertexai.Client(project=_TEST_PROJECT, location=_TEST_LOCATION)
+            # Assert that the warning is NOT triggered on subsequent instantiations
+            with warnings.catch_warnings():
+                warnings.simplefilter("error", FutureWarning)
+                _ = vertexai.Client(project=_TEST_PROJECT, location=_TEST_LOCATION)
+                _ = vertexai.Client(project=_TEST_PROJECT, location=_TEST_LOCATION)

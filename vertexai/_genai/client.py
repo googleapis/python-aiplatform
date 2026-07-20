@@ -16,6 +16,7 @@
 import asyncio
 import importlib
 import sys
+import warnings
 from typing import Optional, Union, TYPE_CHECKING
 from types import TracebackType, ModuleType
 
@@ -43,6 +44,7 @@ if TYPE_CHECKING:
 
 
 _GENAI_MODULES_TELEMETRY_HEADER = "vertex-genai-modules"
+_CLIENT_WARNING_SHOWN = False
 
 
 def _custom_append_library_version_headers(headers: dict[str, str]) -> None:
@@ -239,6 +241,14 @@ class Client:
            http_options (Union[HttpOptions, HttpOptionsDict]): Http options to use
              for the client.
         """
+        global _CLIENT_WARNING_SHOWN
+        if not _CLIENT_WARNING_SHOWN:
+            warnings.warn(
+                "The vertexai.Client class is deprecated. Please use agentplatform.Client instead.",
+                FutureWarning,
+                stacklevel=2,
+            )
+            _CLIENT_WARNING_SHOWN = True
 
         self._debug_config = debug_config or genai_client.DebugConfig()
         if isinstance(http_options, dict):
