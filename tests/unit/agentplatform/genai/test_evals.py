@@ -31,6 +31,7 @@ from google.cloud import aiplatform
 import agentplatform
 from google.cloud.aiplatform import initializer as aiplatform_initializer
 from agentplatform import _genai
+from agentplatform._genai import _evals_builtin_tools
 from agentplatform._genai import _evals_data_converters
 from agentplatform._genai import _evals_metric_handlers
 from agentplatform._genai import _evals_visualization
@@ -4149,11 +4150,24 @@ class TestEvalsRunInference:
         assert call_kwargs["model"] == "gpt-4o"
         pd.testing.assert_frame_equal(call_kwargs["prompt_dataset"], mock_df)
 
+    @mock.patch.object(_evals_common, "_fetch_agent_config_dict")
     @mock.patch.object(_evals_common, "_get_interactions_client")
     @mock.patch.object(_evals_utils, "EvalDatasetLoader")
     def test_run_inference_with_gemini_agent(
-        self, mock_eval_dataset_loader, mock_get_interactions_client
+        self, mock_eval_dataset_loader, mock_get_interactions_client,
+        mock_fetch_agent_config
     ):
+        mock_fetch_agent_config.return_value = (
+            agentplatform_genai_types.evals.AgentConfig(
+                agent_id="test-agent",
+                instruction="You are helpful.",
+                tools=[
+                    genai_types.Tool(
+                        code_execution=genai_types.ToolCodeExecution()
+                    ),
+                ],
+            )
+        )
         mock_df = pd.DataFrame({"prompt": ["p1", "p2"]})
         mock_eval_dataset_loader.return_value.load.return_value = mock_df.to_dict(
             orient="records"
@@ -4212,12 +4226,20 @@ class TestEvalsRunInference:
         assert turn_events[1]["content"]["role"] == "model"
         assert turn_events[1]["content"]["parts"][0]["text"] == "response 1"
         assert inference_result.candidate_name == "test-agent"
+        # agents map must be populated for System Topology rendering.
+        assert "agents" in agent_data_0
+        assert "test-agent" in agent_data_0["agents"]
 
+    @mock.patch.object(_evals_common, "_fetch_agent_config_dict")
     @mock.patch.object(_evals_common, "_get_interactions_client")
     @mock.patch.object(_evals_utils, "EvalDatasetLoader")
     def test_run_inference_gemini_agent_continues_on_failure(
-        self, mock_eval_dataset_loader, mock_get_interactions_client
+        self, mock_eval_dataset_loader, mock_get_interactions_client,
+        mock_fetch_agent_config,
     ):
+        mock_fetch_agent_config.return_value = (
+            agentplatform_genai_types.evals.AgentConfig(agent_id="test-agent")
+        )
         mock_df = pd.DataFrame({"prompt": ["p1", "p2"]})
         mock_eval_dataset_loader.return_value.load.return_value = mock_df.to_dict(
             orient="records"
@@ -10904,12 +10926,19 @@ class TestResolveInteractionsForDisplay:
         assert agent_cfg.instruction == "You are a weather assistant."
         assert agent_cfg.description == "Helps with weather queries."
         assert agent_cfg.agent_type == "gemini-2.0-flash"
-        # Built-in tools are mapped to typed Tool objects; function tool also included.
+        # code_execution is expanded via catalog to run_command;
+        # google_search keeps its typed variant; function tool passes through.
         assert agent_cfg.tools is not None
         assert len(agent_cfg.tools) == 3
-        assert any(t.code_execution is not None for t in agent_cfg.tools)
+        decl_names = {
+            fd.name
+            for t in agent_cfg.tools
+            if t.function_declarations
+            for fd in t.function_declarations
+        }
+        assert "run_command" in decl_names
+        assert "get_weather" in decl_names
         assert any(t.google_search is not None for t in agent_cfg.tools)
-        assert any(t.function_declarations is not None for t in agent_cfg.tools)
 
     def test_consecutive_model_output_steps_merged(self):
         """Multiple consecutive model_output steps are merged into one event."""
@@ -11434,11 +11463,19 @@ class TestFetchAgentConfigDict:
         assert result.instruction == "You are helpful."
         assert result.description == "A helpful agent."
         assert result.agent_type == "gemini-2.0-flash"
-        # Built-in tools are mapped to typed Tool objects; function tool also included.
+        # code_execution is expanded via the catalog to run_command;
+        # google_search keeps its typed variant; function tool passes through.
         assert len(result.tools) == 3
-        assert any(t.code_execution is not None for t in result.tools)
+        # code_execution -> run_command with full parameter schema.
+        decl_names = {
+            fd.name
+            for t in result.tools
+            if t.function_declarations
+            for fd in t.function_declarations
+        }
+        assert "run_command" in decl_names
+        assert "search" in decl_names  # pass-through function tool
         assert any(t.google_search is not None for t in result.tools)
-        assert any(t.function_declarations is not None for t in result.tools)
 
     def test_fetch_failure_returns_minimal_config(self):
         """If the API call fails, returns just the agent_id."""
@@ -11478,3 +11515,137 @@ class TestFetchAgentConfigDict:
             "",
         )
         assert result.agent_id == "agent"
+
+    def test_code_execution_expands_to_run_command(self):
+        """code_execution is expanded to run_command."""
+        agent_json = {"tools": [{"type": "code_execution"}]}
+        mock_api_client = mock.MagicMock()
+        mock_api_client.request.return_value = self._make_api_response(agent_json)
+        result = _evals_common._fetch_agent_config_dict(
+            mock_api_client, "projects/p/locations/l/agents/a",
+        )
+        assert len(result.tools) == 1
+        decls = result.tools[0].function_declarations
+        assert len(decls) == 1
+        assert decls[0].name == "run_command"
+        assert decls[0].description is not None
+
+    def test_filesystem_expands_to_file_tools(self):
+        """filesystem is expanded to view_file, create_file, etc."""
+        agent_json = {"tools": [{"type": "filesystem"}]}
+        mock_api_client = mock.MagicMock()
+        mock_api_client.request.return_value = self._make_api_response(agent_json)
+        result = _evals_common._fetch_agent_config_dict(
+            mock_api_client, "projects/p/locations/l/agents/a",
+        )
+        assert len(result.tools) == 1
+        names = {fd.name for fd in result.tools[0].function_declarations}
+        assert names == {
+            "view_file", "create_file", "edit_file",
+            "list_dir", "delete_file", "move_file",
+        }
+
+    def test_environment_adds_sandbox_tools(self):
+        """When agent has environment_config, sandbox tools are appended."""
+        agent_json = {
+            "tools": [{"type": "code_execution"}],
+            "environment_config": {"some_field": "value"},
+        }
+        mock_api_client = mock.MagicMock()
+        mock_api_client.request.return_value = self._make_api_response(agent_json)
+        result = _evals_common._fetch_agent_config_dict(
+            mock_api_client, "projects/p/locations/l/agents/a",
+        )
+        # code_execution + sandbox tool
+        assert len(result.tools) == 2
+        all_decl_names = {
+            fd.name
+            for t in result.tools
+            if t.function_declarations
+            for fd in t.function_declarations
+        }
+        assert "run_command" in all_decl_names
+        assert "provision_sandbox" in all_decl_names
+        assert "load_sandbox" in all_decl_names
+
+    def test_mcp_server_kept_as_named_declaration(self):
+        """mcp_server entries are kept as named declarations, not dropped."""
+        agent_json = {
+            "tools": [
+                {"type": "google_search"},
+                {"type": "mcp_server", "name": "my-mcp", "url": "https://x.com"},
+            ],
+        }
+        mock_api_client = mock.MagicMock()
+        mock_api_client.request.return_value = self._make_api_response(agent_json)
+        result = _evals_common._fetch_agent_config_dict(
+            mock_api_client, "projects/p/locations/l/agents/a",
+        )
+        assert len(result.tools) == 2
+        assert any(t.google_search is not None for t in result.tools)
+        mcp_tool = [
+            t for t in result.tools
+            if t.function_declarations
+            and t.function_declarations[0].name == "mcp_server"
+        ]
+        assert len(mcp_tool) == 1
+        assert "my-mcp" in mcp_tool[0].function_declarations[0].description
+
+    def test_catalog_in_sync_with_server(self):
+        """SDK catalog keys and function names match the server-side catalog.
+
+        The SDK-side BUILTIN_TOOL_DECLARATIONS and SANDBOX_DECLARATIONS in
+        _evals_builtin_tools are a display-only copy of the authoritative
+        server-side catalog in interaction_converter.py.  This test imports
+        both and asserts that tool-type keys and declaration names stay in
+        sync.  If this test fails, update _evals_builtin_tools.py to match.
+        """
+        # pylint: disable=g-import-not-at-top
+        try:
+            from cloud.ai.platform.evaluation.utils import interaction_converter
+        except ImportError:
+            pytest.skip(
+                "interaction_converter not available outside google3"
+            )
+        # pylint: enable=g-import-not-at-top
+
+        # --- Built-in tool types: keys must match ---
+        server_builtin_keys = set(
+            interaction_converter._BUILTIN_TOOL_FUNCTION_DECLARATIONS.keys()
+        )
+        sdk_builtin_keys = set(_evals_builtin_tools.BUILTIN_TOOL_DECLARATIONS.keys())
+        assert sdk_builtin_keys == server_builtin_keys, (
+            f"BUILTIN_TOOL_DECLARATIONS keys out of sync.\n"
+            f"  Server: {sorted(server_builtin_keys)}\n"
+            f"  SDK:    {sorted(sdk_builtin_keys)}"
+        )
+
+        # --- Built-in tools: function names must match per type ---
+        for tool_type in server_builtin_keys:
+            server_names = {
+                fd.name
+                for fd in interaction_converter._BUILTIN_TOOL_FUNCTION_DECLARATIONS[tool_type]
+            }
+            sdk_names = {
+                fd.name
+                for fd in _evals_builtin_tools.BUILTIN_TOOL_DECLARATIONS[tool_type]
+            }
+            assert sdk_names == server_names, (
+                f"Function names for '{tool_type}' out of sync.\n"
+                f"  Server: {sorted(server_names)}\n"
+                f"  SDK:    {sorted(sdk_names)}"
+            )
+
+        # --- Sandbox declarations: names must match ---
+        server_sandbox_names = {
+            fd.name
+            for fd in interaction_converter.sandbox_function_declarations()
+        }
+        sdk_sandbox_names = {
+            fd.name for fd in _evals_builtin_tools.SANDBOX_DECLARATIONS
+        }
+        assert sdk_sandbox_names == server_sandbox_names, (
+            f"SANDBOX_DECLARATIONS names out of sync.\n"
+            f"  Server: {sorted(server_sandbox_names)}\n"
+            f"  SDK:    {sorted(sdk_sandbox_names)}"
+        )

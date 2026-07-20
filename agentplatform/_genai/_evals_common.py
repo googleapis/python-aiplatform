@@ -43,6 +43,7 @@ import pandas as pd
 from tqdm import tqdm
 from pydantic import ValidationError
 
+from . import _evals_builtin_tools
 from . import _evals_constant
 from . import _evals_data_converters
 from . import _evals_metric_handlers
@@ -501,6 +502,7 @@ def _get_default_prompt_template(
                 and eval_item.evaluation_request
                 and eval_item.evaluation_request.prompt
                 and eval_item.evaluation_request.prompt.prompt_template_data
+                and eval_item.evaluation_request.prompt.prompt_template_data.values
             ):
                 template_values = (
                     eval_item.evaluation_request.prompt.prompt_template_data.values
@@ -855,48 +857,7 @@ def _merge_text_parts_in_agent_data(
             content.parts = merged_parts
 
 
-def _agent_tools_to_config_tools(
-    agent_tools: Optional[list[Any]],
-) -> Optional[list[genai_types.Tool]]:
-    """Maps Gemini Agents API tools to ``genai_types.Tool`` for an AgentConfig.
-
-    The Gemini Agents API returns built-in tool variants (``google_search``,
-    ``code_execution``, ``url_context``) whose schema differs from
-    ``genai_types.Tool``.  Each recognised built-in variant is mapped to the
-    matching ``genai_types.Tool`` field.  Tools with a non-empty body after
-    stripping the ``type`` key (e.g. ``function_declarations``) are passed
-    through ``model_validate``.  Variants without a ``genai_types.Tool``
-    equivalent (e.g. ``filesystem``, ``mcp_server``) are skipped.
-
-    Args:
-        agent_tools: The ``tools`` list from a fetched Gemini agent dict.
-
-    Returns:
-        A list of ``genai_types.Tool``, or ``None`` if there are no mappable
-        tools.
-    """
-    if not agent_tools:
-        return None
-    tools: list[genai_types.Tool] = []
-    for tool in agent_tools:
-        if not isinstance(tool, dict):
-            continue
-        tool_type = tool.get("type")
-        if tool_type == "google_search":
-            tools.append(genai_types.Tool(google_search=genai_types.GoogleSearch()))
-        elif tool_type == "code_execution":
-            tools.append(
-                genai_types.Tool(code_execution=genai_types.ToolCodeExecution())
-            )
-        elif tool_type == "url_context":
-            tools.append(genai_types.Tool(url_context=genai_types.UrlContext()))
-        else:
-            # For non-built-in tools (e.g. function_declarations), strip the
-            # type key and validate through genai_types.Tool.
-            remainder = {k: v for k, v in tool.items() if k != "type"}
-            if remainder:
-                tools.append(genai_types.Tool.model_validate(remainder))
-    return tools or None
+_agent_tools_to_config_tools = _evals_builtin_tools.agent_tools_to_config_tools
 
 
 def _fetch_agent_config_dict(
@@ -907,9 +868,9 @@ def _fetch_agent_config_dict(
 
     Fetches the Agent resource via ``GET agents/{id}`` and extracts the
     system instruction, description, base agent type, and tools.  Built-in
-    tools (``google_search``, ``code_execution``, ``url_context``) are mapped
-    to their ``genai_types.Tool`` equivalents via
-    ``_agent_tools_to_config_tools``.
+    tool types (``code_execution``, ``filesystem``, etc.) are expanded into
+    concrete ``FunctionDeclaration`` names and descriptions via the
+    display-only catalog in ``_evals_builtin_tools``.
 
     Args:
         api_client: The API client used to fetch the agent.
@@ -934,7 +895,13 @@ def _fetch_agent_config_dict(
             instruction = agent_dict.get("system_instruction") or None
             description = agent_dict.get("description") or None
             agent_type = agent_dict.get("base_agent") or None
-            tools = _agent_tools_to_config_tools(agent_dict.get("tools"))
+            has_environment = bool(
+                agent_dict.get("environment_config")
+                or agent_dict.get("base_environment")
+            )
+            tools = _agent_tools_to_config_tools(
+                agent_dict.get("tools"), has_environment=has_environment
+            )
     except Exception as e:  # pylint: disable=broad-exception-caught
         logger.warning(
             "Failed to fetch agent config for '%s' (continuing without it): %s",
@@ -1136,6 +1103,11 @@ def _run_gemini_agent_inference(
 
     interactions_client = _get_interactions_client(api_client)
 
+    # Best-effort: fetch the agent config (instruction, tools, description)
+    # once, so every row's agent_data carries the agents map and the display
+    # can render the System Topology section.
+    agent_config = _fetch_agent_config_dict(api_client, gemini_agent)
+
     agent_short_id = gemini_agent.split("/")[-1]
     prompts: list[str] = []
     responses: list[Optional[str]] = []
@@ -1156,6 +1128,7 @@ def _run_gemini_agent_inference(
             )
             interaction = _await_interaction(interactions_client, interaction)
             agent_data_obj = _interaction_dict_to_agent_data(interaction)
+            agent_data_obj.agents = {agent_config.agent_id: agent_config}
             _merge_text_parts_in_agent_data(agent_data_obj)
             responses.append(_agent_data_response_text(agent_data_obj))
             interaction_ids.append(interaction.get("id"))
