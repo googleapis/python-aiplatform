@@ -63,6 +63,7 @@ STARTING_PROMPT = "starting_prompt"
 CONVERSATION_PLAN = "conversation_plan"
 HISTORY = "history"
 CONVERSATION_HISTORY = "conversation_history"
+DEFAULT_CANDIDATE_NAME = "candidate-1"
 
 COMMON_DATASET_COLUMNS = frozenset(
     {
