@@ -24,6 +24,26 @@ __version__ = package_version.__version__
 
 from importlib import metadata
 
+# PEP 0810: Explicit Lazy Imports
+# Python 3.15+ natively intercepts and defers these imports.
+# Developers can disable this behavior and force eager imports.
+# For more information, see:
+# https://docs.python.org/3.15/library/sys.html#sys.set_lazy_imports_filter
+# Older Python versions safely ignore this variable.
+__lazy_modules__ = {
+    "google.cloud.aiplatform.v1beta1.schema.predict.prediction_v1beta1.types.classification",
+    "google.cloud.aiplatform.v1beta1.schema.predict.prediction_v1beta1.types.image_object_detection",
+    "google.cloud.aiplatform.v1beta1.schema.predict.prediction_v1beta1.types.image_segmentation",
+    "google.cloud.aiplatform.v1beta1.schema.predict.prediction_v1beta1.types.tabular_classification",
+    "google.cloud.aiplatform.v1beta1.schema.predict.prediction_v1beta1.types.tabular_regression",
+    "google.cloud.aiplatform.v1beta1.schema.predict.prediction_v1beta1.types.text_extraction",
+    "google.cloud.aiplatform.v1beta1.schema.predict.prediction_v1beta1.types.text_sentiment",
+    "google.cloud.aiplatform.v1beta1.schema.predict.prediction_v1beta1.types.time_series_forecasting",
+    "google.cloud.aiplatform.v1beta1.schema.predict.prediction_v1beta1.types.video_action_recognition",
+    "google.cloud.aiplatform.v1beta1.schema.predict.prediction_v1beta1.types.video_classification",
+    "google.cloud.aiplatform.v1beta1.schema.predict.prediction_v1beta1.types.video_object_tracking",
+}
+
 
 from .types.classification import ClassificationPredictionResult
 from .types.image_object_detection import ImageObjectDetectionPredictionResult
