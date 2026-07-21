@@ -18,6 +18,7 @@ from tests.unit.agentplatform.genai.replays import pytest_helper
 from agentplatform import types
 from google.genai import types as genai_types
 import pandas as pd
+import contextlib
 import pytest
 from unittest import mock
 import uuid
@@ -108,6 +109,40 @@ MODEL_NAME = "projects/977012026409/locations/us-central1/publishers/google/mode
 EVAL_SET_NAME = (
     "projects/977012026409/locations/us-central1/evaluationSets/6619939608513740800"
 )
+
+
+@pytest.fixture(autouse=True)
+def _mock_auto_create_experiment():
+    """Stops create_evaluation_run from auto-creating an experiment.
+
+    create_evaluation_run auto-creates a parent EvaluationExperiment when one is
+    not provided. These replay recordings predate that behavior, so we stub the
+    experiment creation to return a name-less experiment: no extra HTTP call is
+    made and the run request omits the evaluationExperiment field, matching the
+    recordings.
+    """
+    from agentplatform._genai import evals as _evals
+
+    empty = types.EvaluationExperiment()
+    patchers = [
+        mock.patch.object(
+            _evals.Evals,
+            "create_evaluation_experiment",
+            return_value=empty,
+        )
+    ]
+    if hasattr(_evals.AsyncEvals, "create_evaluation_experiment"):
+        patchers.append(
+            mock.patch.object(
+                _evals.AsyncEvals,
+                "create_evaluation_experiment",
+                new=mock.AsyncMock(return_value=empty),
+            )
+        )
+    with contextlib.ExitStack() as stack:
+        for patcher in patchers:
+            stack.enter_context(patcher)
+        yield
 
 
 def test_create_eval_run_data_source_evaluation_set(client):
