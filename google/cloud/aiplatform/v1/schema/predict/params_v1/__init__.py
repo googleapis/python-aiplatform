@@ -24,6 +24,21 @@ __version__ = package_version.__version__
 
 from importlib import metadata
 
+# PEP 0810: Explicit Lazy Imports
+# Python 3.15+ natively intercepts and defers these imports.
+# Developers can disable this behavior and force eager imports.
+# For more information, see:
+# https://docs.python.org/3.15/library/sys.html#sys.set_lazy_imports_filter
+# Older Python versions safely ignore this variable.
+__lazy_modules__ = {
+    "google.cloud.aiplatform.v1.schema.predict.params_v1.types.image_classification",
+    "google.cloud.aiplatform.v1.schema.predict.params_v1.types.image_object_detection",
+    "google.cloud.aiplatform.v1.schema.predict.params_v1.types.image_segmentation",
+    "google.cloud.aiplatform.v1.schema.predict.params_v1.types.video_action_recognition",
+    "google.cloud.aiplatform.v1.schema.predict.params_v1.types.video_classification",
+    "google.cloud.aiplatform.v1.schema.predict.params_v1.types.video_object_tracking",
+}
+
 
 from .types.image_classification import ImageClassificationPredictionParams
 from .types.image_object_detection import ImageObjectDetectionPredictionParams

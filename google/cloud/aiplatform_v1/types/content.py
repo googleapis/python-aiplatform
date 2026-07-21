@@ -1807,7 +1807,10 @@ class GroundingChunk(proto.Message):
         )
 
     class Maps(proto.Message):
-        r"""Chunk from Google Maps.
+        r"""A ``Maps`` chunk is a piece of evidence that comes from Google Maps,
+        containing information about places or routes. This is used to
+        provide the user with rich, location-based information.
+
 
         .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
 
@@ -1834,6 +1837,8 @@ class GroundingChunk(proto.Message):
                 This includes review snippets and photos that
                 were used to generate the answer, as well as
                 uris to flag content.
+            route (google.cloud.aiplatform_v1.types.GroundingChunk.Maps.Route):
+                Output only. Route information.
         """
 
         class PlaceAnswerSources(proto.Message):
@@ -1878,6 +1883,33 @@ class GroundingChunk(proto.Message):
                 message="GroundingChunk.Maps.PlaceAnswerSources.ReviewSnippet",
             )
 
+        class Route(proto.Message):
+            r"""Route information from Google Maps.
+
+            Attributes:
+                distance_meters (int):
+                    The total distance of the route, in meters.
+                duration (google.protobuf.duration_pb2.Duration):
+                    The total duration of the route.
+                encoded_polyline (str):
+                    An encoded polyline of the route. See
+                    https://developers.google.com/maps/documentation/utilities/polylinealgorithm
+            """
+
+            distance_meters: int = proto.Field(
+                proto.INT32,
+                number=1,
+            )
+            duration: duration_pb2.Duration = proto.Field(
+                proto.MESSAGE,
+                number=2,
+                message=duration_pb2.Duration,
+            )
+            encoded_polyline: str = proto.Field(
+                proto.STRING,
+                number=3,
+            )
+
         uri: str = proto.Field(
             proto.STRING,
             number=1,
@@ -1902,6 +1934,11 @@ class GroundingChunk(proto.Message):
             proto.MESSAGE,
             number=5,
             message="GroundingChunk.Maps.PlaceAnswerSources",
+        )
+        route: "GroundingChunk.Maps.Route" = proto.Field(
+            proto.MESSAGE,
+            number=6,
+            message="GroundingChunk.Maps.Route",
         )
 
     web: Web = proto.Field(
