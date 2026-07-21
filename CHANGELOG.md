@@ -1,5 +1,30 @@
 # Changelog
 
+## [1.162.0](https://github.com/googleapis/python-aiplatform/compare/v1.161.0...v1.162.0) (2026-07-21)
+
+
+### Features
+
+* Add detailed agent tool definitions for display ([762079f](https://github.com/googleapis/python-aiplatform/commit/762079f098e21fff5f914b760671ff2cc1647567))
+* Add Route to GroundingChunk.Maps in Vertex AI v1 ([4331d55](https://github.com/googleapis/python-aiplatform/commit/4331d55ea3e388a8bb0d548015b5d819ce65394a))
+* Add Route to GroundingChunk.Maps in Vertex AI v1beta1 ([4331d55](https://github.com/googleapis/python-aiplatform/commit/4331d55ea3e388a8bb0d548015b5d819ce65394a))
+* Delegate agent resolution to server via geminiAgentConfig ([ab757c7](https://github.com/googleapis/python-aiplatform/commit/ab757c7d86f10d38438f9dda50daaa3521b46b29))
+* GenAI client - Add warning on vertexai.Client instantiation and recommend agentplatform.Client ([f141415](https://github.com/googleapis/python-aiplatform/commit/f141415043dc9c3d3cdb5850263869b1d6974f3f))
+* GenAI Client(evals) - multi-turn user simulation for Gemini Agents API run_inference ([c74e996](https://github.com/googleapis/python-aiplatform/commit/c74e996d09e7633e7bd66a06df24ecff9224846b))
+
+
+### Bug Fixes
+
+* Use the correct enum for RagFile.file_status ([23145f3](https://github.com/googleapis/python-aiplatform/commit/23145f30843febc29cc607930df02b1e083ce39a))
+
+
+### Documentation
+
+* Expand GroundingChunk.Maps documentation to describe route support ([4331d55](https://github.com/googleapis/python-aiplatform/commit/4331d55ea3e388a8bb0d548015b5d819ce65394a))
+* Expand GroundingChunk.Maps documentation to describe route support ([4331d55](https://github.com/googleapis/python-aiplatform/commit/4331d55ea3e388a8bb0d548015b5d819ce65394a))
+* GenAI client - Add example usage to RAG docstrings ([df3dcd9](https://github.com/googleapis/python-aiplatform/commit/df3dcd976330f0de50537569d76d9aef1337ed74))
+* Update product name from "Vertex AI" to "Gemini Enterprise Agent Platform" in README, and add a note to rename Agent Engine to Agent Runtime in upcoming major release ([a3179c2](https://github.com/googleapis/python-aiplatform/commit/a3179c2c7f0480b0d9abe3e205edd7e402ad5f2b))
+
 ## [1.161.0](https://github.com/googleapis/python-aiplatform/compare/v1.160.0...v1.161.0) (2026-07-14)
 
 
