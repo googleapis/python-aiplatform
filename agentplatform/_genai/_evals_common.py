@@ -90,6 +90,21 @@ USER_AUTHOR = _evals_constant.USER_AUTHOR
 AGENT_DATA = _evals_constant.AGENT_DATA
 
 
+def _local_timestamp() -> str:
+    """Returns the current local time as 'M/D/YYYY, H:MM:SS AM/PM'.
+
+    Matches the Agent Platform UI's default experiment name timestamp format
+    (e.g. '6/1/2026, 1:12:29 PM').
+    """
+    now = datetime.datetime.now()
+    hour_12 = now.hour % 12 or 12
+    meridiem = "AM" if now.hour < 12 else "PM"
+    return (
+        f"{now.month}/{now.day}/{now.year}, "
+        f"{hour_12}:{now.minute:02d}:{now.second:02d} {meridiem}"
+    )
+
+
 @contextlib.contextmanager
 def _temp_logger_level(logger_name: str, level: int) -> None:  # type: ignore[misc]
     """Temporarily sets the level of a logger."""
