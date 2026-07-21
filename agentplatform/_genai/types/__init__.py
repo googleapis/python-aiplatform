@@ -56,6 +56,7 @@ from .common import _DeleteAgentEngineSandboxRequestParameters
 from .common import _DeleteAgentEngineSessionRequestParameters
 from .common import _DeleteAgentEngineTaskRequestParameters
 from .common import _DeleteDatasetRequestParameters
+from .common import _DeleteEvaluationExperimentParameters
 from .common import _DeleteEvaluationMetricParameters
 from .common import _DeleteMultimodalDatasetRequestParameters
 from .common import _DeletePromptVersionRequestParameters
@@ -159,6 +160,7 @@ from .common import _UpdateAgentEngineMemoryRequestParameters
 from .common import _UpdateAgentEngineRequestParameters
 from .common import _UpdateAgentEngineSessionRequestParameters
 from .common import _UpdateDatasetParameters
+from .common import _UpdateEvaluationExperimentParameters
 from .common import _UpdateMultimodalDatasetParameters
 from .common import _UpdateRagConfigRequestParameters
 from .common import _UpdateRagCorpusRequestParameters
@@ -440,6 +442,12 @@ from .common import DeleteAgentEngineSessionOperationOrDict
 from .common import DeleteAgentEngineTaskConfig
 from .common import DeleteAgentEngineTaskConfigDict
 from .common import DeleteAgentEngineTaskConfigOrDict
+from .common import DeleteEvaluationExperimentConfig
+from .common import DeleteEvaluationExperimentConfigDict
+from .common import DeleteEvaluationExperimentConfigOrDict
+from .common import DeleteEvaluationExperimentOperation
+from .common import DeleteEvaluationExperimentOperationDict
+from .common import DeleteEvaluationExperimentOperationOrDict
 from .common import DeleteEvaluationMetricConfig
 from .common import DeleteEvaluationMetricConfigDict
 from .common import DeleteEvaluationMetricConfigOrDict
@@ -1903,6 +1911,9 @@ from .common import UpdateAgentEngineMemoryConfigOrDict
 from .common import UpdateAgentEngineSessionConfig
 from .common import UpdateAgentEngineSessionConfigDict
 from .common import UpdateAgentEngineSessionConfigOrDict
+from .common import UpdateEvaluationExperimentConfig
+from .common import UpdateEvaluationExperimentConfigDict
+from .common import UpdateEvaluationExperimentConfigOrDict
 from .common import UpdatePromptConfig
 from .common import UpdatePromptConfigDict
 from .common import UpdatePromptConfigOrDict
@@ -2173,6 +2184,12 @@ __all__ = [
     "EvaluationSet",
     "EvaluationSetDict",
     "EvaluationSetOrDict",
+    "DeleteEvaluationExperimentConfig",
+    "DeleteEvaluationExperimentConfigDict",
+    "DeleteEvaluationExperimentConfigOrDict",
+    "DeleteEvaluationExperimentOperation",
+    "DeleteEvaluationExperimentOperationDict",
+    "DeleteEvaluationExperimentOperationOrDict",
     "DeleteEvaluationMetricConfig",
     "DeleteEvaluationMetricConfigDict",
     "DeleteEvaluationMetricConfigOrDict",
@@ -2371,6 +2388,9 @@ __all__ = [
     "ListEvaluationMetricsResponse",
     "ListEvaluationMetricsResponseDict",
     "ListEvaluationMetricsResponseOrDict",
+    "UpdateEvaluationExperimentConfig",
+    "UpdateEvaluationExperimentConfigDict",
+    "UpdateEvaluationExperimentConfigOrDict",
     "OptimizeConfig",
     "OptimizeConfigDict",
     "OptimizeConfigOrDict",
@@ -3720,6 +3740,7 @@ __all__ = [
     "_CreateEvaluationMetricParameters",
     "_CreateEvaluationRunParameters",
     "_CreateEvaluationSetParameters",
+    "_DeleteEvaluationExperimentParameters",
     "_DeleteEvaluationMetricParameters",
     "_EvaluateInstancesRequestParameters",
     "_GenerateUserScenariosParameters",
@@ -3732,6 +3753,7 @@ __all__ = [
     "_GetEvaluationItemParameters",
     "_ListEvaluationExperimentsParameters",
     "_ListEvaluationMetricsParameters",
+    "_UpdateEvaluationExperimentParameters",
     "_OptimizeRequestParameters",
     "_CustomJobParameters",
     "_GetCustomJobParameters",

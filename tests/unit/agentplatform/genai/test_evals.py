@@ -11886,3 +11886,65 @@ class TestCreateEvaluationExperiment:
         assert request_body.get("mergeStrategy") == "SHARED_RESULT_SET"
         assert request_body.get("labels") == {"team": "agents"}
         assert request_body.get("metadata") == {"owner": "test"}
+
+
+class TestUpdateEvaluationExperiment:
+
+    def setup_method(self, method):
+        self.mock_api_client = mock.MagicMock()
+        self.mock_api_client.vertexai = True
+        self.experiment_name = (
+            "projects/123/locations/us-central1/evaluationExperiments/456"
+        )
+        self.mock_response = mock.MagicMock()
+        self.mock_response.body = json.dumps(
+            {"name": self.experiment_name, "displayName": "updated_name"}
+        )
+        self.mock_api_client.request.return_value = self.mock_response
+
+    def test_update_evaluation_experiment_returns_experiment(self):
+        evals_module = evals.Evals(api_client_=self.mock_api_client)
+
+        experiment = evals_module.update_evaluation_experiment(
+            name=self.experiment_name,
+            config={"display_name": "updated_name", "update_mask": "display_name"},
+        )
+
+        assert isinstance(experiment, agentplatform_genai_types.EvaluationExperiment)
+        assert experiment.display_name == "updated_name"
+
+    def test_update_evaluation_experiment_uses_patch_and_full_name(self):
+        evals_module = evals.Evals(api_client_=self.mock_api_client)
+
+        evals_module.update_evaluation_experiment(
+            name=self.experiment_name,
+            config={"display_name": "updated_name", "update_mask": "display_name"},
+        )
+
+        self.mock_api_client.request.assert_called_once()
+        call_args = self.mock_api_client.request.call_args
+        assert call_args[0][0] == "patch"
+        assert call_args[0][1].startswith(self.experiment_name)
+
+
+class TestDeleteEvaluationExperiment:
+
+    def setup_method(self, method):
+        self.mock_api_client = mock.MagicMock()
+        self.mock_api_client.vertexai = True
+        self.experiment_name = (
+            "projects/123/locations/us-central1/evaluationExperiments/456"
+        )
+        self.mock_response = mock.MagicMock()
+        self.mock_response.body = json.dumps({"name": "operations/789"})
+        self.mock_api_client.request.return_value = self.mock_response
+
+    def test_delete_evaluation_experiment_uses_delete_and_full_name(self):
+        evals_module = evals.Evals(api_client_=self.mock_api_client)
+
+        evals_module.delete_evaluation_experiment(name=self.experiment_name)
+
+        self.mock_api_client.request.assert_called_once()
+        call_args = self.mock_api_client.request.call_args
+        assert call_args[0][0] == "delete"
+        assert call_args[0][1] == self.experiment_name

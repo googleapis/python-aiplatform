@@ -224,6 +224,20 @@ def _CustomCodeExecutionSpec_to_vertex(
     return to_object
 
 
+def _DeleteEvaluationExperimentParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["name"]) is not None:
+        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
+
+    if getv(from_object, ["config"]) is not None:
+        setv(to_object, ["config"], getv(from_object, ["config"]))
+
+    return to_object
+
+
 def _DeleteEvaluationMetricParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
@@ -1091,6 +1105,48 @@ def _UnifiedMetric_to_vertex(
     return to_object
 
 
+def _UpdateEvaluationExperimentConfig_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+
+    if getv(from_object, ["update_mask"]) is not None:
+        setv(
+            parent_object, ["_query", "updateMask"], getv(from_object, ["update_mask"])
+        )
+
+    if getv(from_object, ["display_name"]) is not None:
+        setv(parent_object, ["displayName"], getv(from_object, ["display_name"]))
+
+    if getv(from_object, ["labels"]) is not None:
+        setv(parent_object, ["labels"], getv(from_object, ["labels"]))
+
+    if getv(from_object, ["merge_strategy"]) is not None:
+        setv(parent_object, ["mergeStrategy"], getv(from_object, ["merge_strategy"]))
+
+    if getv(from_object, ["metadata"]) is not None:
+        setv(parent_object, ["metadata"], getv(from_object, ["metadata"]))
+
+    return to_object
+
+
+def _UpdateEvaluationExperimentParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["name"]) is not None:
+        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
+
+    if getv(from_object, ["config"]) is not None:
+        _UpdateEvaluationExperimentConfig_to_vertex(
+            getv(from_object, ["config"]), to_object
+        )
+
+    return to_object
+
+
 class Evals(_api_module.BaseModule):
 
     def create_evaluation_experiment(
@@ -1486,6 +1542,89 @@ class Evals(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.EvaluationSet._from_response(
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    def delete_evaluation_experiment(
+        self,
+        *,
+        name: str,
+        config: Optional[types.DeleteEvaluationExperimentConfigOrDict] = None,
+    ) -> types.DeleteEvaluationExperimentOperation:
+        """
+        Deletes an EvaluationExperiment.
+
+        Args:
+          name: The resource name of the EvaluationExperiment to delete. Format:
+            `projects/{project}/locations/{location}/evaluationExperiments/{evaluation_experiment}`
+          config: Optional configuration for the delete operation.
+
+        Returns:
+          The delete operation.
+
+        """
+
+        parameter_model = types._DeleteEvaluationExperimentParameters(
+            name=name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
+        else:
+            request_dict = _DeleteEvaluationExperimentParameters_to_vertex(
+                parameter_model
+            )
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{name}".format_map(request_url_dict)
+            else:
+                path = "{name}"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = self._api_client.request("delete", path, request_dict, http_options)
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.DeleteEvaluationExperimentOperation._from_response(
             response=response_dict,
             kwargs=(
                 {
@@ -2436,6 +2575,90 @@ class Evals(_api_module.BaseModule):
             response_dict = _ListEvaluationMetricsResponse_from_vertex(response_dict)
 
         return_value = types.ListEvaluationMetricsResponse._from_response(
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    def update_evaluation_experiment(
+        self,
+        *,
+        name: str,
+        config: Optional[types.UpdateEvaluationExperimentConfigOrDict] = None,
+    ) -> types.EvaluationExperiment:
+        """
+        Updates an EvaluationExperiment.
+
+        Args:
+          name: The resource name of the EvaluationExperiment to update. Format:
+            `projects/{project}/locations/{location}/evaluationExperiments/{evaluation_experiment}`
+          config: Optional configuration specifying the fields to update (e.g.
+            display_name, labels, merge_strategy, metadata) and the update_mask.
+
+        Returns:
+          The updated evaluation experiment.
+
+        """
+
+        parameter_model = types._UpdateEvaluationExperimentParameters(
+            name=name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
+        else:
+            request_dict = _UpdateEvaluationExperimentParameters_to_vertex(
+                parameter_model
+            )
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{name}".format_map(request_url_dict)
+            else:
+                path = "{name}"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = self._api_client.request("patch", path, request_dict, http_options)
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.EvaluationExperiment._from_response(
             response=response_dict,
             kwargs=(
                 {
@@ -3950,6 +4173,91 @@ class AsyncEvals(_api_module.BaseModule):
         self._api_client._verify_response(return_value)
         return return_value
 
+    async def delete_evaluation_experiment(
+        self,
+        *,
+        name: str,
+        config: Optional[types.DeleteEvaluationExperimentConfigOrDict] = None,
+    ) -> types.DeleteEvaluationExperimentOperation:
+        """
+        Deletes an EvaluationExperiment.
+
+        Args:
+          name: The resource name of the EvaluationExperiment to delete. Format:
+            `projects/{project}/locations/{location}/evaluationExperiments/{evaluation_experiment}`
+          config: Optional configuration for the delete operation.
+
+        Returns:
+          The delete operation.
+
+        """
+
+        parameter_model = types._DeleteEvaluationExperimentParameters(
+            name=name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
+        else:
+            request_dict = _DeleteEvaluationExperimentParameters_to_vertex(
+                parameter_model
+            )
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{name}".format_map(request_url_dict)
+            else:
+                path = "{name}"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = await self._api_client.async_request(
+            "delete", path, request_dict, http_options
+        )
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.DeleteEvaluationExperimentOperation._from_response(
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
     async def _delete_evaluation_metric(
         self,
         *,
@@ -4901,6 +5209,92 @@ class AsyncEvals(_api_module.BaseModule):
             response_dict = _ListEvaluationMetricsResponse_from_vertex(response_dict)
 
         return_value = types.ListEvaluationMetricsResponse._from_response(
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    async def update_evaluation_experiment(
+        self,
+        *,
+        name: str,
+        config: Optional[types.UpdateEvaluationExperimentConfigOrDict] = None,
+    ) -> types.EvaluationExperiment:
+        """
+        Updates an EvaluationExperiment.
+
+        Args:
+          name: The resource name of the EvaluationExperiment to update. Format:
+            `projects/{project}/locations/{location}/evaluationExperiments/{evaluation_experiment}`
+          config: Optional configuration specifying the fields to update (e.g.
+            display_name, labels, merge_strategy, metadata) and the update_mask.
+
+        Returns:
+          The updated evaluation experiment.
+
+        """
+
+        parameter_model = types._UpdateEvaluationExperimentParameters(
+            name=name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
+        else:
+            request_dict = _UpdateEvaluationExperimentParameters_to_vertex(
+                parameter_model
+            )
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{name}".format_map(request_url_dict)
+            else:
+                path = "{name}"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = await self._api_client.async_request(
+            "patch", path, request_dict, http_options
+        )
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.EvaluationExperiment._from_response(
             response=response_dict,
             kwargs=(
                 {
