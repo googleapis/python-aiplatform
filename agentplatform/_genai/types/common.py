@@ -23755,6 +23755,198 @@ class RecommendSpecResponseDict(TypedDict, total=False):
 RecommendSpecResponseOrDict = Union[RecommendSpecResponse, RecommendSpecResponseDict]
 
 
+class ExportPublisherModelConfig(_common.BaseModel):
+  """RPC-level config for ``export_publisher_model``."""
+
+  http_options: Optional[genai_types.HttpOptions] = Field(
+      default=None, description="""Used to override HTTP request options."""
+  )
+  destination: Optional[genai_types.GcsDestination] = Field(
+      default=None, description=""""""
+  )
+
+
+class ExportPublisherModelConfigDict(TypedDict, total=False):
+  """RPC-level config for ``export_publisher_model``."""
+
+  http_options: Optional[genai_types.HttpOptions]
+  """Used to override HTTP request options."""
+
+  destination: Optional[genai_types.GcsDestination]
+  """"""
+
+
+ExportPublisherModelConfigOrDict = Union[
+    ExportPublisherModelConfig, ExportPublisherModelConfigDict
+]
+
+
+class _ExportPublisherModelRequestParameters(_common.BaseModel):
+  """Parameters for ``export_publisher_model``."""
+
+  parent: Optional[str] = Field(default=None, description="""""")
+  name: Optional[str] = Field(default=None, description="""""")
+  config: Optional[ExportPublisherModelConfig] = Field(
+      default=None, description=""""""
+  )
+
+
+class _ExportPublisherModelRequestParametersDict(TypedDict, total=False):
+  """Parameters for ``export_publisher_model``."""
+
+  parent: Optional[str]
+  """"""
+
+  name: Optional[str]
+  """"""
+
+  config: Optional[ExportPublisherModelConfigDict]
+  """"""
+
+
+_ExportPublisherModelRequestParametersOrDict = Union[
+    _ExportPublisherModelRequestParameters,
+    _ExportPublisherModelRequestParametersDict,
+]
+
+
+class ExportPublisherModelResponse(_common.BaseModel):
+  """Response for the ``ExportPublisherModel`` RPC.
+
+  Fields are re-declared as ``SdkFieldPatch`` (both are already in the
+  discovery-generated class) so the SDK's dependency on ``destination_uri``
+  is visible in one place and proto drift is caught at codegen time
+  instead of at first user call.
+  """
+
+  destination_uri: Optional[str] = Field(
+      default=None,
+      description="""Cloud Storage URI where the exported weights were written.""",
+  )
+  publisher_model: Optional[str] = Field(
+      default=None,
+      description="""Resource name of the publisher model that was exported.""",
+  )
+
+
+class ExportPublisherModelResponseDict(TypedDict, total=False):
+  """Response for the ``ExportPublisherModel`` RPC.
+
+  Fields are re-declared as ``SdkFieldPatch`` (both are already in the
+  discovery-generated class) so the SDK's dependency on ``destination_uri``
+  is visible in one place and proto drift is caught at codegen time
+  instead of at first user call.
+  """
+
+  destination_uri: Optional[str]
+  """Cloud Storage URI where the exported weights were written."""
+
+  publisher_model: Optional[str]
+  """Resource name of the publisher model that was exported."""
+
+
+ExportPublisherModelResponseOrDict = Union[
+    ExportPublisherModelResponse, ExportPublisherModelResponseDict
+]
+
+
+class ExportModelOperation(_common.BaseModel):
+  """Long-running operation returned by ``ExportPublisherModel``."""
+
+  name: Optional[str] = Field(
+      default=None,
+      description="""The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`.""",
+  )
+  metadata: Optional[dict[str, Any]] = Field(
+      default=None,
+      description="""Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any.""",
+  )
+  done: Optional[bool] = Field(
+      default=None,
+      description="""If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available.""",
+  )
+  error: Optional[dict[str, Any]] = Field(
+      default=None,
+      description="""The error result of the operation in case of failure or cancellation.""",
+  )
+  response: Optional[ExportPublisherModelResponse] = Field(
+      default=None, description=""""""
+  )
+
+
+class ExportModelOperationDict(TypedDict, total=False):
+  """Long-running operation returned by ``ExportPublisherModel``."""
+
+  name: Optional[str]
+  """The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`."""
+
+  metadata: Optional[dict[str, Any]]
+  """Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any."""
+
+  done: Optional[bool]
+  """If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available."""
+
+  error: Optional[dict[str, Any]]
+  """The error result of the operation in case of failure or cancellation."""
+
+  response: Optional[ExportPublisherModelResponseDict]
+  """"""
+
+
+ExportModelOperationOrDict = Union[
+    ExportModelOperation, ExportModelOperationDict
+]
+
+
+class GetExportPublisherModelOperationConfig(_common.BaseModel):
+  """Config for ``get_export_publisher_model_operation``."""
+
+  http_options: Optional[genai_types.HttpOptions] = Field(
+      default=None, description="""Used to override HTTP request options."""
+  )
+
+
+class GetExportPublisherModelOperationConfigDict(TypedDict, total=False):
+  """Config for ``get_export_publisher_model_operation``."""
+
+  http_options: Optional[genai_types.HttpOptions]
+  """Used to override HTTP request options."""
+
+
+GetExportPublisherModelOperationConfigOrDict = Union[
+    GetExportPublisherModelOperationConfig,
+    GetExportPublisherModelOperationConfigDict,
+]
+
+
+class _GetExportPublisherModelOperationParameters(_common.BaseModel):
+  """Parameters for polling an ``export_publisher_model`` operation."""
+
+  operation_name: Optional[str] = Field(
+      default=None,
+      description="""The server-assigned name for the operation.""",
+  )
+  config: Optional[GetExportPublisherModelOperationConfig] = Field(
+      default=None, description=""""""
+  )
+
+
+class _GetExportPublisherModelOperationParametersDict(TypedDict, total=False):
+  """Parameters for polling an ``export_publisher_model`` operation."""
+
+  operation_name: Optional[str]
+  """The server-assigned name for the operation."""
+
+  config: Optional[GetExportPublisherModelOperationConfigDict]
+  """"""
+
+
+_GetExportPublisherModelOperationParametersOrDict = Union[
+    _GetExportPublisherModelOperationParameters,
+    _GetExportPublisherModelOperationParametersDict,
+]
+
+
 class CreateRuntimeFeedbackEntryConfig(_common.BaseModel):
     """Config for creating a Feedback Entry."""
 
@@ -26794,6 +26986,55 @@ class ListCustomModelDeployOptionsConfigDict(TypedDict, total=False):
 
 ListCustomModelDeployOptionsConfigOrDict = Union[
     ListCustomModelDeployOptionsConfig, ListCustomModelDeployOptionsConfigDict
+]
+
+
+class ExportOpenModelConfig(_common.BaseModel):
+  """Config for ``export_open_model``."""
+
+  wait_for_completion: Optional[bool] = Field(
+      default=True,
+      description="""Whether to block on the export long-running operation. When
+      ``True`` (default), returns the destination URI on completion. When
+      ``False``, returns the ``ExportModelOperation`` for the caller to
+      poll.""",
+  )
+  poll_interval_seconds: Optional[float] = Field(
+      default=None,
+      description="""Seconds between LRO polls when ``wait_for_completion=True``.
+      Defaults to 30. Ignored when ``wait_for_completion=False``.""",
+  )
+  timeout_seconds: Optional[float] = Field(
+      default=None,
+      description="""Total wall-clock seconds to wait for the export to complete
+      when ``wait_for_completion=True``. Defaults to 2 hours to
+      accommodate large model weights. Ignored when
+      ``wait_for_completion=False``.""",
+  )
+
+
+class ExportOpenModelConfigDict(TypedDict, total=False):
+  """Config for ``export_open_model``."""
+
+  wait_for_completion: Optional[bool]
+  """Whether to block on the export long-running operation. When
+      ``True`` (default), returns the destination URI on completion. When
+      ``False``, returns the ``ExportModelOperation`` for the caller to
+      poll."""
+
+  poll_interval_seconds: Optional[float]
+  """Seconds between LRO polls when ``wait_for_completion=True``.
+      Defaults to 30. Ignored when ``wait_for_completion=False``."""
+
+  timeout_seconds: Optional[float]
+  """Total wall-clock seconds to wait for the export to complete
+      when ``wait_for_completion=True``. Defaults to 2 hours to
+      accommodate large model weights. Ignored when
+      ``wait_for_completion=False``."""
+
+
+ExportOpenModelConfigOrDict = Union[
+    ExportOpenModelConfig, ExportOpenModelConfigDict
 ]
 
 
