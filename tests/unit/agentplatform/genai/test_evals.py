@@ -9431,19 +9431,9 @@ class TestEvalsGenerateConversationScenarios:
         request_body = call_args[0][2]  # Third positional arg is the request dict
         assert request_body.get("allowCrossRegionModel") is True
 
-    @mock.patch.object(_evals_common, "_fetch_agent_config_dict")
-    def test_generate_conversation_scenarios_from_gemini_agent(
-        self, mock_fetch_agent_config
-    ):
-        mock_fetch_agent_config.return_value = (
-            agentplatform_genai_types.evals.AgentConfig(
-                agent_id="test-agent",
-                instruction="You are a helpful travel assistant.",
-                description="An agent that books flights.",
-                tools=[genai_types.Tool(google_search=genai_types.GoogleSearch())],
-            )
-        )
-
+    def test_generate_conversation_scenarios_from_gemini_agent(self):
+        """When `agent` is a Gemini agent resource, gemini_agent_config is
+        forwarded to the server (no client-side synthesis)."""
         evals_module = evals.Evals(api_client_=self.mock_api_client)
 
         with mock.patch.object(
@@ -9455,18 +9445,10 @@ class TestEvalsGenerateConversationScenarios:
                 config={"count": 2},
             )
 
-        mock_fetch_agent_config.assert_called_once_with(
-            self.mock_api_client, _TEST_GEMINI_AGENT
-        )
         call_kwargs = mock_generate_user_scenarios.call_args.kwargs
-        assert call_kwargs["root_agent_id"] == "test-agent"
-        agents = call_kwargs["agents"]
-        assert "test-agent" in agents
-        derived_config = agents["test-agent"]
-        assert derived_config.instruction == "You are a helpful travel assistant."
-        assert derived_config.description == "An agent that books flights."
-        assert derived_config.tools is not None
-        assert derived_config.tools[0].google_search is not None
+        assert call_kwargs["gemini_agent_config"].gemini_agent == _TEST_GEMINI_AGENT
+        assert call_kwargs.get("agents") is None
+        assert call_kwargs.get("root_agent_id") is None
 
     def test_generate_conversation_scenarios_agent_and_agent_info_raises(self):
         evals_module = evals.Evals(api_client_=self.mock_api_client)

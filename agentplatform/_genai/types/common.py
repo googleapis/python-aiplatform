@@ -5501,6 +5501,11 @@ class _GenerateUserScenariosParameters(_common.BaseModel):
         default=None,
         description="""Opt-in flag to authorize cross-region routing for LLM models.""",
     )
+    gemini_agent_config: Optional[GeminiAgentConfig] = Field(
+        default=None,
+        description="""If set, the server derives the agents map and root_agent_id
+      from the referenced Gemini Agent server-side.""",
+    )
 
 
 class _GenerateUserScenariosParametersDict(TypedDict, total=False):
@@ -5523,6 +5528,10 @@ class _GenerateUserScenariosParametersDict(TypedDict, total=False):
 
     allow_cross_region_model: Optional[bool]
     """Opt-in flag to authorize cross-region routing for LLM models."""
+
+    gemini_agent_config: Optional[GeminiAgentConfigDict]
+    """If set, the server derives the agents map and root_agent_id
+      from the referenced Gemini Agent server-side."""
 
 
 _GenerateUserScenariosParametersOrDict = Union[
