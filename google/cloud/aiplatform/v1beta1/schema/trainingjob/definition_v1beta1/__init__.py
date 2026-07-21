@@ -24,6 +24,27 @@ __version__ = package_version.__version__
 
 from importlib import metadata
 
+# PEP 0810: Explicit Lazy Imports
+# Python 3.15+ natively intercepts and defers these imports.
+# Developers can disable this behavior and force eager imports.
+# For more information, see:
+# https://docs.python.org/3.15/library/sys.html#sys.set_lazy_imports_filter
+# Older Python versions safely ignore this variable.
+__lazy_modules__ = {
+    "google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.automl_image_classification",
+    "google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.automl_image_object_detection",
+    "google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.automl_image_segmentation",
+    "google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.automl_tables",
+    "google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.automl_text_classification",
+    "google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.automl_text_extraction",
+    "google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.automl_text_sentiment",
+    "google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.automl_time_series_forecasting",
+    "google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.automl_video_action_recognition",
+    "google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.automl_video_classification",
+    "google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.automl_video_object_tracking",
+    "google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.export_evaluated_data_items_config",
+}
+
 
 from .types.automl_image_classification import AutoMlImageClassification
 from .types.automl_image_classification import AutoMlImageClassificationInputs
