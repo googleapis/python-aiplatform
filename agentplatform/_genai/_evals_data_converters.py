@@ -796,6 +796,10 @@ def merge_evaluation_datasets(
             candidate_responses.append(base_eval_case.responses[0])
         elif base_eval_case.agent_data:
             candidate_responses.append(_create_placeholder_response_candidate(""))
+        elif getattr(base_eval_case, "interactions_data_source", None):
+            # Interaction data will be resolved server-side for metric
+            # computation; add a placeholder without warning.
+            candidate_responses.append(_create_placeholder_response_candidate(""))
         else:
             logger.warning(
                 "No response or agent data found for base dataset (index 0) in case %s. "
@@ -852,6 +856,10 @@ def merge_evaluation_datasets(
             if current_ds_eval_case.responses:
                 candidate_responses.append(current_ds_eval_case.responses[0])
             elif current_ds_eval_case.agent_data:
+                candidate_responses.append(_create_placeholder_response_candidate(""))
+            elif getattr(current_ds_eval_case, "interactions_data_source", None):
+                # Interaction data will be resolved server-side for metric
+                # computation; add a placeholder without warning.
                 candidate_responses.append(_create_placeholder_response_candidate(""))
             else:
                 logger.warning(

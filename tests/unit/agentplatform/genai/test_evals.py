@@ -7752,6 +7752,118 @@ class TestMergeResponseDatasets:
                 schemas=[_evals_data_converters.EvalDatasetSchema.FLATTEN],
             )
 
+    def test_merge_single_dataset_with_interactions_data_source(self):
+        """Base dataset with interactions_data_source adds placeholder without warning."""
+        dataset = agentplatform_genai_types.EvaluationDataset(
+            eval_cases=[
+                agentplatform_genai_types.EvalCase(
+                    interactions_data_source=agentplatform_genai_types.InteractionsDataSource(
+                        interaction="projects/p/locations/l/interactions/i1",
+                    ),
+                ),
+            ]
+        )
+
+        with mock.patch.object(
+            _evals_data_converters, "logger"
+        ) as mock_logger:
+            merged = _evals_data_converters.merge_evaluation_datasets([dataset])
+
+        assert len(merged.eval_cases) == 1
+        assert len(merged.eval_cases[0].responses) == 1
+        assert merged.eval_cases[0].responses[0].response == genai_types.Content(
+            parts=[genai_types.Part(text="")]
+        )
+        mock_logger.warning.assert_not_called()
+
+    def test_merge_two_datasets_with_interactions_data_source(self):
+        """Merging two interaction-id datasets adds placeholders without warning."""
+        dataset_1 = agentplatform_genai_types.EvaluationDataset(
+            eval_cases=[
+                agentplatform_genai_types.EvalCase(
+                    interactions_data_source=agentplatform_genai_types.InteractionsDataSource(
+                        interaction="projects/p/locations/l/interactions/i1",
+                    ),
+                ),
+            ]
+        )
+        dataset_2 = agentplatform_genai_types.EvaluationDataset(
+            eval_cases=[
+                agentplatform_genai_types.EvalCase(
+                    interactions_data_source=agentplatform_genai_types.InteractionsDataSource(
+                        interaction="projects/p/locations/l/interactions/i2",
+                    ),
+                ),
+            ]
+        )
+
+        with mock.patch.object(
+            _evals_data_converters, "logger"
+        ) as mock_logger:
+            merged = _evals_data_converters.merge_evaluation_datasets(
+                [dataset_1, dataset_2]
+            )
+
+        assert len(merged.eval_cases) == 1
+        assert len(merged.eval_cases[0].responses) == 2
+        assert merged.eval_cases[0].responses[0].response == genai_types.Content(
+            parts=[genai_types.Part(text="")]
+        )
+        assert merged.eval_cases[0].responses[1].response == genai_types.Content(
+            parts=[genai_types.Part(text="")]
+        )
+        mock_logger.warning.assert_not_called()
+
+    def test_merge_interactions_data_source_with_response_dataset(self):
+        """Merging an interaction-id dataset with a response dataset works correctly."""
+        dataset_interactions = agentplatform_genai_types.EvaluationDataset(
+            eval_cases=[
+                agentplatform_genai_types.EvalCase(
+                    prompt=genai_types.Content(
+                        parts=[genai_types.Part(text="Prompt 1")]
+                    ),
+                    interactions_data_source=agentplatform_genai_types.InteractionsDataSource(
+                        interaction="projects/p/locations/l/interactions/i1",
+                    ),
+                ),
+            ]
+        )
+        dataset_response = agentplatform_genai_types.EvaluationDataset(
+            eval_cases=[
+                agentplatform_genai_types.EvalCase(
+                    prompt=genai_types.Content(
+                        parts=[genai_types.Part(text="Prompt 1")]
+                    ),
+                    responses=[
+                        agentplatform_genai_types.ResponseCandidate(
+                            response=genai_types.Content(
+                                parts=[genai_types.Part(text="Response 1")]
+                            )
+                        )
+                    ],
+                ),
+            ]
+        )
+
+        with mock.patch.object(
+            _evals_data_converters, "logger"
+        ) as mock_logger:
+            merged = _evals_data_converters.merge_evaluation_datasets(
+                [dataset_interactions, dataset_response]
+            )
+
+        assert len(merged.eval_cases) == 1
+        assert len(merged.eval_cases[0].responses) == 2
+        # First response is a placeholder from the interactions_data_source case
+        assert merged.eval_cases[0].responses[0].response == genai_types.Content(
+            parts=[genai_types.Part(text="")]
+        )
+        # Second response is the actual response
+        assert merged.eval_cases[0].responses[1].response == genai_types.Content(
+            parts=[genai_types.Part(text="Response 1")]
+        )
+        mock_logger.warning.assert_not_called()
+
 
 @pytest.mark.usefixtures("google_auth_mock")
 class TestPredefinedMetricHandler:
