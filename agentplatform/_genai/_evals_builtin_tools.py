@@ -25,6 +25,10 @@ server round-trip.  Parameter schemas are intentionally omitted to avoid
 publishing internal tool contract details.
 
 **If the server catalog changes, this SDK-side copy must be updated to match.**
+
+This module also provides sandbox-detection helpers
+(``SANDBOX_TOOL_NAMES``, ``is_sandbox_only_turn``) used by the display
+path (``_evals_common._interaction_dict_to_agent_data``).
 """
 
 from typing import Any, Optional
@@ -85,6 +89,58 @@ SANDBOX_DECLARATIONS: list[genai_types.FunctionDeclaration] = [
         description="Loads a previously provisioned sandbox environment.",
     ),
 ]
+
+
+# Names of sandbox orchestration tools, derived from ``SANDBOX_DECLARATIONS``
+# so there is a single source of truth.
+SANDBOX_TOOL_NAMES: frozenset[str] = frozenset(
+    decl.name for decl in SANDBOX_DECLARATIONS if decl.name
+)
+
+
+def is_sandbox_only_turn(
+    events: list[Any],
+) -> bool:
+    """Returns True if a turn contains only sandbox initialization events.
+
+    Sandbox provisioning events (``provision_sandbox``, ``load_sandbox``)
+    are infrastructure setup steps that happen before the user's first
+    real prompt.
+
+    A turn is sandbox-only when every event is either a
+    ``function_call`` or ``function_response`` referencing a sandbox
+    tool name.  Events with plain text content (model output, user
+    input) disqualify the turn.
+
+    Args:
+        events: The list of AgentEvents in the turn.
+
+    Returns:
+        True if the turn is sandbox-only and should be merged into the
+        next real turn for display.
+    """
+    if not events:
+        return True
+
+    for event in events:
+        content = getattr(event, "content", None)
+        if not content:
+            continue
+        parts = getattr(content, "parts", None)
+        if not parts:
+            continue
+        for part in parts:
+            if getattr(part, "function_call", None):
+                if part.function_call.name not in SANDBOX_TOOL_NAMES:
+                    return False
+            elif getattr(part, "function_response", None):
+                if part.function_response.name not in SANDBOX_TOOL_NAMES:
+                    return False
+            elif getattr(part, "text", None):
+                # Text content means this is a real conversational event,
+                # not sandbox infrastructure.
+                return False
+    return True
 
 
 def agent_tools_to_config_tools(

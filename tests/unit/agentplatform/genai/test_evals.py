@@ -11384,6 +11384,237 @@ class TestInteractionDictToAgentData:
         assert len(events) == 2
 
 
+class TestIsSandboxOnlyTurn:
+    """Tests for _is_sandbox_only_turn."""
+
+    def _make_event(self, *, author, part):
+        return agentplatform_genai_types.evals.AgentEvent(
+            author=author,
+            content=genai_types.Content(role="model", parts=[part]),
+        )
+
+    def test_provision_sandbox_is_sandbox_only(self):
+        events = [
+            self._make_event(
+                author="agent",
+                part=genai_types.Part(
+                    function_call=genai_types.FunctionCall(
+                        name="provision_sandbox", args={}
+                    )
+                ),
+            ),
+            self._make_event(
+                author="user",
+                part=genai_types.Part(
+                    function_response=genai_types.FunctionResponse(
+                        name="provision_sandbox", response={"status": "ready"}
+                    )
+                ),
+            ),
+        ]
+        assert _evals_builtin_tools.is_sandbox_only_turn(events) is True
+
+    def test_load_sandbox_is_sandbox_only(self):
+        events = [
+            self._make_event(
+                author="agent",
+                part=genai_types.Part(
+                    function_call=genai_types.FunctionCall(
+                        name="load_sandbox", args={}
+                    )
+                ),
+            ),
+        ]
+        assert _evals_builtin_tools.is_sandbox_only_turn(events) is True
+
+    def test_non_sandbox_tool_is_not_sandbox_only(self):
+        events = [
+            self._make_event(
+                author="agent",
+                part=genai_types.Part(
+                    function_call=genai_types.FunctionCall(
+                        name="run_command", args={}
+                    )
+                ),
+            ),
+        ]
+        assert _evals_builtin_tools.is_sandbox_only_turn(events) is False
+
+    def test_text_event_is_not_sandbox_only(self):
+        events = [
+            self._make_event(
+                author="user",
+                part=genai_types.Part(text="Hello"),
+            ),
+        ]
+        assert _evals_builtin_tools.is_sandbox_only_turn(events) is False
+
+    def test_empty_events_is_sandbox_only(self):
+        assert _evals_builtin_tools.is_sandbox_only_turn([]) is True
+
+
+class TestSandboxTurnMergingInAgentData:
+    """Tests that sandbox-only turns are merged in _interaction_dict_to_agent_data."""
+
+    def test_sandbox_prefix_merged_into_single_turn(self):
+        """Sandbox + 1 real interaction produces 1 turn, not 2."""
+        interaction_dict = {
+            "status": "completed",
+            "steps": [
+                # Sandbox provisioning (no user_input, creates Turn 0)
+                {
+                    "type": "function_call",
+                    "name": "provision_sandbox",
+                    "arguments": {"display_name": "sb"},
+                    "id": "call_sb",
+                },
+                {
+                    "type": "function_result",
+                    "name": "provision_sandbox",
+                    "call_id": "call_sb",
+                    "result": {"status": "ready"},
+                },
+                # Real user interaction (UserInputStep creates Turn 1)
+                {
+                    "type": "user_input",
+                    "content": [{"type": "text", "text": "What is 2+2?"}],
+                },
+                {
+                    "type": "model_output",
+                    "content": [{"type": "text", "text": "4"}],
+                },
+            ],
+        }
+        result = _evals_common._interaction_dict_to_agent_data(interaction_dict)
+        # Should produce 1 turn, not 2.
+        assert len(result.turns) == 1
+        assert result.turns[0].turn_index == 0
+        # The turn should contain all events: sandbox + real.
+        events = result.turns[0].events
+        assert len(events) == 4
+        # First two events are sandbox tool call/response.
+        assert events[0].content.parts[0].function_call.name == "provision_sandbox"
+        assert events[1].content.parts[0].function_response.name == "provision_sandbox"
+        # Last two are the real conversation.
+        assert events[2].content.parts[0].text == "What is 2+2?"
+        assert events[3].content.parts[0].text == "4"
+
+    def test_sandbox_prefix_with_multi_turn(self):
+        """Sandbox + 2 real turns produces 2 turns, not 3."""
+        interaction_dict = {
+            "status": "completed",
+            "steps": [
+                {
+                    "type": "function_call",
+                    "name": "provision_sandbox",
+                    "arguments": {},
+                    "id": "call_sb",
+                },
+                {
+                    "type": "function_result",
+                    "name": "provision_sandbox",
+                    "call_id": "call_sb",
+                    "result": {"status": "ready"},
+                },
+                {
+                    "type": "user_input",
+                    "content": [{"type": "text", "text": "Turn 1"}],
+                },
+                {
+                    "type": "model_output",
+                    "content": [{"type": "text", "text": "Reply 1"}],
+                },
+                {
+                    "type": "user_input",
+                    "content": [{"type": "text", "text": "Turn 2"}],
+                },
+                {
+                    "type": "model_output",
+                    "content": [{"type": "text", "text": "Reply 2"}],
+                },
+            ],
+        }
+        result = _evals_common._interaction_dict_to_agent_data(interaction_dict)
+        assert len(result.turns) == 2
+        assert result.turns[0].events[0].content.parts[0].function_call.name == "provision_sandbox"
+        assert result.turns[0].events[-1].content.parts[0].text == "Reply 1"
+        assert result.turns[1].events[0].content.parts[0].text == "Turn 2"
+
+    def test_no_sandbox_prefix_unchanged(self):
+        """Interaction without sandbox steps is unaffected."""
+        interaction_dict = {
+            "status": "completed",
+            "steps": [
+                {
+                    "type": "user_input",
+                    "content": [{"type": "text", "text": "Hello"}],
+                },
+                {
+                    "type": "model_output",
+                    "content": [{"type": "text", "text": "Hi"}],
+                },
+            ],
+        }
+        result = _evals_common._interaction_dict_to_agent_data(interaction_dict)
+        assert len(result.turns) == 1
+        assert len(result.turns[0].events) == 2
+
+    def test_all_sandbox_only_not_discarded(self):
+        """If every step is sandbox-only, it remains as 1 turn (not discarded)."""
+        interaction_dict = {
+            "status": "completed",
+            "steps": [
+                {
+                    "type": "function_call",
+                    "name": "provision_sandbox",
+                    "arguments": {},
+                    "id": "call_sb",
+                },
+                {
+                    "type": "function_result",
+                    "name": "provision_sandbox",
+                    "call_id": "call_sb",
+                    "result": {"status": "ready"},
+                },
+            ],
+        }
+        result = _evals_common._interaction_dict_to_agent_data(interaction_dict)
+        # Only 1 group, and it's sandbox-only — but there's no second group
+        # to merge into, so it stays as-is.
+        assert len(result.turns) == 1
+
+    def test_non_sandbox_tool_before_user_input_not_merged(self):
+        """A non-sandbox tool call before user_input is NOT merged."""
+        interaction_dict = {
+            "status": "completed",
+            "steps": [
+                {
+                    "type": "function_call",
+                    "name": "run_command",
+                    "arguments": {"cmd": "ls"},
+                    "id": "call_1",
+                },
+                {
+                    "type": "function_result",
+                    "name": "run_command",
+                    "call_id": "call_1",
+                    "result": {"output": "file.txt"},
+                },
+                {
+                    "type": "user_input",
+                    "content": [{"type": "text", "text": "Hello"}],
+                },
+                {
+                    "type": "model_output",
+                    "content": [{"type": "text", "text": "Hi"}],
+                },
+            ],
+        }
+        result = _evals_common._interaction_dict_to_agent_data(interaction_dict)
+        # run_command is NOT a sandbox tool, so Turn 0 stays separate.
+        assert len(result.turns) == 2
+
+
 class TestMergeTextPartsInAgentData:
     """Tests for _merge_text_parts_in_agent_data."""
 

@@ -760,6 +760,13 @@ def _interaction_dict_to_agent_data(
             grouped.append([])
         grouped[-1].append(event)
 
+    # Merge leading sandbox-only turns into the first real turn.
+    # Sandbox provisioning events (provision_sandbox, load_sandbox) are
+    # infrastructure setup that precedes the user's first real prompt.
+    while len(grouped) > 1 and _evals_builtin_tools.is_sandbox_only_turn(grouped[0]):
+        grouped[1] = grouped[0] + grouped[1]
+        grouped.pop(0)
+
     if not grouped:
         return types.evals.AgentData(  # pytype: disable=missing-parameter
             turns=[
