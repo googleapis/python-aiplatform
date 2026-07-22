@@ -79,7 +79,7 @@ def _CreateSandboxEnvironmentTemplateRequestParameters_to_vertex(
         )
 
     if getv(from_object, ["display_name"]) is not None:
-        setv(parent_object, ["displayName"], getv(from_object, ["display_name"]))
+        setv(to_object, ["displayName"], getv(from_object, ["display_name"]))
 
     return to_object
 
