@@ -14,15 +14,15 @@
 #
 import importlib
 import json
+import os
 from unittest import mock
 
 from google import auth
 import agentplatform
-from google.cloud.aiplatform import initializer
-from agentplatform.agent_engines.templates import (
+from agentplatform.frameworks import (
     llama_index,
 )
-from agentplatform._genai.agent_engines import _agent_engines_utils
+from agentplatform._genai import _runtimes_utils
 
 from llama_index.core import prompts
 from llama_index.core.base.llms import types
@@ -71,7 +71,7 @@ def model_builder_mock():
 @pytest.fixture
 def cloud_trace_exporter_mock():
     with mock.patch.object(
-        _agent_engines_utils,
+        _runtimes_utils,
         "_import_cloud_trace_exporter_or_warn",
     ) as cloud_trace_exporter_mock:
         yield cloud_trace_exporter_mock
@@ -94,7 +94,7 @@ def simple_span_processor_mock():
 @pytest.fixture
 def llama_index_instrumentor_mock():
     with mock.patch.object(
-        _agent_engines_utils,
+        _runtimes_utils,
         "_import_openinference_llama_index_or_warn",
     ) as llama_index_instrumentor_mock:
         yield llama_index_instrumentor_mock
@@ -103,7 +103,7 @@ def llama_index_instrumentor_mock():
 @pytest.fixture
 def llama_index_instrumentor_none_mock():
     with mock.patch.object(
-        _agent_engines_utils,
+        _runtimes_utils,
         "_import_openinference_llama_index_or_warn",
     ) as llama_index_instrumentor_mock:
         llama_index_instrumentor_mock.return_value = None
@@ -113,7 +113,7 @@ def llama_index_instrumentor_none_mock():
 @pytest.fixture
 def nest_asyncio_apply_mock():
     with mock.patch.object(
-        _agent_engines_utils,
+        _runtimes_utils,
         "_import_nest_asyncio_or_warn",
     ) as nest_asyncio_apply_mock:
         yield nest_asyncio_apply_mock
@@ -122,12 +122,11 @@ def nest_asyncio_apply_mock():
 @pytest.mark.usefixtures("google_auth_mock")
 class TestLlamaIndexQueryPipelineAgent:
     def setup_method(self):
-        importlib.reload(initializer)
         importlib.reload(agentplatform)
-        agentplatform.init(
-            project=_TEST_PROJECT,
-            location=_TEST_LOCATION,
-        )
+        # The agent frameworks source project and location from environment
+        # variables (not the global initializer).
+        os.environ["GOOGLE_CLOUD_PROJECT"] = _TEST_PROJECT
+        os.environ["GOOGLE_CLOUD_LOCATION"] = _TEST_LOCATION
         self.prompt = prompts.ChatPromptTemplate(
             message_templates=[
                 types.ChatMessage(
@@ -142,13 +141,18 @@ class TestLlamaIndexQueryPipelineAgent:
         )
 
     def teardown_method(self):
-        initializer.global_pool.shutdown(wait=True)
+        for key in [
+            "GOOGLE_CLOUD_PROJECT",
+            "GOOGLE_CLOUD_AGENT_ENGINE_LOCATION",
+            "GOOGLE_CLOUD_LOCATION",
+        ]:
+            os.environ.pop(key, None)
 
     def test_initialization(self):
         agent = llama_index.LlamaIndexQueryPipelineAgent(model=_TEST_MODEL)
         assert agent._model_name == _TEST_MODEL
-        assert agent._project == _TEST_PROJECT
-        assert agent._location == _TEST_LOCATION
+        # Project and location are no longer stored on the agent; they are
+        # sourced from environment variables during set_up().
         assert agent._runnable is None
 
     def test_set_up(self):
@@ -264,17 +268,17 @@ class TestToJsonSerializableLlamaIndexObject:
     """Tests for `_utils.to_json_serializable_llama_index_object`."""
 
     def test_llama_index_response(self):
-        mock_response: _agent_engines_utils.LlamaIndexResponse = mock.Mock(
-            spec=_agent_engines_utils.LlamaIndexResponse
+        mock_response: _runtimes_utils.LlamaIndexResponse = mock.Mock(
+            spec=_runtimes_utils.LlamaIndexResponse
         )
         mock_response.response = "test response"
         mock_response.source_nodes = [
             mock.Mock(
-                spec=_agent_engines_utils.LlamaIndexBaseModel,
+                spec=_runtimes_utils.LlamaIndexBaseModel,
                 model_dump_json=lambda: '{"name": "model1"}',
             ),
             mock.Mock(
-                spec=_agent_engines_utils.LlamaIndexBaseModel,
+                spec=_runtimes_utils.LlamaIndexBaseModel,
                 model_dump_json=lambda: '{"name": "model2"}',
             ),
         ]
@@ -285,61 +289,61 @@ class TestToJsonSerializableLlamaIndexObject:
             "source_nodes": ['{"name": "model1"}', '{"name": "model2"}'],
             "metadata": {"key": "value"},
         }
-        got = _agent_engines_utils.to_json_serializable_llama_index_object(mock_response)
+        got = _runtimes_utils.to_json_serializable_llama_index_object(mock_response)
         assert got == want
 
     def test_llama_index_chat_response(self):
-        mock_chat_response: _agent_engines_utils.LlamaIndexChatResponse = mock.Mock(
-            spec=_agent_engines_utils.LlamaIndexChatResponse
+        mock_chat_response: _runtimes_utils.LlamaIndexChatResponse = mock.Mock(
+            spec=_runtimes_utils.LlamaIndexChatResponse
         )
         mock_chat_response.message = mock.Mock(
-            spec=_agent_engines_utils.LlamaIndexBaseModel,
+            spec=_runtimes_utils.LlamaIndexBaseModel,
             model_dump_json=lambda: '{"content": "chat message"}',
         )
 
         want = {"content": "chat message"}
-        got = _agent_engines_utils.to_json_serializable_llama_index_object(mock_chat_response)
+        got = _runtimes_utils.to_json_serializable_llama_index_object(mock_chat_response)
         assert got == want
 
     def test_llama_index_base_model(self):
-        mock_base_model: _agent_engines_utils.LlamaIndexBaseModel = mock.Mock(
-            spec=_agent_engines_utils.LlamaIndexBaseModel
+        mock_base_model: _runtimes_utils.LlamaIndexBaseModel = mock.Mock(
+            spec=_runtimes_utils.LlamaIndexBaseModel
         )
         mock_base_model.model_dump_json = lambda: '{"name": "test_model"}'
 
         want = {"name": "test_model"}
-        got = _agent_engines_utils.to_json_serializable_llama_index_object(mock_base_model)
+        got = _runtimes_utils.to_json_serializable_llama_index_object(mock_base_model)
         assert got == want
 
     def test_sequence_of_llama_index_base_model(self):
-        mock_base_model1: _agent_engines_utils.LlamaIndexBaseModel = mock.Mock(
-            spec=_agent_engines_utils.LlamaIndexBaseModel
+        mock_base_model1: _runtimes_utils.LlamaIndexBaseModel = mock.Mock(
+            spec=_runtimes_utils.LlamaIndexBaseModel
         )
         mock_base_model1.model_dump_json = lambda: '{"name": "test_model1"}'
-        mock_base_model2: _agent_engines_utils.LlamaIndexBaseModel = mock.Mock(
-            spec=_agent_engines_utils.LlamaIndexBaseModel
+        mock_base_model2: _runtimes_utils.LlamaIndexBaseModel = mock.Mock(
+            spec=_runtimes_utils.LlamaIndexBaseModel
         )
         mock_base_model2.model_dump_json = lambda: '{"name": "test_model2"}'
         mock_base_model_list = [mock_base_model1, mock_base_model2]
 
         want = [{"name": "test_model1"}, {"name": "test_model2"}]
-        got = _agent_engines_utils.to_json_serializable_llama_index_object(mock_base_model_list)
+        got = _runtimes_utils.to_json_serializable_llama_index_object(mock_base_model_list)
         assert got == want
 
     def test_sequence_of_mixed_types(self):
-        mock_base_model: _agent_engines_utils.LlamaIndexBaseModel = mock.Mock(
-            spec=_agent_engines_utils.LlamaIndexBaseModel
+        mock_base_model: _runtimes_utils.LlamaIndexBaseModel = mock.Mock(
+            spec=_runtimes_utils.LlamaIndexBaseModel
         )
         mock_base_model.model_dump_json = lambda: '{"name": "test_model"}'
         mock_string = "test_string"
         mock_list = [mock_base_model, mock_string]
 
         want = [{"name": "test_model"}, "test_string"]
-        got = _agent_engines_utils.to_json_serializable_llama_index_object(mock_list)
+        got = _runtimes_utils.to_json_serializable_llama_index_object(mock_list)
         assert got == want
 
     def test_other_type(self):
         test_dict = {"name": "test_model"}
         want = "{'name': 'test_model'}"
-        got = _agent_engines_utils.to_json_serializable_llama_index_object(test_dict)
+        got = _runtimes_utils.to_json_serializable_llama_index_object(test_dict)
         assert got == want

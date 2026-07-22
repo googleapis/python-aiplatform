@@ -19,16 +19,16 @@ from agentplatform._genai import types
 
 
 def test_private_create_memory(client):
-    ae_memory_operation = client.agent_engines.memories._create(
+    ae_memory_operation = client.runtimes.memories._create(
         name="projects/964831358985/locations/us-central1/reasoningEngines/2886612747586371584",
         fact="memory_fact",
         scope={"user_id": "123"},
     )
-    assert isinstance(ae_memory_operation, types.AgentEngineMemoryOperation)
+    assert isinstance(ae_memory_operation, types.RuntimeMemoryOperation)
 
 
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
-    test_method="agent_engines.memories._create",
+    test_method="runtimes.memories._create",
 )

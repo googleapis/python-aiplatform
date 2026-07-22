@@ -21,22 +21,22 @@ from agentplatform._genai import types
 
 
 def test_create_session_with_ttl(client):
-    agent_engine = client.agent_engines.create()
+    agent_engine = client.runtimes.create()
     try:
-        assert isinstance(agent_engine, types.AgentEngine)
+        assert isinstance(agent_engine, types.Runtime)
         assert isinstance(agent_engine.api_resource, types.ReasoningEngine)
 
-        operation = client.agent_engines.create_session(
+        operation = client.sessions.create(
             name=agent_engine.api_resource.name,
             user_id="test-user-123",
-            config=types.CreateAgentEngineSessionConfig(
+            config=types.CreateRuntimeSessionConfig(
                 display_name="my_session",
                 session_state={"foo": "bar"},
                 ttl="1200000s",
                 labels={"label_key": "label_value"},
             ),
         )
-        assert isinstance(operation, types.AgentEngineSessionOperation)
+        assert isinstance(operation, types.RuntimeSessionOperation)
         assert operation.response.display_name == "my_session"
         assert operation.response.session_state == {"foo": "bar"}
         assert operation.response.user_id == "test-user-123"
@@ -52,28 +52,28 @@ def test_create_session_with_ttl(client):
         )
     finally:
         # Clean up resources.
-        client.agent_engines.delete(name=agent_engine.api_resource.name, force=True)
+        client.runtimes.delete(name=agent_engine.api_resource.name, force=True)
 
 
 def test_create_session_with_expire_time(client):
-    agent_engine = client.agent_engines.create()
+    agent_engine = client.runtimes.create()
     try:
-        assert isinstance(agent_engine, types.AgentEngine)
+        assert isinstance(agent_engine, types.Runtime)
         assert isinstance(agent_engine.api_resource, types.ReasoningEngine)
         expire_time = datetime.datetime(
             2028, 1, 1, 12, 30, 00, tzinfo=datetime.timezone.utc
         )
 
-        operation = client.agent_engines.sessions.create(
+        operation = client.sessions.create(
             name=agent_engine.api_resource.name,
             user_id="test-user-123",
-            config=types.CreateAgentEngineSessionConfig(
+            config=types.CreateRuntimeSessionConfig(
                 display_name="my_session",
                 session_state={"foo": "bar"},
                 expire_time=expire_time,
             ),
         )
-        assert isinstance(operation, types.AgentEngineSessionOperation)
+        assert isinstance(operation, types.RuntimeSessionOperation)
         assert operation.response.display_name == "my_session"
         assert operation.response.session_state == {"foo": "bar"}
         assert operation.response.user_id == "test-user-123"
@@ -82,25 +82,25 @@ def test_create_session_with_expire_time(client):
         assert operation.done
     finally:
         # Clean up resources.
-        client.agent_engines.delete(name=agent_engine.api_resource.name, force=True)
+        client.runtimes.delete(name=agent_engine.api_resource.name, force=True)
 
 
 def test_create_session_with_custom_session_id(client):
-    agent_engine = client.agent_engines.create()
+    agent_engine = client.runtimes.create()
     try:
-        assert isinstance(agent_engine, types.AgentEngine)
+        assert isinstance(agent_engine, types.Runtime)
         assert isinstance(agent_engine.api_resource, types.ReasoningEngine)
 
-        operation = client.agent_engines.sessions.create(
+        operation = client.sessions.create(
             name=agent_engine.api_resource.name,
             user_id="test-user-123",
-            config=types.CreateAgentEngineSessionConfig(
+            config=types.CreateRuntimeSessionConfig(
                 display_name="my_session",
                 session_state={"foo": "bar"},
                 session_id="my-session-id",
             ),
         )
-        assert isinstance(operation, types.AgentEngineSessionOperation)
+        assert isinstance(operation, types.RuntimeSessionOperation)
         assert operation.response.display_name == "my_session"
         assert operation.response.session_state == {"foo": "bar"}
         assert operation.response.user_id == "test-user-123"
@@ -111,11 +111,11 @@ def test_create_session_with_custom_session_id(client):
         assert operation.done
     finally:
         # Clean up resources.
-        client.agent_engines.delete(name=agent_engine.api_resource.name, force=True)
+        client.runtimes.delete(name=agent_engine.api_resource.name, force=True)
 
 
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
-    test_method="agent_engines.sessions.create",
+    test_method="sessions.create",
 )

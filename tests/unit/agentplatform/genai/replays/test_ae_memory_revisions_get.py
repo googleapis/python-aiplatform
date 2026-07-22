@@ -20,7 +20,7 @@ from agentplatform._genai import types
 
 def test_get_memory_revisions(client):
     memory_name = "projects/964831358985/locations/us-central1/reasoningEngines/2886612747586371584/memories/3858070028511346688/revisions/516064922187071488"
-    memory_revision = client.agent_engines.memories.revisions.get(name=memory_name)
+    memory_revision = client.runtimes.memories.revisions.get(name=memory_name)
     assert isinstance(memory_revision, types.MemoryRevision)
     assert memory_revision.name == memory_name
 
@@ -28,5 +28,5 @@ def test_get_memory_revisions(client):
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
-    test_method="agent_engines.memories.revisions.get",
+    test_method="runtimes.memories.revisions.get",
 )

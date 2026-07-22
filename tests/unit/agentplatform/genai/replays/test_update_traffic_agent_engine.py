@@ -30,15 +30,15 @@ def test_agent_engines_update_traffic_to_always_latest(client):
     )
     client._api_client._http_options.api_version = "v1beta1"
 
-    agent_engine = client.agent_engines.create()
+    agent_engine = client.runtimes.create()
 
     traffic_config = types.ReasoningEngineTrafficConfig(
         traffic_split_always_latest=types.ReasoningEngineTrafficConfigTrafficSplitAlwaysLatest(),
     )
 
-    updated_agent_engine = client.agent_engines.update(
+    updated_agent_engine = client.runtimes.update(
         name=agent_engine.api_resource.name,
-        config=types.AgentEngineConfig(
+        config=types.RuntimeConfig(
             traffic_config=traffic_config,
         ),
     )
@@ -63,7 +63,7 @@ def test_agent_engines_update_traffic_to_manual_split(
         mock_agent_engine_create_base64_encoded_tarball,
         mock_agent_engine_create_path_exists,
     ):
-        agent_engine = client.agent_engines.create(
+        agent_engine = client.runtimes.create(
             config={
                 "display_name": "test-agent-engine-update-traffic-to-manual-split",
                 "source_packages": [
@@ -80,7 +80,7 @@ def test_agent_engines_update_traffic_to_manual_split(
             },
         )
 
-    runtime_revisions_iter = client.agent_engines.runtimes.revisions.list(
+    runtime_revisions_iter = client.runtimes.revisions.list(
         name=agent_engine.api_resource.name,
     )
     runtime_revisions_list = list(runtime_revisions_iter)
@@ -101,9 +101,9 @@ def test_agent_engines_update_traffic_to_manual_split(
         ),
     )
 
-    updated_agent_engine = client.agent_engines.update(
+    updated_agent_engine = client.runtimes.update(
         name=agent_engine.api_resource.name,
-        config=types.AgentEngineConfig(
+        config=types.RuntimeConfig(
             traffic_config=traffic_config,
         ),
     )
@@ -127,7 +127,7 @@ def test_agent_engines_update_traffic_with_agent_update(
         mock_agent_engine_create_base64_encoded_tarball,
         mock_agent_engine_create_path_exists,
     ):
-        agent_engine = client.agent_engines.create(
+        agent_engine = client.runtimes.create(
             config={
                 "display_name": "test-agent-engine-update-traffic-with-agent-before-update",
                 "source_packages": [
@@ -148,7 +148,7 @@ def test_agent_engines_update_traffic_with_agent_update(
         == "test-agent-engine-update-traffic-with-agent-before-update"
     )
     assert agent_engine.api_resource.traffic_config is None
-    runtime_revisions_iter = client.agent_engines.runtimes.revisions.list(
+    runtime_revisions_iter = client.runtimes.revisions.list(
         name=agent_engine.api_resource.name,
     )
     runtime_revisions_list = list(runtime_revisions_iter)
@@ -173,7 +173,7 @@ def test_agent_engines_update_traffic_with_agent_update(
         mock_agent_engine_create_base64_encoded_tarball,
         mock_agent_engine_create_path_exists,
     ):
-        updated_agent_engine = client.agent_engines.update(
+        updated_agent_engine = client.runtimes.update(
             name=agent_engine.api_resource.name,
             config={
                 "display_name": "test-agent-engine-update-traffic-with-agent-after-update",
@@ -197,7 +197,7 @@ def test_agent_engines_update_traffic_with_agent_update(
         == "test-agent-engine-update-traffic-with-agent-after-update"
     )
     assert updated_agent_engine.api_resource.traffic_config == traffic_config
-    runtime_revisions_iter = client.agent_engines.runtimes.revisions.list(
+    runtime_revisions_iter = client.runtimes.revisions.list(
         name=agent_engine.api_resource.name,
     )
     runtime_revisions_list = list(runtime_revisions_iter)
@@ -219,5 +219,5 @@ def test_agent_engines_update_traffic_with_agent_update(
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
-    test_method="agent_engines.update",
+    test_method="runtimes.update",
 )

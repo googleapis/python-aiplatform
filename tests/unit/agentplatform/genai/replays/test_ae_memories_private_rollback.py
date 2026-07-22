@@ -19,15 +19,15 @@ from agentplatform._genai import types
 
 
 def test_private_rollback(client):
-    rollback_operation = client.agent_engines.memories._rollback(
+    rollback_operation = client.runtimes.memories._rollback(
         name="projects/964831358985/locations/us-central1/reasoningEngines/2886612747586371584/memories/3858070028511346688",
         target_revision_id="3001207491565453312",
     )
-    assert isinstance(rollback_operation, types.AgentEngineRollbackMemoryOperation)
+    assert isinstance(rollback_operation, types.RuntimeRollbackMemoryOperation)
 
 
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
-    test_method="agent_engines.memories._rollback",
+    test_method="runtimes.memories._rollback",
 )

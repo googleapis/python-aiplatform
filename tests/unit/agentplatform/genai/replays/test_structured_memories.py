@@ -44,7 +44,7 @@ def test_generate_and_retrieve_profile(client):
     structured_memory_config_obj = types.StructuredMemoryConfig(
         **structured_memory_config
     )
-    agent_engine = client.agent_engines.create(
+    agent_engine = client.runtimes.create(
         config={
             "context_spec": {
                 "memory_bank_config": {
@@ -56,7 +56,7 @@ def test_generate_and_retrieve_profile(client):
         },
     )
     try:
-        agent_engine = client.agent_engines.get(name=agent_engine.api_resource.name)
+        agent_engine = client.runtimes.get(name=agent_engine.api_resource.name)
         memory_bank_config = agent_engine.api_resource.context_spec.memory_bank_config
         assert memory_bank_config.customization_configs == [
             memory_bank_customization_config
@@ -66,7 +66,7 @@ def test_generate_and_retrieve_profile(client):
         ]
 
         scope = {"user_id": "123"}
-        client.agent_engines.memories.generate(
+        client.runtimes.memories.generate(
             name=agent_engine.api_resource.name,
             scope=scope,
             direct_contents_source={
@@ -74,7 +74,7 @@ def test_generate_and_retrieve_profile(client):
             },
         )
         memories = list(
-            client.agent_engines.memories.retrieve(
+            client.runtimes.memories.retrieve(
                 name=agent_engine.api_resource.name,
                 scope=scope,
                 config={"memory_types": ["STRUCTURED_PROFILE"]},
@@ -83,18 +83,18 @@ def test_generate_and_retrieve_profile(client):
         assert len(memories) >= 1
         assert memories[0].memory.structured_content is not None
 
-        response = client.agent_engines.memories.retrieve_profiles(
+        response = client.runtimes.memories.retrieve_profiles(
             name=agent_engine.api_resource.name, scope=scope
         )
         assert len(response.profiles) == 1
 
     finally:
         # Clean up resources.
-        client.agent_engines.delete(name=agent_engine.api_resource.name, force=True)
+        client.runtimes.delete(name=agent_engine.api_resource.name, force=True)
 
 
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
-    test_method="agent_engines.retrieve_profiles",
+    test_method="runtimes.retrieve_profiles",
 )

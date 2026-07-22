@@ -27,7 +27,7 @@ from google.genai._common import get_value_by_path as getv
 from google.genai._common import set_value_by_path as setv
 from google.genai.pagers import AsyncPager, Pager
 
-from . import _agent_engines_utils
+from . import _runtimes_utils
 from . import types
 
 logger = logging.getLogger("agentplatform_genai.runtimerevisions")
@@ -35,7 +35,7 @@ logger = logging.getLogger("agentplatform_genai.runtimerevisions")
 logger.setLevel(logging.INFO)
 
 
-def _DeleteAgentEngineRuntimeRevisionRequestParameters_to_vertex(
+def _DeleteRuntimeRevisionRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
@@ -46,18 +46,7 @@ def _DeleteAgentEngineRuntimeRevisionRequestParameters_to_vertex(
     return to_object
 
 
-def _GetAgentEngineRuntimeRevisionRequestParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    return to_object
-
-
-def _GetDeleteAgentEngineRuntimeRevisionOperationParameters_to_vertex(
+def _GetDeleteRuntimeRevisionOperationParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
@@ -70,7 +59,18 @@ def _GetDeleteAgentEngineRuntimeRevisionOperationParameters_to_vertex(
     return to_object
 
 
-def _ListAgentEngineRuntimeRevisionsConfig_to_vertex(
+def _GetRuntimeRevisionRequestParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["name"]) is not None:
+        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
+
+    return to_object
+
+
+def _ListRuntimeRevisionsConfig_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
@@ -88,7 +88,7 @@ def _ListAgentEngineRuntimeRevisionsConfig_to_vertex(
     return to_object
 
 
-def _ListAgentEngineRuntimeRevisionsRequestParameters_to_vertex(
+def _ListRuntimeRevisionsRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
@@ -97,14 +97,12 @@ def _ListAgentEngineRuntimeRevisionsRequestParameters_to_vertex(
         setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
 
     if getv(from_object, ["config"]) is not None:
-        _ListAgentEngineRuntimeRevisionsConfig_to_vertex(
-            getv(from_object, ["config"]), to_object
-        )
+        _ListRuntimeRevisionsConfig_to_vertex(getv(from_object, ["config"]), to_object)
 
     return to_object
 
 
-def _QueryAgentEngineRuntimeRevisionConfig_to_vertex(
+def _QueryRuntimeRevisionConfig_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
@@ -122,7 +120,7 @@ def _QueryAgentEngineRuntimeRevisionConfig_to_vertex(
     return to_object
 
 
-def _QueryAgentEngineRuntimeRevisionRequestParameters_to_vertex(
+def _QueryRuntimeRevisionRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
@@ -131,9 +129,7 @@ def _QueryAgentEngineRuntimeRevisionRequestParameters_to_vertex(
         setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
 
     if getv(from_object, ["config"]) is not None:
-        _QueryAgentEngineRuntimeRevisionConfig_to_vertex(
-            getv(from_object, ["config"]), to_object
-        )
+        _QueryRuntimeRevisionConfig_to_vertex(getv(from_object, ["config"]), to_object)
 
     return to_object
 
@@ -144,13 +140,13 @@ class RuntimeRevisions(_api_module.BaseModule):
         self,
         *,
         name: str,
-        config: Optional[types.GetAgentEngineRuntimeRevisionConfigOrDict] = None,
+        config: Optional[types.GetRuntimeRevisionConfigOrDict] = None,
     ) -> types.ReasoningEngineRuntimeRevision:
         """
-        Get an agent engine runtime revision instance.
+        Get an agent runtime runtime revision instance.
         """
 
-        parameter_model = types._GetAgentEngineRuntimeRevisionRequestParameters(
+        parameter_model = types._GetRuntimeRevisionRequestParameters(
             name=name,
             config=config,
         )
@@ -161,7 +157,7 @@ class RuntimeRevisions(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetAgentEngineRuntimeRevisionRequestParameters_to_vertex(
+            request_dict = _GetRuntimeRevisionRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -218,7 +214,7 @@ class RuntimeRevisions(_api_module.BaseModule):
         self,
         *,
         name: str,
-        config: Optional[types.ListAgentEngineRuntimeRevisionsConfigOrDict] = None,
+        config: Optional[types.ListRuntimeRevisionsConfigOrDict] = None,
     ) -> types.ListReasoningEnginesRuntimeRevisionsResponse:
         """
         Lists reasoning engine runtime revisions.
@@ -226,7 +222,7 @@ class RuntimeRevisions(_api_module.BaseModule):
         Args:
             name (str): Required. The name of the reasoning engine to list runtime revisions for. Format:
                 `projects/{project}/locations/{location}/reasoningEngines/{resource_id}`.
-            config (ListAgentEngineRuntimeRevisionsConfig):
+            config (ListRuntimeRevisionsConfig):
                 Optional. Additional configurations for listing the reasoning engine runtime revisions.
 
         Returns:
@@ -234,7 +230,7 @@ class RuntimeRevisions(_api_module.BaseModule):
 
         """
 
-        parameter_model = types._ListAgentEngineRuntimeRevisionsRequestParameters(
+        parameter_model = types._ListRuntimeRevisionsRequestParameters(
             name=name,
             config=config,
         )
@@ -245,7 +241,7 @@ class RuntimeRevisions(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _ListAgentEngineRuntimeRevisionsRequestParameters_to_vertex(
+            request_dict = _ListRuntimeRevisionsRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -304,23 +300,23 @@ class RuntimeRevisions(_api_module.BaseModule):
         self,
         *,
         name: str,
-        config: Optional[types.DeleteAgentEngineRuntimeRevisionConfigOrDict] = None,
-    ) -> types.DeleteAgentEngineRuntimeRevisionOperation:
+        config: Optional[types.DeleteRuntimeRevisionConfigOrDict] = None,
+    ) -> types.DeleteRuntimeRevisionOperation:
         """
-        Delete an Agent Engine runtime revision.
+        Delete an Agent Runtime runtime revision.
 
         Args:
-            name (str): Required. The name of the Agent Engine runtime revision to be deleted. Format:
+            name (str): Required. The name of the Agent Runtime runtime revision to be deleted. Format:
                 `projects/{project}/locations/{location}/reasoningEngines/{resource_id}/runtimeRevisions/{runtime_revision_id}`.
-            config (DeleteAgentEngineRuntimeRevisionConfig):
-                Optional. Additional configurations for deleting the Agent Engine runtime revision.
+            config (DeleteRuntimeRevisionConfig):
+                Optional. Additional configurations for deleting the Agent Runtime runtime revision.
 
         Returns:
-            DeleteAgentEngineRuntimeRevisionOperation: The operation for deleting the Agent Engine runtime revision.
+            DeleteRuntimeRevisionOperation: The operation for deleting the Agent Runtime runtime revision.
 
         """
 
-        parameter_model = types._DeleteAgentEngineRuntimeRevisionRequestParameters(
+        parameter_model = types._DeleteRuntimeRevisionRequestParameters(
             name=name,
             config=config,
         )
@@ -331,7 +327,7 @@ class RuntimeRevisions(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _DeleteAgentEngineRuntimeRevisionRequestParameters_to_vertex(
+            request_dict = _DeleteRuntimeRevisionRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -360,7 +356,7 @@ class RuntimeRevisions(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
-        return_value = types.DeleteAgentEngineRuntimeRevisionOperation._from_response(
+        return_value = types.DeleteRuntimeRevisionOperation._from_response(
             response=response_dict,
             kwargs=(
                 {
@@ -388,11 +384,9 @@ class RuntimeRevisions(_api_module.BaseModule):
         self,
         *,
         operation_name: str,
-        config: Optional[
-            types.GetDeleteAgentEngineRuntimeRevisionOperationConfigOrDict
-        ] = None,
-    ) -> types.DeleteAgentEngineRuntimeRevisionOperation:
-        parameter_model = types._GetDeleteAgentEngineRuntimeRevisionOperationParameters(
+        config: Optional[types.GetDeleteRuntimeRevisionOperationConfigOrDict] = None,
+    ) -> types.DeleteRuntimeRevisionOperation:
+        parameter_model = types._GetDeleteRuntimeRevisionOperationParameters(
             operation_name=operation_name,
             config=config,
         )
@@ -403,10 +397,8 @@ class RuntimeRevisions(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = (
-                _GetDeleteAgentEngineRuntimeRevisionOperationParameters_to_vertex(
-                    parameter_model
-                )
+            request_dict = _GetDeleteRuntimeRevisionOperationParameters_to_vertex(
+                parameter_model
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
@@ -434,7 +426,7 @@ class RuntimeRevisions(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
-        return_value = types.DeleteAgentEngineRuntimeRevisionOperation._from_response(
+        return_value = types.DeleteRuntimeRevisionOperation._from_response(
             response=response_dict,
             kwargs=(
                 {
@@ -462,13 +454,13 @@ class RuntimeRevisions(_api_module.BaseModule):
         self,
         *,
         name: str,
-        config: Optional[types.QueryAgentEngineRuntimeRevisionConfigOrDict] = None,
+        config: Optional[types.QueryRuntimeRevisionConfigOrDict] = None,
     ) -> types.QueryReasoningEngineResponse:
         """
-        Query an Agent Engine runtime revision.
+        Query an Agent runtime revision.
         """
 
-        parameter_model = types._QueryAgentEngineRuntimeRevisionRequestParameters(
+        parameter_model = types._QueryRuntimeRevisionRequestParameters(
             name=name,
             config=config,
         )
@@ -479,7 +471,7 @@ class RuntimeRevisions(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _QueryAgentEngineRuntimeRevisionRequestParameters_to_vertex(
+            request_dict = _QueryRuntimeRevisionRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -536,21 +528,21 @@ class RuntimeRevisions(_api_module.BaseModule):
         self,
         *,
         name: str,
-        config: Optional[types.GetAgentEngineRuntimeRevisionConfigOrDict] = None,
-    ) -> types.AgentEngineRuntimeRevision:
-        """Gets an agent engine runtime revision.
+        config: Optional[types.GetRuntimeRevisionConfigOrDict] = None,
+    ) -> types.RuntimeRevision:
+        """Gets an agent runtime revision.
 
         Args:
-            name (str): Required. The name of the Agent Engine runtime revision to get. Format:
+            name (str): Required. The name of the Agent Runtime revision to get. Format:
                 `projects/{project}/locations/{location}/reasoningEngines/{resource_id}/runtimeRevisions/{runtime_revision_id}`.
-            config (GetAgentEngineRuntimeRevisionConfigOrDict):
-                Optional. Additional configurations for getting the Agent Engine runtime revision.
+            config (GetRuntimeRevisionConfigOrDict):
+                Optional. Additional configurations for getting the Agent Runtime revision.
 
         Returns:
-            AgentEngineRuntimeRevision: The requested Agent Engine runtime revision instance.
+            RuntimeRevision: The requested Agent Runtime revision instance.
         """
         api_resource = self._get(name=name, config=config)
-        agent_engine_runtime_revision = types.AgentEngineRuntimeRevision(
+        agent_engine_runtime_revision = types.RuntimeRevision(
             api_client=self,
             api_async_client=AsyncRuntimeRevisions(api_client_=self._api_client),
             api_resource=api_resource,
@@ -565,18 +557,18 @@ class RuntimeRevisions(_api_module.BaseModule):
         self,
         *,
         name: str,
-        config: Optional[types.ListAgentEngineRuntimeRevisionsConfigOrDict] = None,
-    ) -> Iterator[types.AgentEngineRuntimeRevision]:
+        config: Optional[types.ListRuntimeRevisionsConfigOrDict] = None,
+    ) -> Iterator[types.RuntimeRevision]:
         """Lists all reasoning engine runtime revision instances matching the given query.
 
         Args:
             name (str): Required. The name of the reasoning engine to list runtime revisions for. Format:
                 `projects/{project}/locations/{location}/reasoningEngines/{resource_id}`.
-            config (ListAgentEngineRuntimeRevisionsConfig):
+            config (ListRuntimeRevisionsConfig):
                 Optional. Additional configurations for listing the reasoning engine runtime revisions.
 
         Returns:
-           Iterable[AgentEngineRuntimeRevision]: An iterable of runtime revisions.
+           Iterable[RuntimeRevision]: An iterable of runtime revisions.
         """
         list_pager: Pager[types.ReasoningEngineRuntimeRevision] = Pager(
             "reasoning_engine_runtime_revisions",
@@ -586,7 +578,7 @@ class RuntimeRevisions(_api_module.BaseModule):
         )
 
         return (
-            types.AgentEngineRuntimeRevision(
+            types.RuntimeRevision(
                 api_client=self,
                 api_async_client=AsyncRuntimeRevisions(api_client_=self._api_client),
                 api_resource=runtime_revision,
@@ -598,29 +590,29 @@ class RuntimeRevisions(_api_module.BaseModule):
         self,
         *,
         name: str,
-        config: Optional[types.DeleteAgentEngineRuntimeRevisionConfigOrDict] = None,
-    ) -> types.DeleteAgentEngineRuntimeRevisionOperation:
-        """Delete an Agent Engine runtime revision.
+        config: Optional[types.DeleteRuntimeRevisionConfigOrDict] = None,
+    ) -> types.DeleteRuntimeRevisionOperation:
+        """Delete an Agent Runtime revision.
 
         Args:
-            name (str): Required. The name of the Agent Engine runtime revision to be deleted. Format:
+            name (str): Required. The name of the Agent Runtime revision to be deleted. Format:
                 `projects/{project}/locations/{location}/reasoningEngines/{resource_id}/runtimeRevisions/{runtime_revision_id}`.
-            config (DeleteAgentEngineRuntimeRevisionConfig):
-                Optional. Additional configurations for deleting the Agent Engine runtime revision.
+            config (DeleteRuntimeRevisionConfig):
+                Optional. Additional configurations for deleting the Agent Runtime revision.
 
         Returns:
-            DeleteAgentEngineRuntimeRevisionOperation: The operation for deleting the Agent Engine runtime revision.
+            DeleteRuntimeRevisionOperation: The operation for deleting the Agent Runtime revision.
         """
         if config is None:
-            config = types.DeleteAgentEngineRuntimeRevisionConfig()
+            config = types.DeleteRuntimeRevisionConfig()
         elif isinstance(config, dict):
-            config = types.DeleteAgentEngineRuntimeRevisionConfig.model_validate(config)
+            config = types.DeleteRuntimeRevisionConfig.model_validate(config)
         operation = self._delete(
             name=name,
             config=config,
         )
         if config.wait_for_completion and not operation.done:
-            operation = _agent_engines_utils._await_operation(
+            operation = _runtimes_utils._await_operation(
                 operation_name=operation.name,
                 get_operation_fn=self._get_delete_runtime_revision_operation,
                 poll_interval_seconds=0.5,
@@ -634,23 +626,23 @@ class RuntimeRevisions(_api_module.BaseModule):
     def _register_api_methods(
         self,
         *,
-        agent_engine_runtime_revision: types.AgentEngineRuntimeRevision,
-    ) -> types.AgentEngineRuntimeRevision:
-        """Registers the API methods for the agent engine runtime revision."""
+        agent_engine_runtime_revision: types.RuntimeRevision,
+    ) -> types.RuntimeRevision:
+        """Registers the API methods for the agent runtime revision."""
         try:
-            _agent_engines_utils._register_api_methods_or_raise(
+            _runtimes_utils._register_api_methods_or_raise(
                 agent_engine=agent_engine_runtime_revision,
                 wrap_operation_fn={
-                    "": _agent_engines_utils._wrap_query_operation,  # type: ignore[dict-item]
-                    "async": _agent_engines_utils._wrap_async_query_operation,  # type: ignore[dict-item]
-                    "stream": _agent_engines_utils._wrap_stream_query_operation,  # type: ignore[dict-item]
-                    "async_stream": _agent_engines_utils._wrap_async_stream_query_operation,  # type: ignore[dict-item]
-                    "a2a_extension": _agent_engines_utils._wrap_a2a_operation,
+                    "": _runtimes_utils._wrap_query_operation,  # type: ignore[dict-item]
+                    "async": _runtimes_utils._wrap_async_query_operation,  # type: ignore[dict-item]
+                    "stream": _runtimes_utils._wrap_stream_query_operation,  # type: ignore[dict-item]
+                    "async_stream": _runtimes_utils._wrap_async_stream_query_operation,  # type: ignore[dict-item]
+                    "a2a_extension": _runtimes_utils._wrap_a2a_operation,
                 },
             )
         except Exception as e:
             logger.warning(
-                _agent_engines_utils._FAILED_TO_REGISTER_API_METHODS_WARNING_TEMPLATE, e
+                _runtimes_utils._FAILED_TO_REGISTER_API_METHODS_WARNING_TEMPLATE, e
             )
         return agent_engine_runtime_revision
 
@@ -658,16 +650,14 @@ class RuntimeRevisions(_api_module.BaseModule):
         self,
         *,
         name: str,
-        config: Optional[types.QueryAgentEngineRuntimeRevisionConfigOrDict] = None,
+        config: Optional[types.QueryRuntimeRevisionConfigOrDict] = None,
     ) -> Iterator[Any]:
-        """Streams the response of the agent engine."""
-        parameter_model = types._QueryAgentEngineRuntimeRevisionRequestParameters(
+        """Streams the response of the agent runtime."""
+        parameter_model = types._QueryRuntimeRevisionRequestParameters(
             name=name,
             config=config,
         )
-        request_dict = _QueryAgentEngineRuntimeRevisionRequestParameters_to_vertex(
-            parameter_model
-        )
+        request_dict = _QueryRuntimeRevisionRequestParameters_to_vertex(parameter_model)
         request_url_dict = request_dict.get("_url")
         if request_url_dict:
             path = "{name}:streamQuery?alt=sse".format_map(request_url_dict)
@@ -696,16 +686,14 @@ class RuntimeRevisions(_api_module.BaseModule):
         self,
         *,
         name: str,
-        config: Optional[types.QueryAgentEngineRuntimeRevisionConfigOrDict] = None,
+        config: Optional[types.QueryRuntimeRevisionConfigOrDict] = None,
     ) -> AsyncIterator[Any]:
-        """Streams the response of the agent engine."""
-        parameter_model = types._QueryAgentEngineRuntimeRevisionRequestParameters(
+        """Streams the response of the agent runtime."""
+        parameter_model = types._QueryRuntimeRevisionRequestParameters(
             name=name,
             config=config,
         )
-        request_dict = _QueryAgentEngineRuntimeRevisionRequestParameters_to_vertex(
-            parameter_model
-        )
+        request_dict = _QueryRuntimeRevisionRequestParameters_to_vertex(parameter_model)
         request_url_dict = request_dict.get("_url")
         if request_url_dict:
             path = "{name}:streamQuery?alt=sse".format_map(request_url_dict)
@@ -738,13 +726,13 @@ class AsyncRuntimeRevisions(_api_module.BaseModule):
         self,
         *,
         name: str,
-        config: Optional[types.GetAgentEngineRuntimeRevisionConfigOrDict] = None,
+        config: Optional[types.GetRuntimeRevisionConfigOrDict] = None,
     ) -> types.ReasoningEngineRuntimeRevision:
         """
-        Get an agent engine runtime revision instance.
+        Get an agent runtime runtime revision instance.
         """
 
-        parameter_model = types._GetAgentEngineRuntimeRevisionRequestParameters(
+        parameter_model = types._GetRuntimeRevisionRequestParameters(
             name=name,
             config=config,
         )
@@ -755,7 +743,7 @@ class AsyncRuntimeRevisions(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetAgentEngineRuntimeRevisionRequestParameters_to_vertex(
+            request_dict = _GetRuntimeRevisionRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -814,7 +802,7 @@ class AsyncRuntimeRevisions(_api_module.BaseModule):
         self,
         *,
         name: str,
-        config: Optional[types.ListAgentEngineRuntimeRevisionsConfigOrDict] = None,
+        config: Optional[types.ListRuntimeRevisionsConfigOrDict] = None,
     ) -> types.ListReasoningEnginesRuntimeRevisionsResponse:
         """
         Lists reasoning engine runtime revisions.
@@ -822,7 +810,7 @@ class AsyncRuntimeRevisions(_api_module.BaseModule):
         Args:
             name (str): Required. The name of the reasoning engine to list runtime revisions for. Format:
                 `projects/{project}/locations/{location}/reasoningEngines/{resource_id}`.
-            config (ListAgentEngineRuntimeRevisionsConfig):
+            config (ListRuntimeRevisionsConfig):
                 Optional. Additional configurations for listing the reasoning engine runtime revisions.
 
         Returns:
@@ -830,7 +818,7 @@ class AsyncRuntimeRevisions(_api_module.BaseModule):
 
         """
 
-        parameter_model = types._ListAgentEngineRuntimeRevisionsRequestParameters(
+        parameter_model = types._ListRuntimeRevisionsRequestParameters(
             name=name,
             config=config,
         )
@@ -841,7 +829,7 @@ class AsyncRuntimeRevisions(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _ListAgentEngineRuntimeRevisionsRequestParameters_to_vertex(
+            request_dict = _ListRuntimeRevisionsRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -902,23 +890,23 @@ class AsyncRuntimeRevisions(_api_module.BaseModule):
         self,
         *,
         name: str,
-        config: Optional[types.DeleteAgentEngineRuntimeRevisionConfigOrDict] = None,
-    ) -> types.DeleteAgentEngineRuntimeRevisionOperation:
+        config: Optional[types.DeleteRuntimeRevisionConfigOrDict] = None,
+    ) -> types.DeleteRuntimeRevisionOperation:
         """
-        Delete an Agent Engine runtime revision.
+        Delete an Agent Runtime runtime revision.
 
         Args:
-            name (str): Required. The name of the Agent Engine runtime revision to be deleted. Format:
+            name (str): Required. The name of the Agent Runtime runtime revision to be deleted. Format:
                 `projects/{project}/locations/{location}/reasoningEngines/{resource_id}/runtimeRevisions/{runtime_revision_id}`.
-            config (DeleteAgentEngineRuntimeRevisionConfig):
-                Optional. Additional configurations for deleting the Agent Engine runtime revision.
+            config (DeleteRuntimeRevisionConfig):
+                Optional. Additional configurations for deleting the Agent Runtime runtime revision.
 
         Returns:
-            DeleteAgentEngineRuntimeRevisionOperation: The operation for deleting the Agent Engine runtime revision.
+            DeleteRuntimeRevisionOperation: The operation for deleting the Agent Runtime runtime revision.
 
         """
 
-        parameter_model = types._DeleteAgentEngineRuntimeRevisionRequestParameters(
+        parameter_model = types._DeleteRuntimeRevisionRequestParameters(
             name=name,
             config=config,
         )
@@ -929,7 +917,7 @@ class AsyncRuntimeRevisions(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _DeleteAgentEngineRuntimeRevisionRequestParameters_to_vertex(
+            request_dict = _DeleteRuntimeRevisionRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -960,7 +948,7 @@ class AsyncRuntimeRevisions(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
-        return_value = types.DeleteAgentEngineRuntimeRevisionOperation._from_response(
+        return_value = types.DeleteRuntimeRevisionOperation._from_response(
             response=response_dict,
             kwargs=(
                 {
@@ -988,11 +976,9 @@ class AsyncRuntimeRevisions(_api_module.BaseModule):
         self,
         *,
         operation_name: str,
-        config: Optional[
-            types.GetDeleteAgentEngineRuntimeRevisionOperationConfigOrDict
-        ] = None,
-    ) -> types.DeleteAgentEngineRuntimeRevisionOperation:
-        parameter_model = types._GetDeleteAgentEngineRuntimeRevisionOperationParameters(
+        config: Optional[types.GetDeleteRuntimeRevisionOperationConfigOrDict] = None,
+    ) -> types.DeleteRuntimeRevisionOperation:
+        parameter_model = types._GetDeleteRuntimeRevisionOperationParameters(
             operation_name=operation_name,
             config=config,
         )
@@ -1003,10 +989,8 @@ class AsyncRuntimeRevisions(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = (
-                _GetDeleteAgentEngineRuntimeRevisionOperationParameters_to_vertex(
-                    parameter_model
-                )
+            request_dict = _GetDeleteRuntimeRevisionOperationParameters_to_vertex(
+                parameter_model
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
@@ -1036,7 +1020,7 @@ class AsyncRuntimeRevisions(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
-        return_value = types.DeleteAgentEngineRuntimeRevisionOperation._from_response(
+        return_value = types.DeleteRuntimeRevisionOperation._from_response(
             response=response_dict,
             kwargs=(
                 {
@@ -1064,13 +1048,13 @@ class AsyncRuntimeRevisions(_api_module.BaseModule):
         self,
         *,
         name: str,
-        config: Optional[types.QueryAgentEngineRuntimeRevisionConfigOrDict] = None,
+        config: Optional[types.QueryRuntimeRevisionConfigOrDict] = None,
     ) -> types.QueryReasoningEngineResponse:
         """
-        Query an Agent Engine runtime revision.
+        Query an Agent runtime revision.
         """
 
-        parameter_model = types._QueryAgentEngineRuntimeRevisionRequestParameters(
+        parameter_model = types._QueryRuntimeRevisionRequestParameters(
             name=name,
             config=config,
         )
@@ -1081,7 +1065,7 @@ class AsyncRuntimeRevisions(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _QueryAgentEngineRuntimeRevisionRequestParameters_to_vertex(
+            request_dict = _QueryRuntimeRevisionRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -1140,21 +1124,21 @@ class AsyncRuntimeRevisions(_api_module.BaseModule):
         self,
         *,
         name: str,
-        config: Optional[types.GetAgentEngineRuntimeRevisionConfigOrDict] = None,
-    ) -> types.AgentEngineRuntimeRevision:
-        """Gets an agent engine runtime revision.
+        config: Optional[types.GetRuntimeRevisionConfigOrDict] = None,
+    ) -> types.RuntimeRevision:
+        """Gets an agent runtime revision.
 
         Args:
-            name (str): Required. The name of the Agent Engine runtime revision to get. Format:
+            name (str): Required. The name of the Agent Runtime revision to get. Format:
                 `projects/{project}/locations/{location}/reasoningEngines/{resource_id}/runtimeRevisions/{runtime_revision_id}`.
-            config (GetAgentEngineRuntimeRevisionConfigOrDict):
-                Optional. Additional configurations for getting the Agent Engine runtime revision.
+            config (GetRuntimeRevisionConfigOrDict):
+                Optional. Additional configurations for getting the Agent Runtime revision.
 
         Returns:
-            AgentEngineRuntimeRevision: The requested Agent Engine runtime revision instance.
+            RuntimeRevision: The requested Agent Runtime revision instance.
         """
         api_resource = await self._get(name=name, config=config)
-        agent_engine_runtime_revision = types.AgentEngineRuntimeRevision(
+        agent_engine_runtime_revision = types.RuntimeRevision(
             api_client=self,
             api_async_client=AsyncRuntimeRevisions(api_client_=self._api_client),
             api_resource=api_resource,
@@ -1169,18 +1153,18 @@ class AsyncRuntimeRevisions(_api_module.BaseModule):
         self,
         *,
         name: str,
-        config: Optional[types.ListAgentEngineRuntimeRevisionsConfigOrDict] = None,
-    ) -> AsyncIterator[types.AgentEngineRuntimeRevision]:
+        config: Optional[types.ListRuntimeRevisionsConfigOrDict] = None,
+    ) -> AsyncIterator[types.RuntimeRevision]:
         """Lists reasoning engine runtime revisions.
 
         Args:
             name (str): Required. The name of the reasoning engine to list runtime revisions for. Format:
                 `projects/{project}/locations/{location}/reasoningEngines/{resource_id}`.
-            config (ListAgentEngineRuntimeRevisionsConfig):
+            config (ListRuntimeRevisionsConfig):
                 Optional. Additional configurations for listing the reasoning engine runtime revisions.
 
         Returns:
-           AsyncIterator[AgentEngineRuntimeRevision]: An async iterator of runtime revisions.
+           AsyncIterator[RuntimeRevision]: An async iterator of runtime revisions.
         """
         list_pager: AsyncPager[types.ReasoningEngineRuntimeRevision] = AsyncPager(
             "reasoning_engine_runtime_revisions",
@@ -1190,7 +1174,7 @@ class AsyncRuntimeRevisions(_api_module.BaseModule):
         )
 
         async for runtime_revision in list_pager:
-            yield types.AgentEngineRuntimeRevision(
+            yield types.RuntimeRevision(
                 api_client=self,
                 api_async_client=AsyncRuntimeRevisions(api_client_=self._api_client),
                 api_resource=runtime_revision,
@@ -1200,29 +1184,29 @@ class AsyncRuntimeRevisions(_api_module.BaseModule):
         self,
         *,
         name: str,
-        config: Optional[types.DeleteAgentEngineRuntimeRevisionConfigOrDict] = None,
-    ) -> types.DeleteAgentEngineRuntimeRevisionOperation:
-        """Delete an Agent Engine runtime revision.
+        config: Optional[types.DeleteRuntimeRevisionConfigOrDict] = None,
+    ) -> types.DeleteRuntimeRevisionOperation:
+        """Delete an Agent Runtime revision.
 
         Args:
-            name (str): Required. The name of the Agent Engine runtime revision to be deleted. Format:
+            name (str): Required. The name of the Agent Runtime revision to be deleted. Format:
                 `projects/{project}/locations/{location}/reasoningEngines/{resource_id}/runtimeRevisions/{runtime_revision_id}`.
-            config (DeleteAgentEngineRuntimeRevisionConfig):
-                Optional. Additional configurations for deleting the Agent Engine runtime revision.
+            config (DeleteRuntimeRevisionConfig):
+                Optional. Additional configurations for deleting the Agent Runtime revision.
 
         Returns:
-            DeleteAgentEngineRuntimeRevisionOperation: The operation for deleting the Agent Engine runtime revision.
+            DeleteRuntimeRevisionOperation: The operation for deleting the Agent Runtime revision.
         """
         if config is None:
-            config = types.DeleteAgentEngineRuntimeRevisionConfig()
+            config = types.DeleteRuntimeRevisionConfig()
         elif isinstance(config, dict):
-            config = types.DeleteAgentEngineRuntimeRevisionConfig.model_validate(config)
+            config = types.DeleteRuntimeRevisionConfig.model_validate(config)
         operation = await self._delete(
             name=name,
             config=config,
         )
         if config.wait_for_completion and not operation.done:
-            operation = await _agent_engines_utils._await_async_operation(
+            operation = await _runtimes_utils._await_async_operation(
                 operation_name=operation.name,
                 get_operation_fn=self._get_delete_runtime_revision_operation,
                 poll_interval_seconds=0.5,
@@ -1236,22 +1220,22 @@ class AsyncRuntimeRevisions(_api_module.BaseModule):
     def _register_api_methods(
         self,
         *,
-        agent_engine_runtime_revision: types.AgentEngineRuntimeRevision,
-    ) -> types.AgentEngineRuntimeRevision:
-        """Registers the API methods for the agent engine runtime revision."""
+        agent_engine_runtime_revision: types.RuntimeRevision,
+    ) -> types.RuntimeRevision:
+        """Registers the API methods for the agent runtime revision."""
         try:
-            _agent_engines_utils._register_api_methods_or_raise(
+            _runtimes_utils._register_api_methods_or_raise(
                 agent_engine=agent_engine_runtime_revision,
                 wrap_operation_fn={
-                    "": _agent_engines_utils._wrap_query_operation,  # type: ignore[dict-item]
-                    "async": _agent_engines_utils._wrap_async_query_operation,  # type: ignore[dict-item]
-                    "stream": _agent_engines_utils._wrap_stream_query_operation,  # type: ignore[dict-item]
-                    "async_stream": _agent_engines_utils._wrap_async_stream_query_operation,  # type: ignore[dict-item]
-                    "a2a_extension": _agent_engines_utils._wrap_a2a_operation,
+                    "": _runtimes_utils._wrap_query_operation,  # type: ignore[dict-item]
+                    "async": _runtimes_utils._wrap_async_query_operation,  # type: ignore[dict-item]
+                    "stream": _runtimes_utils._wrap_stream_query_operation,  # type: ignore[dict-item]
+                    "async_stream": _runtimes_utils._wrap_async_stream_query_operation,  # type: ignore[dict-item]
+                    "a2a_extension": _runtimes_utils._wrap_a2a_operation,
                 },
             )
         except Exception as e:
             logger.warning(
-                _agent_engines_utils._FAILED_TO_REGISTER_API_METHODS_WARNING_TEMPLATE, e
+                _runtimes_utils._FAILED_TO_REGISTER_API_METHODS_WARNING_TEMPLATE, e
             )
         return agent_engine_runtime_revision

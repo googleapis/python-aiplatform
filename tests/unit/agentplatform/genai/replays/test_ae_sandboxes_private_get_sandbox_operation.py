@@ -24,15 +24,15 @@ def test_private_get_operation(client):
         "projects/964831358985/locations/us-central1/operations/4799455193970245632"
     )
 
-    agent_engine_sandbox = client.agent_engines.sandboxes._get_sandbox_operation(
+    agent_engine_sandbox = client.sandboxes._get_sandbox_operation(
         operation_name=operation_name
     )
-    assert isinstance(agent_engine_sandbox, types.AgentEngineSandboxOperation)
+    assert isinstance(agent_engine_sandbox, types.RuntimeSandboxOperation)
     assert agent_engine_sandbox.name == operation_name
 
 
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
-    test_method="agent_engines.sandboxes._get_sandbox_operation",
+    test_method="sandboxes._get_sandbox_operation",
 )

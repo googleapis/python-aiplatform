@@ -20,7 +20,7 @@ from agentplatform._genai import types
 
 def test_get_memory(client):
     memory_name = "projects/964831358985/locations/us-central1/reasoningEngines/2886612747586371584/memories/3858070028511346688"
-    ae_memory = client.agent_engines.memories.get(name=memory_name)
+    ae_memory = client.runtimes.memories.get(name=memory_name)
     assert isinstance(ae_memory, types.Memory)
     assert ae_memory.name == memory_name
 
@@ -28,5 +28,5 @@ def test_get_memory(client):
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
-    test_method="agent_engines.memories.get",
+    test_method="runtimes.memories.get",
 )

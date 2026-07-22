@@ -22,18 +22,18 @@ from agentplatform._genai import types
 
 
 def test_list_session_events(client):
-    agent_engine = client.agent_engines.create()
-    operation = client.agent_engines.sessions.create(
+    agent_engine = client.runtimes.create()
+    operation = client.sessions.create(
         name=agent_engine.api_resource.name,
         user_id="test-user-123",
     )
     session = operation.response
     assert not list(
-        client.agent_engines.sessions.events.list(
+        client.sessions.events.list(
             name=session.name,
         )
     )
-    client.agent_engines.sessions.events.append(
+    client.sessions.events.append(
         name=session.name,
         author="test-user-123",
         invocation_id="test-invocation-id",
@@ -44,7 +44,7 @@ def test_list_session_events(client):
             },
         },
     )
-    session_event_list = client.agent_engines.sessions.events.list(
+    session_event_list = client.sessions.events.list(
         name=session.name,
     )
     assert len(session_event_list) == 1
@@ -55,7 +55,7 @@ def test_list_session_events(client):
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
-    test_method="agent_engines.sessions.events.list",
+    test_method="sessions.events.list",
 )
 
 
@@ -64,24 +64,24 @@ pytest_plugins = ("pytest_asyncio",)
 
 @pytest.mark.asyncio
 async def test_async_list_session_events(client):
-    agent_engine = client.agent_engines.create()
-    operation = await client.aio.agent_engines.sessions.create(
+    agent_engine = client.runtimes.create()
+    operation = await client.aio.sessions.create(
         name=agent_engine.api_resource.name,
         user_id="test-user-123",
     )
     session = operation.response
-    pager = await client.aio.agent_engines.sessions.events.list(name=session.name)
+    pager = await client.aio.sessions.events.list(name=session.name)
     assert not [item async for item in pager]
 
-    await client.aio.agent_engines.sessions.events.append(
+    await client.aio.sessions.events.append(
         name=session.name,
         author="test-user-123",
         invocation_id="test-invocation-id",
         timestamp=datetime.datetime.fromtimestamp(1234567890, tz=datetime.timezone.utc),
     )
-    pager = await client.aio.agent_engines.sessions.events.list(name=session.name)
+    pager = await client.aio.sessions.events.list(name=session.name)
     session_event_list = [item async for item in pager]
     assert len(session_event_list) == 1
     assert isinstance(session_event_list[0], types.SessionEvent)
 
-    client.agent_engines.delete(name=agent_engine.api_resource.name, force=True)
+    client.runtimes.delete(name=agent_engine.api_resource.name, force=True)

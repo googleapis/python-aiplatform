@@ -19,21 +19,21 @@ from agentplatform._genai import types
 
 
 def test_get_sandbox(client):
-    agent_engine = client.agent_engines.create()
-    assert isinstance(agent_engine, types.AgentEngine)
+    agent_engine = client.runtimes.create()
+    assert isinstance(agent_engine, types.Runtime)
     assert isinstance(agent_engine.api_resource, types.ReasoningEngine)
 
-    operation = client.agent_engines.sandboxes.create(
+    operation = client.sandboxes.create(
         name=agent_engine.api_resource.name,
         spec={
             "code_execution_environment": {
                 "machineConfig": "MACHINE_CONFIG_VCPU4_RAM4GIB"
             }
         },
-        config=types.CreateAgentEngineSandboxConfig(display_name="test_sandbox"),
+        config=types.CreateRuntimeSandboxConfig(display_name="test_sandbox"),
     )
-    assert isinstance(operation, types.AgentEngineSandboxOperation)
-    sandbox = client.agent_engines.sandboxes.get(
+    assert isinstance(operation, types.RuntimeSandboxOperation)
+    sandbox = client.sandboxes.get(
         name=operation.response.name,
     )
     assert isinstance(sandbox, types.SandboxEnvironment)
@@ -44,5 +44,5 @@ def test_get_sandbox(client):
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
-    test_method="agent_engines.sandboxes.get",
+    test_method="sandboxes.get",
 )

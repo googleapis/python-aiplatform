@@ -20,17 +20,17 @@ from agentplatform._genai import types
 
 
 def test_agent_engines_update(client):
-    agent_engine = client.agent_engines.create()
+    agent_engine = client.runtimes.create()
     assert agent_engine.api_resource.display_name is None
 
-    updated_agent_engine = client.agent_engines.update(
+    updated_agent_engine = client.runtimes.update(
         name=agent_engine.api_resource.name,
-        config=types.AgentEngineConfig(
+        config=types.RuntimeConfig(
             display_name="updated_display_name",
             description="updated description",
         ),
     )
-    assert isinstance(updated_agent_engine, types.AgentEngine)
+    assert isinstance(updated_agent_engine, types.Runtime)
     assert updated_agent_engine.api_resource.name == agent_engine.api_resource.name
 
     assert updated_agent_engine.api_resource.display_name == "updated_display_name"
@@ -40,5 +40,5 @@ def test_agent_engines_update(client):
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
-    test_method="agent_engines.update",
+    test_method="runtimes.update",
 )

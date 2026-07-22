@@ -32,8 +32,8 @@ pytest_plugins = ("pytest_asyncio",)
 
 
 def test_get(client):
-    agent_engine = client.agent_engines.create()
-    assert isinstance(agent_engine, types.AgentEngine)
+    agent_engine = client.runtimes.create()
+    assert isinstance(agent_engine, types.Runtime)
     assert isinstance(agent_engine.api_resource, types.ReasoningEngine)
 
     try:
@@ -66,13 +66,13 @@ def test_get(client):
         assert feedback.custom_metadata == {"key1": "val1", "key2": "val2"}
     finally:
         # Clean up resources.
-        client.agent_engines.delete(name=agent_engine.api_resource.name, force=True)
+        client.runtimes.delete(name=agent_engine.api_resource.name, force=True)
 
 
 @pytest.mark.asyncio
 async def test_get_async(client):
-    agent_engine = client.agent_engines.create()
-    assert isinstance(agent_engine, types.AgentEngine)
+    agent_engine = client.runtimes.create()
+    assert isinstance(agent_engine, types.Runtime)
     assert isinstance(agent_engine.api_resource, types.ReasoningEngine)
 
     try:
@@ -105,6 +105,6 @@ async def test_get_async(client):
         assert feedback.custom_metadata == {"key1": "val1", "key2": "val2"}
     finally:
         # Clean up resources.
-        await client.aio.agent_engines.delete(
+        await client.aio.runtimes.delete(
             name=agent_engine.api_resource.name, force=True
         )

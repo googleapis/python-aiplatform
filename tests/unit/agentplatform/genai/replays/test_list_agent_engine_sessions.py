@@ -22,29 +22,29 @@ from agentplatform._genai import types
 
 
 def test_list_sessions(client):
-    agent_engine = client.agent_engines.create()
+    agent_engine = client.runtimes.create()
     assert not list(
-        client.agent_engines.sessions.list(
+        client.sessions.list(
             name=agent_engine.api_resource.name,
         )
     )
-    client.agent_engines.sessions.create(
+    client.sessions.create(
         name=agent_engine.api_resource.name,
         user_id="test-user-123",
     )
-    session_list = client.agent_engines.sessions.list(
+    session_list = client.sessions.list(
         name=agent_engine.api_resource.name,
     )
     assert len(session_list) == 1
     assert isinstance(session_list[0], types.Session)
 
-    client.agent_engines.delete(name=agent_engine.api_resource.name, force=True)
+    client.runtimes.delete(name=agent_engine.api_resource.name, force=True)
 
 
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
-    test_method="agent_engines.sessions.list",
+    test_method="sessions.list",
 )
 
 pytest_plugins = ("pytest_asyncio",)
@@ -52,21 +52,21 @@ pytest_plugins = ("pytest_asyncio",)
 
 @pytest.mark.asyncio
 async def test_async_list_sessions(client):
-    agent_engine = client.agent_engines.create()
-    pager = await client.aio.agent_engines.sessions.list(
+    agent_engine = client.runtimes.create()
+    pager = await client.aio.sessions.list(
         name=agent_engine.api_resource.name
     )
     assert not [item async for item in pager]
 
-    await client.aio.agent_engines.sessions.create(
+    await client.aio.sessions.create(
         name=agent_engine.api_resource.name,
         user_id="test-user-123",
     )
-    pager = await client.aio.agent_engines.sessions.list(
+    pager = await client.aio.sessions.list(
         name=agent_engine.api_resource.name,
     )
     session_list = [item async for item in pager]
     assert len(session_list) == 1
     assert isinstance(session_list[0], types.Session)
 
-    client.agent_engines.delete(name=agent_engine.api_resource.name, force=True)
+    client.runtimes.delete(name=agent_engine.api_resource.name, force=True)

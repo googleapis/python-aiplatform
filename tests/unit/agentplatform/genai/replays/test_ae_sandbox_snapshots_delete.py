@@ -21,7 +21,7 @@ from agentplatform._genai import types
 
 
 def test_delete_sandbox_snapshot(client):
-    result = client.agent_engines.sandboxes.snapshots._delete(
+    result = client.sandboxes.snapshots._delete(
         name="projects/802583348448/locations/us-central1/reasoningEngines/6130241318758121472/sandboxEnvironmentSnapshots/421086565159141376",
     )
 
@@ -31,5 +31,5 @@ def test_delete_sandbox_snapshot(client):
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
-    test_method="agent_engines.sandboxes.snapshots._delete",
+    test_method="sandboxes.snapshots._delete",
 )

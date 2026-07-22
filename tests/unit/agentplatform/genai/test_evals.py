@@ -3349,7 +3349,7 @@ class TestEvalsRunInference:
         ]
 
         mock_agent_engine.stream_query.return_value = iter(stream_query_return_value)
-        mock_agentplatform_client.return_value.agent_engines.get.return_value = (
+        mock_agentplatform_client.return_value.runtimes.get.return_value = (
             mock_agent_engine
         )
 
@@ -3359,7 +3359,7 @@ class TestEvalsRunInference:
         )
 
         mock_eval_dataset_loader.return_value.load.assert_called_once_with(mock_df)
-        mock_agentplatform_client.return_value.agent_engines.get.assert_called_once_with(
+        mock_agentplatform_client.return_value.runtimes.get.assert_called_once_with(
             name="projects/test-project/locations/us-central1/reasoningEngines/123"
         )
         mock_agent_engine.create_session.assert_called_once_with(
@@ -3458,7 +3458,7 @@ class TestEvalsRunInference:
         ]
 
         mock_agent_engine.stream_query.return_value = iter(stream_query_return_value)
-        mock_agentplatform_client.return_value.agent_engines.get.return_value = (
+        mock_agentplatform_client.return_value.runtimes.get.return_value = (
             mock_agent_engine
         )
 
@@ -3468,7 +3468,7 @@ class TestEvalsRunInference:
         )
 
         mock_eval_dataset_loader.return_value.load.assert_called_once_with(mock_df)
-        mock_agentplatform_client.return_value.agent_engines.get.assert_called_once_with(
+        mock_agentplatform_client.return_value.runtimes.get.assert_called_once_with(
             name="projects/test-project/locations/us-central1/reasoningEngines/123"
         )
         mock_agent_engine.create_session.assert_called_once_with(
@@ -3550,7 +3550,7 @@ class TestEvalsRunInference:
         )
 
         mock_agent_engine = mock.Mock()
-        mock_agentplatform_client.return_value.agent_engines.get.return_value = (
+        mock_agentplatform_client.return_value.runtimes.get.return_value = (
             mock_agent_engine
         )
 
@@ -3622,7 +3622,7 @@ class TestEvalsRunInference:
             },
         ]
         mock_agent_engine.stream_query.return_value = iter(stream_query_return_value)
-        mock_agentplatform_client.return_value.agent_engines.get.return_value = (
+        mock_agentplatform_client.return_value.runtimes.get.return_value = (
             mock_agent_engine
         )
 
@@ -3635,7 +3635,7 @@ class TestEvalsRunInference:
         mock_agent_engine.api_client.sessions.create.assert_called_once_with(
             name="projects/test-project/locations/us-central1/reasoningEngines/123",
             user_id="123",
-            config=agentplatform_genai_types.CreateAgentEngineSessionConfig(
+            config=agentplatform_genai_types.CreateRuntimeSessionConfig(
                 session_state={"a": "1"},
             ),
         )
@@ -4301,7 +4301,7 @@ class TestEvalsRunInference:
                 }
             ]
         )
-        mock_agentplatform_client.return_value.agent_engines.get.return_value = (
+        mock_agentplatform_client.return_value.runtimes.get.return_value = (
             mock_agent_engine
         )
 
@@ -4310,7 +4310,7 @@ class TestEvalsRunInference:
             agent=_TEST_AGENT_ENGINE,
         )
 
-        mock_agentplatform_client.return_value.agent_engines.get.assert_called_once_with(
+        mock_agentplatform_client.return_value.runtimes.get.assert_called_once_with(
             name=_TEST_AGENT_ENGINE
         )
         mock_get_interactions_client.assert_not_called()

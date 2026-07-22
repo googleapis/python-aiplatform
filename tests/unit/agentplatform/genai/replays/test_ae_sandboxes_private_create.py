@@ -22,17 +22,17 @@ def test_private_create(client):
     spec = {
         "code_execution_environment": {"machineConfig": "MACHINE_CONFIG_VCPU4_RAM4GIB"}
     }
-    agent_engine_sandbox_operation = client.agent_engines.sandboxes._create(
+    agent_engine_sandbox_operation = client.sandboxes._create(
         name=(
             "projects/964831358985/locations/us-central1/reasoningEngines/2886612747586371584"
         ),
         spec=spec,
     )
-    assert isinstance(agent_engine_sandbox_operation, types.AgentEngineSandboxOperation)
+    assert isinstance(agent_engine_sandbox_operation, types.RuntimeSandboxOperation)
 
 
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
-    test_method="agent_engines.sandboxes._create",
+    test_method="sandboxes._create",
 )

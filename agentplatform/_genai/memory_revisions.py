@@ -34,7 +34,7 @@ logger = logging.getLogger("agentplatform_genai.memoryrevisions")
 logger.setLevel(logging.INFO)
 
 
-def _GetAgentEngineMemoryRevisionRequestParameters_to_vertex(
+def _GetRuntimeMemoryRevisionRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
@@ -45,7 +45,7 @@ def _GetAgentEngineMemoryRevisionRequestParameters_to_vertex(
     return to_object
 
 
-def _ListAgentEngineMemoryRevisionsConfig_to_vertex(
+def _ListRuntimeMemoryRevisionsConfig_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
@@ -63,7 +63,7 @@ def _ListAgentEngineMemoryRevisionsConfig_to_vertex(
     return to_object
 
 
-def _ListAgentEngineMemoryRevisionsRequestParameters_to_vertex(
+def _ListRuntimeMemoryRevisionsRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
@@ -72,7 +72,7 @@ def _ListAgentEngineMemoryRevisionsRequestParameters_to_vertex(
         setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
 
     if getv(from_object, ["config"]) is not None:
-        _ListAgentEngineMemoryRevisionsConfig_to_vertex(
+        _ListRuntimeMemoryRevisionsConfig_to_vertex(
             getv(from_object, ["config"]), to_object
         )
 
@@ -85,23 +85,23 @@ class MemoryRevisions(_api_module.BaseModule):
         self,
         *,
         name: str,
-        config: Optional[types.GetAgentEngineMemoryRevisionConfigOrDict] = None,
+        config: Optional[types.GetRuntimeMemoryRevisionConfigOrDict] = None,
     ) -> types.MemoryRevision:
         """
-        Gets an agent engine memory revision.
+        Gets an agent runtime memory revision.
 
         Args:
-            name (str): Required. The name of the Agent Engine memory revision to get. Format:
+            name (str): Required. The name of the Agent Runtime memory revision to get. Format:
                 `projects/{project}/locations/{location}/reasoningEngines/{resource_id}/memories/{memory_id}/revisions/{revision_id}`.
-            config (GetAgentEngineMemoryRevisionConfig):
-                Optional. Additional configurations for getting the Agent Engine memory revision.
+            config (GetRuntimeMemoryRevisionConfig):
+                Optional. Additional configurations for getting the Agent Runtime memory revision.
 
         Returns:
-            AgentEngineMemoryRevision: The requested Agent Engine memory revision.
+            RuntimeMemoryRevision: The requested Agent Runtime memory revision.
 
         """
 
-        parameter_model = types._GetAgentEngineMemoryRevisionRequestParameters(
+        parameter_model = types._GetRuntimeMemoryRevisionRequestParameters(
             name=name,
             config=config,
         )
@@ -112,7 +112,7 @@ class MemoryRevisions(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetAgentEngineMemoryRevisionRequestParameters_to_vertex(
+            request_dict = _GetRuntimeMemoryRevisionRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -169,23 +169,23 @@ class MemoryRevisions(_api_module.BaseModule):
         self,
         *,
         name: str,
-        config: Optional[types.ListAgentEngineMemoryRevisionsConfigOrDict] = None,
-    ) -> types.ListAgentEngineMemoryRevisionsResponse:
+        config: Optional[types.ListRuntimeMemoryRevisionsConfigOrDict] = None,
+    ) -> types.ListRuntimeMemoryRevisionsResponse:
         """
-        Lists Agent Engine memory revisions.
+        Lists Agent Runtime memory revisions.
 
         Args:
-            name (str): Required. The name of the Agent Engine memory to list revisions for. Format:
+            name (str): Required. The name of the Agent Runtime memory to list revisions for. Format:
                 `projects/{project}/locations/{location}/reasoningEngines/{resource_id}/memories/{memory_id}`.
-            config (ListAgentEngineMemoryRevisionsConfig):
-                Optional. Additional configurations for listing the Agent Engine memory revisions.
+            config (ListRuntimeMemoryRevisionsConfig):
+                Optional. Additional configurations for listing the Agent Runtime memory revisions.
 
         Returns:
-            ListAgentEngineMemoryRevisionsResponse: The requested Agent Engine memory revisions.
+            ListRuntimeMemoryRevisionsResponse: The requested Agent Runtime memory revisions.
 
         """
 
-        parameter_model = types._ListAgentEngineMemoryRevisionsRequestParameters(
+        parameter_model = types._ListRuntimeMemoryRevisionsRequestParameters(
             name=name,
             config=config,
         )
@@ -196,7 +196,7 @@ class MemoryRevisions(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _ListAgentEngineMemoryRevisionsRequestParameters_to_vertex(
+            request_dict = _ListRuntimeMemoryRevisionsRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -225,7 +225,7 @@ class MemoryRevisions(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
-        return_value = types.ListAgentEngineMemoryRevisionsResponse._from_response(
+        return_value = types.ListRuntimeMemoryRevisionsResponse._from_response(
             response=response_dict,
             kwargs=(
                 {
@@ -253,14 +253,14 @@ class MemoryRevisions(_api_module.BaseModule):
         self,
         *,
         name: str,
-        config: Optional[types.ListAgentEngineMemoryRevisionsConfigOrDict] = None,
+        config: Optional[types.ListRuntimeMemoryRevisionsConfigOrDict] = None,
     ) -> Iterator[types.MemoryRevision]:
-        """Lists Agent Engine memory revisions.
+        """Lists Agent Runtime memory revisions.
 
         Args:
             name (str):
                 Required. The name of the Memory to list revisions for.
-            config (ListAgentEngineMemoryRevisionsConfigOrDict):
+            config (ListRuntimeMemoryRevisionsConfigOrDict):
                 Optional. The configuration for the memories to list revisions.
 
         Returns:
@@ -281,23 +281,23 @@ class AsyncMemoryRevisions(_api_module.BaseModule):
         self,
         *,
         name: str,
-        config: Optional[types.GetAgentEngineMemoryRevisionConfigOrDict] = None,
+        config: Optional[types.GetRuntimeMemoryRevisionConfigOrDict] = None,
     ) -> types.MemoryRevision:
         """
-        Gets an agent engine memory revision.
+        Gets an agent runtime memory revision.
 
         Args:
-            name (str): Required. The name of the Agent Engine memory revision to get. Format:
+            name (str): Required. The name of the Agent Runtime memory revision to get. Format:
                 `projects/{project}/locations/{location}/reasoningEngines/{resource_id}/memories/{memory_id}/revisions/{revision_id}`.
-            config (GetAgentEngineMemoryRevisionConfig):
-                Optional. Additional configurations for getting the Agent Engine memory revision.
+            config (GetRuntimeMemoryRevisionConfig):
+                Optional. Additional configurations for getting the Agent Runtime memory revision.
 
         Returns:
-            AgentEngineMemoryRevision: The requested Agent Engine memory revision.
+            RuntimeMemoryRevision: The requested Agent Runtime memory revision.
 
         """
 
-        parameter_model = types._GetAgentEngineMemoryRevisionRequestParameters(
+        parameter_model = types._GetRuntimeMemoryRevisionRequestParameters(
             name=name,
             config=config,
         )
@@ -308,7 +308,7 @@ class AsyncMemoryRevisions(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetAgentEngineMemoryRevisionRequestParameters_to_vertex(
+            request_dict = _GetRuntimeMemoryRevisionRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -367,23 +367,23 @@ class AsyncMemoryRevisions(_api_module.BaseModule):
         self,
         *,
         name: str,
-        config: Optional[types.ListAgentEngineMemoryRevisionsConfigOrDict] = None,
-    ) -> types.ListAgentEngineMemoryRevisionsResponse:
+        config: Optional[types.ListRuntimeMemoryRevisionsConfigOrDict] = None,
+    ) -> types.ListRuntimeMemoryRevisionsResponse:
         """
-        Lists Agent Engine memory revisions.
+        Lists Agent Runtime memory revisions.
 
         Args:
-            name (str): Required. The name of the Agent Engine memory to list revisions for. Format:
+            name (str): Required. The name of the Agent Runtime memory to list revisions for. Format:
                 `projects/{project}/locations/{location}/reasoningEngines/{resource_id}/memories/{memory_id}`.
-            config (ListAgentEngineMemoryRevisionsConfig):
-                Optional. Additional configurations for listing the Agent Engine memory revisions.
+            config (ListRuntimeMemoryRevisionsConfig):
+                Optional. Additional configurations for listing the Agent Runtime memory revisions.
 
         Returns:
-            ListAgentEngineMemoryRevisionsResponse: The requested Agent Engine memory revisions.
+            ListRuntimeMemoryRevisionsResponse: The requested Agent Runtime memory revisions.
 
         """
 
-        parameter_model = types._ListAgentEngineMemoryRevisionsRequestParameters(
+        parameter_model = types._ListRuntimeMemoryRevisionsRequestParameters(
             name=name,
             config=config,
         )
@@ -394,7 +394,7 @@ class AsyncMemoryRevisions(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _ListAgentEngineMemoryRevisionsRequestParameters_to_vertex(
+            request_dict = _ListRuntimeMemoryRevisionsRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -425,7 +425,7 @@ class AsyncMemoryRevisions(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
-        return_value = types.ListAgentEngineMemoryRevisionsResponse._from_response(
+        return_value = types.ListRuntimeMemoryRevisionsResponse._from_response(
             response=response_dict,
             kwargs=(
                 {
@@ -453,14 +453,14 @@ class AsyncMemoryRevisions(_api_module.BaseModule):
         self,
         *,
         name: str,
-        config: Optional[types.ListAgentEngineMemoryRevisionsConfigOrDict] = None,
+        config: Optional[types.ListRuntimeMemoryRevisionsConfigOrDict] = None,
     ) -> AsyncPager[types.MemoryRevision]:
-        """Lists Agent Engine memory revisions.
+        """Lists Agent Runtime memory revisions.
 
         Args:
             name (str):
                 Required. The name of the Memory to list revisions for.
-            config (ListAgentEngineMemoryRevisionsConfigOrDict):
+            config (ListRuntimeMemoryRevisionsConfigOrDict):
                 Optional. The configuration for the memories to list revisions.
 
         Returns:

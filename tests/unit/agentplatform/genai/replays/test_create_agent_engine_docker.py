@@ -60,7 +60,7 @@ def test_create_with_docker(
         mock_agent_engine_create_docker_base64_encoded_tarball,
         mock_agent_engine_create_path_exists,
     ):
-        agent_engine = client.agent_engines.create(
+        agent_engine = client.runtimes.create(
             config={
                 "display_name": "test-agent-engine-docker",
                 "description": "test agent engine with docker spec",
@@ -76,11 +76,11 @@ def test_create_with_docker(
         )
     assert agent_engine.api_resource.display_name == "test-agent-engine-docker"
     # Clean up resources.
-    client.agent_engines.delete(name=agent_engine.api_resource.name, force=True)
+    client.runtimes.delete(name=agent_engine.api_resource.name, force=True)
 
 
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
-    test_method="agent_engines.create",
+    test_method="runtimes.create",
 )

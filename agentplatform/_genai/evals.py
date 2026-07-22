@@ -2131,7 +2131,7 @@ class Evals(_api_module.BaseModule):
         *,
         src: Union[str, pd.DataFrame, types.EvaluationDataset],
         model: Optional[Union[str, Callable[[Any], Any]]] = None,
-        agent: Optional[Union[str, types.AgentEngine, LlmAgent]] = None,
+        agent: Optional[Union[str, types.Runtime, LlmAgent]] = None,
         location: Optional[str] = None,
         config: Optional[types.EvalRunInferenceConfigOrDict] = None,
     ) -> types.EvaluationDataset:
@@ -2154,11 +2154,11 @@ class Evals(_api_module.BaseModule):
               - For custom logic, provide a callable function that accepts a prompt and
                 returns a response.
           agent: This field is experimental and may change in future versions
-                The agent engine used or local agent to run agent, optional for non-agent evaluations.
-              - agent engine resource name in str type, with format
+                The agent runtime used or local agent to run agent, optional for non-agent evaluations.
+              - agent runtime resource name in str type, with format
                 `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine_id}`,
-                run_inference will fetch the agent engine from the resource name.
-              - Or `types.AgentEngine` object.
+                run_inference will fetch the agent runtime from the resource name.
+              - Or `types.Runtime` object.
               - Or ADK agent in LlMAgent type.
           location: The location to use for the inference. If not specified, the
                 location configured in the client will be used. If specified,
@@ -2198,7 +2198,7 @@ class Evals(_api_module.BaseModule):
                 agent
             ):
                 gemini_agent_instance = agent
-            elif isinstance(agent, str) or isinstance(agent, types.AgentEngine):
+            elif isinstance(agent, str) or isinstance(agent, types.Runtime):
                 agent_engine_instance = agent
             else:
                 agent_instance = agent
@@ -2672,7 +2672,7 @@ class Evals(_api_module.BaseModule):
               or a Gemini Agent (Vertex AI Agent) resource name
               `projects/{project}/locations/{location}/agents/{agent}`. When a Gemini
               Agent resource is provided, the backend scrapes the agent to produce
-              agent responses. If an Agent Engine resource name is provided, runs
+              agent responses. If an Agent Runtime resource name is provided, runs
               inference with the deployed agent to get agent responses for evaluation.
               The `agent` parameter is required if `agent_info` is provided.
           user_simulator_config: The user simulator configuration for agent evaluation.
@@ -4460,7 +4460,7 @@ class AsyncEvals(_api_module.BaseModule):
               or a Gemini Agent (Vertex AI Agent) resource name
               `projects/{project}/locations/{location}/agents/{agent}`. When a Gemini
               Agent resource is provided, the backend scrapes the agent to produce
-              agent responses. If an Agent Engine resource name is provided, runs
+              agent responses. If an Agent Runtime resource name is provided, runs
               inference with the deployed agent to get agent responses for evaluation.
               The `agent` parameter is required if `agent_info` is provided.
           user_simulator_config: The user simulator configuration for agent evaluation.

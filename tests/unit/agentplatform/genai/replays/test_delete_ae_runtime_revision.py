@@ -39,7 +39,7 @@ def test_delete_runtime_revision(
         mock_agent_engine_create_base64_encoded_tarball,
         mock_agent_engine_create_path_exists,
     ):
-        agent_engine = client.agent_engines.create(
+        agent_engine = client.runtimes.create(
             config={
                 "display_name": "test-agent-engine-delete-runtime-revision",
                 "source_packages": [
@@ -61,7 +61,7 @@ def test_delete_runtime_revision(
         mock_agent_engine_create_base64_encoded_tarball,
         mock_agent_engine_create_path_exists,
     ):
-        updated_agent_engine = client.agent_engines.update(
+        updated_agent_engine = client.runtimes.update(
             name=agent_engine.api_resource.name,
             config={
                 "display_name": "test-agent-engine-update-traffic-with-agent-after-update",
@@ -79,18 +79,18 @@ def test_delete_runtime_revision(
             },
         )
 
-    runtime_revisions_iter = client.agent_engines.runtimes.revisions.list(
+    runtime_revisions_iter = client.runtimes.revisions.list(
         name=updated_agent_engine.api_resource.name,
     )
     runtime_revisions_list = list(runtime_revisions_iter)
     assert len(runtime_revisions_list) == 2
     revision_to_delete = runtime_revisions_list[1]
-    operation = client.agent_engines.runtimes.revisions.delete(
+    operation = client.runtimes.revisions.delete(
         name=revision_to_delete.api_resource.name,
     )
-    assert isinstance(operation, types.DeleteAgentEngineRuntimeRevisionOperation)
+    assert isinstance(operation, types.DeleteRuntimeRevisionOperation)
     assert operation.done
-    runtime_revisions_iter = client.agent_engines.runtimes.revisions.list(
+    runtime_revisions_iter = client.runtimes.revisions.list(
         name=updated_agent_engine.api_resource.name,
     )
     runtime_revisions_list = list(runtime_revisions_iter)
@@ -99,13 +99,13 @@ def test_delete_runtime_revision(
         runtime_revisions_list[0].api_resource.name
         != revision_to_delete.api_resource.name
     )
-    client.agent_engines.delete(name=updated_agent_engine.api_resource.name, force=True)
+    client.runtimes.delete(name=updated_agent_engine.api_resource.name, force=True)
 
 
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
-    test_method="agent_engines.runtimes.revisions.delete",
+    test_method="runtimes.revisions.delete",
 )
 
 
@@ -127,7 +127,7 @@ async def test_delete_runtime_revision_async(
         mock_agent_engine_create_base64_encoded_tarball,
         mock_agent_engine_create_path_exists,
     ):
-        agent_engine = client.agent_engines.create(
+        agent_engine = client.runtimes.create(
             config={
                 "display_name": "test-agent-engine-delete-runtime-revision",
                 "source_packages": [
@@ -149,7 +149,7 @@ async def test_delete_runtime_revision_async(
         mock_agent_engine_create_base64_encoded_tarball,
         mock_agent_engine_create_path_exists,
     ):
-        updated_agent_engine = client.agent_engines.update(
+        updated_agent_engine = client.runtimes.update(
             name=agent_engine.api_resource.name,
             config={
                 "display_name": "test-agent-engine-update-traffic-with-agent-after-update",
@@ -167,7 +167,7 @@ async def test_delete_runtime_revision_async(
             },
         )
 
-    runtime_revisions_iter = client.aio.agent_engines.runtimes.revisions.list(
+    runtime_revisions_iter = client.aio.runtimes.revisions.list(
         name=updated_agent_engine.api_resource.name,
     )
     runtime_revisions_list = []
@@ -175,10 +175,10 @@ async def test_delete_runtime_revision_async(
         runtime_revisions_list.append(revision)
     assert len(runtime_revisions_list) == 2
     revision_to_delete = runtime_revisions_list[1]
-    operation = await client.aio.agent_engines.runtimes.revisions.delete(
+    operation = await client.aio.runtimes.revisions.delete(
         name=revision_to_delete.api_resource.name,
     )
-    assert isinstance(operation, types.DeleteAgentEngineRuntimeRevisionOperation)
-    await client.aio.agent_engines.delete(
+    assert isinstance(operation, types.DeleteRuntimeRevisionOperation)
+    await client.aio.runtimes.delete(
         name=updated_agent_engine.api_resource.name, force=True
     )

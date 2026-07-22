@@ -19,14 +19,14 @@ from agentplatform._genai import types
 
 
 def test_delete_memory(client):
-    ae_memory_operation = client.agent_engines.memories.delete(
+    ae_memory_operation = client.runtimes.memories.delete(
         name="projects/964831358985/locations/us-central1/reasoningEngines/2886612747586371584/memories/5605466683931099136",
     )
-    assert isinstance(ae_memory_operation, types.DeleteAgentEngineMemoryOperation)
+    assert isinstance(ae_memory_operation, types.DeleteRuntimeMemoryOperation)
 
 
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
-    test_method="agent_engines.memories.delete",
+    test_method="runtimes.memories.delete",
 )

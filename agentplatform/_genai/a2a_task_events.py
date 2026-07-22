@@ -35,7 +35,7 @@ logger = logging.getLogger("agentplatform_genai.a2ataskevents")
 logger.setLevel(logging.INFO)
 
 
-def _AppendAgentEngineTaskEventRequestParameters_to_vertex(
+def _AppendRuntimeTaskEventRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
@@ -53,7 +53,7 @@ def _AppendAgentEngineTaskEventRequestParameters_to_vertex(
     return to_object
 
 
-def _AppendAgentEngineTaskEventResponse_from_vertex(
+def _AppendRuntimeTaskEventResponse_from_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
@@ -62,7 +62,7 @@ def _AppendAgentEngineTaskEventResponse_from_vertex(
     return to_object
 
 
-def _ListAgentEngineTaskEventsConfig_to_vertex(
+def _ListRuntimeTaskEventsConfig_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
@@ -83,7 +83,7 @@ def _ListAgentEngineTaskEventsConfig_to_vertex(
     return to_object
 
 
-def _ListAgentEngineTaskEventsRequestParameters_to_vertex(
+def _ListRuntimeTaskEventsRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
@@ -92,9 +92,7 @@ def _ListAgentEngineTaskEventsRequestParameters_to_vertex(
         setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
 
     if getv(from_object, ["config"]) is not None:
-        _ListAgentEngineTaskEventsConfig_to_vertex(
-            getv(from_object, ["config"]), to_object
-        )
+        _ListRuntimeTaskEventsConfig_to_vertex(getv(from_object, ["config"]), to_object)
 
     return to_object
 
@@ -106,23 +104,23 @@ class A2aTaskEvents(_api_module.BaseModule):
         *,
         name: str,
         task_events: builtins.list[types.TaskEventOrDict],
-        config: Optional[types.AppendAgentEngineTaskEventConfigOrDict] = None,
-    ) -> types.AppendAgentEngineTaskEventResponse:
+        config: Optional[types.AppendRuntimeTaskEventConfigOrDict] = None,
+    ) -> types.AppendRuntimeTaskEventResponse:
         """
-        Adds events to an Agent Engine task.
+        Adds events to an Agent Runtime task.
 
         Args:
-            name (str): Required. The name of the Agent Engine task to append the events to. Format:
+            name (str): Required. The name of the Agent Runtime task to append the events to. Format:
                 `projects/{project}/locations/{location}/reasoningEngines/{resource_id}/a2aTasks/{a2a_task_id}`.
             task_events (list[TaskEvent]):
                 Required. The events to append to the task.
 
         Returns:
-            AppendAgentEngineTaskEventResponse: The response for appending the task events.
+            AppendRuntimeTaskEventResponse: The response for appending the task events.
 
         """
 
-        parameter_model = types._AppendAgentEngineTaskEventRequestParameters(
+        parameter_model = types._AppendRuntimeTaskEventRequestParameters(
             name=name,
             task_events=task_events,
             config=config,
@@ -134,7 +132,7 @@ class A2aTaskEvents(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _AppendAgentEngineTaskEventRequestParameters_to_vertex(
+            request_dict = _AppendRuntimeTaskEventRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -164,11 +162,9 @@ class A2aTaskEvents(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         if self._api_client.vertexai:
-            response_dict = _AppendAgentEngineTaskEventResponse_from_vertex(
-                response_dict
-            )
+            response_dict = _AppendRuntimeTaskEventResponse_from_vertex(response_dict)
 
-        return_value = types.AppendAgentEngineTaskEventResponse._from_response(
+        return_value = types.AppendRuntimeTaskEventResponse._from_response(
             response=response_dict,
             kwargs=(
                 {
@@ -196,23 +192,23 @@ class A2aTaskEvents(_api_module.BaseModule):
         self,
         *,
         name: str,
-        config: Optional[types.ListAgentEngineTaskEventsConfigOrDict] = None,
-    ) -> types.ListAgentEngineTaskEventsResponse:
+        config: Optional[types.ListRuntimeTaskEventsConfigOrDict] = None,
+    ) -> types.ListRuntimeTaskEventsResponse:
         """
-        Lists Agent Engine task events.
+        Lists Agent Runtime task events.
 
         Args:
-            name (str): Required. The name of the Agent Engine task to list events for. Format:
+            name (str): Required. The name of the Agent Runtime task to list events for. Format:
                 `projects/{project}/locations/{location}/reasoningEngines/{resource_id}/a2aTasks/{a2a_task_id}`.
-            config (ListAgentEngineTaskEventsConfig):
-                Optional. Additional configurations for listing the Agent Engine tasks.
+            config (ListRuntimeTaskEventsConfig):
+                Optional. Additional configurations for listing the Agent Runtime tasks.
 
         Returns:
-            ListAgentEngineTaskEventsResponse: The requested Agent Engine tasks.
+            ListRuntimeTaskEventsResponse: The requested Agent Runtime tasks.
 
         """
 
-        parameter_model = types._ListAgentEngineTaskEventsRequestParameters(
+        parameter_model = types._ListRuntimeTaskEventsRequestParameters(
             name=name,
             config=config,
         )
@@ -223,7 +219,7 @@ class A2aTaskEvents(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _ListAgentEngineTaskEventsRequestParameters_to_vertex(
+            request_dict = _ListRuntimeTaskEventsRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -252,7 +248,7 @@ class A2aTaskEvents(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
-        return_value = types.ListAgentEngineTaskEventsResponse._from_response(
+        return_value = types.ListRuntimeTaskEventsResponse._from_response(
             response=response_dict,
             kwargs=(
                 {
@@ -280,13 +276,13 @@ class A2aTaskEvents(_api_module.BaseModule):
         self,
         *,
         name: str,
-        config: Optional[types.ListAgentEngineTaskEventsConfigOrDict] = None,
+        config: Optional[types.ListRuntimeTaskEventsConfigOrDict] = None,
     ) -> Iterator[types.TaskEvent]:
-        """Lists the A2A tasks of an Agent Engine.
+        """Lists the A2A tasks of a Runtime.
 
         Args:
             name (str):
-                Required. The name of the agent engine to list tasks for.
+                Required. The name of the agent runtime to list tasks for.
             config (List):
                 Optional. The configuration for the tasks to list.
 
@@ -309,23 +305,23 @@ class AsyncA2aTaskEvents(_api_module.BaseModule):
         *,
         name: str,
         task_events: builtins.list[types.TaskEventOrDict],
-        config: Optional[types.AppendAgentEngineTaskEventConfigOrDict] = None,
-    ) -> types.AppendAgentEngineTaskEventResponse:
+        config: Optional[types.AppendRuntimeTaskEventConfigOrDict] = None,
+    ) -> types.AppendRuntimeTaskEventResponse:
         """
-        Adds events to an Agent Engine task.
+        Adds events to an Agent Runtime task.
 
         Args:
-            name (str): Required. The name of the Agent Engine task to append the events to. Format:
+            name (str): Required. The name of the Agent Runtime task to append the events to. Format:
                 `projects/{project}/locations/{location}/reasoningEngines/{resource_id}/a2aTasks/{a2a_task_id}`.
             task_events (list[TaskEvent]):
                 Required. The events to append to the task.
 
         Returns:
-            AppendAgentEngineTaskEventResponse: The response for appending the task events.
+            AppendRuntimeTaskEventResponse: The response for appending the task events.
 
         """
 
-        parameter_model = types._AppendAgentEngineTaskEventRequestParameters(
+        parameter_model = types._AppendRuntimeTaskEventRequestParameters(
             name=name,
             task_events=task_events,
             config=config,
@@ -337,7 +333,7 @@ class AsyncA2aTaskEvents(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _AppendAgentEngineTaskEventRequestParameters_to_vertex(
+            request_dict = _AppendRuntimeTaskEventRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -369,11 +365,9 @@ class AsyncA2aTaskEvents(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         if self._api_client.vertexai:
-            response_dict = _AppendAgentEngineTaskEventResponse_from_vertex(
-                response_dict
-            )
+            response_dict = _AppendRuntimeTaskEventResponse_from_vertex(response_dict)
 
-        return_value = types.AppendAgentEngineTaskEventResponse._from_response(
+        return_value = types.AppendRuntimeTaskEventResponse._from_response(
             response=response_dict,
             kwargs=(
                 {
@@ -401,23 +395,23 @@ class AsyncA2aTaskEvents(_api_module.BaseModule):
         self,
         *,
         name: str,
-        config: Optional[types.ListAgentEngineTaskEventsConfigOrDict] = None,
-    ) -> types.ListAgentEngineTaskEventsResponse:
+        config: Optional[types.ListRuntimeTaskEventsConfigOrDict] = None,
+    ) -> types.ListRuntimeTaskEventsResponse:
         """
-        Lists Agent Engine task events.
+        Lists Agent Runtime task events.
 
         Args:
-            name (str): Required. The name of the Agent Engine task to list events for. Format:
+            name (str): Required. The name of the Agent Runtime task to list events for. Format:
                 `projects/{project}/locations/{location}/reasoningEngines/{resource_id}/a2aTasks/{a2a_task_id}`.
-            config (ListAgentEngineTaskEventsConfig):
-                Optional. Additional configurations for listing the Agent Engine tasks.
+            config (ListRuntimeTaskEventsConfig):
+                Optional. Additional configurations for listing the Agent Runtime tasks.
 
         Returns:
-            ListAgentEngineTaskEventsResponse: The requested Agent Engine tasks.
+            ListRuntimeTaskEventsResponse: The requested Agent Runtime tasks.
 
         """
 
-        parameter_model = types._ListAgentEngineTaskEventsRequestParameters(
+        parameter_model = types._ListRuntimeTaskEventsRequestParameters(
             name=name,
             config=config,
         )
@@ -428,7 +422,7 @@ class AsyncA2aTaskEvents(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _ListAgentEngineTaskEventsRequestParameters_to_vertex(
+            request_dict = _ListRuntimeTaskEventsRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -459,7 +453,7 @@ class AsyncA2aTaskEvents(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
-        return_value = types.ListAgentEngineTaskEventsResponse._from_response(
+        return_value = types.ListRuntimeTaskEventsResponse._from_response(
             response=response_dict,
             kwargs=(
                 {
@@ -487,13 +481,13 @@ class AsyncA2aTaskEvents(_api_module.BaseModule):
         self,
         *,
         name: str,
-        config: Optional[types.ListAgentEngineTaskEventsConfigOrDict] = None,
+        config: Optional[types.ListRuntimeTaskEventsConfigOrDict] = None,
     ) -> AsyncPager[types.TaskEvent]:
-        """Lists the A2A tasks of an Agent Engine.
+        """Lists the A2A tasks of an Agent Runtime.
 
         Args:
             name (str):
-                Required. The name of the agent engine to list tasks for.
+                Required. The name of the agent runtime to list tasks for.
             config (List):
                 Optional. The configuration for the tasks to list.
 

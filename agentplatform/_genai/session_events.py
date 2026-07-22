@@ -35,7 +35,7 @@ logger = logging.getLogger("agentplatform_genai.sessionevents")
 logger.setLevel(logging.INFO)
 
 
-def _AppendAgentEngineSessionEventConfig_to_vertex(
+def _AppendRuntimeSessionEventConfig_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
@@ -62,7 +62,7 @@ def _AppendAgentEngineSessionEventConfig_to_vertex(
     return to_object
 
 
-def _AppendAgentEngineSessionEventRequestParameters_to_vertex(
+def _AppendRuntimeSessionEventRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
@@ -80,14 +80,14 @@ def _AppendAgentEngineSessionEventRequestParameters_to_vertex(
         setv(to_object, ["timestamp"], getv(from_object, ["timestamp"]))
 
     if getv(from_object, ["config"]) is not None:
-        _AppendAgentEngineSessionEventConfig_to_vertex(
+        _AppendRuntimeSessionEventConfig_to_vertex(
             getv(from_object, ["config"]), to_object
         )
 
     return to_object
 
 
-def _ListAgentEngineSessionEventsConfig_to_vertex(
+def _ListRuntimeSessionEventsConfig_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
@@ -105,7 +105,7 @@ def _ListAgentEngineSessionEventsConfig_to_vertex(
     return to_object
 
 
-def _ListAgentEngineSessionEventsRequestParameters_to_vertex(
+def _ListRuntimeSessionEventsRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
@@ -114,7 +114,7 @@ def _ListAgentEngineSessionEventsRequestParameters_to_vertex(
         setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
 
     if getv(from_object, ["config"]) is not None:
-        _ListAgentEngineSessionEventsConfig_to_vertex(
+        _ListRuntimeSessionEventsConfig_to_vertex(
             getv(from_object, ["config"]), to_object
         )
 
@@ -130,26 +130,26 @@ class SessionEvents(_api_module.BaseModule):
         author: str,
         invocation_id: str,
         timestamp: datetime.datetime,
-        config: Optional[types.AppendAgentEngineSessionEventConfigOrDict] = None,
-    ) -> types.AppendAgentEngineSessionEventResponse:
+        config: Optional[types.AppendRuntimeSessionEventConfigOrDict] = None,
+    ) -> types.AppendRuntimeSessionEventResponse:
         """
-        Appends Agent Engine session event.
+        Appends Agent Runtime session event.
 
         Args:
-            name (str): Required. The name of the Agent Engine session to append the event to. Format:
+            name (str): Required. The name of the Agent Runtime session to append the event to. Format:
                 `projects/{project}/locations/{location}/reasoningEngines/{resource_id}/sessions/{session_id}`.
-            author (str): Required. The author of the Agent Engine session event.
-            invocation_id (str): Required. The invocation ID of the Agent Engine session event.
-            timestamp (datetime.datetime): Required. The timestamp of the Agent Engine session event.
-            config (AppendAgentEngineSessionEventConfig):
-                Optional. Additional configurations for appending the Agent Engine session event.
+            author (str): Required. The author of the Agent Runtime session event.
+            invocation_id (str): Required. The invocation ID of the Agent Runtime session event.
+            timestamp (datetime.datetime): Required. The timestamp of the Agent Runtime session event.
+            config (AppendRuntimeSessionEventConfig):
+                Optional. Additional configurations for appending the Agent Runtime session event.
 
         Returns:
-            AppendAgentEngineSessionEventResponse: The requested Agent Engine session event.
+            AppendRuntimeSessionEventResponse: The requested Agent Runtime session event.
 
         """
 
-        parameter_model = types._AppendAgentEngineSessionEventRequestParameters(
+        parameter_model = types._AppendRuntimeSessionEventRequestParameters(
             name=name,
             author=author,
             invocation_id=invocation_id,
@@ -163,7 +163,7 @@ class SessionEvents(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _AppendAgentEngineSessionEventRequestParameters_to_vertex(
+            request_dict = _AppendRuntimeSessionEventRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -192,7 +192,7 @@ class SessionEvents(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
-        return_value = types.AppendAgentEngineSessionEventResponse._from_response(
+        return_value = types.AppendRuntimeSessionEventResponse._from_response(
             response=response_dict,
             kwargs=(
                 {
@@ -220,23 +220,23 @@ class SessionEvents(_api_module.BaseModule):
         self,
         *,
         name: str,
-        config: Optional[types.ListAgentEngineSessionEventsConfigOrDict] = None,
-    ) -> types.ListAgentEngineSessionEventsResponse:
+        config: Optional[types.ListRuntimeSessionEventsConfigOrDict] = None,
+    ) -> types.ListRuntimeSessionEventsResponse:
         """
-        Lists Agent Engine session events.
+        Lists Agent Runtime session events.
 
         Args:
-            name (str): Required. The name of the Agent Engine session to list events for. Format:
+            name (str): Required. The name of the Agent Runtime session to list events for. Format:
                 `projects/{project}/locations/{location}/reasoningEngines/{resource_id}/sessions/{session_id}`.
-            config (ListAgentEngineSessionEventsConfig):
-                Optional. Additional configurations for listing the Agent Engine session events.
+            config (ListRuntimeSessionEventsConfig):
+                Optional. Additional configurations for listing the Agent Runtime session events.
 
         Returns:
-            ListAgentEngineSessionEventsResponse: The requested Agent Engine session events.
+            ListRuntimeSessionEventsResponse: The requested Agent Runtime session events.
 
         """
 
-        parameter_model = types._ListAgentEngineSessionEventsRequestParameters(
+        parameter_model = types._ListRuntimeSessionEventsRequestParameters(
             name=name,
             config=config,
         )
@@ -247,7 +247,7 @@ class SessionEvents(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _ListAgentEngineSessionEventsRequestParameters_to_vertex(
+            request_dict = _ListRuntimeSessionEventsRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -276,7 +276,7 @@ class SessionEvents(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
-        return_value = types.ListAgentEngineSessionEventsResponse._from_response(
+        return_value = types.ListRuntimeSessionEventsResponse._from_response(
             response=response_dict,
             kwargs=(
                 {
@@ -304,14 +304,14 @@ class SessionEvents(_api_module.BaseModule):
         self,
         *,
         name: str,
-        config: Optional[types.ListAgentEngineSessionEventsConfigOrDict] = None,
+        config: Optional[types.ListRuntimeSessionEventsConfigOrDict] = None,
     ) -> Iterator[types.SessionEvent]:
-        """Lists Agent Engine session events.
+        """Lists Agent Runtime session events.
 
         Args:
-            name (str): Required. The name of the agent engine to list session
+            name (str): Required. The name of the agent runtime to list session
                 events for.
-            config (ListAgentEngineSessionEventsConfig): Optional. The configuration
+            config (ListRuntimeSessionEventsConfig): Optional. The configuration
                 for the session events to list. Currently, the `filter` field in
                 `config` only supports filtering by `timestamp`. The timestamp
                 value must be enclosed in double quotes and include the time zone
@@ -339,26 +339,26 @@ class AsyncSessionEvents(_api_module.BaseModule):
         author: str,
         invocation_id: str,
         timestamp: datetime.datetime,
-        config: Optional[types.AppendAgentEngineSessionEventConfigOrDict] = None,
-    ) -> types.AppendAgentEngineSessionEventResponse:
+        config: Optional[types.AppendRuntimeSessionEventConfigOrDict] = None,
+    ) -> types.AppendRuntimeSessionEventResponse:
         """
-        Appends Agent Engine session event.
+        Appends Agent Runtime session event.
 
         Args:
-            name (str): Required. The name of the Agent Engine session to append the event to. Format:
+            name (str): Required. The name of the Agent Runtime session to append the event to. Format:
                 `projects/{project}/locations/{location}/reasoningEngines/{resource_id}/sessions/{session_id}`.
-            author (str): Required. The author of the Agent Engine session event.
-            invocation_id (str): Required. The invocation ID of the Agent Engine session event.
-            timestamp (datetime.datetime): Required. The timestamp of the Agent Engine session event.
-            config (AppendAgentEngineSessionEventConfig):
-                Optional. Additional configurations for appending the Agent Engine session event.
+            author (str): Required. The author of the Agent Runtime session event.
+            invocation_id (str): Required. The invocation ID of the Agent Runtime session event.
+            timestamp (datetime.datetime): Required. The timestamp of the Agent Runtime session event.
+            config (AppendRuntimeSessionEventConfig):
+                Optional. Additional configurations for appending the Agent Runtime session event.
 
         Returns:
-            AppendAgentEngineSessionEventResponse: The requested Agent Engine session event.
+            AppendRuntimeSessionEventResponse: The requested Agent Runtime session event.
 
         """
 
-        parameter_model = types._AppendAgentEngineSessionEventRequestParameters(
+        parameter_model = types._AppendRuntimeSessionEventRequestParameters(
             name=name,
             author=author,
             invocation_id=invocation_id,
@@ -372,7 +372,7 @@ class AsyncSessionEvents(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _AppendAgentEngineSessionEventRequestParameters_to_vertex(
+            request_dict = _AppendRuntimeSessionEventRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -403,7 +403,7 @@ class AsyncSessionEvents(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
-        return_value = types.AppendAgentEngineSessionEventResponse._from_response(
+        return_value = types.AppendRuntimeSessionEventResponse._from_response(
             response=response_dict,
             kwargs=(
                 {
@@ -431,23 +431,23 @@ class AsyncSessionEvents(_api_module.BaseModule):
         self,
         *,
         name: str,
-        config: Optional[types.ListAgentEngineSessionEventsConfigOrDict] = None,
-    ) -> types.ListAgentEngineSessionEventsResponse:
+        config: Optional[types.ListRuntimeSessionEventsConfigOrDict] = None,
+    ) -> types.ListRuntimeSessionEventsResponse:
         """
-        Lists Agent Engine session events.
+        Lists Agent Runtime session events.
 
         Args:
-            name (str): Required. The name of the Agent Engine session to list events for. Format:
+            name (str): Required. The name of the Agent Runtime session to list events for. Format:
                 `projects/{project}/locations/{location}/reasoningEngines/{resource_id}/sessions/{session_id}`.
-            config (ListAgentEngineSessionEventsConfig):
-                Optional. Additional configurations for listing the Agent Engine session events.
+            config (ListRuntimeSessionEventsConfig):
+                Optional. Additional configurations for listing the Agent Runtime session events.
 
         Returns:
-            ListAgentEngineSessionEventsResponse: The requested Agent Engine session events.
+            ListRuntimeSessionEventsResponse: The requested Agent Runtime session events.
 
         """
 
-        parameter_model = types._ListAgentEngineSessionEventsRequestParameters(
+        parameter_model = types._ListRuntimeSessionEventsRequestParameters(
             name=name,
             config=config,
         )
@@ -458,7 +458,7 @@ class AsyncSessionEvents(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _ListAgentEngineSessionEventsRequestParameters_to_vertex(
+            request_dict = _ListRuntimeSessionEventsRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -489,7 +489,7 @@ class AsyncSessionEvents(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
-        return_value = types.ListAgentEngineSessionEventsResponse._from_response(
+        return_value = types.ListRuntimeSessionEventsResponse._from_response(
             response=response_dict,
             kwargs=(
                 {
@@ -517,14 +517,14 @@ class AsyncSessionEvents(_api_module.BaseModule):
         self,
         *,
         name: str,
-        config: Optional[types.ListAgentEngineSessionEventsConfigOrDict] = None,
+        config: Optional[types.ListRuntimeSessionEventsConfigOrDict] = None,
     ) -> AsyncPager[types.SessionEvent]:
-        """Lists Agent Engine session events.
+        """Lists Agent Runtime session events.
 
         Args:
-            name (str): Required. The name of the agent engine to list session
+            name (str): Required. The name of the agent runtime to list session
                 events for.
-            config (ListAgentEngineSessionEventsConfig): Optional. The configuration
+            config (ListRuntimeSessionEventsConfig): Optional. The configuration
                 for the session events to list. Currently, the `filter` field in
                 `config` only supports filtering by `timestamp`. The timestamp
                 value must be enclosed in double quotes and include the time zone

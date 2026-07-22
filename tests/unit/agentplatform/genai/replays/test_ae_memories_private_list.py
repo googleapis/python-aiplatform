@@ -20,7 +20,7 @@ from agentplatform._genai import types
 
 def test_private_list_memory(client):
     ae_name = "projects/964831358985/locations/us-central1/reasoningEngines/2886612747586371584"
-    memory_list = client.agent_engines.memories._list(name=ae_name)
+    memory_list = client.runtimes.memories._list(name=ae_name)
     assert isinstance(memory_list, types.ListReasoningEnginesMemoriesResponse)
     assert isinstance(memory_list.memories[0], types.Memory)
 
@@ -28,5 +28,5 @@ def test_private_list_memory(client):
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
-    test_method="agent_engines.memories._list",
+    test_method="runtimes.memories._list",
 )
