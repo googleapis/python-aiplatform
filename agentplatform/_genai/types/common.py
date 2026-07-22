@@ -8402,6 +8402,27 @@ ReasoningEngineSpecContainerSpecOrDict = Union[
 ]
 
 
+class ReasoningEngineSpecBuildSpec(_common.BaseModel):
+    """Specification for building container image."""
+
+    worker_pool: Optional[str] = Field(
+        default=None,
+        description="""Optional. Identifier. The resource name of the Cloud Build WorkerPool to use for the build. Format: `projects/{project}/locations/{location}/workerPools/{worker_pool}`""",
+    )
+
+
+class ReasoningEngineSpecBuildSpecDict(TypedDict, total=False):
+    """Specification for building container image."""
+
+    worker_pool: Optional[str]
+    """Optional. Identifier. The resource name of the Cloud Build WorkerPool to use for the build. Format: `projects/{project}/locations/{location}/workerPools/{worker_pool}`"""
+
+
+ReasoningEngineSpecBuildSpecOrDict = Union[
+    ReasoningEngineSpecBuildSpec, ReasoningEngineSpecBuildSpecDict
+]
+
+
 class ReasoningEngineSpec(_common.BaseModel):
     """The specification of an agent engine."""
 
@@ -8445,6 +8466,10 @@ class ReasoningEngineSpec(_common.BaseModel):
         default=None,
         description="""Deploy from a container image with a defined entrypoint and commands.""",
     )
+    build_spec: Optional[ReasoningEngineSpecBuildSpec] = Field(
+        default=None,
+        description="""Optional. Configuration for building container image.""",
+    )
 
 
 class ReasoningEngineSpecDict(TypedDict, total=False):
@@ -8479,6 +8504,9 @@ class ReasoningEngineSpecDict(TypedDict, total=False):
 
     container_spec: Optional[ReasoningEngineSpecContainerSpecDict]
     """Deploy from a container image with a defined entrypoint and commands."""
+
+    build_spec: Optional[ReasoningEngineSpecBuildSpecDict]
+    """Optional. Configuration for building container image."""
 
 
 ReasoningEngineSpecOrDict = Union[ReasoningEngineSpec, ReasoningEngineSpecDict]
@@ -23868,45 +23896,46 @@ class FeedbackEntry(_common.BaseModel):
 
     create_time: Optional[datetime.datetime] = Field(
         default=None,
-        description="""Output only. Timestamp when the feedback entry was created.""",
+        description="""Output only. The time at which the entry was created.""",
     )
     custom_metadata: Optional[dict[str, str]] = Field(
         default=None,
-        description="""Optional. Additional key-value metadata associated with the feedback. Allows the collect data for which there is no dedicated field in the resource, ex. version, LLM temperature etc.""",
+        description="""Optional. Additional key-value metadata associated with the feedback.""",
     )
     event_id: Optional[str] = Field(
         default=None,
-        description="""Required. The ID of the event to which the feedback relates to.""",
+        description="""Required. The ID of the event within the session that the feedback relates to.""",
     )
     feedback_labels: Optional[list[str]] = Field(
-        default=None,
-        description="""Optional. Specific labels for feedback (non-factual, offensive, etc.).""",
+        default=None, description="""feedbackLabels"""
     )
     feedback_text: Optional[str] = Field(
         default=None,
         description="""Optional. Qualitative free-form comments provided by the user.""",
     )
     feedback_type: Optional[FeedbackType] = Field(
-        default=None, description="""Required. The type of feedback provided."""
+        default=None,
+        description="""Required. The coarse-grained type of feedback provided by the user. Must be set to a value other than `FEEDBACK_TYPE_UNSPECIFIED`.""",
     )
     name: Optional[str] = Field(
         default=None,
-        description="""Identifier. The resource name of the feedback entry. Format: 'projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/feedbackEntries/{feedback_entry}'.""",
+        description="""Identifier. The resource name. Assigned by the server on create. Format: `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/feedbackEntries/{feedback_entry}`""",
     )
     session_id: Optional[str] = Field(
         default=None,
-        description="""Required. The ID of the session to which the feedback relates to.""",
+        description="""Required. The ID of the session that the feedback relates to.""",
     )
     source: Optional[str] = Field(
         default=None,
-        description="""Optional. Originating UI surface (e.g. 'ADK Web UI').""",
+        description="""Optional. The surface that the feedback originated from.""",
     )
     update_time: Optional[datetime.datetime] = Field(
         default=None,
-        description="""Output only. Timestamp when the feedback entry was last updated.""",
+        description="""Output only. The time at which the entry was most recently updated.""",
     )
     user_id: Optional[str] = Field(
-        default=None, description="""Optional. User provided identifier."""
+        default=None,
+        description="""Optional. A caller-supplied identifier for the user who provided the feedback. The semantics of this field (for example whether it is an opaque token, a hashed value, or a user-visible identifier) are determined by the calling application.""",
     )
 
 
@@ -23914,37 +23943,37 @@ class FeedbackEntryDict(TypedDict, total=False):
     """A Feedback Entry."""
 
     create_time: Optional[datetime.datetime]
-    """Output only. Timestamp when the feedback entry was created."""
+    """Output only. The time at which the entry was created."""
 
     custom_metadata: Optional[dict[str, str]]
-    """Optional. Additional key-value metadata associated with the feedback. Allows the collect data for which there is no dedicated field in the resource, ex. version, LLM temperature etc."""
+    """Optional. Additional key-value metadata associated with the feedback."""
 
     event_id: Optional[str]
-    """Required. The ID of the event to which the feedback relates to."""
+    """Required. The ID of the event within the session that the feedback relates to."""
 
     feedback_labels: Optional[list[str]]
-    """Optional. Specific labels for feedback (non-factual, offensive, etc.)."""
+    """feedbackLabels"""
 
     feedback_text: Optional[str]
     """Optional. Qualitative free-form comments provided by the user."""
 
     feedback_type: Optional[FeedbackType]
-    """Required. The type of feedback provided."""
+    """Required. The coarse-grained type of feedback provided by the user. Must be set to a value other than `FEEDBACK_TYPE_UNSPECIFIED`."""
 
     name: Optional[str]
-    """Identifier. The resource name of the feedback entry. Format: 'projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/feedbackEntries/{feedback_entry}'."""
+    """Identifier. The resource name. Assigned by the server on create. Format: `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/feedbackEntries/{feedback_entry}`"""
 
     session_id: Optional[str]
-    """Required. The ID of the session to which the feedback relates to."""
+    """Required. The ID of the session that the feedback relates to."""
 
     source: Optional[str]
-    """Optional. Originating UI surface (e.g. 'ADK Web UI')."""
+    """Optional. The surface that the feedback originated from."""
 
     update_time: Optional[datetime.datetime]
-    """Output only. Timestamp when the feedback entry was last updated."""
+    """Output only. The time at which the entry was most recently updated."""
 
     user_id: Optional[str]
-    """Optional. User provided identifier."""
+    """Optional. A caller-supplied identifier for the user who provided the feedback. The semantics of this field (for example whether it is an opaque token, a hashed value, or a user-visible identifier) are determined by the calling application."""
 
 
 FeedbackEntryOrDict = Union[FeedbackEntry, FeedbackEntryDict]
@@ -24451,11 +24480,11 @@ class FeedbackContext(_common.BaseModel):
 
     context_events: Optional[list[SessionEvent]] = Field(
         default=None,
-        description="""Optional. Events from the conversation relevant to the parent feedback entry.""",
+        description="""Optional. The session events from the originating session.""",
     )
     name: Optional[str] = Field(
         default=None,
-        description="""Identifier. The resource name of the feedback context. Format: 'projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/feedbackEntries/{feedback_entry}/feedbackContext'.""",
+        description="""Identifier. The resource name. Assigned by the server on create. Format: `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/feedbackEntries/{feedback_entry}/feedbackContext`""",
     )
 
 
@@ -24463,10 +24492,10 @@ class FeedbackContextDict(TypedDict, total=False):
     """A Feedback Context."""
 
     context_events: Optional[list[SessionEventDict]]
-    """Optional. Events from the conversation relevant to the parent feedback entry."""
+    """Optional. The session events from the originating session."""
 
     name: Optional[str]
-    """Identifier. The resource name of the feedback context. Format: 'projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/feedbackEntries/{feedback_entry}/feedbackContext'."""
+    """Identifier. The resource name. Assigned by the server on create. Format: `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/feedbackEntries/{feedback_entry}/feedbackContext`"""
 
 
 FeedbackContextOrDict = Union[FeedbackContext, FeedbackContextDict]
