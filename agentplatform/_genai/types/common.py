@@ -487,6 +487,17 @@ class QuotaState(_common.CaseInSensitiveEnum):
     """User does not have enough accelerator quota for the machine type."""
 
 
+class PscAutomationState(_common.CaseInSensitiveEnum):
+    """Output only. The state of the PSC service automation."""
+
+    PSC_AUTOMATION_STATE_UNSPECIFIED = "PSC_AUTOMATION_STATE_UNSPECIFIED"
+    """Should not be used."""
+    PSC_AUTOMATION_STATE_SUCCESSFUL = "PSC_AUTOMATION_STATE_SUCCESSFUL"
+    """The PSC service automation is successful."""
+    PSC_AUTOMATION_STATE_FAILED = "PSC_AUTOMATION_STATE_FAILED"
+    """The PSC service automation has failed."""
+
+
 class FeedbackType(_common.CaseInSensitiveEnum):
     """The type of the feedback."""
 
@@ -23755,6 +23766,424 @@ class RecommendSpecResponseDict(TypedDict, total=False):
 RecommendSpecResponseOrDict = Union[RecommendSpecResponse, RecommendSpecResponseDict]
 
 
+class DeployConfig(_common.BaseModel):
+    """RPC-level config for the private ``_deploy`` method."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class DeployConfigDict(TypedDict, total=False):
+    """RPC-level config for the private ``_deploy`` method."""
+
+    http_options: Optional[genai_types.HttpOptions]
+    """Used to override HTTP request options."""
+
+
+DeployConfigOrDict = Union[DeployConfig, DeployConfigDict]
+
+
+class DeployRequestCustomModel(_common.BaseModel):
+    """The custom model to deploy from model weights in a Google Cloud Storage URI or Model Registry model."""
+
+    gcs_uri: Optional[str] = Field(
+        default=None,
+        description="""Immutable. The Google Cloud Storage URI of the custom model, storing weights and config files (which can be used to infer the base model).""",
+    )
+    model_id: Optional[str] = Field(
+        default=None,
+        description="""Optional. Deprecated. Use ModelConfig.model_user_id instead.""",
+    )
+
+
+class DeployRequestCustomModelDict(TypedDict, total=False):
+    """The custom model to deploy from model weights in a Google Cloud Storage URI or Model Registry model."""
+
+    gcs_uri: Optional[str]
+    """Immutable. The Google Cloud Storage URI of the custom model, storing weights and config files (which can be used to infer the base model)."""
+
+    model_id: Optional[str]
+    """Optional. Deprecated. Use ModelConfig.model_user_id instead."""
+
+
+DeployRequestCustomModelOrDict = Union[
+    DeployRequestCustomModel, DeployRequestCustomModelDict
+]
+
+
+class DeployRequestModelConfig(_common.BaseModel):
+    """The model config to use for the deployment."""
+
+    accept_eula: Optional[bool] = Field(
+        default=None,
+        description="""Optional. Whether the user accepts the End User License Agreement (EULA) for the model.""",
+    )
+    container_spec: Optional[ModelContainerSpec] = Field(
+        default=None,
+        description="""Optional. The specification of the container that is to be used when deploying. If not set, the default container spec will be used.""",
+    )
+    hugging_face_access_token: Optional[str] = Field(
+        default=None,
+        description="""Optional. The Hugging Face read access token used to access the model artifacts of gated models.""",
+    )
+    hugging_face_cache_enabled: Optional[bool] = Field(
+        default=None,
+        description="""Optional. If true, the model will deploy with a cached version instead of directly downloading the model artifacts from Hugging Face. This is suitable for VPC-SC users with limited internet access.""",
+    )
+    model_display_name: Optional[str] = Field(
+        default=None,
+        description="""Optional. The user-specified display name of the uploaded model. If not set, a default name will be used.""",
+    )
+    model_user_id: Optional[str] = Field(
+        default=None,
+        description="""Optional. The ID to use for the uploaded Model, which will become the final component of the model resource name. When not provided, Vertex AI will generate a value for this ID. When Model Registry model is provided, this field will be ignored. This value may be up to 63 characters, and valid characters are `[a-z0-9_-]`. The first character cannot be a number or hyphen.""",
+    )
+
+
+class DeployRequestModelConfigDict(TypedDict, total=False):
+    """The model config to use for the deployment."""
+
+    accept_eula: Optional[bool]
+    """Optional. Whether the user accepts the End User License Agreement (EULA) for the model."""
+
+    container_spec: Optional[ModelContainerSpecDict]
+    """Optional. The specification of the container that is to be used when deploying. If not set, the default container spec will be used."""
+
+    hugging_face_access_token: Optional[str]
+    """Optional. The Hugging Face read access token used to access the model artifacts of gated models."""
+
+    hugging_face_cache_enabled: Optional[bool]
+    """Optional. If true, the model will deploy with a cached version instead of directly downloading the model artifacts from Hugging Face. This is suitable for VPC-SC users with limited internet access."""
+
+    model_display_name: Optional[str]
+    """Optional. The user-specified display name of the uploaded model. If not set, a default name will be used."""
+
+    model_user_id: Optional[str]
+    """Optional. The ID to use for the uploaded Model, which will become the final component of the model resource name. When not provided, Vertex AI will generate a value for this ID. When Model Registry model is provided, this field will be ignored. This value may be up to 63 characters, and valid characters are `[a-z0-9_-]`. The first character cannot be a number or hyphen."""
+
+
+DeployRequestModelConfigOrDict = Union[
+    DeployRequestModelConfig, DeployRequestModelConfigDict
+]
+
+
+class PSCAutomationConfig(_common.BaseModel):
+    """PSC config that is used to automatically create PSC endpoints in the user projects."""
+
+    error_message: Optional[str] = Field(
+        default=None,
+        description="""Output only. Error message if the PSC service automation failed.""",
+    )
+    forwarding_rule: Optional[str] = Field(
+        default=None,
+        description="""Output only. Forwarding rule created by the PSC service automation.""",
+    )
+    ip_address: Optional[str] = Field(
+        default=None,
+        description="""Output only. IP address rule created by the PSC service automation.""",
+    )
+    network: Optional[str] = Field(
+        default=None,
+        description="""Required. The full name of the Google Compute Engine [network](https://cloud.google.com/compute/docs/networks-and-firewalls#networks). [Format](https://cloud.google.com/compute/docs/reference/rest/v1/networks/get): `projects/{project}/global/networks/{network}`.""",
+    )
+    project_id: Optional[str] = Field(
+        default=None,
+        description="""Required. Project id used to create forwarding rule.""",
+    )
+    state: Optional[PscAutomationState] = Field(
+        default=None,
+        description="""Output only. The state of the PSC service automation.""",
+    )
+
+
+class PSCAutomationConfigDict(TypedDict, total=False):
+    """PSC config that is used to automatically create PSC endpoints in the user projects."""
+
+    error_message: Optional[str]
+    """Output only. Error message if the PSC service automation failed."""
+
+    forwarding_rule: Optional[str]
+    """Output only. Forwarding rule created by the PSC service automation."""
+
+    ip_address: Optional[str]
+    """Output only. IP address rule created by the PSC service automation."""
+
+    network: Optional[str]
+    """Required. The full name of the Google Compute Engine [network](https://cloud.google.com/compute/docs/networks-and-firewalls#networks). [Format](https://cloud.google.com/compute/docs/reference/rest/v1/networks/get): `projects/{project}/global/networks/{network}`."""
+
+    project_id: Optional[str]
+    """Required. Project id used to create forwarding rule."""
+
+    state: Optional[PscAutomationState]
+    """Output only. The state of the PSC service automation."""
+
+
+PSCAutomationConfigOrDict = Union[PSCAutomationConfig, PSCAutomationConfigDict]
+
+
+class PrivateServiceConnectConfig(_common.BaseModel):
+    """Represents configuration for private service connect."""
+
+    enable_private_service_connect: Optional[bool] = Field(
+        default=None,
+        description="""Required. If true, expose the IndexEndpoint via private service connect.""",
+    )
+    enable_secure_private_service_connect: Optional[bool] = Field(
+        default=None,
+        description="""Optional. If set to true, enable secure private service connect with IAM authorization. Otherwise, private service connect will be done without authorization. Note latency will be slightly increased if authorization is enabled.""",
+    )
+    project_allowlist: Optional[list[str]] = Field(
+        default=None,
+        description="""A list of Projects from which the forwarding rule will target the service attachment.""",
+    )
+    psc_automation_configs: Optional[list[PSCAutomationConfig]] = Field(
+        default=None,
+        description="""Optional. List of projects and networks where the PSC endpoints will be created. This field is used by Online Inference(Prediction) only.""",
+    )
+    service_attachment: Optional[str] = Field(
+        default=None,
+        description="""Output only. The name of the generated service attachment resource. This is only populated if the endpoint is deployed with PrivateServiceConnect.""",
+    )
+
+
+class PrivateServiceConnectConfigDict(TypedDict, total=False):
+    """Represents configuration for private service connect."""
+
+    enable_private_service_connect: Optional[bool]
+    """Required. If true, expose the IndexEndpoint via private service connect."""
+
+    enable_secure_private_service_connect: Optional[bool]
+    """Optional. If set to true, enable secure private service connect with IAM authorization. Otherwise, private service connect will be done without authorization. Note latency will be slightly increased if authorization is enabled."""
+
+    project_allowlist: Optional[list[str]]
+    """A list of Projects from which the forwarding rule will target the service attachment."""
+
+    psc_automation_configs: Optional[list[PSCAutomationConfigDict]]
+    """Optional. List of projects and networks where the PSC endpoints will be created. This field is used by Online Inference(Prediction) only."""
+
+    service_attachment: Optional[str]
+    """Output only. The name of the generated service attachment resource. This is only populated if the endpoint is deployed with PrivateServiceConnect."""
+
+
+PrivateServiceConnectConfigOrDict = Union[
+    PrivateServiceConnectConfig, PrivateServiceConnectConfigDict
+]
+
+
+class DeployRequestEndpointConfig(_common.BaseModel):
+    """The endpoint config to use for the deployment."""
+
+    dedicated_endpoint_disabled: Optional[bool] = Field(
+        default=None,
+        description="""Optional. By default, if dedicated endpoint is enabled and private service connect config is not set, the endpoint will be exposed through a dedicated DNS [Endpoint.dedicated_endpoint_dns]. If private service connect config is set, the endpoint will be exposed through private service connect. Your request to the dedicated DNS will be isolated from other users' traffic and will have better performance and reliability. Note: Once you enabled dedicated endpoint, you won't be able to send request to the shared DNS {region}-aiplatform.googleapis.com. The limitations will be removed soon. If this field is set to true, the dedicated endpoint will be disabled and the deployed model will be exposed through the shared DNS {region}-aiplatform.googleapis.com.""",
+    )
+    dedicated_endpoint_enabled: Optional[bool] = Field(
+        default=None,
+        description="""Optional. Deprecated. Use dedicated_endpoint_disabled instead. If true, the endpoint will be exposed through a dedicated DNS [Endpoint.dedicated_endpoint_dns]. Your request to the dedicated DNS will be isolated from other users' traffic and will have better performance and reliability. Note: Once you enabled dedicated endpoint, you won't be able to send request to the shared DNS {region}-aiplatform.googleapis.com. The limitations will be removed soon.""",
+    )
+    endpoint_display_name: Optional[str] = Field(
+        default=None,
+        description="""Optional. The user-specified display name of the endpoint. If not set, a default name will be used.""",
+    )
+    endpoint_user_id: Optional[str] = Field(
+        default=None,
+        description="""Optional. Immutable. The ID to use for endpoint, which will become the final component of the endpoint resource name. If not provided, Vertex AI will generate a value for this ID. If the first character is a letter, this value may be up to 63 characters, and valid characters are `[a-z0-9-]`. The last character must be a letter or number. If the first character is a number, this value may be up to 9 characters, and valid characters are `[0-9]` with no leading zeros. When using HTTP/JSON, this field is populated based on a query string argument, such as `?endpoint_id=12345`. This is the fallback for fields that are not included in either the URI or the body.""",
+    )
+    labels: Optional[dict[str, str]] = Field(
+        default=None,
+        description="""Optional. The labels with user-defined metadata to organize your Endpoints. Label keys and values can be no longer than 64 characters (Unicode codepoints), can only contain lowercase letters, numeric characters, underscores and dashes. International characters are allowed. See https://goo.gl/xmQnxf for more information and examples of labels.""",
+    )
+    private_service_connect_config: Optional[PrivateServiceConnectConfig] = Field(
+        default=None,
+        description="""Optional. Configuration for private service connect. If set, the endpoint will be exposed through private service connect.""",
+    )
+
+
+class DeployRequestEndpointConfigDict(TypedDict, total=False):
+    """The endpoint config to use for the deployment."""
+
+    dedicated_endpoint_disabled: Optional[bool]
+    """Optional. By default, if dedicated endpoint is enabled and private service connect config is not set, the endpoint will be exposed through a dedicated DNS [Endpoint.dedicated_endpoint_dns]. If private service connect config is set, the endpoint will be exposed through private service connect. Your request to the dedicated DNS will be isolated from other users' traffic and will have better performance and reliability. Note: Once you enabled dedicated endpoint, you won't be able to send request to the shared DNS {region}-aiplatform.googleapis.com. The limitations will be removed soon. If this field is set to true, the dedicated endpoint will be disabled and the deployed model will be exposed through the shared DNS {region}-aiplatform.googleapis.com."""
+
+    dedicated_endpoint_enabled: Optional[bool]
+    """Optional. Deprecated. Use dedicated_endpoint_disabled instead. If true, the endpoint will be exposed through a dedicated DNS [Endpoint.dedicated_endpoint_dns]. Your request to the dedicated DNS will be isolated from other users' traffic and will have better performance and reliability. Note: Once you enabled dedicated endpoint, you won't be able to send request to the shared DNS {region}-aiplatform.googleapis.com. The limitations will be removed soon."""
+
+    endpoint_display_name: Optional[str]
+    """Optional. The user-specified display name of the endpoint. If not set, a default name will be used."""
+
+    endpoint_user_id: Optional[str]
+    """Optional. Immutable. The ID to use for endpoint, which will become the final component of the endpoint resource name. If not provided, Vertex AI will generate a value for this ID. If the first character is a letter, this value may be up to 63 characters, and valid characters are `[a-z0-9-]`. The last character must be a letter or number. If the first character is a number, this value may be up to 9 characters, and valid characters are `[0-9]` with no leading zeros. When using HTTP/JSON, this field is populated based on a query string argument, such as `?endpoint_id=12345`. This is the fallback for fields that are not included in either the URI or the body."""
+
+    labels: Optional[dict[str, str]]
+    """Optional. The labels with user-defined metadata to organize your Endpoints. Label keys and values can be no longer than 64 characters (Unicode codepoints), can only contain lowercase letters, numeric characters, underscores and dashes. International characters are allowed. See https://goo.gl/xmQnxf for more information and examples of labels."""
+
+    private_service_connect_config: Optional[PrivateServiceConnectConfigDict]
+    """Optional. Configuration for private service connect. If set, the endpoint will be exposed through private service connect."""
+
+
+DeployRequestEndpointConfigOrDict = Union[
+    DeployRequestEndpointConfig, DeployRequestEndpointConfigDict
+]
+
+
+class DeployRequestDeployConfig(_common.BaseModel):
+    """The deploy config to use for the deployment."""
+
+    dedicated_resources: Optional[DedicatedResources] = Field(
+        default=None,
+        description="""Optional. The dedicated resources to use for the endpoint. If not set, the default resources will be used.""",
+    )
+    fast_tryout_enabled: Optional[bool] = Field(
+        default=None,
+        description="""Optional. If true, enable the QMT fast tryout feature for this model if possible.""",
+    )
+    system_labels: Optional[dict[str, str]] = Field(
+        default=None,
+        description="""Optional. System labels for Model Garden deployments. These labels are managed by Google and for tracking purposes only.""",
+    )
+
+
+class DeployRequestDeployConfigDict(TypedDict, total=False):
+    """The deploy config to use for the deployment."""
+
+    dedicated_resources: Optional[DedicatedResourcesDict]
+    """Optional. The dedicated resources to use for the endpoint. If not set, the default resources will be used."""
+
+    fast_tryout_enabled: Optional[bool]
+    """Optional. If true, enable the QMT fast tryout feature for this model if possible."""
+
+    system_labels: Optional[dict[str, str]]
+    """Optional. System labels for Model Garden deployments. These labels are managed by Google and for tracking purposes only."""
+
+
+DeployRequestDeployConfigOrDict = Union[
+    DeployRequestDeployConfig, DeployRequestDeployConfigDict
+]
+
+
+class _DeployRequestParameters(_common.BaseModel):
+    """Parameters for the private ``_deploy`` method."""
+
+    destination: Optional[str] = Field(default=None, description="""""")
+    publisher_model_name: Optional[str] = Field(default=None, description="""""")
+    hugging_face_model_id: Optional[str] = Field(default=None, description="""""")
+    custom_model: Optional[DeployRequestCustomModel] = Field(
+        default=None, description=""""""
+    )
+    model_config_val: Optional[DeployRequestModelConfig] = Field(
+        default=None, description=""""""
+    )
+    endpoint_config: Optional[DeployRequestEndpointConfig] = Field(
+        default=None, description=""""""
+    )
+    deploy_config: Optional[DeployRequestDeployConfig] = Field(
+        default=None, description=""""""
+    )
+    config: Optional[DeployConfig] = Field(default=None, description="""""")
+
+
+class _DeployRequestParametersDict(TypedDict, total=False):
+    """Parameters for the private ``_deploy`` method."""
+
+    destination: Optional[str]
+    """"""
+
+    publisher_model_name: Optional[str]
+    """"""
+
+    hugging_face_model_id: Optional[str]
+    """"""
+
+    custom_model: Optional[DeployRequestCustomModelDict]
+    """"""
+
+    model_config_val: Optional[DeployRequestModelConfigDict]
+    """"""
+
+    endpoint_config: Optional[DeployRequestEndpointConfigDict]
+    """"""
+
+    deploy_config: Optional[DeployRequestDeployConfigDict]
+    """"""
+
+    config: Optional[DeployConfigDict]
+    """"""
+
+
+_DeployRequestParametersOrDict = Union[
+    _DeployRequestParameters, _DeployRequestParametersDict
+]
+
+
+class DeployResponse(_common.BaseModel):
+    """Response for a deployment operation."""
+
+    endpoint: Optional[str] = Field(
+        default=None, description="""Resource name of the deployed endpoint."""
+    )
+    model: Optional[str] = Field(
+        default=None, description="""Resource name of the deployed model."""
+    )
+
+
+class DeployResponseDict(TypedDict, total=False):
+    """Response for a deployment operation."""
+
+    endpoint: Optional[str]
+    """Resource name of the deployed endpoint."""
+
+    model: Optional[str]
+    """Resource name of the deployed model."""
+
+
+DeployResponseOrDict = Union[DeployResponse, DeployResponseDict]
+
+
+class DeployModelOperation(_common.BaseModel):
+    """Long-running operation returned by a deployment call."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`.""",
+    )
+    metadata: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any.""",
+    )
+    done: Optional[bool] = Field(
+        default=None,
+        description="""If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available.""",
+    )
+    error: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""The error result of the operation in case of failure or cancellation.""",
+    )
+    response: Optional[DeployResponse] = Field(default=None, description="""""")
+
+
+class DeployModelOperationDict(TypedDict, total=False):
+    """Long-running operation returned by a deployment call."""
+
+    name: Optional[str]
+    """The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`."""
+
+    metadata: Optional[dict[str, Any]]
+    """Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any."""
+
+    done: Optional[bool]
+    """If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available."""
+
+    error: Optional[dict[str, Any]]
+    """The error result of the operation in case of failure or cancellation."""
+
+    response: Optional[DeployResponseDict]
+    """"""
+
+
+DeployModelOperationOrDict = Union[DeployModelOperation, DeployModelOperationDict]
+
+
 class CreateRuntimeFeedbackEntryConfig(_common.BaseModel):
     """Config for creating a Feedback Entry."""
 
@@ -26794,6 +27223,155 @@ class ListCustomModelDeployOptionsConfigDict(TypedDict, total=False):
 
 ListCustomModelDeployOptionsConfigOrDict = Union[
     ListCustomModelDeployOptionsConfig, ListCustomModelDeployOptionsConfigDict
+]
+
+
+class DeployPublisherModelConfig(_common.BaseModel):
+    """Config for ``deploy_publisher_model``.
+
+    Superset of options that apply to Google open, partner and Hugging Face
+    publisher models. Only fields relevant to the target model are honored;
+    the backend rejects unsupported fields with a clear error.
+    """
+
+    accept_eula: Optional[bool] = Field(
+        default=None,
+        description="""Whether to accept the model's End User License Agreement.""",
+    )
+    hugging_face_access_token: Optional[str] = Field(
+        default=None,
+        description="""Hugging Face access token for gated HF models. See
+      https://huggingface.co/docs/hub/en/security-tokens.""",
+    )
+    machine_type: Optional[str] = Field(
+        default=None,
+        description="""Machine type (e.g. ``'g2-standard-48'``). Leave unset for
+      automatic resources.""",
+    )
+    min_replica_count: Optional[int] = Field(
+        default=1, description="""Minimum number of replicas."""
+    )
+    max_replica_count: Optional[int] = Field(
+        default=1, description="""Maximum number of replicas."""
+    )
+    accelerator_type: Optional[str] = Field(
+        default=None, description="""Accelerator type (e.g. ``'NVIDIA_L4'``)."""
+    )
+    accelerator_count: Optional[int] = Field(
+        default=None, description="""Number of accelerators per replica."""
+    )
+    spot: Optional[bool] = Field(default=None, description="""Schedule on Spot VMs.""")
+    dedicated_endpoint_disabled: Optional[bool] = Field(
+        default=None,
+        description="""Set True to serve predictions via the shared endpoint DNS
+      instead of the dedicated endpoint DNS (default).""",
+    )
+    fast_tryout_enabled: Optional[bool] = Field(
+        default=None,
+        description="""Use the fast-tryout deployment path (experimentation only, not
+      production). Only supported for select models and machine types.""",
+    )
+    endpoint_display_name: Optional[str] = Field(
+        default=None, description="""Display name for the endpoint."""
+    )
+    model_display_name: Optional[str] = Field(
+        default=None, description="""Display name for the deployed model."""
+    )
+    serving_container_image_uri: Optional[str] = Field(
+        default=None,
+        description="""Custom serving container image URI overriding the model's
+      default container.""",
+    )
+    container_command: Optional[list[str]] = Field(
+        default=None, description="""Serving container ENTRYPOINT override."""
+    )
+    container_args: Optional[list[str]] = Field(
+        default=None, description="""Serving container CMD override."""
+    )
+    container_variables: Optional[dict[str, str]] = Field(
+        default=None, description="""Environment variables for the serving container."""
+    )
+    enable_private_service_connect: Optional[bool] = Field(
+        default=None, description="""Enable Private Service Connect for the endpoint."""
+    )
+    psc_project_allow_list: Optional[list[str]] = Field(
+        default=None,
+        description="""Projects allowed to access the endpoint over Private Service
+      Connect. Only honored when ``enable_private_service_connect`` is True.""",
+    )
+
+
+class DeployPublisherModelConfigDict(TypedDict, total=False):
+    """Config for ``deploy_publisher_model``.
+
+    Superset of options that apply to Google open, partner and Hugging Face
+    publisher models. Only fields relevant to the target model are honored;
+    the backend rejects unsupported fields with a clear error.
+    """
+
+    accept_eula: Optional[bool]
+    """Whether to accept the model's End User License Agreement."""
+
+    hugging_face_access_token: Optional[str]
+    """Hugging Face access token for gated HF models. See
+      https://huggingface.co/docs/hub/en/security-tokens."""
+
+    machine_type: Optional[str]
+    """Machine type (e.g. ``'g2-standard-48'``). Leave unset for
+      automatic resources."""
+
+    min_replica_count: Optional[int]
+    """Minimum number of replicas."""
+
+    max_replica_count: Optional[int]
+    """Maximum number of replicas."""
+
+    accelerator_type: Optional[str]
+    """Accelerator type (e.g. ``'NVIDIA_L4'``)."""
+
+    accelerator_count: Optional[int]
+    """Number of accelerators per replica."""
+
+    spot: Optional[bool]
+    """Schedule on Spot VMs."""
+
+    dedicated_endpoint_disabled: Optional[bool]
+    """Set True to serve predictions via the shared endpoint DNS
+      instead of the dedicated endpoint DNS (default)."""
+
+    fast_tryout_enabled: Optional[bool]
+    """Use the fast-tryout deployment path (experimentation only, not
+      production). Only supported for select models and machine types."""
+
+    endpoint_display_name: Optional[str]
+    """Display name for the endpoint."""
+
+    model_display_name: Optional[str]
+    """Display name for the deployed model."""
+
+    serving_container_image_uri: Optional[str]
+    """Custom serving container image URI overriding the model's
+      default container."""
+
+    container_command: Optional[list[str]]
+    """Serving container ENTRYPOINT override."""
+
+    container_args: Optional[list[str]]
+    """Serving container CMD override."""
+
+    container_variables: Optional[dict[str, str]]
+    """Environment variables for the serving container."""
+
+    enable_private_service_connect: Optional[bool]
+    """Enable Private Service Connect for the endpoint."""
+
+    psc_project_allow_list: Optional[list[str]]
+    """Projects allowed to access the endpoint over Private Service
+      Connect. Only honored when ``enable_private_service_connect`` is True."""
+
+
+DeployPublisherModelConfigOrDict = Union[
+    DeployPublisherModelConfig, DeployPublisherModelConfigDict
 ]
 
 

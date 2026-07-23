@@ -232,9 +232,7 @@ def test_list_models_excludes_hf_via_server_filter(mock_client):
         mock_client, "_list_publisher_models", return_value=dummy_response
     ) as mock_list:
         models = mock_client.list_models(
-            config=types.ListModelGardenModelsConfig(
-                include_hugging_face_models=False
-            )
+            config=types.ListModelGardenModelsConfig(include_hugging_face_models=False)
         )
 
         api_config = mock_list.call_args.kwargs.get("config")
@@ -260,9 +258,7 @@ def test_list_models_with_hf(mock_client):
         mock_client, "_list_publisher_models", return_value=dummy_response
     ):
         models = mock_client.list_models(
-            config=types.ListModelGardenModelsConfig(
-                include_hugging_face_models=True
-            )
+            config=types.ListModelGardenModelsConfig(include_hugging_face_models=True)
         )
 
         assert len(models) == 2
@@ -290,9 +286,7 @@ def test_list_models_includes_non_deployable(mock_client):
         mock_client, "_list_publisher_models", return_value=dummy_response
     ):
         models = mock_client.list_models(
-            config=types.ListModelGardenModelsConfig(
-                include_hugging_face_models=False
-            )
+            config=types.ListModelGardenModelsConfig(include_hugging_face_models=False)
         )
 
         assert len(models) == 2
@@ -416,13 +410,15 @@ def test_build_filter_str_with_model_filter():
 
 
 def test_build_filter_str_escapes_special_chars():
-  """Tests that special regex characters in model_filter are escaped."""
-  build_filter = model_garden.ModelGarden._build_filter_str
-  result = build_filter(
-        model_filter="model.v2+", include_hugging_face_models=False, deployable_only=False
+    """Tests that special regex characters in model_filter are escaped."""
+    build_filter = model_garden.ModelGarden._build_filter_str
+    result = build_filter(
+        model_filter="model.v2+",
+        include_hugging_face_models=False,
+        deployable_only=False,
     )
-  # re.escape turns '.' into '\\.' and '+' into '\\+'
-  assert r"model\.v2\+" in result
+    # re.escape turns '.' into '\\.' and '+' into '\\+'
+    assert r"model\.v2\+" in result
 
 
 # ---- list_publisher_model_deploy_options tests ----
@@ -449,11 +445,9 @@ def _make_deploy_option(
     )
 
 
-def _make_model_with_deploy_options(
-    options, name="publishers/google/models/gemma-2b"
-):
-  """Builds a PublisherModel exposing the given deploy options."""
-  return types.PublisherModel(
+def _make_model_with_deploy_options(options, name="publishers/google/models/gemma-2b"):
+    """Builds a PublisherModel exposing the given deploy options."""
+    return types.PublisherModel(
         name=name,
         supported_actions=types.PublisherModelCallToAction(
             multi_deploy_vertex=types.PublisherModelCallToActionDeployVertex(
@@ -464,180 +458,186 @@ def _make_model_with_deploy_options(
 
 
 def test_list_publisher_model_deploy_options_basic(mock_client):
-  """Tests extraction of a single deploy option into a DeployOption."""
-  dummy_model = _make_model_with_deploy_options([_make_deploy_option()])
+    """Tests extraction of a single deploy option into a DeployOption."""
+    dummy_model = _make_model_with_deploy_options([_make_deploy_option()])
 
-  with mock.patch.object(
+    with mock.patch.object(
         mock_client, "_get_publisher_model", return_value=dummy_model
     ) as mock_get:
-    # A simplified name is reconciled to the full publisher resource name.
-    options = mock_client.list_publisher_model_deploy_options(
-        model="google/gemma3@gemma-3-12b-it"
-    )
+        # A simplified name is reconciled to the full publisher resource name.
+        options = mock_client.list_publisher_model_deploy_options(
+            model="google/gemma3@gemma-3-12b-it"
+        )
 
-    # The GetPublisherModel call must use the reconciled name, flag the model
-    # as non-Hugging-Face (it has an @version), and request equivalent
-    # deployment configs.
-    mock_get.assert_called_once_with(
-        name="publishers/google/models/gemma3@gemma-3-12b-it",
-        config=types.GetPublisherModelConfig(
-            is_hugging_face_model=False,
-            include_equivalent_model_garden_model_deployment_configs=True,
-        ),
-    )
-    assert len(options) == 1
-    assert isinstance(options[0], types.DeployOption)
-    assert options[0].option_name == "option-1"
-    assert options[0].machine_type == "g2-standard-12"
-    # accelerator_type is returned as the enum's string value (legacy parity).
-    assert options[0].accelerator_type == "NVIDIA_L4"
-    assert options[0].accelerator_count == 1
-    assert "vllm" in options[0].serving_container_image_uri
+        # The GetPublisherModel call must use the reconciled name, flag the model
+        # as non-Hugging-Face (it has an @version), and request equivalent
+        # deployment configs.
+        mock_get.assert_called_once_with(
+            name="publishers/google/models/gemma3@gemma-3-12b-it",
+            config=types.GetPublisherModelConfig(
+                is_hugging_face_model=False,
+                include_equivalent_model_garden_model_deployment_configs=True,
+            ),
+        )
+        assert len(options) == 1
+        assert isinstance(options[0], types.DeployOption)
+        assert options[0].option_name == "option-1"
+        assert options[0].machine_type == "g2-standard-12"
+        # accelerator_type is returned as the enum's string value (legacy parity).
+        assert options[0].accelerator_type == "NVIDIA_L4"
+        assert options[0].accelerator_count == 1
+        assert "vllm" in options[0].serving_container_image_uri
 
 
 def test_list_publisher_model_deploy_options_multiple(mock_client):
-  """Tests that all deploy options are returned when no filters are set."""
-  dummy_model = _make_model_with_deploy_options(
+    """Tests that all deploy options are returned when no filters are set."""
+    dummy_model = _make_model_with_deploy_options(
         [
             _make_deploy_option(deploy_task_name="g2", machine_type="g2-standard-12"),
             _make_deploy_option(deploy_task_name="a3", machine_type="a3-highgpu-8g"),
         ]
     )
 
-  with mock.patch.object(
-      mock_client, "_get_publisher_model", return_value=dummy_model
-  ):
-    options = mock_client.list_publisher_model_deploy_options(
-        model="publishers/google/models/gemma-2b@001"
-    )
+    with mock.patch.object(
+        mock_client, "_get_publisher_model", return_value=dummy_model
+    ):
+        options = mock_client.list_publisher_model_deploy_options(
+            model="publishers/google/models/gemma-2b@001"
+        )
 
-    assert [o.option_name for o in options] == ["g2", "a3"]
+        assert [o.option_name for o in options] == ["g2", "a3"]
 
 
 def test_list_publisher_model_deploy_options_machine_type_filter(mock_client):
-  """Tests machine_type_filter is a case-insensitive substring match."""
-  dummy_model = _make_model_with_deploy_options(
+    """Tests machine_type_filter is a case-insensitive substring match."""
+    dummy_model = _make_model_with_deploy_options(
         [
             _make_deploy_option(deploy_task_name="g2", machine_type="g2-standard-12"),
             _make_deploy_option(deploy_task_name="a3", machine_type="a3-highgpu-8g"),
         ]
     )
 
-  with mock.patch.object(
-      mock_client, "_get_publisher_model", return_value=dummy_model
-  ):
-    options = mock_client.list_publisher_model_deploy_options(
-        model="publishers/google/models/gemma-2b@001",
-        config=types.ListPublisherModelDeployOptionsConfig(
-            machine_type_filter="G2"
-        ),
-    )
+    with mock.patch.object(
+        mock_client, "_get_publisher_model", return_value=dummy_model
+    ):
+        options = mock_client.list_publisher_model_deploy_options(
+            model="publishers/google/models/gemma-2b@001",
+            config=types.ListPublisherModelDeployOptionsConfig(
+                machine_type_filter="G2"
+            ),
+        )
 
-    assert len(options) == 1
-    assert options[0].option_name == "g2"
+        assert len(options) == 1
+        assert options[0].option_name == "g2"
 
 
 def test_list_publisher_model_deploy_options_accelerator_type_filter(
     mock_client,
 ):
-  """Tests accelerator_type_filter is a case-insensitive substring match."""
-  dummy_model = _make_model_with_deploy_options([
-      _make_deploy_option(deploy_task_name="l4", accelerator_type="NVIDIA_L4"),
-      _make_deploy_option(
-          deploy_task_name="h100", accelerator_type="NVIDIA_H100_80GB"
-      ),
-  ])
-
-  with mock.patch.object(
-      mock_client, "_get_publisher_model", return_value=dummy_model
-  ):
-    options = mock_client.list_publisher_model_deploy_options(
-        model="publishers/google/models/gemma-2b@001",
-        config=types.ListPublisherModelDeployOptionsConfig(
-            accelerator_type_filter="h100"
-        ),
+    """Tests accelerator_type_filter is a case-insensitive substring match."""
+    dummy_model = _make_model_with_deploy_options(
+        [
+            _make_deploy_option(deploy_task_name="l4", accelerator_type="NVIDIA_L4"),
+            _make_deploy_option(
+                deploy_task_name="h100", accelerator_type="NVIDIA_H100_80GB"
+            ),
+        ]
     )
 
-    assert len(options) == 1
-    assert options[0].option_name == "h100"
+    with mock.patch.object(
+        mock_client, "_get_publisher_model", return_value=dummy_model
+    ):
+        options = mock_client.list_publisher_model_deploy_options(
+            model="publishers/google/models/gemma-2b@001",
+            config=types.ListPublisherModelDeployOptionsConfig(
+                accelerator_type_filter="h100"
+            ),
+        )
+
+        assert len(options) == 1
+        assert options[0].option_name == "h100"
 
 
 def test_list_publisher_model_deploy_options_image_uri_filter(mock_client):
-  """Tests serving_container_image_uri_filter is a case-insensitive match."""
-  dummy_model = _make_model_with_deploy_options(
+    """Tests serving_container_image_uri_filter is a case-insensitive match."""
+    dummy_model = _make_model_with_deploy_options(
         [
             _make_deploy_option(deploy_task_name="vllm", image_uri="docker/vllm"),
             _make_deploy_option(deploy_task_name="tgi", image_uri="docker/tgi"),
         ]
     )
 
-  with mock.patch.object(
-      mock_client, "_get_publisher_model", return_value=dummy_model
-  ):
-    options = mock_client.list_publisher_model_deploy_options(
-        model="publishers/google/models/gemma-2b@001",
-        config=types.ListPublisherModelDeployOptionsConfig(
-            serving_container_image_uri_filter="VLLM"
-        ),
-    )
+    with mock.patch.object(
+        mock_client, "_get_publisher_model", return_value=dummy_model
+    ):
+        options = mock_client.list_publisher_model_deploy_options(
+            model="publishers/google/models/gemma-2b@001",
+            config=types.ListPublisherModelDeployOptionsConfig(
+                serving_container_image_uri_filter="VLLM"
+            ),
+        )
 
-    assert len(options) == 1
-    assert options[0].option_name == "vllm"
+        assert len(options) == 1
+        assert options[0].option_name == "vllm"
 
 
 def test_list_publisher_model_deploy_options_machine_type_filter_list(
     mock_client,
 ):
-  """Tests a list of keywords matches options containing ANY of them (legacy parity)."""
-  dummy_model = _make_model_with_deploy_options([
-      _make_deploy_option(deploy_task_name="g2", machine_type="g2-standard-12"),
-      _make_deploy_option(deploy_task_name="a3", machine_type="a3-highgpu-8g"),
-      _make_deploy_option(deploy_task_name="n1", machine_type="n1-standard-8"),
-  ])
-
-  with mock.patch.object(
-      mock_client, "_get_publisher_model", return_value=dummy_model
-  ):
-    options = mock_client.list_publisher_model_deploy_options(
-        model="publishers/google/models/gemma-2b@001",
-        config=types.ListPublisherModelDeployOptionsConfig(
-            machine_type_filter=["A3", "n1"]
-        ),
+    """Tests a list of keywords matches options containing ANY of them (legacy parity)."""
+    dummy_model = _make_model_with_deploy_options(
+        [
+            _make_deploy_option(deploy_task_name="g2", machine_type="g2-standard-12"),
+            _make_deploy_option(deploy_task_name="a3", machine_type="a3-highgpu-8g"),
+            _make_deploy_option(deploy_task_name="n1", machine_type="n1-standard-8"),
+        ]
     )
 
-    assert [o.option_name for o in options] == ["a3", "n1"]
+    with mock.patch.object(
+        mock_client, "_get_publisher_model", return_value=dummy_model
+    ):
+        options = mock_client.list_publisher_model_deploy_options(
+            model="publishers/google/models/gemma-2b@001",
+            config=types.ListPublisherModelDeployOptionsConfig(
+                machine_type_filter=["A3", "n1"]
+            ),
+        )
+
+        assert [o.option_name for o in options] == ["a3", "n1"]
 
 
 def test_list_publisher_model_deploy_options_accelerator_type_filter_list(
     mock_client,
 ):
-  """Tests a list accelerator filter matches options containing ANY keyword."""
-  dummy_model = _make_model_with_deploy_options([
-      _make_deploy_option(deploy_task_name="l4", accelerator_type="NVIDIA_L4"),
-      _make_deploy_option(
-          deploy_task_name="t4", accelerator_type="NVIDIA_TESLA_T4"
-      ),
-      _make_deploy_option(
-          deploy_task_name="h100", accelerator_type="NVIDIA_H100_80GB"
-      ),
-  ])
-
-  with mock.patch.object(
-      mock_client, "_get_publisher_model", return_value=dummy_model
-  ):
-    options = mock_client.list_publisher_model_deploy_options(
-        model="publishers/google/models/gemma-2b@001",
-        config=types.ListPublisherModelDeployOptionsConfig(
-            accelerator_type_filter=["T4", "L4"]
-        ),
+    """Tests a list accelerator filter matches options containing ANY keyword."""
+    dummy_model = _make_model_with_deploy_options(
+        [
+            _make_deploy_option(deploy_task_name="l4", accelerator_type="NVIDIA_L4"),
+            _make_deploy_option(
+                deploy_task_name="t4", accelerator_type="NVIDIA_TESLA_T4"
+            ),
+            _make_deploy_option(
+                deploy_task_name="h100", accelerator_type="NVIDIA_H100_80GB"
+            ),
+        ]
     )
 
-    assert [o.option_name for o in options] == ["l4", "t4"]
+    with mock.patch.object(
+        mock_client, "_get_publisher_model", return_value=dummy_model
+    ):
+        options = mock_client.list_publisher_model_deploy_options(
+            model="publishers/google/models/gemma-2b@001",
+            config=types.ListPublisherModelDeployOptionsConfig(
+                accelerator_type_filter=["T4", "L4"]
+            ),
+        )
+
+        assert [o.option_name for o in options] == ["l4", "t4"]
 
 
 def test_list_publisher_model_deploy_options_image_uri_filter_list(mock_client):
-  """Tests a list image-uri filter matches any keyword."""
-  dummy_model = _make_model_with_deploy_options(
+    """Tests a list image-uri filter matches any keyword."""
+    dummy_model = _make_model_with_deploy_options(
         [
             _make_deploy_option(deploy_task_name="vllm", image_uri="docker/vllm"),
             _make_deploy_option(deploy_task_name="tgi", image_uri="docker/tgi"),
@@ -645,101 +645,101 @@ def test_list_publisher_model_deploy_options_image_uri_filter_list(mock_client):
         ]
     )
 
-  with mock.patch.object(
-      mock_client, "_get_publisher_model", return_value=dummy_model
-  ):
-    options = mock_client.list_publisher_model_deploy_options(
-        model="publishers/google/models/gemma-2b@001",
-        config=types.ListPublisherModelDeployOptionsConfig(
-            serving_container_image_uri_filter=["vllm", "tgi"]
-        ),
-    )
+    with mock.patch.object(
+        mock_client, "_get_publisher_model", return_value=dummy_model
+    ):
+        options = mock_client.list_publisher_model_deploy_options(
+            model="publishers/google/models/gemma-2b@001",
+            config=types.ListPublisherModelDeployOptionsConfig(
+                serving_container_image_uri_filter=["vllm", "tgi"]
+            ),
+        )
 
-    assert [o.option_name for o in options] == ["vllm", "tgi"]
+        assert [o.option_name for o in options] == ["vllm", "tgi"]
 
 
 def test_matches_filter():
-  """Tests the keyword-filter helper (single keyword, list, None, misses)."""
-  matches = model_garden.ModelGarden._matches_filter
-  # No filter -> always matches.
-  assert matches("g2-standard-12", None) is True
-  assert matches(None, None) is True
-  # Single keyword, case-insensitive substring.
-  assert matches("g2-standard-12", "G2") is True
-  assert matches("g2-standard-12", "n1") is False
-  # List of keywords -> match if ANY is contained.
-  assert matches("a3-highgpu-8g", ["n1", "a3"]) is True
-  assert matches("a3-highgpu-8g", ["n1", "g2"]) is False
-  # A missing (None) value never matches a non-empty filter.
-  assert matches(None, "g2") is False
-  # An empty list filter behaves like "no filter".
-  assert matches("anything", []) is True
+    """Tests the keyword-filter helper (single keyword, list, None, misses)."""
+    matches = model_garden.ModelGarden._matches_filter
+    # No filter -> always matches.
+    assert matches("g2-standard-12", None) is True
+    assert matches(None, None) is True
+    # Single keyword, case-insensitive substring.
+    assert matches("g2-standard-12", "G2") is True
+    assert matches("g2-standard-12", "n1") is False
+    # List of keywords -> match if ANY is contained.
+    assert matches("a3-highgpu-8g", ["n1", "a3"]) is True
+    assert matches("a3-highgpu-8g", ["n1", "g2"]) is False
+    # A missing (None) value never matches a non-empty filter.
+    assert matches(None, "g2") is False
+    # An empty list filter behaves like "no filter".
+    assert matches("anything", []) is True
 
 
 def test_list_publisher_model_deploy_options_dict_config(mock_client):
-  """Tests config passed as a dict is validated and applied."""
-  dummy_model = _make_model_with_deploy_options(
+    """Tests config passed as a dict is validated and applied."""
+    dummy_model = _make_model_with_deploy_options(
         [
             _make_deploy_option(deploy_task_name="g2", machine_type="g2-standard-12"),
             _make_deploy_option(deploy_task_name="a3", machine_type="a3-highgpu-8g"),
         ]
     )
 
-  with mock.patch.object(
-      mock_client, "_get_publisher_model", return_value=dummy_model
-  ):
-    options = mock_client.list_publisher_model_deploy_options(
-        model="publishers/google/models/gemma-2b@001",
-        config={"machine_type_filter": "a3"},
-    )
+    with mock.patch.object(
+        mock_client, "_get_publisher_model", return_value=dummy_model
+    ):
+        options = mock_client.list_publisher_model_deploy_options(
+            model="publishers/google/models/gemma-2b@001",
+            config={"machine_type_filter": "a3"},
+        )
 
-    assert len(options) == 1
-    assert options[0].option_name == "a3"
+        assert len(options) == 1
+        assert options[0].option_name == "a3"
 
 
 def test_list_publisher_model_deploy_options_default_config(mock_client):
-  """Tests config=None returns all options."""
-  dummy_model = _make_model_with_deploy_options([_make_deploy_option()])
+    """Tests config=None returns all options."""
+    dummy_model = _make_model_with_deploy_options([_make_deploy_option()])
 
-  with mock.patch.object(
-      mock_client, "_get_publisher_model", return_value=dummy_model
-  ):
-    options = mock_client.list_publisher_model_deploy_options(
-        model="publishers/google/models/gemma-2b@001"
-    )
+    with mock.patch.object(
+        mock_client, "_get_publisher_model", return_value=dummy_model
+    ):
+        options = mock_client.list_publisher_model_deploy_options(
+            model="publishers/google/models/gemma-2b@001"
+        )
 
-    assert len(options) == 1
+        assert len(options) == 1
 
 
 def test_list_publisher_model_deploy_options_no_deploy_support_raises(
     mock_client,
 ):
-  """Tests ValueError when the model does not support deployment (legacy parity)."""
-  dummy_model = types.PublisherModel(name="publishers/google/models/bert-base")
+    """Tests ValueError when the model does not support deployment (legacy parity)."""
+    dummy_model = types.PublisherModel(name="publishers/google/models/bert-base")
 
-  with mock.patch.object(
-      mock_client, "_get_publisher_model", return_value=dummy_model
-  ):
-    with pytest.raises(ValueError, match="does not support deployment"):
-      mock_client.list_publisher_model_deploy_options(
-          model="publishers/google/models/bert-base@001"
-      )
+    with mock.patch.object(
+        mock_client, "_get_publisher_model", return_value=dummy_model
+    ):
+        with pytest.raises(ValueError, match="does not support deployment"):
+            mock_client.list_publisher_model_deploy_options(
+                model="publishers/google/models/bert-base@001"
+            )
 
 
 def test_list_publisher_model_deploy_options_no_match_raises(mock_client):
-  """Tests ValueError when filters exclude every option (legacy parity)."""
-  dummy_model = _make_model_with_deploy_options([_make_deploy_option()])
+    """Tests ValueError when filters exclude every option (legacy parity)."""
+    dummy_model = _make_model_with_deploy_options([_make_deploy_option()])
 
-  with mock.patch.object(
-      mock_client, "_get_publisher_model", return_value=dummy_model
-  ):
-    with pytest.raises(ValueError, match="No deploy options found."):
-      mock_client.list_publisher_model_deploy_options(
-          model="publishers/google/models/gemma-2b@001",
-          config=types.ListPublisherModelDeployOptionsConfig(
-              machine_type_filter="does-not-exist"
-          ),
-      )
+    with mock.patch.object(
+        mock_client, "_get_publisher_model", return_value=dummy_model
+    ):
+        with pytest.raises(ValueError, match="No deploy options found."):
+            mock_client.list_publisher_model_deploy_options(
+                model="publishers/google/models/gemma-2b@001",
+                config=types.ListPublisherModelDeployOptionsConfig(
+                    machine_type_filter="does-not-exist"
+                ),
+            )
 
 
 def test_reconcile_model_name_simplified_with_version():
@@ -776,102 +776,102 @@ def test_reconcile_model_name_lowercases():
 
 
 def test_reconcile_model_name_invalid_raises():
-  """Tests an invalid name raises ValueError."""
-  reconcile = model_garden.ModelGarden._reconcile_model_name
-  with pytest.raises(ValueError, match="not a valid publisher model name"):
-    reconcile("invalid-name-without-slash")
+    """Tests an invalid name raises ValueError."""
+    reconcile = model_garden.ModelGarden._reconcile_model_name
+    with pytest.raises(ValueError, match="not a valid publisher model name"):
+        reconcile("invalid-name-without-slash")
 
 
 def test_reconcile_model_name_model_registry_raises():
-  """Tests a Model Registry resource name raises ValueError.
+    """Tests a Model Registry resource name raises ValueError.
 
-  Without an explicit guard, ``projects/.../locations/.../models/...`` would
-  match the simplified ``{publisher}/{model}`` regex and be silently mangled
-  into ``publishers/projects/models/.../locations/.../models/...``. The guard
-  rejects it loudly with the same ``not a valid publisher model name``
-  message used for any other unsupported input.
-  """
-  reconcile = model_garden.ModelGarden._reconcile_model_name
-  for name in (
-      "projects/123/locations/us-central1/models/456",
-      "projects/my-project/locations/europe-west1/models/9876543210@1",
-      "projects/p/locations/l/models/m",
-  ):
-    with pytest.raises(ValueError, match="not a valid publisher model name"):
-      reconcile(name)
+    Without an explicit guard, ``projects/.../locations/.../models/...`` would
+    match the simplified ``{publisher}/{model}`` regex and be silently mangled
+    into ``publishers/projects/models/.../locations/.../models/...``. The guard
+    rejects it loudly with the same ``not a valid publisher model name``
+    message used for any other unsupported input.
+    """
+    reconcile = model_garden.ModelGarden._reconcile_model_name
+    for name in (
+        "projects/123/locations/us-central1/models/456",
+        "projects/my-project/locations/europe-west1/models/9876543210@1",
+        "projects/p/locations/l/models/m",
+    ):
+        with pytest.raises(ValueError, match="not a valid publisher model name"):
+            reconcile(name)
 
 
 def test_is_hugging_face_model():
-  """Tests the Hugging Face model heuristic."""
-  is_hf = model_garden.ModelGarden._is_hugging_face_model
-  # Bare org/model (single slash, no @version) -> Hugging Face.
-  assert is_hf("meta-llama/Llama-3.3-70B-Instruct") is True
-  # Simplified native names without @version also match (handled
-  # correctly by _reconcile_model_name).
-  assert is_hf("google/gemma3") is True
-  # Names with @version or a publishers/ prefix are not Hugging Face.
-  assert is_hf("google/gemma3@gemma-3-12b-it") is False
-  assert is_hf("publishers/google/models/gemma3@gemma-3-12b-it") is False
-  assert is_hf("publishers/hf-meta-llama/models/llama-3.3") is False
+    """Tests the Hugging Face model heuristic."""
+    is_hf = model_garden.ModelGarden._is_hugging_face_model
+    # Bare org/model (single slash, no @version) -> Hugging Face.
+    assert is_hf("meta-llama/Llama-3.3-70B-Instruct") is True
+    # Simplified native names without @version also match (handled
+    # correctly by _reconcile_model_name).
+    assert is_hf("google/gemma3") is True
+    # Names with @version or a publishers/ prefix are not Hugging Face.
+    assert is_hf("google/gemma3@gemma-3-12b-it") is False
+    assert is_hf("publishers/google/models/gemma3@gemma-3-12b-it") is False
+    assert is_hf("publishers/hf-meta-llama/models/llama-3.3") is False
 
 
 def test_list_publisher_model_deploy_options_hugging_face_model(mock_client):
-  """Tests an HF model name sends is_hugging_face_model=True (legacy parity)."""
-  dummy_model = _make_model_with_deploy_options([_make_deploy_option()])
+    """Tests an HF model name sends is_hugging_face_model=True (legacy parity)."""
+    dummy_model = _make_model_with_deploy_options([_make_deploy_option()])
 
-  with mock.patch.object(
+    with mock.patch.object(
         mock_client, "_get_publisher_model", return_value=dummy_model
     ) as mock_get:
-    mock_client.list_publisher_model_deploy_options(
-        model="meta-llama/Llama-3.3-70B-Instruct"
-    )
+        mock_client.list_publisher_model_deploy_options(
+            model="meta-llama/Llama-3.3-70B-Instruct"
+        )
 
-    mock_get.assert_called_once_with(
-        name="publishers/meta-llama/models/llama-3.3-70b-instruct",
-        config=types.GetPublisherModelConfig(
-            is_hugging_face_model=True,
-            include_equivalent_model_garden_model_deployment_configs=True,
-        ),
-    )
+        mock_get.assert_called_once_with(
+            name="publishers/meta-llama/models/llama-3.3-70b-instruct",
+            config=types.GetPublisherModelConfig(
+                is_hugging_face_model=True,
+                include_equivalent_model_garden_model_deployment_configs=True,
+            ),
+        )
 
 
 def test_list_publisher_model_deploy_options_async(mock_async_client):
-  """Tests the async client returns deploy options."""
-  dummy_model = _make_model_with_deploy_options([_make_deploy_option()])
+    """Tests the async client returns deploy options."""
+    dummy_model = _make_model_with_deploy_options([_make_deploy_option()])
 
-  with mock.patch.object(
+    with mock.patch.object(
         mock_async_client,
         "_get_publisher_model",
         new=mock.AsyncMock(return_value=dummy_model),
     ):
-    options = asyncio.run(
-        mock_async_client.list_publisher_model_deploy_options(
-            model="publishers/google/models/gemma-2b@001"
+        options = asyncio.run(
+            mock_async_client.list_publisher_model_deploy_options(
+                model="publishers/google/models/gemma-2b@001"
+            )
         )
-    )
 
-    assert len(options) == 1
-    assert options[0].option_name == "option-1"
-    assert options[0].machine_type == "g2-standard-12"
+        assert len(options) == 1
+        assert options[0].option_name == "option-1"
+        assert options[0].machine_type == "g2-standard-12"
 
 
 def test_list_publisher_model_deploy_options_async_no_deploy_support_raises(
     mock_async_client,
 ):
-  """Tests the async client raises when deployment is unsupported."""
-  dummy_model = types.PublisherModel(name="publishers/google/models/bert-base")
+    """Tests the async client raises when deployment is unsupported."""
+    dummy_model = types.PublisherModel(name="publishers/google/models/bert-base")
 
-  with mock.patch.object(
+    with mock.patch.object(
         mock_async_client,
         "_get_publisher_model",
         new=mock.AsyncMock(return_value=dummy_model),
     ):
-    with pytest.raises(ValueError, match="does not support deployment"):
-      asyncio.run(
-          mock_async_client.list_publisher_model_deploy_options(
-              model="publishers/google/models/bert-base@001"
-          )
-      )
+        with pytest.raises(ValueError, match="does not support deployment"):
+            asyncio.run(
+                mock_async_client.list_publisher_model_deploy_options(
+                    model="publishers/google/models/bert-base@001"
+                )
+            )
 
 
 def _make_deploy_option_no_accelerator(
@@ -879,8 +879,8 @@ def _make_deploy_option_no_accelerator(
     machine_type="ct5lp-hightpu-1t",
     image_uri="docker/hexllm",
 ):
-  """Builds a deploy option whose machine has no GPU accelerator (e.g. TPU)."""
-  return types.PublisherModelCallToActionDeploy(
+    """Builds a deploy option whose machine has no GPU accelerator (e.g. TPU)."""
+    return types.PublisherModelCallToActionDeploy(
         deploy_task_name=deploy_task_name,
         dedicated_resources=types.DedicatedResources(
             machine_spec=types.MachineSpec(machine_type=machine_type)
@@ -892,72 +892,72 @@ def _make_deploy_option_no_accelerator(
 def test_list_publisher_model_deploy_options_no_accelerator_defaults(
     mock_client,
 ):
-  """Tests no-accelerator machines report UNSPECIFIED/0 (legacy proto parity)."""
-  dummy_model = _make_model_with_deploy_options(
-      [_make_deploy_option_no_accelerator()]
-  )
-
-  with mock.patch.object(
-      mock_client, "_get_publisher_model", return_value=dummy_model
-  ):
-    options = mock_client.list_publisher_model_deploy_options(
-        model="publishers/google/models/gemma-2b@001"
+    """Tests no-accelerator machines report UNSPECIFIED/0 (legacy proto parity)."""
+    dummy_model = _make_model_with_deploy_options(
+        [_make_deploy_option_no_accelerator()]
     )
 
-    assert options[0].machine_type == "ct5lp-hightpu-1t"
-    # Over gRPC the legacy SDK surfaces these proto3 defaults; we match them.
-    assert options[0].accelerator_type == "ACCELERATOR_TYPE_UNSPECIFIED"
-    assert options[0].accelerator_count == 0
+    with mock.patch.object(
+        mock_client, "_get_publisher_model", return_value=dummy_model
+    ):
+        options = mock_client.list_publisher_model_deploy_options(
+            model="publishers/google/models/gemma-2b@001"
+        )
+
+        assert options[0].machine_type == "ct5lp-hightpu-1t"
+        # Over gRPC the legacy SDK surfaces these proto3 defaults; we match them.
+        assert options[0].accelerator_type == "ACCELERATOR_TYPE_UNSPECIFIED"
+        assert options[0].accelerator_count == 0
 
 
 def test_list_publisher_model_deploy_options_no_accelerator_concise(
     mock_client,
 ):
-  """Tests concise output for a no-accelerator machine matches legacy."""
-  dummy_model = _make_model_with_deploy_options(
-      [_make_deploy_option_no_accelerator()]
-  )
-
-  with mock.patch.object(
-      mock_client, "_get_publisher_model", return_value=dummy_model
-  ):
-    result = mock_client.list_publisher_model_deploy_options(
-        model="publishers/google/models/gemma-2b@001",
-        config=types.ListPublisherModelDeployOptionsConfig(concise=True),
+    """Tests concise output for a no-accelerator machine matches legacy."""
+    dummy_model = _make_model_with_deploy_options(
+        [_make_deploy_option_no_accelerator()]
     )
 
-    expected = (
-        "[Option 1: tpu]\n"
-        '    serving_container_image_uri="docker/hexllm",\n'
-        '    machine_type="ct5lp-hightpu-1t",\n'
-        '    accelerator_type="ACCELERATOR_TYPE_UNSPECIFIED",\n'
-        "    accelerator_count=0,"
-    )
-    assert result == expected
+    with mock.patch.object(
+        mock_client, "_get_publisher_model", return_value=dummy_model
+    ):
+        result = mock_client.list_publisher_model_deploy_options(
+            model="publishers/google/models/gemma-2b@001",
+            config=types.ListPublisherModelDeployOptionsConfig(concise=True),
+        )
+
+        expected = (
+            "[Option 1: tpu]\n"
+            '    serving_container_image_uri="docker/hexllm",\n'
+            '    machine_type="ct5lp-hightpu-1t",\n'
+            '    accelerator_type="ACCELERATOR_TYPE_UNSPECIFIED",\n'
+            "    accelerator_count=0,"
+        )
+        assert result == expected
 
 
 def test_list_publisher_model_deploy_options_accelerator_filter_excludes_unspecified(
     mock_client,
 ):
-  """Tests accelerator_type_filter excludes no-accelerator options (legacy parity)."""
-  dummy_model = _make_model_with_deploy_options(
+    """Tests accelerator_type_filter excludes no-accelerator options (legacy parity)."""
+    dummy_model = _make_model_with_deploy_options(
         [
             _make_deploy_option_no_accelerator(deploy_task_name="tpu"),
             _make_deploy_option(deploy_task_name="gpu", accelerator_type="NVIDIA_L4"),
         ]
     )
 
-  with mock.patch.object(
-      mock_client, "_get_publisher_model", return_value=dummy_model
-  ):
-    options = mock_client.list_publisher_model_deploy_options(
-        model="publishers/google/models/gemma-2b@001",
-        config=types.ListPublisherModelDeployOptionsConfig(
-            accelerator_type_filter="NVIDIA"
-        ),
-    )
+    with mock.patch.object(
+        mock_client, "_get_publisher_model", return_value=dummy_model
+    ):
+        options = mock_client.list_publisher_model_deploy_options(
+            model="publishers/google/models/gemma-2b@001",
+            config=types.ListPublisherModelDeployOptionsConfig(
+                accelerator_type_filter="NVIDIA"
+            ),
+        )
 
-    assert [o.option_name for o in options] == ["gpu"]
+        assert [o.option_name for o in options] == ["gpu"]
 
 
 # ---- concise option tests ----
@@ -966,58 +966,60 @@ def test_list_publisher_model_deploy_options_accelerator_filter_excludes_unspeci
 def test_list_publisher_model_deploy_options_not_concise_returns_list(
     mock_client,
 ):
-  """Tests that without concise the method returns a list of DeployOption."""
-  dummy_model = _make_model_with_deploy_options([_make_deploy_option()])
+    """Tests that without concise the method returns a list of DeployOption."""
+    dummy_model = _make_model_with_deploy_options([_make_deploy_option()])
 
-  with mock.patch.object(
-      mock_client, "_get_publisher_model", return_value=dummy_model
-  ):
-    result = mock_client.list_publisher_model_deploy_options(
-        model="publishers/google/models/gemma-2b@001",
-        config=types.ListPublisherModelDeployOptionsConfig(concise=False),
-    )
+    with mock.patch.object(
+        mock_client, "_get_publisher_model", return_value=dummy_model
+    ):
+        result = mock_client.list_publisher_model_deploy_options(
+            model="publishers/google/models/gemma-2b@001",
+            config=types.ListPublisherModelDeployOptionsConfig(concise=False),
+        )
 
-    assert isinstance(result, list)
-    assert isinstance(result[0], types.DeployOption)
+        assert isinstance(result, list)
+        assert isinstance(result[0], types.DeployOption)
 
 
 def test_list_publisher_model_deploy_options_concise_returns_string(
     mock_client,
 ):
-  """Tests concise=True returns the legacy-format human-readable string."""
-  dummy_model = _make_model_with_deploy_options([
-      _make_deploy_option(
-          deploy_task_name="option-1",
-          machine_type="g2-standard-12",
-          accelerator_type="NVIDIA_L4",
-          accelerator_count=1,
-          image_uri="docker/vllm",
-      )
-  ])
-
-  with mock.patch.object(
-      mock_client, "_get_publisher_model", return_value=dummy_model
-  ):
-    result = mock_client.list_publisher_model_deploy_options(
-        model="publishers/google/models/gemma-2b@001",
-        config=types.ListPublisherModelDeployOptionsConfig(concise=True),
+    """Tests concise=True returns the legacy-format human-readable string."""
+    dummy_model = _make_model_with_deploy_options(
+        [
+            _make_deploy_option(
+                deploy_task_name="option-1",
+                machine_type="g2-standard-12",
+                accelerator_type="NVIDIA_L4",
+                accelerator_count=1,
+                image_uri="docker/vllm",
+            )
+        ]
     )
 
-    # Matches the legacy SDK's concise formatting exactly.
-    expected = (
-        "[Option 1: option-1]\n"
-        '    serving_container_image_uri="docker/vllm",\n'
-        '    machine_type="g2-standard-12",\n'
-        '    accelerator_type="NVIDIA_L4",\n'
-        "    accelerator_count=1,"
-    )
-    assert isinstance(result, str)
-    assert result == expected
+    with mock.patch.object(
+        mock_client, "_get_publisher_model", return_value=dummy_model
+    ):
+        result = mock_client.list_publisher_model_deploy_options(
+            model="publishers/google/models/gemma-2b@001",
+            config=types.ListPublisherModelDeployOptionsConfig(concise=True),
+        )
+
+        # Matches the legacy SDK's concise formatting exactly.
+        expected = (
+            "[Option 1: option-1]\n"
+            '    serving_container_image_uri="docker/vllm",\n'
+            '    machine_type="g2-standard-12",\n'
+            '    accelerator_type="NVIDIA_L4",\n'
+            "    accelerator_count=1,"
+        )
+        assert isinstance(result, str)
+        assert result == expected
 
 
 def test_list_publisher_model_deploy_options_concise_multiple(mock_client):
-  """Tests concise formatting of multiple options separated by a blank line."""
-  dummy_model = _make_model_with_deploy_options(
+    """Tests concise formatting of multiple options separated by a blank line."""
+    dummy_model = _make_model_with_deploy_options(
         [
             _make_deploy_option(
                 deploy_task_name="g2",
@@ -1036,74 +1038,72 @@ def test_list_publisher_model_deploy_options_concise_multiple(mock_client):
         ]
     )
 
-  with mock.patch.object(
-      mock_client, "_get_publisher_model", return_value=dummy_model
-  ):
-    result = mock_client.list_publisher_model_deploy_options(
-        model="publishers/google/models/gemma-2b@001",
-        config=types.ListPublisherModelDeployOptionsConfig(concise=True),
-    )
+    with mock.patch.object(
+        mock_client, "_get_publisher_model", return_value=dummy_model
+    ):
+        result = mock_client.list_publisher_model_deploy_options(
+            model="publishers/google/models/gemma-2b@001",
+            config=types.ListPublisherModelDeployOptionsConfig(concise=True),
+        )
 
-    expected = (
-        "[Option 1: g2]\n"
-        '    serving_container_image_uri="docker/vllm",\n'
-        '    machine_type="g2-standard-12",\n'
-        '    accelerator_type="NVIDIA_L4",\n'
-        "    accelerator_count=1,"
-        "\n\n"
-        "[Option 2: a3]\n"
-        '    serving_container_image_uri="docker/hexllm",\n'
-        '    machine_type="a3-highgpu-8g",\n'
-        '    accelerator_type="NVIDIA_H100_80GB",\n'
-        "    accelerator_count=8,"
-    )
-    assert result == expected
+        expected = (
+            "[Option 1: g2]\n"
+            '    serving_container_image_uri="docker/vllm",\n'
+            '    machine_type="g2-standard-12",\n'
+            '    accelerator_type="NVIDIA_L4",\n'
+            "    accelerator_count=1,"
+            "\n\n"
+            "[Option 2: a3]\n"
+            '    serving_container_image_uri="docker/hexllm",\n'
+            '    machine_type="a3-highgpu-8g",\n'
+            '    accelerator_type="NVIDIA_H100_80GB",\n'
+            "    accelerator_count=8,"
+        )
+        assert result == expected
 
 
 def test_list_publisher_model_deploy_options_concise_with_filter(mock_client):
-  """Tests concise output honors filters before formatting."""
-  dummy_model = _make_model_with_deploy_options(
+    """Tests concise output honors filters before formatting."""
+    dummy_model = _make_model_with_deploy_options(
         [
             _make_deploy_option(deploy_task_name="g2", machine_type="g2-standard-12"),
             _make_deploy_option(deploy_task_name="a3", machine_type="a3-highgpu-8g"),
         ]
     )
 
-  with mock.patch.object(
-      mock_client, "_get_publisher_model", return_value=dummy_model
-  ):
-    result = mock_client.list_publisher_model_deploy_options(
-        model="publishers/google/models/gemma-2b@001",
-        config=types.ListPublisherModelDeployOptionsConfig(
-            machine_type_filter="a3", concise=True
-        ),
-    )
+    with mock.patch.object(
+        mock_client, "_get_publisher_model", return_value=dummy_model
+    ):
+        result = mock_client.list_publisher_model_deploy_options(
+            model="publishers/google/models/gemma-2b@001",
+            config=types.ListPublisherModelDeployOptionsConfig(
+                machine_type_filter="a3", concise=True
+            ),
+        )
 
-    assert result.startswith("[Option 1: a3]")
-    assert "a3-highgpu-8g" in result
-    assert "g2-standard-12" not in result
+        assert result.startswith("[Option 1: a3]")
+        assert "a3-highgpu-8g" in result
+        assert "g2-standard-12" not in result
 
 
 def test_format_concise_deploy_options_omits_none_fields():
-  """Tests that None fields are omitted and the header has no name if unset."""
-  options = [
+    """Tests that None fields are omitted and the header has no name if unset."""
+    options = [
         types.DeployOption(
             machine_type="g2-standard-12",
             accelerator_count=1,
         )
     ]
-  result = model_garden.ModelGarden._format_concise_deploy_options(options)
-  expected = (
-        "[Option 1]\n"
-        '    machine_type="g2-standard-12",\n'
-        "    accelerator_count=1,"
+    result = model_garden.ModelGarden._format_concise_deploy_options(options)
+    expected = (
+        "[Option 1]\n" '    machine_type="g2-standard-12",\n' "    accelerator_count=1,"
     )
-  assert result == expected
+    assert result == expected
 
 
 def test_list_publisher_model_deploy_options_concise_async(mock_async_client):
-  """Tests the async client returns a concise string when requested."""
-  dummy_model = _make_model_with_deploy_options(
+    """Tests the async client returns a concise string when requested."""
+    dummy_model = _make_model_with_deploy_options(
         [
             _make_deploy_option(
                 deploy_task_name="option-1",
@@ -1115,287 +1115,625 @@ def test_list_publisher_model_deploy_options_concise_async(mock_async_client):
         ]
     )
 
-  with mock.patch.object(
+    with mock.patch.object(
         mock_async_client,
         "_get_publisher_model",
         new=mock.AsyncMock(return_value=dummy_model),
     ):
-    result = asyncio.run(
-        mock_async_client.list_publisher_model_deploy_options(
-            model="publishers/google/models/gemma-2b@001",
-            config=types.ListPublisherModelDeployOptionsConfig(concise=True),
+        result = asyncio.run(
+            mock_async_client.list_publisher_model_deploy_options(
+                model="publishers/google/models/gemma-2b@001",
+                config=types.ListPublisherModelDeployOptionsConfig(concise=True),
+            )
         )
-    )
 
-    assert isinstance(result, str)
-    assert result.startswith("[Option 1: option-1]")
+        assert isinstance(result, str)
+        assert result.startswith("[Option 1: option-1]")
 
 
 def test_list_custom_model_deploy_options_specs_path(mock_client):
-  """Tests the specs branch is extracted and formatted like the legacy SDK."""
-  dummy_response = types.RecommendSpecResponse(
-      specs=[
-          types.RecommendSpecResponseMachineAndModelContainerSpec(
-              machine_spec=types.MachineSpec(
-                  machine_type="g2-standard-12",
-                  accelerator_type="NVIDIA_L4",
-                  accelerator_count=1,
-              )
-          )
-      ]
-  )
-
-  with mock.patch.object(
-      mock_client, "_recommend_spec", return_value=dummy_response
-  ):
-    result = mock_client.list_custom_model_deploy_options(src="gs://weights")
-
-    expected = (
-        "[Option 1]\n"
-        '    machine_type="g2-standard-12",\n'
-        '    accelerator_type="NVIDIA_L4",\n'
-        "    accelerator_count=1"
+    """Tests the specs branch is extracted and formatted like the legacy SDK."""
+    dummy_response = types.RecommendSpecResponse(
+        specs=[
+            types.RecommendSpecResponseMachineAndModelContainerSpec(
+                machine_spec=types.MachineSpec(
+                    machine_type="g2-standard-12",
+                    accelerator_type="NVIDIA_L4",
+                    accelerator_count=1,
+                )
+            )
+        ]
     )
-    assert result == expected
+
+    with mock.patch.object(mock_client, "_recommend_spec", return_value=dummy_response):
+        result = mock_client.list_custom_model_deploy_options(src="gs://weights")
+
+        expected = (
+            "[Option 1]\n"
+            '    machine_type="g2-standard-12",\n'
+            '    accelerator_type="NVIDIA_L4",\n'
+            "    accelerator_count=1"
+        )
+        assert result == expected
 
 
 def test_list_custom_model_deploy_options_request_config(mock_client):
-  """Tests the parent, gcs_uri and RecommendSpecConfig are passed through."""
-  dummy_response = types.RecommendSpecResponse(
-      specs=[
-          types.RecommendSpecResponseMachineAndModelContainerSpec(
-              machine_spec=types.MachineSpec(machine_type="g2-standard-12")
-          )
-      ]
-  )
-
-  with mock.patch.object(
-      mock_client, "_recommend_spec", return_value=dummy_response
-  ) as mock_recommend:
-    mock_client.list_custom_model_deploy_options(src="gs://weights")
-
-    mock_recommend.assert_called_once_with(
-        parent=f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}",
-        gcs_uri="gs://weights",
-        config=types.RecommendSpecConfig(
-            check_machine_availability=True,
-            check_user_quota=True,
-        ),
+    """Tests the parent, gcs_uri and RecommendSpecConfig are passed through."""
+    dummy_response = types.RecommendSpecResponse(
+        specs=[
+            types.RecommendSpecResponseMachineAndModelContainerSpec(
+                machine_spec=types.MachineSpec(machine_type="g2-standard-12")
+            )
+        ]
     )
+
+    with mock.patch.object(
+        mock_client, "_recommend_spec", return_value=dummy_response
+    ) as mock_recommend:
+        mock_client.list_custom_model_deploy_options(src="gs://weights")
+
+        mock_recommend.assert_called_once_with(
+            parent=f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}",
+            gcs_uri="gs://weights",
+            config=types.RecommendSpecConfig(
+                check_machine_availability=True,
+                check_user_quota=True,
+            ),
+        )
 
 
 def test_list_custom_model_deploy_options_config_flags_forwarded(mock_client):
-  """Tests check_machine_availability/filter_by_user_quota map to the API config."""
-  dummy_response = types.RecommendSpecResponse(
-      specs=[
-          types.RecommendSpecResponseMachineAndModelContainerSpec(
-              machine_spec=types.MachineSpec(machine_type="g2-standard-12")
-          )
-      ]
-  )
+    """Tests check_machine_availability/filter_by_user_quota map to the API config."""
+    dummy_response = types.RecommendSpecResponse(
+        specs=[
+            types.RecommendSpecResponseMachineAndModelContainerSpec(
+                machine_spec=types.MachineSpec(machine_type="g2-standard-12")
+            )
+        ]
+    )
 
-  with mock.patch.object(
-      mock_client, "_recommend_spec", return_value=dummy_response
-  ) as mock_recommend:
-    mock_client.list_custom_model_deploy_options(
-        src="gs://weights",
-        config=types.ListCustomModelDeployOptionsConfig(
+    with mock.patch.object(
+        mock_client, "_recommend_spec", return_value=dummy_response
+    ) as mock_recommend:
+        mock_client.list_custom_model_deploy_options(
+            src="gs://weights",
+            config=types.ListCustomModelDeployOptionsConfig(
+                check_machine_availability=False,
+                filter_by_user_quota=False,
+            ),
+        )
+
+        _, kwargs = mock_recommend.call_args
+        assert kwargs["config"] == types.RecommendSpecConfig(
             check_machine_availability=False,
-            filter_by_user_quota=False,
-        ),
-    )
-
-    _, kwargs = mock_recommend.call_args
-    assert kwargs["config"] == types.RecommendSpecConfig(
-        check_machine_availability=False,
-        check_user_quota=False,
-    )
+            check_user_quota=False,
+        )
 
 
 def test_list_custom_model_deploy_options_recommendations_quota_filter(
     mock_client,
 ):
-  """Tests recommendations are filtered to QUOTA_STATE_USER_HAS_QUOTA by default."""
-  dummy_response = types.RecommendSpecResponse(
-      recommendations=[
-          types.RecommendSpecResponseRecommendation(
-              region="us-central1",
-              spec=types.RecommendSpecResponseMachineAndModelContainerSpec(
-                  machine_spec=types.MachineSpec(
-                      machine_type="g2-standard-12",
-                      accelerator_type="NVIDIA_L4",
-                      accelerator_count=1,
-                  )
-              ),
-              user_quota_state="QUOTA_STATE_USER_HAS_QUOTA",
-          ),
-          types.RecommendSpecResponseRecommendation(
-              region="us-west1",
-              spec=types.RecommendSpecResponseMachineAndModelContainerSpec(
-                  machine_spec=types.MachineSpec(
-                      machine_type="a3-highgpu-8g",
-                      accelerator_type="NVIDIA_H100_80GB",
-                      accelerator_count=8,
-                  )
-              ),
-              user_quota_state="QUOTA_STATE_NO_USER_QUOTA",
-          ),
-      ]
-  )
-
-  with mock.patch.object(
-      mock_client, "_recommend_spec", return_value=dummy_response
-  ):
-    result = mock_client.list_custom_model_deploy_options(src="gs://weights")
-
-    expected = (
-        "[Option 1]\n"
-        '    machine_type="g2-standard-12",\n'
-        '    accelerator_type="NVIDIA_L4",\n'
-        "    accelerator_count=1,\n"
-        '    region="us-central1",\n'
-        '    user_quota_state="QUOTA_STATE_USER_HAS_QUOTA"'
+    """Tests recommendations are filtered to QUOTA_STATE_USER_HAS_QUOTA by default."""
+    dummy_response = types.RecommendSpecResponse(
+        recommendations=[
+            types.RecommendSpecResponseRecommendation(
+                region="us-central1",
+                spec=types.RecommendSpecResponseMachineAndModelContainerSpec(
+                    machine_spec=types.MachineSpec(
+                        machine_type="g2-standard-12",
+                        accelerator_type="NVIDIA_L4",
+                        accelerator_count=1,
+                    )
+                ),
+                user_quota_state="QUOTA_STATE_USER_HAS_QUOTA",
+            ),
+            types.RecommendSpecResponseRecommendation(
+                region="us-west1",
+                spec=types.RecommendSpecResponseMachineAndModelContainerSpec(
+                    machine_spec=types.MachineSpec(
+                        machine_type="a3-highgpu-8g",
+                        accelerator_type="NVIDIA_H100_80GB",
+                        accelerator_count=8,
+                    )
+                ),
+                user_quota_state="QUOTA_STATE_NO_USER_QUOTA",
+            ),
+        ]
     )
-    assert result == expected
+
+    with mock.patch.object(mock_client, "_recommend_spec", return_value=dummy_response):
+        result = mock_client.list_custom_model_deploy_options(src="gs://weights")
+
+        expected = (
+            "[Option 1]\n"
+            '    machine_type="g2-standard-12",\n'
+            '    accelerator_type="NVIDIA_L4",\n'
+            "    accelerator_count=1,\n"
+            '    region="us-central1",\n'
+            '    user_quota_state="QUOTA_STATE_USER_HAS_QUOTA"'
+        )
+        assert result == expected
 
 
 def test_list_custom_model_deploy_options_recommendations_no_quota_filter(
     mock_client,
 ):
-  """Tests filter_by_user_quota=False keeps every recommendation."""
-  dummy_response = types.RecommendSpecResponse(
-      recommendations=[
-          types.RecommendSpecResponseRecommendation(
-              region="us-central1",
-              spec=types.RecommendSpecResponseMachineAndModelContainerSpec(
-                  machine_spec=types.MachineSpec(machine_type="g2-standard-12")
-              ),
-              user_quota_state="QUOTA_STATE_USER_HAS_QUOTA",
-          ),
-          types.RecommendSpecResponseRecommendation(
-              region="us-west1",
-              spec=types.RecommendSpecResponseMachineAndModelContainerSpec(
-                  machine_spec=types.MachineSpec(machine_type="a3-highgpu-8g")
-              ),
-              user_quota_state="QUOTA_STATE_NO_USER_QUOTA",
-          ),
-      ]
-  )
-
-  with mock.patch.object(
-      mock_client, "_recommend_spec", return_value=dummy_response
-  ):
-    result = mock_client.list_custom_model_deploy_options(
-        src="gs://weights",
-        config=types.ListCustomModelDeployOptionsConfig(
-            filter_by_user_quota=False
-        ),
+    """Tests filter_by_user_quota=False keeps every recommendation."""
+    dummy_response = types.RecommendSpecResponse(
+        recommendations=[
+            types.RecommendSpecResponseRecommendation(
+                region="us-central1",
+                spec=types.RecommendSpecResponseMachineAndModelContainerSpec(
+                    machine_spec=types.MachineSpec(machine_type="g2-standard-12")
+                ),
+                user_quota_state="QUOTA_STATE_USER_HAS_QUOTA",
+            ),
+            types.RecommendSpecResponseRecommendation(
+                region="us-west1",
+                spec=types.RecommendSpecResponseMachineAndModelContainerSpec(
+                    machine_spec=types.MachineSpec(machine_type="a3-highgpu-8g")
+                ),
+                user_quota_state="QUOTA_STATE_NO_USER_QUOTA",
+            ),
+        ]
     )
 
-    assert "[Option 1]" in result
-    assert "[Option 2]" in result
-    assert "us-west1" in result
+    with mock.patch.object(mock_client, "_recommend_spec", return_value=dummy_response):
+        result = mock_client.list_custom_model_deploy_options(
+            src="gs://weights",
+            config=types.ListCustomModelDeployOptionsConfig(filter_by_user_quota=False),
+        )
+
+        assert "[Option 1]" in result
+        assert "[Option 2]" in result
+        assert "us-west1" in result
 
 
 def test_list_custom_model_deploy_options_src_required_raises(mock_client):
-  """Tests an empty src raises ValueError, matching the legacy SDK guard."""
-  with pytest.raises(ValueError, match="src must be specified"):
-    mock_client.list_custom_model_deploy_options(src="")
+    """Tests an empty src raises ValueError, matching the legacy SDK guard."""
+    with pytest.raises(ValueError, match="src must be specified"):
+        mock_client.list_custom_model_deploy_options(src="")
 
 
 def test_list_custom_model_deploy_options_empty_options_raises(mock_client):
-  """Tests an empty API response raises, matching the publisher-model sibling."""
-  dummy_response = types.RecommendSpecResponse(specs=[])
+    """Tests an empty API response raises, matching the publisher-model sibling."""
+    dummy_response = types.RecommendSpecResponse(specs=[])
 
-  with mock.patch.object(
-      mock_client, "_recommend_spec", return_value=dummy_response
-  ):
-    with pytest.raises(ValueError, match="No deploy options found"):
-      mock_client.list_custom_model_deploy_options(src="gs://weights")
+    with mock.patch.object(mock_client, "_recommend_spec", return_value=dummy_response):
+        with pytest.raises(ValueError, match="No deploy options found"):
+            mock_client.list_custom_model_deploy_options(src="gs://weights")
 
 
 def test_list_custom_model_deploy_options_quota_filter_empty_raises(
     mock_client,
 ):
-  """Tests filter_by_user_quota dropping every recommendation raises."""
-  dummy_response = types.RecommendSpecResponse(
-      recommendations=[
-          types.RecommendSpecResponseRecommendation(
-              region="us-central1",
-              spec=types.RecommendSpecResponseMachineAndModelContainerSpec(
-                  machine_spec=types.MachineSpec(machine_type="g2-standard-12")
-              ),
-              user_quota_state="QUOTA_STATE_NO_USER_QUOTA",
-          ),
-      ]
-  )
+    """Tests filter_by_user_quota dropping every recommendation raises."""
+    dummy_response = types.RecommendSpecResponse(
+        recommendations=[
+            types.RecommendSpecResponseRecommendation(
+                region="us-central1",
+                spec=types.RecommendSpecResponseMachineAndModelContainerSpec(
+                    machine_spec=types.MachineSpec(machine_type="g2-standard-12")
+                ),
+                user_quota_state="QUOTA_STATE_NO_USER_QUOTA",
+            ),
+        ]
+    )
 
-  with mock.patch.object(
-      mock_client, "_recommend_spec", return_value=dummy_response
-  ):
-    with pytest.raises(ValueError, match="No deploy options found"):
-      mock_client.list_custom_model_deploy_options(src="gs://weights")
+    with mock.patch.object(mock_client, "_recommend_spec", return_value=dummy_response):
+        with pytest.raises(ValueError, match="No deploy options found"):
+            mock_client.list_custom_model_deploy_options(src="gs://weights")
 
 
 def test_list_custom_model_deploy_options_dict_config(mock_client):
-  """Tests a dict config is validated into ListCustomModelDeployOptionsConfig."""
-  dummy_response = types.RecommendSpecResponse(
-      specs=[
-          types.RecommendSpecResponseMachineAndModelContainerSpec(
-              machine_spec=types.MachineSpec(machine_type="g2-standard-12")
-          )
-      ]
-  )
-
-  with mock.patch.object(
-      mock_client, "_recommend_spec", return_value=dummy_response
-  ) as mock_recommend:
-    mock_client.list_custom_model_deploy_options(
-        src="gs://weights",
-        config={
-            "check_machine_availability": False,
-            "filter_by_user_quota": False,
-        },
+    """Tests a dict config is validated into ListCustomModelDeployOptionsConfig."""
+    dummy_response = types.RecommendSpecResponse(
+        specs=[
+            types.RecommendSpecResponseMachineAndModelContainerSpec(
+                machine_spec=types.MachineSpec(machine_type="g2-standard-12")
+            )
+        ]
     )
 
-    _, kwargs = mock_recommend.call_args
-    assert kwargs["config"] == types.RecommendSpecConfig(
-        check_machine_availability=False,
-        check_user_quota=False,
-    )
+    with mock.patch.object(
+        mock_client, "_recommend_spec", return_value=dummy_response
+    ) as mock_recommend:
+        mock_client.list_custom_model_deploy_options(
+            src="gs://weights",
+            config={
+                "check_machine_availability": False,
+                "filter_by_user_quota": False,
+            },
+        )
+
+        _, kwargs = mock_recommend.call_args
+        assert kwargs["config"] == types.RecommendSpecConfig(
+            check_machine_availability=False,
+            check_user_quota=False,
+        )
 
 
 def test_list_custom_model_deploy_options_async(mock_async_client):
-  """Tests the async client returns the formatted deploy options string."""
-  dummy_response = types.RecommendSpecResponse(
-      specs=[
-          types.RecommendSpecResponseMachineAndModelContainerSpec(
-              machine_spec=types.MachineSpec(
-                  machine_type="g2-standard-12",
-                  accelerator_type="NVIDIA_L4",
-                  accelerator_count=1,
-              )
-          )
-      ]
-  )
-
-  with mock.patch.object(
-      mock_async_client,
-      "_recommend_spec",
-      new=mock.AsyncMock(return_value=dummy_response),
-  ):
-    result = asyncio.run(
-        mock_async_client.list_custom_model_deploy_options(src="gs://weights")
+    """Tests the async client returns the formatted deploy options string."""
+    dummy_response = types.RecommendSpecResponse(
+        specs=[
+            types.RecommendSpecResponseMachineAndModelContainerSpec(
+                machine_spec=types.MachineSpec(
+                    machine_type="g2-standard-12",
+                    accelerator_type="NVIDIA_L4",
+                    accelerator_count=1,
+                )
+            )
+        ]
     )
 
-    assert isinstance(result, str)
-    assert result.startswith("[Option 1]")
-    assert 'machine_type="g2-standard-12"' in result
+    with mock.patch.object(
+        mock_async_client,
+        "_recommend_spec",
+        new=mock.AsyncMock(return_value=dummy_response),
+    ):
+        result = asyncio.run(
+            mock_async_client.list_custom_model_deploy_options(src="gs://weights")
+        )
+
+        assert isinstance(result, str)
+        assert result.startswith("[Option 1]")
+        assert 'machine_type="g2-standard-12"' in result
 
 
 def test_list_custom_model_deploy_options_async_src_required_raises(
     mock_async_client,
 ):
-  """Tests the async client also validates src."""
-  with pytest.raises(ValueError, match="src must be specified"):
-    asyncio.run(mock_async_client.list_custom_model_deploy_options(src=""))
+    """Tests the async client also validates src."""
+    with pytest.raises(ValueError, match="src must be specified"):
+        asyncio.run(mock_async_client.list_custom_model_deploy_options(src=""))
+
+
+# ---- deploy_publisher_model tests -------------------------------------
+
+
+_OPEN_MODEL = "google/gemma3@gemma-3-12b-it"
+_HF_MODEL = "Meta-Llama/Llama-3.3-70B-Instruct"  # mixed case to exercise lowering
+
+
+def _make_deploy_operation(
+    endpoint="projects/p/locations/us-central1/endpoints/123",
+    model="projects/p/locations/us-central1/models/456",
+):
+    """Builds a fake DeployModelOperation for the private _deploy to return."""
+    return types.DeployModelOperation(
+        response=types.DeployResponse(endpoint=endpoint, model=model),
+    )
+
+
+def _patch_deploy(mock_client, op=None):
+    """Patches mock_client._deploy with a MagicMock returning ``op``."""
+    return mock.patch.object(
+        mock_client, "_deploy", return_value=op or _make_deploy_operation()
+    )
+
+
+def _patch_async_deploy(mock_client, op=None):
+    """Patches mock_async_client._deploy with an AsyncMock returning ``op``."""
+    return mock.patch.object(
+        mock_client,
+        "_deploy",
+        new=mock.AsyncMock(return_value=op or _make_deploy_operation()),
+    )
+
+
+# --- Model-name resolution ---------------------------------------------
+
+
+def test_deploy_publisher_model_simplified_name_reconciled(mock_client):
+    """Simplified '{publisher}/{model}@{version}' -> full resource name."""
+    with _patch_deploy(mock_client) as mock_deploy:
+        mock_client.deploy_publisher_model(model=_OPEN_MODEL)
+        kwargs = mock_deploy.call_args.kwargs
+        assert (
+            kwargs["publisher_model_name"]
+            == "publishers/google/models/gemma3@gemma-3-12b-it"
+        )
+        assert kwargs["hugging_face_model_id"] is None
+        assert kwargs["destination"] == (
+            f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
+        )
+
+
+def test_deploy_publisher_model_full_resource_name_preserved(mock_client):
+    """A full 'publishers/.../models/...@version' is passed through unchanged."""
+    with _patch_deploy(mock_client) as mock_deploy:
+        mock_client.deploy_publisher_model(
+            model="publishers/google/models/gemma3@gemma-3-12b-it"
+        )
+        assert (
+            mock_deploy.call_args.kwargs["publisher_model_name"]
+            == "publishers/google/models/gemma3@gemma-3-12b-it"
+        )
+
+
+def test_deploy_publisher_model_hugging_face_uses_hf_model_id(mock_client):
+    """HF IDs are lowercased and routed to huggingFaceModelId (legacy parity)."""
+    with _patch_deploy(mock_client) as mock_deploy:
+        mock_client.deploy_publisher_model(model=_HF_MODEL)
+        kwargs = mock_deploy.call_args.kwargs
+        assert kwargs["publisher_model_name"] is None
+        assert kwargs["hugging_face_model_id"] == "meta-llama/llama-3.3-70b-instruct"
+
+
+def test_deploy_publisher_model_invalid_name_raises_before_rpc(mock_client):
+    """Malformed model names raise ValueError; no RPC is issued."""
+    with mock.patch.object(mock_client, "_deploy") as mock_deploy:
+        with pytest.raises(ValueError, match="not a valid publisher model name"):
+            mock_client.deploy_publisher_model(model="not-a-valid-name")
+        mock_deploy.assert_not_called()
+
+
+# --- Config translation to DeployRequest sub-messages -------------------
+
+
+def test_deploy_publisher_model_default_config_no_optional_blocks(mock_client):
+    """Empty config -> no DedicatedResources, no ContainerSpec, no PSC."""
+    with _patch_deploy(mock_client) as mock_deploy:
+        mock_client.deploy_publisher_model(model=_OPEN_MODEL)
+        kwargs = mock_deploy.call_args.kwargs
+        assert kwargs["deploy_config"].dedicated_resources is None
+        assert kwargs["model_config_val"].container_spec is None
+        assert kwargs["endpoint_config"].dedicated_endpoint_enabled is None
+        assert kwargs["endpoint_config"].private_service_connect_config is None
+
+
+def test_deploy_publisher_model_dict_config_validated(mock_client):
+    """A plain dict is validated into DeployPublisherModelConfig."""
+    with _patch_deploy(mock_client) as mock_deploy:
+        mock_client.deploy_publisher_model(
+            model=_OPEN_MODEL,
+            config={"machine_type": "g2-standard-12", "accept_eula": True},
+        )
+        kwargs = mock_deploy.call_args.kwargs
+        assert kwargs["model_config_val"].accept_eula is True
+        assert (
+            kwargs["deploy_config"].dedicated_resources.machine_spec.machine_type
+            == "g2-standard-12"
+        )
+
+
+def test_deploy_publisher_model_machine_replica_and_spot_forwarded(mock_client):
+    """machine_type/accelerator/replicas/spot populate DedicatedResources."""
+    with _patch_deploy(mock_client) as mock_deploy:
+        mock_client.deploy_publisher_model(
+            model=_OPEN_MODEL,
+            config=types.DeployPublisherModelConfig(
+                machine_type="g2-standard-12",
+                accelerator_type="NVIDIA_L4",
+                accelerator_count=1,
+                min_replica_count=2,
+                max_replica_count=5,
+                spot=True,
+            ),
+        )
+        dr = mock_deploy.call_args.kwargs["deploy_config"].dedicated_resources
+        assert dr.machine_spec.machine_type == "g2-standard-12"
+        assert dr.machine_spec.accelerator_type == "NVIDIA_L4"
+        assert dr.machine_spec.accelerator_count == 1
+        assert dr.min_replica_count == 2
+        assert dr.max_replica_count == 5
+        assert dr.spot is True
+
+
+def test_deploy_publisher_model_accelerator_only_triggers_dedicated_resources(
+    mock_client,
+):
+    """A single machine-shape field (accelerator_type) is enough to send DedicatedResources."""
+    with _patch_deploy(mock_client) as mock_deploy:
+        mock_client.deploy_publisher_model(
+            model=_OPEN_MODEL,
+            config=types.DeployPublisherModelConfig(accelerator_type="NVIDIA_L4"),
+        )
+        dr = mock_deploy.call_args.kwargs["deploy_config"].dedicated_resources
+        assert dr is not None
+        assert dr.machine_spec.accelerator_type == "NVIDIA_L4"
+
+
+def test_deploy_publisher_model_dedicated_endpoint_disabled_inverts(
+    mock_client,
+):
+    """dedicated_endpoint_disabled=True maps to dedicated_endpoint_enabled=False on wire."""
+    with _patch_deploy(mock_client) as mock_deploy:
+        mock_client.deploy_publisher_model(
+            model=_OPEN_MODEL,
+            config=types.DeployPublisherModelConfig(dedicated_endpoint_disabled=True),
+        )
+        assert (
+            mock_deploy.call_args.kwargs["endpoint_config"].dedicated_endpoint_enabled
+            is False
+        )
+
+
+def test_deploy_publisher_model_dedicated_endpoint_disabled_false_maps_to_true(
+    mock_client,
+):
+    """dedicated_endpoint_disabled=False maps to dedicated_endpoint_enabled=True."""
+    with _patch_deploy(mock_client) as mock_deploy:
+        mock_client.deploy_publisher_model(
+            model=_OPEN_MODEL,
+            config=types.DeployPublisherModelConfig(dedicated_endpoint_disabled=False),
+        )
+        assert (
+            mock_deploy.call_args.kwargs["endpoint_config"].dedicated_endpoint_enabled
+            is True
+        )
+
+
+def test_deploy_publisher_model_private_service_connect(mock_client):
+    """PSC fields populate PrivateServiceConnectConfig."""
+    with _patch_deploy(mock_client) as mock_deploy:
+        mock_client.deploy_publisher_model(
+            model=_OPEN_MODEL,
+            config=types.DeployPublisherModelConfig(
+                enable_private_service_connect=True,
+                psc_project_allow_list=["project-a", "project-b"],
+            ),
+        )
+        psc = mock_deploy.call_args.kwargs[
+            "endpoint_config"
+        ].private_service_connect_config
+        assert psc.enable_private_service_connect is True
+        assert psc.project_allowlist == ["project-a", "project-b"]
+
+
+def test_deploy_publisher_model_private_service_connect_without_allowlist(
+    mock_client,
+):
+    """PSC without an allowlist is allowed (backend applies its own default)."""
+    with _patch_deploy(mock_client) as mock_deploy:
+        mock_client.deploy_publisher_model(
+            model=_OPEN_MODEL,
+            config=types.DeployPublisherModelConfig(
+                enable_private_service_connect=True,
+            ),
+        )
+        psc = mock_deploy.call_args.kwargs[
+            "endpoint_config"
+        ].private_service_connect_config
+        assert psc.enable_private_service_connect is True
+        assert psc.project_allowlist is None
+
+
+def test_deploy_publisher_model_custom_container_spec(mock_client):
+    """image_uri + command + args + variables all populate ModelContainerSpec."""
+    with _patch_deploy(mock_client) as mock_deploy:
+        mock_client.deploy_publisher_model(
+            model=_OPEN_MODEL,
+            config=types.DeployPublisherModelConfig(
+                serving_container_image_uri="us-docker.pkg.dev/vertex-ai/vllm",
+                container_command=["python", "-m", "vllm.entrypoints.api_server"],
+                container_args=["--tensor-parallel-size=2"],
+                container_variables={"MODEL_ID": "gemma-3-12b-it"},
+            ),
+        )
+        spec = mock_deploy.call_args.kwargs["model_config_val"].container_spec
+        assert spec.image_uri == "us-docker.pkg.dev/vertex-ai/vllm"
+        assert spec.command == ["python", "-m", "vllm.entrypoints.api_server"]
+        assert spec.args == ["--tensor-parallel-size=2"]
+        assert spec.env == [types.EnvVar(name="MODEL_ID", value="gemma-3-12b-it")]
+
+
+def test_deploy_publisher_model_container_image_without_variables_leaves_env_none(
+    mock_client,
+):
+    """serving_container_image_uri alone -> container_spec set, env stays None."""
+    with _patch_deploy(mock_client) as mock_deploy:
+        mock_client.deploy_publisher_model(
+            model=_OPEN_MODEL,
+            config=types.DeployPublisherModelConfig(
+                serving_container_image_uri="us-docker.pkg.dev/vertex-ai/vllm",
+            ),
+        )
+        spec = mock_deploy.call_args.kwargs["model_config_val"].container_spec
+        assert spec.image_uri == "us-docker.pkg.dev/vertex-ai/vllm"
+        assert spec.env is None
+
+
+def test_deploy_publisher_model_container_variables_without_image_ignored(
+    mock_client,
+):
+    """container_variables without serving_container_image_uri -> no container_spec."""
+    with _patch_deploy(mock_client) as mock_deploy:
+        mock_client.deploy_publisher_model(
+            model=_OPEN_MODEL,
+            config=types.DeployPublisherModelConfig(
+                container_variables={"FOO": "bar"},
+            ),
+        )
+        assert mock_deploy.call_args.kwargs["model_config_val"].container_spec is None
+
+
+def test_deploy_publisher_model_display_names_and_fast_tryout(mock_client):
+    """endpoint/model display names and fast_tryout_enabled land on the right sub-messages."""
+    with _patch_deploy(mock_client) as mock_deploy:
+        mock_client.deploy_publisher_model(
+            model=_OPEN_MODEL,
+            config=types.DeployPublisherModelConfig(
+                endpoint_display_name="my-endpoint",
+                model_display_name="my-model",
+                fast_tryout_enabled=True,
+            ),
+        )
+        kwargs = mock_deploy.call_args.kwargs
+        assert kwargs["endpoint_config"].endpoint_display_name == "my-endpoint"
+        assert kwargs["model_config_val"].model_display_name == "my-model"
+        assert kwargs["deploy_config"].fast_tryout_enabled is True
+
+
+def test_deploy_publisher_model_forwards_eula_and_hf_token(mock_client):
+    """accept_eula and hugging_face_access_token land on model_config."""
+    with _patch_deploy(mock_client) as mock_deploy:
+        mock_client.deploy_publisher_model(
+            model=_HF_MODEL,
+            config=types.DeployPublisherModelConfig(
+                accept_eula=True,
+                hugging_face_access_token="hf_token_xyz",
+            ),
+        )
+        model_config = mock_deploy.call_args.kwargs["model_config_val"]
+        assert model_config.accept_eula is True
+        assert model_config.hugging_face_access_token == "hf_token_xyz"
+
+
+def test_deploy_publisher_model_returns_operation(mock_client):
+    """_deploy's return value is returned unchanged (with endpoint/model in response)."""
+    op = _make_deploy_operation(
+        endpoint="projects/p/locations/us-central1/endpoints/e-1",
+        model="projects/p/locations/us-central1/models/m-1",
+    )
+    with _patch_deploy(mock_client, op=op):
+        result = mock_client.deploy_publisher_model(model=_OPEN_MODEL)
+        assert result is op
+        assert (
+            result.response.endpoint == "projects/p/locations/us-central1/endpoints/e-1"
+        )
+        assert result.response.model == "projects/p/locations/us-central1/models/m-1"
+
+
+# --- Async surface -----------------------------------------------------
+
+
+def test_deploy_publisher_model_async_publisher(mock_async_client):
+    """AsyncModelGarden.deploy_publisher_model routes to _deploy identically."""
+    with _patch_async_deploy(mock_async_client) as mock_deploy:
+        result = asyncio.run(
+            mock_async_client.deploy_publisher_model(
+                model=_OPEN_MODEL,
+                config=types.DeployPublisherModelConfig(machine_type="g2-standard-12"),
+            )
+        )
+        kwargs = mock_deploy.call_args.kwargs
+        assert isinstance(result, types.DeployModelOperation)
+        assert (
+            kwargs["publisher_model_name"]
+            == "publishers/google/models/gemma3@gemma-3-12b-it"
+        )
+        assert (
+            kwargs["deploy_config"].dedicated_resources.machine_spec.machine_type
+            == "g2-standard-12"
+        )
+
+
+def test_deploy_publisher_model_async_hugging_face(mock_async_client):
+    """Async HF path also lowercases and routes to hugging_face_model_id."""
+    with _patch_async_deploy(mock_async_client) as mock_deploy:
+        asyncio.run(mock_async_client.deploy_publisher_model(model=_HF_MODEL))
+        kwargs = mock_deploy.call_args.kwargs
+        assert kwargs["publisher_model_name"] is None
+        assert kwargs["hugging_face_model_id"] == "meta-llama/llama-3.3-70b-instruct"
+
+
+def test_deploy_publisher_model_async_invalid_name_raises(mock_async_client):
+    """Async invalid model name raises ValueError before any RPC."""
+    with mock.patch.object(mock_async_client, "_deploy") as mock_deploy:
+        with pytest.raises(ValueError, match="not a valid publisher model name"):
+            asyncio.run(
+                mock_async_client.deploy_publisher_model(model="not-a-valid-name")
+            )
+        mock_deploy.assert_not_called()

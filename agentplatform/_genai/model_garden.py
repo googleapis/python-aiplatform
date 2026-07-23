@@ -30,6 +30,43 @@ from . import types
 logger = logging.getLogger("agentplatform_genai.modelgarden")
 
 
+def _DeployRequestParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["destination"]) is not None:
+        setv(to_object, ["_url", "destination"], getv(from_object, ["destination"]))
+
+    if getv(from_object, ["publisher_model_name"]) is not None:
+        setv(
+            to_object,
+            ["publisherModelName"],
+            getv(from_object, ["publisher_model_name"]),
+        )
+
+    if getv(from_object, ["hugging_face_model_id"]) is not None:
+        setv(
+            to_object,
+            ["huggingFaceModelId"],
+            getv(from_object, ["hugging_face_model_id"]),
+        )
+
+    if getv(from_object, ["custom_model"]) is not None:
+        setv(to_object, ["customModel"], getv(from_object, ["custom_model"]))
+
+    if getv(from_object, ["model_config_val"]) is not None:
+        setv(to_object, ["modelConfig"], getv(from_object, ["model_config_val"]))
+
+    if getv(from_object, ["endpoint_config"]) is not None:
+        setv(to_object, ["endpointConfig"], getv(from_object, ["endpoint_config"]))
+
+    if getv(from_object, ["deploy_config"]) is not None:
+        setv(to_object, ["deployConfig"], getv(from_object, ["deploy_config"]))
+
+    return to_object
+
+
 def _GetPublisherModelConfig_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
@@ -377,6 +414,90 @@ class ModelGarden(_api_module.BaseModule):
         self._api_client._verify_response(return_value)
         return return_value
 
+    def _deploy(
+        self,
+        *,
+        destination: str,
+        publisher_model_name: Optional[str] = None,
+        hugging_face_model_id: Optional[str] = None,
+        custom_model: Optional[types.DeployRequestCustomModelOrDict] = None,
+        model_config_val: Optional[types.DeployRequestModelConfigOrDict] = None,
+        endpoint_config: Optional[types.DeployRequestEndpointConfigOrDict] = None,
+        deploy_config: Optional[types.DeployRequestDeployConfigOrDict] = None,
+        config: Optional[types.DeployConfigOrDict] = None,
+    ) -> types.DeployModelOperation:
+        """
+        Deploys a publisher or custom model (internal).
+        """
+
+        parameter_model = types._DeployRequestParameters(
+            destination=destination,
+            publisher_model_name=publisher_model_name,
+            hugging_face_model_id=hugging_face_model_id,
+            custom_model=custom_model,
+            model_config_val=model_config_val,
+            endpoint_config=endpoint_config,
+            deploy_config=deploy_config,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
+        else:
+            request_dict = _DeployRequestParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{destination}:deploy".format_map(request_url_dict)
+            else:
+                path = "{destination}:deploy"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = self._api_client.request("post", path, request_dict, http_options)
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.DeployModelOperation._from_response(
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
     @staticmethod
     def _build_filter_str(
         model_filter: Optional[str],
@@ -693,6 +814,84 @@ class ModelGarden(_api_module.BaseModule):
             blocks.append(header + "\n".join(lines))
         return "\n\n".join(blocks)
 
+    @staticmethod
+    def _resolve_deploy_model_name(model: str) -> tuple[Optional[str], Optional[str]]:
+        """Returns the ``(publisher_model_name, hugging_face_model_id)`` pair for a deploy call.
+
+        Exactly one element of the returned pair is set: HF model IDs (matched
+        by ``_is_hugging_face_model``) are sent as ``huggingFaceModelId`` and
+        lowercased for legacy parity; everything else is reconciled to the full
+        ``publishers/{pub}/models/{model}@{version}`` form.
+        """
+        if ModelGarden._is_hugging_face_model(model):
+            return None, model.lower()
+        return ModelGarden._reconcile_model_name(model), None
+
+    @staticmethod
+    def _build_container_spec(
+        config: types.DeployPublisherModelConfig,
+    ) -> Optional[types.ModelContainerSpec]:
+        """Returns a ``ModelContainerSpec`` when the user overrides the container, else None."""
+        if not config.serving_container_image_uri:
+            return None
+        env = None
+        variables = config.container_variables
+        if variables:
+            env = [types.EnvVar(name=k, value=v) for k, v in variables.items()]
+        return types.ModelContainerSpec(
+            image_uri=config.serving_container_image_uri,
+            command=config.container_command,
+            args=config.container_args,
+            env=env,
+        )
+
+    @staticmethod
+    def _prepare_deploy_request(
+        config: types.DeployPublisherModelConfig,
+    ) -> tuple[
+        types.DeployRequestModelConfig,
+        types.DeployRequestEndpointConfig,
+        types.DeployRequestDeployConfig,
+    ]:
+        """Translates ``DeployPublisherModelConfig`` to the three ``DeployRequest`` sub-messages."""
+        model_config = types.DeployRequestModelConfig(
+            accept_eula=config.accept_eula,
+            model_display_name=config.model_display_name,
+            hugging_face_access_token=config.hugging_face_access_token,
+            container_spec=ModelGarden._build_container_spec(config),
+        )
+
+        endpoint_config = types.DeployRequestEndpointConfig(
+            endpoint_display_name=config.endpoint_display_name,
+        )
+        disabled = config.dedicated_endpoint_disabled
+        if disabled is not None:
+            endpoint_config.dedicated_endpoint_enabled = not disabled
+        if config.enable_private_service_connect:
+            endpoint_config.private_service_connect_config = (
+                types.PrivateServiceConnectConfig(
+                    enable_private_service_connect=True,
+                    project_allowlist=config.psc_project_allow_list,
+                )
+            )
+
+        deploy_config = types.DeployRequestDeployConfig(
+            fast_tryout_enabled=config.fast_tryout_enabled,
+        )
+        if config.machine_type or config.accelerator_type or config.accelerator_count:
+            deploy_config.dedicated_resources = types.DedicatedResources(
+                machine_spec=types.MachineSpec(
+                    machine_type=config.machine_type,
+                    accelerator_type=config.accelerator_type,
+                    accelerator_count=config.accelerator_count,
+                ),
+                min_replica_count=config.min_replica_count,
+                max_replica_count=config.max_replica_count,
+                spot=config.spot,
+            )
+
+        return model_config, endpoint_config, deploy_config
+
     def _list_all_publisher_models(
         self,
         api_config: types.ListPublisherModelsConfig,
@@ -880,6 +1079,58 @@ class ModelGarden(_api_module.BaseModule):
             return self._format_concise_deploy_options(options)
 
         return options
+
+    def deploy_publisher_model(
+        self,
+        *,
+        model: str,
+        config: Optional[types.DeployPublisherModelConfigOrDict] = None,
+    ) -> types.DeployModelOperation:
+        """Deploys a Model Garden publisher model to a Vertex AI endpoint.
+
+        Supports Google open models (e.g. ``'google/gemma3@gemma-3-12b-it'``),
+        partner publisher models (e.g. ``'ai21/jamba-large-1.6@001'``), and
+        Hugging Face model IDs (e.g. ``'meta-llama/Llama-3.3-70B-Instruct'``).
+
+        Args:
+          model: The publisher model to deploy. Accepts the full resource name
+            ``'publishers/{publisher}/models/{model}@{version}'``, a simplified
+            ``'{publisher}/{model}@{version}'`` (or without the ``@{version}``),
+            or a Hugging Face model ID ``'{organization}/{model}'``.
+          config: Optional deployment configuration. Accepts a
+            ``DeployPublisherModelConfig`` instance or an equivalent dict.
+
+        Returns:
+          A ``DeployModelOperation`` (long-running operation) whose response
+          carries the deployed ``endpoint`` and ``model`` resource names.
+
+        Raises:
+          ValueError: If ``model`` is not a valid publisher model name.
+        """
+        if config is None:
+            config = types.DeployPublisherModelConfig()
+        if isinstance(config, dict):
+            config = types.DeployPublisherModelConfig.model_validate(config)
+
+        publisher_model_name, hugging_face_model_id = (
+            ModelGarden._resolve_deploy_model_name(model)
+        )
+        model_config, endpoint_config, deploy_config = (
+            ModelGarden._prepare_deploy_request(config)
+        )
+        destination = (
+            f"projects/{self._api_client.project}/locations/"
+            f"{self._api_client.location}"
+        )
+
+        return self._deploy(
+            destination=destination,
+            publisher_model_name=publisher_model_name,
+            hugging_face_model_id=hugging_face_model_id,
+            model_config_val=model_config,
+            endpoint_config=endpoint_config,
+            deploy_config=deploy_config,
+        )
 
     @staticmethod
     def _extract_recommend_spec(spec) -> dict[str, Any]:
@@ -1256,6 +1507,92 @@ class AsyncModelGarden(_api_module.BaseModule):
         self._api_client._verify_response(return_value)
         return return_value
 
+    async def _deploy(
+        self,
+        *,
+        destination: str,
+        publisher_model_name: Optional[str] = None,
+        hugging_face_model_id: Optional[str] = None,
+        custom_model: Optional[types.DeployRequestCustomModelOrDict] = None,
+        model_config_val: Optional[types.DeployRequestModelConfigOrDict] = None,
+        endpoint_config: Optional[types.DeployRequestEndpointConfigOrDict] = None,
+        deploy_config: Optional[types.DeployRequestDeployConfigOrDict] = None,
+        config: Optional[types.DeployConfigOrDict] = None,
+    ) -> types.DeployModelOperation:
+        """
+        Deploys a publisher or custom model (internal).
+        """
+
+        parameter_model = types._DeployRequestParameters(
+            destination=destination,
+            publisher_model_name=publisher_model_name,
+            hugging_face_model_id=hugging_face_model_id,
+            custom_model=custom_model,
+            model_config_val=model_config_val,
+            endpoint_config=endpoint_config,
+            deploy_config=deploy_config,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
+        else:
+            request_dict = _DeployRequestParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{destination}:deploy".format_map(request_url_dict)
+            else:
+                path = "{destination}:deploy"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = await self._api_client.async_request(
+            "post", path, request_dict, http_options
+        )
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.DeployModelOperation._from_response(
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
     async def _list_all_publisher_models(
         self,
         api_config: types.ListPublisherModelsConfig,
@@ -1440,6 +1777,58 @@ class AsyncModelGarden(_api_module.BaseModule):
             return ModelGarden._format_concise_deploy_options(options)
 
         return options
+
+    async def deploy_publisher_model(
+        self,
+        *,
+        model: str,
+        config: Optional[types.DeployPublisherModelConfigOrDict] = None,
+    ) -> types.DeployModelOperation:
+        """Deploys a Model Garden publisher model to a Vertex AI endpoint.
+
+        Supports Google open models (e.g. ``'google/gemma3@gemma-3-12b-it'``),
+        partner publisher models (e.g. ``'ai21/jamba-large-1.6@001'``), and
+        Hugging Face model IDs (e.g. ``'meta-llama/Llama-3.3-70B-Instruct'``).
+
+        Args:
+          model: The publisher model to deploy. Accepts the full resource name
+            ``'publishers/{publisher}/models/{model}@{version}'``, a simplified
+            ``'{publisher}/{model}@{version}'`` (or without the ``@{version}``),
+            or a Hugging Face model ID ``'{organization}/{model}'``.
+          config: Optional deployment configuration. Accepts a
+            ``DeployPublisherModelConfig`` instance or an equivalent dict.
+
+        Returns:
+          A ``DeployModelOperation`` (long-running operation) whose response
+          carries the deployed ``endpoint`` and ``model`` resource names.
+
+        Raises:
+          ValueError: If ``model`` is not a valid publisher model name.
+        """
+        if config is None:
+            config = types.DeployPublisherModelConfig()
+        if isinstance(config, dict):
+            config = types.DeployPublisherModelConfig.model_validate(config)
+
+        publisher_model_name, hugging_face_model_id = (
+            ModelGarden._resolve_deploy_model_name(model)
+        )
+        model_config, endpoint_config, deploy_config = (
+            ModelGarden._prepare_deploy_request(config)
+        )
+        destination = (
+            f"projects/{self._api_client.project}/locations/"
+            f"{self._api_client.location}"
+        )
+
+        return await self._deploy(
+            destination=destination,
+            publisher_model_name=publisher_model_name,
+            hugging_face_model_id=hugging_face_model_id,
+            model_config_val=model_config,
+            endpoint_config=endpoint_config,
+            deploy_config=deploy_config,
+        )
 
     async def list_custom_model_deploy_options(
         self,
