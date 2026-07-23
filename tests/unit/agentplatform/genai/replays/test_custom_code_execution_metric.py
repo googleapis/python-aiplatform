@@ -79,6 +79,47 @@ def test_custom_code_execution(client, custom_metric):
         assert case_result.response_candidate_results is not None
 
 
+def test_custom_code_execution_with_region(client):
+    """Tests that code_execution_region is included in the custom code execution spec."""
+
+    prompts_df = pd.DataFrame({
+        "prompt": ["What is 2+2?", "What is 3+3?"],
+        "response": ["4", "5"],
+        "reference": ["4", "6"],
+    })
+
+    eval_dataset = types.EvaluationDataset(
+        eval_dataset_df=prompts_df,
+        candidate_name="test_model",
+    )
+
+    metric = types.CodeExecutionMetric(
+        name="my_custom_code_metric",
+        custom_function=CODE_SNIPPET,
+        code_execution_region="europe-west3",
+    )
+
+    evaluation_result = client.evals.evaluate(
+        dataset=eval_dataset,
+        metrics=[metric],
+    )
+
+    assert isinstance(evaluation_result, types.EvaluationResult)
+
+    assert evaluation_result.summary_metrics is not None
+    assert evaluation_result.summary_metrics
+    for summary in evaluation_result.summary_metrics:
+        assert isinstance(summary, types.AggregatedMetricResult)
+        assert summary.metric_name == "my_custom_code_metric"
+
+    assert evaluation_result.eval_case_results is not None
+    assert evaluation_result.eval_case_results
+    for case_result in evaluation_result.eval_case_results:
+        assert isinstance(case_result, types.EvalCaseResult)
+        assert case_result.eval_case_index is not None
+        assert case_result.response_candidate_results is not None
+
+
 @pytest.mark.parametrize(
     "custom_metric",
     [

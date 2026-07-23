@@ -1905,6 +1905,11 @@ class CodeExecutionMetric(Metric):
         description="""The Python function code to be executed on the server side.""",
     )
 
+    code_execution_region: Optional[str] = Field(
+        default=None,
+        description="""Optional. The region to use for code execution. If set, the Code Execution Sandbox will be invoked in the specified region regardless of the request's originating region. If unset, the request's originating region is used.""",
+    )
+
     # You can also add hand-written validators or methods here
     @field_validator("custom_function")
     @classmethod
@@ -2164,6 +2169,10 @@ class CustomCodeExecutionSpec(_common.BaseModel):
   Instance is the evaluation instance, any fields populated in the instance
   are available to the function as instance[field_name].""",
     )
+    code_execution_region: Optional[str] = Field(
+        default=None,
+        description="""Optional. The region to use for code execution. If set, the Code Execution Sandbox will be invoked in the specified region regardless of the request's originating region. Supported regions: us-central1, us-east1, us-east4, us-west1, us-west4, southamerica-east1, europe-west2, europe-west3, asia-east1, asia-south1, asia-southeast1. If unset, the request's originating region is used.""",
+    )
 
 
 class CustomCodeExecutionSpecDict(TypedDict, total=False):
@@ -2182,6 +2191,9 @@ class CustomCodeExecutionSpecDict(TypedDict, total=False):
   Please include this function signature in the code snippet.
   Instance is the evaluation instance, any fields populated in the instance
   are available to the function as instance[field_name]."""
+
+    code_execution_region: Optional[str]
+    """Optional. The region to use for code execution."""
 
 
 CustomCodeExecutionSpecOrDict = Union[
