@@ -72,9 +72,12 @@ def t_metrics(
         elif (
             hasattr(metric, "remote_custom_function") and metric.remote_custom_function
         ):
-            metric_payload_item["custom_code_execution_spec"] = {
+            spec: dict[str, Any] = {
                 "evaluation_function": metric.remote_custom_function
             }
+            if getattr(metric, "code_execution_region", None):
+                spec["code_execution_region"] = metric.code_execution_region
+            metric_payload_item["custom_code_execution_spec"] = spec
         elif (
             isinstance(metric, types.CodeExecutionMetric)
             or (
@@ -82,9 +85,10 @@ def t_metrics(
                 and isinstance(getattr(metric, "custom_function", None), str)
             )
         ) and getattr(metric, "custom_function", None):
-            metric_payload_item["custom_code_execution_spec"] = {
-                "evaluation_function": metric.custom_function
-            }
+            spec = {"evaluation_function": metric.custom_function}
+            if getattr(metric, "code_execution_region", None):
+                spec["code_execution_region"] = metric.code_execution_region
+            metric_payload_item["custom_code_execution_spec"] = spec
         # LLM-based metrics
         elif hasattr(metric, "prompt_template") and metric.prompt_template:
             llm_based_spec: dict[str, Any] = {
