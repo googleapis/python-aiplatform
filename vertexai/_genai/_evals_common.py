@@ -1939,6 +1939,53 @@ def _is_multi_turn_agent_simulation(
     )
 
 
+def _normalize_agent_event(event: Any) -> Any:
+    """Normalizes raw agent event dictionaries for AgentEvent validation."""
+    if not isinstance(event, dict):
+        return event
+    return {
+        key: value
+        for key, value in event.items()
+        if key in {"author", "content", "event_time", "state_delta", "active_tools"}
+    }
+
+
+def _normalize_conversation_turns(resp_item: Any) -> Any:
+    """Normalizes raw multi-turn responses for ConversationTurn validation."""
+    if not isinstance(resp_item, list):
+        return resp_item
+
+    turns = []
+    for turn_index, turn in enumerate(resp_item):
+        if not isinstance(turn, dict):
+            turns.append(turn)
+            continue
+
+        normalized_turn = {
+            key: value
+            for key, value in turn.items()
+            if key in {"turn_index", "turn_id", "events"}
+        }
+        if normalized_turn.get("turn_index") is None:
+            normalized_turn["turn_index"] = turn_index
+        if normalized_turn.get("turn_id") is None:
+            turn_id = turn.get("turn_id") or turn.get("id") or turn.get("invocation_id")
+            if turn_id is not None:
+                normalized_turn["turn_id"] = turn_id
+
+        if "events" in normalized_turn and normalized_turn["events"] is not None:
+            normalized_turn["events"] = [
+                _normalize_agent_event(event) for event in normalized_turn["events"]
+            ]
+        else:
+            event = _normalize_agent_event(turn)
+            if event:
+                normalized_turn["events"] = [event]
+
+        turns.append(normalized_turn)
+    return turns
+
+
 def _process_multi_turn_agent_response(
     resp_item: Any,
     agent_data_agents: Optional[dict[str, Any]],
@@ -1947,7 +1994,7 @@ def _process_multi_turn_agent_response(
     if isinstance(resp_item, dict) and "error" in resp_item:
         return json.dumps(resp_item)
     return types.evals.AgentData(
-        turns=resp_item,
+        turns=_normalize_conversation_turns(resp_item),
         agents=agent_data_agents,
     ).model_dump(exclude_unset=True)
 
