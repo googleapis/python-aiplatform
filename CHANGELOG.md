@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.163.0](https://github.com/googleapis/python-aiplatform/compare/v1.162.0...v1.163.0) (2026-07-24)
+
+
+### Features
+
+* GenAI Client(evals) - add create EvaluationExperiment ([07ade2e](https://github.com/googleapis/python-aiplatform/commit/07ade2e2384a6bd58b8de6b6e59647fda0d81b97))
+* GenAI Client(evals) - add get/list EvaluationExperiment ([52b1c24](https://github.com/googleapis/python-aiplatform/commit/52b1c24f5db291a190b5e1023d2128a700a36c71))
+
+
+### Bug Fixes
+
+* GenAI client - Resolve opentelemetry-resourcedetector-gcp dependency error ([a16fc0d](https://github.com/googleapis/python-aiplatform/commit/a16fc0df5472fc0ca6f063bb0b3c4cdb2995c131))
+
 ## [1.162.0](https://github.com/googleapis/python-aiplatform/compare/v1.161.0...v1.162.0) (2026-07-21)
 
 
