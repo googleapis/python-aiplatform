@@ -155,6 +155,9 @@ reasoning_engine_extra_require = [
     "opentelemetry-exporter-gcp-trace < 2",
     "opentelemetry-exporter-otlp-proto-http < 2",
     "opentelemetry-instrumentation-google-genai>=0.3b0, <1.0.0",
+    # TODO(b/538550724): update to stable version of
+    # opentelemetry-resourcedetector-gcp when it's released
+    "opentelemetry-resourcedetector-gcp>=1.5.0.dev0",
     "pydantic >= 2.11.1, < 3",
     "typing_extensions",
     "aiohttp",  # for ADK users to use aiohttp rather than httpx client
