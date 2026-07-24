@@ -88,6 +88,7 @@ CONTENT = _evals_constant.CONTENT
 PARTS = _evals_constant.PARTS
 USER_AUTHOR = _evals_constant.USER_AUTHOR
 AGENT_DATA = _evals_constant.AGENT_DATA
+_DEFAULT_CANDIDATE_NAME = _evals_constant.DEFAULT_CANDIDATE_NAME
 
 
 @contextlib.contextmanager
@@ -528,11 +529,11 @@ def _resolve_inference_configs(
         if inference_configs is None:
             inference_configs = {}
 
-        # We might have used "candidate-1" as a placeholder key in the caller,
-        # let's migrate it to the agent name, or if it doesn't exist, just create it.
-        if "candidate-1" in inference_configs:
+        # We might have used the default candidate name as a placeholder key
+        # in the caller; migrate it to the agent name.
+        if _DEFAULT_CANDIDATE_NAME in inference_configs:
             inference_configs[parsed_agent_info.name] = inference_configs.pop(
-                "candidate-1"
+                _DEFAULT_CANDIDATE_NAME
             )
 
         if parsed_agent_info.name not in inference_configs:

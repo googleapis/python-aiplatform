@@ -10869,6 +10869,10 @@ class TestCreateEvaluationRunGeminiAgent:
             == _TEST_GEMINI_AGENT
         )
         assert "agent_engine" not in agent_run_config
+        # agent_info.name overrides the default candidate name.
+        inference_configs = request_body["inferenceConfigs"]
+        assert "gemini-agent" in inference_configs
+        assert _evals_common._DEFAULT_CANDIDATE_NAME not in inference_configs
 
     def test_create_evaluation_run_agent_engine_does_not_set_gemini(self):
         evals_module = evals.Evals(api_client_=self.mock_api_client)
@@ -10896,6 +10900,140 @@ class TestCreateEvaluationRunGeminiAgent:
         agent_run_config = self._agent_run_config(request_body)
         assert "gemini_agent_config" not in agent_run_config
         assert agent_run_config["agent_engine"] == _TEST_AGENT_ENGINE
+        # agent_info.name overrides the default candidate name.
+        inference_configs = request_body["inferenceConfigs"]
+        assert "ae-agent" in inference_configs
+        assert _evals_common._DEFAULT_CANDIDATE_NAME not in inference_configs
+
+    def test_create_evaluation_run_gemini_agent_without_agent_info(self):
+        """Gemini agent resource alone triggers inference_configs auto-construction."""
+        evals_module = evals.Evals(api_client_=self.mock_api_client)
+
+        evals_module.create_evaluation_run(
+            dataset=agentplatform_genai_types.EvaluationRunDataSource(
+                evaluation_set="projects/123/locations/us-central1/evaluationSets/789"
+            ),
+            metrics=[
+                agentplatform_genai_types.EvaluationRunMetric(
+                    metric="multi_turn_task_success_v1",
+                    metric_config=agentplatform_genai_types.UnifiedMetric(
+                        predefined_metric_spec=genai_types.PredefinedMetricSpec(
+                            metric_spec_name="multi_turn_task_success_v1",
+                        )
+                    ),
+                )
+            ],
+            dest="gs://test-bucket/output",
+            agent=_TEST_GEMINI_AGENT,
+            # No agent_info provided.
+        )
+
+        request_body = self._get_create_run_body()
+        agent_run_config = self._agent_run_config(request_body)
+        assert (
+            agent_run_config["gemini_agent_config"]["gemini_agent"]
+            == _TEST_GEMINI_AGENT
+        )
+        assert "agent_engine" not in agent_run_config
+        # Default candidate name should match the constant.
+        inference_configs = request_body["inferenceConfigs"]
+        assert _evals_common._DEFAULT_CANDIDATE_NAME in inference_configs
+
+    def test_create_evaluation_run_no_agent_no_agent_info_no_inference(self):
+        """Without agent or agent_info, no inference_configs are auto-constructed."""
+        evals_module = evals.Evals(api_client_=self.mock_api_client)
+
+        evals_module.create_evaluation_run(
+            dataset=agentplatform_genai_types.EvaluationRunDataSource(
+                evaluation_set="projects/123/locations/us-central1/evaluationSets/789"
+            ),
+            metrics=[
+                agentplatform_genai_types.EvaluationRunMetric(
+                    metric="multi_turn_task_success_v1",
+                    metric_config=agentplatform_genai_types.UnifiedMetric(
+                        predefined_metric_spec=genai_types.PredefinedMetricSpec(
+                            metric_spec_name="multi_turn_task_success_v1",
+                        )
+                    ),
+                )
+            ],
+            dest="gs://test-bucket/output",
+            # No agent, no agent_info.
+        )
+
+        request_body = self._get_create_run_body()
+        assert "inferenceConfigs" not in request_body or not request_body.get(
+            "inferenceConfigs"
+        )
+
+    def test_create_evaluation_run_agent_engine_without_agent_info(self):
+        """Agent Engine resource alone triggers inference_configs auto-construction."""
+        evals_module = evals.Evals(api_client_=self.mock_api_client)
+
+        evals_module.create_evaluation_run(
+            dataset=agentplatform_genai_types.EvaluationRunDataSource(
+                evaluation_set="projects/123/locations/us-central1/evaluationSets/789"
+            ),
+            metrics=[
+                agentplatform_genai_types.EvaluationRunMetric(
+                    metric="multi_turn_task_success_v1",
+                    metric_config=agentplatform_genai_types.UnifiedMetric(
+                        predefined_metric_spec=genai_types.PredefinedMetricSpec(
+                            metric_spec_name="multi_turn_task_success_v1",
+                        )
+                    ),
+                )
+            ],
+            dest="gs://test-bucket/output",
+            agent=_TEST_AGENT_ENGINE,
+            # No agent_info provided.
+        )
+
+        request_body = self._get_create_run_body()
+        agent_run_config = self._agent_run_config(request_body)
+        assert agent_run_config["agent_engine"] == _TEST_AGENT_ENGINE
+        assert "gemini_agent_config" not in agent_run_config
+        # Default candidate name should match the constant.
+        inference_configs = request_body["inferenceConfigs"]
+        assert _evals_common._DEFAULT_CANDIDATE_NAME in inference_configs
+
+    @mock.patch.object(_evals_common, "_resolve_dataset")
+    def test_create_evaluation_run_uses_dataset_candidate_name(
+        self, mock_resolve_dataset
+    ):
+        """When dataset.candidate_name is set (e.g. from run_inference), the
+        inference_configs key should match it instead of using the default."""
+        mock_resolve_dataset.return_value = (
+            agentplatform_genai_types.EvaluationRunDataSource(
+                evaluation_set="projects/123/locations/us-central1/evaluationSets/789"
+            )
+        )
+        evals_module = evals.Evals(api_client_=self.mock_api_client)
+
+        evals_module.create_evaluation_run(
+            dataset=agentplatform_genai_types.EvaluationDataset(
+                eval_dataset_df=pd.DataFrame({"prompt": ["hello"]}),
+                candidate_name="my-agent-v2",
+            ),
+            metrics=[
+                agentplatform_genai_types.EvaluationRunMetric(
+                    metric="multi_turn_task_success_v1",
+                    metric_config=agentplatform_genai_types.UnifiedMetric(
+                        predefined_metric_spec=genai_types.PredefinedMetricSpec(
+                            metric_spec_name="multi_turn_task_success_v1",
+                        )
+                    ),
+                )
+            ],
+            dest="gs://test-bucket/output",
+            agent=_TEST_GEMINI_AGENT,
+            # No agent_info -- candidate name should come from dataset.
+        )
+
+        request_body = self._get_create_run_body()
+        inference_configs = request_body["inferenceConfigs"]
+        assert "my-agent-v2" in inference_configs
+        assert _evals_common._DEFAULT_CANDIDATE_NAME not in inference_configs
 
 
 class TestResolveInteractionsForDisplay:

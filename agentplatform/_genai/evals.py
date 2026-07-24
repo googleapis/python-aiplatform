@@ -3095,7 +3095,25 @@ class Evals(_api_module.BaseModule):
         if isinstance(config, dict):
             config = types.CreateEvaluationRunConfig.model_validate(config)
 
-        if agent_info and not inference_configs:
+        # Auto-construct inference_configs when agent_info is explicitly
+        # provided (existing behavior) OR an agent resource is provided
+        # (allows omitting agent_info for both Gemini Agents and Agent
+        # Engine). The server skips inference per-item when a
+        # CandidateResponse with a matching candidate name already exists,
+        # so it is safe to always send inference_configs.
+        _should_auto_infer = not inference_configs and (agent_info or agent)
+        if _should_auto_infer:
+            if not parsed_agent_info.name:
+                # Prefer the dataset's candidate_name (set by run_inference)
+                # so the inference_configs key matches the CandidateResponse
+                # and the server correctly skips already-completed items.
+                if (
+                    isinstance(dataset, types.EvaluationDataset)
+                    and dataset.candidate_name
+                ):
+                    parsed_agent_info.name = dataset.candidate_name
+                else:
+                    parsed_agent_info.name = _evals_common._DEFAULT_CANDIDATE_NAME
             parsed_user_simulator_config = (
                 evals_types.UserSimulatorConfig.model_validate(user_simulator_config)
                 if isinstance(user_simulator_config, dict)
@@ -3104,7 +3122,9 @@ class Evals(_api_module.BaseModule):
             if getattr(parsed_user_simulator_config, "max_turn", None) is None:
                 parsed_user_simulator_config.max_turn = 5
 
-            candidate_name = parsed_agent_info.name or "candidate-1"
+            candidate_name = (
+                parsed_agent_info.name or _evals_common._DEFAULT_CANDIDATE_NAME
+            )
             if agent and _evals_common._is_gemini_agent_resource(agent):
                 agent_run_config = types.AgentRunConfig(
                     gemini_agent_config=types.GeminiAgentConfig(gemini_agent=agent),
@@ -5163,7 +5183,25 @@ class AsyncEvals(_api_module.BaseModule):
         if isinstance(config, dict):
             config = types.CreateEvaluationRunConfig.model_validate(config)
 
-        if agent_info and not inference_configs:
+        # Auto-construct inference_configs when agent_info is explicitly
+        # provided (existing behavior) OR an agent resource is provided
+        # (allows omitting agent_info for both Gemini Agents and Agent
+        # Engine). The server skips inference per-item when a
+        # CandidateResponse with a matching candidate name already exists,
+        # so it is safe to always send inference_configs.
+        _should_auto_infer = not inference_configs and (agent_info or agent)
+        if _should_auto_infer:
+            if not parsed_agent_info.name:
+                # Prefer the dataset's candidate_name (set by run_inference)
+                # so the inference_configs key matches the CandidateResponse
+                # and the server correctly skips already-completed items.
+                if (
+                    isinstance(dataset, types.EvaluationDataset)
+                    and dataset.candidate_name
+                ):
+                    parsed_agent_info.name = dataset.candidate_name
+                else:
+                    parsed_agent_info.name = _evals_common._DEFAULT_CANDIDATE_NAME
             parsed_user_simulator_config = (
                 evals_types.UserSimulatorConfig.model_validate(user_simulator_config)
                 if isinstance(user_simulator_config, dict)
@@ -5172,7 +5210,9 @@ class AsyncEvals(_api_module.BaseModule):
             if getattr(parsed_user_simulator_config, "max_turn", None) is None:
                 parsed_user_simulator_config.max_turn = 5
 
-            candidate_name = parsed_agent_info.name or "candidate-1"
+            candidate_name = (
+                parsed_agent_info.name or _evals_common._DEFAULT_CANDIDATE_NAME
+            )
             if agent and _evals_common._is_gemini_agent_resource(agent):
                 agent_run_config = types.AgentRunConfig(
                     gemini_agent_config=types.GeminiAgentConfig(gemini_agent=agent),
