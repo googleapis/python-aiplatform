@@ -297,6 +297,10 @@ from .common import CreateEvaluationItemConfigOrDict
 from .common import CreateEvaluationMetricConfig
 from .common import CreateEvaluationMetricConfigDict
 from .common import CreateEvaluationMetricConfigOrDict
+from .common import CreateEvaluationExperimentConfig
+from .common import CreateEvaluationExperimentConfigDict
+from .common import CreateEvaluationExperimentConfigOrDict
+from .common import _CreateEvaluationExperimentParameters
 from .common import CreateEvaluationRunConfig
 from .common import CreateEvaluationRunConfigDict
 from .common import CreateEvaluationRunConfigOrDict
@@ -1617,6 +1621,9 @@ __all__ = [
     "AnalysisConfig",
     "AnalysisConfigDict",
     "AnalysisConfigOrDict",
+    "CreateEvaluationExperimentConfig",
+    "CreateEvaluationExperimentConfigDict",
+    "CreateEvaluationExperimentConfigOrDict",
     "CreateEvaluationRunConfig",
     "CreateEvaluationRunConfigDict",
     "CreateEvaluationRunConfigOrDict",
@@ -2798,6 +2805,7 @@ __all__ = [
     "_CreateAgentEngineTaskRequestParameters",
     "_AppendAgentEngineTaskEventRequestParameters",
     "_ListAgentEngineTaskEventsRequestParameters",
+    "_CreateEvaluationExperimentParameters",
     "_CreateEvaluationItemParameters",
     "_CreateEvaluationMetricParameters",
     "_CreateEvaluationRunParameters",

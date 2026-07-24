@@ -36,6 +36,7 @@ from .common import _CreateAgentEngineSessionRequestParameters
 from .common import _CreateAgentEngineTaskRequestParameters
 from .common import _CreateDatasetParameters
 from .common import _CreateDatasetVersionParameters
+from .common import _CreateEvaluationExperimentParameters
 from .common import _CreateEvaluationItemParameters
 from .common import _CreateEvaluationMetricParameters
 from .common import _CreateEvaluationRunParameters
@@ -342,6 +343,9 @@ from .common import CreateDatasetConfigOrDict
 from .common import CreateDatasetVersionConfig
 from .common import CreateDatasetVersionConfigDict
 from .common import CreateDatasetVersionConfigOrDict
+from .common import CreateEvaluationExperimentConfig
+from .common import CreateEvaluationExperimentConfigDict
+from .common import CreateEvaluationExperimentConfigOrDict
 from .common import CreateEvaluationItemConfig
 from .common import CreateEvaluationItemConfigDict
 from .common import CreateEvaluationItemConfigOrDict
@@ -2013,6 +2017,12 @@ __all__ = [
     "ListAgentEngineTaskEventsResponse",
     "ListAgentEngineTaskEventsResponseDict",
     "ListAgentEngineTaskEventsResponseOrDict",
+    "CreateEvaluationExperimentConfig",
+    "CreateEvaluationExperimentConfigDict",
+    "CreateEvaluationExperimentConfigOrDict",
+    "EvaluationExperiment",
+    "EvaluationExperimentDict",
+    "EvaluationExperimentOrDict",
     "CreateEvaluationItemConfig",
     "CreateEvaluationItemConfigDict",
     "CreateEvaluationItemConfigOrDict",
@@ -2337,9 +2347,6 @@ __all__ = [
     "GetEvaluationExperimentConfig",
     "GetEvaluationExperimentConfigDict",
     "GetEvaluationExperimentConfigOrDict",
-    "EvaluationExperiment",
-    "EvaluationExperimentDict",
-    "EvaluationExperimentOrDict",
     "GetEvaluationMetricConfig",
     "GetEvaluationMetricConfigDict",
     "GetEvaluationMetricConfigOrDict",
@@ -3669,10 +3676,10 @@ __all__ = [
     "VersionState",
     "QuotaState",
     "FeedbackType",
+    "EvaluationExperimentMergeStrategy",
     "EvaluationItemType",
     "SamplingMethod",
     "EvaluationRunState",
-    "EvaluationExperimentMergeStrategy",
     "OptimizeTarget",
     "MemoryMetadataMergeStrategy",
     "GenerateMemoriesResponseGeneratedMemoryAction",
@@ -3708,6 +3715,7 @@ __all__ = [
     "_CreateAgentEngineTaskRequestParameters",
     "_AppendAgentEngineTaskEventRequestParameters",
     "_ListAgentEngineTaskEventsRequestParameters",
+    "_CreateEvaluationExperimentParameters",
     "_CreateEvaluationItemParameters",
     "_CreateEvaluationMetricParameters",
     "_CreateEvaluationRunParameters",

@@ -1383,6 +1383,64 @@ ListAgentEngineTaskEventsResponseOrDict = Union[
 ]
 
 
+class CreateEvaluationExperimentConfig(_common.BaseModel):
+    """Config to create an evaluation experiment."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class CreateEvaluationExperimentConfigDict(TypedDict, total=False):
+    """Config to create an evaluation experiment."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+
+CreateEvaluationExperimentConfigOrDict = Union[
+    CreateEvaluationExperimentConfig, CreateEvaluationExperimentConfigDict
+]
+
+
+class _CreateEvaluationExperimentParameters(_common.BaseModel):
+    """Parameters for creating an evaluation experiment."""
+
+    display_name: Optional[str] = Field(default=None, description="""""")
+    labels: Optional[dict[str, str]] = Field(default=None, description="""""")
+    merge_strategy: Optional[EvaluationExperimentMergeStrategy] = Field(
+        default=None, description=""""""
+    )
+    metadata: Optional[dict[str, Any]] = Field(default=None, description="""""")
+    config: Optional[CreateEvaluationExperimentConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _CreateEvaluationExperimentParametersDict(TypedDict, total=False):
+    """Parameters for creating an evaluation experiment."""
+
+    display_name: Optional[str]
+    """"""
+
+    labels: Optional[dict[str, str]]
+    """"""
+
+    merge_strategy: Optional[EvaluationExperimentMergeStrategy]
+    """"""
+
+    metadata: Optional[dict[str, Any]]
+    """"""
+
+    config: Optional[CreateEvaluationExperimentConfigDict]
+    """"""
+
+
+_CreateEvaluationExperimentParametersOrDict = Union[
+    _CreateEvaluationExperimentParameters, _CreateEvaluationExperimentParametersDict
+]
+
+
 class CreateEvaluationItemConfig(_common.BaseModel):
     """Config to create an evaluation item."""
 
