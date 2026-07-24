@@ -83,6 +83,7 @@ from .common import _GetDatasetOperationParameters
 from .common import _GetDatasetParameters
 from .common import _GetDatasetVersionParameters
 from .common import _GetDeleteAgentEngineRuntimeRevisionOperationParameters
+from .common import _GetEvaluationExperimentParameters
 from .common import _GetEvaluationItemParameters
 from .common import _GetEvaluationMetricParameters
 from .common import _GetEvaluationRunParameters
@@ -107,6 +108,7 @@ from .common import _ListAgentEngineTaskEventsRequestParameters
 from .common import _ListAgentEngineTasksRequestParameters
 from .common import _ListDatasetsRequestParameters
 from .common import _ListDatasetVersionsRequestParameters
+from .common import _ListEvaluationExperimentsParameters
 from .common import _ListEvaluationMetricsParameters
 from .common import _ListMultimodalDatasetsRequestParameters
 from .common import _ListSandboxEnvironmentSnapshotsRequestParameters
@@ -612,6 +614,9 @@ from .common import GetDatasetOperationConfigOrDict
 from .common import GetDeleteAgentEngineRuntimeRevisionOperationConfig
 from .common import GetDeleteAgentEngineRuntimeRevisionOperationConfigDict
 from .common import GetDeleteAgentEngineRuntimeRevisionOperationConfigOrDict
+from .common import GetEvaluationExperimentConfig
+from .common import GetEvaluationExperimentConfigDict
+from .common import GetEvaluationExperimentConfigOrDict
 from .common import GetEvaluationItemConfig
 from .common import GetEvaluationItemConfigDict
 from .common import GetEvaluationItemConfigOrDict
@@ -715,6 +720,12 @@ from .common import ListDatasetsResponseOrDict
 from .common import ListDatasetVersionsResponse
 from .common import ListDatasetVersionsResponseDict
 from .common import ListDatasetVersionsResponseOrDict
+from .common import ListEvaluationExperimentsConfig
+from .common import ListEvaluationExperimentsConfigDict
+from .common import ListEvaluationExperimentsConfigOrDict
+from .common import ListEvaluationExperimentsResponse
+from .common import ListEvaluationExperimentsResponseDict
+from .common import ListEvaluationExperimentsResponseOrDict
 from .common import ListEvaluationMetricsConfig
 from .common import ListEvaluationMetricsConfigDict
 from .common import ListEvaluationMetricsConfigOrDict
@@ -2642,6 +2653,17 @@ __all__ = [
     "EvaluationExperimentDict",
     "EvaluationExperimentOrDict",
     "EvaluationExperimentMergeStrategy",
+    "GetEvaluationExperimentConfig",
+    "GetEvaluationExperimentConfigDict",
+    "GetEvaluationExperimentConfigOrDict",
+    "_GetEvaluationExperimentParameters",
+    "ListEvaluationExperimentsConfig",
+    "ListEvaluationExperimentsConfigDict",
+    "ListEvaluationExperimentsConfigOrDict",
+    "_ListEvaluationExperimentsParameters",
+    "ListEvaluationExperimentsResponse",
+    "ListEvaluationExperimentsResponseDict",
+    "ListEvaluationExperimentsResponseOrDict",
     "EvaluateDatasetConfig",
     "EvaluateDatasetConfigDict",
     "EvaluateDatasetConfigOrDict",

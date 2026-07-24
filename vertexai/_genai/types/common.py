@@ -19195,6 +19195,155 @@ class EvaluationExperimentDict(TypedDict, total=False):
 EvaluationExperimentOrDict = Union[EvaluationExperiment, EvaluationExperimentDict]
 
 
+class GetEvaluationExperimentConfig(_common.BaseModel):
+    """Config for getting an evaluation experiment."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class GetEvaluationExperimentConfigDict(TypedDict, total=False):
+    """Config for getting an evaluation experiment."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+
+GetEvaluationExperimentConfigOrDict = Union[
+    GetEvaluationExperimentConfig, GetEvaluationExperimentConfigDict
+]
+
+
+class _GetEvaluationExperimentParameters(_common.BaseModel):
+    """Parameters for getting an evaluation experiment."""
+
+    name: Optional[str] = Field(default=None, description="""""")
+    config: Optional[GetEvaluationExperimentConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _GetEvaluationExperimentParametersDict(TypedDict, total=False):
+    """Parameters for getting an evaluation experiment."""
+
+    name: Optional[str]
+    """"""
+
+    config: Optional[GetEvaluationExperimentConfigDict]
+    """"""
+
+
+_GetEvaluationExperimentParametersOrDict = Union[
+    _GetEvaluationExperimentParameters, _GetEvaluationExperimentParametersDict
+]
+
+
+class ListEvaluationExperimentsConfig(_common.BaseModel):
+    """Config for listing evaluation experiments."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    page_size: Optional[int] = Field(default=None, description="""""")
+    page_token: Optional[str] = Field(default=None, description="""""")
+    filter: Optional[str] = Field(
+        default=None,
+        description="""An expression for filtering the results of the request.
+      For field names both snake_case and camelCase are supported.
+      For more information about filter syntax, see
+      `AIP-160 <https://google.aip.dev/160>`_.""",
+    )
+    order_by: Optional[str] = Field(
+        default=None,
+        description="""A comma-separated list of fields to order by, sorted in ascending
+      order by default. Use ``desc`` after a field name for descending.
+      Example: ``"create_time desc"``.""",
+    )
+
+
+class ListEvaluationExperimentsConfigDict(TypedDict, total=False):
+    """Config for listing evaluation experiments."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+    page_size: Optional[int]
+    """"""
+
+    page_token: Optional[str]
+    """"""
+
+    filter: Optional[str]
+    """An expression for filtering the results of the request.
+      For field names both snake_case and camelCase are supported.
+      For more information about filter syntax, see
+      `AIP-160 <https://google.aip.dev/160>`_."""
+
+    order_by: Optional[str]
+    """A comma-separated list of fields to order by, sorted in ascending
+      order by default. Use ``desc`` after a field name for descending.
+      Example: ``"create_time desc"``."""
+
+
+ListEvaluationExperimentsConfigOrDict = Union[
+    ListEvaluationExperimentsConfig, ListEvaluationExperimentsConfigDict
+]
+
+
+class _ListEvaluationExperimentsParameters(_common.BaseModel):
+    """Parameters for listing evaluation experiments."""
+
+    config: Optional[ListEvaluationExperimentsConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _ListEvaluationExperimentsParametersDict(TypedDict, total=False):
+    """Parameters for listing evaluation experiments."""
+
+    config: Optional[ListEvaluationExperimentsConfigDict]
+    """"""
+
+
+_ListEvaluationExperimentsParametersOrDict = Union[
+    _ListEvaluationExperimentsParameters, _ListEvaluationExperimentsParametersDict
+]
+
+
+class ListEvaluationExperimentsResponse(_common.BaseModel):
+    """Response for listing evaluation experiments."""
+
+    sdk_http_response: Optional[genai_types.HttpResponse] = Field(
+        default=None, description="""Used to retain the full HTTP response."""
+    )
+    next_page_token: Optional[str] = Field(default=None, description="""""")
+    evaluation_experiments: Optional[list[EvaluationExperiment]] = Field(
+        default=None,
+        description="""List of evaluation experiments.
+      """,
+    )
+
+
+class ListEvaluationExperimentsResponseDict(TypedDict, total=False):
+    """Response for listing evaluation experiments."""
+
+    sdk_http_response: Optional[genai_types.HttpResponseDict]
+    """Used to retain the full HTTP response."""
+
+    next_page_token: Optional[str]
+    """"""
+
+    evaluation_experiments: Optional[list[EvaluationExperimentDict]]
+    """List of evaluation experiments.
+      """
+
+
+ListEvaluationExperimentsResponseOrDict = Union[
+    ListEvaluationExperimentsResponse, ListEvaluationExperimentsResponseDict
+]
+
+
 class RubricGroup(_common.BaseModel):
     """A group of rubrics.
 

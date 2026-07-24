@@ -4154,17 +4154,17 @@ class TestEvalsRunInference:
     @mock.patch.object(_evals_common, "_get_interactions_client")
     @mock.patch.object(_evals_utils, "EvalDatasetLoader")
     def test_run_inference_with_gemini_agent(
-        self, mock_eval_dataset_loader, mock_get_interactions_client,
-        mock_fetch_agent_config
+        self,
+        mock_eval_dataset_loader,
+        mock_get_interactions_client,
+        mock_fetch_agent_config,
     ):
         mock_fetch_agent_config.return_value = (
             agentplatform_genai_types.evals.AgentConfig(
                 agent_id="test-agent",
                 instruction="You are helpful.",
                 tools=[
-                    genai_types.Tool(
-                        code_execution=genai_types.ToolCodeExecution()
-                    ),
+                    genai_types.Tool(code_execution=genai_types.ToolCodeExecution()),
                 ],
             )
         )
@@ -4234,7 +4234,9 @@ class TestEvalsRunInference:
     @mock.patch.object(_evals_common, "_get_interactions_client")
     @mock.patch.object(_evals_utils, "EvalDatasetLoader")
     def test_run_inference_gemini_agent_continues_on_failure(
-        self, mock_eval_dataset_loader, mock_get_interactions_client,
+        self,
+        mock_eval_dataset_loader,
+        mock_get_interactions_client,
         mock_fetch_agent_config,
     ):
         mock_fetch_agent_config.return_value = (
@@ -7764,9 +7766,7 @@ class TestMergeResponseDatasets:
             ]
         )
 
-        with mock.patch.object(
-            _evals_data_converters, "logger"
-        ) as mock_logger:
+        with mock.patch.object(_evals_data_converters, "logger") as mock_logger:
             merged = _evals_data_converters.merge_evaluation_datasets([dataset])
 
         assert len(merged.eval_cases) == 1
@@ -7797,9 +7797,7 @@ class TestMergeResponseDatasets:
             ]
         )
 
-        with mock.patch.object(
-            _evals_data_converters, "logger"
-        ) as mock_logger:
+        with mock.patch.object(_evals_data_converters, "logger") as mock_logger:
             merged = _evals_data_converters.merge_evaluation_datasets(
                 [dataset_1, dataset_2]
             )
@@ -7845,9 +7843,7 @@ class TestMergeResponseDatasets:
             ]
         )
 
-        with mock.patch.object(
-            _evals_data_converters, "logger"
-        ) as mock_logger:
+        with mock.patch.object(_evals_data_converters, "logger") as mock_logger:
             merged = _evals_data_converters.merge_evaluation_datasets(
                 [dataset_interactions, dataset_response]
             )
@@ -11616,7 +11612,8 @@ class TestFetchAgentConfigDict:
         mock_api_client = mock.MagicMock()
         mock_api_client.request.return_value = self._make_api_response(agent_json)
         result = _evals_common._fetch_agent_config_dict(
-            mock_api_client, "projects/p/locations/l/agents/a",
+            mock_api_client,
+            "projects/p/locations/l/agents/a",
         )
         assert len(result.tools) == 1
         decls = result.tools[0].function_declarations
@@ -11630,13 +11627,18 @@ class TestFetchAgentConfigDict:
         mock_api_client = mock.MagicMock()
         mock_api_client.request.return_value = self._make_api_response(agent_json)
         result = _evals_common._fetch_agent_config_dict(
-            mock_api_client, "projects/p/locations/l/agents/a",
+            mock_api_client,
+            "projects/p/locations/l/agents/a",
         )
         assert len(result.tools) == 1
         names = {fd.name for fd in result.tools[0].function_declarations}
         assert names == {
-            "view_file", "create_file", "edit_file",
-            "list_dir", "delete_file", "move_file",
+            "view_file",
+            "create_file",
+            "edit_file",
+            "list_dir",
+            "delete_file",
+            "move_file",
         }
 
     def test_environment_adds_sandbox_tools(self):
@@ -11648,7 +11650,8 @@ class TestFetchAgentConfigDict:
         mock_api_client = mock.MagicMock()
         mock_api_client.request.return_value = self._make_api_response(agent_json)
         result = _evals_common._fetch_agent_config_dict(
-            mock_api_client, "projects/p/locations/l/agents/a",
+            mock_api_client,
+            "projects/p/locations/l/agents/a",
         )
         # code_execution + sandbox tool
         assert len(result.tools) == 2
@@ -11673,12 +11676,14 @@ class TestFetchAgentConfigDict:
         mock_api_client = mock.MagicMock()
         mock_api_client.request.return_value = self._make_api_response(agent_json)
         result = _evals_common._fetch_agent_config_dict(
-            mock_api_client, "projects/p/locations/l/agents/a",
+            mock_api_client,
+            "projects/p/locations/l/agents/a",
         )
         assert len(result.tools) == 2
         assert any(t.google_search is not None for t in result.tools)
         mcp_tool = [
-            t for t in result.tools
+            t
+            for t in result.tools
             if t.function_declarations
             and t.function_declarations[0].name == "mcp_server"
         ]
@@ -11698,9 +11703,7 @@ class TestFetchAgentConfigDict:
         try:
             from cloud.ai.platform.evaluation.utils import interaction_converter
         except ImportError:
-            pytest.skip(
-                "interaction_converter not available outside google3"
-            )
+            pytest.skip("interaction_converter not available outside google3")
         # pylint: enable=g-import-not-at-top
 
         # --- Built-in tool types: keys must match ---
@@ -11718,7 +11721,9 @@ class TestFetchAgentConfigDict:
         for tool_type in server_builtin_keys:
             server_names = {
                 fd.name
-                for fd in interaction_converter._BUILTIN_TOOL_FUNCTION_DECLARATIONS[tool_type]
+                for fd in interaction_converter._BUILTIN_TOOL_FUNCTION_DECLARATIONS[
+                    tool_type
+                ]
             }
             sdk_names = {
                 fd.name
@@ -11732,8 +11737,7 @@ class TestFetchAgentConfigDict:
 
         # --- Sandbox declarations: names must match ---
         server_sandbox_names = {
-            fd.name
-            for fd in interaction_converter.sandbox_function_declarations()
+            fd.name for fd in interaction_converter.sandbox_function_declarations()
         }
         sdk_sandbox_names = {
             fd.name for fd in _evals_builtin_tools.SANDBOX_DECLARATIONS
@@ -11743,3 +11747,89 @@ class TestFetchAgentConfigDict:
             f"  Server: {sorted(server_sandbox_names)}\n"
             f"  SDK:    {sorted(sdk_sandbox_names)}"
         )
+
+
+class TestGetEvaluationExperiment:
+
+    def setup_method(self, method):
+        self.mock_api_client = mock.MagicMock()
+        self.mock_api_client.vertexai = True
+        self.experiment_name = (
+            "projects/123/locations/us-central1/evaluationExperiments/456"
+        )
+        self.mock_response = mock.MagicMock()
+        self.mock_response.body = json.dumps(
+            {
+                "name": self.experiment_name,
+                "displayName": "my_experiment",
+                "evaluationRuns": [
+                    "projects/123/locations/us-central1/evaluationRuns/789"
+                ],
+            }
+        )
+        self.mock_api_client.request.return_value = self.mock_response
+
+    def test_get_evaluation_experiment_returns_experiment(self):
+        evals_module = evals.Evals(api_client_=self.mock_api_client)
+
+        experiment = evals_module.get_evaluation_experiment(name=self.experiment_name)
+
+        assert isinstance(experiment, agentplatform_genai_types.EvaluationExperiment)
+        assert experiment.name == self.experiment_name
+        assert experiment.display_name == "my_experiment"
+        assert experiment.evaluation_runs == [
+            "projects/123/locations/us-central1/evaluationRuns/789"
+        ]
+
+    def test_get_evaluation_experiment_uses_full_name_in_url(self):
+        evals_module = evals.Evals(api_client_=self.mock_api_client)
+
+        evals_module.get_evaluation_experiment(name=self.experiment_name)
+
+        self.mock_api_client.request.assert_called_once()
+        path = self.mock_api_client.request.call_args[0][1]
+        assert path == self.experiment_name
+
+
+class TestListEvaluationExperiments:
+
+    def setup_method(self, method):
+        self.mock_api_client = mock.MagicMock()
+        self.mock_api_client.vertexai = True
+        self.mock_response = mock.MagicMock()
+        self.mock_response.body = json.dumps(
+            {
+                "evaluationExperiments": [
+                    {
+                        "name": "projects/123/locations/us-central1/evaluationExperiments/1",
+                        "displayName": "exp_1",
+                    },
+                    {
+                        "name": "projects/123/locations/us-central1/evaluationExperiments/2",
+                        "displayName": "exp_2",
+                    },
+                ]
+            }
+        )
+        self.mock_api_client.request.return_value = self.mock_response
+
+    def test_list_evaluation_experiments_returns_experiments(self):
+        evals_module = evals.Evals(api_client_=self.mock_api_client)
+
+        response = evals_module.list_evaluation_experiments()
+
+        assert len(response.evaluation_experiments) == 2
+        assert response.evaluation_experiments[0].display_name == "exp_1"
+        assert response.evaluation_experiments[1].display_name == "exp_2"
+
+    def test_list_evaluation_experiments_passes_filter_and_order_by(self):
+        evals_module = evals.Evals(api_client_=self.mock_api_client)
+
+        evals_module.list_evaluation_experiments(
+            config={"filter": 'display_name="exp_1"', "order_by": "create_time desc"}
+        )
+
+        self.mock_api_client.request.assert_called_once()
+        path = self.mock_api_client.request.call_args[0][1]
+        assert path.startswith("evaluationExperiments?")
+        assert "orderBy=create_time+desc" in path
