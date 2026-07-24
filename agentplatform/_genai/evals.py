@@ -160,6 +160,13 @@ def _CreateEvaluationRunParameters_to_vertex(
             [item for item in getv(from_object, ["analysis_configs"])],
         )
 
+    if getv(from_object, ["evaluation_experiment"]) is not None:
+        setv(
+            to_object,
+            ["evaluationExperiment"],
+            getv(from_object, ["evaluation_experiment"]),
+        )
+
     return to_object
 
 
@@ -220,6 +227,20 @@ def _CustomCodeExecutionSpec_to_vertex(
             ["evaluation_function"],
             getv(from_object, ["remote_custom_function"]),
         )
+
+    return to_object
+
+
+def _DeleteEvaluationExperimentParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["name"]) is not None:
+        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
+
+    if getv(from_object, ["config"]) is not None:
+        setv(to_object, ["config"], getv(from_object, ["config"]))
 
     return to_object
 
@@ -1091,6 +1112,48 @@ def _UnifiedMetric_to_vertex(
     return to_object
 
 
+def _UpdateEvaluationExperimentConfig_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+
+    if getv(from_object, ["update_mask"]) is not None:
+        setv(
+            parent_object, ["_query", "updateMask"], getv(from_object, ["update_mask"])
+        )
+
+    if getv(from_object, ["display_name"]) is not None:
+        setv(parent_object, ["displayName"], getv(from_object, ["display_name"]))
+
+    if getv(from_object, ["labels"]) is not None:
+        setv(parent_object, ["labels"], getv(from_object, ["labels"]))
+
+    if getv(from_object, ["merge_strategy"]) is not None:
+        setv(parent_object, ["mergeStrategy"], getv(from_object, ["merge_strategy"]))
+
+    if getv(from_object, ["metadata"]) is not None:
+        setv(parent_object, ["metadata"], getv(from_object, ["metadata"]))
+
+    return to_object
+
+
+def _UpdateEvaluationExperimentParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["name"]) is not None:
+        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
+
+    if getv(from_object, ["config"]) is not None:
+        _UpdateEvaluationExperimentConfig_to_vertex(
+            getv(from_object, ["config"]), to_object
+        )
+
+    return to_object
+
+
 class Evals(_api_module.BaseModule):
 
     def create_evaluation_experiment(
@@ -1359,6 +1422,7 @@ class Evals(_api_module.BaseModule):
         ] = None,
         config: Optional[types.CreateEvaluationRunConfigOrDict] = None,
         analysis_configs: Optional[list[types.AnalysisConfigOrDict]] = None,
+        evaluation_experiment: Optional[str] = None,
     ) -> types.EvaluationRun:
         """
         Creates an EvaluationRun.
@@ -1373,6 +1437,7 @@ class Evals(_api_module.BaseModule):
             inference_configs=inference_configs,
             config=config,
             analysis_configs=analysis_configs,
+            evaluation_experiment=evaluation_experiment,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -1486,6 +1551,89 @@ class Evals(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.EvaluationSet._from_response(
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    def delete_evaluation_experiment(
+        self,
+        *,
+        name: str,
+        config: Optional[types.DeleteEvaluationExperimentConfigOrDict] = None,
+    ) -> types.DeleteEvaluationExperimentOperation:
+        """
+        Deletes an EvaluationExperiment.
+
+        Args:
+          name: The resource name of the EvaluationExperiment to delete. Format:
+            `projects/{project}/locations/{location}/evaluationExperiments/{evaluation_experiment}`
+          config: Optional configuration for the delete operation.
+
+        Returns:
+          The delete operation.
+
+        """
+
+        parameter_model = types._DeleteEvaluationExperimentParameters(
+            name=name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
+        else:
+            request_dict = _DeleteEvaluationExperimentParameters_to_vertex(
+                parameter_model
+            )
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{name}".format_map(request_url_dict)
+            else:
+                path = "{name}"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = self._api_client.request("delete", path, request_dict, http_options)
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.DeleteEvaluationExperimentOperation._from_response(
             response=response_dict,
             kwargs=(
                 {
@@ -2459,6 +2607,90 @@ class Evals(_api_module.BaseModule):
         self._api_client._verify_response(return_value)
         return return_value
 
+    def update_evaluation_experiment(
+        self,
+        *,
+        name: str,
+        config: Optional[types.UpdateEvaluationExperimentConfigOrDict] = None,
+    ) -> types.EvaluationExperiment:
+        """
+        Updates an EvaluationExperiment.
+
+        Args:
+          name: The resource name of the EvaluationExperiment to update. Format:
+            `projects/{project}/locations/{location}/evaluationExperiments/{evaluation_experiment}`
+          config: Optional configuration specifying the fields to update (e.g.
+            display_name, labels, merge_strategy, metadata) and the update_mask.
+
+        Returns:
+          The updated evaluation experiment.
+
+        """
+
+        parameter_model = types._UpdateEvaluationExperimentParameters(
+            name=name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
+        else:
+            request_dict = _UpdateEvaluationExperimentParameters_to_vertex(
+                parameter_model
+            )
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{name}".format_map(request_url_dict)
+            else:
+                path = "{name}"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = self._api_client.request("patch", path, request_dict, http_options)
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.EvaluationExperiment._from_response(
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
     def evaluate_instances(
         self,
         *,
@@ -2993,6 +3225,7 @@ class Evals(_api_module.BaseModule):
         metrics: list[types.EvaluationRunMetricOrDict],
         name: Optional[str] = None,
         display_name: Optional[str] = None,
+        evaluation_experiment: Optional[str] = None,
         agent_info: Optional[evals_types.AgentInfoOrDict] = None,
         agent: Optional[str] = None,
         user_simulator_config: Optional[evals_types.UserSimulatorConfigOrDict] = None,
@@ -3013,6 +3246,11 @@ class Evals(_api_module.BaseModule):
           metrics: The list of metrics to evaluate.
           name: The name of the evaluation run.
           display_name: The display name of the evaluation run.
+          evaluation_experiment: The resource name of an existing
+              EvaluationExperiment to group this run under. If omitted, a new
+              EvaluationExperiment is created automatically so the run is visible in
+              the Agent Platform UI. Pass an existing experiment name to group
+              multiple runs together.
           agent_info: The agent info to evaluate. Mutually exclusive with
               `inference_configs`.
           agent: The agent resource name in str type. Accepts either an Agent
@@ -3152,9 +3390,19 @@ class Evals(_api_module.BaseModule):
         )
         resolved_labels = _evals_common._add_evaluation_run_labels(labels, agent)
         resolved_name = name or f"evaluation_run_{uuid.uuid4()}"
+        resolved_experiment = evaluation_experiment
+        if resolved_experiment is None:
+            experiment_display_name = (
+                display_name or f"SDK Experiment {_evals_common._local_timestamp()}"
+            )
+            created_experiment = self.create_evaluation_experiment(
+                display_name=experiment_display_name
+            )
+            resolved_experiment = created_experiment.name
         return self._create_evaluation_run(
             name=resolved_name,
             display_name=display_name or resolved_name,
+            evaluation_experiment=resolved_experiment,
             data_source=resolved_dataset,
             evaluation_config=evaluation_config,
             inference_configs=resolved_inference_configs,
@@ -3796,6 +4044,7 @@ class AsyncEvals(_api_module.BaseModule):
         ] = None,
         config: Optional[types.CreateEvaluationRunConfigOrDict] = None,
         analysis_configs: Optional[list[types.AnalysisConfigOrDict]] = None,
+        evaluation_experiment: Optional[str] = None,
     ) -> types.EvaluationRun:
         """
         Creates an EvaluationRun.
@@ -3810,6 +4059,7 @@ class AsyncEvals(_api_module.BaseModule):
             inference_configs=inference_configs,
             config=config,
             analysis_configs=analysis_configs,
+            evaluation_experiment=evaluation_experiment,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -3927,6 +4177,91 @@ class AsyncEvals(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.EvaluationSet._from_response(
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    async def delete_evaluation_experiment(
+        self,
+        *,
+        name: str,
+        config: Optional[types.DeleteEvaluationExperimentConfigOrDict] = None,
+    ) -> types.DeleteEvaluationExperimentOperation:
+        """
+        Deletes an EvaluationExperiment.
+
+        Args:
+          name: The resource name of the EvaluationExperiment to delete. Format:
+            `projects/{project}/locations/{location}/evaluationExperiments/{evaluation_experiment}`
+          config: Optional configuration for the delete operation.
+
+        Returns:
+          The delete operation.
+
+        """
+
+        parameter_model = types._DeleteEvaluationExperimentParameters(
+            name=name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
+        else:
+            request_dict = _DeleteEvaluationExperimentParameters_to_vertex(
+                parameter_model
+            )
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{name}".format_map(request_url_dict)
+            else:
+                path = "{name}"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = await self._api_client.async_request(
+            "delete", path, request_dict, http_options
+        )
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.DeleteEvaluationExperimentOperation._from_response(
             response=response_dict,
             kwargs=(
                 {
@@ -4924,6 +5259,92 @@ class AsyncEvals(_api_module.BaseModule):
         self._api_client._verify_response(return_value)
         return return_value
 
+    async def update_evaluation_experiment(
+        self,
+        *,
+        name: str,
+        config: Optional[types.UpdateEvaluationExperimentConfigOrDict] = None,
+    ) -> types.EvaluationExperiment:
+        """
+        Updates an EvaluationExperiment.
+
+        Args:
+          name: The resource name of the EvaluationExperiment to update. Format:
+            `projects/{project}/locations/{location}/evaluationExperiments/{evaluation_experiment}`
+          config: Optional configuration specifying the fields to update (e.g.
+            display_name, labels, merge_strategy, metadata) and the update_mask.
+
+        Returns:
+          The updated evaluation experiment.
+
+        """
+
+        parameter_model = types._UpdateEvaluationExperimentParameters(
+            name=name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
+        else:
+            request_dict = _UpdateEvaluationExperimentParameters_to_vertex(
+                parameter_model
+            )
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{name}".format_map(request_url_dict)
+            else:
+                path = "{name}"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = await self._api_client.async_request(
+            "patch", path, request_dict, http_options
+        )
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.EvaluationExperiment._from_response(
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
     async def batch_evaluate(
         self,
         *,
@@ -5053,6 +5474,40 @@ class AsyncEvals(_api_module.BaseModule):
 
         return result
 
+    @_common.experimental_warning(
+        "The Vertex SDK GenAI evals.create_evaluation_experiment method is"
+        " experimental, and may change in future versions."
+    )
+    async def create_evaluation_experiment(
+        self,
+        *,
+        display_name: Optional[str] = None,
+        labels: Optional[dict[str, str]] = None,
+        merge_strategy: Optional[types.EvaluationExperimentMergeStrategy] = None,
+        metadata: Optional[dict[str, Any]] = None,
+        config: Optional[types.CreateEvaluationExperimentConfigOrDict] = None,
+    ) -> types.EvaluationExperiment:
+        """Creates an EvaluationExperiment.
+
+        Args:
+          display_name: The display name of the evaluation experiment.
+          labels: Labels for the evaluation experiment.
+          merge_strategy: Merge strategy for the evaluation experiment.
+          metadata: Metadata about the evaluation experiment, can be used by the
+            caller to store additional tracking information about the experiment.
+          config: Optional configuration for the create operation.
+
+        Returns:
+          The created evaluation experiment.
+        """
+        return await self._create_evaluation_experiment(
+            display_name=display_name,
+            labels=labels,
+            merge_strategy=merge_strategy,
+            metadata=metadata,
+            config=config,
+        )
+
     async def create_evaluation_run(
         self,
         *,
@@ -5061,6 +5516,7 @@ class AsyncEvals(_api_module.BaseModule):
         metrics: list[types.EvaluationRunMetricOrDict],
         name: Optional[str] = None,
         display_name: Optional[str] = None,
+        evaluation_experiment: Optional[str] = None,
         agent_info: Optional[evals_types.AgentInfo] = None,
         agent: Optional[str] = None,
         user_simulator_config: Optional[evals_types.UserSimulatorConfigOrDict] = None,
@@ -5081,6 +5537,11 @@ class AsyncEvals(_api_module.BaseModule):
           metrics: The list of metrics to evaluate.
           name: The name of the evaluation run.
           display_name: The display name of the evaluation run.
+          evaluation_experiment: The resource name of an existing
+              EvaluationExperiment to group this run under. If omitted, a new
+              EvaluationExperiment is created automatically so the run is visible in
+              the Agent Platform UI. Pass an existing experiment name to group
+              multiple runs together.
           agent_info: The agent info to evaluate. Mutually exclusive with
               `inference_configs`.
           agent: The agent resource name in str type. Accepts either an Agent
@@ -5220,10 +5681,20 @@ class AsyncEvals(_api_module.BaseModule):
         )
         resolved_labels = _evals_common._add_evaluation_run_labels(labels, agent)
         resolved_name = name or f"evaluation_run_{uuid.uuid4()}"
+        resolved_experiment = evaluation_experiment
+        if resolved_experiment is None:
+            experiment_display_name = (
+                display_name or f"SDK Experiment {_evals_common._local_timestamp()}"
+            )
+            created_experiment = await self.create_evaluation_experiment(
+                display_name=experiment_display_name
+            )
+            resolved_experiment = created_experiment.name
 
         result = await self._create_evaluation_run(
             name=resolved_name,
             display_name=display_name or resolved_name,
+            evaluation_experiment=resolved_experiment,
             data_source=resolved_dataset,
             evaluation_config=evaluation_config,
             inference_configs=resolved_inference_configs,

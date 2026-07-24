@@ -374,6 +374,17 @@ from .common import DeleteAgentEngineSessionOperationOrDict
 from .common import DeleteAgentEngineTaskConfig
 from .common import DeleteAgentEngineTaskConfigDict
 from .common import DeleteAgentEngineTaskConfigOrDict
+from .common import DeleteEvaluationExperimentConfig
+from .common import DeleteEvaluationExperimentConfigDict
+from .common import DeleteEvaluationExperimentConfigOrDict
+from .common import _DeleteEvaluationExperimentParameters
+from .common import DeleteEvaluationExperimentOperation
+from .common import DeleteEvaluationExperimentOperationDict
+from .common import DeleteEvaluationExperimentOperationOrDict
+from .common import UpdateEvaluationExperimentConfig
+from .common import UpdateEvaluationExperimentConfigDict
+from .common import UpdateEvaluationExperimentConfigOrDict
+from .common import _UpdateEvaluationExperimentParameters
 from .common import DeleteEvaluationMetricConfig
 from .common import DeleteEvaluationMetricConfigDict
 from .common import DeleteEvaluationMetricConfigOrDict
@@ -1693,6 +1704,15 @@ __all__ = [
     "EvaluationSet",
     "EvaluationSetDict",
     "EvaluationSetOrDict",
+    "DeleteEvaluationExperimentConfig",
+    "DeleteEvaluationExperimentConfigDict",
+    "DeleteEvaluationExperimentConfigOrDict",
+    "DeleteEvaluationExperimentOperation",
+    "DeleteEvaluationExperimentOperationDict",
+    "DeleteEvaluationExperimentOperationOrDict",
+    "UpdateEvaluationExperimentConfig",
+    "UpdateEvaluationExperimentConfigDict",
+    "UpdateEvaluationExperimentConfigOrDict",
     "DeleteEvaluationMetricConfig",
     "DeleteEvaluationMetricConfigDict",
     "DeleteEvaluationMetricConfigOrDict",
@@ -2810,6 +2830,7 @@ __all__ = [
     "_CreateEvaluationMetricParameters",
     "_CreateEvaluationRunParameters",
     "_CreateEvaluationSetParameters",
+    "_DeleteEvaluationExperimentParameters",
     "_DeleteEvaluationMetricParameters",
     "_EvaluateInstancesRequestParameters",
     "_GenerateUserScenariosParameters",
@@ -2884,6 +2905,7 @@ __all__ = [
     "_GetMultimodalDatasetParameters",
     "_GetMultimodalDatasetOperationParameters",
     "_ListMultimodalDatasetsRequestParameters",
+    "_UpdateEvaluationExperimentParameters",
     "_UpdateMultimodalDatasetParameters",
     "_CreateDatasetParameters",
     "_CreateDatasetVersionParameters",
