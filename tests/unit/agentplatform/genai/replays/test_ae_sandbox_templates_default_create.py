@@ -38,6 +38,17 @@ def test_sandbox_templates_default_create(client):
         sandbox_template_operation, types.SandboxEnvironmentTemplateOperation
     )
 
+    # Verify display_name is sent in the create request body. The replay client
+    # asserts the SDK's actual request matches this recorded request, so checking
+    # the recorded body confirms display_name is included rather than dropped
+    # (the behavior this CL fixes).
+    client._api_client._initialize_replay_session_if_not_loaded()
+    if client._api_client.replay_session:
+        create_request_body = client._api_client.replay_session.interactions[
+            0
+        ].request.body_segments[0]
+        assert create_request_body["displayName"] == "Test Sandbox Template 1"
+
 
 pytestmark = pytest_helper.setup(
     file=__file__,
