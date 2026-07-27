@@ -26,9 +26,9 @@ publishing internal tool contract details.
 
 **If the server catalog changes, this SDK-side copy must be updated to match.**
 
-This module also provides sandbox-detection helpers
-(``SANDBOX_TOOL_NAMES``, ``is_sandbox_only_turn``) used by the display
-path (``_evals_common._interaction_dict_to_agent_data``).
+Sandbox orchestration tools (``provision_sandbox``, ``load_sandbox``) are
+intentionally excluded from the tool catalog.  They are infrastructure
+initialization, not user-facing agent capabilities.
 """
 
 from typing import Any, Optional
@@ -76,25 +76,13 @@ BUILTIN_TOOL_DECLARATIONS: dict[str, list[genai_types.FunctionDeclaration]] = {
 }
 
 
-# Sandbox-environment orchestration tool declarations.
-#
-# Source of truth: interaction_converter.py, _SANDBOX_FUNCTION_DECLARATIONS
-SANDBOX_DECLARATIONS: list[genai_types.FunctionDeclaration] = [
-    genai_types.FunctionDeclaration(
-        name="provision_sandbox",
-        description="Provisions a sandbox environment.",
-    ),
-    genai_types.FunctionDeclaration(
-        name="load_sandbox",
-        description="Loads a previously provisioned sandbox environment.",
-    ),
-]
-
-
-# Names of sandbox orchestration tools, derived from ``SANDBOX_DECLARATIONS``
-# so there is a single source of truth.
+# Sandbox-environment orchestration tools.
+# Source of truth: interaction_converter.py, _SANDBOX_TOOL_NAMES
 SANDBOX_TOOL_NAMES: frozenset[str] = frozenset(
-    decl.name for decl in SANDBOX_DECLARATIONS if decl.name
+    {
+        "provision_sandbox",
+        "load_sandbox",
+    }
 )
 
 
@@ -146,7 +134,6 @@ def is_sandbox_only_turn(
 
 def agent_tools_to_config_tools(
     agent_tools: Optional[list[Any]],
-    has_environment: bool = False,
 ) -> Optional[list[genai_types.Tool]]:
     """Maps Gemini Agents API tools to ``genai_types.Tool`` for display.
 
@@ -163,18 +150,19 @@ def agent_tools_to_config_tools(
       * ``mcp_server`` is represented as a named declaration with a
         human-readable label.
       * Tools carrying explicit ``function_declarations`` are passed through.
-      * When ``has_environment`` is True, sandbox orchestration tools
-        (``provision_sandbox``, ``load_sandbox``) are appended.
+
+    Sandbox orchestration tools (``provision_sandbox``, ``load_sandbox``)
+    are intentionally excluded.  They are infrastructure initialization,
+    not user-facing capabilities.
 
     Args:
         agent_tools: The ``tools`` list from a fetched Gemini agent dict.
-        has_environment: Whether the agent has a sandbox environment configured.
 
     Returns:
         A list of ``genai_types.Tool``, or ``None`` if there are no mappable
         tools.
     """
-    if not agent_tools and not has_environment:
+    if not agent_tools:
         return None
     tools: list[genai_types.Tool] = []
     for tool in agent_tools or []:
@@ -217,8 +205,5 @@ def agent_tools_to_config_tools(
             )
         elif remainder:
             tools.append(genai_types.Tool.model_validate(remainder))
-
-    if has_environment:
-        tools.append(genai_types.Tool(function_declarations=list(SANDBOX_DECLARATIONS)))
 
     return tools or None

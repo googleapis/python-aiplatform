@@ -903,13 +903,7 @@ def _fetch_agent_config_dict(
             instruction = agent_dict.get("system_instruction") or None
             description = agent_dict.get("description") or None
             agent_type = agent_dict.get("base_agent") or None
-            has_environment = bool(
-                agent_dict.get("environment_config")
-                or agent_dict.get("base_environment")
-            )
-            tools = _agent_tools_to_config_tools(
-                agent_dict.get("tools"), has_environment=has_environment
-            )
+            tools = _agent_tools_to_config_tools(agent_dict.get("tools"))
     except Exception as e:  # pylint: disable=broad-exception-caught
         logger.warning(
             "Failed to fetch agent config for '%s' (continuing without it): %s",

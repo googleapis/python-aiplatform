@@ -11553,9 +11553,7 @@ class TestIsSandboxOnlyTurn:
             self._make_event(
                 author="agent",
                 part=genai_types.Part(
-                    function_call=genai_types.FunctionCall(
-                        name="load_sandbox", args={}
-                    )
+                    function_call=genai_types.FunctionCall(name="load_sandbox", args={})
                 ),
             ),
         ]
@@ -11566,9 +11564,7 @@ class TestIsSandboxOnlyTurn:
             self._make_event(
                 author="agent",
                 part=genai_types.Part(
-                    function_call=genai_types.FunctionCall(
-                        name="run_command", args={}
-                    )
+                    function_call=genai_types.FunctionCall(name="run_command", args={})
                 ),
             ),
         ]
@@ -11670,7 +11666,10 @@ class TestSandboxTurnMergingInAgentData:
         }
         result = _evals_common._interaction_dict_to_agent_data(interaction_dict)
         assert len(result.turns) == 2
-        assert result.turns[0].events[0].content.parts[0].function_call.name == "provision_sandbox"
+        assert (
+            result.turns[0].events[0].content.parts[0].function_call.name
+            == "provision_sandbox"
+        )
         assert result.turns[0].events[-1].content.parts[0].text == "Reply 1"
         assert result.turns[1].events[0].content.parts[0].text == "Turn 2"
 
@@ -12010,8 +12009,8 @@ class TestFetchAgentConfigDict:
             "move_file",
         }
 
-    def test_environment_adds_sandbox_tools(self):
-        """When agent has environment_config, sandbox tools are appended."""
+    def test_environment_does_not_add_sandbox_tools(self):
+        """Sandbox tools should NOT appear even when agent has environment."""
         agent_json = {
             "tools": [{"type": "code_execution"}],
             "environment_config": {"some_field": "value"},
@@ -12022,8 +12021,8 @@ class TestFetchAgentConfigDict:
             mock_api_client,
             "projects/p/locations/l/agents/a",
         )
-        # code_execution + sandbox tool
-        assert len(result.tools) == 2
+        # Only code_execution, no sandbox tools.
+        assert len(result.tools) == 1
         all_decl_names = {
             fd.name
             for t in result.tools
@@ -12031,8 +12030,8 @@ class TestFetchAgentConfigDict:
             for fd in t.function_declarations
         }
         assert "run_command" in all_decl_names
-        assert "provision_sandbox" in all_decl_names
-        assert "load_sandbox" in all_decl_names
+        assert "provision_sandbox" not in all_decl_names
+        assert "load_sandbox" not in all_decl_names
 
     def test_mcp_server_kept_as_named_declaration(self):
         """mcp_server entries are kept as named declarations, not dropped."""
@@ -12062,11 +12061,15 @@ class TestFetchAgentConfigDict:
     def test_catalog_in_sync_with_server(self):
         """SDK catalog keys and function names match the server-side catalog.
 
-        The SDK-side BUILTIN_TOOL_DECLARATIONS and SANDBOX_DECLARATIONS in
-        _evals_builtin_tools are a display-only copy of the authoritative
-        server-side catalog in interaction_converter.py.  This test imports
-        both and asserts that tool-type keys and declaration names stay in
-        sync.  If this test fails, update _evals_builtin_tools.py to match.
+        The SDK-side BUILTIN_TOOL_DECLARATIONS in _evals_builtin_tools is a
+        display-only copy of the authoritative server-side catalog in
+        interaction_converter.py.  This test imports both and asserts that
+        tool-type keys and declaration names stay in sync.  If this test
+        fails, update _evals_builtin_tools.py to match.
+
+        Sandbox tool declarations (provision_sandbox, load_sandbox) are
+        intentionally excluded from both the SDK and server AgentConfig
+        tool catalogs, so no sync check is needed for them.
         """
         # pylint: disable=g-import-not-at-top
         try:
@@ -12104,17 +12107,12 @@ class TestFetchAgentConfigDict:
                 f"  SDK:    {sorted(sdk_names)}"
             )
 
-        # --- Sandbox declarations: names must match ---
-        server_sandbox_names = {
-            fd.name for fd in interaction_converter.sandbox_function_declarations()
-        }
-        sdk_sandbox_names = {
-            fd.name for fd in _evals_builtin_tools.SANDBOX_DECLARATIONS
-        }
-        assert sdk_sandbox_names == server_sandbox_names, (
-            f"SANDBOX_DECLARATIONS names out of sync.\n"
+        # --- Sandbox tool names: SDK names must match server names ---
+        server_sandbox_names = set(interaction_converter._SANDBOX_TOOL_NAMES)
+        assert _evals_builtin_tools.SANDBOX_TOOL_NAMES == server_sandbox_names, (
+            f"SANDBOX_TOOL_NAMES out of sync.\n"
             f"  Server: {sorted(server_sandbox_names)}\n"
-            f"  SDK:    {sorted(sdk_sandbox_names)}"
+            f"  SDK:    {sorted(_evals_builtin_tools.SANDBOX_TOOL_NAMES)}"
         )
 
 
