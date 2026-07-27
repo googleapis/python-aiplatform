@@ -142,6 +142,29 @@ def test_invalid_region_does_not_raise_with_valid_region():
     aiplatform.utils.validate_region(region="us-central1")
 
 
+def test_validate_region_does_not_raise_with_mrep_jurisdiction():
+    aiplatform.utils.validate_region(region="us")
+
+
+def test_is_mrep_location_true_for_jurisdiction():
+    assert aiplatform.utils.is_mrep_location("us")
+
+
+def test_is_mrep_location_false_for_locational_region():
+    assert not aiplatform.utils.is_mrep_location("us-central1")
+
+
+def test_mrep_endpoint_builds_rep_host():
+    assert (
+        aiplatform.utils.mrep_endpoint("aiplatform.googleapis.com", "us")
+        == "aiplatform.us.rep.googleapis.com"
+    )
+
+
+def test_mrep_endpoint_returns_base_without_domain_unchanged():
+    assert aiplatform.utils.mrep_endpoint("localhost", "us") == "localhost"
+
+
 @pytest.fixture
 def copy_tree_mock():
     with mock.patch("shutil.copytree") as copy_tree_mock:

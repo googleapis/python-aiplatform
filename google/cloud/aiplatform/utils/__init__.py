@@ -314,12 +314,36 @@ def validate_region(region: str) -> bool:
         )
 
     region = region.lower()
-    if region not in constants.SUPPORTED_REGIONS:
+    if region not in constants.SUPPORTED_REGIONS and not is_mrep_location(region):
         raise ValueError(
-            f"Unsupported region for Vertex AI, select from {constants.SUPPORTED_REGIONS}"
+            "Unsupported region for Vertex AI, select from "
+            f"{constants.SUPPORTED_REGIONS} or from the multi-regional "
+            f"jurisdictions {constants.MREP_JURISDICTIONS}"
         )
 
     return True
+
+
+def is_mrep_location(location: str) -> bool:
+    """Returns whether location is a multi-regional (mREP) jurisdiction."""
+    return location.lower() in constants.MREP_JURISDICTIONS
+
+
+def mrep_endpoint(service_base_path: str, location: str) -> str:
+    """Returns the mREP host for a jurisdiction.
+
+    Args:
+        service_base_path: the base service host, e.g. "aiplatform.googleapis.com".
+        location: the multi-regional jurisdiction, e.g. "us".
+
+    Returns:
+        The mREP host, e.g. "aiplatform.us.rep.googleapis.com". A base host
+        without a domain (no ".") is returned unchanged.
+    """
+    if "." not in service_base_path:
+        return service_base_path
+    service, base_domain = service_base_path.split(".", 1)
+    return f"{service}.{location}.rep.{base_domain}"
 
 
 def validate_accelerator_type(accelerator_type: str) -> bool:

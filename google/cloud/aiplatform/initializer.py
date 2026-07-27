@@ -493,11 +493,15 @@ class _Config:
                 else constants.API_BASE_PATH
             )
 
-            api_endpoint = (
-                f"{region}-{service_base_path}"
-                if not api_path_override
-                else api_path_override
-            )
+            if api_path_override:
+                api_endpoint = api_path_override
+            elif ".rep." in service_base_path:
+                # Already an mREP host (e.g. via api_base_path_override); use as-is.
+                api_endpoint = service_base_path
+            elif utils.is_mrep_location(region):
+                api_endpoint = utils.mrep_endpoint(service_base_path, region)
+            else:
+                api_endpoint = f"{region}-{service_base_path}"
 
         # Project/location take precedence over api_key
         if api_key and not self._project:

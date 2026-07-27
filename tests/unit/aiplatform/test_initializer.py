@@ -310,6 +310,30 @@ class TestInit:
         assert isinstance(client, utils.PredictionClientWithOverride)
         assert client._transport._host == f"https://{constants.API_BASE_PATH}"
 
+    def test_create_client_with_mrep_location(self):
+        initializer.global_config.init(project=_TEST_PROJECT, location="us")
+        client = initializer.global_config.create_client(
+            client_class=utils.ModelClientWithOverride
+        )
+        assert initializer.global_config.location == "us"
+        assert client._transport._host == "aiplatform.us.rep.googleapis.com:443"
+
+    def test_create_client_with_mrep_location_prediction_client(self):
+        initializer.global_config.init(project=_TEST_PROJECT, location="us")
+        client = initializer.global_config.create_client(
+            client_class=utils.PredictionClientWithOverride,
+            prediction_client=True,
+        )
+        assert client._transport._host == "aiplatform.us.rep.googleapis.com:443"
+
+    def test_create_client_with_mrep_location_and_rep_base_path_override(self):
+        initializer.global_config.init(project=_TEST_PROJECT, location="us")
+        client = initializer.global_config.create_client(
+            client_class=utils.ModelClientWithOverride,
+            api_base_path_override="aiplatform.us.rep.googleapis.com",
+        )
+        assert client._transport._host == "aiplatform.us.rep.googleapis.com:443"
+
     def test_create_client_with_global_location_and_api_endpoint(self):
         initializer.global_config.init(
             project=_TEST_PROJECT,
