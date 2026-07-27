@@ -36,11 +36,11 @@ def test_list_deployable_models(client):
 def test_list_models(client):
   """Tests listing all baseline models in Model Garden."""
   models = client.model_garden.list_models(
-        config=types.ListModelGardenModelsConfig(
-            include_hugging_face_models=False,
-            model_filter="timesfm",
-        )
-    )
+      config=types.ListModelGardenModelsConfig(
+          include_hugging_face_models=False,
+          model_filter="timesfm",
+      )
+  )
   assert len(models) > 0
   assert isinstance(models[0], str)
   assert "timesfm" in models[0].lower()
@@ -83,9 +83,9 @@ def test_list_publisher_model_deploy_options_concise(client):
 def test_list_publisher_model_deploy_options_hugging_face(client):
   """Tests deploy options for a Hugging Face model.
 
-    Exercises the distinct GetPublisherModel request path where
-    is_hugging_face_model=True is sent.
-    """
+  Exercises the distinct GetPublisherModel request path where
+  is_hugging_face_model=True is sent.
+  """
   options = client.model_garden.list_publisher_model_deploy_options(
       model="codellama/codellama-7b-hf"
   )
@@ -143,7 +143,9 @@ def test_list_custom_model_deploy_options_no_user_quota_filter(client):
   """filter_by_user_quota=False -> recommendations returned without quota filtering."""
   options = client.model_garden.list_custom_model_deploy_options(
       src=_CUSTOM_MODEL_SRC,
-      config=types.ListCustomModelDeployOptionsConfig(filter_by_user_quota=False),
+      config=types.ListCustomModelDeployOptionsConfig(
+          filter_by_user_quota=False
+      ),
   )
   assert isinstance(options, str)
   assert "[Option 1]" in options
@@ -159,6 +161,95 @@ def test_list_custom_model_deploy_options_dict_config(client):
   assert isinstance(options, str)
   assert "[Option 1]" in options
   assert "region=" not in options
+
+
+def test_export_open_model_wait_for_completion(client):
+  """Default wait_for_completion=True path: blocks on the LRO, returns URI.
+
+  End-to-end coverage of the polling loop -- records the initial POST plus
+  every GET on the operation until it's done, so recording takes as long as
+  the export itself (~2h for Gemma-2-2B). Once recorded, replaying is
+  instant. Skip this filter when iterating on unrelated changes.
+  """
+  destination_uri = client.model_garden.export_open_model(
+      model="google/gemma2@gemma-2-2b-it",
+      output_gcs_uri="gs://mg-sdk-model-export-testing/gemma-2-2b-it/",
+  )
+  assert isinstance(destination_uri, str)
+  assert destination_uri.startswith("gs://")
+
+
+def test_export_open_model_no_wait_returns_operation(client):
+  """wait_for_completion=False returns the ExportModelOperation immediately.
+
+  Records only the initial ExportPublisherModel POST (no LRO polling), so
+  this is cheap to record (seconds).
+  """
+  operation = client.model_garden.export_open_model(
+      model="google/gemma2@gemma-2-2b-it",
+      output_gcs_uri="gs://mg-sdk-model-export-testing/gemma-2-2b-it-no-wait/",
+      config=types.ExportOpenModelConfig(wait_for_completion=False),
+  )
+  assert isinstance(operation, types.ExportModelOperation)
+  assert operation.name
+  assert "/operations/" in operation.name
+
+
+def test_export_open_model_no_wait_dict_config(client):
+  """The config may be passed as a plain dict; wait_for_completion=False path."""
+  operation = client.model_garden.export_open_model(
+      model="google/gemma2@gemma-2-2b-it",
+      output_gcs_uri=(
+          "gs://mg-sdk-model-export-testing/gemma-2-2b-it-dict-no-wait/"
+      ),
+      config={"wait_for_completion": False},
+  )
+  assert isinstance(operation, types.ExportModelOperation)
+  assert operation.name
+
+
+def test_get_export_publisher_model_operation(client):
+  """Public getter returns an ExportModelOperation for a running export LRO.
+
+  Chains a wait_for_completion=False export with an explicit poll via the
+  public getter -- exercises the same call users doing their own polling
+  (custom backoff, cancellation, etc.) will make.
+  """
+  op = client.model_garden.export_open_model(
+      model="google/gemma2@gemma-2-2b-it",
+      output_gcs_uri="gs://mg-sdk-model-export-testing/gemma-2-2b-it-poll/",
+      config=types.ExportOpenModelConfig(wait_for_completion=False),
+  )
+  polled = client.model_garden.get_export_publisher_model_operation(
+      operation_name=op.name,
+  )
+  assert isinstance(polled, types.ExportModelOperation)
+  assert polled.name == op.name
+
+
+def test_export_open_model_empty_uri_raises(client):
+  """Empty output_gcs_uri is rejected client-side; no RPC needed."""
+  with pytest.raises(ValueError, match="output_gcs_uri must be a non-empty"):
+    client.model_garden.export_open_model(
+        model="google/gemma3@gemma-3-12b-it", output_gcs_uri=""
+    )
+
+
+def test_export_open_model_hf_model_id_raises(client):
+  """Hugging Face model IDs are rejected client-side; no RPC needed."""
+  with pytest.raises(ValueError, match="does not support Hugging Face"):
+    client.model_garden.export_open_model(
+        model="meta-llama/Llama-3.3-70B-Instruct",
+        output_gcs_uri="gs://mg-sdk-model-export-testing/hf-should-not-record/",
+    )
+
+
+def test_export_open_model_invalid_name_raises(client):
+  """Invalid model name is rejected client-side; no RPC needed."""
+  with pytest.raises(ValueError, match="not a valid publisher model name"):
+    client.model_garden.export_open_model(
+        model="not-a-valid-name", output_gcs_uri="gs://b/out/"
+    )
 
 
 pytestmark = pytest_helper.setup(
@@ -220,3 +311,34 @@ async def test_list_custom_model_deploy_options_async(client):
   assert isinstance(options, str)
   assert "[Option 1]" in options
   assert "region=" in options
+
+
+@pytest.mark.asyncio
+async def test_export_open_model_async_no_wait_returns_operation(client):
+  """Async wait_for_completion=False returns the ExportModelOperation immediately."""
+  operation = await client.aio.model_garden.export_open_model(
+      model="google/gemma2@gemma-2-2b-it",
+      output_gcs_uri=(
+          "gs://mg-sdk-model-export-testing/gemma-2-2b-it-async-no-wait/"
+      ),
+      config=types.ExportOpenModelConfig(wait_for_completion=False),
+  )
+  assert isinstance(operation, types.ExportModelOperation)
+  assert operation.name
+
+
+@pytest.mark.asyncio
+async def test_get_export_publisher_model_operation_async(client):
+  """Public async getter returns an ExportModelOperation for an in-flight LRO."""
+  op = await client.aio.model_garden.export_open_model(
+      model="google/gemma2@gemma-2-2b-it",
+      output_gcs_uri=(
+          "gs://mg-sdk-model-export-testing/gemma-2-2b-it-async-poll/"
+      ),
+      config=types.ExportOpenModelConfig(wait_for_completion=False),
+  )
+  polled = await client.aio.model_garden.get_export_publisher_model_operation(
+      operation_name=op.name,
+  )
+  assert isinstance(polled, types.ExportModelOperation)
+  assert polled.name == op.name

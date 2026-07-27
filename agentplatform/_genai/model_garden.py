@@ -22,12 +22,56 @@ from urllib.parse import urlencode
 
 from google.genai import _api_module
 from google.genai import _common
+from google.genai import types as genai_types
 from google.genai._common import get_value_by_path as getv
 from google.genai._common import set_value_by_path as setv
 
+from . import _operations_utils
 from . import types
 
 logger = logging.getLogger("agentplatform_genai.modelgarden")
+
+
+def _ExportPublisherModelConfig_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+
+    if getv(from_object, ["destination"]) is not None:
+        setv(parent_object, ["destination"], getv(from_object, ["destination"]))
+
+    return to_object
+
+
+def _ExportPublisherModelRequestParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["parent"]) is not None:
+        setv(to_object, ["_url", "parent"], getv(from_object, ["parent"]))
+
+    if getv(from_object, ["name"]) is not None:
+        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
+
+    if getv(from_object, ["config"]) is not None:
+        _ExportPublisherModelConfig_to_vertex(getv(from_object, ["config"]), to_object)
+
+    return to_object
+
+
+def _GetExportPublisherModelOperationParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["operation_name"]) is not None:
+        setv(
+            to_object, ["_url", "operationName"], getv(from_object, ["operation_name"])
+        )
+
+    return to_object
 
 
 def _GetPublisherModelConfig_to_vertex(
@@ -376,6 +420,162 @@ class ModelGarden(_api_module.BaseModule):
 
         self._api_client._verify_response(return_value)
         return return_value
+
+    def _export_publisher_model(
+        self,
+        *,
+        parent: str,
+        name: str,
+        config: Optional[types.ExportPublisherModelConfigOrDict] = None,
+    ) -> types.ExportModelOperation:
+        """
+        Exports a publisher model (internal).
+        """
+
+        parameter_model = types._ExportPublisherModelRequestParameters(
+            parent=parent,
+            name=name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
+        else:
+            request_dict = _ExportPublisherModelRequestParameters_to_vertex(
+                parameter_model
+            )
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{parent}/{name}:export".format_map(request_url_dict)
+            else:
+                path = "{parent}/{name}:export"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = self._api_client.request("post", path, request_dict, http_options)
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.ExportModelOperation._from_response(
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    def get_export_publisher_model_operation(
+        self,
+        *,
+        operation_name: str,
+        config: Optional[types.GetExportPublisherModelOperationConfigOrDict] = None,
+    ) -> types.ExportModelOperation:
+        """
+        Fetches the status of an in-flight ``export_open_model`` LRO.
+        """
+
+        parameter_model = types._GetExportPublisherModelOperationParameters(
+            operation_name=operation_name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
+        else:
+            request_dict = _GetExportPublisherModelOperationParameters_to_vertex(
+                parameter_model
+            )
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{operationName}".format_map(request_url_dict)
+            else:
+                path = "{operationName}"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = self._api_client.request("get", path, request_dict, http_options)
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.ExportModelOperation._from_response(
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    # Fallbacks for ``ExportOpenModelConfig`` when the caller does not
+    # override them. 2h matches the legacy SDK's blocking ``.export()`` and is
+    # generous enough for large open weights (e.g. Gemma 3 27B).
+    _DEFAULT_EXPORT_TIMEOUT_SECONDS = 2 * 60 * 60
+    _DEFAULT_EXPORT_POLL_INTERVAL_SECONDS = 30
 
     @staticmethod
     def _build_filter_str(
@@ -1027,6 +1227,91 @@ class ModelGarden(_api_module.BaseModule):
 
         return self._format_custom_deploy_options(options)
 
+    def export_open_model(
+        self,
+        *,
+        model: str,
+        output_gcs_uri: str,
+        config: Optional[types.ExportOpenModelConfigOrDict] = None,
+    ) -> Union[str, types.ExportModelOperation]:
+        """Exports Google open model weights to a Cloud Storage bucket.
+
+        Args:
+          model: The publisher model to export. Accepts a full resource name
+            ``'publishers/{publisher}/models/{model}@{version}'`` or the
+            simplified form ``'{publisher}/{model}@{version}'``. Hugging Face
+            model IDs are not supported.
+          output_gcs_uri: Cloud Storage URI prefix to write the model weights
+            to (e.g. ``'gs://my-bucket/gemma-weights/'``).
+          config: Optional export configuration (blocking behavior, poll
+            timing). See ``ExportOpenModelConfig``.
+
+        Returns:
+          When ``config.wait_for_completion`` is ``True`` (default), the
+          Cloud Storage URI (``str``) where the weights were written.
+          When ``config.wait_for_completion`` is ``False``, the
+          ``ExportModelOperation`` for the caller to poll (via
+          ``get_export_publisher_model_operation`` or their own strategy).
+
+        Raises:
+          ValueError: If ``output_gcs_uri`` is empty, if ``model`` is not a
+            valid Google publisher model resource name, or if ``model`` looks
+            like a Hugging Face model ID.
+          TimeoutError: If ``wait_for_completion=True`` and the LRO does not
+            complete within ``config.timeout_seconds`` (default 2 hours).
+          RuntimeError: If the LRO completes with an error, or completes
+            successfully but without a ``destination_uri``.
+        """
+        if not output_gcs_uri:
+            raise ValueError("output_gcs_uri must be a non-empty Cloud Storage URI.")
+        if ModelGarden._is_hugging_face_model(model):
+            raise ValueError(
+                f"export_open_model does not support Hugging Face model IDs "
+                f"(got {model!r}); only Google publisher open models are "
+                f"exportable via this API."
+            )
+        if config is None:
+            config = types.ExportOpenModelConfig()
+        elif isinstance(config, dict):
+            config = types.ExportOpenModelConfig.model_validate(config)
+
+        publisher_model_name = ModelGarden._reconcile_model_name(model)
+        parent = (
+            f"projects/{self._api_client.project}/locations/"
+            f"{self._api_client.location}"
+        )
+        operation = self._export_publisher_model(
+            parent=parent,
+            name=publisher_model_name,
+            config=types.ExportPublisherModelConfig(
+                destination=genai_types.GcsDestination(
+                    output_uri_prefix=output_gcs_uri,
+                ),
+            ),
+        )
+        if not config.wait_for_completion:
+            return operation
+
+        operation = _operations_utils.await_operation(
+            operation_name=operation.name,
+            get_operation_fn=self.get_export_publisher_model_operation,
+            poll_interval=(
+                config.poll_interval_seconds
+                or ModelGarden._DEFAULT_EXPORT_POLL_INTERVAL_SECONDS
+            ),
+            timeout_seconds=(
+                config.timeout_seconds or ModelGarden._DEFAULT_EXPORT_TIMEOUT_SECONDS
+            ),
+        )
+        if operation.error:
+            raise RuntimeError(f"Export failed: {operation.error}")
+        if not operation.response or not operation.response.destination_uri:
+            raise RuntimeError(
+                f"Export completed but response has no destination_uri: "
+                f"{operation!r}"
+            )
+        return operation.response.destination_uri
+
 
 class AsyncModelGarden(_api_module.BaseModule):
     """Model Garden module."""
@@ -1233,6 +1518,160 @@ class AsyncModelGarden(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.RecommendSpecResponse._from_response(
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    async def _export_publisher_model(
+        self,
+        *,
+        parent: str,
+        name: str,
+        config: Optional[types.ExportPublisherModelConfigOrDict] = None,
+    ) -> types.ExportModelOperation:
+        """
+        Exports a publisher model (internal).
+        """
+
+        parameter_model = types._ExportPublisherModelRequestParameters(
+            parent=parent,
+            name=name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
+        else:
+            request_dict = _ExportPublisherModelRequestParameters_to_vertex(
+                parameter_model
+            )
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{parent}/{name}:export".format_map(request_url_dict)
+            else:
+                path = "{parent}/{name}:export"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = await self._api_client.async_request(
+            "post", path, request_dict, http_options
+        )
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.ExportModelOperation._from_response(
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    async def get_export_publisher_model_operation(
+        self,
+        *,
+        operation_name: str,
+        config: Optional[types.GetExportPublisherModelOperationConfigOrDict] = None,
+    ) -> types.ExportModelOperation:
+        """
+        Fetches the status of an in-flight ``export_open_model`` LRO.
+        """
+
+        parameter_model = types._GetExportPublisherModelOperationParameters(
+            operation_name=operation_name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
+        else:
+            request_dict = _GetExportPublisherModelOperationParameters_to_vertex(
+                parameter_model
+            )
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{operationName}".format_map(request_url_dict)
+            else:
+                path = "{operationName}"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = await self._api_client.async_request(
+            "get", path, request_dict, http_options
+        )
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.ExportModelOperation._from_response(
             response=response_dict,
             kwargs=(
                 {
@@ -1512,3 +1951,61 @@ class AsyncModelGarden(_api_module.BaseModule):
             raise ValueError("No deploy options found.")
 
         return ModelGarden._format_custom_deploy_options(options)
+
+    async def export_open_model(
+        self,
+        *,
+        model: str,
+        output_gcs_uri: str,
+        config: Optional[types.ExportOpenModelConfigOrDict] = None,
+    ) -> Union[str, types.ExportModelOperation]:
+        """Async variant of ``ModelGarden.export_open_model``."""
+        if not output_gcs_uri:
+            raise ValueError("output_gcs_uri must be a non-empty Cloud Storage URI.")
+        if ModelGarden._is_hugging_face_model(model):
+            raise ValueError(
+                f"export_open_model does not support Hugging Face model IDs "
+                f"(got {model!r}); only Google publisher open models are "
+                f"exportable via this API."
+            )
+        if config is None:
+            config = types.ExportOpenModelConfig()
+        elif isinstance(config, dict):
+            config = types.ExportOpenModelConfig.model_validate(config)
+
+        publisher_model_name = ModelGarden._reconcile_model_name(model)
+        parent = (
+            f"projects/{self._api_client.project}/locations/"
+            f"{self._api_client.location}"
+        )
+        operation = await self._export_publisher_model(
+            parent=parent,
+            name=publisher_model_name,
+            config=types.ExportPublisherModelConfig(
+                destination=genai_types.GcsDestination(
+                    output_uri_prefix=output_gcs_uri,
+                ),
+            ),
+        )
+        if not config.wait_for_completion:
+            return operation
+
+        operation = await _operations_utils.await_operation_async(
+            operation_name=operation.name,
+            get_operation_fn=self.get_export_publisher_model_operation,
+            poll_interval=(
+                config.poll_interval_seconds
+                or ModelGarden._DEFAULT_EXPORT_POLL_INTERVAL_SECONDS
+            ),
+            timeout_seconds=(
+                config.timeout_seconds or ModelGarden._DEFAULT_EXPORT_TIMEOUT_SECONDS
+            ),
+        )
+        if operation.error:
+            raise RuntimeError(f"Export failed: {operation.error}")
+        if not operation.response or not operation.response.destination_uri:
+            raise RuntimeError(
+                f"Export completed but response has no destination_uri: "
+                f"{operation!r}"
+            )
+        return operation.response.destination_uri
