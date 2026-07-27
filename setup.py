@@ -215,7 +215,7 @@ langchain_testing_extra_require = list(
 )
 
 ag2_extra_require = [
-    "ag2[gemini]",
+    "autogen[gemini] >= 0.14.1, < 1",
     "openinference-instrumentation-autogen >= 0.1.6, < 0.2",
 ]
 
