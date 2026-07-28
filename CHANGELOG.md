@@ -1,5 +1,24 @@
 # Changelog
 
+## [1.163.0](https://github.com/googleapis/python-aiplatform/compare/v1.162.0...v1.163.0) (2026-07-28)
+
+
+### Features
+
+* GenAI Client(evals) - add create EvaluationExperiment ([07ade2e](https://github.com/googleapis/python-aiplatform/commit/07ade2e2384a6bd58b8de6b6e59647fda0d81b97))
+* GenAI Client(evals) - add delete/update EvaluationExperiment ([09e5a65](https://github.com/googleapis/python-aiplatform/commit/09e5a65c233770fcf2b1cdbe31ead775e2395d02))
+* GenAI Client(evals) - add get/list EvaluationExperiment ([52b1c24](https://github.com/googleapis/python-aiplatform/commit/52b1c24f5db291a190b5e1023d2128a700a36c71))
+* Onboard Vertex Model Garden to GenAI Python SDK: Add export_open_model support ([c2ba5d2](https://github.com/googleapis/python-aiplatform/commit/c2ba5d247991986d71094c41e418704865b55fa0))
+* Support us mREP endpoint for Batch Prediction, Training, and Online Prediction. ([96a9fcf](https://github.com/googleapis/python-aiplatform/commit/96a9fcf5bb0aca0e42f39428a041d0c70f7f9bc3))
+
+
+### Bug Fixes
+
+* Depend on the `autogen` distribution instead of `ag2` for the AG2 integration. ([dbcf815](https://github.com/googleapis/python-aiplatform/commit/dbcf815680812e1beee23e15c20f12a435ace47b))
+* GenAI client - Resolve opentelemetry-resourcedetector-gcp dependency error ([a16fc0d](https://github.com/googleapis/python-aiplatform/commit/a16fc0df5472fc0ca6f063bb0b3c4cdb2995c131))
+* Merge sandbox-only turns in SDK-side interaction-to-AgentData conversion. ([f93c455](https://github.com/googleapis/python-aiplatform/commit/f93c45555512a3f3f27441194cbc8383b36fc358))
+* Send display_name when creating a sandbox environment template. ([243ca19](https://github.com/googleapis/python-aiplatform/commit/243ca19c2b71c2fe1be727cba878ae7e6703eae3))
+
 ## [1.162.0](https://github.com/googleapis/python-aiplatform/compare/v1.161.0...v1.162.0) (2026-07-21)
 
 
