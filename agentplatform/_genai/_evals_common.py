@@ -91,6 +91,21 @@ AGENT_DATA = _evals_constant.AGENT_DATA
 _DEFAULT_CANDIDATE_NAME = _evals_constant.DEFAULT_CANDIDATE_NAME
 
 
+def _local_timestamp() -> str:
+    """Returns the current local time as 'M/D/YYYY, H:MM:SS AM/PM'.
+
+    Matches the Agent Platform UI's default experiment name timestamp format
+    (e.g. '6/1/2026, 1:12:29 PM').
+    """
+    now = datetime.datetime.now()
+    hour_12 = now.hour % 12 or 12
+    meridiem = "AM" if now.hour < 12 else "PM"
+    return (
+        f"{now.month}/{now.day}/{now.year}, "
+        f"{hour_12}:{now.minute:02d}:{now.second:02d} {meridiem}"
+    )
+
+
 @contextlib.contextmanager
 def _temp_logger_level(logger_name: str, level: int) -> None:  # type: ignore[misc]
     """Temporarily sets the level of a logger."""
@@ -896,6 +911,10 @@ def _fetch_agent_config_dict(
     agent_type: Optional[str] = None
     tools: Optional[list[genai_types.Tool]] = None
 
+    # TODO(b/539762376): This drops the location from `agent_resource_name` and
+    # sends a relative path, so the client re-qualifies it with its own
+    # location. Agents in `locations/global` are queried in the client's region
+    # and fail with 400, silently leaving the returned AgentConfig empty.
     try:
         agent_resp = api_client.request("get", f"agents/{agent_short_id}", {}, None)
         if agent_resp.body:

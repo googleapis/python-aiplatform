@@ -2793,6 +2793,12 @@ class _CreateEvaluationRunParameters(_common.BaseModel):
     analysis_configs: Optional[list[AnalysisConfig]] = Field(
         default=None, description=""""""
     )
+    evaluation_experiment: Optional[str] = Field(
+        default=None,
+        description="""The resource name of the parent EvaluationExperiment that this run
+      belongs to. Format:
+      `projects/{project}/locations/{location}/evaluationExperiments/{evaluation_experiment}`.""",
+    )
 
 
 class _CreateEvaluationRunParametersDict(TypedDict, total=False):
@@ -2821,6 +2827,11 @@ class _CreateEvaluationRunParametersDict(TypedDict, total=False):
 
     analysis_configs: Optional[list[AnalysisConfigDict]]
     """"""
+
+    evaluation_experiment: Optional[str]
+    """The resource name of the parent EvaluationExperiment that this run
+      belongs to. Format:
+      `projects/{project}/locations/{location}/evaluationExperiments/{evaluation_experiment}`."""
 
 
 _CreateEvaluationRunParametersOrDict = Union[

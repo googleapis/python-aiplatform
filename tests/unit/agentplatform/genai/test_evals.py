@@ -10595,24 +10595,30 @@ class TestAllowCrossRegionModel:
     def test_create_evaluation_run_passes_allow_cross_region_model(self):
         """Verifies allow_cross_region_model is sent inside evaluationConfig in the API request."""
         evals_module = evals.Evals(api_client_=self.mock_api_client)
-
-        evals_module.create_evaluation_run(
-            dataset=agentplatform_genai_types.EvaluationRunDataSource(
-                evaluation_set="projects/123/locations/us-central1/evaluationSets/789"
-            ),
-            metrics=[
-                agentplatform_genai_types.EvaluationRunMetric(
-                    metric="general_quality_v1",
-                    metric_config=agentplatform_genai_types.UnifiedMetric(
-                        predefined_metric_spec=genai_types.PredefinedMetricSpec(
-                            metric_spec_name="general_quality_v1",
-                        )
-                    ),
-                )
-            ],
-            dest="gs://test-bucket/output",
-            config={"allow_cross_region_model": True},
+        experiment = agentplatform_genai_types.EvaluationExperiment(
+            name="projects/123/locations/us-central1/evaluationExperiments/e1"
         )
+
+        with mock.patch.object(
+            evals_module, "create_evaluation_experiment", return_value=experiment
+        ):
+            evals_module.create_evaluation_run(
+                dataset=agentplatform_genai_types.EvaluationRunDataSource(
+                    evaluation_set="projects/123/locations/us-central1/evaluationSets/789"
+                ),
+                metrics=[
+                    agentplatform_genai_types.EvaluationRunMetric(
+                        metric="general_quality_v1",
+                        metric_config=agentplatform_genai_types.UnifiedMetric(
+                            predefined_metric_spec=genai_types.PredefinedMetricSpec(
+                                metric_spec_name="general_quality_v1",
+                            )
+                        ),
+                    )
+                ],
+                dest="gs://test-bucket/output",
+                config={"allow_cross_region_model": True},
+            )
 
         self.mock_api_client.request.assert_called_once()
         call_args = self.mock_api_client.request.call_args
@@ -12315,3 +12321,96 @@ class TestDeleteEvaluationExperiment:
         call_args = self.mock_api_client.request.call_args
         assert call_args[0][0] == "delete"
         assert call_args[0][1] == self.experiment_name
+
+
+class TestCreateEvaluationRunAutoExperiment:
+
+    def setup_method(self, method):
+        self.mock_api_client = mock.MagicMock()
+        self.mock_api_client.vertexai = True
+        self.mock_response = mock.MagicMock()
+        self.mock_response.body = json.dumps(
+            {
+                "name": "projects/123/locations/us-central1/evaluationRuns/456",
+                "displayName": "test_run",
+                "state": "PENDING",
+                "evaluationExperiment": (
+                    "projects/123/locations/us-central1/evaluationExperiments/e1"
+                ),
+            }
+        )
+        self.mock_api_client.request.return_value = self.mock_response
+        self.dataset = agentplatform_genai_types.EvaluationRunDataSource(
+            evaluation_set="projects/123/locations/us-central1/evaluationSets/789"
+        )
+        self.metrics = [
+            agentplatform_genai_types.EvaluationRunMetric(
+                metric="general_quality_v1",
+                metric_config=agentplatform_genai_types.UnifiedMetric(
+                    predefined_metric_spec=genai_types.PredefinedMetricSpec(
+                        metric_spec_name="general_quality_v1",
+                    )
+                ),
+            )
+        ]
+
+    def test_auto_creates_experiment_when_not_provided(self):
+        evals_module = evals.Evals(api_client_=self.mock_api_client)
+        experiment = agentplatform_genai_types.EvaluationExperiment(
+            name="projects/123/locations/us-central1/evaluationExperiments/e1"
+        )
+        with mock.patch.object(
+            evals_module, "create_evaluation_experiment", return_value=experiment
+        ) as mock_create_exp:
+            evals_module.create_evaluation_run(
+                dataset=self.dataset,
+                metrics=self.metrics,
+                dest="gs://test-bucket/output",
+                display_name="my_run",
+            )
+
+        mock_create_exp.assert_called_once()
+        assert mock_create_exp.call_args.kwargs["display_name"] == "my_run"
+        request_body = self.mock_api_client.request.call_args[0][2]
+        assert (
+            request_body.get("evaluationExperiment")
+            == "projects/123/locations/us-central1/evaluationExperiments/e1"
+        )
+
+    def test_auto_experiment_default_display_name(self):
+        evals_module = evals.Evals(api_client_=self.mock_api_client)
+        experiment = agentplatform_genai_types.EvaluationExperiment(
+            name="projects/123/locations/us-central1/evaluationExperiments/e1"
+        )
+        with mock.patch.object(
+            evals_module, "create_evaluation_experiment", return_value=experiment
+        ) as mock_create_exp:
+            evals_module.create_evaluation_run(
+                dataset=self.dataset,
+                metrics=self.metrics,
+                dest="gs://test-bucket/output",
+            )
+
+        display_name = mock_create_exp.call_args.kwargs["display_name"]
+        assert display_name.startswith("SDK Experiment ")
+
+    def test_uses_provided_experiment_without_creating(self):
+        evals_module = evals.Evals(api_client_=self.mock_api_client)
+        with mock.patch.object(
+            evals_module, "create_evaluation_experiment"
+        ) as mock_create_exp:
+            evals_module.create_evaluation_run(
+                dataset=self.dataset,
+                metrics=self.metrics,
+                dest="gs://test-bucket/output",
+                evaluation_experiment=(
+                    "projects/123/locations/us-central1/evaluationExperiments/existing"
+                ),
+            )
+
+        mock_create_exp.assert_not_called()
+        request_body = self.mock_api_client.request.call_args[0][2]
+        assert (
+            request_body.get("evaluationExperiment")
+            == "projects/123/locations/us-central1/evaluationExperiments/existing"
+        )

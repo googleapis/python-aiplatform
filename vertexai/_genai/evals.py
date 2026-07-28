@@ -137,6 +137,13 @@ def _CreateEvaluationRunParameters_to_vertex(
             [item for item in getv(from_object, ["analysis_configs"])],
         )
 
+    if getv(from_object, ["evaluation_experiment"]) is not None:
+        setv(
+            to_object,
+            ["evaluationExperiment"],
+            getv(from_object, ["evaluation_experiment"]),
+        )
+
     return to_object
 
 
@@ -1305,6 +1312,7 @@ class Evals(_api_module.BaseModule):
         ] = None,
         config: Optional[types.CreateEvaluationRunConfigOrDict] = None,
         analysis_configs: Optional[list[types.AnalysisConfigOrDict]] = None,
+        evaluation_experiment: Optional[str] = None,
     ) -> types.EvaluationRun:
         """
         Creates an EvaluationRun.
@@ -1319,6 +1327,7 @@ class Evals(_api_module.BaseModule):
             inference_configs=inference_configs,
             config=config,
             analysis_configs=analysis_configs,
+            evaluation_experiment=evaluation_experiment,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -2746,6 +2755,7 @@ class Evals(_api_module.BaseModule):
         metrics: list[types.EvaluationRunMetricOrDict],
         name: Optional[str] = None,
         display_name: Optional[str] = None,
+        evaluation_experiment: Optional[str] = None,
         agent_info: Optional[evals_types.AgentInfoOrDict] = None,
         agent: Optional[str] = None,
         user_simulator_config: Optional[evals_types.UserSimulatorConfigOrDict] = None,
@@ -2892,10 +2902,22 @@ class Evals(_api_module.BaseModule):
             self._api_client, resolved_dataset, inference_configs, parsed_agent_info
         )
         resolved_labels = _evals_common._add_evaluation_run_labels(labels, agent)
-        resolved_name = name or f"evaluation_run_{uuid.uuid4()}"
+        resolved_display_name = display_name or name or f"evaluation_run_{uuid.uuid4()}"
+        resolved_experiment = evaluation_experiment
+        if resolved_experiment is None:
+            experiment_display_name = (
+                display_name or f"SDK Experiment {_evals_common._local_timestamp()}"
+            )
+            created_experiment = self.create_evaluation_experiment(
+                display_name=experiment_display_name
+            )
+            resolved_experiment = created_experiment.name
+        # The backend rejects a caller-supplied `name` for runs that belong to an
+        # EvaluationExperiment and assigns the resource ID itself, so `name` is
+        # only used as a display_name fallback.
         return self._create_evaluation_run(
-            name=resolved_name,
-            display_name=display_name or resolved_name,
+            display_name=resolved_display_name,
+            evaluation_experiment=resolved_experiment,
             data_source=resolved_dataset,
             evaluation_config=evaluation_config,
             inference_configs=resolved_inference_configs,
@@ -3842,6 +3864,7 @@ class AsyncEvals(_api_module.BaseModule):
         ] = None,
         config: Optional[types.CreateEvaluationRunConfigOrDict] = None,
         analysis_configs: Optional[list[types.AnalysisConfigOrDict]] = None,
+        evaluation_experiment: Optional[str] = None,
     ) -> types.EvaluationRun:
         """
         Creates an EvaluationRun.
@@ -3856,6 +3879,7 @@ class AsyncEvals(_api_module.BaseModule):
             inference_configs=inference_configs,
             config=config,
             analysis_configs=analysis_configs,
+            evaluation_experiment=evaluation_experiment,
         )
 
         request_url_dict: Optional[dict[str, str]]
