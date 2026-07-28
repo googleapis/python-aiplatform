@@ -601,6 +601,42 @@ class TestAdkApp:
         events = list(app.streaming_agent_run_with_events(request_json=request_json))
         assert len(events) == 1
 
+    def test_streaming_agent_run_with_events_propagates_labels(self):
+        from google.adk.agents.run_config import RunConfig
+
+        if "labels" not in RunConfig.model_fields:
+            pytest.skip("Installed google-adk RunConfig does not support labels.")
+
+        captured = {}
+
+        class _LabelCapturingRunner(_MockRunner):
+            def run(self, *args, **kwargs):
+                captured["run_config"] = kwargs.get("run_config")
+                yield from super().run(*args, **kwargs)
+
+        app = reasoning_engines.AdkApp(
+            agent=Agent(name=_TEST_AGENT_NAME, model=_TEST_MODEL)
+        )
+        app.set_up()
+        app._tmpl_attrs["in_memory_runner"] = _LabelCapturingRunner()
+
+        labels = {"goog-originating-logical-product-id": "prod1"}
+        request_json = json.dumps(
+            {
+                "user_id": _TEST_USER_ID,
+                "message": {
+                    "parts": [{"text": "What is the exchange rate from USD to SEK?"}],
+                    "role": "user",
+                },
+                "labels": labels,
+            }
+        )
+        events = list(app.streaming_agent_run_with_events(request_json=request_json))
+
+        assert len(events) == 1
+        assert captured["run_config"] is not None
+        assert captured["run_config"].labels == labels
+
     @pytest.mark.asyncio
     @mock.patch.dict(
         os.environ,

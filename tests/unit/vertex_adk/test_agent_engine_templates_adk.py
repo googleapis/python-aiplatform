@@ -572,7 +572,69 @@ class TestAdkApp:
             session_id="test_session_id",
             new_message=mock.ANY,
             state_delta={"test_user_id1": "test_access_token"},
+            run_config=None,
         )
+
+    @pytest.mark.asyncio
+    async def test_streaming_agent_run_with_events_propagates_labels(
+        self,
+        default_instrumentor_builder_mock: mock.Mock,
+        get_project_id_mock: mock.Mock,
+    ):
+        from google.adk.agents.run_config import RunConfig
+
+        if "labels" not in RunConfig.model_fields:
+            pytest.skip("Installed google-adk RunConfig does not support labels.")
+
+        app = agent_engines.AdkApp(agent=_TEST_AGENT)
+        app.set_up()
+
+        # Pre-create a session in the real in-memory session service.
+        await app.async_create_session(
+            user_id=_TEST_USER_ID, session_id="test_session_id"
+        )
+
+        runner_mock = mock.Mock()
+
+        async def mock_run_async(*args, **kwargs):
+            from google.adk.events import event
+
+            yield event.Event(
+                **{
+                    "author": "currency_exchange_agent",
+                    "content": {"parts": [{"text": "Sweden"}], "role": "model"},
+                    "id": "9aaItGK9",
+                    "invocation_id": "e-6543c213-6417-484b-9551-b67915d1d5f7",
+                }
+            )
+
+        spy = mock.MagicMock(side_effect=mock_run_async)
+        runner_mock.run_async = spy
+        app._tmpl_attrs["runner"] = runner_mock
+
+        labels = {"goog-originating-logical-product-id": "prod1"}
+        request_json = json.dumps(
+            {
+                "user_id": _TEST_USER_ID,
+                "session_id": "test_session_id",
+                "message": {
+                    "parts": [{"text": "What is the exchange rate from USD to SEK?"}],
+                    "role": "user",
+                },
+                "labels": labels,
+            }
+        )
+
+        async for _ in app.streaming_agent_run_with_events(
+            request_json=request_json,
+        ):
+            pass
+
+        # The labels are surfaced to run_async via a RunConfig.
+        spy.assert_called_once()
+        run_config = spy.call_args.kwargs["run_config"]
+        assert run_config is not None
+        assert run_config.labels == labels
 
     @pytest.mark.asyncio
     @mock.patch.dict(
