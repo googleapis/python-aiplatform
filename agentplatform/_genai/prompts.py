@@ -1505,6 +1505,9 @@ class Prompts(_api_module.BaseModule):
         self._api_client._verify_response(return_value)
         return return_value
 
+    _DEFAULT_TIMEOUT = 90
+    _DEFAULT_MAX_WAIT_TIME = 60
+
     def create(
         self,
         *,
@@ -1564,7 +1567,16 @@ class Prompts(_api_module.BaseModule):
         )
         dataset_resource_name = self._wait_for_operation(
             operation=create_prompt_dataset_operation,
-            timeout=config.timeout if config else 90,
+            timeout=(
+                config.timeout
+                if config and config.timeout is not None
+                else self._DEFAULT_TIMEOUT
+            ),
+            max_wait_time=(
+                config.max_wait_time
+                if config and config.max_wait_time is not None
+                else self._DEFAULT_MAX_WAIT_TIME
+            ),
         )
         dataset_id = dataset_resource_name.split("/")[-1]
 
@@ -1636,7 +1648,16 @@ class Prompts(_api_module.BaseModule):
         )
         dataset_resource_name = self._wait_for_operation(
             operation=create_prompt_dataset_operation,
-            timeout=config.timeout if config else 90,
+            timeout=(
+                config.timeout
+                if config and config.timeout is not None
+                else self._DEFAULT_TIMEOUT
+            ),
+            max_wait_time=(
+                config.max_wait_time
+                if config and config.max_wait_time is not None
+                else self._DEFAULT_MAX_WAIT_TIME
+            ),
         )
         dataset_id = dataset_resource_name.split("/")[-1]
 
@@ -1660,7 +1681,16 @@ class Prompts(_api_module.BaseModule):
         )
         dataset_version_resource_name = self._wait_for_operation(
             operation=create_dataset_version_operation,
-            timeout=config.timeout if config else 90,
+            timeout=(
+                config.timeout
+                if config and config.timeout is not None
+                else self._DEFAULT_TIMEOUT
+            ),
+            max_wait_time=(
+                config.max_wait_time
+                if config and config.max_wait_time is not None
+                else self._DEFAULT_MAX_WAIT_TIME
+            ),
         )
 
         # Step 4: Get the dataset version resource and return it with the prompt
@@ -1679,12 +1709,14 @@ class Prompts(_api_module.BaseModule):
         self,
         operation: types.DatasetOperation,
         timeout: int,
+        max_wait_time: int = _DEFAULT_MAX_WAIT_TIME,
     ) -> str:
         """Waits for a dataset operation to complete.
 
         Args:
           operation: The dataset operation to wait for.
           timeout: The maximum time to wait for the operation to complete.
+          max_wait_time: The maximum interval between polling requests in seconds.
 
         Returns:
           The name of the Dataset resource from the operation result.
@@ -1706,7 +1738,6 @@ class Prompts(_api_module.BaseModule):
         start_time = time.time()
         sleep_duration = 5
         wait_multiplier = 2
-        max_wait_time = 60
         previous_time = time.time()
 
         while not done:
@@ -1923,6 +1954,7 @@ class Prompts(_api_module.BaseModule):
         self,
         operation: genai_types.ProjectOperation,
         timeout: int,
+        max_wait_time: int = _DEFAULT_MAX_WAIT_TIME,
     ) -> None:
         """Waits for a dataset deletion operation to complete.
 
@@ -1931,6 +1963,7 @@ class Prompts(_api_module.BaseModule):
         Args:
           operation: The project operation to wait for.
           timeout: The maximum time to wait for the operation to complete.
+          max_wait_time: The maximum interval between polling requests in seconds.
         Raises:
           TimeoutError: If the operation does not complete within the timeout.
           ValueError: If the operation fails.
@@ -1940,7 +1973,6 @@ class Prompts(_api_module.BaseModule):
         start_time = time.time()
         sleep_duration = 5
         wait_multiplier = 2
-        max_wait_time = 60
         previous_time = time.time()
         while not done:
             if (time.time() - start_time) > timeout:
@@ -1985,7 +2017,17 @@ class Prompts(_api_module.BaseModule):
             config=config,
         )
         self._wait_for_project_operation(
-            operation=delete_prompt_operation, timeout=config.timeout if config else 90
+            operation=delete_prompt_operation,
+            timeout=(
+                config.timeout
+                if config and config.timeout is not None
+                else self._DEFAULT_TIMEOUT
+            ),
+            max_wait_time=(
+                config.max_wait_time
+                if config and config.max_wait_time is not None
+                else self._DEFAULT_MAX_WAIT_TIME
+            ),
         )
         logger.info(f"Deleted prompt with id: {prompt_id}")
 
@@ -2013,7 +2055,17 @@ class Prompts(_api_module.BaseModule):
         )
 
         self._wait_for_project_operation(
-            operation=delete_version_operation, timeout=config.timeout if config else 90
+            operation=delete_version_operation,
+            timeout=(
+                config.timeout
+                if config and config.timeout is not None
+                else self._DEFAULT_TIMEOUT
+            ),
+            max_wait_time=(
+                config.max_wait_time
+                if config and config.max_wait_time is not None
+                else self._DEFAULT_MAX_WAIT_TIME
+            ),
         )
         logger.info(
             f"Deleted prompt version {version_id} from prompt with id: {prompt_id}"
@@ -2040,10 +2092,20 @@ class Prompts(_api_module.BaseModule):
         restore_prompt_operation = self._restore_version(
             dataset_id=prompt_id,
             version_id=version_id,
+            config=config,
         )
         self._wait_for_project_operation(
             operation=restore_prompt_operation,
-            timeout=90,
+            timeout=(
+                config.timeout
+                if config and config.timeout is not None
+                else self._DEFAULT_TIMEOUT
+            ),
+            max_wait_time=(
+                config.max_wait_time
+                if config and config.max_wait_time is not None
+                else self._DEFAULT_MAX_WAIT_TIME
+            ),
         )
         dataset_version_resource = self._get_dataset_version_resource(
             dataset_id=prompt_id,
@@ -2070,7 +2132,7 @@ class Prompts(_api_module.BaseModule):
 
         log_wait = 5
         wait_multiplier = 2
-        max_wait_time = 60
+        max_wait_time = self._DEFAULT_MAX_WAIT_TIME
         previous_time = time.time()
 
         job = self._get_custom_job(name=job_name)
@@ -2400,7 +2462,16 @@ class Prompts(_api_module.BaseModule):
         )
         dataset_version_resource_name = self._wait_for_operation(
             operation=create_dataset_version_operation,
-            timeout=config.timeout if config else 90,
+            timeout=(
+                config.timeout
+                if config and config.timeout is not None
+                else self._DEFAULT_TIMEOUT
+            ),
+            max_wait_time=(
+                config.max_wait_time
+                if config and config.max_wait_time is not None
+                else self._DEFAULT_MAX_WAIT_TIME
+            ),
         )
         dataset_version_id = dataset_version_resource_name.split("/")[-1]
 
@@ -3499,6 +3570,9 @@ class AsyncPrompts(_api_module.BaseModule):
         self._api_client._verify_response(return_value)
         return return_value
 
+    _DEFAULT_TIMEOUT = 90
+    _DEFAULT_MAX_WAIT_TIME = 60
+
     async def create(
         self,
         *,
@@ -3558,7 +3632,16 @@ class AsyncPrompts(_api_module.BaseModule):
         )
         dataset_resource_name = await self._wait_for_operation(
             operation=create_prompt_dataset_operation,
-            timeout=config.timeout if config else 90,
+            timeout=(
+                config.timeout
+                if config and config.timeout is not None
+                else self._DEFAULT_TIMEOUT
+            ),
+            max_wait_time=(
+                config.max_wait_time
+                if config and config.max_wait_time is not None
+                else self._DEFAULT_MAX_WAIT_TIME
+            ),
         )
         dataset_id = dataset_resource_name.split("/")[-1]
 
@@ -3629,7 +3712,16 @@ class AsyncPrompts(_api_module.BaseModule):
         )
         dataset_resource_name = await self._wait_for_operation(
             operation=create_prompt_dataset_operation,
-            timeout=config.timeout if config else 90,
+            timeout=(
+                config.timeout
+                if config and config.timeout is not None
+                else self._DEFAULT_TIMEOUT
+            ),
+            max_wait_time=(
+                config.max_wait_time
+                if config and config.max_wait_time is not None
+                else self._DEFAULT_MAX_WAIT_TIME
+            ),
         )
         dataset_id = dataset_resource_name.split("/")[-1]
 
@@ -3653,7 +3745,16 @@ class AsyncPrompts(_api_module.BaseModule):
         )
         dataset_version_resource_name = await self._wait_for_operation(
             operation=create_dataset_version_operation,
-            timeout=config.timeout if config else 90,
+            timeout=(
+                config.timeout
+                if config and config.timeout is not None
+                else self._DEFAULT_TIMEOUT
+            ),
+            max_wait_time=(
+                config.max_wait_time
+                if config and config.max_wait_time is not None
+                else self._DEFAULT_MAX_WAIT_TIME
+            ),
         )
 
         # Step 4: Get the dataset version resource and return it with the prompt
@@ -3740,7 +3841,16 @@ class AsyncPrompts(_api_module.BaseModule):
         )
         dataset_version_resource_name = await self._wait_for_operation(
             operation=create_dataset_version_operation,
-            timeout=config.timeout if config else 90,
+            timeout=(
+                config.timeout
+                if config and config.timeout is not None
+                else self._DEFAULT_TIMEOUT
+            ),
+            max_wait_time=(
+                config.max_wait_time
+                if config and config.max_wait_time is not None
+                else self._DEFAULT_MAX_WAIT_TIME
+            ),
         )
         dataset_version_id = dataset_version_resource_name.split("/")[-1]
 
@@ -3760,12 +3870,14 @@ class AsyncPrompts(_api_module.BaseModule):
         self,
         operation: types.DatasetOperation,
         timeout: int,
+        max_wait_time: int = _DEFAULT_MAX_WAIT_TIME,
     ) -> str:
         """Waits for a dataset operation to complete.
 
         Args:
           operation: The dataset operation to wait for.
           timeout: The maximum time to wait for the operation to complete.
+          max_wait_time: The maximum interval between polling requests in seconds.
 
         Returns:
           The name of the Dataset resource from the operation result.
@@ -3787,7 +3899,6 @@ class AsyncPrompts(_api_module.BaseModule):
         start_time = time.time()
         sleep_duration = 5
         wait_multiplier = 2
-        max_wait_time = 60
         previous_time = time.time()
 
         while not done:
@@ -3885,6 +3996,7 @@ class AsyncPrompts(_api_module.BaseModule):
         self,
         operation: genai_types.ProjectOperation,
         timeout: int,
+        max_wait_time: int = _DEFAULT_MAX_WAIT_TIME,
     ) -> None:
         """Waits for a dataset deletion operation to complete.
 
@@ -3893,6 +4005,7 @@ class AsyncPrompts(_api_module.BaseModule):
         Args:
           operation: The project operation to wait for.
           timeout: The maximum time to wait for the operation to complete.
+          max_wait_time: The maximum interval between polling requests in seconds.
         Raises:
           TimeoutError: If the operation does not complete within the timeout.
           ValueError: If the operation fails.
@@ -3902,7 +4015,6 @@ class AsyncPrompts(_api_module.BaseModule):
         start_time = time.time()
         sleep_duration = 5
         wait_multiplier = 2
-        max_wait_time = 60
         previous_time = time.time()
         while not done:
             if (time.time() - start_time) > timeout:
@@ -3947,7 +4059,17 @@ class AsyncPrompts(_api_module.BaseModule):
             config=config,
         )
         await self._wait_for_project_operation(
-            operation=delete_prompt_operation, timeout=config.timeout if config else 90
+            operation=delete_prompt_operation,
+            timeout=(
+                config.timeout
+                if config and config.timeout is not None
+                else self._DEFAULT_TIMEOUT
+            ),
+            max_wait_time=(
+                config.max_wait_time
+                if config and config.max_wait_time is not None
+                else self._DEFAULT_MAX_WAIT_TIME
+            ),
         )
         logger.info(f"Deleted prompt with id: {prompt_id}")
 
@@ -3975,7 +4097,17 @@ class AsyncPrompts(_api_module.BaseModule):
         )
 
         await self._wait_for_project_operation(
-            operation=delete_version_operation, timeout=config.timeout if config else 90
+            operation=delete_version_operation,
+            timeout=(
+                config.timeout
+                if config and config.timeout is not None
+                else self._DEFAULT_TIMEOUT
+            ),
+            max_wait_time=(
+                config.max_wait_time
+                if config and config.max_wait_time is not None
+                else self._DEFAULT_MAX_WAIT_TIME
+            ),
         )
         logger.info(
             f"Deleted prompt version {version_id} from prompt with id: {prompt_id}"
@@ -4111,10 +4243,20 @@ class AsyncPrompts(_api_module.BaseModule):
         restore_prompt_operation = await self._restore_version(
             dataset_id=prompt_id,
             version_id=version_id,
+            config=config,
         )
         await self._wait_for_project_operation(
             operation=restore_prompt_operation,
-            timeout=90,
+            timeout=(
+                config.timeout
+                if config and config.timeout is not None
+                else self._DEFAULT_TIMEOUT
+            ),
+            max_wait_time=(
+                config.max_wait_time
+                if config and config.max_wait_time is not None
+                else self._DEFAULT_MAX_WAIT_TIME
+            ),
         )
         dataset_version_resource = await self._get_dataset_version_resource(
             dataset_id=prompt_id,
