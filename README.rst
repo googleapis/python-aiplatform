@@ -3,12 +3,25 @@ Google Gemini Enterprise Agent Platform SDK for Python
 
 |GA| |pypi| |versions| |unit-tests| |system-tests| |sample-tests|
 
-> **Note:** The Gemini Enterprise Agent Platform was formerly known as
-> Vertex AI.
-
-> **Note:** The **agent_engines** module will be rebranded as **runtimes** in
-> an upcoming major release (not before 7/31/2026). See [Agent Runtime](https://docs.cloud.google.com/gemini-enterprise-agent-platform/scale#agent-runtime) for details.
-
+> [!NOTE]
+> The Gemini Enterprise Agent Platform was formerly known as Vertex AI.
+>
+> [!WARNING]
+> **Upcoming Rebranding:**
+> The `agent_engines` module will be rebranded as `runtimes` in an upcoming major release (not before 7/31/2026). See [Agent Runtime](https://docs.cloud.google.com/gemini-enterprise-agent-platform/scale#agent-runtime) for details.
+> Additionally, the `sandboxes`, `sessions`, and `memory_banks` modules will be moved directly under the top-level `client` object:
+>
+> | Current method | future method |
+> | --- | --- |
+> | `client.agent_engines.sandboxes` | `client.sandboxes` |
+> | `client.agent_engines.sandboxes.snapshots` | `client.sandboxes.snapshots` |
+> | `client.agent_engines.sandboxes.templates` | `client.sandboxes.templates` |
+> | `client.agent_engines.sessions` | `client.sessions` |
+> | `client.agent_engines.sessions.events` | `client.sessions.events` |
+> | `client.agent_engines.runtimes.revisions` | `client.runtimes.revisions` |
+> | `client.agent_engines.memories` | `client.memory_banks` |
+>
+> To avoid unexpected updates, pin the SDK version to `< 2.0.0`.
 
 `Gemini Enterprise Agent Platform`_: Gemini Enterprise Agent Platform is Google Cloud's comprehensive platform for developers to build, scale, govern and optimize agents.
 
