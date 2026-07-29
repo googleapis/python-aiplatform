@@ -3,25 +3,39 @@ Google Gemini Enterprise Agent Platform SDK for Python
 
 |GA| |pypi| |versions| |unit-tests| |system-tests| |sample-tests|
 
-> [!NOTE]
-> The Gemini Enterprise Agent Platform was formerly known as Vertex AI.
->
-> [!WARNING]
-> **Upcoming Rebranding:**
-> The `agent_engines` module will be rebranded as `runtimes` in an upcoming major release (not before 7/31/2026). See [Agent Runtime](https://docs.cloud.google.com/gemini-enterprise-agent-platform/scale#agent-runtime) for details.
-> Additionally, the `sandboxes`, `sessions`, and `memory_banks` modules will be moved directly under the top-level `client` object:
->
-> | Current method | future method |
-> | --- | --- |
-> | `client.agent_engines.sandboxes` | `client.sandboxes` |
-> | `client.agent_engines.sandboxes.snapshots` | `client.sandboxes.snapshots` |
-> | `client.agent_engines.sandboxes.templates` | `client.sandboxes.templates` |
-> | `client.agent_engines.sessions` | `client.sessions` |
-> | `client.agent_engines.sessions.events` | `client.sessions.events` |
-> | `client.agent_engines.runtimes.revisions` | `client.runtimes.revisions` |
-> | `client.agent_engines.memories` | `client.memory_banks` |
->
-> To avoid unexpected updates, pin the SDK version to `< 2.0.0`.
+.. note::
+
+   The Gemini Enterprise Agent Platform was formerly known as Vertex AI.
+
+.. warning::
+
+   **Upcoming Rebranding:**
+
+   The ``agent_engines`` module will be rebranded as ``runtimes`` in an upcoming major release (not before 7/31/2026). See `Agent Runtime <https://docs.cloud.google.com/gemini-enterprise-agent-platform/scale#agent-runtime>`_ for details.
+
+   Additionally, the ``sandboxes``, ``sessions``, and ``memory_banks`` modules will be moved directly under the top-level ``client`` object:
+
+   .. list-table::
+      :header-rows: 1
+
+      * - Current method
+        - future method
+      * - ``client.agent_engines.sandboxes``
+        - ``client.sandboxes``
+      * - ``client.agent_engines.sandboxes.snapshots``
+        - ``client.sandboxes.snapshots``
+      * - ``client.agent_engines.sandboxes.templates``
+        - ``client.sandboxes.templates``
+      * - ``client.agent_engines.sessions``
+        - ``client.sessions``
+      * - ``client.agent_engines.sessions.events``
+        - ``client.sessions.events``
+      * - ``client.agent_engines.runtimes.revisions``
+        - ``client.runtimes.revisions``
+      * - ``client.agent_engines.memories``
+        - ``client.memory_banks``
+
+   To avoid unexpected updates, pin the SDK version to ``< 2.0.0``.
 
 `Gemini Enterprise Agent Platform`_: Gemini Enterprise Agent Platform is Google Cloud's comprehensive platform for developers to build, scale, govern and optimize agents.
 
@@ -208,7 +222,7 @@ method.
 To call the data-driven prompt optimization, call the `launch_optimization_job` method.
 In this case however, we need to provide a VAPO (Gemini Enterprise Agent Platform Prompt Optimizer) config. This config needs to
 have either service account or project **number** and the config path.
-Please refer to this [tutorial](https://cloud.google.com/vertex-ai/generative-ai/docs/learn/prompts/data-driven-optimizer)
+Please refer to this `tutorial <https://cloud.google.com/vertex-ai/generative-ai/docs/learn/prompts/data-driven-optimizer>`_
 for more details on config parameter.
 
 .. code-block:: Python
@@ -390,9 +404,9 @@ Delete a skill when it is no longer required.
 .. note::
 
    The following Generative AI modules in the Gemini Enterprise Agent Platform SDK are deprecated as of June 24, 2025 and will be removed on June 24, 2026:
-   `vertexai.generative_models`, `vertexai.language_models`, `vertexai.vision_models`, `vertexai.tuning`, `vertexai.caching`. Please use the
-   [Google Gen AI SDK](https://pypi.org/project/google-genai/) to access these features. See
-   [the migration guide](https://cloud.google.com/vertex-ai/generative-ai/docs/deprecations/genai-vertexai-sdk) for details.
+   ``vertexai.generative_models``, ``vertexai.language_models``, ``vertexai.vision_models``, ``vertexai.tuning``, ``vertexai.caching``. Please use the
+   `Google Gen AI SDK <https://pypi.org/project/google-genai/>`_ to access these features. See
+   `the migration guide <https://cloud.google.com/vertex-ai/generative-ai/docs/deprecations/genai-vertexai-sdk>`_ for details.
    You can continue using all other Gemini Enterprise Agent Platform SDK modules, as they are the recommended way to use the API.
 
 Quick Start
