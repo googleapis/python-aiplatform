@@ -10635,24 +10635,32 @@ class TestAllowCrossRegionModel:
             return_value=self.mock_response
         )
         async_evals_module = evals.AsyncEvals(api_client_=self.mock_api_client)
-
-        await async_evals_module.create_evaluation_run(
-            dataset=agentplatform_genai_types.EvaluationRunDataSource(
-                evaluation_set="projects/123/locations/us-central1/evaluationSets/789"
-            ),
-            metrics=[
-                agentplatform_genai_types.EvaluationRunMetric(
-                    metric="general_quality_v1",
-                    metric_config=agentplatform_genai_types.UnifiedMetric(
-                        predefined_metric_spec=genai_types.PredefinedMetricSpec(
-                            metric_spec_name="general_quality_v1",
-                        )
-                    ),
-                )
-            ],
-            dest="gs://test-bucket/output",
-            config={"allow_cross_region_model": True},
+        experiment = agentplatform_genai_types.EvaluationExperiment(
+            name="projects/123/locations/us-central1/evaluationExperiments/e1"
         )
+
+        with mock.patch.object(
+            async_evals_module,
+            "create_evaluation_experiment",
+            new=mock.AsyncMock(return_value=experiment),
+        ):
+            await async_evals_module.create_evaluation_run(
+                dataset=agentplatform_genai_types.EvaluationRunDataSource(
+                    evaluation_set="projects/123/locations/us-central1/evaluationSets/789"
+                ),
+                metrics=[
+                    agentplatform_genai_types.EvaluationRunMetric(
+                        metric="general_quality_v1",
+                        metric_config=agentplatform_genai_types.UnifiedMetric(
+                            predefined_metric_spec=genai_types.PredefinedMetricSpec(
+                                metric_spec_name="general_quality_v1",
+                            )
+                        ),
+                    )
+                ],
+                dest="gs://test-bucket/output",
+                config={"allow_cross_region_model": True},
+            )
 
         self.mock_api_client.async_request.assert_called_once()
         call_args = self.mock_api_client.async_request.call_args
@@ -12410,6 +12418,89 @@ class TestCreateEvaluationRunAutoExperiment:
 
         mock_create_exp.assert_not_called()
         request_body = self.mock_api_client.request.call_args[0][2]
+        assert (
+            request_body.get("evaluationExperiment")
+            == "projects/123/locations/us-central1/evaluationExperiments/existing"
+        )
+
+
+class TestAsyncCreateEvaluationRunAutoExperiment:
+
+    def setup_method(self, method):
+        self.mock_api_client = mock.MagicMock()
+        self.mock_api_client.vertexai = True
+        self.mock_response = mock.MagicMock()
+        self.mock_response.body = json.dumps(
+            {
+                "name": "projects/123/locations/us-central1/evaluationRuns/456",
+                "displayName": "test_run",
+                "state": "PENDING",
+                "evaluationExperiment": (
+                    "projects/123/locations/us-central1/evaluationExperiments/e1"
+                ),
+            }
+        )
+        self.mock_api_client.async_request = mock.AsyncMock(
+            return_value=self.mock_response
+        )
+        self.dataset = agentplatform_genai_types.EvaluationRunDataSource(
+            evaluation_set="projects/123/locations/us-central1/evaluationSets/789"
+        )
+        self.metrics = [
+            agentplatform_genai_types.EvaluationRunMetric(
+                metric="general_quality_v1",
+                metric_config=agentplatform_genai_types.UnifiedMetric(
+                    predefined_metric_spec=genai_types.PredefinedMetricSpec(
+                        metric_spec_name="general_quality_v1",
+                    )
+                ),
+            )
+        ]
+
+    @pytest.mark.asyncio
+    async def test_async_auto_creates_experiment_when_not_provided(self):
+        async_evals_module = evals.AsyncEvals(api_client_=self.mock_api_client)
+        experiment = agentplatform_genai_types.EvaluationExperiment(
+            name="projects/123/locations/us-central1/evaluationExperiments/e1"
+        )
+        with mock.patch.object(
+            async_evals_module,
+            "create_evaluation_experiment",
+            new=mock.AsyncMock(return_value=experiment),
+        ) as mock_create_exp:
+            await async_evals_module.create_evaluation_run(
+                dataset=self.dataset,
+                metrics=self.metrics,
+                dest="gs://test-bucket/output",
+                display_name="my_run",
+            )
+
+        mock_create_exp.assert_awaited_once()
+        request_body = self.mock_api_client.async_request.call_args[0][2]
+        assert (
+            request_body.get("evaluationExperiment")
+            == "projects/123/locations/us-central1/evaluationExperiments/e1"
+        )
+
+    @pytest.mark.asyncio
+    async def test_async_uses_provided_experiment_without_creating(self):
+        async_evals_module = evals.AsyncEvals(api_client_=self.mock_api_client)
+        with mock.patch.object(
+            async_evals_module,
+            "create_evaluation_experiment",
+            new=mock.AsyncMock(),
+        ) as mock_create_exp:
+            await async_evals_module.create_evaluation_run(
+                dataset=self.dataset,
+                metrics=self.metrics,
+                dest="gs://test-bucket/output",
+                evaluation_experiment=(
+                    "projects/123/locations/us-central1/evaluationExperiments/existing"
+                ),
+            )
+
+        mock_create_exp.assert_not_awaited()
+        request_body = self.mock_api_client.async_request.call_args[0][2]
         assert (
             request_body.get("evaluationExperiment")
             == "projects/123/locations/us-central1/evaluationExperiments/existing"
