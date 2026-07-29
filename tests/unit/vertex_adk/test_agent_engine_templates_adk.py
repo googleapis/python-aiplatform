@@ -429,6 +429,67 @@ class TestAdkApp:
             events.append(event)
         assert len(events) == 1
 
+    def test_set_up_runner_auto_create_session_enabled(
+        self,
+        default_instrumentor_builder_mock: mock.Mock,
+        get_project_id_mock: mock.Mock,
+    ):
+        """The main runner opts into auto-creating missing sessions (b/537477760)."""
+        app = agent_engines.AdkApp(agent=_TEST_AGENT)
+        app.set_up()
+        assert app._tmpl_attrs.get("runner").auto_create_session is True
+
+    @pytest.mark.asyncio
+    async def test_runner_auto_creates_missing_session(
+        self,
+        default_instrumentor_builder_mock: mock.Mock,
+        get_project_id_mock: mock.Mock,
+    ):
+        from google.adk.runners import Runner
+        from google.adk.sessions.in_memory_session_service import (
+            InMemorySessionService,
+        )
+
+        app = agent_engines.AdkApp(agent=_TEST_AGENT)
+        app.set_up()
+        assert app._tmpl_attrs.get("runner").auto_create_session is True
+
+        app_name = app._tmpl_attrs.get("app_name")
+        session_service = InMemorySessionService()
+        runner = Runner(
+            agent=_TEST_AGENT,
+            app_name=app_name,
+            session_service=session_service,
+            auto_create_session=app._tmpl_attrs.get("runner").auto_create_session,
+        )
+        missing_session_id = "0000000000000000000"
+
+        # Sanity: the session does not exist yet.
+        assert (
+            await session_service.get_session(
+                app_name=app_name,
+                user_id=_TEST_USER_ID,
+                session_id=missing_session_id,
+            )
+            is None
+        )
+
+        session = await runner._get_or_create_session(
+            user_id=_TEST_USER_ID,
+            session_id=missing_session_id,
+        )
+
+        assert session is not None
+        assert session.id == missing_session_id
+        assert (
+            await session_service.get_session(
+                app_name=app_name,
+                user_id=_TEST_USER_ID,
+                session_id=missing_session_id,
+            )
+            is not None
+        )
+
     @pytest.mark.asyncio
     @mock.patch.dict(
         os.environ,

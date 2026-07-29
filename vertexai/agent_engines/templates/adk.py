@@ -1092,6 +1092,7 @@ class AdkApp:
             session_service=self._tmpl_attrs.get("session_service"),
             artifact_service=self._tmpl_attrs.get("artifact_service"),
             memory_service=self._tmpl_attrs.get("memory_service"),
+            auto_create_session=True,
         )
         self._tmpl_attrs["in_memory_session_service"] = InMemorySessionService()
         self._tmpl_attrs["in_memory_artifact_service"] = InMemoryArtifactService()
