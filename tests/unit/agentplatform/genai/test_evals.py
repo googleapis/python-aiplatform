@@ -10301,9 +10301,9 @@ class TestResolveDatasetWithInteractions:
 
         def mock_request(method, path, *args, **kwargs):
             resp = mock.MagicMock()
-            if path.startswith("interactions/"):
+            if path.endswith("interactions/i1"):
                 resp.body = interaction_body
-            elif path.startswith("agents/"):
+            elif path.endswith("agents/my-agent"):
                 resp.body = agent_body
             else:
                 resp.body = None
@@ -10314,9 +10314,9 @@ class TestResolveDatasetWithInteractions:
         original_case = agentplatform_genai_types.EvalCase(
             interactions_data_source=agentplatform_genai_types.InteractionsDataSource(
                 gemini_agent_config=agentplatform_genai_types.GeminiAgentConfig(
-                    gemini_agent="projects/p/locations/l/agents/my-agent",
+                    gemini_agent="projects/p/locations/us-central1/agents/my-agent",
                 ),
-                interaction="projects/p/locations/l/interactions/i1",
+                interaction="projects/p/locations/us-central1/interactions/i1",
             ),
         )
 
@@ -11119,7 +11119,12 @@ class TestResolveInteractionsForDisplay:
         # Verify the interaction and agent were fetched.
         assert mock_api_client.request.call_count == 2
         mock_api_client.request.assert_any_call("get", "interactions/test-id", {}, None)
-        mock_api_client.request.assert_any_call("get", "agents/my-agent", {}, None)
+        mock_api_client.request.assert_any_call(
+            "get",
+            "projects/p/locations/l/agents/my-agent",
+            {},
+            None,
+        )
 
     def test_agents_map_populated_with_full_config(self):
         """The agents dict includes instruction and tools from the Agent API."""
@@ -12071,6 +12076,40 @@ class TestFetchAgentConfigDict:
         ]
         assert len(mcp_tool) == 1
         assert "my-mcp" in mcp_tool[0].function_declarations[0].description
+
+    def test_skips_fetch_when_location_mismatches(self):
+        """Skips agent config fetch and logs warning if locations mismatch."""
+        mock_api_client = mock.MagicMock()
+        mock_api_client.location = "us-central1"
+        mock_api_client.request.return_value = self._make_api_response({})
+
+        result = _evals_common._fetch_agent_config_dict(
+            mock_api_client,
+            "projects/p/locations/global/agents/my-agent",
+        )
+        assert result.agent_id == "my-agent"
+        assert result.instruction is None
+        mock_api_client.request.assert_not_called()
+
+    def test_uses_full_resource_name_when_location_matches(self):
+        """Uses full resource name in GET request when client location matches."""
+        agent_json = {"system_instruction": "You are helpful."}
+        mock_api_client = mock.MagicMock()
+        mock_api_client.location = "us-central1"
+        mock_api_client.request.return_value = self._make_api_response(agent_json)
+
+        result = _evals_common._fetch_agent_config_dict(
+            mock_api_client,
+            "projects/p/locations/us-central1/agents/my-agent",
+        )
+        assert result.agent_id == "my-agent"
+        assert result.instruction == "You are helpful."
+        mock_api_client.request.assert_called_once_with(
+            "get",
+            "projects/p/locations/us-central1/agents/my-agent",
+            {},
+            None,
+        )
 
     def test_catalog_in_sync_with_server(self):
         """SDK catalog keys and function names match the server-side catalog.
