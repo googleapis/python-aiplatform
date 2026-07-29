@@ -66,12 +66,8 @@ def _CreateSandboxEnvironmentSnapshotRequestParameters_to_vertex(
         )
 
     if getv(from_object, ["config"]) is not None:
-        setv(
-            to_object,
-            ["config"],
-            _CreateAgentEngineSandboxSnapshotConfig_to_vertex(
-                getv(from_object, ["config"]), to_object
-            ),
+        _CreateAgentEngineSandboxSnapshotConfig_to_vertex(
+            getv(from_object, ["config"]), to_object
         )
 
     return to_object
