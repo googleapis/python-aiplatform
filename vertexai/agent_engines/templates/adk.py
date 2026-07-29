@@ -1123,6 +1123,7 @@ class AdkApp:
         session_id: Optional[str] = None,
         session_events: Optional[List[Dict[str, Any]]] = None,
         run_config: Optional[Dict[str, Any]] = None,
+        authorizations: Optional[Dict[str, Any]] = None,
         **kwargs,
     ) -> AsyncIterable[Dict[str, Any]]:
         """Streams responses asynchronously from the ADK application.
@@ -1143,6 +1144,12 @@ class AdkApp:
                 Optional. The run config to use for the query. If you want to
                 pass in a `run_config` pydantic object, you can pass in a dict
                 representing it as `run_config.model_dump(mode="json")`.
+            authorizations (Optional[Dict[str, Any]]):
+                Optional. The authorizations of the user, keyed by
+                authorization ID. Each value should be a dictionary with an
+                ``access_token`` (or ``accessToken``) field. The tokens will
+                be written to the session state so that agent tools can access
+                them at runtime via ``ctx.state[auth_id]``.
             **kwargs (dict[str, Any]):
                 Optional. Additional keyword arguments to pass to the
                 runner.
@@ -1190,6 +1197,13 @@ class AdkApp:
                         event=event,
                     )
 
+        state_delta = None
+        if authorizations:
+            state_delta = {}
+            for auth_id, auth in authorizations.items():
+                auth_obj = _Authorization(**auth) if isinstance(auth, dict) else auth
+                state_delta[auth_id] = auth_obj.access_token
+
         run_config = _validate_run_config(run_config)
         if run_config:
             events_async = self._tmpl_attrs.get("runner").run_async(
@@ -1197,6 +1211,7 @@ class AdkApp:
                 session_id=session_id,
                 new_message=content,
                 run_config=run_config,
+                state_delta=state_delta,
                 **kwargs,
             )
         else:
@@ -1204,6 +1219,7 @@ class AdkApp:
                 user_id=user_id,
                 session_id=session_id,
                 new_message=content,
+                state_delta=state_delta,
                 **kwargs,
             )
 

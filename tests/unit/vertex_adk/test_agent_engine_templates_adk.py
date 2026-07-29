@@ -429,6 +429,118 @@ class TestAdkApp:
             events.append(event)
         assert len(events) == 1
 
+    @pytest.mark.asyncio
+    async def test_async_stream_query_with_authorizations(
+        self,
+        default_instrumentor_builder_mock: mock.Mock,
+        get_project_id_mock: mock.Mock,
+    ):
+        app = agent_engines.AdkApp(agent=_TEST_AGENT)
+        app.set_up()
+        mock_runner = mock.AsyncMock()
+
+        async def mock_run_async(**kwargs):
+            from google.adk.events import event
+
+            yield event.Event(
+                **{
+                    "author": "test_agent",
+                    "content": {"parts": [{"text": "ok"}], "role": "model"},
+                    "id": "test-id",
+                    "invocation_id": "e-test",
+                }
+            )
+
+        mock_runner.run_async = mock_run_async
+        app._tmpl_attrs["runner"] = mock_runner
+
+        events = []
+        async for event in app.async_stream_query(
+            user_id=_TEST_USER_ID,
+            message="test message",
+            authorizations={
+                "exa_mcp_access": {"access_token": "test-token-123"},
+                "other_service": {"accessToken": "other-token-456"},
+            },
+        ):
+            events.append(event)
+        assert len(events) == 1
+
+    @pytest.mark.asyncio
+    async def test_async_stream_query_authorizations_passed_as_state_delta(
+        self,
+        default_instrumentor_builder_mock: mock.Mock,
+        get_project_id_mock: mock.Mock,
+    ):
+        app = agent_engines.AdkApp(agent=_TEST_AGENT)
+        app.set_up()
+
+        captured_kwargs = {}
+
+        async def capturing_run_async(**kwargs):
+            captured_kwargs.update(kwargs)
+            from google.adk.events import event
+
+            yield event.Event(
+                **{
+                    "author": "test_agent",
+                    "content": {"parts": [{"text": "ok"}], "role": "model"},
+                    "id": "test-id",
+                    "invocation_id": "e-test",
+                }
+            )
+
+        app._tmpl_attrs["runner"].run_async = capturing_run_async
+
+        events = []
+        async for event in app.async_stream_query(
+            user_id=_TEST_USER_ID,
+            message="test message",
+            authorizations={
+                "exa_mcp_access": {"access_token": "test-token-123"},
+            },
+        ):
+            events.append(event)
+
+        assert captured_kwargs["state_delta"] == {
+            "exa_mcp_access": "test-token-123",
+        }
+
+    @pytest.mark.asyncio
+    async def test_async_stream_query_no_authorizations_passes_none_state_delta(
+        self,
+        default_instrumentor_builder_mock: mock.Mock,
+        get_project_id_mock: mock.Mock,
+    ):
+        app = agent_engines.AdkApp(agent=_TEST_AGENT)
+        app.set_up()
+
+        captured_kwargs = {}
+
+        async def capturing_run_async(**kwargs):
+            captured_kwargs.update(kwargs)
+            from google.adk.events import event
+
+            yield event.Event(
+                **{
+                    "author": "test_agent",
+                    "content": {"parts": [{"text": "ok"}], "role": "model"},
+                    "id": "test-id",
+                    "invocation_id": "e-test",
+                }
+            )
+
+        app._tmpl_attrs["runner"].run_async = capturing_run_async
+
+        events = []
+        async for event in app.async_stream_query(
+            user_id=_TEST_USER_ID,
+            message="test message",
+        ):
+            events.append(event)
+
+        assert captured_kwargs["state_delta"] is None
+
     def test_set_up_runner_auto_create_session_enabled(
         self,
         default_instrumentor_builder_mock: mock.Mock,
