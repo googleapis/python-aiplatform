@@ -25,6 +25,7 @@ from typing import Any, Optional
 import pandas as pd
 from pydantic import errors
 
+from . import _evals_common
 from . import types
 
 
@@ -1552,15 +1553,18 @@ def display_evaluation_dataset(eval_dataset_obj: types.EvaluationDataset) -> Non
     else:
         from IPython import display
 
-    if (
-        eval_dataset_obj.eval_dataset_df is None
-        or eval_dataset_obj.eval_dataset_df.empty
-    ):
-        logger.warning("No inference data to display.")
-        return
+    df = eval_dataset_obj.eval_dataset_df
+
+    # Fall back to eval_cases when eval_dataset_df is not populated (e.g.
+    # when the dataset was constructed manually with eval_cases).
+    if df is None or df.empty:
+        if eval_dataset_obj.eval_cases:
+            df = _evals_common._eval_cases_to_dataframe(eval_dataset_obj.eval_cases)
+        if df is None or df.empty:
+            logger.warning("No inference data to display.")
+            return
 
     processed_rows = []
-    df = eval_dataset_obj.eval_dataset_df
 
     for _, row in df.iterrows():
         processed_row = {}

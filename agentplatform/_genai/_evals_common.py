@@ -357,6 +357,16 @@ def _eval_cases_to_dataframe(
                     case.user_scenario.conversation_plan
                 )
 
+        if case.interactions_data_source:
+            row["interaction"] = getattr(
+                case.interactions_data_source, "interaction", None
+            )
+            gemini_cfg = getattr(
+                case.interactions_data_source, "gemini_agent_config", None
+            )
+            if gemini_cfg:
+                row["gemini_agent"] = getattr(gemini_cfg, "gemini_agent", None)
+
         rows.append(row)
     return pd.DataFrame(rows)
 
