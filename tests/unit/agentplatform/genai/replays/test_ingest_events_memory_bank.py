@@ -18,17 +18,17 @@ from tests.unit.agentplatform.genai.replays import pytest_helper
 
 
 def test_ingest_events(client):
-    agent_engine = client.agent_engines.create()
+    runtime = client.runtimes.create()
     assert not list(
-        client.agent_engines.memories.list(
-            name=agent_engine.api_resource.name,
+        client.runtimes.memories.list(
+            name=runtime.api_resource.name,
         )
     )
     scope = {"user_id": "test-user-id"}
     # Generate memories using source content. This result is non-deterministic,
     # because an LLM is used to generate the memories.
-    client.agent_engines.memories.ingest_events(
-        name=agent_engine.api_resource.name,
+    client.runtimes.memories.ingest_events(
+        name=runtime.api_resource.name,
         scope=scope,
         direct_contents_source={
             "events": [
@@ -48,8 +48,8 @@ def test_ingest_events(client):
         },
     )
     memories = list(
-        client.agent_engines.memories.retrieve(
-            name=agent_engine.api_resource.name,
+        client.runtimes.memories.retrieve(
+            name=runtime.api_resource.name,
             scope=scope,
         )
     )
@@ -58,8 +58,8 @@ def test_ingest_events(client):
     # of inactivity.
     assert len(memories) == 0
 
-    client.agent_engines.memories.ingest_events(
-        name=agent_engine.api_resource.name,
+    client.runtimes.memories.ingest_events(
+        name=runtime.api_resource.name,
         scope=scope,
         direct_contents_source={
             "events": [
@@ -84,8 +84,8 @@ def test_ingest_events(client):
         },
     )
     memories = list(
-        client.agent_engines.memories.retrieve(
-            name=agent_engine.api_resource.name,
+        client.runtimes.memories.retrieve(
+            name=runtime.api_resource.name,
             scope=scope,
             simple_retrieval_params={
                 "page_size": 1,
@@ -101,18 +101,18 @@ def test_ingest_events(client):
     # The user-provided `revision_labels` are applied to the generated memory's
     # revision (not the Memory itself), so list the memory's revisions to verify.
     revisions = list(
-        client.agent_engines.memories.revisions.list(
+        client.runtimes.memories.revisions.list(
             name=memories[0].memory.name,
         )
     )
     assert revisions
     assert revisions[0].labels == {"source": "ingest-events-test"}
 
-    client.agent_engines.delete(name=agent_engine.api_resource.name, force=True)
+    client.runtimes.delete(name=runtime.api_resource.name, force=True)
 
 
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
-    test_method="agent_engines.memories.ingest_events",
+    test_method="runtimes.memories.ingest_events",
 )

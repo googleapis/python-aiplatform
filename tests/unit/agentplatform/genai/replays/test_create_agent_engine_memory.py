@@ -21,9 +21,9 @@ from agentplatform._genai import types
 
 
 def test_create_memory_with_ttl(client):
-    agent_engine = client.agent_engines.create()
-    assert isinstance(agent_engine, types.AgentEngine)
-    assert isinstance(agent_engine.api_resource, types.ReasoningEngine)
+    runtime = client.runtimes.create()
+    assert isinstance(runtime, types.Runtime)
+    assert isinstance(runtime.api_resource, types.ReasoningEngine)
 
     metadata = {
         "my_string_key": types.MemoryMetadataValue(string_value="my_string_value"),
@@ -36,20 +36,20 @@ def test_create_memory_with_ttl(client):
         ),
     }
 
-    operation = client.agent_engines.memories.create(
-        name=agent_engine.api_resource.name,
+    operation = client.runtimes.memories.create(
+        name=runtime.api_resource.name,
         fact="memory_fact",
         scope={"user_id": "123"},
-        config=types.AgentEngineMemoryConfig(
+        config=types.RuntimeMemoryConfig(
             display_name="my_memory_fact",
             ttl="120s",
             metadata=metadata,
         ),
     )
-    assert isinstance(operation, types.AgentEngineMemoryOperation)
+    assert isinstance(operation, types.RuntimeMemoryOperation)
     assert operation.response.fact == "memory_fact"
     assert operation.response.scope == {"user_id": "123"}
-    assert operation.response.name.startswith(agent_engine.api_resource.name)
+    assert operation.response.name.startswith(runtime.api_resource.name)
     # Expire time is calculated by the server, so we only check that it is
     # within a reasonable range to avoid flakiness.
     assert (
@@ -59,60 +59,60 @@ def test_create_memory_with_ttl(client):
     )
     assert operation.response.metadata == metadata
     # Clean up resources.
-    client.agent_engines.delete(name=agent_engine.api_resource.name, force=True)
+    client.runtimes.delete(name=runtime.api_resource.name, force=True)
 
 
 def test_create_memory_with_expire_time(client):
-    agent_engine = client.agent_engines.create()
-    assert isinstance(agent_engine, types.AgentEngine)
-    assert isinstance(agent_engine.api_resource, types.ReasoningEngine)
+    runtime = client.runtimes.create()
+    assert isinstance(runtime, types.Runtime)
+    assert isinstance(runtime.api_resource, types.ReasoningEngine)
     expire_time = datetime.datetime(
         2027, 1, 1, 12, 30, 00, tzinfo=datetime.timezone.utc
     )
 
-    operation = client.agent_engines.memories.create(
-        name=agent_engine.api_resource.name,
+    operation = client.runtimes.memories.create(
+        name=runtime.api_resource.name,
         fact="memory_fact",
         scope={"user_id": "123"},
-        config=types.AgentEngineMemoryConfig(
+        config=types.RuntimeMemoryConfig(
             display_name="my_memory_fact", expire_time=expire_time
         ),
     )
-    assert isinstance(operation, types.AgentEngineMemoryOperation)
+    assert isinstance(operation, types.RuntimeMemoryOperation)
     assert operation.response.fact == "memory_fact"
     assert operation.response.scope == {"user_id": "123"}
-    assert operation.response.name.startswith(agent_engine.api_resource.name)
+    assert operation.response.name.startswith(runtime.api_resource.name)
     assert operation.response.expire_time == expire_time
     # Clean up resources.
-    client.agent_engines.delete(name=agent_engine.api_resource.name, force=True)
+    client.runtimes.delete(name=runtime.api_resource.name, force=True)
 
 
 def test_create_memory_with_custom_memory_id(client):
-    agent_engine = client.agent_engines.create()
-    assert isinstance(agent_engine, types.AgentEngine)
-    assert isinstance(agent_engine.api_resource, types.ReasoningEngine)
+    runtime = client.runtimes.create()
+    assert isinstance(runtime, types.Runtime)
+    assert isinstance(runtime.api_resource, types.ReasoningEngine)
 
-    operation = client.agent_engines.memories.create(
-        name=agent_engine.api_resource.name,
+    operation = client.runtimes.memories.create(
+        name=runtime.api_resource.name,
         fact="memory_fact",
         scope={"user_id": "123"},
-        config=types.AgentEngineMemoryConfig(
+        config=types.RuntimeMemoryConfig(
             display_name="my_memory_fact", memory_id="my-memory-id"
         ),
     )
-    assert isinstance(operation, types.AgentEngineMemoryOperation)
+    assert isinstance(operation, types.RuntimeMemoryOperation)
     assert operation.response.fact == "memory_fact"
     assert operation.response.scope == {"user_id": "123"}
     assert (
         operation.response.name
-        == f"{agent_engine.api_resource.name}/memories/my-memory-id"
+        == f"{runtime.api_resource.name}/memories/my-memory-id"
     )
     # Clean up resources.
-    client.agent_engines.delete(name=agent_engine.api_resource.name, force=True)
+    client.runtimes.delete(name=runtime.api_resource.name, force=True)
 
 
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
-    test_method="agent_engines.create_memory",
+    test_method="runtimes.create_memory",
 )

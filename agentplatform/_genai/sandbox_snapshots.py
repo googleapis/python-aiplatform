@@ -27,7 +27,7 @@ from google.genai._common import get_value_by_path as getv
 from google.genai._common import set_value_by_path as setv
 from google.genai.pagers import Pager
 
-from . import _agent_engines_utils
+from . import _runtimes_utils
 from . import types
 
 logger = logging.getLogger("agentplatform_genai.sandboxsnapshots")
@@ -35,7 +35,7 @@ logger = logging.getLogger("agentplatform_genai.sandboxsnapshots")
 logger.setLevel(logging.INFO)
 
 
-def _CreateAgentEngineSandboxSnapshotConfig_to_vertex(
+def _CreateRuntimeSandboxSnapshotConfig_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
@@ -69,7 +69,7 @@ def _CreateSandboxEnvironmentSnapshotRequestParameters_to_vertex(
         setv(
             to_object,
             ["config"],
-            _CreateAgentEngineSandboxSnapshotConfig_to_vertex(
+            _CreateRuntimeSandboxSnapshotConfig_to_vertex(
                 getv(from_object, ["config"]), to_object
             ),
         )
@@ -88,7 +88,7 @@ def _DeleteSandboxEnvironmentSnapshotRequestParameters_to_vertex(
     return to_object
 
 
-def _GetAgentEngineSandboxSnapshotOperationParameters_to_vertex(
+def _GetRuntimeSandboxSnapshotOperationParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
@@ -153,8 +153,8 @@ class SandboxSnapshots(_api_module.BaseModule):
         self,
         *,
         source_sandbox_environment_name: str,
-        config: Optional[types.CreateAgentEngineSandboxSnapshotConfigOrDict] = None,
-    ) -> types.AgentEngineSandboxSnapshotOperation:
+        config: Optional[types.CreateRuntimeSandboxSnapshotConfigOrDict] = None,
+    ) -> types.RuntimeSandboxSnapshotOperation:
         """
         Snapshots an existing sandbox environment.
 
@@ -162,7 +162,7 @@ class SandboxSnapshots(_api_module.BaseModule):
             source_sandbox_environment_name (str):
                 Required. The name of the sandbox environment to snapshot.
                 projects/{project}/locations/{location}/reasoningEngines/{resource_id}/sandboxEnvironments/{sandbox_environment_id}
-            config (CreateAgentEngineSandboxSnapshotConfig):
+            config (CreateRuntimeSandboxSnapshotConfig):
                 Optional. The configuration for the sandbox snapshot.
 
         """
@@ -207,7 +207,7 @@ class SandboxSnapshots(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
-        return_value = types.AgentEngineSandboxSnapshotOperation._from_response(
+        return_value = types.RuntimeSandboxSnapshotOperation._from_response(
             response=response_dict,
             kwargs=(
                 {
@@ -460,9 +460,9 @@ class SandboxSnapshots(_api_module.BaseModule):
         self,
         *,
         operation_name: str,
-        config: Optional[types.GetAgentEngineOperationConfigOrDict] = None,
-    ) -> types.AgentEngineSandboxSnapshotOperation:
-        parameter_model = types._GetAgentEngineSandboxSnapshotOperationParameters(
+        config: Optional[types.GetRuntimeOperationConfigOrDict] = None,
+    ) -> types.RuntimeSandboxSnapshotOperation:
+        parameter_model = types._GetRuntimeSandboxSnapshotOperationParameters(
             operation_name=operation_name,
             config=config,
         )
@@ -473,7 +473,7 @@ class SandboxSnapshots(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetAgentEngineSandboxSnapshotOperationParameters_to_vertex(
+            request_dict = _GetRuntimeSandboxSnapshotOperationParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -502,7 +502,7 @@ class SandboxSnapshots(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
-        return_value = types.AgentEngineSandboxSnapshotOperation._from_response(
+        return_value = types.RuntimeSandboxSnapshotOperation._from_response(
             response=response_dict,
             kwargs=(
                 {
@@ -530,34 +530,34 @@ class SandboxSnapshots(_api_module.BaseModule):
         self,
         *,
         source_sandbox_environment_name: str,
-        config: Optional[types.CreateAgentEngineSandboxSnapshotConfigOrDict] = None,
+        config: Optional[types.CreateRuntimeSandboxSnapshotConfigOrDict] = None,
         poll_interval_seconds: float = 0.1,
-    ) -> types.AgentEngineSandboxSnapshotOperation:
+    ) -> types.RuntimeSandboxSnapshotOperation:
         """Snapshots an existing sandbox environment.
 
         Args:
             source_sandbox_environment_name (str):
                 Required. The name of the sandbox environment to snapshot.
                 projects/{project}/locations/{location}/reasoningEngines/{resource_id}/sandboxEnvironments/{sandbox_environment_id}
-            config (CreateAgentEngineSandboxSnapshotConfig):
+            config (CreateRuntimeSandboxSnapshotConfig):
                 Optional. The configuration for the sandbox snapshot.
             poll_interval_seconds (int):
                 Optional. Seconds to wait between polling for operation status. Defaults to 0.1.
 
         Returns:
-            AgentEngineSandboxSnapshotOperation: The operation for creating the sandbox snapshot.
+            RuntimeSandboxSnapshotOperation: The operation for creating the sandbox snapshot.
         """
         operation = self._create(
             source_sandbox_environment_name=source_sandbox_environment_name,
             config=config,
         )
         if config is None:
-            config = types.CreateAgentEngineSandboxSnapshotConfig()
+            config = types.CreateRuntimeSandboxSnapshotConfig()
         elif isinstance(config, dict):
-            config = types.CreateAgentEngineSandboxSnapshotConfig.model_validate(config)
+            config = types.CreateRuntimeSandboxSnapshotConfig.model_validate(config)
         if config.wait_for_completion:
             if not operation.done:
-                operation = _agent_engines_utils._await_operation(
+                operation = _runtimes_utils._await_operation(
                     operation_name=operation.name,
                     get_operation_fn=self.get_sandbox_snapshot_operation,
                     poll_interval_seconds=poll_interval_seconds,
@@ -575,17 +575,17 @@ class SandboxSnapshots(_api_module.BaseModule):
         name: str,
         config: Optional[types.ListSandboxEnvironmentSnapshotsConfigOrDict] = None,
     ) -> Iterator[types.SandboxEnvironmentSnapshot]:
-        """Lists Agent Engine sandbox snapshots.
+        """Lists Agent Runtime sandbox snapshots.
 
         Args:
             name (str):
-                Required. The name of the agent engine to list sandbox snapshots for.
+                Required. The name of the agent runtime to list sandbox snapshots for.
                 projects/{project}/locations/{location}/reasoningEngines/{resource_id}
             config (ListSandboxEnvironmentSnapshotsConfig):
                 Optional. The configuration for the sandbox snapshots to list.
 
         Returns:
-            Iterable[SandboxEnvironmentSnapshot]: An iterable of agent engine sandbox snapshots.
+            Iterable[SandboxEnvironmentSnapshot]: An iterable of agent runtime sandbox snapshots.
         """
         return Pager(
             "sandbox_environment_snapshots",
@@ -600,7 +600,7 @@ class SandboxSnapshots(_api_module.BaseModule):
         name: str,
         config: Optional[types.GetSandboxEnvironmentSnapshotConfigOrDict] = None,
     ) -> types.SandboxEnvironmentSnapshot:
-        """Gets a sandbox snapshot in the Agent Engine.
+        """Gets a sandbox snapshot in the Agent Runtime.
         Args:
           name (str):
               Required. A fully-qualified resource name or ID such as
@@ -617,7 +617,7 @@ class SandboxSnapshots(_api_module.BaseModule):
         name: str,
         config: Optional[types.DeleteSandboxEnvironmentSnapshotConfigOrDict] = None,
     ) -> types.DeleteSandboxEnvironmentSnapshotOperation:
-        """Deletes a sandbox snapshot in the Agent Engine.
+        """Deletes a sandbox snapshot in the Agent Runtime.
         Args:
             name (str):
                 Required. The name of the sandbox snapshot to delete.
@@ -635,8 +635,8 @@ class AsyncSandboxSnapshots(_api_module.BaseModule):
         self,
         *,
         source_sandbox_environment_name: str,
-        config: Optional[types.CreateAgentEngineSandboxSnapshotConfigOrDict] = None,
-    ) -> types.AgentEngineSandboxSnapshotOperation:
+        config: Optional[types.CreateRuntimeSandboxSnapshotConfigOrDict] = None,
+    ) -> types.RuntimeSandboxSnapshotOperation:
         """
         Snapshots an existing sandbox environment.
 
@@ -644,7 +644,7 @@ class AsyncSandboxSnapshots(_api_module.BaseModule):
             source_sandbox_environment_name (str):
                 Required. The name of the sandbox environment to snapshot.
                 projects/{project}/locations/{location}/reasoningEngines/{resource_id}/sandboxEnvironments/{sandbox_environment_id}
-            config (CreateAgentEngineSandboxSnapshotConfig):
+            config (CreateRuntimeSandboxSnapshotConfig):
                 Optional. The configuration for the sandbox snapshot.
 
         """
@@ -691,7 +691,7 @@ class AsyncSandboxSnapshots(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
-        return_value = types.AgentEngineSandboxSnapshotOperation._from_response(
+        return_value = types.RuntimeSandboxSnapshotOperation._from_response(
             response=response_dict,
             kwargs=(
                 {
@@ -950,9 +950,9 @@ class AsyncSandboxSnapshots(_api_module.BaseModule):
         self,
         *,
         operation_name: str,
-        config: Optional[types.GetAgentEngineOperationConfigOrDict] = None,
-    ) -> types.AgentEngineSandboxSnapshotOperation:
-        parameter_model = types._GetAgentEngineSandboxSnapshotOperationParameters(
+        config: Optional[types.GetRuntimeOperationConfigOrDict] = None,
+    ) -> types.RuntimeSandboxSnapshotOperation:
+        parameter_model = types._GetRuntimeSandboxSnapshotOperationParameters(
             operation_name=operation_name,
             config=config,
         )
@@ -963,7 +963,7 @@ class AsyncSandboxSnapshots(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetAgentEngineSandboxSnapshotOperationParameters_to_vertex(
+            request_dict = _GetRuntimeSandboxSnapshotOperationParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -994,7 +994,7 @@ class AsyncSandboxSnapshots(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
-        return_value = types.AgentEngineSandboxSnapshotOperation._from_response(
+        return_value = types.RuntimeSandboxSnapshotOperation._from_response(
             response=response_dict,
             kwargs=(
                 {

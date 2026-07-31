@@ -21,31 +21,31 @@ from agentplatform._genai import types
 
 
 def test_list_memories(client):
-    agent_engine = client.agent_engines.create()
+    runtime = client.runtimes.create()
     assert not list(
-        client.agent_engines.memories.list(
-            name=agent_engine.api_resource.name,
+        client.runtimes.memories.list(
+            name=runtime.api_resource.name,
         )
     )
-    client.agent_engines.memories.create(
-        name=agent_engine.api_resource.name,
+    client.runtimes.memories.create(
+        name=runtime.api_resource.name,
         fact="memory_fact",
         scope={"user_id": "123"},
         config={
             "wait_for_completion": True,
         },
     )
-    client.agent_engines.memories.create(
-        name=agent_engine.api_resource.name,
+    client.runtimes.memories.create(
+        name=runtime.api_resource.name,
         fact="memory_fact_2",
         scope={"user_id": "456"},
         config={
             "wait_for_completion": True,
         },
     )
-    memory_list = client.agent_engines.memories.list(
-        name=agent_engine.api_resource.name,
-        config=types.ListAgentEngineMemoryConfig(
+    memory_list = client.runtimes.memories.list(
+        name=runtime.api_resource.name,
+        config=types.ListRuntimeMemoryConfig(
             page_size=1,
             order_by="create_time asc",
         ),
@@ -55,13 +55,13 @@ def test_list_memories(client):
     assert memory_list[0].fact == "memory_fact"
     assert memory_list[0].scope["user_id"] == "123"
     # Clean up resources.
-    agent_engine.delete(force=True)
+    runtime.delete(force=True)
 
 
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
-    test_method="agent_engines.memories.list",
+    test_method="runtimes.memories.list",
 )
 
 
@@ -70,27 +70,27 @@ pytest_plugins = ("pytest_asyncio",)
 
 @pytest.mark.asyncio
 async def test_async_list_memories(client):
-    agent_engine = client.agent_engines.create()
-    pager = await client.aio.agent_engines.memories.list(
-        name=agent_engine.api_resource.name
+    runtime = client.runtimes.create()
+    pager = await client.aio.runtimes.memories.list(
+        name=runtime.api_resource.name
     )
     assert not [item async for item in pager]
 
-    await client.aio.agent_engines.memories.create(
-        name=agent_engine.api_resource.name,
+    await client.aio.runtimes.memories.create(
+        name=runtime.api_resource.name,
         fact="memory_fact_2",
         scope={"user_id": "456"},
         config={
             "wait_for_completion": True,
         },
     )
-    pager = await client.aio.agent_engines.memories.list(
-        name=agent_engine.api_resource.name
+    pager = await client.aio.runtimes.memories.list(
+        name=runtime.api_resource.name
     )
     memory_list = [item async for item in pager]
     assert len(memory_list) == 1
     assert isinstance(memory_list[0], types.Memory)
 
-    await client.aio.agent_engines.delete(
-        name=agent_engine.api_resource.name, force=True
+    await client.aio.runtimes.delete(
+        name=runtime.api_resource.name, force=True
     )

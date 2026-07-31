@@ -19,15 +19,15 @@ from agentplatform._genai import types
 
 
 def test_private_create_session(client):
-    ae_session_operation = client.agent_engines.sessions._create(
+    ae_session_operation = client.sessions._create(
         name="projects/964831358985/locations/us-central1/reasoningEngines/2886612747586371584",
         user_id="test-user-id",
     )
-    assert isinstance(ae_session_operation, types.AgentEngineSessionOperation)
+    assert isinstance(ae_session_operation, types.RuntimeSessionOperation)
 
 
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
-    test_method="agent_engines.sessions._create",
+    test_method="sessions._create",
 )

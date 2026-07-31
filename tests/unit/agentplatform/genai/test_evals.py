@@ -2422,8 +2422,8 @@ class TestEvalsRunInference:
         importlib.reload(_evals_metric_handlers)
         importlib.reload(_genai.evals)
 
-        if hasattr(_evals_common._thread_local_data, "agent_engine_instances"):
-            del _evals_common._thread_local_data.agent_engine_instances
+        if hasattr(_evals_common._thread_local_data, "runtime_instances"):
+            del _evals_common._thread_local_data.runtime_instances
 
         agentplatform.init(
             project=_TEST_PROJECT,
@@ -3311,7 +3311,7 @@ class TestEvalsRunInference:
 
     @mock.patch.object(_evals_utils, "EvalDatasetLoader")
     @mock.patch.object(_evals_common.agentplatform, "Client")
-    def test_run_inference_with_agent_engine_and_session_inputs_dict(
+    def test_run_inference_with_runtime_and_session_inputs_dict(
         self,
         mock_agentplatform_client,
         mock_eval_dataset_loader,
@@ -3331,8 +3331,8 @@ class TestEvalsRunInference:
             orient="records"
         )
 
-        mock_agent_engine = mock.Mock()
-        mock_agent_engine.create_session.return_value = {"id": "session1"}
+        mock_runtime = mock.Mock()
+        mock_runtime.create_session.return_value = {"id": "session1"}
         stream_query_return_value = [
             {
                 "id": "1",
@@ -3348,9 +3348,9 @@ class TestEvalsRunInference:
             },
         ]
 
-        mock_agent_engine.stream_query.return_value = iter(stream_query_return_value)
-        mock_agentplatform_client.return_value.agent_engines.get.return_value = (
-            mock_agent_engine
+        mock_runtime.stream_query.return_value = iter(stream_query_return_value)
+        mock_agentplatform_client.return_value.runtimes.get.return_value = (
+            mock_runtime
         )
 
         inference_result = self.client.evals.run_inference(
@@ -3359,13 +3359,13 @@ class TestEvalsRunInference:
         )
 
         mock_eval_dataset_loader.return_value.load.assert_called_once_with(mock_df)
-        mock_agentplatform_client.return_value.agent_engines.get.assert_called_once_with(
+        mock_agentplatform_client.return_value.runtimes.get.assert_called_once_with(
             name="projects/test-project/locations/us-central1/reasoningEngines/123"
         )
-        mock_agent_engine.create_session.assert_called_once_with(
+        mock_runtime.create_session.assert_called_once_with(
             user_id="123", state={"a": "1"}
         )
-        mock_agent_engine.stream_query.assert_called_once_with(
+        mock_runtime.stream_query.assert_called_once_with(
             user_id="123", session_id="session1", message="agent prompt"
         )
 
@@ -3419,12 +3419,12 @@ class TestEvalsRunInference:
                 }
             ),
         )
-        assert inference_result.candidate_name == "agent_engine_0"
+        assert inference_result.candidate_name == "runtime_0"
         assert inference_result.gcs_source is None
 
     @mock.patch.object(_evals_utils, "EvalDatasetLoader")
     @mock.patch.object(_evals_common.agentplatform, "Client")
-    def test_run_inference_with_agent_engine_and_session_inputs_literal_string(
+    def test_run_inference_with_runtime_and_session_inputs_literal_string(
         self,
         mock_agentplatform_client,
         mock_eval_dataset_loader,
@@ -3440,8 +3440,8 @@ class TestEvalsRunInference:
             orient="records"
         )
 
-        mock_agent_engine = mock.Mock()
-        mock_agent_engine.create_session.return_value = {"id": "session1"}
+        mock_runtime = mock.Mock()
+        mock_runtime.create_session.return_value = {"id": "session1"}
         stream_query_return_value = [
             {
                 "id": "1",
@@ -3457,9 +3457,9 @@ class TestEvalsRunInference:
             },
         ]
 
-        mock_agent_engine.stream_query.return_value = iter(stream_query_return_value)
-        mock_agentplatform_client.return_value.agent_engines.get.return_value = (
-            mock_agent_engine
+        mock_runtime.stream_query.return_value = iter(stream_query_return_value)
+        mock_agentplatform_client.return_value.runtimes.get.return_value = (
+            mock_runtime
         )
 
         inference_result = self.client.evals.run_inference(
@@ -3468,13 +3468,13 @@ class TestEvalsRunInference:
         )
 
         mock_eval_dataset_loader.return_value.load.assert_called_once_with(mock_df)
-        mock_agentplatform_client.return_value.agent_engines.get.assert_called_once_with(
+        mock_agentplatform_client.return_value.runtimes.get.assert_called_once_with(
             name="projects/test-project/locations/us-central1/reasoningEngines/123"
         )
-        mock_agent_engine.create_session.assert_called_once_with(
+        mock_runtime.create_session.assert_called_once_with(
             user_id="123", state={"a": "1"}
         )
-        mock_agent_engine.stream_query.assert_called_once_with(
+        mock_runtime.stream_query.assert_called_once_with(
             user_id="123", session_id="session1", message="agent prompt"
         )
 
@@ -3523,12 +3523,12 @@ class TestEvalsRunInference:
                 }
             ),
         )
-        assert inference_result.candidate_name == "agent_engine_0"
+        assert inference_result.candidate_name == "runtime_0"
         assert inference_result.gcs_source is None
 
     @mock.patch.object(_evals_utils, "EvalDatasetLoader")
     @mock.patch.object(_evals_common.agentplatform, "Client")
-    def test_run_inference_with_agent_engine_with_response_column_raises_error(
+    def test_run_inference_with_runtime_with_response_column_raises_error(
         self,
         mock_agentplatform_client,
         mock_eval_dataset_loader,
@@ -3549,9 +3549,9 @@ class TestEvalsRunInference:
             orient="records"
         )
 
-        mock_agent_engine = mock.Mock()
-        mock_agentplatform_client.return_value.agent_engines.get.return_value = (
-            mock_agent_engine
+        mock_runtime = mock.Mock()
+        mock_agentplatform_client.return_value.runtimes.get.return_value = (
+            mock_runtime
         )
 
         with pytest.raises(ValueError) as excinfo:
@@ -3566,7 +3566,7 @@ class TestEvalsRunInference:
 
     @mock.patch.object(_evals_utils, "EvalDatasetLoader")
     @mock.patch.object(_evals_common.agentplatform, "Client")
-    def test_run_inference_with_agent_engine_falls_back_to_managed_sessions_api(
+    def test_run_inference_with_runtime_falls_back_to_managed_sessions_api(
         self,
         mock_agentplatform_client,
         mock_eval_dataset_loader,
@@ -3590,10 +3590,10 @@ class TestEvalsRunInference:
 
         # Create a mock agent engine WITHOUT create_session (simulates agents
         # deployed via Console, gcloud, or source code deployment).
-        mock_agent_engine = mock.Mock(
+        mock_runtime = mock.Mock(
             spec=["api_client", "api_resource", "stream_query"],
         )
-        mock_agent_engine.api_resource.name = (
+        mock_runtime.api_resource.name = (
             "projects/test-project/locations/us-central1/reasoningEngines/123"
         )
 
@@ -3603,7 +3603,7 @@ class TestEvalsRunInference:
             "projects/test-project/locations/us-central1"
             "/reasoningEngines/123/sessions/managed-session-1"
         )
-        mock_agent_engine.api_client.sessions.create.return_value = (
+        mock_runtime.api_client.sessions.create.return_value = (
             mock_session_operation
         )
 
@@ -3621,9 +3621,9 @@ class TestEvalsRunInference:
                 "author": "model",
             },
         ]
-        mock_agent_engine.stream_query.return_value = iter(stream_query_return_value)
-        mock_agentplatform_client.return_value.agent_engines.get.return_value = (
-            mock_agent_engine
+        mock_runtime.stream_query.return_value = iter(stream_query_return_value)
+        mock_agentplatform_client.return_value.runtimes.get.return_value = (
+            mock_runtime
         )
 
         inference_result = self.client.evals.run_inference(
@@ -3632,17 +3632,17 @@ class TestEvalsRunInference:
         )
 
         # Verify the managed Sessions API was called as fallback.
-        mock_agent_engine.api_client.sessions.create.assert_called_once_with(
+        mock_runtime.api_client.sessions.create.assert_called_once_with(
             name="projects/test-project/locations/us-central1/reasoningEngines/123",
             user_id="123",
-            config=agentplatform_genai_types.CreateAgentEngineSessionConfig(
+            config=agentplatform_genai_types.CreateRuntimeSessionConfig(
                 session_state={"a": "1"},
             ),
         )
 
         # Verify stream_query was called with the session ID extracted from
         # the managed session's resource name.
-        mock_agent_engine.stream_query.assert_called_once_with(
+        mock_runtime.stream_query.assert_called_once_with(
             user_id="123",
             session_id="managed-session-1",
             message="agent prompt",
@@ -3650,7 +3650,7 @@ class TestEvalsRunInference:
 
         # Verify the inference results are correct.
         assert inference_result.eval_dataset_df["response"].iloc[0] == "agent response"
-        assert inference_result.candidate_name == "agent_engine_0"
+        assert inference_result.candidate_name == "runtime_0"
 
     @mock.patch.object(_evals_utils, "EvalDatasetLoader")
     def test_run_inference_with_local_agent(
@@ -4280,7 +4280,7 @@ class TestEvalsRunInference:
     @mock.patch.object(_evals_common, "_get_interactions_client")
     @mock.patch.object(_evals_utils, "EvalDatasetLoader")
     @mock.patch.object(_evals_common.agentplatform, "Client")
-    def test_run_inference_non_gemini_agent_routes_to_agent_engine(
+    def test_run_inference_non_gemini_agent_routes_to_runtime(
         self,
         mock_agentplatform_client,
         mock_eval_dataset_loader,
@@ -4291,9 +4291,9 @@ class TestEvalsRunInference:
             orient="records"
         )
 
-        mock_agent_engine = mock.Mock()
-        mock_agent_engine.create_session.return_value = {"id": "session1"}
-        mock_agent_engine.stream_query.return_value = iter(
+        mock_runtime = mock.Mock()
+        mock_runtime.create_session.return_value = {"id": "session1"}
+        mock_runtime.stream_query.return_value = iter(
             [
                 {
                     "id": "1",
@@ -4303,8 +4303,8 @@ class TestEvalsRunInference:
                 }
             ]
         )
-        mock_agentplatform_client.return_value.agent_engines.get.return_value = (
-            mock_agent_engine
+        mock_agentplatform_client.return_value.runtimes.get.return_value = (
+            mock_runtime
         )
 
         self.client.evals.run_inference(
@@ -4312,7 +4312,7 @@ class TestEvalsRunInference:
             agent=_TEST_AGENT_ENGINE,
         )
 
-        mock_agentplatform_client.return_value.agent_engines.get.assert_called_once_with(
+        mock_agentplatform_client.return_value.runtimes.get.assert_called_once_with(
             name=_TEST_AGENT_ENGINE
         )
         mock_get_interactions_client.assert_not_called()
@@ -4717,7 +4717,7 @@ class TestRunAgent:
 
             _evals_common._run_agent(
                 api_client=mock_api_client_fixture,
-                agent_engine=mock.Mock(),
+                runtime=mock.Mock(),
                 agent=None,
                 prompt_dataset=prompt_dataset,
                 user_simulator_config=user_simulator_config,
@@ -4740,7 +4740,7 @@ class TestRunAgent:
             os.environ["GOOGLE_CLOUD_LOCATION"] = "us-central1"
             _evals_common._run_agent(
                 api_client=mock_api_client_fixture,
-                agent_engine=mock.Mock(),
+                runtime=mock.Mock(),
                 agent=None,
                 prompt_dataset=prompt_dataset,
                 user_simulator_config=user_simulator_config,
@@ -4774,11 +4774,11 @@ class TestRunAgentInternal:
             ]
         ]
         prompt_dataset = pd.DataFrame({"prompt": ["prompt1"]})
-        mock_agent_engine = mock.Mock()
+        mock_runtime = mock.Mock()
         mock_api_client = mock.Mock()
         result_df = _evals_common._run_agent_internal(
             api_client=mock_api_client,
-            agent_engine=mock_agent_engine,
+            runtime=mock_runtime,
             agent=None,
             prompt_dataset=prompt_dataset,
         )
@@ -4830,11 +4830,11 @@ class TestRunAgentInternal:
     def test_run_agent_internal_error_response(self, mock_run_agent):
         mock_run_agent.return_value = [{"error": "agent run failed"}]
         prompt_dataset = pd.DataFrame({"prompt": ["prompt1"]})
-        mock_agent_engine = mock.Mock()
+        mock_runtime = mock.Mock()
         mock_api_client = mock.Mock()
         result_df = _evals_common._run_agent_internal(
             api_client=mock_api_client,
-            agent_engine=mock_agent_engine,
+            runtime=mock_runtime,
             agent=None,
             prompt_dataset=prompt_dataset,
         )
@@ -4853,11 +4853,11 @@ class TestRunAgentInternal:
             ]
         ]
         prompt_dataset = pd.DataFrame({"prompt": ["p1"], "conversation_plan": ["plan"]})
-        mock_agent_engine = mock.Mock()
+        mock_runtime = mock.Mock()
         mock_api_client = mock.Mock()
         result_df = _evals_common._run_agent_internal(
             api_client=mock_api_client,
-            agent_engine=mock_agent_engine,
+            runtime=mock_runtime,
             agent=None,
             prompt_dataset=prompt_dataset,
         )
@@ -4886,7 +4886,7 @@ class TestRunAgentInternal:
         mock_api_client = mock.Mock()
         result_df = _evals_common._run_agent_internal(
             api_client=mock_api_client,
-            agent_engine=None,
+            runtime=None,
             agent=mock_agent,
             prompt_dataset=prompt_dataset,
         )
@@ -5024,11 +5024,11 @@ class TestRunAgentInternal:
             ]
         ]
         prompt_dataset = pd.DataFrame({"prompt": ["prompt1"]})
-        mock_agent_engine = mock.Mock()
+        mock_runtime = mock.Mock()
         mock_api_client = mock.Mock()
         result_df = _evals_common._run_agent_internal(
             api_client=mock_api_client,
-            agent_engine=mock_agent_engine,
+            runtime=mock_runtime,
             agent=None,
             prompt_dataset=prompt_dataset,
         )
@@ -10684,7 +10684,7 @@ class TestIsGeminiAgentResource:
     def test_gemini_agent_resource_is_detected(self):
         assert _evals_common._is_gemini_agent_resource(_TEST_GEMINI_AGENT) is True
 
-    def test_agent_engine_resource_is_not_gemini(self):
+    def test_runtime_resource_is_not_gemini(self):
         assert _evals_common._is_gemini_agent_resource(_TEST_AGENT_ENGINE) is False
 
     def test_non_resource_string_is_not_gemini(self):
@@ -10888,7 +10888,7 @@ class TestCreateEvaluationRunGeminiAgent:
         assert "gemini-agent" in inference_configs
         assert _evals_common._DEFAULT_CANDIDATE_NAME not in inference_configs
 
-    def test_create_evaluation_run_agent_engine_does_not_set_gemini(self):
+    def test_create_evaluation_run_runtime_does_not_set_gemini(self):
         evals_module = evals.Evals(api_client_=self.mock_api_client)
 
         evals_module.create_evaluation_run(
@@ -10980,7 +10980,7 @@ class TestCreateEvaluationRunGeminiAgent:
             "inferenceConfigs"
         )
 
-    def test_create_evaluation_run_agent_engine_without_agent_info(self):
+    def test_create_evaluation_run_runtime_without_agent_info(self):
         """Agent Engine resource alone triggers inference_configs auto-construction."""
         evals_module = evals.Evals(api_client_=self.mock_api_client)
 

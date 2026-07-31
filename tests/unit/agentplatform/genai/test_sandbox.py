@@ -84,7 +84,7 @@ class TestSandbox:
             body=b"{}", headers={}
         )
 
-        self.client.agent_engines.sandboxes.send_command(
+        self.client.sandboxes.send_command(
             http_method="GET",
             access_token="test_token",
             sandbox_environment=mock_sandbox,
@@ -120,7 +120,7 @@ class TestSandbox:
             body=b'{"endpoint": "test/endpoint"}', headers={}
         )
         ws_url, headers = (
-            self.client.agent_engines.sandboxes.generate_browser_ws_headers(
+            self.client.sandboxes.generate_browser_ws_headers(
                 sandbox_environment=mock_sandbox,
                 service_account_email=_TEST_SERVICE_ACCOUNT_EMAIL,
                 timeout=3600,

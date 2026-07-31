@@ -20,7 +20,7 @@ from agentplatform._genai import types
 
 def test_private_retrieve(client):
     ae_name = "projects/964831358985/locations/us-central1/reasoningEngines/2886612747586371584"
-    retrieved_memories = client.agent_engines.memories._retrieve(
+    retrieved_memories = client.runtimes.memories._retrieve(
         name=ae_name,
         scope={"user_id": "123"},
     )
@@ -34,5 +34,5 @@ def test_private_retrieve(client):
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
-    test_method="agent_engines.memories._retrieve",
+    test_method="runtimes.memories._retrieve",
 )
