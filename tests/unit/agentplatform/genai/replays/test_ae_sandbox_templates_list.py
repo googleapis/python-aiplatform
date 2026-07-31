@@ -19,7 +19,7 @@ from agentplatform._genai import types
 
 
 def test_sandbox_templates_list(client):
-    sandbox_templates_list_operation = client.agent_engines.sandboxes.templates._list(
+    sandbox_templates_list_operation = client.sandboxes.templates._list(
         name=(
             "projects/254005681254/locations/us-central1/reasoningEngines/208148546254274560"
         ),
@@ -36,5 +36,5 @@ def test_sandbox_templates_list(client):
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
-    test_method="agent_engines.sandboxes.templates._list",
+    test_method="sandboxes.templates._list",
 )

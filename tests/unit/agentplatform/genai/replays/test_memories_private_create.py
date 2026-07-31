@@ -34,5 +34,5 @@ def test_private_create_memory(client):
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
-    test_method="agent_engines.memories._create",
+    test_method="memory_banks.memories._create",
 )

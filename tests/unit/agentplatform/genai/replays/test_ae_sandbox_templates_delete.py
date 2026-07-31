@@ -19,7 +19,7 @@ from agentplatform._genai import types
 
 
 def test_sandbox_templates_delete(client):
-    sandbox_template_delete_operation = client.agent_engines.sandboxes.templates.delete(
+    sandbox_template_delete_operation = client.sandboxes.templates.delete(
         name=(
             "projects/254005681254/locations/us-central1/reasoningEngines/208148546254274560/sandboxEnvironmentTemplates/4632233691727265792"
         ),
@@ -33,5 +33,5 @@ def test_sandbox_templates_delete(client):
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
-    test_method="agent_engines.sandboxes.templates.delete",
+    test_method="sandboxes.templates.delete",
 )

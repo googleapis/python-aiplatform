@@ -25,7 +25,7 @@ from google.genai import _common
 from google.genai._common import get_value_by_path as getv
 from google.genai._common import set_value_by_path as setv
 
-from . import _agent_engines_utils
+from . import _runtimes_utils
 from . import types
 
 logger = logging.getLogger("agentplatform_genai.feedbackcontexts")
@@ -382,7 +382,7 @@ class FeedbackContexts(_api_module.BaseModule):
         )
         if config.wait_for_completion:
             if not operation.done:
-                operation = _agent_engines_utils._await_operation(
+                operation = _runtimes_utils._await_operation(
                     operation_name=operation.name,
                     get_operation_fn=self._get_feedback_context_operation,
                     poll_interval_seconds=0.5,
@@ -688,7 +688,7 @@ class AsyncFeedbackContexts(_api_module.BaseModule):
         )
         if config.wait_for_completion:
             if not operation.done:
-                operation = await _agent_engines_utils._await_async_operation(
+                operation = await _runtimes_utils._await_async_operation(
                     operation_name=operation.name,
                     get_operation_fn=self._get_feedback_context_operation,
                     poll_interval_seconds=0.5,

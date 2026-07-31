@@ -19,7 +19,7 @@ import os
 from unittest import mock
 from tests.unit.agentplatform.genai.replays import pytest_helper
 from agentplatform._genai import types
-from agentplatform.agent_engines.templates.a2a import default_a2a_agent
+from agentplatform.frameworks.a2a import default_a2a_agent
 import pytest
 
 
@@ -45,16 +45,16 @@ def test_create_a2a_agent(client, is_replay_mode):
     staging_bucket = os.environ["GCS_BUCKET"]
 
     # In replay mode, GCS operations are mocked and blob.open("rb") returns a mock
-    # that fails when cloudpickle.load expects bytes. We mock _upload_agent_engine
+    # that fails when cloudpickle.load expects bytes. We mock _upload_runtime
     # to skip this verification step, which is not needed when replaying API calls.
     upload_patch = (
-        mock.patch("agentplatform._genai._agent_engines_utils._upload_agent_engine")
+        mock.patch("agentplatform._genai._runtimes_utils._upload_runtime")
         if is_replay_mode
         else contextlib.nullcontext()
     )
 
     with upload_patch:
-        agent_engine = client.agent_engines.create(
+        runtime = client.runtimes.create(
             agent=my_agent,
             config={
                 "staging_bucket": staging_bucket,
@@ -69,11 +69,11 @@ def test_create_a2a_agent(client, is_replay_mode):
         )
 
 
-    assert isinstance(agent_engine, types.AgentEngine)
-    assert agent_engine.api_resource.display_name == "test-a2a-agent"
+    assert isinstance(runtime, types.Runtime)
+    assert runtime.api_resource.display_name == "test-a2a-agent"
 
     # Clean up resources.
-    client.agent_engines.delete(name=agent_engine.api_resource.name, force=True)
+    client.runtimes.delete(name=runtime.api_resource.name, force=True)
 
 
 pytestmark = pytest_helper.setup(

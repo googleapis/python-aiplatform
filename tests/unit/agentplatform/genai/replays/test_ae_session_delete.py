@@ -19,14 +19,14 @@ from agentplatform._genai import types
 
 
 def test_delete_session_non_blocking(client):
-    ae_session_operation = client.agent_engines.sessions.delete(
+    ae_session_operation = client.sessions.delete(
         name=("reasoningEngines/2886612747586371584/sessions/8521561049109889024"),
     )
-    assert isinstance(ae_session_operation, types.DeleteAgentEngineSessionOperation)
+    assert isinstance(ae_session_operation, types.DeleteRuntimeSessionOperation)
 
 
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
-    test_method="agent_engines.sessions.delete",
+    test_method="sessions.delete",
 )

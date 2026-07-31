@@ -34,9 +34,9 @@ from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform_v1 import types as aip_types
 from google.cloud.aiplatform_v1.services import reasoning_engine_service
-from agentplatform._genai import agent_engines
-from agentplatform._genai import _agent_engines_utils
-from agentplatform.agent_engines.templates import (
+from agentplatform._genai import runtimes
+from agentplatform._genai import _runtimes_utils
+from agentplatform.frameworks import (
     adk as adk_template,
 )
 from google.genai import types
@@ -414,12 +414,11 @@ class TestAdkApp:
             "GOOGLE_GENAI_USE_VERTEXAI",
         ]:
             os.environ.pop(key, None)
-        importlib.reload(initializer)
         importlib.reload(agentplatform)
-        agentplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        os.environ["GOOGLE_CLOUD_PROJECT"] = _TEST_PROJECT
+        os.environ["GOOGLE_CLOUD_LOCATION"] = _TEST_LOCATION
 
     def teardown_method(self):
-        initializer.global_pool.shutdown(wait=True)
         for key in [
             "GOOGLE_CLOUD_PROJECT",
             "GOOGLE_CLOUD_AGENT_ENGINE_LOCATION",
@@ -430,8 +429,6 @@ class TestAdkApp:
 
     def test_initialization(self):
         app = adk_template.AdkApp(agent=_TEST_AGENT)
-        assert app._tmpl_attrs.get("project") == _TEST_PROJECT
-        assert app._tmpl_attrs.get("location") == _TEST_LOCATION
         assert app._tmpl_attrs.get("runner") is None
 
     def test_set_up(
@@ -620,9 +617,7 @@ class TestAdkApp:
         default_instrumentor_builder_mock: mock.Mock,
         get_project_id_mock: mock.Mock,
     ):
-        app = adk_template.AdkApp(
-            agent=Agent(name=_TEST_AGENT_NAME, model=_TEST_MODEL)
-        )
+        app = adk_template.AdkApp(agent=Agent(name=_TEST_AGENT_NAME, model=_TEST_MODEL))
         assert app._tmpl_attrs.get("runner") is None
         app.set_up()
         app._tmpl_attrs["runner"] = _MockRunner()
@@ -1336,8 +1331,8 @@ class TestAdkApp:
             "uuid.uuid4", lambda: uuid.UUID("12345678123456781234567812345678")
         )
         monkeypatch.setattr("os.getpid", lambda: 123123123)
-        with mock.patch.object(initializer.global_config, "_project", _TEST_PROJECT):
-            app = adk_template.AdkApp(agent=_TEST_AGENT, enable_tracing=True)
+        monkeypatch.setenv("GOOGLE_CLOUD_PROJECT", _TEST_PROJECT)
+        app = adk_template.AdkApp(agent=_TEST_AGENT, enable_tracing=True)
         app.set_up()
 
         otlp_span_exporter_mock.assert_called_once_with(
@@ -1444,7 +1439,7 @@ def test_dump_event_for_json():
             "invocation_id": "test_invocation_id",
         }
     )
-    dumped_event = _agent_engines_utils.dump_event_for_json(test_event)
+    dumped_event = _runtimes_utils.dump_event_for_json(test_event)
 
     part = dumped_event["content"]["parts"][0]
     assert "text" in part
@@ -1519,27 +1514,27 @@ class TestAdkAppErrors:
 
 
 @pytest.fixture(scope="module")
-def create_agent_engine_mock():
+def create_runtime_mock():
     with mock.patch.object(
         reasoning_engine_service.ReasoningEngineServiceClient,
         "create_reasoning_engine",
-    ) as create_agent_engine_mock:
-        create_agent_engine_lro_mock = mock.Mock(ga_operation.Operation)
-        create_agent_engine_lro_mock.result.return_value = _TEST_AGENT_ENGINE_OBJ
-        create_agent_engine_mock.return_value = create_agent_engine_lro_mock
-        yield create_agent_engine_mock
+    ) as create_runtime_mock:
+        create_runtime_lro_mock = mock.Mock(ga_operation.Operation)
+        create_runtime_lro_mock.result.return_value = _TEST_AGENT_ENGINE_OBJ
+        create_runtime_mock.return_value = create_runtime_lro_mock
+        yield create_runtime_mock
 
 
 @pytest.fixture(scope="module")
-def get_agent_engine_mock():
+def get_runtime_mock():
     with mock.patch.object(
         reasoning_engine_service.ReasoningEngineServiceClient,
         "get_reasoning_engine",
-    ) as get_agent_engine_mock:
+    ) as get_runtime_mock:
         api_client_mock = mock.Mock()
         api_client_mock.get_reasoning_engine.return_value = _TEST_AGENT_ENGINE_OBJ
-        get_agent_engine_mock.return_value = api_client_mock
-        yield get_agent_engine_mock
+        get_runtime_mock.return_value = api_client_mock
+        yield get_runtime_mock
 
 
 @pytest.fixture(scope="module")
@@ -1583,12 +1578,12 @@ def get_gca_resource_mock():
 
 # Function scope is required for the pytest parameterized tests.
 @pytest.fixture(scope="function")
-def update_agent_engine_mock():
+def update_runtime_mock():
     with mock.patch.object(
         reasoning_engine_service.ReasoningEngineServiceClient,
         "update_reasoning_engine",
-    ) as update_agent_engine_mock:
-        yield update_agent_engine_mock
+    ) as update_runtime_mock:
+        yield update_runtime_mock
 
 
 @pytest.mark.usefixtures(
@@ -1597,9 +1592,9 @@ def update_agent_engine_mock():
     "cloudpickle_dump_mock",
     "cloudpickle_load_mock",
     "get_gca_resource_mock",
-    "get_agent_engine_mock",
+    "get_runtime_mock",
 )
-class TestAgentEngines:
+class TestRuntimes:
 
     def setup_method(self):
         importlib.reload(initializer)
@@ -1636,8 +1631,8 @@ class TestAgentEngines:
             ),
         ],
     )
-    @mock.patch.object(agent_engines.AgentEngines, "_create")
-    @mock.patch.object(_agent_engines_utils, "_await_operation")
+    @mock.patch.object(runtimes.Runtimes, "_create")
+    @mock.patch.object(_runtimes_utils, "_await_operation")
     def test_create_default_telemetry_enablement(
         self,
         mock_await_operation,
@@ -1652,13 +1647,13 @@ class TestAgentEngines:
             "projects/test-project/locations/us-central1/reasoningEngines/123456/operations/789"
         )
         mock_create.return_value = mock_operation
-        mock_await_operation.return_value = _genai_types.AgentEngineOperation(
+        mock_await_operation.return_value = _genai_types.RuntimeOperation(
             response=_genai_types.ReasoningEngine(
                 name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
             )
         )
         client = agentplatform.Client(project=_TEST_PROJECT, location=_TEST_LOCATION)
-        client.agent_engines.create(
+        client.runtimes.create(
             agent=adk_template.AdkApp(agent=_TEST_AGENT),
             config={"env_vars": env_vars, "staging_bucket": _TEST_STAGING_BUCKET},
         )
@@ -1691,8 +1686,8 @@ class TestAgentEngines:
             ),
         ],
     )
-    @mock.patch.object(agent_engines.AgentEngines, "_update")
-    @mock.patch.object(_agent_engines_utils, "_await_operation")
+    @mock.patch.object(runtimes.Runtimes, "_update")
+    @mock.patch.object(_runtimes_utils, "_await_operation")
     def test_update_default_telemetry_enablement(
         self,
         mock_await_operation,
@@ -1707,13 +1702,13 @@ class TestAgentEngines:
             "projects/test-project/locations/us-central1/reasoningEngines/123456/operations/789"
         )
         mock_update.return_value = mock_operation
-        mock_await_operation.return_value = _genai_types.AgentEngineOperation(
+        mock_await_operation.return_value = _genai_types.RuntimeOperation(
             response=_genai_types.ReasoningEngine(
                 name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
             )
         )
         client = agentplatform.Client(project=_TEST_PROJECT, location=_TEST_LOCATION)
-        client.agent_engines.update(
+        client.runtimes.update(
             name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
             agent=adk_template.AdkApp(agent=_TEST_AGENT),
             config={

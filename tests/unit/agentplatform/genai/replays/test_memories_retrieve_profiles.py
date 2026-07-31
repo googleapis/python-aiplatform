@@ -41,7 +41,7 @@ def test_generate_and_retrieve_profile(client):
     structured_memory_config_obj = types.StructuredMemoryConfig(
         **structured_memory_config
     )
-    memory_bank = client.agent_engines.create(
+    memory_bank = client.runtimes.create(
         config={
             "context_spec": {
                 "memory_bank_config": {
@@ -53,7 +53,7 @@ def test_generate_and_retrieve_profile(client):
         },
     )
     try:
-        memory_bank = client.agent_engines.get(name=memory_bank.api_resource.name)
+        memory_bank = client.runtimes.get(name=memory_bank.api_resource.name)
         memory_bank_config = memory_bank.api_resource.context_spec.memory_bank_config
         assert memory_bank_config.customization_configs == [
             memory_bank_customization_config

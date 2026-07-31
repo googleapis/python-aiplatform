@@ -19,7 +19,7 @@ from agentplatform._genai import types
 
 
 def test_private_list_session(client):
-    session_list_response = client.agent_engines.sessions._list(
+    session_list_response = client.sessions._list(
         name="reasoningEngines/2886612747586371584",
     )
     assert isinstance(session_list_response, types.ListReasoningEnginesSessionsResponse)
@@ -29,5 +29,5 @@ def test_private_list_session(client):
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
-    test_method="agent_engines.sessions._list",
+    test_method="sessions._list",
 )

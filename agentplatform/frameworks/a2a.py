@@ -259,7 +259,6 @@ class A2aAgent:
     ):
         """Initializes the A2A agent."""
         # pylint: disable=g-import-not-at-top
-        from google.cloud.aiplatform import initializer
         from a2a.utils.constants import TransportProtocol, PROTOCOL_VERSION_CURRENT
 
         if (
@@ -276,8 +275,6 @@ class A2aAgent:
             )
 
         self._tmpl_attrs: dict[str, Any] = {
-            "project": initializer.global_config.project,
-            "location": initializer.global_config.location,
             "agent_card": agent_card,
             "agent_executor": None,
             "agent_executor_kwargs": agent_executor_kwargs or {},
@@ -318,14 +315,21 @@ class A2aAgent:
         from a2a.server.tasks import InMemoryTaskStore
 
         os.environ["GOOGLE_GENAI_USE_VERTEXAI"] = "1"
-        project = self._tmpl_attrs.get("project")
-        os.environ["GOOGLE_CLOUD_PROJECT"] = project
-        location = self._tmpl_attrs.get("location")
-        os.environ["GOOGLE_CLOUD_LOCATION"] = location
-        agent_engine_id = os.getenv("GOOGLE_CLOUD_AGENT_ENGINE_ID", "test-agent-engine")
+
+        project = os.environ.get("GOOGLE_CLOUD_PROJECT")
+        location = os.getenv("GOOGLE_CLOUD_AGENT_ENGINE_LOCATION") or os.getenv(
+            "GOOGLE_CLOUD_LOCATION"
+        )
+        if location:
+            if "GOOGLE_CLOUD_AGENT_ENGINE_LOCATION" not in os.environ:
+                os.environ["GOOGLE_CLOUD_AGENT_ENGINE_LOCATION"] = location
+            if "GOOGLE_CLOUD_LOCATION" not in os.environ:
+                os.environ["GOOGLE_CLOUD_LOCATION"] = location
+
+        runtime_id = os.getenv("GOOGLE_CLOUD_AGENT_ENGINE_ID", "test-agent-engine")
         version = "v1beta1"
 
-        new_url = f"https://{location}-aiplatform.googleapis.com/{version}/projects/{project}/locations/{location}/reasoningEngines/{agent_engine_id}/a2a"
+        new_url = f"https://{location}-aiplatform.googleapis.com/{version}/projects/{project}/locations/{location}/reasoningEngines/{runtime_id}/a2a"
         if not self.agent_card.supported_interfaces:
             from a2a.types import AgentInterface
             from a2a.utils.constants import TransportProtocol, PROTOCOL_VERSION_CURRENT
