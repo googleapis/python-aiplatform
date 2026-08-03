@@ -173,10 +173,22 @@ from .common import _UpdateRuntimeFeedbackContextRequestParameters
 from .common import _UpdateRuntimeFeedbackEntryRequestParameters
 from .common import _UpdateSkillRequestParameters
 from .common import _UploadRagFileParameters
+from .common import A2aPart
+from .common import A2aPartDict
+from .common import A2aPartOrDict
 from .common import A2aTask
+from .common import A2aTaskArtifact
+from .common import A2aTaskArtifactDict
+from .common import A2aTaskArtifactOrDict
 from .common import A2aTaskDict
+from .common import A2aTaskMessage
+from .common import A2aTaskMessageDict
+from .common import A2aTaskMessageOrDict
 from .common import A2aTaskOrDict
 from .common import A2aTaskState
+from .common import A2aTaskStatus
+from .common import A2aTaskStatusDict
+from .common import A2aTaskStatusOrDict
 from .common import AcceleratorType
 from .common import AgentEngine
 from .common import AgentEngineConfig
@@ -1462,6 +1474,9 @@ from .common import ReasoningEngineRuntimeRevision
 from .common import ReasoningEngineRuntimeRevisionDict
 from .common import ReasoningEngineRuntimeRevisionOrDict
 from .common import ReasoningEngineSpec
+from .common import ReasoningEngineSpecBuildSpec
+from .common import ReasoningEngineSpecBuildSpecDict
+from .common import ReasoningEngineSpecBuildSpecOrDict
 from .common import ReasoningEngineSpecContainerSpec
 from .common import ReasoningEngineSpecContainerSpecDict
 from .common import ReasoningEngineSpecContainerSpecOrDict
@@ -1600,6 +1615,7 @@ from .common import RetrieveSkillsConfigOrDict
 from .common import RetrieveSkillsResponse
 from .common import RetrieveSkillsResponseDict
 from .common import RetrieveSkillsResponseOrDict
+from .common import Role
 from .common import RollbackMemoryConfig
 from .common import RollbackMemoryConfigDict
 from .common import RollbackMemoryConfigOrDict
@@ -1691,6 +1707,9 @@ from .common import SandboxEnvironmentTemplateDefaultContainerEnvironmentOrDict
 from .common import SandboxEnvironmentTemplateDict
 from .common import SandboxEnvironmentTemplateEgressControlConfig
 from .common import SandboxEnvironmentTemplateEgressControlConfigDict
+from .common import SandboxEnvironmentTemplateEgressControlConfigDnsPeeringConfig
+from .common import SandboxEnvironmentTemplateEgressControlConfigDnsPeeringConfigDict
+from .common import SandboxEnvironmentTemplateEgressControlConfigDnsPeeringConfigOrDict
 from .common import SandboxEnvironmentTemplateEgressControlConfigOrDict
 from .common import SandboxEnvironmentTemplateNetworkPort
 from .common import SandboxEnvironmentTemplateNetworkPortDict
@@ -2021,6 +2040,18 @@ __all__ = [
     "TaskStatusDetails",
     "TaskStatusDetailsDict",
     "TaskStatusDetailsOrDict",
+    "A2aPart",
+    "A2aPartDict",
+    "A2aPartOrDict",
+    "A2aTaskArtifact",
+    "A2aTaskArtifactDict",
+    "A2aTaskArtifactOrDict",
+    "A2aTaskMessage",
+    "A2aTaskMessageDict",
+    "A2aTaskMessageOrDict",
+    "A2aTaskStatus",
+    "A2aTaskStatusDict",
+    "A2aTaskStatusOrDict",
     "A2aTask",
     "A2aTaskDict",
     "A2aTaskOrDict",
@@ -2609,6 +2640,9 @@ __all__ = [
     "ReasoningEngineSpecContainerSpec",
     "ReasoningEngineSpecContainerSpecDict",
     "ReasoningEngineSpecContainerSpecOrDict",
+    "ReasoningEngineSpecBuildSpec",
+    "ReasoningEngineSpecBuildSpecDict",
+    "ReasoningEngineSpecBuildSpecOrDict",
     "ReasoningEngineSpec",
     "ReasoningEngineSpecDict",
     "ReasoningEngineSpecOrDict",
@@ -3158,6 +3192,9 @@ __all__ = [
     "SandboxEnvironmentTemplateDefaultContainerEnvironment",
     "SandboxEnvironmentTemplateDefaultContainerEnvironmentDict",
     "SandboxEnvironmentTemplateDefaultContainerEnvironmentOrDict",
+    "SandboxEnvironmentTemplateEgressControlConfigDnsPeeringConfig",
+    "SandboxEnvironmentTemplateEgressControlConfigDnsPeeringConfigDict",
+    "SandboxEnvironmentTemplateEgressControlConfigDnsPeeringConfigOrDict",
     "SandboxEnvironmentTemplateEgressControlConfig",
     "SandboxEnvironmentTemplateEgressControlConfigDict",
     "SandboxEnvironmentTemplateEgressControlConfigOrDict",
@@ -3741,6 +3778,7 @@ __all__ = [
     "DeployOptionDict",
     "DeployOptionOrDict",
     "A2aTaskState",
+    "Role",
     "State",
     "Strategy",
     "AcceleratorType",

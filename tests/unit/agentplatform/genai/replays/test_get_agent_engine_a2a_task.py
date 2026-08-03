@@ -43,7 +43,7 @@ def test_get_a2a_task(client):
     assert isinstance(task, types.A2aTask)
     assert task.name == f"{agent_engine.api_resource.name}/a2aTasks/task123"
     assert task.context_id == "context123"
-    assert task.state == types.State.SUBMITTED
+    assert task.state == types.A2aTaskState.SUBMITTED
 
     # Clean up resources.
     client.agent_engines.delete(name=agent_engine.api_resource.name, force=True)
@@ -83,7 +83,7 @@ async def test_get_a2a_task_async(client):
     assert isinstance(task, types.A2aTask)
     assert task.name == f"{agent_engine.api_resource.name}/a2aTasks/task123"
     assert task.context_id == "context123"
-    assert task.state == types.State.SUBMITTED
+    assert task.state == types.A2aTaskState.SUBMITTED
 
     # Clean up resources.
     client.agent_engines.delete(name=agent_engine.api_resource.name, force=True)
