@@ -19,14 +19,14 @@ from agentplatform._genai import types
 
 
 def test_private_update_session(client):
-    agent_engine_session_operation = client.agent_engines.sessions._update(
+    session = client.agent_engines.sessions._update(
         name="reasoningEngines/2886612747586371584/sessions/3080649749292908544",
         config=types.UpdateAgentEngineSessionConfig(
             display_name="test-agent-engine-session-updated",
             user_id="test-user-id",
         ),
     )
-    assert isinstance(agent_engine_session_operation, types.AgentEngineSessionOperation)
+    assert isinstance(session, types.Session)
 
 
 pytestmark = pytest_helper.setup(
