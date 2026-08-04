@@ -14,13 +14,12 @@
 #
 
 import importlib
+import json
 import os
-import sys
 from unittest import mock
 
 from google import auth
 from google.auth import credentials as auth_credentials
-import google.cloud
 import agentplatform
 from google.cloud import aiplatform
 from agentplatform._genai import sandboxes
@@ -138,43 +137,149 @@ class TestSandbox:
         )
 
 
-@pytest.mark.parametrize(
+_MODULES = pytest.mark.parametrize(
     "module",
     [sandboxes, vertexai_sandboxes],
     ids=["agentplatform", "vertexai"],
 )
-def test_sandboxes_module_does_not_import_google_cloud_iam_at_module_scope(module):
-    """The module must be importable when `google-cloud-iam` is absent.
 
-    Only `generate_access_token` needs the package, so importing the module -
-    which is what the `client.agent_engines.sandboxes` property does - must not
-    require it. Regression test for b/507135729; see b/541269262.
+
+class _NoUniverseDomainCredentials:
+    """Credentials without a `universe_domain`, to exercise the fallback."""
+
+
+def _mock_signing(module, credentials, responses):
+    """Patches google_auth.default and AuthorizedSession for `module`."""
+    session = mock.Mock()
+    session.post.side_effect = responses
+    return (
+        mock.patch.object(
+            module.google_auth,
+            "default",
+            return_value=(credentials, _TEST_PROJECT),
+        ),
+        mock.patch.object(
+            module.google_auth_requests,
+            "AuthorizedSession",
+            return_value=session,
+        ),
+        session,
+    )
+
+
+def _ok_response(signed_jwt="signed-jwt-value"):
+    response = mock.Mock(status_code=200)
+    response.json.return_value = {"signedJwt": signed_jwt}
+    return response
+
+
+@_MODULES
+def test_sandboxes_module_does_not_reference_google_cloud_iam(module):
+    """`google-cloud-iam` is no longer a dependency of this SDK.
+
+    Signing goes through `google-auth`, a core requirement, so nothing may
+    reach for `iam_credentials_v1` again. See b/541269262.
     """
-    # A module-scope `import x` binds `x` as an attribute of the module, so its
-    # absence is a direct check that the import is not at module scope.
     assert not hasattr(module, "iam_credentials_v1")
+    assert not hasattr(module, "iam_credentials")
 
-    # Belt and braces: re-import the module with the package made unavailable.
-    # `google.cloud` is a namespace package, so `from google.cloud import x`
-    # resolves via the parent attribute before consulting sys.modules; the
-    # attribute has to be removed too, or the block silently does nothing.
-    name = module.__name__
-    had_attr = hasattr(google.cloud, "iam_credentials_v1")
-    saved_attr = getattr(google.cloud, "iam_credentials_v1", None)
-    if had_attr:
-        delattr(google.cloud, "iam_credentials_v1")
-    try:
-        with mock.patch.dict(
-            sys.modules, {"google.cloud.iam_credentials_v1": None}
-        ):
-            sys.modules.pop(name, None)
-            reimported = importlib.import_module(name)
-            assert reimported.Sandboxes is not None
-    finally:
-        if had_attr:
-            setattr(google.cloud, "iam_credentials_v1", saved_attr)
-        # `mock.patch.dict` has restored the original module object in
-        # sys.modules; re-point the parent package attribute at it so that no
-        # later test sees the copy built while the dependency was blocked.
-        parent_name, _, leaf = name.rpartition(".")
-        setattr(sys.modules[parent_name], leaf, sys.modules[name])
+
+@_MODULES
+@pytest.mark.parametrize(
+    "credentials_factory,expected_host",
+    [
+        (_NoUniverseDomainCredentials, "iamcredentials.googleapis.com"),
+        (
+            lambda: mock.Mock(universe_domain="googleapis.com"),
+            "iamcredentials.googleapis.com",
+        ),
+        (
+            lambda: mock.Mock(universe_domain="test.tpc.example"),
+            "iamcredentials.test.tpc.example",
+        ),
+    ],
+    ids=["no-universe-domain", "default-universe", "tpc-universe"],
+)
+def test_generate_access_token_signs_via_google_auth(
+    module, credentials_factory, expected_host
+):
+    """The token is minted by POSTing to the IAM Credentials signJwt endpoint."""
+    credentials = credentials_factory()
+    default_patch, session_patch, session = _mock_signing(
+        module, credentials, [_ok_response()]
+    )
+
+    with default_patch as google_auth_default, session_patch as authorized_session:
+        client_obj = module.Sandboxes(api_client_=mock.Mock())
+        token = client_obj.generate_access_token(
+            service_account_email=_TEST_SERVICE_ACCOUNT_EMAIL,
+            timeout=1234,
+        )
+
+    assert token == "signed-jwt-value"
+    # Signed with the resolved credentials, at the cloud-platform scope the
+    # generated IAM client used.
+    authorized_session.assert_called_once_with(credentials)
+    assert google_auth_default.call_args.kwargs["scopes"] == [
+        "https://www.googleapis.com/auth/cloud-platform"
+    ]
+
+    assert session.post.call_args.args[0] == (
+        f"https://{expected_host}/v1/projects/-/serviceAccounts/"
+        f"{_TEST_SERVICE_ACCOUNT_EMAIL}:signJwt"
+    )
+    # A request that never returns must not hang forever.
+    assert session.post.call_args.kwargs["timeout"] > 0
+
+    payload = json.loads(session.post.call_args.kwargs["json"]["payload"])
+    assert payload["iss"] == _TEST_SERVICE_ACCOUNT_EMAIL
+    assert payload["sub"] == _TEST_SERVICE_ACCOUNT_EMAIL
+    assert payload["aud"] == "https://aiplatform.googleapis.com/"
+    # iat/exp are derived from a single clock read, so this is exact.
+    assert payload["exp"] - payload["iat"] == 1234
+
+
+@_MODULES
+@pytest.mark.parametrize("status_code", [503, 504])
+def test_generate_access_token_retries_transient_failures(module, status_code):
+    """503/504 are retried, as the generated IAM client did."""
+    transient = mock.Mock(status_code=status_code)
+    default_patch, session_patch, session = _mock_signing(
+        module,
+        mock.Mock(universe_domain="googleapis.com"),
+        [transient, transient, _ok_response()],
+    )
+
+    with default_patch, session_patch, mock.patch.object(
+        module.time, "sleep"
+    ) as sleep:
+        client_obj = module.Sandboxes(api_client_=mock.Mock())
+        token = client_obj.generate_access_token(
+            service_account_email=_TEST_SERVICE_ACCOUNT_EMAIL
+        )
+
+    assert token == "signed-jwt-value"
+    assert session.post.call_count == 3
+    # Backoff grows, matching the replaced client's multiplier.
+    delays = [call.args[0] for call in sleep.call_args_list]
+    assert delays == sorted(delays) and delays[0] > 0
+    transient.raise_for_status.assert_not_called()
+
+
+@_MODULES
+def test_generate_access_token_does_not_retry_client_errors(module):
+    """A 4xx is surfaced immediately rather than retried."""
+    failure = mock.Mock(status_code=403)
+    failure.raise_for_status.side_effect = ValueError("403 Forbidden")
+    default_patch, session_patch, session = _mock_signing(
+        module, mock.Mock(universe_domain="googleapis.com"), [failure]
+    )
+
+    with default_patch, session_patch:
+        client_obj = module.Sandboxes(api_client_=mock.Mock())
+        with pytest.raises(ValueError, match="403 Forbidden"):
+            client_obj.generate_access_token(
+                service_account_email=_TEST_SERVICE_ACCOUNT_EMAIL
+            )
+
+    assert session.post.call_count == 1
