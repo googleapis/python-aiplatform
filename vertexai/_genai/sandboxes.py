@@ -25,7 +25,6 @@ from typing import Any, Iterator, Optional, Union
 from urllib.parse import urlencode
 
 from google import genai
-from google.cloud import iam_credentials_v1  # type: ignore[attr-defined]
 from google.genai import _api_module
 from google.genai import _common
 from google.genai import types as genai_types
@@ -883,6 +882,18 @@ class Sandboxes(_api_module.BaseModule):
         Returns:
             str: The signed JWT.
         """
+        # Imported here rather than at module scope so that importing this
+        # module does not require `google-cloud-iam`, which is only needed by
+        # callers of this method. See b/541269262.
+        try:
+            from google.cloud import iam_credentials_v1  # type: ignore[attr-defined] # pylint: disable=g-import-not-at-top
+        except ImportError as e:
+            raise ImportError(
+                "The 'agent_engines.sandboxes.generate_access_token' method "
+                "requires additional packages. Please install them using pip "
+                "install google-cloud-aiplatform[agent_engines]"
+            ) from e
+
         client = iam_credentials_v1.IAMCredentialsClient()
         name = f"projects/-/serviceAccounts/{service_account_email}"
         payload = {

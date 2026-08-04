@@ -15,14 +15,19 @@
 
 import importlib
 import os
+import sys
 from unittest import mock
 
 from google import auth
 from google.auth import credentials as auth_credentials
-from google.cloud import aiplatform
+import google.cloud
 import agentplatform
-from google.cloud.aiplatform import initializer
+from google.cloud import aiplatform
 from agentplatform._genai import sandboxes
+from google.cloud.aiplatform import initializer
+from vertexai._genai import (
+    sandboxes as vertexai_sandboxes,
+)
 from google.genai import client
 from google.genai import types as genai_types
 import pytest
@@ -131,3 +136,45 @@ class TestSandbox:
             headers["Sec-WebSocket-Protocol"]
             == "v1.stream, test_token, test_routing_token, 9222"
         )
+
+
+@pytest.mark.parametrize(
+    "module",
+    [sandboxes, vertexai_sandboxes],
+    ids=["agentplatform", "vertexai"],
+)
+def test_sandboxes_module_does_not_import_google_cloud_iam_at_module_scope(module):
+    """The module must be importable when `google-cloud-iam` is absent.
+
+    Only `generate_access_token` needs the package, so importing the module -
+    which is what the `client.agent_engines.sandboxes` property does - must not
+    require it. Regression test for b/507135729; see b/541269262.
+    """
+    # A module-scope `import x` binds `x` as an attribute of the module, so its
+    # absence is a direct check that the import is not at module scope.
+    assert not hasattr(module, "iam_credentials_v1")
+
+    # Belt and braces: re-import the module with the package made unavailable.
+    # `google.cloud` is a namespace package, so `from google.cloud import x`
+    # resolves via the parent attribute before consulting sys.modules; the
+    # attribute has to be removed too, or the block silently does nothing.
+    name = module.__name__
+    had_attr = hasattr(google.cloud, "iam_credentials_v1")
+    saved_attr = getattr(google.cloud, "iam_credentials_v1", None)
+    if had_attr:
+        delattr(google.cloud, "iam_credentials_v1")
+    try:
+        with mock.patch.dict(
+            sys.modules, {"google.cloud.iam_credentials_v1": None}
+        ):
+            sys.modules.pop(name, None)
+            reimported = importlib.import_module(name)
+            assert reimported.Sandboxes is not None
+    finally:
+        if had_attr:
+            setattr(google.cloud, "iam_credentials_v1", saved_attr)
+        # `mock.patch.dict` has restored the original module object in
+        # sys.modules; re-point the parent package attribute at it so that no
+        # later test sees the copy built while the dependency was blocked.
+        parent_name, _, leaf = name.rpartition(".")
+        setattr(sys.modules[parent_name], leaf, sys.modules[name])
