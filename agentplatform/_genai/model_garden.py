@@ -32,6 +32,43 @@ from . import types
 logger = logging.getLogger("agentplatform_genai.modelgarden")
 
 
+def _DeployRequestParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["destination"]) is not None:
+        setv(to_object, ["_url", "destination"], getv(from_object, ["destination"]))
+
+    if getv(from_object, ["publisher_model_name"]) is not None:
+        setv(
+            to_object,
+            ["publisherModelName"],
+            getv(from_object, ["publisher_model_name"]),
+        )
+
+    if getv(from_object, ["hugging_face_model_id"]) is not None:
+        setv(
+            to_object,
+            ["huggingFaceModelId"],
+            getv(from_object, ["hugging_face_model_id"]),
+        )
+
+    if getv(from_object, ["custom_model"]) is not None:
+        setv(to_object, ["customModel"], getv(from_object, ["custom_model"]))
+
+    if getv(from_object, ["model_config_val"]) is not None:
+        setv(to_object, ["modelConfig"], getv(from_object, ["model_config_val"]))
+
+    if getv(from_object, ["endpoint_config"]) is not None:
+        setv(to_object, ["endpointConfig"], getv(from_object, ["endpoint_config"]))
+
+    if getv(from_object, ["deploy_config"]) is not None:
+        setv(to_object, ["deployConfig"], getv(from_object, ["deploy_config"]))
+
+    return to_object
+
+
 def _ExportPublisherModelConfig_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
@@ -57,6 +94,19 @@ def _ExportPublisherModelRequestParameters_to_vertex(
 
     if getv(from_object, ["config"]) is not None:
         _ExportPublisherModelConfig_to_vertex(getv(from_object, ["config"]), to_object)
+
+    return to_object
+
+
+def _GetDeployOperationParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["operation_name"]) is not None:
+        setv(
+            to_object, ["_url", "operationName"], getv(from_object, ["operation_name"])
+        )
 
     return to_object
 
@@ -571,11 +621,172 @@ class ModelGarden(_api_module.BaseModule):
         self._api_client._verify_response(return_value)
         return return_value
 
+    def _deploy(
+        self,
+        *,
+        destination: str,
+        publisher_model_name: Optional[str] = None,
+        hugging_face_model_id: Optional[str] = None,
+        custom_model: Optional[types.DeployRequestCustomModelOrDict] = None,
+        model_config_val: Optional[types.DeployRequestModelConfigOrDict] = None,
+        endpoint_config: Optional[types.DeployRequestEndpointConfigOrDict] = None,
+        deploy_config: Optional[types.DeployRequestDeployConfigOrDict] = None,
+        config: Optional[types.DeployConfigOrDict] = None,
+    ) -> types.DeployModelOperation:
+        """
+        Deploys a model (internal).
+        """
+
+        parameter_model = types._DeployRequestParameters(
+            destination=destination,
+            publisher_model_name=publisher_model_name,
+            hugging_face_model_id=hugging_face_model_id,
+            custom_model=custom_model,
+            model_config_val=model_config_val,
+            endpoint_config=endpoint_config,
+            deploy_config=deploy_config,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
+        else:
+            request_dict = _DeployRequestParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{destination}:deploy".format_map(request_url_dict)
+            else:
+                path = "{destination}:deploy"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = self._api_client.request("post", path, request_dict, http_options)
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.DeployModelOperation._from_response(
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    def get_deploy_publisher_model_operation(
+        self,
+        *,
+        operation_name: str,
+        config: Optional[types.GetDeployOperationConfigOrDict] = None,
+    ) -> types.DeployModelOperation:
+        """
+        Fetches the status of an in-flight ``deploy_publisher_model`` LRO.
+        """
+
+        parameter_model = types._GetDeployOperationParameters(
+            operation_name=operation_name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
+        else:
+            request_dict = _GetDeployOperationParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{operationName}".format_map(request_url_dict)
+            else:
+                path = "{operationName}"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = self._api_client.request("get", path, request_dict, http_options)
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.DeployModelOperation._from_response(
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
     # Fallbacks for ``ExportOpenModelConfig`` when the caller does not
     # override them. 2h matches the legacy SDK's blocking ``.export()`` and is
     # generous enough for large open weights (e.g. Gemma 3 27B).
     _DEFAULT_EXPORT_TIMEOUT_SECONDS = 2 * 60 * 60
     _DEFAULT_EXPORT_POLL_INTERVAL_SECONDS = 30
+
+    # Deploy LRO polling defaults. 2h matches legacy vertexai.model_garden and
+    # the Vertex AI Console's one-click deployment timeout.
+    _DEFAULT_DEPLOY_TIMEOUT_SECONDS = 2 * 60 * 60
+    _DEFAULT_DEPLOY_POLL_INTERVAL_SECONDS = 30
 
     @staticmethod
     def _build_filter_str(
@@ -893,6 +1104,134 @@ class ModelGarden(_api_module.BaseModule):
             blocks.append(header + "\n".join(lines))
         return "\n\n".join(blocks)
 
+    @staticmethod
+    def _resolve_deploy_model_name(model: str) -> tuple[Optional[str], Optional[str]]:
+        """Returns the ``(publisher_model_name, hugging_face_model_id)`` pair for a deploy call.
+
+        Exactly one element of the returned pair is set: HF model IDs (matched
+        by ``_is_hugging_face_model``) are sent as ``huggingFaceModelId`` and
+        lowercased for legacy parity; everything else is reconciled to the full
+        ``publishers/{pub}/models/{model}@{version}`` form.
+        """
+        if ModelGarden._is_hugging_face_model(model):
+            return None, model.lower()
+        return ModelGarden._reconcile_model_name(model), None
+
+    @staticmethod
+    def _validate_deploy_config(
+        config: types.DeployPublisherModelConfig,
+    ) -> None:
+        """Rejects deploy configs whose options would be silently dropped.
+
+        Container overrides are only sent when ``serving_container_image_uri``
+        is set (the backend has no way to patch a model's default container
+        piecemeal), so a config that sets only the command/args/env would
+        otherwise deploy successfully with none of the overrides applied.
+
+        Raises:
+          ValueError: If any container override is set without
+            ``serving_container_image_uri``.
+        """
+        if config.serving_container_image_uri:
+            return
+        dropped = [
+            name
+            for name in ("container_command", "container_args", "container_variables")
+            if getattr(config, name)
+        ]
+        if dropped:
+            raise ValueError(
+                f"{', '.join(dropped)} require serving_container_image_uri to "
+                "also be set; container overrides are only applied on top of an "
+                "explicit serving container image."
+            )
+
+    @staticmethod
+    def _deploy_response_or_raise(
+        operation: types.DeployModelOperation,
+    ) -> types.DeployResponse:
+        """Unwraps a completed deploy LRO into its ``DeployResponse``.
+
+        Shared by the sync and async surfaces so the two cannot drift as the
+        LRO shape evolves.
+
+        Raises:
+          RuntimeError: If the LRO carries an error, or completed without an
+            endpoint resource name.
+        """
+        if operation.error:
+            raise RuntimeError(f"Deploy failed: {operation.error}")
+        if not operation.response or not operation.response.endpoint:
+            raise RuntimeError(
+                f"Deploy completed but response has no endpoint: {operation!r}"
+            )
+        return operation.response
+
+    @staticmethod
+    def _build_container_spec(
+        config: types.DeployPublisherModelConfig,
+    ) -> Optional[types.ModelContainerSpec]:
+        """Returns a ``ModelContainerSpec`` when the user overrides the container, else None."""
+        if not config.serving_container_image_uri:
+            return None
+        env = None
+        variables = config.container_variables
+        if variables:
+            env = [types.EnvVar(name=k, value=v) for k, v in variables.items()]
+        return types.ModelContainerSpec(
+            image_uri=config.serving_container_image_uri,
+            command=config.container_command,
+            args=config.container_args,
+            env=env,
+        )
+
+    @staticmethod
+    def _prepare_deploy_request(
+        config: types.DeployPublisherModelConfig,
+    ) -> tuple[
+        types.DeployRequestModelConfig,
+        types.DeployRequestEndpointConfig,
+        types.DeployRequestDeployConfig,
+    ]:
+        """Translates ``DeployPublisherModelConfig`` to the three ``DeployRequest`` sub-messages."""
+        model_config = types.DeployRequestModelConfig(
+            accept_eula=config.accept_eula,
+            model_display_name=config.model_display_name,
+            hugging_face_access_token=config.hugging_face_access_token,
+            container_spec=ModelGarden._build_container_spec(config),
+        )
+
+        endpoint_config = types.DeployRequestEndpointConfig(
+            endpoint_display_name=config.endpoint_display_name,
+        )
+        disabled = config.dedicated_endpoint_disabled
+        if disabled is not None:
+            endpoint_config.dedicated_endpoint_enabled = not disabled
+        if config.enable_private_service_connect:
+            endpoint_config.private_service_connect_config = (
+                types.PrivateServiceConnectConfig(
+                    enable_private_service_connect=True,
+                    project_allowlist=config.psc_project_allow_list,
+                )
+            )
+
+        deploy_config = types.DeployRequestDeployConfig(
+            fast_tryout_enabled=config.fast_tryout_enabled,
+        )
+        if config.machine_type or config.accelerator_type or config.accelerator_count:
+            deploy_config.dedicated_resources = types.DedicatedResources(
+                machine_spec=types.MachineSpec(
+                    machine_type=config.machine_type,
+                    accelerator_type=config.accelerator_type,
+                    accelerator_count=config.accelerator_count,
+                ),
+                min_replica_count=config.min_replica_count,
+                max_replica_count=config.max_replica_count,
+                spot=config.spot,
+            )
+
+        return model_config, endpoint_config, deploy_config
+
     def _list_all_publisher_models(
         self,
         api_config: types.ListPublisherModelsConfig,
@@ -1080,6 +1419,86 @@ class ModelGarden(_api_module.BaseModule):
             return self._format_concise_deploy_options(options)
 
         return options
+
+    def deploy_publisher_model(
+        self,
+        *,
+        model: str,
+        config: Optional[types.DeployPublisherModelConfigOrDict] = None,
+    ) -> Union[types.DeployResponse, types.DeployModelOperation]:
+        """Deploys a Model Garden publisher model to a Vertex AI endpoint.
+
+        Supports Google open models (e.g. ``'google/gemma3@gemma-3-12b-it'``),
+        partner publisher models (e.g. ``'ai21/jamba-large-1.6@001'``), and
+        Hugging Face model IDs (e.g. ``'meta-llama/Llama-3.3-70B-Instruct'``).
+
+        Args:
+          model: The publisher model to deploy. Accepts the full resource name
+            ``'publishers/{publisher}/models/{model}@{version}'``, a simplified
+            ``'{publisher}/{model}@{version}'`` (or without the ``@{version}``),
+            or a Hugging Face model ID ``'{organization}/{model}'``. Hugging
+            Face model IDs are lowercased before being sent, matching
+            ``vertexai.model_garden.OpenModel.deploy`` behavior.
+          config: Optional deployment configuration (machine shape, container
+            overrides, blocking behavior, poll timing). See
+            ``DeployPublisherModelConfig``.
+
+        Returns:
+          When ``config.wait_for_completion`` is ``True`` (default), a
+          ``DeployResponse`` carrying the deployed ``endpoint`` and ``model``
+          resource names (both ``str``).
+          When ``config.wait_for_completion`` is ``False``, the
+          ``DeployModelOperation`` for the caller to poll (via
+          ``get_deploy_publisher_model_operation`` or their own strategy).
+
+        Raises:
+          ValueError: If ``model`` is not a valid publisher model name, or if
+            container overrides are set without ``serving_container_image_uri``.
+          TimeoutError: If ``wait_for_completion=True`` and the LRO does not
+            complete within ``config.timeout_seconds`` (default 2 hours).
+          RuntimeError: If the LRO completes with an error, or completes
+            successfully but without an endpoint resource name.
+        """
+        if config is None:
+            config = types.DeployPublisherModelConfig()
+        elif isinstance(config, dict):
+            config = types.DeployPublisherModelConfig.model_validate(config)
+        ModelGarden._validate_deploy_config(config)
+
+        publisher_model_name, hugging_face_model_id = (
+            ModelGarden._resolve_deploy_model_name(model)
+        )
+        model_config, endpoint_config, deploy_config = (
+            ModelGarden._prepare_deploy_request(config)
+        )
+        destination = (
+            f"projects/{self._api_client.project}/locations/"
+            f"{self._api_client.location}"
+        )
+
+        operation = self._deploy(
+            destination=destination,
+            publisher_model_name=publisher_model_name,
+            hugging_face_model_id=hugging_face_model_id,
+            model_config_val=model_config,
+            endpoint_config=endpoint_config,
+            deploy_config=deploy_config,
+        )
+        if not config.wait_for_completion:
+            return operation
+
+        operation = _operations_utils.await_operation(
+            operation_name=operation.name,
+            get_operation_fn=self.get_deploy_publisher_model_operation,
+            poll_interval=(
+                config.poll_interval_seconds
+                or ModelGarden._DEFAULT_DEPLOY_POLL_INTERVAL_SECONDS
+            ),
+            timeout_seconds=(
+                config.timeout_seconds or ModelGarden._DEFAULT_DEPLOY_TIMEOUT_SECONDS
+            ),
+        )
+        return ModelGarden._deploy_response_or_raise(operation)
 
     @staticmethod
     def _extract_recommend_spec(spec) -> dict[str, Any]:
@@ -1695,6 +2114,166 @@ class AsyncModelGarden(_api_module.BaseModule):
         self._api_client._verify_response(return_value)
         return return_value
 
+    async def _deploy(
+        self,
+        *,
+        destination: str,
+        publisher_model_name: Optional[str] = None,
+        hugging_face_model_id: Optional[str] = None,
+        custom_model: Optional[types.DeployRequestCustomModelOrDict] = None,
+        model_config_val: Optional[types.DeployRequestModelConfigOrDict] = None,
+        endpoint_config: Optional[types.DeployRequestEndpointConfigOrDict] = None,
+        deploy_config: Optional[types.DeployRequestDeployConfigOrDict] = None,
+        config: Optional[types.DeployConfigOrDict] = None,
+    ) -> types.DeployModelOperation:
+        """
+        Deploys a model (internal).
+        """
+
+        parameter_model = types._DeployRequestParameters(
+            destination=destination,
+            publisher_model_name=publisher_model_name,
+            hugging_face_model_id=hugging_face_model_id,
+            custom_model=custom_model,
+            model_config_val=model_config_val,
+            endpoint_config=endpoint_config,
+            deploy_config=deploy_config,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
+        else:
+            request_dict = _DeployRequestParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{destination}:deploy".format_map(request_url_dict)
+            else:
+                path = "{destination}:deploy"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = await self._api_client.async_request(
+            "post", path, request_dict, http_options
+        )
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.DeployModelOperation._from_response(
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    async def get_deploy_publisher_model_operation(
+        self,
+        *,
+        operation_name: str,
+        config: Optional[types.GetDeployOperationConfigOrDict] = None,
+    ) -> types.DeployModelOperation:
+        """
+        Fetches the status of an in-flight ``deploy_publisher_model`` LRO.
+        """
+
+        parameter_model = types._GetDeployOperationParameters(
+            operation_name=operation_name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
+        else:
+            request_dict = _GetDeployOperationParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{operationName}".format_map(request_url_dict)
+            else:
+                path = "{operationName}"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = await self._api_client.async_request(
+            "get", path, request_dict, http_options
+        )
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.DeployModelOperation._from_response(
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
     async def _list_all_publisher_models(
         self,
         api_config: types.ListPublisherModelsConfig,
@@ -1879,6 +2458,54 @@ class AsyncModelGarden(_api_module.BaseModule):
             return ModelGarden._format_concise_deploy_options(options)
 
         return options
+
+    async def deploy_publisher_model(
+        self,
+        *,
+        model: str,
+        config: Optional[types.DeployPublisherModelConfigOrDict] = None,
+    ) -> Union[types.DeployResponse, types.DeployModelOperation]:
+        """Async variant of ``ModelGarden.deploy_publisher_model``."""
+        if config is None:
+            config = types.DeployPublisherModelConfig()
+        elif isinstance(config, dict):
+            config = types.DeployPublisherModelConfig.model_validate(config)
+        ModelGarden._validate_deploy_config(config)
+
+        publisher_model_name, hugging_face_model_id = (
+            ModelGarden._resolve_deploy_model_name(model)
+        )
+        model_config, endpoint_config, deploy_config = (
+            ModelGarden._prepare_deploy_request(config)
+        )
+        destination = (
+            f"projects/{self._api_client.project}/locations/"
+            f"{self._api_client.location}"
+        )
+
+        operation = await self._deploy(
+            destination=destination,
+            publisher_model_name=publisher_model_name,
+            hugging_face_model_id=hugging_face_model_id,
+            model_config_val=model_config,
+            endpoint_config=endpoint_config,
+            deploy_config=deploy_config,
+        )
+        if not config.wait_for_completion:
+            return operation
+
+        operation = await _operations_utils.await_operation_async(
+            operation_name=operation.name,
+            get_operation_fn=self.get_deploy_publisher_model_operation,
+            poll_interval=(
+                config.poll_interval_seconds
+                or ModelGarden._DEFAULT_DEPLOY_POLL_INTERVAL_SECONDS
+            ),
+            timeout_seconds=(
+                config.timeout_seconds or ModelGarden._DEFAULT_DEPLOY_TIMEOUT_SECONDS
+            ),
+        )
+        return ModelGarden._deploy_response_or_raise(operation)
 
     async def list_custom_model_deploy_options(
         self,
