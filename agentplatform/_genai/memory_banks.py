@@ -45,6 +45,15 @@ def _CreateMemoryBankRequestParameters_to_vertex(
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
 
+    if getv(from_object, ["memory_bank_config"]) is not None:
+        setv(
+            parent_object,
+            ["context_spec", "memoryBankConfig"],
+            _ReasoningEngineContextSpecMemoryBankConfig_to_vertex(
+                getv(from_object, ["memory_bank_config"]), to_object
+            ),
+        )
+
     return to_object
 
 
@@ -155,10 +164,98 @@ def _IngestEventsRequestParameters_to_vertex(
     return to_object
 
 
+def _ReasoningEngineContextSpecMemoryBankConfig_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["customization_configs"]) is not None:
+        setv(
+            to_object,
+            ["customizationConfigs"],
+            [item for item in getv(from_object, ["customization_configs"])],
+        )
+
+    if getv(from_object, ["disable_memory_revisions"]) is not None:
+        setv(
+            to_object,
+            ["disableMemoryRevisions"],
+            getv(from_object, ["disable_memory_revisions"]),
+        )
+
+    if getv(from_object, ["generation_config"]) is not None:
+        setv(to_object, ["generationConfig"], getv(from_object, ["generation_config"]))
+
+    if getv(from_object, ["similarity_search_config"]) is not None:
+        setv(
+            to_object,
+            ["similaritySearchConfig"],
+            getv(from_object, ["similarity_search_config"]),
+        )
+
+    if getv(from_object, ["ttl_config"]) is not None:
+        setv(to_object, ["ttlConfig"], getv(from_object, ["ttl_config"]))
+
+    if getv(from_object, ["structured_memory_configs"]) is not None:
+        setv(
+            to_object,
+            ["structuredMemoryConfigs"],
+            [
+                _StructuredMemoryConfig_to_vertex(item, to_object)
+                for item in getv(from_object, ["structured_memory_configs"])
+            ],
+        )
+
+    return to_object
+
+
+def _StructuredMemoryConfig_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["schema_configs"]) is not None:
+        setv(
+            to_object,
+            ["schemaConfigs"],
+            [
+                _StructuredMemorySchemaConfig_to_vertex(item, to_object)
+                for item in getv(from_object, ["schema_configs"])
+            ],
+        )
+
+    if getv(from_object, ["scope_keys"]) is not None:
+        setv(to_object, ["scopeKeys"], getv(from_object, ["scope_keys"]))
+
+    return to_object
+
+
+def _StructuredMemorySchemaConfig_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["memory_schema"]) is not None:
+        setv(to_object, ["schema"], getv(from_object, ["memory_schema"]))
+
+    if getv(from_object, ["id"]) is not None:
+        setv(to_object, ["id"], getv(from_object, ["id"]))
+
+    if getv(from_object, ["memory_type"]) is not None:
+        setv(to_object, ["memoryType"], getv(from_object, ["memory_type"]))
+
+    return to_object
+
+
 class MemoryBanks(_api_module.BaseModule):
 
     def _create(
-        self, *, config: Optional[types.CreateMemoryBankConfigOrDict] = None
+        self,
+        *,
+        config: Optional[types.CreateMemoryBankConfigOrDict] = None,
+        memory_bank_config: Optional[
+            types.ReasoningEngineContextSpecMemoryBankConfigOrDict
+        ] = None,
     ) -> types.MemoryBankOperation:
         """
         Creates a new Memory Bank.
@@ -166,6 +263,7 @@ class MemoryBanks(_api_module.BaseModule):
 
         parameter_model = types._CreateMemoryBankRequestParameters(
             config=config,
+            memory_bank_config=memory_bank_config,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -459,10 +557,31 @@ class MemoryBanks(_api_module.BaseModule):
             self._memories = importlib.import_module(".memories", __package__)
         return self._memories.Memories(self._api_client)  # type: ignore[no-any-return]
 
-    def create(self):
+    def create(
+        self,
+        *,
+        managed_semantic_memory_config: Optional[
+            types.ManagedSemanticMemoryConfigOrDict
+        ] = None,
+        config: Optional[types.CreateMemoryBankConfigOrDict] = None,
+    ) -> types.MemoryBank:
         """Creates a new Memory Bank."""
+        import json
 
-        operation = self._create()
+        if managed_semantic_memory_config:
+            memory_bank_config = json.loads(
+                managed_semantic_memory_config.model_dump_json()
+            )
+        else:
+            memory_bank_config = {}
+        if "unstructured_memory_configs" in memory_bank_config:
+            memory_bank_config["customization_configs"] = memory_bank_config[
+                "unstructured_memory_configs"
+            ]
+
+        operation = self._create(
+            memory_bank_config=memory_bank_config,
+        )
 
         operation = _memory_bank_utils._await_operation(
             operation_name=operation.name,
@@ -587,7 +706,12 @@ class MemoryBanks(_api_module.BaseModule):
 class AsyncMemoryBanks(_api_module.BaseModule):
 
     async def _create(
-        self, *, config: Optional[types.CreateMemoryBankConfigOrDict] = None
+        self,
+        *,
+        config: Optional[types.CreateMemoryBankConfigOrDict] = None,
+        memory_bank_config: Optional[
+            types.ReasoningEngineContextSpecMemoryBankConfigOrDict
+        ] = None,
     ) -> types.MemoryBankOperation:
         """
         Creates a new Memory Bank.
@@ -595,6 +719,7 @@ class AsyncMemoryBanks(_api_module.BaseModule):
 
         parameter_model = types._CreateMemoryBankRequestParameters(
             config=config,
+            memory_bank_config=memory_bank_config,
         )
 
         request_url_dict: Optional[dict[str, str]]

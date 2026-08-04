@@ -10206,12 +10206,18 @@ class _CreateMemoryBankRequestParameters(_common.BaseModel):
     """Parameters for creating memory banks."""
 
     config: Optional[CreateMemoryBankConfig] = Field(default=None, description="""""")
+    memory_bank_config: Optional[ReasoningEngineContextSpecMemoryBankConfig] = Field(
+        default=None, description=""""""
+    )
 
 
 class _CreateMemoryBankRequestParametersDict(TypedDict, total=False):
     """Parameters for creating memory banks."""
 
     config: Optional[CreateMemoryBankConfigDict]
+    """"""
+
+    memory_bank_config: Optional[ReasoningEngineContextSpecMemoryBankConfigDict]
     """"""
 
 
@@ -27671,3 +27677,43 @@ class DeployOptionDict(TypedDict, total=False):
 
 
 DeployOptionOrDict = Union[DeployOption, DeployOptionDict]
+
+
+class ManagedSemanticMemoryConfig(_common.BaseModel):
+    """The configuration for managed semantic memory."""
+
+    generation_config: Optional[
+        ReasoningEngineContextSpecMemoryBankConfigGenerationConfig
+    ] = Field(default=None, description="""""")
+    similarity_search_config: Optional[
+        ReasoningEngineContextSpecMemoryBankConfigSimilaritySearchConfig
+    ] = Field(default=None, description="""""")
+    ttl_config: Optional[ReasoningEngineContextSpecMemoryBankConfigTtlConfig] = Field(
+        default=None, description=""""""
+    )
+    disable_memory_revisions: Optional[bool] = Field(default=None, description="""""")
+
+
+class ManagedSemanticMemoryConfigDict(TypedDict, total=False):
+    """The configuration for managed semantic memory."""
+
+    generation_config: Optional[
+        ReasoningEngineContextSpecMemoryBankConfigGenerationConfigDict
+    ]
+    """"""
+
+    similarity_search_config: Optional[
+        ReasoningEngineContextSpecMemoryBankConfigSimilaritySearchConfigDict
+    ]
+    """"""
+
+    ttl_config: Optional[ReasoningEngineContextSpecMemoryBankConfigTtlConfigDict]
+    """"""
+
+    disable_memory_revisions: Optional[bool]
+    """"""
+
+
+ManagedSemanticMemoryConfigOrDict = Union[
+    ManagedSemanticMemoryConfig, ManagedSemanticMemoryConfigDict
+]

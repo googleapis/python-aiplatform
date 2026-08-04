@@ -1038,6 +1038,9 @@ from .common import MachineConfig
 from .common import MachineSpec
 from .common import MachineSpecDict
 from .common import MachineSpecOrDict
+from .common import ManagedSemanticMemoryConfig
+from .common import ManagedSemanticMemoryConfigDict
+from .common import ManagedSemanticMemoryConfigOrDict
 from .common import ManagedTopicEnum
 from .common import MapInstance
 from .common import MapInstanceDict
@@ -3740,6 +3743,9 @@ __all__ = [
     "DeployOption",
     "DeployOptionDict",
     "DeployOptionOrDict",
+    "ManagedSemanticMemoryConfig",
+    "ManagedSemanticMemoryConfigDict",
+    "ManagedSemanticMemoryConfigOrDict",
     "A2aTaskState",
     "State",
     "Strategy",
