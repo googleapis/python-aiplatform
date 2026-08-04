@@ -18,16 +18,29 @@ from tests.unit.agentplatform.genai.replays import pytest_helper
 from agentplatform._genai import types
 
 
-def test_private_rollback(client):
-    rollback_operation = client.agent_engines.memories._rollback(
-        name="projects/964831358985/locations/us-central1/reasoningEngines/2886612747586371584/memories/3858070028511346688",
-        target_revision_id="3001207491565453312",
-    )
-    assert isinstance(rollback_operation, types.AgentEngineRollbackMemoryOperation)
+def test_private_retrieve(client):
+    memory_bank = client.memory_banks.create()
+    try:
+        _ = client.memory_banks.memories.create(
+            name=memory_bank.name,
+            fact="memory_fact",
+            scope={"user_id": "123"},
+        )
+        retrieved_memories = client.memory_banks.memories._retrieve(
+            name=memory_bank.name,
+            scope={"user_id": "123"},
+        )
+        assert isinstance(retrieved_memories, types.RetrieveMemoriesResponse)
+        assert isinstance(
+            retrieved_memories.retrieved_memories[0],
+            types.RetrieveMemoriesResponseRetrievedMemory,
+        )
+    finally:
+        client.memory_banks.delete(name=memory_bank.name, force=True)
 
 
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
-    test_method="agent_engines.memories._rollback",
+    test_method="memory_banks.memories._retrieve",
 )

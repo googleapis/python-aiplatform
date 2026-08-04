@@ -16,30 +16,32 @@
 
 import pytest
 
-from tests.unit.agentplatform.genai.replays import pytest_helper
 from agentplatform._genai import types
+from tests.unit.agentplatform.genai.replays import pytest_helper
 
 
 def test_get_memory(client):
-    agent_engine = client.agent_engines.create()
-    operation = client.agent_engines.memories.create(
-        name=agent_engine.api_resource.name,
-        fact="memory_fact",
-        scope={"user_id": "123"},
-    )
-    assert isinstance(operation, types.AgentEngineMemoryOperation)
-    memory = client.agent_engines.memories.get(
-        name=operation.response.name,
-    )
-    assert isinstance(memory, types.Memory)
-    assert memory.name == operation.response.name
-    client.agent_engines.delete(name=agent_engine.api_resource.name, force=True)
+    memory_bank = client.memory_banks.create()
+    try:
+        operation = client.memory_banks.memories.create(
+            name=memory_bank.name,
+            fact="memory_fact",
+            scope={"user_id": "123"},
+        )
+        assert isinstance(operation, types.MemoryOperation)
+        memory = client.memory_banks.memories.get(
+            name=operation.response.name,
+        )
+        assert isinstance(memory, types.Memory)
+        assert memory.name == operation.response.name
+    finally:
+        client.memory_banks.delete(name=memory_bank.name, force=True)
 
 
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
-    test_method="agent_engines.memories.get",
+    test_method="memory_banks.memories.get",
 )
 
 
@@ -48,18 +50,18 @@ pytest_plugins = ("pytest_asyncio",)
 
 @pytest.mark.asyncio
 async def test_get_memory_async(client):
-    agent_engine = client.agent_engines.create()
-    operation = await client.aio.agent_engines.memories.create(
-        name=agent_engine.api_resource.name,
+    memory_bank = client.memory_banks.create()
+    operation = await client.aio.memory_banks.memories.create(
+        name=memory_bank.name,
         fact="memory_fact",
         scope={"user_id": "123"},
     )
-    assert isinstance(operation, types.AgentEngineMemoryOperation)
-    memory = await client.aio.agent_engines.memories.get(
+    assert isinstance(operation, types.MemoryOperation)
+    memory = await client.aio.memory_banks.memories.get(
         name=operation.response.name,
     )
     assert isinstance(memory, types.Memory)
     assert memory.name == operation.response.name
-    await client.aio.agent_engines.delete(
-        name=agent_engine.api_resource.name, force=True
+    await client.aio.memory_banks.delete(
+        name=memory_bank.name, force=True
     )

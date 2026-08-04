@@ -29,7 +29,6 @@ from .common import _AssembleDatasetParameters
 from .common import _AssessDatasetParameters
 from .common import _CancelQueryJobAgentEngineRequestParameters
 from .common import _CheckQueryJobAgentEngineRequestParameters
-from .common import _CreateAgentEngineMemoryRequestParameters
 from .common import _CreateAgentEngineRequestParameters
 from .common import _CreateAgentEngineSandboxRequestParameters
 from .common import _CreateAgentEngineSessionRequestParameters
@@ -41,6 +40,8 @@ from .common import _CreateEvaluationItemParameters
 from .common import _CreateEvaluationMetricParameters
 from .common import _CreateEvaluationRunParameters
 from .common import _CreateEvaluationSetParameters
+from .common import _CreateMemoryBankRequestParameters
+from .common import _CreateMemoryRequestParameters
 from .common import _CreateMultimodalDatasetParameters
 from .common import _CreateRagCorpusRequestParameters
 from .common import _CreateRuntimeFeedbackEntryRequestParameters
@@ -49,7 +50,6 @@ from .common import _CreateSandboxEnvironmentTemplateRequestParameters
 from .common import _CreateSkillRequestParameters
 from .common import _CustomJobParameters
 from .common import _CustomJobParameters
-from .common import _DeleteAgentEngineMemoryRequestParameters
 from .common import _DeleteAgentEngineRequestParameters
 from .common import _DeleteAgentEngineRuntimeRevisionRequestParameters
 from .common import _DeleteAgentEngineSandboxRequestParameters
@@ -58,6 +58,8 @@ from .common import _DeleteAgentEngineTaskRequestParameters
 from .common import _DeleteDatasetRequestParameters
 from .common import _DeleteEvaluationExperimentParameters
 from .common import _DeleteEvaluationMetricParameters
+from .common import _DeleteMemoryBankRequestParameters
+from .common import _DeleteMemoryRequestParameters
 from .common import _DeleteMultimodalDatasetRequestParameters
 from .common import _DeletePromptVersionRequestParameters
 from .common import _DeleteRagCorpusRequestParameters
@@ -69,14 +71,10 @@ from .common import _DeleteSkillRequestParameters
 from .common import _EvaluateInstancesRequestParameters
 from .common import _ExecuteCodeAgentEngineSandboxRequestParameters
 from .common import _ExportPublisherModelRequestParameters
-from .common import _GenerateAgentEngineMemoriesRequestParameters
 from .common import _GenerateInstanceRubricsRequest
 from .common import _GenerateLossClustersParameters
+from .common import _GenerateMemoriesRequestParameters
 from .common import _GenerateUserScenariosParameters
-from .common import _GetAgentEngineGenerateMemoriesOperationParameters
-from .common import _GetAgentEngineMemoryOperationParameters
-from .common import _GetAgentEngineMemoryRequestParameters
-from .common import _GetAgentEngineMemoryRevisionRequestParameters
 from .common import _GetAgentEngineOperationParameters
 from .common import _GetAgentEngineRequestParameters
 from .common import _GetAgentEngineRuntimeRevisionRequestParameters
@@ -99,7 +97,12 @@ from .common import _GetEvaluationMetricParameters
 from .common import _GetEvaluationRunParameters
 from .common import _GetEvaluationSetParameters
 from .common import _GetExportPublisherModelOperationParameters
+from .common import _GetGenerateMemoriesOperationParameters
 from .common import _GetImportFilesOperationParameters
+from .common import _GetMemoryBankOperationParameters
+from .common import _GetMemoryOperationParameters
+from .common import _GetMemoryRequestParameters
+from .common import _GetMemoryRevisionRequestParameters
 from .common import _GetMultimodalDatasetOperationParameters
 from .common import _GetMultimodalDatasetParameters
 from .common import _GetPublisherModelRequestParameters
@@ -120,8 +123,6 @@ from .common import _GetSkillRequestParameters
 from .common import _GetSkillRevisionRequestParameters
 from .common import _ImportRagFilesRequestParameters
 from .common import _IngestEventsRequestParameters
-from .common import _ListAgentEngineMemoryRequestParameters
-from .common import _ListAgentEngineMemoryRevisionsRequestParameters
 from .common import _ListAgentEngineRequestParameters
 from .common import _ListAgentEngineRuntimeRevisionsRequestParameters
 from .common import _ListAgentEngineSandboxesRequestParameters
@@ -133,6 +134,8 @@ from .common import _ListDatasetsRequestParameters
 from .common import _ListDatasetVersionsRequestParameters
 from .common import _ListEvaluationExperimentsParameters
 from .common import _ListEvaluationMetricsParameters
+from .common import _ListMemoriesRequestParameters
+from .common import _ListMemoryRevisionsRequestParameters
 from .common import _ListMultimodalDatasetsRequestParameters
 from .common import _ListPublisherModelsRequestParameters
 from .common import _ListRagCorporaRequestParameters
@@ -144,25 +147,25 @@ from .common import _ListSkillRevisionsRequestParameters
 from .common import _ListSkillsRequestParameters
 from .common import _OptimizeRequestParameters
 from .common import _OptimizeRequestParameters
-from .common import _PurgeAgentEngineMemoriesRequestParameters
+from .common import _PurgeMemoriesRequestParameters
 from .common import _QueryAgentEngineRequestParameters
 from .common import _QueryAgentEngineRuntimeRevisionRequestParameters
 from .common import _RecommendSpecRequestParameters
 from .common import _RestoreVersionRequestParameters
-from .common import _RetrieveAgentEngineMemoriesRequestParameters
+from .common import _RetrieveMemoriesRequestParameters
 from .common import _RetrieveMemoryProfilesRequestParameters
 from .common import _RetrieveRagContextsRequestParameters
 from .common import _RetrieveSkillsRequestParameters
-from .common import _RollbackAgentEngineMemoryRequestParameters
+from .common import _RollbackMemoryRequestParameters
 from .common import _RunQueryJobAgentEngineConfig
 from .common import _RunQueryJobAgentEngineConfigDict
 from .common import _RunQueryJobAgentEngineConfigOrDict
 from .common import _RunQueryJobAgentEngineRequestParameters
-from .common import _UpdateAgentEngineMemoryRequestParameters
 from .common import _UpdateAgentEngineRequestParameters
 from .common import _UpdateAgentEngineSessionRequestParameters
 from .common import _UpdateDatasetParameters
 from .common import _UpdateEvaluationExperimentParameters
+from .common import _UpdateMemoryRequestParameters
 from .common import _UpdateMultimodalDatasetParameters
 from .common import _UpdateRagConfigRequestParameters
 from .common import _UpdateRagCorpusRequestParameters
@@ -180,25 +183,10 @@ from .common import AgentEngineConfig
 from .common import AgentEngineConfigDict
 from .common import AgentEngineConfigOrDict
 from .common import AgentEngineDict
-from .common import AgentEngineGenerateMemoriesOperation
-from .common import AgentEngineGenerateMemoriesOperationDict
-from .common import AgentEngineGenerateMemoriesOperationOrDict
-from .common import AgentEngineMemoryConfig
-from .common import AgentEngineMemoryConfigDict
-from .common import AgentEngineMemoryConfigOrDict
-from .common import AgentEngineMemoryOperation
-from .common import AgentEngineMemoryOperationDict
-from .common import AgentEngineMemoryOperationOrDict
 from .common import AgentEngineOperation
 from .common import AgentEngineOperationDict
 from .common import AgentEngineOperationOrDict
 from .common import AgentEngineOrDict
-from .common import AgentEnginePurgeMemoriesOperation
-from .common import AgentEnginePurgeMemoriesOperationDict
-from .common import AgentEnginePurgeMemoriesOperationOrDict
-from .common import AgentEngineRollbackMemoryOperation
-from .common import AgentEngineRollbackMemoryOperationDict
-from .common import AgentEngineRollbackMemoryOperationOrDict
 from .common import AgentEngineRuntimeRevision
 from .common import AgentEngineRuntimeRevisionDict
 from .common import AgentEngineRuntimeRevisionOrDict
@@ -362,6 +350,9 @@ from .common import CreateEvaluationRunConfigOrDict
 from .common import CreateEvaluationSetConfig
 from .common import CreateEvaluationSetConfigDict
 from .common import CreateEvaluationSetConfigOrDict
+from .common import CreateMemoryBankConfig
+from .common import CreateMemoryBankConfigDict
+from .common import CreateMemoryBankConfigOrDict
 from .common import CreateMultimodalDatasetConfig
 from .common import CreateMultimodalDatasetConfigDict
 from .common import CreateMultimodalDatasetConfigOrDict
@@ -414,12 +405,6 @@ from .common import DefaultContainerCategory
 from .common import DeleteAgentEngineConfig
 from .common import DeleteAgentEngineConfigDict
 from .common import DeleteAgentEngineConfigOrDict
-from .common import DeleteAgentEngineMemoryConfig
-from .common import DeleteAgentEngineMemoryConfigDict
-from .common import DeleteAgentEngineMemoryConfigOrDict
-from .common import DeleteAgentEngineMemoryOperation
-from .common import DeleteAgentEngineMemoryOperationDict
-from .common import DeleteAgentEngineMemoryOperationOrDict
 from .common import DeleteAgentEngineOperation
 from .common import DeleteAgentEngineOperationDict
 from .common import DeleteAgentEngineOperationOrDict
@@ -456,6 +441,18 @@ from .common import DeleteEvaluationMetricConfigOrDict
 from .common import DeleteEvaluationMetricOperation
 from .common import DeleteEvaluationMetricOperationDict
 from .common import DeleteEvaluationMetricOperationOrDict
+from .common import DeleteMemoryBankConfig
+from .common import DeleteMemoryBankConfigDict
+from .common import DeleteMemoryBankConfigOrDict
+from .common import DeleteMemoryBankOperation
+from .common import DeleteMemoryBankOperationDict
+from .common import DeleteMemoryBankOperationOrDict
+from .common import DeleteMemoryConfig
+from .common import DeleteMemoryConfigDict
+from .common import DeleteMemoryConfigOrDict
+from .common import DeleteMemoryOperation
+from .common import DeleteMemoryOperationDict
+from .common import DeleteMemoryOperationOrDict
 from .common import DeletePromptConfig
 from .common import DeletePromptConfigDict
 from .common import DeletePromptConfigOrDict
@@ -670,9 +667,6 @@ from .common import GeminiRequestReadConfigOrDict
 from .common import GeminiTemplateConfig
 from .common import GeminiTemplateConfigDict
 from .common import GeminiTemplateConfigOrDict
-from .common import GenerateAgentEngineMemoriesConfig
-from .common import GenerateAgentEngineMemoriesConfigDict
-from .common import GenerateAgentEngineMemoriesConfigOrDict
 from .common import GenerateInstanceRubricsResponse
 from .common import GenerateInstanceRubricsResponseDict
 from .common import GenerateInstanceRubricsResponseOrDict
@@ -685,6 +679,12 @@ from .common import GenerateLossClustersOperationOrDict
 from .common import GenerateLossClustersResponse
 from .common import GenerateLossClustersResponseDict
 from .common import GenerateLossClustersResponseOrDict
+from .common import GenerateMemoriesConfig
+from .common import GenerateMemoriesConfigDict
+from .common import GenerateMemoriesConfigOrDict
+from .common import GenerateMemoriesOperation
+from .common import GenerateMemoriesOperationDict
+from .common import GenerateMemoriesOperationOrDict
 from .common import GenerateMemoriesRequestDirectContentsSource
 from .common import GenerateMemoriesRequestDirectContentsSourceDict
 from .common import GenerateMemoriesRequestDirectContentsSourceEvent
@@ -716,12 +716,6 @@ from .common import GenerateUserScenariosResponseOrDict
 from .common import GetAgentEngineConfig
 from .common import GetAgentEngineConfigDict
 from .common import GetAgentEngineConfigOrDict
-from .common import GetAgentEngineMemoryConfig
-from .common import GetAgentEngineMemoryConfigDict
-from .common import GetAgentEngineMemoryConfigOrDict
-from .common import GetAgentEngineMemoryRevisionConfig
-from .common import GetAgentEngineMemoryRevisionConfigDict
-from .common import GetAgentEngineMemoryRevisionConfigOrDict
 from .common import GetAgentEngineOperationConfig
 from .common import GetAgentEngineOperationConfigDict
 from .common import GetAgentEngineOperationConfigOrDict
@@ -767,6 +761,15 @@ from .common import GetExportPublisherModelOperationConfigOrDict
 from .common import GetImportFilesOperationConfig
 from .common import GetImportFilesOperationConfigDict
 from .common import GetImportFilesOperationConfigOrDict
+from .common import GetMemoryBankOperationConfig
+from .common import GetMemoryBankOperationConfigDict
+from .common import GetMemoryBankOperationConfigOrDict
+from .common import GetMemoryConfig
+from .common import GetMemoryConfigDict
+from .common import GetMemoryConfigOrDict
+from .common import GetMemoryRevisionConfig
+from .common import GetMemoryRevisionConfigDict
+from .common import GetMemoryRevisionConfigOrDict
 from .common import GetMultimodalDatasetOperationConfig
 from .common import GetMultimodalDatasetOperationConfigDict
 from .common import GetMultimodalDatasetOperationConfigOrDict
@@ -874,15 +877,6 @@ from .common import LaunchStage
 from .common import ListAgentEngineConfig
 from .common import ListAgentEngineConfigDict
 from .common import ListAgentEngineConfigOrDict
-from .common import ListAgentEngineMemoryConfig
-from .common import ListAgentEngineMemoryConfigDict
-from .common import ListAgentEngineMemoryConfigOrDict
-from .common import ListAgentEngineMemoryRevisionsConfig
-from .common import ListAgentEngineMemoryRevisionsConfigDict
-from .common import ListAgentEngineMemoryRevisionsConfigOrDict
-from .common import ListAgentEngineMemoryRevisionsResponse
-from .common import ListAgentEngineMemoryRevisionsResponseDict
-from .common import ListAgentEngineMemoryRevisionsResponseOrDict
 from .common import ListAgentEngineRuntimeRevisionsConfig
 from .common import ListAgentEngineRuntimeRevisionsConfigDict
 from .common import ListAgentEngineRuntimeRevisionsConfigOrDict
@@ -937,6 +931,18 @@ from .common import ListEvaluationMetricsConfigOrDict
 from .common import ListEvaluationMetricsResponse
 from .common import ListEvaluationMetricsResponseDict
 from .common import ListEvaluationMetricsResponseOrDict
+from .common import ListMemoriesConfig
+from .common import ListMemoriesConfigDict
+from .common import ListMemoriesConfigOrDict
+from .common import ListMemoriesResponse
+from .common import ListMemoriesResponseDict
+from .common import ListMemoriesResponseOrDict
+from .common import ListMemoryRevisionsConfig
+from .common import ListMemoryRevisionsConfigDict
+from .common import ListMemoryRevisionsConfigOrDict
+from .common import ListMemoryRevisionsResponse
+from .common import ListMemoryRevisionsResponseDict
+from .common import ListMemoryRevisionsResponseOrDict
 from .common import ListModelGardenModelsConfig
 from .common import ListModelGardenModelsConfigDict
 from .common import ListModelGardenModelsConfigOrDict
@@ -970,9 +976,6 @@ from .common import ListRagFilesConfigOrDict
 from .common import ListRagFilesResponse
 from .common import ListRagFilesResponseDict
 from .common import ListRagFilesResponseOrDict
-from .common import ListReasoningEnginesMemoriesResponse
-from .common import ListReasoningEnginesMemoriesResponseDict
-from .common import ListReasoningEnginesMemoriesResponseOrDict
 from .common import ListReasoningEnginesResponse
 from .common import ListReasoningEnginesResponseDict
 from .common import ListReasoningEnginesResponseOrDict
@@ -1040,6 +1043,7 @@ from .common import MapInstance
 from .common import MapInstanceDict
 from .common import MapInstanceOrDict
 from .common import Memory
+from .common import MemoryBank
 from .common import MemoryBankCustomizationConfig
 from .common import MemoryBankCustomizationConfigConsolidationConfig
 from .common import MemoryBankCustomizationConfigConsolidationConfigDict
@@ -1083,9 +1087,17 @@ from .common import MemoryBankCustomizationConfigMemoryTopicManagedMemoryTopicDi
 from .common import MemoryBankCustomizationConfigMemoryTopicManagedMemoryTopicOrDict
 from .common import MemoryBankCustomizationConfigMemoryTopicOrDict
 from .common import MemoryBankCustomizationConfigOrDict
+from .common import MemoryBankDict
 from .common import MemoryBankIngestEventsOperation
 from .common import MemoryBankIngestEventsOperationDict
 from .common import MemoryBankIngestEventsOperationOrDict
+from .common import MemoryBankOperation
+from .common import MemoryBankOperationDict
+from .common import MemoryBankOperationOrDict
+from .common import MemoryBankOrDict
+from .common import MemoryConfig
+from .common import MemoryConfigDict
+from .common import MemoryConfigOrDict
 from .common import MemoryConjunctionFilter
 from .common import MemoryConjunctionFilterDict
 from .common import MemoryConjunctionFilterOrDict
@@ -1103,6 +1115,9 @@ from .common import MemoryMetadataMergeStrategy
 from .common import MemoryMetadataValue
 from .common import MemoryMetadataValueDict
 from .common import MemoryMetadataValueOrDict
+from .common import MemoryOperation
+from .common import MemoryOperationDict
+from .common import MemoryOperationOrDict
 from .common import MemoryOrDict
 from .common import MemoryProfile
 from .common import MemoryProfileDict
@@ -1269,9 +1284,12 @@ from .common import PublisherModelParentOrDict
 from .common import PublisherModelResourceReference
 from .common import PublisherModelResourceReferenceDict
 from .common import PublisherModelResourceReferenceOrDict
-from .common import PurgeAgentEngineMemoriesConfig
-from .common import PurgeAgentEngineMemoriesConfigDict
-from .common import PurgeAgentEngineMemoriesConfigOrDict
+from .common import PurgeMemoriesConfig
+from .common import PurgeMemoriesConfigDict
+from .common import PurgeMemoriesConfigOrDict
+from .common import PurgeMemoriesOperation
+from .common import PurgeMemoriesOperationDict
+from .common import PurgeMemoriesOperationOrDict
 from .common import PurgeMemoriesResponse
 from .common import PurgeMemoriesResponseDict
 from .common import PurgeMemoriesResponseOrDict
@@ -1546,9 +1564,6 @@ from .common import RestoreVersionConfigOrDict
 from .common import RestoreVersionOperation
 from .common import RestoreVersionOperationDict
 from .common import RestoreVersionOperationOrDict
-from .common import RetrieveAgentEngineMemoriesConfig
-from .common import RetrieveAgentEngineMemoriesConfigDict
-from .common import RetrieveAgentEngineMemoriesConfigOrDict
 from .common import RetrieveContextsConfig
 from .common import RetrieveContextsConfigDict
 from .common import RetrieveContextsConfigOrDict
@@ -1558,6 +1573,9 @@ from .common import RetrieveContextsResponseOrDict
 from .common import RetrievedSkill
 from .common import RetrievedSkillDict
 from .common import RetrievedSkillOrDict
+from .common import RetrieveMemoriesConfig
+from .common import RetrieveMemoriesConfigDict
+from .common import RetrieveMemoriesConfigOrDict
 from .common import RetrieveMemoriesRequestSimilaritySearchParams
 from .common import RetrieveMemoriesRequestSimilaritySearchParamsDict
 from .common import RetrieveMemoriesRequestSimilaritySearchParamsOrDict
@@ -1582,9 +1600,12 @@ from .common import RetrieveSkillsConfigOrDict
 from .common import RetrieveSkillsResponse
 from .common import RetrieveSkillsResponseDict
 from .common import RetrieveSkillsResponseOrDict
-from .common import RollbackAgentEngineMemoryConfig
-from .common import RollbackAgentEngineMemoryConfigDict
-from .common import RollbackAgentEngineMemoryConfigOrDict
+from .common import RollbackMemoryConfig
+from .common import RollbackMemoryConfigDict
+from .common import RollbackMemoryConfigOrDict
+from .common import RollbackMemoryOperation
+from .common import RollbackMemoryOperationDict
+from .common import RollbackMemoryOperationOrDict
 from .common import RougeInput
 from .common import RougeInputDict
 from .common import RougeInputOrDict
@@ -1922,15 +1943,15 @@ from .common import UnifiedMetricOrDict
 from .common import UpdateAgentEngineConfig
 from .common import UpdateAgentEngineConfigDict
 from .common import UpdateAgentEngineConfigOrDict
-from .common import UpdateAgentEngineMemoryConfig
-from .common import UpdateAgentEngineMemoryConfigDict
-from .common import UpdateAgentEngineMemoryConfigOrDict
 from .common import UpdateAgentEngineSessionConfig
 from .common import UpdateAgentEngineSessionConfigDict
 from .common import UpdateAgentEngineSessionConfigOrDict
 from .common import UpdateEvaluationExperimentConfig
 from .common import UpdateEvaluationExperimentConfigDict
 from .common import UpdateEvaluationExperimentConfigOrDict
+from .common import UpdateMemoryConfig
+from .common import UpdateMemoryConfigDict
+from .common import UpdateMemoryConfigOrDict
 from .common import UpdatePromptConfig
 from .common import UpdatePromptConfigDict
 from .common import UpdatePromptConfigOrDict
@@ -2639,27 +2660,57 @@ __all__ = [
     "UpdateAgentEngineConfig",
     "UpdateAgentEngineConfigDict",
     "UpdateAgentEngineConfigOrDict",
+    "CreateMemoryBankConfig",
+    "CreateMemoryBankConfigDict",
+    "CreateMemoryBankConfigOrDict",
+    "MemoryBank",
+    "MemoryBankDict",
+    "MemoryBankOrDict",
+    "MemoryBankOperation",
+    "MemoryBankOperationDict",
+    "MemoryBankOperationOrDict",
+    "DeleteMemoryBankConfig",
+    "DeleteMemoryBankConfigDict",
+    "DeleteMemoryBankConfigOrDict",
+    "DeleteMemoryBankOperation",
+    "DeleteMemoryBankOperationDict",
+    "DeleteMemoryBankOperationOrDict",
+    "IngestionDirectContentsSourceEvent",
+    "IngestionDirectContentsSourceEventDict",
+    "IngestionDirectContentsSourceEventOrDict",
+    "IngestionDirectContentsSource",
+    "IngestionDirectContentsSourceDict",
+    "IngestionDirectContentsSourceOrDict",
     "MemoryMetadataValue",
     "MemoryMetadataValueDict",
     "MemoryMetadataValueOrDict",
-    "AgentEngineMemoryConfig",
-    "AgentEngineMemoryConfigDict",
-    "AgentEngineMemoryConfigOrDict",
+    "IngestEventsConfig",
+    "IngestEventsConfigDict",
+    "IngestEventsConfigOrDict",
+    "MemoryBankIngestEventsOperation",
+    "MemoryBankIngestEventsOperationDict",
+    "MemoryBankIngestEventsOperationOrDict",
+    "GetMemoryBankOperationConfig",
+    "GetMemoryBankOperationConfigDict",
+    "GetMemoryBankOperationConfigOrDict",
+    "MemoryConfig",
+    "MemoryConfigDict",
+    "MemoryConfigOrDict",
     "MemoryStructuredContent",
     "MemoryStructuredContentDict",
     "MemoryStructuredContentOrDict",
     "Memory",
     "MemoryDict",
     "MemoryOrDict",
-    "AgentEngineMemoryOperation",
-    "AgentEngineMemoryOperationDict",
-    "AgentEngineMemoryOperationOrDict",
-    "DeleteAgentEngineMemoryConfig",
-    "DeleteAgentEngineMemoryConfigDict",
-    "DeleteAgentEngineMemoryConfigOrDict",
-    "DeleteAgentEngineMemoryOperation",
-    "DeleteAgentEngineMemoryOperationDict",
-    "DeleteAgentEngineMemoryOperationOrDict",
+    "MemoryOperation",
+    "MemoryOperationDict",
+    "MemoryOperationOrDict",
+    "DeleteMemoryConfig",
+    "DeleteMemoryConfigDict",
+    "DeleteMemoryConfigOrDict",
+    "DeleteMemoryOperation",
+    "DeleteMemoryOperationDict",
+    "DeleteMemoryOperationOrDict",
     "GenerateMemoriesRequestVertexSessionSource",
     "GenerateMemoriesRequestVertexSessionSourceDict",
     "GenerateMemoriesRequestVertexSessionSourceOrDict",
@@ -2675,39 +2726,27 @@ __all__ = [
     "GenerateMemoriesRequestDirectMemoriesSource",
     "GenerateMemoriesRequestDirectMemoriesSourceDict",
     "GenerateMemoriesRequestDirectMemoriesSourceOrDict",
-    "GenerateAgentEngineMemoriesConfig",
-    "GenerateAgentEngineMemoriesConfigDict",
-    "GenerateAgentEngineMemoriesConfigOrDict",
+    "GenerateMemoriesConfig",
+    "GenerateMemoriesConfigDict",
+    "GenerateMemoriesConfigOrDict",
     "GenerateMemoriesResponseGeneratedMemory",
     "GenerateMemoriesResponseGeneratedMemoryDict",
     "GenerateMemoriesResponseGeneratedMemoryOrDict",
     "GenerateMemoriesResponse",
     "GenerateMemoriesResponseDict",
     "GenerateMemoriesResponseOrDict",
-    "AgentEngineGenerateMemoriesOperation",
-    "AgentEngineGenerateMemoriesOperationDict",
-    "AgentEngineGenerateMemoriesOperationOrDict",
-    "GetAgentEngineMemoryConfig",
-    "GetAgentEngineMemoryConfigDict",
-    "GetAgentEngineMemoryConfigOrDict",
-    "IngestionDirectContentsSourceEvent",
-    "IngestionDirectContentsSourceEventDict",
-    "IngestionDirectContentsSourceEventOrDict",
-    "IngestionDirectContentsSource",
-    "IngestionDirectContentsSourceDict",
-    "IngestionDirectContentsSourceOrDict",
-    "IngestEventsConfig",
-    "IngestEventsConfigDict",
-    "IngestEventsConfigOrDict",
-    "MemoryBankIngestEventsOperation",
-    "MemoryBankIngestEventsOperationDict",
-    "MemoryBankIngestEventsOperationOrDict",
-    "ListAgentEngineMemoryConfig",
-    "ListAgentEngineMemoryConfigDict",
-    "ListAgentEngineMemoryConfigOrDict",
-    "ListReasoningEnginesMemoriesResponse",
-    "ListReasoningEnginesMemoriesResponseDict",
-    "ListReasoningEnginesMemoriesResponseOrDict",
+    "GenerateMemoriesOperation",
+    "GenerateMemoriesOperationDict",
+    "GenerateMemoriesOperationOrDict",
+    "GetMemoryConfig",
+    "GetMemoryConfigDict",
+    "GetMemoryConfigOrDict",
+    "ListMemoriesConfig",
+    "ListMemoriesConfigDict",
+    "ListMemoriesConfigOrDict",
+    "ListMemoriesResponse",
+    "ListMemoriesResponseDict",
+    "ListMemoriesResponseOrDict",
     "RetrieveMemoriesRequestSimilaritySearchParams",
     "RetrieveMemoriesRequestSimilaritySearchParamsDict",
     "RetrieveMemoriesRequestSimilaritySearchParamsOrDict",
@@ -2720,9 +2759,9 @@ __all__ = [
     "MemoryConjunctionFilter",
     "MemoryConjunctionFilterDict",
     "MemoryConjunctionFilterOrDict",
-    "RetrieveAgentEngineMemoriesConfig",
-    "RetrieveAgentEngineMemoriesConfigDict",
-    "RetrieveAgentEngineMemoriesConfigOrDict",
+    "RetrieveMemoriesConfig",
+    "RetrieveMemoriesConfigDict",
+    "RetrieveMemoriesConfigOrDict",
     "RetrieveMemoriesResponseRetrievedMemory",
     "RetrieveMemoriesResponseRetrievedMemoryDict",
     "RetrieveMemoriesResponseRetrievedMemoryOrDict",
@@ -2738,39 +2777,39 @@ __all__ = [
     "RetrieveProfilesResponse",
     "RetrieveProfilesResponseDict",
     "RetrieveProfilesResponseOrDict",
-    "RollbackAgentEngineMemoryConfig",
-    "RollbackAgentEngineMemoryConfigDict",
-    "RollbackAgentEngineMemoryConfigOrDict",
-    "AgentEngineRollbackMemoryOperation",
-    "AgentEngineRollbackMemoryOperationDict",
-    "AgentEngineRollbackMemoryOperationOrDict",
-    "UpdateAgentEngineMemoryConfig",
-    "UpdateAgentEngineMemoryConfigDict",
-    "UpdateAgentEngineMemoryConfigOrDict",
-    "PurgeAgentEngineMemoriesConfig",
-    "PurgeAgentEngineMemoriesConfigDict",
-    "PurgeAgentEngineMemoriesConfigOrDict",
+    "RollbackMemoryConfig",
+    "RollbackMemoryConfigDict",
+    "RollbackMemoryConfigOrDict",
+    "RollbackMemoryOperation",
+    "RollbackMemoryOperationDict",
+    "RollbackMemoryOperationOrDict",
+    "UpdateMemoryConfig",
+    "UpdateMemoryConfigDict",
+    "UpdateMemoryConfigOrDict",
+    "PurgeMemoriesConfig",
+    "PurgeMemoriesConfigDict",
+    "PurgeMemoriesConfigOrDict",
     "PurgeMemoriesResponse",
     "PurgeMemoriesResponseDict",
     "PurgeMemoriesResponseOrDict",
-    "AgentEnginePurgeMemoriesOperation",
-    "AgentEnginePurgeMemoriesOperationDict",
-    "AgentEnginePurgeMemoriesOperationOrDict",
-    "GetAgentEngineMemoryRevisionConfig",
-    "GetAgentEngineMemoryRevisionConfigDict",
-    "GetAgentEngineMemoryRevisionConfigOrDict",
+    "PurgeMemoriesOperation",
+    "PurgeMemoriesOperationDict",
+    "PurgeMemoriesOperationOrDict",
+    "GetMemoryRevisionConfig",
+    "GetMemoryRevisionConfigDict",
+    "GetMemoryRevisionConfigOrDict",
     "IntermediateExtractedMemory",
     "IntermediateExtractedMemoryDict",
     "IntermediateExtractedMemoryOrDict",
     "MemoryRevision",
     "MemoryRevisionDict",
     "MemoryRevisionOrDict",
-    "ListAgentEngineMemoryRevisionsConfig",
-    "ListAgentEngineMemoryRevisionsConfigDict",
-    "ListAgentEngineMemoryRevisionsConfigOrDict",
-    "ListAgentEngineMemoryRevisionsResponse",
-    "ListAgentEngineMemoryRevisionsResponseDict",
-    "ListAgentEngineMemoryRevisionsResponseOrDict",
+    "ListMemoryRevisionsConfig",
+    "ListMemoryRevisionsConfigDict",
+    "ListMemoryRevisionsConfigOrDict",
+    "ListMemoryRevisionsResponse",
+    "ListMemoryRevisionsResponseDict",
+    "ListMemoryRevisionsResponseOrDict",
     "AskContextsConfig",
     "AskContextsConfigDict",
     "AskContextsConfigOrDict",
@@ -3799,21 +3838,24 @@ __all__ = [
     "_GetAgentEngineOperationParameters",
     "_QueryAgentEngineRequestParameters",
     "_UpdateAgentEngineRequestParameters",
-    "_CreateAgentEngineMemoryRequestParameters",
-    "_DeleteAgentEngineMemoryRequestParameters",
-    "_GenerateAgentEngineMemoriesRequestParameters",
-    "_GetAgentEngineMemoryRequestParameters",
+    "_CreateMemoryBankRequestParameters",
+    "_DeleteMemoryBankRequestParameters",
     "_IngestEventsRequestParameters",
-    "_ListAgentEngineMemoryRequestParameters",
-    "_GetAgentEngineMemoryOperationParameters",
-    "_GetAgentEngineGenerateMemoriesOperationParameters",
-    "_RetrieveAgentEngineMemoriesRequestParameters",
+    "_GetMemoryBankOperationParameters",
+    "_CreateMemoryRequestParameters",
+    "_DeleteMemoryRequestParameters",
+    "_GenerateMemoriesRequestParameters",
+    "_GetMemoryRequestParameters",
+    "_ListMemoriesRequestParameters",
+    "_GetMemoryOperationParameters",
+    "_GetGenerateMemoriesOperationParameters",
+    "_RetrieveMemoriesRequestParameters",
     "_RetrieveMemoryProfilesRequestParameters",
-    "_RollbackAgentEngineMemoryRequestParameters",
-    "_UpdateAgentEngineMemoryRequestParameters",
-    "_PurgeAgentEngineMemoriesRequestParameters",
-    "_GetAgentEngineMemoryRevisionRequestParameters",
-    "_ListAgentEngineMemoryRevisionsRequestParameters",
+    "_RollbackMemoryRequestParameters",
+    "_UpdateMemoryRequestParameters",
+    "_PurgeMemoriesRequestParameters",
+    "_GetMemoryRevisionRequestParameters",
+    "_ListMemoryRevisionsRequestParameters",
     "_AskContextsRequestParameters",
     "_CreateRagCorpusRequestParameters",
     "_GetCorpusOperationParameters",
