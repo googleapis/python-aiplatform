@@ -554,6 +554,16 @@ _TEST_AGENT_ENGINE_IDENTITY_TYPE_SERVICE_ACCOUNT = (
     _genai_types.IdentityType.SERVICE_ACCOUNT
 )
 _TEST_AGENT_ENGINE_ENCRYPTION_SPEC = {"kms_key_name": "test-kms-key"}
+_TEST_AGENT_ENGINE_BUILD_WORKER_POOL = (
+    "projects/test-project/locations/us-central1/workerPools/test-pool"
+)
+_TEST_AGENT_ENGINE_BUILD_SERVICE_ACCOUNT = (
+    "test-build-sa@test-project.iam.gserviceaccount.com"
+)
+_TEST_AGENT_ENGINE_BUILD_CONFIG = _genai_types.ReasoningEngineSpecBuildSpecDict(
+    worker_pool=_TEST_AGENT_ENGINE_BUILD_WORKER_POOL,
+    service_account=_TEST_AGENT_ENGINE_BUILD_SERVICE_ACCOUNT,
+)
 _TEST_AGENT_ENGINE_KEEP_ALIVE_PROBE = {
     "http_get": {
         "path": "/health",
@@ -1045,6 +1055,51 @@ class TestAgentEngineHelpers:
             config["spec"]["identity_type"]
             == _TEST_AGENT_ENGINE_IDENTITY_TYPE_SERVICE_ACCOUNT
         )
+
+    @mock.patch.object(_agent_engines_utils, "_prepare")
+    def test_create_agent_engine_config_with_build_config(self, mock_prepare):
+        config = self.client.agent_engines._create_config(
+            mode="create",
+            agent=self.test_agent,
+            staging_bucket=_TEST_STAGING_BUCKET,
+            requirements=_TEST_AGENT_ENGINE_REQUIREMENTS,
+            display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+            build_config=_TEST_AGENT_ENGINE_BUILD_CONFIG,
+        )
+        assert config["spec"]["build_spec"] == {
+            "worker_pool": _TEST_AGENT_ENGINE_BUILD_WORKER_POOL,
+            "service_account": _TEST_AGENT_ENGINE_BUILD_SERVICE_ACCOUNT,
+        }
+
+    @mock.patch.object(_agent_engines_utils, "_prepare")
+    def test_create_agent_engine_config_with_build_config_worker_pool_only(
+        self, mock_prepare
+    ):
+        config = self.client.agent_engines._create_config(
+            mode="create",
+            agent=self.test_agent,
+            staging_bucket=_TEST_STAGING_BUCKET,
+            requirements=_TEST_AGENT_ENGINE_REQUIREMENTS,
+            display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+            build_config={"worker_pool": _TEST_AGENT_ENGINE_BUILD_WORKER_POOL},
+        )
+        assert config["spec"]["build_spec"] == {
+            "worker_pool": _TEST_AGENT_ENGINE_BUILD_WORKER_POOL,
+        }
+
+    @mock.patch.object(_agent_engines_utils, "_prepare")
+    def test_update_agent_engine_config_with_build_config(self, mock_prepare):
+        config = self.client.agent_engines._create_config(
+            mode="update",
+            build_config=_TEST_AGENT_ENGINE_BUILD_CONFIG,
+        )
+        assert config["spec"]["build_spec"] == {
+            "worker_pool": _TEST_AGENT_ENGINE_BUILD_WORKER_POOL,
+            "service_account": _TEST_AGENT_ENGINE_BUILD_SERVICE_ACCOUNT,
+        }
+        update_mask = config["update_mask"].split(",")
+        assert "spec.build_spec.worker_pool" in update_mask
+        assert "spec.build_spec.service_account" in update_mask
 
     @mock.patch.object(
         _agent_engines_utils,
@@ -2236,6 +2291,7 @@ class TestAgentEngine:
                 agent_config_source=None,
                 container_spec=None,
                 keep_alive_probe=None,
+                build_config=None,
             )
             request_mock.assert_called_with(
                 "post",
@@ -2342,6 +2398,7 @@ class TestAgentEngine:
                 agent_config_source=None,
                 container_spec=None,
                 keep_alive_probe=None,
+                build_config=None,
             )
             request_mock.assert_called_with(
                 "post",
@@ -2447,6 +2504,7 @@ class TestAgentEngine:
                 agent_config_source=None,
                 container_spec=None,
                 keep_alive_probe=None,
+                build_config=None,
             )
             request_mock.assert_called_with(
                 "post",
@@ -2621,6 +2679,7 @@ class TestAgentEngine:
                 agent_config_source=None,
                 container_spec=None,
                 keep_alive_probe=None,
+                build_config=None,
             )
             request_mock.assert_called_with(
                 "post",
@@ -2721,6 +2780,7 @@ class TestAgentEngine:
                 agent_config_source=None,
                 container_spec=None,
                 keep_alive_probe=None,
+                build_config=None,
             )
             request_mock.assert_called_with(
                 "post",
