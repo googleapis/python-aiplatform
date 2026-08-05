@@ -751,6 +751,31 @@ def test_create_eval_run_with_interactions_data_source(mock_uuid4, client):
     assert evaluation_run.error is None
 
 
+_KMS_KEY = (
+    "projects/977012026409/locations/us-central1"
+    "/keyRings/test-kr/cryptoKeys/test-key"
+)
+
+
+def test_create_eval_run_with_cmek(client):
+    """CMEK: encryption_spec is forwarded in the request and returned on the resource."""
+    client._api_client._http_options.api_version = "v1beta1"
+    evaluation_run = client.evals.create_evaluation_run(
+        name="test_cmek",
+        display_name="test_cmek",
+        dataset=types.EvaluationRunDataSource(evaluation_set=EVAL_SET_NAME),
+        dest=GCS_DEST,
+        metrics=[GENERAL_QUALITY_METRIC],
+        encryption_spec=genai_types.EncryptionSpec(kms_key_name=_KMS_KEY),
+    )
+    assert isinstance(evaluation_run, types.EvaluationRun)
+    assert evaluation_run.display_name == "test_cmek"
+    assert evaluation_run.state == types.EvaluationRunState.PENDING
+    assert evaluation_run.encryption_spec is not None
+    assert evaluation_run.encryption_spec.kms_key_name == _KMS_KEY
+    assert evaluation_run.error is None
+
+
 def test_create_eval_run_with_red_teaming_config(client):
     """Tests that create_evaluation_run() with red_teaming_config sends analysisConfigs."""
     evaluation_run = client.evals.create_evaluation_run(
