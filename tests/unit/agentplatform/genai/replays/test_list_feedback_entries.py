@@ -32,14 +32,14 @@ pytest_plugins = ("pytest_asyncio",)
 
 
 def test_list(client):
-    agent_engine = client.agent_engines.create()
-    assert isinstance(agent_engine, types.AgentEngine)
-    assert isinstance(agent_engine.api_resource, types.ReasoningEngine)
+    runtime = client.runtimes.create()
+    assert isinstance(runtime, types.Runtime)
+    assert isinstance(runtime.api_resource, types.ReasoningEngine)
 
     try:
         # Create THUMBS_UP feedback entry.
         operation_up = client.feedback_entries.create(
-            name=agent_engine.api_resource.name,
+            name=runtime.api_resource.name,
             session_id="session_123",
             event_id="event_456",
             feedback_type=types.FeedbackType.THUMBS_UP,
@@ -56,7 +56,7 @@ def test_list(client):
 
         # Create THUMBS_DOWN feedback entry.
         operation_down = client.feedback_entries.create(
-            name=agent_engine.api_resource.name,
+            name=runtime.api_resource.name,
             session_id="session_abc",
             event_id="event_xyz",
             feedback_type=types.FeedbackType.THUMBS_DOWN,
@@ -72,7 +72,7 @@ def test_list(client):
         assert operation_down.done
 
         # List and verify the feedback entries.
-        response = client.feedback_entries.list(parent=agent_engine.api_resource.name)
+        response = client.feedback_entries.list(parent=runtime.api_resource.name)
         feedback_entries = list(response)
         assert len(feedback_entries) == 2
 
@@ -104,22 +104,22 @@ def test_list(client):
         assert thumbs_down_entry.custom_metadata == {"key_a": "val_a"}
     finally:
         # Clean up resources.
-        client.agent_engines.delete(
-            name=agent_engine.api_resource.name,
+        client.runtimes.delete(
+            name=runtime.api_resource.name,
             force=True,
         )
 
 
 @pytest.mark.asyncio
 async def test_list_async(client):
-    agent_engine = client.agent_engines.create()
-    assert isinstance(agent_engine, types.AgentEngine)
-    assert isinstance(agent_engine.api_resource, types.ReasoningEngine)
+    runtime = client.runtimes.create()
+    assert isinstance(runtime, types.Runtime)
+    assert isinstance(runtime.api_resource, types.ReasoningEngine)
 
     try:
         # Create THUMBS_UP feedback entry.
         operation_up = await client.aio.feedback_entries.create(
-            name=agent_engine.api_resource.name,
+            name=runtime.api_resource.name,
             session_id="session_123",
             event_id="event_456",
             feedback_type=types.FeedbackType.THUMBS_UP,
@@ -136,7 +136,7 @@ async def test_list_async(client):
 
         # Create THUMBS_DOWN feedback entry.
         operation_down = await client.aio.feedback_entries.create(
-            name=agent_engine.api_resource.name,
+            name=runtime.api_resource.name,
             session_id="session_abc",
             event_id="event_xyz",
             feedback_type=types.FeedbackType.THUMBS_DOWN,
@@ -153,7 +153,7 @@ async def test_list_async(client):
 
         # List and verify the feedback entries.
         response = await client.aio.feedback_entries.list(
-            parent=agent_engine.api_resource.name
+            parent=runtime.api_resource.name
         )
         feedback_entries = [f async for f in response]
         assert len(feedback_entries) == 2
@@ -186,7 +186,7 @@ async def test_list_async(client):
         assert thumbs_down_entry.custom_metadata == {"key_a": "val_a"}
     finally:
         # Clean up resources.
-        await client.aio.agent_engines.delete(
-            name=agent_engine.api_resource.name,
+        await client.aio.runtimes.delete(
+            name=runtime.api_resource.name,
             force=True,
         )

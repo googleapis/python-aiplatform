@@ -29,7 +29,7 @@ from google.genai._common import get_value_by_path as getv
 from google.genai._common import set_value_by_path as setv
 from google.genai.pagers import AsyncPager, Pager
 
-from . import _agent_engines_utils
+from . import _runtimes_utils
 from . import types
 
 if typing.TYPE_CHECKING:
@@ -805,7 +805,7 @@ class FeedbackEntries(_api_module.BaseModule):
         )
         if config.wait_for_completion:
             if not operation.done:
-                operation = _agent_engines_utils._await_operation(
+                operation = _runtimes_utils._await_operation(
                     operation_name=operation.name,
                     get_operation_fn=self._get_feedback_entry_operation,
                     poll_interval_seconds=0.5,
@@ -872,7 +872,7 @@ class FeedbackEntries(_api_module.BaseModule):
         )
         if config.wait_for_completion:
             if not operation.done:
-                operation = _agent_engines_utils._await_operation(
+                operation = _runtimes_utils._await_operation(
                     operation_name=operation.name,
                     get_operation_fn=self._get_feedback_entry_operation,
                     poll_interval_seconds=0.5,
@@ -911,7 +911,7 @@ class FeedbackEntries(_api_module.BaseModule):
         )
         if config.wait_for_completion:
             if not operation.done:
-                operation = _agent_engines_utils._await_operation(
+                operation = _runtimes_utils._await_operation(
                     operation_name=operation.name,
                     get_operation_fn=self._get_delete_feedback_entry_operation,
                     poll_interval_seconds=0.5,
@@ -1526,7 +1526,7 @@ class AsyncFeedbackEntries(_api_module.BaseModule):
         )
         if config.wait_for_completion:
             if not operation.done:
-                operation = await _agent_engines_utils._await_async_operation(
+                operation = await _runtimes_utils._await_async_operation(
                     operation_name=operation.name,
                     get_operation_fn=self._get_feedback_entry_operation,
                     poll_interval_seconds=0.5,
@@ -1593,7 +1593,7 @@ class AsyncFeedbackEntries(_api_module.BaseModule):
         )
         if config.wait_for_completion:
             if not operation.done:
-                operation = await _agent_engines_utils._await_async_operation(
+                operation = await _runtimes_utils._await_async_operation(
                     operation_name=operation.name,
                     get_operation_fn=self._get_feedback_entry_operation,
                     poll_interval_seconds=0.5,
@@ -1632,7 +1632,7 @@ class AsyncFeedbackEntries(_api_module.BaseModule):
         )
         if config.wait_for_completion:
             if not operation.done:
-                operation = await _agent_engines_utils._await_async_operation(
+                operation = await _runtimes_utils._await_async_operation(
                     operation_name=operation.name,
                     get_operation_fn=self._get_delete_feedback_entry_operation,
                     poll_interval_seconds=0.5,

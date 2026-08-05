@@ -19,14 +19,14 @@ from agentplatform._genai import types
 
 
 def test_private_get_session_operation(client):
-    ae_session_operation = client.agent_engines.sessions._get_session_operation(
+    ae_session_operation = client.sessions._get_session_operation(
         operation_name="reasoningEngines/2886612747586371584/sessions/3080649749292908544/operations/758783840595476480",
     )
-    assert isinstance(ae_session_operation, types.AgentEngineSessionOperation)
+    assert isinstance(ae_session_operation, types.RuntimeSessionOperation)
 
 
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
-    test_method="agent_engines.sessions._get_session_operation",
+    test_method="sessions._get_session_operation",
 )

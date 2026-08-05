@@ -21,17 +21,17 @@ from agentplatform._genai import types
 
 
 def test_append_session_event(client):
-    session_event = client.agent_engines.sessions.events.append(
+    session_event = client.sessions.events.append(
         name="reasoningEngines/2886612747586371584/sessions/6922431337672474624",
         author="test-user-123",
         invocation_id="test-invocation-id",
         timestamp=datetime.datetime.fromtimestamp(1234567860, tz=datetime.timezone.utc),
     )
-    assert isinstance(session_event, types.AppendAgentEngineSessionEventResponse)
+    assert isinstance(session_event, types.AppendRuntimeSessionEventResponse)
 
 
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
-    test_method="agent_engines.sessions.events.append",
+    test_method="sessions.events.append",
 )

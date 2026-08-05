@@ -19,15 +19,15 @@ from agentplatform._genai import types
 
 
 def test_private_get(client):
-    agent_engine = client.agent_engines._get(
+    runtime = client.runtimes._get(
         name="reasoningEngines/2886612747586371584",
     )
-    assert isinstance(agent_engine, types.ReasoningEngine)
-    assert agent_engine.labels == {"test-label": "test-value"}
+    assert isinstance(runtime, types.ReasoningEngine)
+    assert runtime.labels == {"test-label": "test-value"}
 
 
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
-    test_method="agent_engines._get",
+    test_method="runtimes._get",
 )

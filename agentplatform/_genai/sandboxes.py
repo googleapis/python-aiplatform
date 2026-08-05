@@ -33,7 +33,7 @@ from google.genai._common import get_value_by_path as getv
 from google.genai._common import set_value_by_path as setv
 from google.genai.pagers import Pager
 
-from . import _agent_engines_utils
+from . import _runtimes_utils
 from . import types
 
 logger = logging.getLogger("agentplatform_genai.sandboxes")
@@ -41,7 +41,7 @@ logger = logging.getLogger("agentplatform_genai.sandboxes")
 logger.setLevel(logging.INFO)
 
 
-def _CreateAgentEngineSandboxConfig_to_vertex(
+def _CreateRuntimeSandboxConfig_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
@@ -76,7 +76,7 @@ def _CreateAgentEngineSandboxConfig_to_vertex(
     return to_object
 
 
-def _CreateAgentEngineSandboxRequestParameters_to_vertex(
+def _CreateRuntimeSandboxRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
@@ -88,14 +88,12 @@ def _CreateAgentEngineSandboxRequestParameters_to_vertex(
         setv(to_object, ["spec"], getv(from_object, ["spec"]))
 
     if getv(from_object, ["config"]) is not None:
-        _CreateAgentEngineSandboxConfig_to_vertex(
-            getv(from_object, ["config"]), to_object
-        )
+        _CreateRuntimeSandboxConfig_to_vertex(getv(from_object, ["config"]), to_object)
 
     return to_object
 
 
-def _DeleteAgentEngineSandboxRequestParameters_to_vertex(
+def _DeleteRuntimeSandboxRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
@@ -106,7 +104,7 @@ def _DeleteAgentEngineSandboxRequestParameters_to_vertex(
     return to_object
 
 
-def _ExecuteCodeAgentEngineSandboxRequestParameters_to_vertex(
+def _ExecuteCodeRuntimeSandboxRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
@@ -120,7 +118,7 @@ def _ExecuteCodeAgentEngineSandboxRequestParameters_to_vertex(
     return to_object
 
 
-def _GetAgentEngineSandboxOperationParameters_to_vertex(
+def _GetRuntimeSandboxOperationParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
@@ -133,7 +131,7 @@ def _GetAgentEngineSandboxOperationParameters_to_vertex(
     return to_object
 
 
-def _GetAgentEngineSandboxRequestParameters_to_vertex(
+def _GetRuntimeSandboxRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
@@ -144,7 +142,7 @@ def _GetAgentEngineSandboxRequestParameters_to_vertex(
     return to_object
 
 
-def _ListAgentEngineSandboxesConfig_to_vertex(
+def _ListRuntimeSandboxesConfig_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
@@ -162,7 +160,7 @@ def _ListAgentEngineSandboxesConfig_to_vertex(
     return to_object
 
 
-def _ListAgentEngineSandboxesRequestParameters_to_vertex(
+def _ListRuntimeSandboxesRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
@@ -171,9 +169,7 @@ def _ListAgentEngineSandboxesRequestParameters_to_vertex(
         setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
 
     if getv(from_object, ["config"]) is not None:
-        _ListAgentEngineSandboxesConfig_to_vertex(
-            getv(from_object, ["config"]), to_object
-        )
+        _ListRuntimeSandboxesConfig_to_vertex(getv(from_object, ["config"]), to_object)
 
     return to_object
 
@@ -185,13 +181,13 @@ class Sandboxes(_api_module.BaseModule):
         *,
         name: str,
         spec: Optional[types.SandboxEnvironmentSpecOrDict] = None,
-        config: Optional[types.CreateAgentEngineSandboxConfigOrDict] = None,
-    ) -> types.AgentEngineSandboxOperation:
+        config: Optional[types.CreateRuntimeSandboxConfigOrDict] = None,
+    ) -> types.RuntimeSandboxOperation:
         """
-        Creates a new sandbox in the Agent Engine.
+        Creates a new sandbox in the Agent Runtime.
         """
 
-        parameter_model = types._CreateAgentEngineSandboxRequestParameters(
+        parameter_model = types._CreateRuntimeSandboxRequestParameters(
             name=name,
             spec=spec,
             config=config,
@@ -203,7 +199,7 @@ class Sandboxes(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _CreateAgentEngineSandboxRequestParameters_to_vertex(
+            request_dict = _CreateRuntimeSandboxRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -232,7 +228,7 @@ class Sandboxes(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
-        return_value = types.AgentEngineSandboxOperation._from_response(
+        return_value = types.RuntimeSandboxOperation._from_response(
             response=response_dict,
             kwargs=(
                 {
@@ -260,19 +256,19 @@ class Sandboxes(_api_module.BaseModule):
         self,
         *,
         name: str,
-        config: Optional[types.DeleteAgentEngineSandboxConfigOrDict] = None,
-    ) -> types.DeleteAgentEngineSandboxOperation:
+        config: Optional[types.DeleteRuntimeSandboxConfigOrDict] = None,
+    ) -> types.DeleteRuntimeSandboxOperation:
         """
-        Delete an Agent Engine sandbox.
+        Delete an Agent Runtime sandbox.
 
         Args:
             name (str):
-                Required. The name of the Agent Engine sandbox to be deleted. Format:
+                Required. The name of the Agent Runtime sandbox to be deleted. Format:
                 `projects/{project}/locations/{location}/reasoningEngines/{resource_id}/sandboxEnvironments/{sandbox}`.
 
         """
 
-        parameter_model = types._DeleteAgentEngineSandboxRequestParameters(
+        parameter_model = types._DeleteRuntimeSandboxRequestParameters(
             name=name,
             config=config,
         )
@@ -283,7 +279,7 @@ class Sandboxes(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _DeleteAgentEngineSandboxRequestParameters_to_vertex(
+            request_dict = _DeleteRuntimeSandboxRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -312,7 +308,7 @@ class Sandboxes(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
-        return_value = types.DeleteAgentEngineSandboxOperation._from_response(
+        return_value = types.DeleteRuntimeSandboxOperation._from_response(
             response=response_dict,
             kwargs=(
                 {
@@ -341,13 +337,13 @@ class Sandboxes(_api_module.BaseModule):
         *,
         name: str,
         inputs: Optional[builtins.list[types.ChunkOrDict]] = None,
-        config: Optional[types.ExecuteCodeAgentEngineSandboxConfigOrDict] = None,
+        config: Optional[types.ExecuteCodeRuntimeSandboxConfigOrDict] = None,
     ) -> types.ExecuteSandboxEnvironmentResponse:
         """
-        Execute code in an Agent Engine sandbox.
+        Execute code in an Agent Runtime sandbox.
         """
 
-        parameter_model = types._ExecuteCodeAgentEngineSandboxRequestParameters(
+        parameter_model = types._ExecuteCodeRuntimeSandboxRequestParameters(
             name=name,
             inputs=inputs,
             config=config,
@@ -359,7 +355,7 @@ class Sandboxes(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _ExecuteCodeAgentEngineSandboxRequestParameters_to_vertex(
+            request_dict = _ExecuteCodeRuntimeSandboxRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -413,13 +409,10 @@ class Sandboxes(_api_module.BaseModule):
         return return_value
 
     def _get(
-        self,
-        *,
-        name: str,
-        config: Optional[types.GetAgentEngineSandboxConfigOrDict] = None,
+        self, *, name: str, config: Optional[types.GetRuntimeSandboxConfigOrDict] = None
     ) -> types.SandboxEnvironment:
         """
-        Gets an agent engine sandbox.
+        Gets an agent runtime sandbox.
 
         Args:
             name (str): Required. A fully-qualified resource name or ID such as
@@ -428,7 +421,7 @@ class Sandboxes(_api_module.BaseModule):
 
         """
 
-        parameter_model = types._GetAgentEngineSandboxRequestParameters(
+        parameter_model = types._GetRuntimeSandboxRequestParameters(
             name=name,
             config=config,
         )
@@ -439,7 +432,7 @@ class Sandboxes(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetAgentEngineSandboxRequestParameters_to_vertex(
+            request_dict = _GetRuntimeSandboxRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -496,23 +489,23 @@ class Sandboxes(_api_module.BaseModule):
         self,
         *,
         name: str,
-        config: Optional[types.ListAgentEngineSandboxesConfigOrDict] = None,
-    ) -> types.ListAgentEngineSandboxesResponse:
+        config: Optional[types.ListRuntimeSandboxesConfigOrDict] = None,
+    ) -> types.ListRuntimeSandboxesResponse:
         """
-        Lists Agent Engine sandboxes.
+        Lists Agent Runtime sandboxes.
 
         Args:
-            name (str): Required. The name of the Agent Engine to list sessions for. Format:
+            name (str): Required. The name of the Agent Runtime to list sessions for. Format:
                 `projects/{project}/locations/{location}/reasoningEngines/{resource_id}`.
-            config (ListAgentEngineSandboxesConfig):
-                Optional. Additional configurations for listing the Agent Engine sandboxes.
+            config (ListRuntimeSandboxesConfig):
+                Optional. Additional configurations for listing the Agent Runtime sandboxes.
 
         Returns:
-            ListReasoningEnginesSandboxesResponse: The requested Agent Engine sandboxes.
+            ListReasoningEnginesSandboxesResponse: The requested Agent Runtime sandboxes.
 
         """
 
-        parameter_model = types._ListAgentEngineSandboxesRequestParameters(
+        parameter_model = types._ListRuntimeSandboxesRequestParameters(
             name=name,
             config=config,
         )
@@ -523,7 +516,7 @@ class Sandboxes(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _ListAgentEngineSandboxesRequestParameters_to_vertex(
+            request_dict = _ListRuntimeSandboxesRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -552,7 +545,7 @@ class Sandboxes(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
-        return_value = types.ListAgentEngineSandboxesResponse._from_response(
+        return_value = types.ListRuntimeSandboxesResponse._from_response(
             response=response_dict,
             kwargs=(
                 {
@@ -580,9 +573,9 @@ class Sandboxes(_api_module.BaseModule):
         self,
         *,
         operation_name: str,
-        config: Optional[types.GetAgentEngineOperationConfigOrDict] = None,
-    ) -> types.AgentEngineSandboxOperation:
-        parameter_model = types._GetAgentEngineSandboxOperationParameters(
+        config: Optional[types.GetRuntimeOperationConfigOrDict] = None,
+    ) -> types.RuntimeSandboxOperation:
+        parameter_model = types._GetRuntimeSandboxOperationParameters(
             operation_name=operation_name,
             config=config,
         )
@@ -593,7 +586,7 @@ class Sandboxes(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetAgentEngineSandboxOperationParameters_to_vertex(
+            request_dict = _GetRuntimeSandboxOperationParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -622,7 +615,7 @@ class Sandboxes(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
-        return_value = types.AgentEngineSandboxOperation._from_response(
+        return_value = types.RuntimeSandboxOperation._from_response(
             response=response_dict,
             kwargs=(
                 {
@@ -658,7 +651,7 @@ class Sandboxes(_api_module.BaseModule):
                 )
             except ImportError as e:
                 raise ImportError(
-                    "The 'agent_engines.sandboxes.templates' module requires "
+                    "The 'runtimes.sandboxes.templates' module requires "
                     "additional packages. Please install them using pip install "
                     "google-cloud-aiplatform[agent_engines]"
                 ) from e
@@ -673,7 +666,7 @@ class Sandboxes(_api_module.BaseModule):
                 )
             except ImportError as e:
                 raise ImportError(
-                    "The 'agent_engines.sandboxes.snapshots' module requires "
+                    "The 'runtimes.sandboxes.snapshots' module requires "
                     "additional packages. Please install them using pip install "
                     "google-cloud-aiplatform[sandbox_snapshots]"
                 ) from e
@@ -685,24 +678,24 @@ class Sandboxes(_api_module.BaseModule):
         name: str,
         poll_interval_seconds: float = 0.1,
         spec: Optional[types.SandboxEnvironmentSpecOrDict] = None,
-        config: Optional[types.CreateAgentEngineSandboxConfigOrDict] = None,
-    ) -> types.AgentEngineSandboxOperation:
-        """Creates a new sandbox in the Agent Engine.
+        config: Optional[types.CreateRuntimeSandboxConfigOrDict] = None,
+    ) -> types.RuntimeSandboxOperation:
+        """Creates a new sandbox in the Agent Runtime.
 
         Args:
             name (str):
-                Required. The name of the agent engine to create sandbox for.
+                Required. The name of the agent runtime to create sandbox for.
                 projects/{project}/locations/{location}/reasoningEngines/{resource_id}
             poll_interval_seconds (float):
                 Optional. The interval in seconds to poll for sandbox creation
                 completion.
             spec (SandboxEnvironmentSpec):
                 Optional. The specification for the sandbox to create.
-            config (CreateAgentEngineSandboxConfigOrDict):
+            config (CreateRuntimeSandboxConfigOrDict):
                 Optional. The configuration for the sandbox.
 
         Returns:
-            AgentEngineSandboxOperation: The operation for creating the sandbox.
+            RuntimeSandboxOperation: The operation for creating the sandbox.
         """
         if spec:
             computer_use = False
@@ -721,12 +714,12 @@ class Sandboxes(_api_module.BaseModule):
             config=config,
         )
         if config is None:
-            config = types.CreateAgentEngineSandboxConfig()
+            config = types.CreateRuntimeSandboxConfig()
         elif isinstance(config, dict):
-            config = types.CreateAgentEngineSandboxConfig.model_validate(config)
+            config = types.CreateRuntimeSandboxConfig.model_validate(config)
         if config.wait_for_completion:
             if not operation.done:
-                operation = _agent_engines_utils._await_operation(
+                operation = _runtimes_utils._await_operation(
                     operation_name=operation.name,
                     get_operation_fn=self._get_sandbox_operation,
                     poll_interval_seconds=poll_interval_seconds,
@@ -742,19 +735,19 @@ class Sandboxes(_api_module.BaseModule):
         self,
         *,
         name: str,
-        config: Optional[types.ListAgentEngineSandboxesConfigOrDict] = None,
+        config: Optional[types.ListRuntimeSandboxesConfigOrDict] = None,
     ) -> Iterator[types.SandboxEnvironment]:
-        """Lists Agent Engine sandboxes.
+        """Lists Agent Runtime sandboxes.
 
         Args:
             name (str):
-                Required. The name of the agent engine to list sandboxes for.
+                Required. The name of the agent runtime to list sandboxes for.
                 projects/{project}/locations/{location}/reasoningEngines/{resource_id}
-            config (ListAgentEngineSandboxConfig):
+            config (ListRuntimeSandboxConfig):
                 Optional. The configuration for the sandboxes to list.
 
         Returns:
-            Iterable[SandboxEnvironment]: An iterable of agent engine sandboxes.
+            Iterable[SandboxEnvironment]: An iterable of agent runtime sandboxes.
         """
         return Pager(
             "sandbox_environments",
@@ -768,17 +761,17 @@ class Sandboxes(_api_module.BaseModule):
         *,
         name: str,
         input_data: dict[str, Any],
-        config: Optional[types.ExecuteCodeAgentEngineSandboxConfigOrDict] = None,
+        config: Optional[types.ExecuteCodeRuntimeSandboxConfigOrDict] = None,
     ) -> types.ExecuteSandboxEnvironmentResponse:
-        """Executes code in the Agent Engine sandbox.
+        """Executes code in the Agent Runtime sandbox.
 
         Args:
             name (str):
-                Required. The name of the agent engine sandbox to run code in.
+                Required. The name of the agent runtime sandbox to run code in.
                 projects/{project}/locations/{location}/reasoningEngines/{resource_id}/SandboxEnvironments/{sandbox_id}
             input_data (dict[str, Any]):
                 Required. The input to the code to execute.
-            config (ExecuteCodeAgentEngineSandboxConfigOrDict):
+            config (ExecuteCodeRuntimeSandboxConfigOrDict):
                 Optional. The configuration for the sandboxes to run code in.
 
         Returns:
@@ -836,15 +829,15 @@ class Sandboxes(_api_module.BaseModule):
         self,
         *,
         name: str,
-        config: Optional[types.GetAgentEngineSandboxConfigOrDict] = None,
+        config: Optional[types.GetRuntimeSandboxConfigOrDict] = None,
     ) -> types.SandboxEnvironment:
-        """Gets an agent engine sandbox.
+        """Gets an agent runtime sandbox.
         Args:
           name (str):
               Required. A fully-qualified resource name or ID such as
               projects/{project}/locations/{location}/reasoningEngines/{resource_id}/SandboxEnvironments/{sandbox_id}
               or a shortened name such as "reasoningEngines/{resource_id}/sandboxEnvironments/{sandbox_id}".
-          config (GetAgentEngineSandboxConfigOrDict):
+          config (GetRuntimeSandboxConfigOrDict):
               Optional. The configuration for the sandbox to get.
 
         """
@@ -854,15 +847,15 @@ class Sandboxes(_api_module.BaseModule):
         self,
         *,
         name: str,
-        config: Optional[types.DeleteAgentEngineSandboxConfigOrDict] = None,
-    ) -> types.DeleteAgentEngineSandboxOperation:
-        """Deletes an agent engine sandbox.
+        config: Optional[types.DeleteRuntimeSandboxConfigOrDict] = None,
+    ) -> types.DeleteRuntimeSandboxOperation:
+        """Deletes an agent runtime sandbox.
         Args:
           name (str):
               Required. A fully-qualified resource name or ID such as
               projects/{project}/locations/{location}/reasoningEngines/{resource_id}/SandboxEnvironments/{sandbox_id}
               or a shortened name such as "reasoningEngines/{resource_id}/sandboxEnvironments/{sandbox_id}".
-          config (DeleteAgentEngineSandboxConfigOrDict):
+          config (DeleteRuntimeSandboxConfigOrDict):
               Optional. The configuration for the sandbox to delete.
         """
         return self._delete(name=name, config=config)
@@ -1047,13 +1040,13 @@ class AsyncSandboxes(_api_module.BaseModule):
         *,
         name: str,
         spec: Optional[types.SandboxEnvironmentSpecOrDict] = None,
-        config: Optional[types.CreateAgentEngineSandboxConfigOrDict] = None,
-    ) -> types.AgentEngineSandboxOperation:
+        config: Optional[types.CreateRuntimeSandboxConfigOrDict] = None,
+    ) -> types.RuntimeSandboxOperation:
         """
-        Creates a new sandbox in the Agent Engine.
+        Creates a new sandbox in the Agent Runtime.
         """
 
-        parameter_model = types._CreateAgentEngineSandboxRequestParameters(
+        parameter_model = types._CreateRuntimeSandboxRequestParameters(
             name=name,
             spec=spec,
             config=config,
@@ -1065,7 +1058,7 @@ class AsyncSandboxes(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _CreateAgentEngineSandboxRequestParameters_to_vertex(
+            request_dict = _CreateRuntimeSandboxRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -1096,7 +1089,7 @@ class AsyncSandboxes(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
-        return_value = types.AgentEngineSandboxOperation._from_response(
+        return_value = types.RuntimeSandboxOperation._from_response(
             response=response_dict,
             kwargs=(
                 {
@@ -1124,19 +1117,19 @@ class AsyncSandboxes(_api_module.BaseModule):
         self,
         *,
         name: str,
-        config: Optional[types.DeleteAgentEngineSandboxConfigOrDict] = None,
-    ) -> types.DeleteAgentEngineSandboxOperation:
+        config: Optional[types.DeleteRuntimeSandboxConfigOrDict] = None,
+    ) -> types.DeleteRuntimeSandboxOperation:
         """
-        Delete an Agent Engine sandbox.
+        Delete an Agent Runtime sandbox.
 
         Args:
             name (str):
-                Required. The name of the Agent Engine sandbox to be deleted. Format:
+                Required. The name of the Agent Runtime sandbox to be deleted. Format:
                 `projects/{project}/locations/{location}/reasoningEngines/{resource_id}/sandboxEnvironments/{sandbox}`.
 
         """
 
-        parameter_model = types._DeleteAgentEngineSandboxRequestParameters(
+        parameter_model = types._DeleteRuntimeSandboxRequestParameters(
             name=name,
             config=config,
         )
@@ -1147,7 +1140,7 @@ class AsyncSandboxes(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _DeleteAgentEngineSandboxRequestParameters_to_vertex(
+            request_dict = _DeleteRuntimeSandboxRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -1178,7 +1171,7 @@ class AsyncSandboxes(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
-        return_value = types.DeleteAgentEngineSandboxOperation._from_response(
+        return_value = types.DeleteRuntimeSandboxOperation._from_response(
             response=response_dict,
             kwargs=(
                 {
@@ -1207,13 +1200,13 @@ class AsyncSandboxes(_api_module.BaseModule):
         *,
         name: str,
         inputs: Optional[builtins.list[types.ChunkOrDict]] = None,
-        config: Optional[types.ExecuteCodeAgentEngineSandboxConfigOrDict] = None,
+        config: Optional[types.ExecuteCodeRuntimeSandboxConfigOrDict] = None,
     ) -> types.ExecuteSandboxEnvironmentResponse:
         """
-        Execute code in an Agent Engine sandbox.
+        Execute code in an Agent Runtime sandbox.
         """
 
-        parameter_model = types._ExecuteCodeAgentEngineSandboxRequestParameters(
+        parameter_model = types._ExecuteCodeRuntimeSandboxRequestParameters(
             name=name,
             inputs=inputs,
             config=config,
@@ -1225,7 +1218,7 @@ class AsyncSandboxes(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _ExecuteCodeAgentEngineSandboxRequestParameters_to_vertex(
+            request_dict = _ExecuteCodeRuntimeSandboxRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -1281,13 +1274,10 @@ class AsyncSandboxes(_api_module.BaseModule):
         return return_value
 
     async def _get(
-        self,
-        *,
-        name: str,
-        config: Optional[types.GetAgentEngineSandboxConfigOrDict] = None,
+        self, *, name: str, config: Optional[types.GetRuntimeSandboxConfigOrDict] = None
     ) -> types.SandboxEnvironment:
         """
-        Gets an agent engine sandbox.
+        Gets an agent runtime sandbox.
 
         Args:
             name (str): Required. A fully-qualified resource name or ID such as
@@ -1296,7 +1286,7 @@ class AsyncSandboxes(_api_module.BaseModule):
 
         """
 
-        parameter_model = types._GetAgentEngineSandboxRequestParameters(
+        parameter_model = types._GetRuntimeSandboxRequestParameters(
             name=name,
             config=config,
         )
@@ -1307,7 +1297,7 @@ class AsyncSandboxes(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetAgentEngineSandboxRequestParameters_to_vertex(
+            request_dict = _GetRuntimeSandboxRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -1366,23 +1356,23 @@ class AsyncSandboxes(_api_module.BaseModule):
         self,
         *,
         name: str,
-        config: Optional[types.ListAgentEngineSandboxesConfigOrDict] = None,
-    ) -> types.ListAgentEngineSandboxesResponse:
+        config: Optional[types.ListRuntimeSandboxesConfigOrDict] = None,
+    ) -> types.ListRuntimeSandboxesResponse:
         """
-        Lists Agent Engine sandboxes.
+        Lists Agent Runtime sandboxes.
 
         Args:
-            name (str): Required. The name of the Agent Engine to list sessions for. Format:
+            name (str): Required. The name of the Agent Runtime to list sessions for. Format:
                 `projects/{project}/locations/{location}/reasoningEngines/{resource_id}`.
-            config (ListAgentEngineSandboxesConfig):
-                Optional. Additional configurations for listing the Agent Engine sandboxes.
+            config (ListRuntimeSandboxesConfig):
+                Optional. Additional configurations for listing the Agent Runtime sandboxes.
 
         Returns:
-            ListReasoningEnginesSandboxesResponse: The requested Agent Engine sandboxes.
+            ListReasoningEnginesSandboxesResponse: The requested Agent Runtime sandboxes.
 
         """
 
-        parameter_model = types._ListAgentEngineSandboxesRequestParameters(
+        parameter_model = types._ListRuntimeSandboxesRequestParameters(
             name=name,
             config=config,
         )
@@ -1393,7 +1383,7 @@ class AsyncSandboxes(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _ListAgentEngineSandboxesRequestParameters_to_vertex(
+            request_dict = _ListRuntimeSandboxesRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -1424,7 +1414,7 @@ class AsyncSandboxes(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
-        return_value = types.ListAgentEngineSandboxesResponse._from_response(
+        return_value = types.ListRuntimeSandboxesResponse._from_response(
             response=response_dict,
             kwargs=(
                 {
@@ -1452,9 +1442,9 @@ class AsyncSandboxes(_api_module.BaseModule):
         self,
         *,
         operation_name: str,
-        config: Optional[types.GetAgentEngineOperationConfigOrDict] = None,
-    ) -> types.AgentEngineSandboxOperation:
-        parameter_model = types._GetAgentEngineSandboxOperationParameters(
+        config: Optional[types.GetRuntimeOperationConfigOrDict] = None,
+    ) -> types.RuntimeSandboxOperation:
+        parameter_model = types._GetRuntimeSandboxOperationParameters(
             operation_name=operation_name,
             config=config,
         )
@@ -1465,7 +1455,7 @@ class AsyncSandboxes(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetAgentEngineSandboxOperationParameters_to_vertex(
+            request_dict = _GetRuntimeSandboxOperationParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -1496,7 +1486,7 @@ class AsyncSandboxes(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
-        return_value = types.AgentEngineSandboxOperation._from_response(
+        return_value = types.RuntimeSandboxOperation._from_response(
             response=response_dict,
             kwargs=(
                 {

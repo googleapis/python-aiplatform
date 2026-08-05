@@ -97,7 +97,7 @@ def test_inference_with_eval_cases_multi_turn_agent_data(client):
 
 def test_inference_with_eval_cases_agent_engine_agent_data(client):
     """Tests N+1 inference with agent_data via remote Agent Engine."""
-    agent_engine = client.agent_engines.get(
+    runtime = client.runtimes.get(
         name="projects/977012026409/locations/us-central1"
         "/reasoningEngines/7188347537655332864"
     )
@@ -144,7 +144,7 @@ def test_inference_with_eval_cases_agent_engine_agent_data(client):
     eval_dataset = types.EvaluationDataset(eval_cases=[eval_case])
 
     inference_result = client.evals.run_inference(
-        agent=agent_engine,
+        agent=runtime,
         src=eval_dataset,
     )
     assert isinstance(inference_result, types.EvaluationDataset)
