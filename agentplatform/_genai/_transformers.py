@@ -536,3 +536,34 @@ def t_inline_results(
                     api_results.append(api_eval_result)
 
     return api_results
+
+
+def t_endpoint(endpoint: str) -> str:
+    if not endpoint:
+        raise ValueError("endpoint is required.")
+
+    # Regex patterns
+    full_endpoint_pattern = re.compile(
+        r"^projects/[^/]+/locations/[^/]+/endpoints/[^/]+$"
+    )
+    full_publisher_model_pattern = re.compile(
+        r"^projects/[^/]+/locations/[^/]+/publishers/[^/]+/models/[^/]+$"
+    )
+
+    relative_endpoint_pattern = re.compile(r"^endpoints/[^/]+$")
+    relative_publisher_model_pattern = re.compile(r"^publishers/[^/]+/models/[^/]+$")
+
+    if (
+        full_endpoint_pattern.match(endpoint)
+        or full_publisher_model_pattern.match(endpoint)
+        or relative_endpoint_pattern.match(endpoint)
+        or relative_publisher_model_pattern.match(endpoint)
+    ):
+        return endpoint
+
+    raise ValueError(
+        f"Invalid endpoint format: {endpoint}. Must be in the format of"
+        " projects/.../locations/.../endpoints/... or"
+        " projects/.../locations/.../publishers/.../models/... or"
+        " endpoints/... or publishers/.../models/..."
+    )

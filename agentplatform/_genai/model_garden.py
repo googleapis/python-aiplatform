@@ -504,7 +504,7 @@ class ModelGarden(_api_module.BaseModule):
         config: Optional[types.GetExportPublisherModelOperationConfigOrDict] = None,
     ) -> types.ExportModelOperation:
         """
-        Fetches the status of an in-flight ``export_open_model`` LRO.
+        Fetches the status of an in-flight export_open_model LRO.
         """
 
         parameter_model = types._GetExportPublisherModelOperationParameters(
@@ -1626,7 +1626,7 @@ class AsyncModelGarden(_api_module.BaseModule):
         config: Optional[types.GetExportPublisherModelOperationConfigOrDict] = None,
     ) -> types.ExportModelOperation:
         """
-        Fetches the status of an in-flight ``export_open_model`` LRO.
+        Fetches the status of an in-flight export_open_model LRO.
         """
 
         parameter_model = types._GetExportPublisherModelOperationParameters(
