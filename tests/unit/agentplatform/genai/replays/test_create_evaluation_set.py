@@ -16,6 +16,7 @@
 
 from tests.unit.agentplatform.genai.replays import pytest_helper
 from agentplatform import types
+from google.genai import types as genai_types
 import pytest
 
 
@@ -34,6 +35,26 @@ def test_create_eval_set(client):
     assert isinstance(evaluation_set, types.EvaluationSet)
     assert evaluation_set.display_name == DISPLAY_NAME
     assert evaluation_set.evaluation_items == EVAL_ITEMS
+
+
+_KMS_KEY = (
+    "projects/503583131166/locations/us-central1"
+    "/keyRings/test-kr/cryptoKeys/test-key"
+)
+
+
+def test_create_eval_set_with_cmek(client):
+    """CMEK: encryption_spec is forwarded in the request and returned on the resource."""
+    evaluation_set = client.evals.create_evaluation_set(
+        evaluation_items=EVAL_ITEMS,
+        display_name=DISPLAY_NAME,
+        encryption_spec=genai_types.EncryptionSpec(kms_key_name=_KMS_KEY),
+    )
+    assert isinstance(evaluation_set, types.EvaluationSet)
+    assert evaluation_set.display_name == DISPLAY_NAME
+    assert evaluation_set.evaluation_items == EVAL_ITEMS
+    assert evaluation_set.encryption_spec is not None
+    assert evaluation_set.encryption_spec.kms_key_name == _KMS_KEY
 
 
 pytest_plugins = ("pytest_asyncio",)
