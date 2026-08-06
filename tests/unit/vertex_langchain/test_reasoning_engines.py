@@ -770,6 +770,58 @@ class TestReasoningEngine:
             retry=_TEST_RETRY,
         )
 
+    def test_create_reasoning_engine_with_metadata(
+        self,
+        create_reasoning_engine_mock,
+        cloud_storage_create_bucket_mock,
+        tarfile_open_mock,
+        cloudpickle_dump_mock,
+        get_reasoning_engine_mock,
+        get_gca_resource_mock,
+    ):
+        test_labels = {"framework": "adk"}
+        test_framework = "google-adk"
+        test_env = [{"name": "FOO", "value": "BAR"}]
+        
+        # Expected EnvVar proto
+        env_var_proto = types.EnvVar(name="FOO", value="BAR")
+        
+        # Construct expected input object with new fields
+        expected_reasoning_engine = types.ReasoningEngine(
+            display_name=_TEST_REASONING_ENGINE_DISPLAY_NAME,
+            spec=types.ReasoningEngineSpec(
+                package_spec=_TEST_INPUT_REASONING_ENGINE_OBJ.spec.package_spec,
+                agent_framework=test_framework,
+                deployment_spec=types.ReasoningEngineSpec.DeploymentSpec(
+                    env=[env_var_proto]
+                ),
+            ),
+            labels=test_labels,
+        )
+        # Class methods are appended during _prepare, assume same as basic test
+        expected_reasoning_engine.spec.class_methods.append(
+            _TEST_REASONING_ENGINE_QUERY_SCHEMA
+        )
+
+        reasoning_engines.ReasoningEngine.create(
+            self.test_app,
+            display_name=_TEST_REASONING_ENGINE_DISPLAY_NAME,
+            requirements=_TEST_REASONING_ENGINE_REQUIREMENTS,
+            extra_packages=[_TEST_REASONING_ENGINE_EXTRA_PACKAGE_PATH],
+            labels=test_labels,
+            agent_framework=test_framework,
+            env_vars=test_env,
+        )
+        
+        create_reasoning_engine_mock.assert_called_with(
+            parent=_TEST_PARENT,
+            reasoning_engine=expected_reasoning_engine,
+        )
+        get_reasoning_engine_mock.assert_called_with(
+            name=_TEST_REASONING_ENGINE_RESOURCE_NAME,
+            retry=_TEST_RETRY,
+        )
+
     def test_create_reasoning_engine(
         self,
         create_reasoning_engine_mock,
