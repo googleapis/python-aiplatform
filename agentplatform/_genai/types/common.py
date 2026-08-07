@@ -116,29 +116,38 @@ class A2aTaskState(_common.CaseInSensitiveEnum):
     """Task is paused."""
 
 
+class Role(_common.CaseInSensitiveEnum):
+    """The role of the sender of the message."""
+
+    ROLE_UNSPECIFIED = "ROLE_UNSPECIFIED"
+    """The role is unspecified."""
+    ROLE_USER = "ROLE_USER"
+    """The message is from the client to the server."""
+    ROLE_AGENT = "ROLE_AGENT"
+    """The message is from the server to the client."""
+
+
 class State(_common.CaseInSensitiveEnum):
-    """The new state of the task."""
+    """Output only. The current state of the task."""
 
     STATE_UNSPECIFIED = "STATE_UNSPECIFIED"
-    """Task state unspecified. Default value if not set."""
-    SUBMITTED = "SUBMITTED"
-    """Task is submitted and waiting to be processed."""
-    WORKING = "WORKING"
-    """Task is actively being processed."""
-    COMPLETED = "COMPLETED"
-    """Task is finished."""
-    CANCELLED = "CANCELLED"
-    """Task is cancelled."""
-    FAILED = "FAILED"
-    """Task has failed."""
-    REJECTED = "REJECTED"
-    """Task is rejected by the system."""
-    INPUT_REQUIRED = "INPUT_REQUIRED"
-    """Task requires input from the user."""
-    AUTH_REQUIRED = "AUTH_REQUIRED"
-    """Task requires auth (e.g. OAuth) from the user."""
-    PAUSED = "PAUSED"
-    """Task is paused."""
+    """The task is in an unknown or indeterminate state."""
+    TASK_STATE_SUBMITTED = "TASK_STATE_SUBMITTED"
+    """Indicates that a task has been successfully submitted and acknowledged."""
+    TASK_STATE_WORKING = "TASK_STATE_WORKING"
+    """Indicates that a task is actively being processed by the agent."""
+    TASK_STATE_COMPLETED = "TASK_STATE_COMPLETED"
+    """Indicates that a task has finished successfully. This is a terminal state."""
+    TASK_STATE_FAILED = "TASK_STATE_FAILED"
+    """Indicates that a task has finished with an error. This is a terminal state."""
+    TASK_STATE_CANCELED = "TASK_STATE_CANCELED"
+    """Indicates that a task was canceled before completion. This is a terminal state."""
+    TASK_STATE_INPUT_REQUIRED = "TASK_STATE_INPUT_REQUIRED"
+    """Indicates that the agent requires additional user input to proceed. This is an interrupted state."""
+    TASK_STATE_REJECTED = "TASK_STATE_REJECTED"
+    """Indicates that the agent has decided to not perform the task. This may be done during initial task creation or later once an agent has determined it can't or won't proceed. This is a terminal state."""
+    TASK_STATE_AUTH_REQUIRED = "TASK_STATE_AUTH_REQUIRED"
+    """Indicates that authentication is required to proceed. This is an interrupted state."""
 
 
 class Strategy(_common.CaseInSensitiveEnum):
@@ -381,6 +390,10 @@ class DefaultContainerCategory(_common.CaseInSensitiveEnum):
     """The default value. This value is unused."""
     DEFAULT_CONTAINER_CATEGORY_COMPUTER_USE = "DEFAULT_CONTAINER_CATEGORY_COMPUTER_USE"
     """The default container image for Computer Use."""
+    DEFAULT_CONTAINER_CATEGORY_SHELL_SANDBOX = (
+        "DEFAULT_CONTAINER_CATEGORY_SHELL_SANDBOX"
+    )
+    """The default container image for Shell Sandbox."""
 
 
 class PostSnapshotAction(_common.CaseInSensitiveEnum):
@@ -843,6 +856,201 @@ class TaskStatusDetailsDict(TypedDict, total=False):
 TaskStatusDetailsOrDict = Union[TaskStatusDetails, TaskStatusDetailsDict]
 
 
+class A2aPart(_common.BaseModel):
+    """A single part of a message or artifact. A part carries exactly one kind of content."""
+
+    data: Optional[dict[str, Any]] = Field(
+        default=None, description="""Optional. Structured data content."""
+    )
+    filename: Optional[str] = Field(
+        default=None,
+        description="""Optional. The name of the file, when the part represents a file.""",
+    )
+    media_type: Optional[str] = Field(
+        default=None,
+        description="""Optional. The IANA media type of the content, e.g. "text/plain" or "image/png".""",
+    )
+    metadata: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Optional. Additional context or parameters related to the part. Extensions can be used to strongly type metadata values for specific use cases.""",
+    )
+    raw: Optional[bytes] = Field(
+        default=None, description="""Optional. Raw binary content."""
+    )
+    text: Optional[str] = Field(
+        default=None, description="""Optional. Textual content."""
+    )
+    url: Optional[str] = Field(
+        default=None, description="""Optional. A URL pointing to the content."""
+    )
+
+
+class A2aPartDict(TypedDict, total=False):
+    """A single part of a message or artifact. A part carries exactly one kind of content."""
+
+    data: Optional[dict[str, Any]]
+    """Optional. Structured data content."""
+
+    filename: Optional[str]
+    """Optional. The name of the file, when the part represents a file."""
+
+    media_type: Optional[str]
+    """Optional. The IANA media type of the content, e.g. "text/plain" or "image/png"."""
+
+    metadata: Optional[dict[str, Any]]
+    """Optional. Additional context or parameters related to the part. Extensions can be used to strongly type metadata values for specific use cases."""
+
+    raw: Optional[bytes]
+    """Optional. Raw binary content."""
+
+    text: Optional[str]
+    """Optional. Textual content."""
+
+    url: Optional[str]
+    """Optional. A URL pointing to the content."""
+
+
+A2aPartOrDict = Union[A2aPart, A2aPartDict]
+
+
+class A2aTaskArtifact(_common.BaseModel):
+    """Represents a single artifact produced by a task."""
+
+    artifact_id: Optional[str] = Field(
+        default=None,
+        description="""Required. The unique identifier of the artifact within the task.""",
+    )
+    description: Optional[str] = Field(
+        default=None,
+        description="""Optional. A human-readable description of the artifact.""",
+    )
+    display_name: Optional[str] = Field(
+        default=None,
+        description="""Optional. The human-readable name of the artifact.""",
+    )
+    extensions: Optional[list[str]] = Field(
+        default=None,
+        description="""Optional. A2A protocol extensions associated with the artifact.""",
+    )
+    metadata: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Optional. Additional context or parameters related to the artifact. Extensions can be used to strongly type metadata values for specific use cases.""",
+    )
+    parts: Optional[list[A2aPart]] = Field(
+        default=None,
+        description="""Required. The content parts that make up the artifact.""",
+    )
+
+
+class A2aTaskArtifactDict(TypedDict, total=False):
+    """Represents a single artifact produced by a task."""
+
+    artifact_id: Optional[str]
+    """Required. The unique identifier of the artifact within the task."""
+
+    description: Optional[str]
+    """Optional. A human-readable description of the artifact."""
+
+    display_name: Optional[str]
+    """Optional. The human-readable name of the artifact."""
+
+    extensions: Optional[list[str]]
+    """Optional. A2A protocol extensions associated with the artifact."""
+
+    metadata: Optional[dict[str, Any]]
+    """Optional. Additional context or parameters related to the artifact. Extensions can be used to strongly type metadata values for specific use cases."""
+
+    parts: Optional[list[A2aPartDict]]
+    """Required. The content parts that make up the artifact."""
+
+
+A2aTaskArtifactOrDict = Union[A2aTaskArtifact, A2aTaskArtifactDict]
+
+
+class A2aTaskMessage(_common.BaseModel):
+    """Represents a single message in a conversation, compliant with the A2A specification."""
+
+    extensions: Optional[list[str]] = Field(
+        default=None,
+        description="""Optional. A2A protocol extensions associated with the message.""",
+    )
+    message_id: Optional[str] = Field(
+        default=None, description="""Required. The unique identifier of the message."""
+    )
+    metadata: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Optional. Additional context or parameters related to the message. Extensions can be used to strongly type metadata values for specific use cases.""",
+    )
+    parts: Optional[list[A2aPart]] = Field(
+        default=None,
+        description="""Required. The content parts that make up the message.""",
+    )
+    reference_task_ids: Optional[list[str]] = Field(
+        default=None,
+        description="""Optional. The IDs of other tasks referenced by this message.""",
+    )
+    role: Optional[Role] = Field(
+        default=None, description="""Required. The role of the sender of the message."""
+    )
+
+
+class A2aTaskMessageDict(TypedDict, total=False):
+    """Represents a single message in a conversation, compliant with the A2A specification."""
+
+    extensions: Optional[list[str]]
+    """Optional. A2A protocol extensions associated with the message."""
+
+    message_id: Optional[str]
+    """Required. The unique identifier of the message."""
+
+    metadata: Optional[dict[str, Any]]
+    """Optional. Additional context or parameters related to the message. Extensions can be used to strongly type metadata values for specific use cases."""
+
+    parts: Optional[list[A2aPartDict]]
+    """Required. The content parts that make up the message."""
+
+    reference_task_ids: Optional[list[str]]
+    """Optional. The IDs of other tasks referenced by this message."""
+
+    role: Optional[Role]
+    """Required. The role of the sender of the message."""
+
+
+A2aTaskMessageOrDict = Union[A2aTaskMessage, A2aTaskMessageDict]
+
+
+class A2aTaskStatus(_common.BaseModel):
+    """Represents the status of an A2aTask."""
+
+    message: Optional[A2aTaskMessage] = Field(
+        default=None,
+        description="""Output only. The status message associated with the state.""",
+    )
+    state: Optional[State] = Field(
+        default=None, description="""Output only. The current state of the task."""
+    )
+    timestamp: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Output only. The time at which the state was set.""",
+    )
+
+
+class A2aTaskStatusDict(TypedDict, total=False):
+    """Represents the status of an A2aTask."""
+
+    message: Optional[A2aTaskMessageDict]
+    """Output only. The status message associated with the state."""
+
+    state: Optional[State]
+    """Output only. The current state of the task."""
+
+    timestamp: Optional[datetime.datetime]
+    """Output only. The time at which the state was set."""
+
+
+A2aTaskStatusOrDict = Union[A2aTaskStatus, A2aTaskStatusDict]
+
+
 class A2aTask(_common.BaseModel):
     """A task."""
 
@@ -858,7 +1066,7 @@ class A2aTask(_common.BaseModel):
     )
     name: Optional[str] = Field(
         default=None,
-        description="""Identifier. The resource name of the task. Format: `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/a2aTasks/{a2a_task}`""",
+        description="""Identifier. The resource name of the task. Format: `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/a2aTasks/{a2a_task}` or `projects/{project}/locations/{location}/taskStores/{task_store}/a2aTasks/{a2a_task}`""",
     )
     next_event_sequence_number: Optional[int] = Field(
         default=None,
@@ -886,6 +1094,26 @@ class A2aTask(_common.BaseModel):
         default=None,
         description="""Optional. Input only. The TTL (Time To Live) for the task. If not set, the task will expire in 24 hours by default. Valid range: (0 seconds, 1000 days]""",
     )
+    app_id: Optional[str] = Field(
+        default=None,
+        description="""Optional. Agent application which created the task.""",
+    )
+    artifacts: Optional[list[A2aTaskArtifact]] = Field(
+        default=None, description="""Output only. The artifacts produced by the task."""
+    )
+    generation: Optional[int] = Field(
+        default=None, description="""Output only. The task generation number."""
+    )
+    history: Optional[list[A2aTaskMessage]] = Field(
+        default=None, description="""Output only. The history of the task messages."""
+    )
+    status: Optional[A2aTaskStatus] = Field(
+        default=None,
+        description="""Output only. The status of the task, including the state, status message, and timestamp.""",
+    )
+    user_id: Optional[str] = Field(
+        default=None, description="""Optional. Task owner user ID."""
+    )
 
 
 class A2aTaskDict(TypedDict, total=False):
@@ -901,7 +1129,7 @@ class A2aTaskDict(TypedDict, total=False):
     """Optional. Arbitrary, user-defined metadata."""
 
     name: Optional[str]
-    """Identifier. The resource name of the task. Format: `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/a2aTasks/{a2a_task}`"""
+    """Identifier. The resource name of the task. Format: `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/a2aTasks/{a2a_task}` or `projects/{project}/locations/{location}/taskStores/{task_store}/a2aTasks/{a2a_task}`"""
 
     next_event_sequence_number: Optional[int]
     """Output only. The next event sequence number to be appended to the task. This value starts at 1 and is guaranteed to be monotonically increasing."""
@@ -923,6 +1151,24 @@ class A2aTaskDict(TypedDict, total=False):
 
     ttl: Optional[str]
     """Optional. Input only. The TTL (Time To Live) for the task. If not set, the task will expire in 24 hours by default. Valid range: (0 seconds, 1000 days]"""
+
+    app_id: Optional[str]
+    """Optional. Agent application which created the task."""
+
+    artifacts: Optional[list[A2aTaskArtifactDict]]
+    """Output only. The artifacts produced by the task."""
+
+    generation: Optional[int]
+    """Output only. The task generation number."""
+
+    history: Optional[list[A2aTaskMessageDict]]
+    """Output only. The history of the task messages."""
+
+    status: Optional[A2aTaskStatusDict]
+    """Output only. The status of the task, including the state, status message, and timestamp."""
+
+    user_id: Optional[str]
+    """Optional. Task owner user ID."""
 
 
 A2aTaskOrDict = Union[A2aTask, A2aTaskDict]
@@ -8838,6 +9084,10 @@ class ReasoningEngineSpecContainerSpec(_common.BaseModel):
         default=None,
         description="""Required. The Artifact Registry Docker image URI (e.g., us-central1-docker.pkg.dev/my-project/my-repo/my-image:tag) of the container image that is to be run on each worker replica.""",
     )
+    port: Optional[int] = Field(
+        default=None,
+        description="""Optional. The port the container listens on. Defaults to 8080 if unset.""",
+    )
 
 
 class ReasoningEngineSpecContainerSpecDict(TypedDict, total=False):
@@ -8846,9 +9096,40 @@ class ReasoningEngineSpecContainerSpecDict(TypedDict, total=False):
     image_uri: Optional[str]
     """Required. The Artifact Registry Docker image URI (e.g., us-central1-docker.pkg.dev/my-project/my-repo/my-image:tag) of the container image that is to be run on each worker replica."""
 
+    port: Optional[int]
+    """Optional. The port the container listens on. Defaults to 8080 if unset."""
+
 
 ReasoningEngineSpecContainerSpecOrDict = Union[
     ReasoningEngineSpecContainerSpec, ReasoningEngineSpecContainerSpecDict
+]
+
+
+class ReasoningEngineSpecBuildSpec(_common.BaseModel):
+    """Specification for building container image."""
+
+    service_account: Optional[str] = Field(
+        default=None,
+        description="""Optional. The service account that Cloud Build uses to run the build. This field is only applicable when `worker_pool` is specified (i.e., for custom worker pools). If `worker_pool` is not specified, this field is ignored and the build runs using the Google-managed service agent. Format: `projects/{project}/serviceAccounts/{service_account}` or `{service_account}@{project}.iam.gserviceaccount.com`""",
+    )
+    worker_pool: Optional[str] = Field(
+        default=None,
+        description="""Optional. Identifier. The resource name of the Cloud Build WorkerPool to use for the build. Format: `projects/{project}/locations/{location}/workerPools/{worker_pool}`""",
+    )
+
+
+class ReasoningEngineSpecBuildSpecDict(TypedDict, total=False):
+    """Specification for building container image."""
+
+    service_account: Optional[str]
+    """Optional. The service account that Cloud Build uses to run the build. This field is only applicable when `worker_pool` is specified (i.e., for custom worker pools). If `worker_pool` is not specified, this field is ignored and the build runs using the Google-managed service agent. Format: `projects/{project}/serviceAccounts/{service_account}` or `{service_account}@{project}.iam.gserviceaccount.com`"""
+
+    worker_pool: Optional[str]
+    """Optional. Identifier. The resource name of the Cloud Build WorkerPool to use for the build. Format: `projects/{project}/locations/{location}/workerPools/{worker_pool}`"""
+
+
+ReasoningEngineSpecBuildSpecOrDict = Union[
+    ReasoningEngineSpecBuildSpec, ReasoningEngineSpecBuildSpecDict
 ]
 
 
@@ -8895,6 +9176,10 @@ class ReasoningEngineSpec(_common.BaseModel):
         default=None,
         description="""Deploy from a container image with a defined entrypoint and commands.""",
     )
+    build_spec: Optional[ReasoningEngineSpecBuildSpec] = Field(
+        default=None,
+        description="""Optional. Configuration for building container image.""",
+    )
 
 
 class ReasoningEngineSpecDict(TypedDict, total=False):
@@ -8929,6 +9214,9 @@ class ReasoningEngineSpecDict(TypedDict, total=False):
 
     container_spec: Optional[ReasoningEngineSpecContainerSpecDict]
     """Deploy from a container image with a defined entrypoint and commands."""
+
+    build_spec: Optional[ReasoningEngineSpecBuildSpecDict]
+    """Optional. Configuration for building container image."""
 
 
 ReasoningEngineSpecOrDict = Union[ReasoningEngineSpec, ReasoningEngineSpecDict]
@@ -17201,11 +17489,63 @@ SandboxEnvironmentTemplateDefaultContainerEnvironmentOrDict = Union[
 ]
 
 
+class SandboxEnvironmentTemplateEgressControlConfigDnsPeeringConfig(_common.BaseModel):
+    """Configuration for peering a customer's private DNS zone so that sandbox egress can resolve customer-internal domains via the customer VPC."""
+
+    domain: Optional[str] = Field(
+        default=None,
+        description="""Required. The DNS name suffix of the zone being peered to, e.g., "my-internal-domain.corp.". Must end with a dot.""",
+    )
+    target_network: Optional[str] = Field(
+        default=None,
+        description="""Required. The VPC network name in the target_project where the DNS zone specified by 'domain' is visible.""",
+    )
+    target_project: Optional[str] = Field(
+        default=None,
+        description="""Required. The project ID hosting the Cloud DNS managed zone that contains the 'domain'. The Vertex AI Service Agent requires the dns.peer role on this project.""",
+    )
+
+
+class SandboxEnvironmentTemplateEgressControlConfigDnsPeeringConfigDict(
+    TypedDict, total=False
+):
+    """Configuration for peering a customer's private DNS zone so that sandbox egress can resolve customer-internal domains via the customer VPC."""
+
+    domain: Optional[str]
+    """Required. The DNS name suffix of the zone being peered to, e.g., "my-internal-domain.corp.". Must end with a dot."""
+
+    target_network: Optional[str]
+    """Required. The VPC network name in the target_project where the DNS zone specified by 'domain' is visible."""
+
+    target_project: Optional[str]
+    """Required. The project ID hosting the Cloud DNS managed zone that contains the 'domain'. The Vertex AI Service Agent requires the dns.peer role on this project."""
+
+
+SandboxEnvironmentTemplateEgressControlConfigDnsPeeringConfigOrDict = Union[
+    SandboxEnvironmentTemplateEgressControlConfigDnsPeeringConfig,
+    SandboxEnvironmentTemplateEgressControlConfigDnsPeeringConfigDict,
+]
+
+
 class SandboxEnvironmentTemplateEgressControlConfig(_common.BaseModel):
     """Configuration for egress control of sandbox instances."""
 
     internet_access: Optional[bool] = Field(
         default=None, description="""Optional. Whether to allow internet access."""
+    )
+    customer_vpc_network: Optional[str] = Field(
+        default=None,
+        description="""Optional. The customer VPC network that sandbox egress is routed into.""",
+    )
+    dns_peering_configs: Optional[
+        list[SandboxEnvironmentTemplateEgressControlConfigDnsPeeringConfig]
+    ] = Field(
+        default=None,
+        description="""Optional. DNS peering configurations that allow sandbox egress to resolve customer-internal domains via the customer VPC.""",
+    )
+    network_attachment: Optional[str] = Field(
+        default=None,
+        description="""Optional. The name of the customer VPC NetworkAttachment used to draw a PSC interface IP into the customer VPC for sandbox egress.""",
     )
 
 
@@ -17214,6 +17554,17 @@ class SandboxEnvironmentTemplateEgressControlConfigDict(TypedDict, total=False):
 
     internet_access: Optional[bool]
     """Optional. Whether to allow internet access."""
+
+    customer_vpc_network: Optional[str]
+    """Optional. The customer VPC network that sandbox egress is routed into."""
+
+    dns_peering_configs: Optional[
+        list[SandboxEnvironmentTemplateEgressControlConfigDnsPeeringConfigDict]
+    ]
+    """Optional. DNS peering configurations that allow sandbox egress to resolve customer-internal domains via the customer VPC."""
+
+    network_attachment: Optional[str]
+    """Optional. The name of the customer VPC NetworkAttachment used to draw a PSC interface IP into the customer VPC for sandbox egress."""
 
 
 SandboxEnvironmentTemplateEgressControlConfigOrDict = Union[
@@ -24708,45 +25059,46 @@ class FeedbackEntry(_common.BaseModel):
 
     create_time: Optional[datetime.datetime] = Field(
         default=None,
-        description="""Output only. Timestamp when the feedback entry was created.""",
+        description="""Output only. The time at which the entry was created.""",
     )
     custom_metadata: Optional[dict[str, str]] = Field(
         default=None,
-        description="""Optional. Additional key-value metadata associated with the feedback. Allows the collect data for which there is no dedicated field in the resource, ex. version, LLM temperature etc.""",
+        description="""Optional. Additional key-value metadata associated with the feedback.""",
     )
     event_id: Optional[str] = Field(
         default=None,
-        description="""Required. The ID of the event to which the feedback relates to.""",
+        description="""Required. The ID of the event within the session that the feedback relates to.""",
     )
     feedback_labels: Optional[list[str]] = Field(
-        default=None,
-        description="""Optional. Specific labels for feedback (non-factual, offensive, etc.).""",
+        default=None, description="""feedbackLabels"""
     )
     feedback_text: Optional[str] = Field(
         default=None,
         description="""Optional. Qualitative free-form comments provided by the user.""",
     )
     feedback_type: Optional[FeedbackType] = Field(
-        default=None, description="""Required. The type of feedback provided."""
+        default=None,
+        description="""Required. The coarse-grained type of feedback provided by the user. Must be set to a value other than `FEEDBACK_TYPE_UNSPECIFIED`.""",
     )
     name: Optional[str] = Field(
         default=None,
-        description="""Identifier. The resource name of the feedback entry. Format: 'projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/feedbackEntries/{feedback_entry}'.""",
+        description="""Identifier. The resource name. Assigned by the server on create. Format: `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/feedbackEntries/{feedback_entry}`""",
     )
     session_id: Optional[str] = Field(
         default=None,
-        description="""Required. The ID of the session to which the feedback relates to.""",
+        description="""Required. The ID of the session that the feedback relates to.""",
     )
     source: Optional[str] = Field(
         default=None,
-        description="""Optional. Originating UI surface (e.g. 'ADK Web UI').""",
+        description="""Optional. The surface that the feedback originated from.""",
     )
     update_time: Optional[datetime.datetime] = Field(
         default=None,
-        description="""Output only. Timestamp when the feedback entry was last updated.""",
+        description="""Output only. The time at which the entry was most recently updated.""",
     )
     user_id: Optional[str] = Field(
-        default=None, description="""Optional. User provided identifier."""
+        default=None,
+        description="""Optional. A caller-supplied identifier for the user who provided the feedback. The semantics of this field (for example whether it is an opaque token, a hashed value, or a user-visible identifier) are determined by the calling application.""",
     )
 
 
@@ -24754,37 +25106,37 @@ class FeedbackEntryDict(TypedDict, total=False):
     """A Feedback Entry."""
 
     create_time: Optional[datetime.datetime]
-    """Output only. Timestamp when the feedback entry was created."""
+    """Output only. The time at which the entry was created."""
 
     custom_metadata: Optional[dict[str, str]]
-    """Optional. Additional key-value metadata associated with the feedback. Allows the collect data for which there is no dedicated field in the resource, ex. version, LLM temperature etc."""
+    """Optional. Additional key-value metadata associated with the feedback."""
 
     event_id: Optional[str]
-    """Required. The ID of the event to which the feedback relates to."""
+    """Required. The ID of the event within the session that the feedback relates to."""
 
     feedback_labels: Optional[list[str]]
-    """Optional. Specific labels for feedback (non-factual, offensive, etc.)."""
+    """feedbackLabels"""
 
     feedback_text: Optional[str]
     """Optional. Qualitative free-form comments provided by the user."""
 
     feedback_type: Optional[FeedbackType]
-    """Required. The type of feedback provided."""
+    """Required. The coarse-grained type of feedback provided by the user. Must be set to a value other than `FEEDBACK_TYPE_UNSPECIFIED`."""
 
     name: Optional[str]
-    """Identifier. The resource name of the feedback entry. Format: 'projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/feedbackEntries/{feedback_entry}'."""
+    """Identifier. The resource name. Assigned by the server on create. Format: `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/feedbackEntries/{feedback_entry}`"""
 
     session_id: Optional[str]
-    """Required. The ID of the session to which the feedback relates to."""
+    """Required. The ID of the session that the feedback relates to."""
 
     source: Optional[str]
-    """Optional. Originating UI surface (e.g. 'ADK Web UI')."""
+    """Optional. The surface that the feedback originated from."""
 
     update_time: Optional[datetime.datetime]
-    """Output only. Timestamp when the feedback entry was last updated."""
+    """Output only. The time at which the entry was most recently updated."""
 
     user_id: Optional[str]
-    """Optional. User provided identifier."""
+    """Optional. A caller-supplied identifier for the user who provided the feedback. The semantics of this field (for example whether it is an opaque token, a hashed value, or a user-visible identifier) are determined by the calling application."""
 
 
 FeedbackEntryOrDict = Union[FeedbackEntry, FeedbackEntryDict]
@@ -25291,11 +25643,11 @@ class FeedbackContext(_common.BaseModel):
 
     context_events: Optional[list[SessionEvent]] = Field(
         default=None,
-        description="""Optional. Events from the conversation relevant to the parent feedback entry.""",
+        description="""Optional. The session events from the originating session.""",
     )
     name: Optional[str] = Field(
         default=None,
-        description="""Identifier. The resource name of the feedback context. Format: 'projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/feedbackEntries/{feedback_entry}/feedbackContext'.""",
+        description="""Identifier. The resource name. Assigned by the server on create. Format: `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/feedbackEntries/{feedback_entry}/feedbackContext`""",
     )
 
 
@@ -25303,10 +25655,10 @@ class FeedbackContextDict(TypedDict, total=False):
     """A Feedback Context."""
 
     context_events: Optional[list[SessionEventDict]]
-    """Optional. Events from the conversation relevant to the parent feedback entry."""
+    """Optional. The session events from the originating session."""
 
     name: Optional[str]
-    """Identifier. The resource name of the feedback context. Format: 'projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/feedbackEntries/{feedback_entry}/feedbackContext'."""
+    """Identifier. The resource name. Assigned by the server on create. Format: `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/feedbackEntries/{feedback_entry}/feedbackContext`"""
 
 
 FeedbackContextOrDict = Union[FeedbackContext, FeedbackContextDict]
