@@ -54,7 +54,7 @@ class LazyLoadedPrebuiltMetric:
         """Constructs the metric_spec_name for API Predefined Metrics."""
         base_name = self.name.lower()
         if self.version:
-            # Explicit version provided
+            # Explicit version provided.
             version = self.version.lower()
             potential_name = f"{base_name}_{version}"
             return (
@@ -63,7 +63,10 @@ class LazyLoadedPrebuiltMetric:
                 else None
             )
         else:
-            # Default versioning: Try _v1, then base name
+            # No version specified: resolve to the latest available version,
+            # falling back to _v1, then the bare base name.
+            if base_name in _evals_constant.METRIC_LATEST_SPEC_NAME:
+                return _evals_constant.METRIC_LATEST_SPEC_NAME[base_name]
             v1_name = f"{base_name}_v1"
             if v1_name in _evals_constant.SUPPORTED_PREDEFINED_METRICS:
                 return v1_name
