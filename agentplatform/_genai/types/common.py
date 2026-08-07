@@ -2301,6 +2301,11 @@ class _CreateEvaluationMetricParameters(_common.BaseModel):
         default=None,
         description="""The metric configuration of the evaluation metric.""",
     )
+    encryption_spec: Optional[genai_types.EncryptionSpec] = Field(
+        default=None,
+        description="""Customer-managed encryption key spec for this EvaluationMetric.
+      If set, this EvaluationMetric will be secured by this key.""",
+    )
     config: Optional[CreateEvaluationMetricConfig] = Field(
         default=None, description=""""""
     )
@@ -2321,6 +2326,10 @@ class _CreateEvaluationMetricParametersDict(TypedDict, total=False):
 
     metric: Optional[MetricDict]
     """The metric configuration of the evaluation metric."""
+
+    encryption_spec: Optional[genai_types.EncryptionSpec]
+    """Customer-managed encryption key spec for this EvaluationMetric.
+      If set, this EvaluationMetric will be secured by this key."""
 
     config: Optional[CreateEvaluationMetricConfigDict]
     """"""
@@ -2446,6 +2455,11 @@ class EvaluationMetric(_common.BaseModel):
         default=None,
         description="""The metric configuration of the evaluation metric.""",
     )
+    encryption_spec: Optional[genai_types.EncryptionSpec] = Field(
+        default=None,
+        description="""Customer-managed encryption key spec for this EvaluationMetric.
+      If set, this EvaluationMetric will be secured by this key.""",
+    )
 
 
 class EvaluationMetricDict(TypedDict, total=False):
@@ -2462,6 +2476,10 @@ class EvaluationMetricDict(TypedDict, total=False):
 
     metric: Optional[UnifiedMetricDict]
     """The metric configuration of the evaluation metric."""
+
+    encryption_spec: Optional[genai_types.EncryptionSpec]
+    """Customer-managed encryption key spec for this EvaluationMetric.
+      If set, this EvaluationMetric will be secured by this key."""
 
 
 EvaluationMetricOrDict = Union[EvaluationMetric, EvaluationMetricDict]
@@ -4079,6 +4097,11 @@ class _CreateEvaluationSetParameters(_common.BaseModel):
     config: Optional[CreateEvaluationSetConfig] = Field(
         default=None, description=""""""
     )
+    encryption_spec: Optional[genai_types.EncryptionSpec] = Field(
+        default=None,
+        description="""Customer-managed encryption key spec for this EvaluationSet.
+      If set, this EvaluationSet will be secured by this key.""",
+    )
 
 
 class _CreateEvaluationSetParametersDict(TypedDict, total=False):
@@ -4092,6 +4115,10 @@ class _CreateEvaluationSetParametersDict(TypedDict, total=False):
 
     config: Optional[CreateEvaluationSetConfigDict]
     """"""
+
+    encryption_spec: Optional[genai_types.EncryptionSpec]
+    """Customer-managed encryption key spec for this EvaluationSet.
+      If set, this EvaluationSet will be secured by this key."""
 
 
 _CreateEvaluationSetParametersOrDict = Union[
@@ -4121,6 +4148,11 @@ class EvaluationSet(_common.BaseModel):
     metadata: Optional[dict[str, Any]] = Field(
         default=None, description="""The metadata of the evaluation set."""
     )
+    encryption_spec: Optional[genai_types.EncryptionSpec] = Field(
+        default=None,
+        description="""Customer-managed encryption key spec for this EvaluationSet.
+      If set, this EvaluationSet will be secured by this key.""",
+    )
 
 
 class EvaluationSetDict(TypedDict, total=False):
@@ -4143,6 +4175,10 @@ class EvaluationSetDict(TypedDict, total=False):
 
     metadata: Optional[dict[str, Any]]
     """The metadata of the evaluation set."""
+
+    encryption_spec: Optional[genai_types.EncryptionSpec]
+    """Customer-managed encryption key spec for this EvaluationSet.
+      If set, this EvaluationSet will be secured by this key."""
 
 
 EvaluationSetOrDict = Union[EvaluationSet, EvaluationSetDict]
