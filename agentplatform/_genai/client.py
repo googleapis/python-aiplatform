@@ -50,6 +50,9 @@ if TYPE_CHECKING:
     from agentplatform._genai import (
         memory_banks as memory_banks_module,
     )
+    from agentplatform._genai import (
+        endpoints as endpoints_module,
+    )
 
 _GENAI_MODULES_TELEMETRY_HEADER = "vertex-genai-modules"
 
@@ -96,6 +99,7 @@ class AsyncClient:
         self._model_garden: Optional[ModuleType] = None
         self._feedback_entries: Optional[ModuleType] = None
         self._memory_banks: Optional[ModuleType] = None
+        self._endpoints: Optional[ModuleType] = None
 
     @property
     @_common.experimental_warning(
@@ -185,6 +189,15 @@ class AsyncClient:
                 __package__,
             )
         return self._feedback_entries.AsyncFeedbackEntries(self._api_client)  # type: ignore[no-any-return]
+
+    @property
+    def endpoints(self) -> "endpoints_module.AsyncEndpoints":
+        if self._endpoints is None:
+            self._endpoints = importlib.import_module(
+                ".endpoints",
+                __package__,
+            )
+        return self._endpoints.AsyncEndpoints(self._api_client)  # type: ignore[no-any-return]
 
     @property
     @_common.experimental_warning(
@@ -325,6 +338,7 @@ class Client:
         self._model_garden: Optional[ModuleType] = None
         self._feedback_entries: Optional[ModuleType] = None
         self._memory_banks: Optional[ModuleType] = None
+        self._endpoints: Optional[ModuleType] = None
 
     @property
     def evals(self) -> "evals_module.Evals":
@@ -439,6 +453,15 @@ class Client:
                 __package__,
             )
         return self._feedback_entries.FeedbackEntries(self._api_client)  # type: ignore[no-any-return]
+
+    @property
+    def endpoints(self) -> "endpoints_module.Endpoints":
+        if self._endpoints is None:
+            self._endpoints = importlib.import_module(
+                ".endpoints",
+                __package__,
+            )
+        return self._endpoints.Endpoints(self._api_client)  # type: ignore[no-any-return]
 
     @property
     @_common.experimental_warning(
