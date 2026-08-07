@@ -18,6 +18,7 @@ import re
 from tests.unit.agentplatform.genai.replays import pytest_helper
 from agentplatform._genai import types
 from google.genai import errors
+from google.genai import types as genai_types
 import pytest
 
 
@@ -67,6 +68,35 @@ def test_list_evaluation_metrics_with_filter(client):
     assert len(response.evaluation_metrics) >= 1
     for metric in response.evaluation_metrics:
         assert metric.display_name == "tone-check-v1"
+
+
+def test_create_evaluation_metric_with_cmek(client):
+    """CMEK: encryption_spec is forwarded in the request and returned on GET."""
+    client._api_client._http_options.api_version = "v1beta1"
+    _KMS_KEY = (
+        "projects/977012026409/locations/us-central1"
+        "/keyRings/test-kr/cryptoKeys/test-key"
+    )
+    result = client.evals.create_evaluation_metric(
+        display_name="test_cmek_metric",
+        description="test_cmek_description",
+        metric=types.LLMMetric(
+            name="custom_llm_metric", prompt_template="test_prompt_template"
+        ),
+        encryption_spec=genai_types.EncryptionSpec(kms_key_name=_KMS_KEY),
+    )
+    assert isinstance(result, str)
+    assert re.match(
+        r"^projects/[^/]+/locations/[^/]+/evaluationMetrics/[^/]+$",
+        result,
+    )
+
+    metric = client.evals.get_evaluation_metric(metric_resource_name=result)
+    assert isinstance(metric, types.EvaluationMetric)
+    assert metric.display_name == "test_cmek_metric"
+    # encryption_spec is returned from the API and surfaced on the resource.
+    assert metric.encryption_spec is not None
+    assert metric.encryption_spec.kms_key_name == _KMS_KEY
 
 
 # The setup function registers the module and method for the recorder

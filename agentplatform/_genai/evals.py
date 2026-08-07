@@ -108,6 +108,9 @@ def _CreateEvaluationMetricParameters_to_vertex(
             t.t_metric_for_registry(getv(from_object, ["metric"])),
         )
 
+    if getv(from_object, ["encryption_spec"]) is not None:
+        setv(to_object, ["encryptionSpec"], getv(from_object, ["encryption_spec"]))
+
     if getv(from_object, ["config"]) is not None:
         setv(to_object, ["config"], getv(from_object, ["config"]))
 
@@ -414,6 +417,9 @@ def _EvaluationMetric_from_vertex(
             ["metric"],
             _UnifiedMetric_from_vertex(getv(from_object, ["metric"]), to_object),
         )
+
+    if getv(from_object, ["encryptionSpec"]) is not None:
+        setv(to_object, ["encryption_spec"], getv(from_object, ["encryptionSpec"]))
 
     return to_object
 
@@ -1336,6 +1342,7 @@ class Evals(_api_module.BaseModule):
         display_name: Optional[str] = None,
         description: Optional[str] = None,
         metric: Optional[types.MetricOrDict] = None,
+        encryption_spec: Optional[genai_types.EncryptionSpecOrDict] = None,
         config: Optional[types.CreateEvaluationMetricConfigOrDict] = None,
     ) -> types.EvaluationMetric:
         """
@@ -1346,6 +1353,7 @@ class Evals(_api_module.BaseModule):
             display_name=display_name,
             description=description,
             metric=metric,
+            encryption_spec=encryption_spec,
             config=config,
         )
 
@@ -3695,6 +3703,7 @@ class Evals(_api_module.BaseModule):
         display_name: Optional[str] = None,
         description: Optional[str] = None,
         metric: Optional[types.MetricOrDict] = None,
+        encryption_spec: Optional[genai_types.EncryptionSpecOrDict] = None,
         config: Optional[types.CreateEvaluationMetricConfigOrDict] = None,
     ) -> str:
         """Creates an EvaluationMetric."""
@@ -3717,6 +3726,7 @@ class Evals(_api_module.BaseModule):
             display_name=display_name,
             description=description,
             metric=metric,
+            encryption_spec=encryption_spec,
             config=config,
         )
         # result.name is Optional[str], but we know it's always returned on creation
@@ -3978,6 +3988,7 @@ class AsyncEvals(_api_module.BaseModule):
         display_name: Optional[str] = None,
         description: Optional[str] = None,
         metric: Optional[types.MetricOrDict] = None,
+        encryption_spec: Optional[genai_types.EncryptionSpecOrDict] = None,
         config: Optional[types.CreateEvaluationMetricConfigOrDict] = None,
     ) -> types.EvaluationMetric:
         """
@@ -3988,6 +3999,7 @@ class AsyncEvals(_api_module.BaseModule):
             display_name=display_name,
             description=description,
             metric=metric,
+            encryption_spec=encryption_spec,
             config=config,
         )
 
@@ -5981,6 +5993,7 @@ class AsyncEvals(_api_module.BaseModule):
         display_name: Optional[str] = None,
         description: Optional[str] = None,
         metric: Optional[types.MetricOrDict] = None,
+        encryption_spec: Optional[genai_types.EncryptionSpecOrDict] = None,
         config: Optional[types.CreateEvaluationMetricConfigOrDict] = None,
     ) -> str:
         """Creates an EvaluationMetric."""
@@ -6001,6 +6014,7 @@ class AsyncEvals(_api_module.BaseModule):
             display_name=display_name,
             description=description,
             metric=metric,
+            encryption_spec=encryption_spec,
             config=config,
         )
         return cast(str, result.name)
