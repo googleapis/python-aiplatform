@@ -625,7 +625,7 @@ class Sessions(_api_module.BaseModule):
         *,
         name: str,
         config: Optional[types.UpdateAgentEngineSessionConfigOrDict] = None,
-    ) -> types.AgentEngineSessionOperation:
+    ) -> types.Session:
         """
         Updates an Agent Engine session.
 
@@ -636,7 +636,7 @@ class Sessions(_api_module.BaseModule):
                 Optional. Additional configurations for updating the Agent Engine session.
 
         Returns:
-            AgentEngineSessionOperation: The operation for updating the Agent Engine session.
+            types.Session: The updated Agent Engine session.
 
         """
 
@@ -680,7 +680,7 @@ class Sessions(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
-        return_value = types.AgentEngineSessionOperation._from_response(
+        return_value = types.Session._from_response(
             response=response_dict,
             kwargs=(
                 {
@@ -1222,7 +1222,7 @@ class AsyncSessions(_api_module.BaseModule):
         *,
         name: str,
         config: Optional[types.UpdateAgentEngineSessionConfigOrDict] = None,
-    ) -> types.AgentEngineSessionOperation:
+    ) -> types.Session:
         """
         Updates an Agent Engine session.
 
@@ -1233,7 +1233,7 @@ class AsyncSessions(_api_module.BaseModule):
                 Optional. Additional configurations for updating the Agent Engine session.
 
         Returns:
-            AgentEngineSessionOperation: The operation for updating the Agent Engine session.
+            types.Session: The updated Agent Engine session.
 
         """
 
@@ -1279,7 +1279,7 @@ class AsyncSessions(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
-        return_value = types.AgentEngineSessionOperation._from_response(
+        return_value = types.Session._from_response(
             response=response_dict,
             kwargs=(
                 {
