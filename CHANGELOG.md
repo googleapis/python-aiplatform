@@ -1,5 +1,32 @@
 # Changelog
 
+## [1.164.0](https://github.com/googleapis/python-aiplatform/compare/v1.163.0...v1.164.0) (2026-08-07)
+
+
+### Features
+
+* Add sandbox templates and snapshots submodules to the Vertex AI GenAI SDK for Java. ([f7e3a70](https://github.com/googleapis/python-aiplatform/commit/f7e3a70122b4d023dc4eafef9f9242ae4be9ae29))
+* Allow users to configure max wait time for prompt management queries for Python and JS ([ad63bfe](https://github.com/googleapis/python-aiplatform/commit/ad63bfee932843ad8a0477ebb07b0159269c74bb))
+* Forward per-request labels to RunConfig in streaming_agent_run_with_events ([f8eb68c](https://github.com/googleapis/python-aiplatform/commit/f8eb68c1748aff52d3506838d9d8c1ec537e56f5))
+* GenAI Client(evals) - async auto-create EvaluationExperiment parity ([e689f0e](https://github.com/googleapis/python-aiplatform/commit/e689f0ec00ad9b4a79b3982e8bb23c47bf0cb197))
+* GenAI Client(evals) - auto-create EvaluationExperiment in create_evaluation_run ([eb75e14](https://github.com/googleapis/python-aiplatform/commit/eb75e149302b9807330068b062d38b8dad9f9ef8))
+* GenAI Client(evals) - Support show() for EvaluationDataset built from eval_cases ([5b1a0aa](https://github.com/googleapis/python-aiplatform/commit/5b1a0aaeef86a55b8b14579719300380c10ec412))
+
+
+### Bug Fixes
+
+* Add aiohttp to ADK extra requirements. ([390f2d1](https://github.com/googleapis/python-aiplatform/commit/390f2d1a3b2d3c0aa1cb35d19d2939e34eeebf56))
+* Enable automatic session creation in ADK template. ([f343270](https://github.com/googleapis/python-aiplatform/commit/f3432707f4e729910dd6781cce571d19b8956d49))
+* GenAI Client(evals) - skip agent config fetch when agent and client locations differ ([8b43add](https://github.com/googleapis/python-aiplatform/commit/8b43add1d5272a14fcf1c7a9a73b00949d425446))
+* Import `iam_credentials_v1` lazily in the sandboxes module. ([2a18bff](https://github.com/googleapis/python-aiplatform/commit/2a18bffab16255a2744f52b41d94d20e433c7dc4))
+* Update generator configuration and SDK bindings for Agent Engine Session update calls to return Session directly. ([2702857](https://github.com/googleapis/python-aiplatform/commit/270285774d9f210140a6c196d5c2b60d37cad33a))
+
+
+### Documentation
+
+* Communicate on upcoming updates in the next major version ([c64b25f](https://github.com/googleapis/python-aiplatform/commit/c64b25f574742d9a22bde5cbfacc0cb286dc40c6))
+* Communicate on upcoming updates in the next major version ([76b9616](https://github.com/googleapis/python-aiplatform/commit/76b961689be5f573d76b43e64e6930d23dd12e33))
+
 ## [1.163.0](https://github.com/googleapis/python-aiplatform/compare/v1.162.0...v1.163.0) (2026-07-28)
 
 
