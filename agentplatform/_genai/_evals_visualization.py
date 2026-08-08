@@ -360,6 +360,10 @@ def get_evaluation_html(eval_result_json: str) -> str:
         <div id="details-section"></div>
     </div>
     <script>
+        // Render single newlines as <br> so streaming model output and
+        // poem/code formatting is preserved in the HTML display.
+        marked.setOptions({{ breaks: true }});
+
         var vizData_vertex_eval_sdk = JSON.parse(new TextDecoder().decode(Uint8Array.from(atob("{payload_b64}"), c => c.charCodeAt(0))));
 
         function formatDictVals(obj) {{
@@ -930,6 +934,10 @@ def get_comparison_html(eval_result_json: str) -> str:
         <div id="details-section"></div>
     </div>
     <script>
+        // Render single newlines as <br> so streaming model output and
+        // poem/code formatting is preserved in the HTML display.
+        marked.setOptions({{ breaks: true }});
+
         var vizData_vertex_eval_sdk = JSON.parse(new TextDecoder().decode(Uint8Array.from(atob("{payload_b64}"), c => c.charCodeAt(0))));
 
         function formatToolDeclarations(toolDeclarations) {{
@@ -1372,6 +1380,10 @@ def get_inference_html(dataframe_json: str) -> str:
         <div id="results-table"></div>
     </div>
     <script>
+        // Render single newlines as <br> so streaming model output and
+        // poem/code formatting is preserved in the HTML display.
+        marked.setOptions({{ breaks: true }});
+
         var vizData_vertex_eval_sdk = JSON.parse(new TextDecoder().decode(Uint8Array.from(atob("{payload_b64}"), c => c.charCodeAt(0))));
         var container_vertex_eval_sdk = document.getElementById('results-table');
 
