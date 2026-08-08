@@ -16,13 +16,26 @@
 import dataclasses
 import inspect
 import json
+import os
 import types
 import typing
-from typing import Any, Callable, Dict, Iterable, Mapping, Optional, Sequence, Union
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Iterable,
+    List,
+    Mapping,
+    Optional,
+    Sequence,
+    Tuple,
+    Union,
+)
 
 import proto
 
 from google.cloud.aiplatform import base
+from google.cloud.aiplatform_v1beta1 import types as aip_types
 from google.api import httpbody_pb2
 from google.protobuf import struct_pb2
 from google.protobuf import json_format
@@ -52,6 +65,98 @@ except ImportError:
 JsonDict = Dict[str, Any]
 
 _LOGGER = base.Logger(__name__)
+
+
+def _update_deployment_spec_with_env_vars_dict_or_raise(
+    *,
+    deployment_spec: aip_types.ReasoningEngineSpec.DeploymentSpec,
+    env_vars: Dict[str, Union[str, aip_types.SecretRef]],
+) -> None:
+    for key, value in env_vars.items():
+        if isinstance(value, dict):
+            try:
+                secret_ref = to_proto(value, aip_types.SecretRef())
+            except Exception as e:
+                raise ValueError(f"Failed to convert to secret ref: {value}") from e
+            deployment_spec.secret_env.append(
+                aip_types.SecretEnvVar(name=key, secret_ref=secret_ref)
+            )
+        elif isinstance(value, aip_types.SecretRef):
+            deployment_spec.secret_env.append(
+                aip_types.SecretEnvVar(name=key, secret_ref=value)
+            )
+        elif isinstance(value, str):
+            deployment_spec.env.append(aip_types.EnvVar(name=key, value=value))
+        else:
+            raise TypeError(
+                f"Unknown value type in env_vars for {key}. "
+                f"Must be a str or SecretRef: {value}"
+            )
+
+
+def _update_deployment_spec_with_env_vars_list_or_raise(
+    *,
+    deployment_spec: aip_types.ReasoningEngineSpec.DeploymentSpec,
+    env_vars: Sequence[str],
+) -> None:
+    for env_var in env_vars:
+        if env_var not in os.environ:
+            raise ValueError(f"Env var not found in os.environ: {env_var}.")
+        deployment_spec.env.append(
+            aip_types.EnvVar(name=env_var, value=os.environ[env_var])
+        )
+
+
+def _generate_deployment_spec_or_raise(
+    *,
+    env_vars: Optional[
+        Union[Sequence[str], Dict[str, Union[str, aip_types.SecretRef]]]
+    ] = None,
+    psc_interface_config: Optional[aip_types.PscInterfaceConfig] = None,
+    min_instances: Optional[int] = None,
+    max_instances: Optional[int] = None,
+    resource_limits: Optional[Dict[str, str]] = None,
+    container_concurrency: Optional[int] = None,
+) -> Tuple[aip_types.ReasoningEngineSpec.DeploymentSpec, List[str]]:
+    deployment_spec = aip_types.ReasoningEngineSpec.DeploymentSpec()
+    update_masks = []
+    if env_vars:
+        deployment_spec.env = []
+        deployment_spec.secret_env = []
+        if isinstance(env_vars, dict):
+            _update_deployment_spec_with_env_vars_dict_or_raise(
+                deployment_spec=deployment_spec,
+                env_vars=env_vars,
+            )
+        elif isinstance(env_vars, (list, tuple)):
+            _update_deployment_spec_with_env_vars_list_or_raise(
+                deployment_spec=deployment_spec,
+                env_vars=env_vars,
+            )
+        else:
+            raise TypeError(
+                f"env_vars must be a list, tuple or a dict, but got {type(env_vars)}."
+            )
+        if deployment_spec.env:
+            update_masks.append("spec.deployment_spec.env")
+        if deployment_spec.secret_env:
+            update_masks.append("spec.deployment_spec.secret_env")
+    if psc_interface_config:
+        deployment_spec.psc_interface_config = psc_interface_config
+        update_masks.append("spec.deployment_spec.psc_interface_config")
+    if min_instances is not None:
+        deployment_spec.min_instances = min_instances
+        update_masks.append("spec.deployment_spec.min_instances")
+    if max_instances is not None:
+        deployment_spec.max_instances = max_instances
+        update_masks.append("spec.deployment_spec.max_instances")
+    if resource_limits:
+        deployment_spec.resource_limits = resource_limits
+        update_masks.append("spec.deployment_spec.resource_limits")
+    if container_concurrency is not None:
+        deployment_spec.container_concurrency = container_concurrency
+        update_masks.append("spec.deployment_spec.container_concurrency")
+    return deployment_spec, update_masks
 
 
 def to_proto(
