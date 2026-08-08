@@ -12370,6 +12370,98 @@ class TestDeleteEvaluationExperiment:
         assert call_args[0][1] == self.experiment_name
 
 
+class TestListEvaluationSets:
+
+    def setup_method(self, method):
+        self.mock_api_client = mock.MagicMock()
+        self.mock_api_client.vertexai = True
+        self.mock_response = mock.MagicMock()
+        self.mock_response.body = json.dumps(
+            {
+                "evaluationSets": [
+                    {
+                        "name": "projects/123/locations/us-central1/evaluationSets/1",
+                        "displayName": "set_1",
+                    },
+                    {
+                        "name": "projects/123/locations/us-central1/evaluationSets/2",
+                        "displayName": "set_2",
+                    },
+                ]
+            }
+        )
+        self.mock_api_client.request.return_value = self.mock_response
+
+    def test_list_evaluation_sets_returns_sets(self):
+        evals_module = evals.Evals(api_client_=self.mock_api_client)
+
+        response = evals_module.list_evaluation_sets()
+
+        assert len(response.evaluation_sets) == 2
+        assert isinstance(
+            response.evaluation_sets[0], agentplatform_genai_types.EvaluationSet
+        )
+        assert response.evaluation_sets[0].display_name == "set_1"
+        assert response.evaluation_sets[1].display_name == "set_2"
+
+    def test_list_evaluation_sets_gets_evaluation_sets_path(self):
+        evals_module = evals.Evals(api_client_=self.mock_api_client)
+
+        evals_module.list_evaluation_sets()
+
+        self.mock_api_client.request.assert_called_once()
+        call_args = self.mock_api_client.request.call_args
+        assert call_args[0][0] == "get"
+        assert call_args[0][1].startswith("evaluationSets")
+
+    def test_list_evaluation_sets_passes_filter_and_order_by(self):
+        evals_module = evals.Evals(api_client_=self.mock_api_client)
+
+        evals_module.list_evaluation_sets(
+            filter='display_name="set_1"', order_by="create_time desc"
+        )
+
+        self.mock_api_client.request.assert_called_once()
+        path = self.mock_api_client.request.call_args[0][1]
+        assert path.startswith("evaluationSets?")
+        assert "orderBy=create_time+desc" in path
+
+
+class TestDeleteEvaluationSet:
+
+    def setup_method(self, method):
+        self.mock_api_client = mock.MagicMock()
+        self.mock_api_client.vertexai = True
+        self.set_name = "projects/123/locations/us-central1/evaluationSets/456"
+        self.mock_response = mock.MagicMock()
+        self.mock_response.body = json.dumps({"name": "operations/789"})
+        self.mock_api_client.request.return_value = self.mock_response
+
+    def test_delete_evaluation_set_uses_delete_and_short_name(self):
+        evals_module = evals.Evals(api_client_=self.mock_api_client)
+
+        evals_module.delete_evaluation_set(name=self.set_name)
+
+        self.mock_api_client.request.assert_called_once()
+        call_args = self.mock_api_client.request.call_args
+        assert call_args[0][0] == "delete"
+        assert call_args[0][1] == "evaluationSets/456"
+
+    def test_delete_evaluation_set_accepts_short_name(self):
+        evals_module = evals.Evals(api_client_=self.mock_api_client)
+
+        evals_module.delete_evaluation_set(name="456")
+
+        call_args = self.mock_api_client.request.call_args
+        assert call_args[0][1] == "evaluationSets/456"
+
+    def test_delete_evaluation_set_raises_on_empty_name(self):
+        evals_module = evals.Evals(api_client_=self.mock_api_client)
+
+        with pytest.raises(ValueError):
+            evals_module.delete_evaluation_set(name="")
+
+
 class TestCreateEvaluationRunAutoExperiment:
 
     def setup_method(self, method):
