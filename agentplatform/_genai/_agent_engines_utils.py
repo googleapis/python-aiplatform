@@ -441,7 +441,11 @@ class _RequirementsValidationResult(TypedDict):
     actions: _RequirementsValidationActions
 
 
-AgentEngineOperationUnion = Union[genai_types.AgentEngineOperation]
+AgentEngineOperationUnion = Union[
+    genai_types.AgentEngineOperation,
+    genai_types.AgentEngineMemoryOperation,
+    genai_types.AgentEngineGenerateMemoriesOperation,
+]
 
 
 class GetOperationFunction(Protocol):

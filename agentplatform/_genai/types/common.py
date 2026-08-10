@@ -10184,252 +10184,6 @@ _UpdateAgentEngineRequestParametersOrDict = Union[
 ]
 
 
-class CreateMemoryBankConfig(_common.BaseModel):
-    """Config for create memory bank."""
-
-    http_options: Optional[genai_types.HttpOptions] = Field(
-        default=None, description="""Used to override HTTP request options."""
-    )
-
-
-class CreateMemoryBankConfigDict(TypedDict, total=False):
-    """Config for create memory bank."""
-
-    http_options: Optional[genai_types.HttpOptions]
-    """Used to override HTTP request options."""
-
-
-CreateMemoryBankConfigOrDict = Union[CreateMemoryBankConfig, CreateMemoryBankConfigDict]
-
-
-class _CreateMemoryBankRequestParameters(_common.BaseModel):
-    """Parameters for creating memory banks."""
-
-    config: Optional[CreateMemoryBankConfig] = Field(default=None, description="""""")
-
-
-class _CreateMemoryBankRequestParametersDict(TypedDict, total=False):
-    """Parameters for creating memory banks."""
-
-    config: Optional[CreateMemoryBankConfigDict]
-    """"""
-
-
-_CreateMemoryBankRequestParametersOrDict = Union[
-    _CreateMemoryBankRequestParameters, _CreateMemoryBankRequestParametersDict
-]
-
-
-class MemoryBank(_common.BaseModel):
-    """A memory bank."""
-
-    name: Optional[str] = Field(
-        default=None,
-        description="""Required. Represents the ID of the schema. Must be 1-63 characters, start with a lowercase letter, and consist of lowercase letters, numbers, and hyphens.""",
-    )
-
-
-class MemoryBankDict(TypedDict, total=False):
-    """A memory bank."""
-
-    name: Optional[str]
-    """Required. Represents the ID of the schema. Must be 1-63 characters, start with a lowercase letter, and consist of lowercase letters, numbers, and hyphens."""
-
-
-MemoryBankOrDict = Union[MemoryBank, MemoryBankDict]
-
-
-class MemoryBankOperation(_common.BaseModel):
-    """Operation that has an memory bank as a response."""
-
-    name: Optional[str] = Field(
-        default=None,
-        description="""The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`.""",
-    )
-    metadata: Optional[dict[str, Any]] = Field(
-        default=None,
-        description="""Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any.""",
-    )
-    done: Optional[bool] = Field(
-        default=None,
-        description="""If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available.""",
-    )
-    error: Optional[dict[str, Any]] = Field(
-        default=None,
-        description="""The error result of the operation in case of failure or cancellation.""",
-    )
-    response: Optional[MemoryBank] = Field(
-        default=None, description="""The created Memory Bank."""
-    )
-
-
-class MemoryBankOperationDict(TypedDict, total=False):
-    """Operation that has an memory bank as a response."""
-
-    name: Optional[str]
-    """The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`."""
-
-    metadata: Optional[dict[str, Any]]
-    """Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any."""
-
-    done: Optional[bool]
-    """If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available."""
-
-    error: Optional[dict[str, Any]]
-    """The error result of the operation in case of failure or cancellation."""
-
-    response: Optional[MemoryBankDict]
-    """The created Memory Bank."""
-
-
-MemoryBankOperationOrDict = Union[MemoryBankOperation, MemoryBankOperationDict]
-
-
-class DeleteMemoryBankConfig(_common.BaseModel):
-    """Config for delete memory bank."""
-
-    http_options: Optional[genai_types.HttpOptions] = Field(
-        default=None, description="""Used to override HTTP request options."""
-    )
-
-
-class DeleteMemoryBankConfigDict(TypedDict, total=False):
-    """Config for delete memory bank."""
-
-    http_options: Optional[genai_types.HttpOptions]
-    """Used to override HTTP request options."""
-
-
-DeleteMemoryBankConfigOrDict = Union[DeleteMemoryBankConfig, DeleteMemoryBankConfigDict]
-
-
-class _DeleteMemoryBankRequestParameters(_common.BaseModel):
-    """Parameters for deleting a memory bank."""
-
-    name: Optional[str] = Field(
-        default=None, description="""Name of the memory bank."""
-    )
-    force: Optional[bool] = Field(
-        default=False,
-        description="""If set to true, any child resources will also be deleted.""",
-    )
-    config: Optional[DeleteMemoryBankConfig] = Field(default=None, description="""""")
-
-
-class _DeleteMemoryBankRequestParametersDict(TypedDict, total=False):
-    """Parameters for deleting a memory bank."""
-
-    name: Optional[str]
-    """Name of the memory bank."""
-
-    force: Optional[bool]
-    """If set to true, any child resources will also be deleted."""
-
-    config: Optional[DeleteMemoryBankConfigDict]
-    """"""
-
-
-_DeleteMemoryBankRequestParametersOrDict = Union[
-    _DeleteMemoryBankRequestParameters, _DeleteMemoryBankRequestParametersDict
-]
-
-
-class DeleteMemoryBankOperation(_common.BaseModel):
-    """Operation for deleting a memory bank."""
-
-    name: Optional[str] = Field(
-        default=None,
-        description="""The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`.""",
-    )
-    metadata: Optional[dict[str, Any]] = Field(
-        default=None,
-        description="""Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any.""",
-    )
-    done: Optional[bool] = Field(
-        default=None,
-        description="""If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available.""",
-    )
-    error: Optional[dict[str, Any]] = Field(
-        default=None,
-        description="""The error result of the operation in case of failure or cancellation.""",
-    )
-
-
-class DeleteMemoryBankOperationDict(TypedDict, total=False):
-    """Operation for deleting a memory bank."""
-
-    name: Optional[str]
-    """The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`."""
-
-    metadata: Optional[dict[str, Any]]
-    """Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any."""
-
-    done: Optional[bool]
-    """If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available."""
-
-    error: Optional[dict[str, Any]]
-    """The error result of the operation in case of failure or cancellation."""
-
-
-DeleteMemoryBankOperationOrDict = Union[
-    DeleteMemoryBankOperation, DeleteMemoryBankOperationDict
-]
-
-
-class IngestionDirectContentsSourceEvent(_common.BaseModel):
-    """The direct contents source event for ingesting events."""
-
-    content: Optional[genai_types.Content] = Field(
-        default=None, description="""Required. The content of the event."""
-    )
-    event_id: Optional[str] = Field(
-        default=None,
-        description="""Optional. A unique identifier for the event. If an event with the same event_id is ingested multiple times, it will be de-duplicated.""",
-    )
-    event_time: Optional[datetime.datetime] = Field(
-        default=None,
-        description="""Optional. The time at which the event occurred. If provided, this timestamp will be used for ordering events within a stream. If not provided, the server-side ingestion time will be used.""",
-    )
-
-
-class IngestionDirectContentsSourceEventDict(TypedDict, total=False):
-    """The direct contents source event for ingesting events."""
-
-    content: Optional[genai_types.Content]
-    """Required. The content of the event."""
-
-    event_id: Optional[str]
-    """Optional. A unique identifier for the event. If an event with the same event_id is ingested multiple times, it will be de-duplicated."""
-
-    event_time: Optional[datetime.datetime]
-    """Optional. The time at which the event occurred. If provided, this timestamp will be used for ordering events within a stream. If not provided, the server-side ingestion time will be used."""
-
-
-IngestionDirectContentsSourceEventOrDict = Union[
-    IngestionDirectContentsSourceEvent, IngestionDirectContentsSourceEventDict
-]
-
-
-class IngestionDirectContentsSource(_common.BaseModel):
-    """The direct contents source for ingesting events."""
-
-    events: Optional[list[IngestionDirectContentsSourceEvent]] = Field(
-        default=None, description="""Required. The events to ingest."""
-    )
-
-
-class IngestionDirectContentsSourceDict(TypedDict, total=False):
-    """The direct contents source for ingesting events."""
-
-    events: Optional[list[IngestionDirectContentsSourceEventDict]]
-    """Required. The events to ingest."""
-
-
-IngestionDirectContentsSourceOrDict = Union[
-    IngestionDirectContentsSource, IngestionDirectContentsSourceDict
-]
-
-
 class MemoryMetadataValue(_common.BaseModel):
     """The metadata values for memories."""
 
@@ -10467,226 +10221,7 @@ class MemoryMetadataValueDict(TypedDict, total=False):
 MemoryMetadataValueOrDict = Union[MemoryMetadataValue, MemoryMetadataValueDict]
 
 
-class IngestEventsConfig(_common.BaseModel):
-    """Config for ingesting events."""
-
-    http_options: Optional[genai_types.HttpOptions] = Field(
-        default=None, description="""Used to override HTTP request options."""
-    )
-    wait_for_completion: Optional[bool] = Field(
-        default=False,
-        description="""Waits for the underlying memory generation operation to complete
-      before returning. Defaults to false.""",
-    )
-    force_flush: Optional[bool] = Field(
-        default=None,
-        description="""Optional. Forces a flush of all pending events in the stream and triggers memory generation immediately bypassing any conditions configured in the `generation_trigger_config`.""",
-    )
-    revision_labels: Optional[dict[str, str]] = Field(
-        default=None,
-        description="""Labels to apply to the memory revision. For example, you can use this to label a revision with its data source.""",
-    )
-    revision_expire_time: Optional[datetime.datetime] = Field(
-        default=None,
-        description="""Optional. Input only. Timestamp of when the revision is considered expired. If not set, the memory revision will be kept until manually deleted.""",
-    )
-    revision_ttl: Optional[str] = Field(
-        default=None,
-        description="""Optional. Input only. The TTL for the revision. The expiration time is computed: now + TTL.""",
-    )
-    disable_memory_revisions: Optional[bool] = Field(
-        default=None,
-        description="""Optional. Input only. If true, no revisions will be created for this request.""",
-    )
-    metadata: Optional[dict[str, MemoryMetadataValue]] = Field(
-        default=None,
-        description="""Optional. User-provided metadata for the generated memories. This is not generated by Memory Bank.""",
-    )
-    metadata_merge_strategy: Optional[MemoryMetadataMergeStrategy] = Field(
-        default=None,
-        description="""Optional. The strategy to use when applying metadata to existing memories.""",
-    )
-
-
-class IngestEventsConfigDict(TypedDict, total=False):
-    """Config for ingesting events."""
-
-    http_options: Optional[genai_types.HttpOptions]
-    """Used to override HTTP request options."""
-
-    wait_for_completion: Optional[bool]
-    """Waits for the underlying memory generation operation to complete
-      before returning. Defaults to false."""
-
-    force_flush: Optional[bool]
-    """Optional. Forces a flush of all pending events in the stream and triggers memory generation immediately bypassing any conditions configured in the `generation_trigger_config`."""
-
-    revision_labels: Optional[dict[str, str]]
-    """Labels to apply to the memory revision. For example, you can use this to label a revision with its data source."""
-
-    revision_expire_time: Optional[datetime.datetime]
-    """Optional. Input only. Timestamp of when the revision is considered expired. If not set, the memory revision will be kept until manually deleted."""
-
-    revision_ttl: Optional[str]
-    """Optional. Input only. The TTL for the revision. The expiration time is computed: now + TTL."""
-
-    disable_memory_revisions: Optional[bool]
-    """Optional. Input only. If true, no revisions will be created for this request."""
-
-    metadata: Optional[dict[str, MemoryMetadataValueDict]]
-    """Optional. User-provided metadata for the generated memories. This is not generated by Memory Bank."""
-
-    metadata_merge_strategy: Optional[MemoryMetadataMergeStrategy]
-    """Optional. The strategy to use when applying metadata to existing memories."""
-
-
-IngestEventsConfigOrDict = Union[IngestEventsConfig, IngestEventsConfigDict]
-
-
-class _IngestEventsRequestParameters(_common.BaseModel):
-    """Parameters for ingesting events to Memory Bank."""
-
-    name: Optional[str] = Field(
-        default=None, description="""Name of the Memory Bank to ingest events into."""
-    )
-    stream_id: Optional[str] = Field(
-        default=None, description="""The ID of the stream to ingest events into."""
-    )
-    direct_contents_source: Optional[IngestionDirectContentsSource] = Field(
-        default=None,
-        description="""The direct memories source of the events that should be ingested.""",
-    )
-    scope: Optional[dict[str, str]] = Field(
-        default=None,
-        description="""The scope of the memories that should be generated from the stream.
-
-      Memories will be consolidated across memories with the same scope. Scope
-      values cannot contain the wildcard character '*'.""",
-    )
-    generation_trigger_config: Optional[MemoryGenerationTriggerConfig] = Field(
-        default=None,
-        description="""The configuration for the memory generation trigger.""",
-    )
-    config: Optional[IngestEventsConfig] = Field(default=None, description="""""")
-
-
-class _IngestEventsRequestParametersDict(TypedDict, total=False):
-    """Parameters for ingesting events to Memory Bank."""
-
-    name: Optional[str]
-    """Name of the Memory Bank to ingest events into."""
-
-    stream_id: Optional[str]
-    """The ID of the stream to ingest events into."""
-
-    direct_contents_source: Optional[IngestionDirectContentsSourceDict]
-    """The direct memories source of the events that should be ingested."""
-
-    scope: Optional[dict[str, str]]
-    """The scope of the memories that should be generated from the stream.
-
-      Memories will be consolidated across memories with the same scope. Scope
-      values cannot contain the wildcard character '*'."""
-
-    generation_trigger_config: Optional[MemoryGenerationTriggerConfigDict]
-    """The configuration for the memory generation trigger."""
-
-    config: Optional[IngestEventsConfigDict]
-    """"""
-
-
-_IngestEventsRequestParametersOrDict = Union[
-    _IngestEventsRequestParameters, _IngestEventsRequestParametersDict
-]
-
-
-class MemoryBankIngestEventsOperation(_common.BaseModel):
-    """Operation that ingests events into a memory bank."""
-
-    name: Optional[str] = Field(
-        default=None,
-        description="""The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`.""",
-    )
-    metadata: Optional[dict[str, Any]] = Field(
-        default=None,
-        description="""Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any.""",
-    )
-    done: Optional[bool] = Field(
-        default=None,
-        description="""If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available.""",
-    )
-    error: Optional[dict[str, Any]] = Field(
-        default=None,
-        description="""The error result of the operation in case of failure or cancellation.""",
-    )
-
-
-class MemoryBankIngestEventsOperationDict(TypedDict, total=False):
-    """Operation that ingests events into a memory bank."""
-
-    name: Optional[str]
-    """The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`."""
-
-    metadata: Optional[dict[str, Any]]
-    """Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any."""
-
-    done: Optional[bool]
-    """If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available."""
-
-    error: Optional[dict[str, Any]]
-    """The error result of the operation in case of failure or cancellation."""
-
-
-MemoryBankIngestEventsOperationOrDict = Union[
-    MemoryBankIngestEventsOperation, MemoryBankIngestEventsOperationDict
-]
-
-
-class GetMemoryBankOperationConfig(_common.BaseModel):
-
-    http_options: Optional[genai_types.HttpOptions] = Field(
-        default=None, description="""Used to override HTTP request options."""
-    )
-
-
-class GetMemoryBankOperationConfigDict(TypedDict, total=False):
-
-    http_options: Optional[genai_types.HttpOptions]
-    """Used to override HTTP request options."""
-
-
-GetMemoryBankOperationConfigOrDict = Union[
-    GetMemoryBankOperationConfig, GetMemoryBankOperationConfigDict
-]
-
-
-class _GetMemoryBankOperationParameters(_common.BaseModel):
-    """Parameters for getting an operation with a memory bank as a response."""
-
-    operation_name: Optional[str] = Field(
-        default=None, description="""The server-assigned name for the operation."""
-    )
-    config: Optional[GetMemoryBankOperationConfig] = Field(
-        default=None, description="""Used to override the default configuration."""
-    )
-
-
-class _GetMemoryBankOperationParametersDict(TypedDict, total=False):
-    """Parameters for getting an operation with a memory bank as a response."""
-
-    operation_name: Optional[str]
-    """The server-assigned name for the operation."""
-
-    config: Optional[GetMemoryBankOperationConfigDict]
-    """Used to override the default configuration."""
-
-
-_GetMemoryBankOperationParametersOrDict = Union[
-    _GetMemoryBankOperationParameters, _GetMemoryBankOperationParametersDict
-]
-
-
-class MemoryConfig(_common.BaseModel):
+class AgentEngineMemoryConfig(_common.BaseModel):
     """Config for creating a Memory."""
 
     http_options: Optional[genai_types.HttpOptions] = Field(
@@ -10737,7 +10272,7 @@ class MemoryConfig(_common.BaseModel):
     )
 
 
-class MemoryConfigDict(TypedDict, total=False):
+class AgentEngineMemoryConfigDict(TypedDict, total=False):
     """Config for creating a Memory."""
 
     http_options: Optional[genai_types.HttpOptions]
@@ -10779,15 +10314,17 @@ class MemoryConfigDict(TypedDict, total=False):
     """Optional. The user defined ID to use for memory, which will become the final component of the memory resource name. If not provided, Vertex AI will generate a value for this ID. This value may be up to 63 characters, and valid characters are `[a-z0-9-]`. The first character must be a letter, and the last character must be a letter or number."""
 
 
-MemoryConfigOrDict = Union[MemoryConfig, MemoryConfigDict]
+AgentEngineMemoryConfigOrDict = Union[
+    AgentEngineMemoryConfig, AgentEngineMemoryConfigDict
+]
 
 
-class _CreateMemoryRequestParameters(_common.BaseModel):
-    """Parameters for creating Memories."""
+class _CreateAgentEngineMemoryRequestParameters(_common.BaseModel):
+    """Parameters for creating Agent Engine Memories."""
 
     name: Optional[str] = Field(
         default=None,
-        description="""Name of the memory bank to create the memory under.""",
+        description="""Name of the agent engine to create the memory under.""",
     )
     fact: Optional[str] = Field(
         default=None,
@@ -10803,14 +10340,14 @@ class _CreateMemoryRequestParameters(_common.BaseModel):
       creating or generating memories. Up to 5 key-value pairs are accepted,
       and scope values cannot contain the wildcard character '*'.""",
     )
-    config: Optional[MemoryConfig] = Field(default=None, description="""""")
+    config: Optional[AgentEngineMemoryConfig] = Field(default=None, description="""""")
 
 
-class _CreateMemoryRequestParametersDict(TypedDict, total=False):
-    """Parameters for creating Memories."""
+class _CreateAgentEngineMemoryRequestParametersDict(TypedDict, total=False):
+    """Parameters for creating Agent Engine Memories."""
 
     name: Optional[str]
-    """Name of the memory bank to create the memory under."""
+    """Name of the agent engine to create the memory under."""
 
     fact: Optional[str]
     """The fact of the memory.
@@ -10824,12 +10361,13 @@ class _CreateMemoryRequestParametersDict(TypedDict, total=False):
       creating or generating memories. Up to 5 key-value pairs are accepted,
       and scope values cannot contain the wildcard character '*'."""
 
-    config: Optional[MemoryConfigDict]
+    config: Optional[AgentEngineMemoryConfigDict]
     """"""
 
 
-_CreateMemoryRequestParametersOrDict = Union[
-    _CreateMemoryRequestParameters, _CreateMemoryRequestParametersDict
+_CreateAgentEngineMemoryRequestParametersOrDict = Union[
+    _CreateAgentEngineMemoryRequestParameters,
+    _CreateAgentEngineMemoryRequestParametersDict,
 ]
 
 
@@ -10991,8 +10529,8 @@ class MemoryDict(TypedDict, total=False):
 MemoryOrDict = Union[Memory, MemoryDict]
 
 
-class MemoryOperation(_common.BaseModel):
-    """Operation that has a memory as a response."""
+class AgentEngineMemoryOperation(_common.BaseModel):
+    """Operation that has an agent engine memory as a response."""
 
     name: Optional[str] = Field(
         default=None,
@@ -11010,11 +10548,13 @@ class MemoryOperation(_common.BaseModel):
         default=None,
         description="""The error result of the operation in case of failure or cancellation.""",
     )
-    response: Optional[Memory] = Field(default=None, description="""The Memory.""")
+    response: Optional[Memory] = Field(
+        default=None, description="""The Agent Engine Memory."""
+    )
 
 
-class MemoryOperationDict(TypedDict, total=False):
-    """Operation that has a memory as a response."""
+class AgentEngineMemoryOperationDict(TypedDict, total=False):
+    """Operation that has an agent engine memory as a response."""
 
     name: Optional[str]
     """The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`."""
@@ -11029,56 +10569,63 @@ class MemoryOperationDict(TypedDict, total=False):
     """The error result of the operation in case of failure or cancellation."""
 
     response: Optional[MemoryDict]
-    """The Memory."""
+    """The Agent Engine Memory."""
 
 
-MemoryOperationOrDict = Union[MemoryOperation, MemoryOperationDict]
+AgentEngineMemoryOperationOrDict = Union[
+    AgentEngineMemoryOperation, AgentEngineMemoryOperationDict
+]
 
 
-class DeleteMemoryConfig(_common.BaseModel):
-    """Config for deleting a Memory."""
+class DeleteAgentEngineMemoryConfig(_common.BaseModel):
+    """Config for deleting an Agent Engine Memory."""
 
     http_options: Optional[genai_types.HttpOptions] = Field(
         default=None, description="""Used to override HTTP request options."""
     )
 
 
-class DeleteMemoryConfigDict(TypedDict, total=False):
-    """Config for deleting a Memory."""
+class DeleteAgentEngineMemoryConfigDict(TypedDict, total=False):
+    """Config for deleting an Agent Engine Memory."""
 
     http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
 
-DeleteMemoryConfigOrDict = Union[DeleteMemoryConfig, DeleteMemoryConfigDict]
-
-
-class _DeleteMemoryRequestParameters(_common.BaseModel):
-    """Parameters for deleting memories."""
-
-    name: Optional[str] = Field(
-        default=None, description="""Name of the memory to delete."""
-    )
-    config: Optional[DeleteMemoryConfig] = Field(default=None, description="""""")
-
-
-class _DeleteMemoryRequestParametersDict(TypedDict, total=False):
-    """Parameters for deleting memories."""
-
-    name: Optional[str]
-    """Name of the memory to delete."""
-
-    config: Optional[DeleteMemoryConfigDict]
-    """"""
-
-
-_DeleteMemoryRequestParametersOrDict = Union[
-    _DeleteMemoryRequestParameters, _DeleteMemoryRequestParametersDict
+DeleteAgentEngineMemoryConfigOrDict = Union[
+    DeleteAgentEngineMemoryConfig, DeleteAgentEngineMemoryConfigDict
 ]
 
 
-class DeleteMemoryOperation(_common.BaseModel):
-    """Operation for deleting memories."""
+class _DeleteAgentEngineMemoryRequestParameters(_common.BaseModel):
+    """Parameters for deleting agent engines."""
+
+    name: Optional[str] = Field(
+        default=None, description="""Name of the agent engine memory to delete."""
+    )
+    config: Optional[DeleteAgentEngineMemoryConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _DeleteAgentEngineMemoryRequestParametersDict(TypedDict, total=False):
+    """Parameters for deleting agent engines."""
+
+    name: Optional[str]
+    """Name of the agent engine memory to delete."""
+
+    config: Optional[DeleteAgentEngineMemoryConfigDict]
+    """"""
+
+
+_DeleteAgentEngineMemoryRequestParametersOrDict = Union[
+    _DeleteAgentEngineMemoryRequestParameters,
+    _DeleteAgentEngineMemoryRequestParametersDict,
+]
+
+
+class DeleteAgentEngineMemoryOperation(_common.BaseModel):
+    """Operation for deleting agent engines."""
 
     name: Optional[str] = Field(
         default=None,
@@ -11098,8 +10645,8 @@ class DeleteMemoryOperation(_common.BaseModel):
     )
 
 
-class DeleteMemoryOperationDict(TypedDict, total=False):
-    """Operation for deleting memories."""
+class DeleteAgentEngineMemoryOperationDict(TypedDict, total=False):
+    """Operation for deleting agent engines."""
 
     name: Optional[str]
     """The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`."""
@@ -11114,7 +10661,9 @@ class DeleteMemoryOperationDict(TypedDict, total=False):
     """The error result of the operation in case of failure or cancellation."""
 
 
-DeleteMemoryOperationOrDict = Union[DeleteMemoryOperation, DeleteMemoryOperationDict]
+DeleteAgentEngineMemoryOperationOrDict = Union[
+    DeleteAgentEngineMemoryOperation, DeleteAgentEngineMemoryOperationDict
+]
 
 
 class GenerateMemoriesRequestVertexSessionSource(_common.BaseModel):
@@ -11252,7 +10801,7 @@ GenerateMemoriesRequestDirectMemoriesSourceOrDict = Union[
 ]
 
 
-class GenerateMemoriesConfig(_common.BaseModel):
+class GenerateAgentEngineMemoriesConfig(_common.BaseModel):
     """Config for generating memories."""
 
     http_options: Optional[genai_types.HttpOptions] = Field(
@@ -11301,7 +10850,7 @@ class GenerateMemoriesConfig(_common.BaseModel):
     )
 
 
-class GenerateMemoriesConfigDict(TypedDict, total=False):
+class GenerateAgentEngineMemoriesConfigDict(TypedDict, total=False):
     """Config for generating memories."""
 
     http_options: Optional[genai_types.HttpOptions]
@@ -11340,15 +10889,17 @@ class GenerateMemoriesConfigDict(TypedDict, total=False):
     """Optional. Restricts memory generation to a subset of memory topics."""
 
 
-GenerateMemoriesConfigOrDict = Union[GenerateMemoriesConfig, GenerateMemoriesConfigDict]
+GenerateAgentEngineMemoriesConfigOrDict = Union[
+    GenerateAgentEngineMemoriesConfig, GenerateAgentEngineMemoriesConfigDict
+]
 
 
-class _GenerateMemoriesRequestParameters(_common.BaseModel):
-    """Parameters for generating memories."""
+class _GenerateAgentEngineMemoriesRequestParameters(_common.BaseModel):
+    """Parameters for generating agent engine memories."""
 
     name: Optional[str] = Field(
         default=None,
-        description="""Name of the Memory Bank to generate memories with.""",
+        description="""Name of the agent engine to generate memories for.""",
     )
     vertex_session_source: Optional[GenerateMemoriesRequestVertexSessionSource] = Field(
         default=None,
@@ -11375,14 +10926,16 @@ class _GenerateMemoriesRequestParameters(_common.BaseModel):
       provided, it will override the scope defined in the source content. Scope
       values cannot contain the wildcard character '*'.""",
     )
-    config: Optional[GenerateMemoriesConfig] = Field(default=None, description="""""")
+    config: Optional[GenerateAgentEngineMemoriesConfig] = Field(
+        default=None, description=""""""
+    )
 
 
-class _GenerateMemoriesRequestParametersDict(TypedDict, total=False):
-    """Parameters for generating memories."""
+class _GenerateAgentEngineMemoriesRequestParametersDict(TypedDict, total=False):
+    """Parameters for generating agent engine memories."""
 
     name: Optional[str]
-    """Name of the Memory Bank to generate memories with."""
+    """Name of the agent engine to generate memories for."""
 
     vertex_session_source: Optional[GenerateMemoriesRequestVertexSessionSourceDict]
     """The vertex session source of the memories that should be generated."""
@@ -11401,12 +10954,13 @@ class _GenerateMemoriesRequestParametersDict(TypedDict, total=False):
       provided, it will override the scope defined in the source content. Scope
       values cannot contain the wildcard character '*'."""
 
-    config: Optional[GenerateMemoriesConfigDict]
+    config: Optional[GenerateAgentEngineMemoriesConfigDict]
     """"""
 
 
-_GenerateMemoriesRequestParametersOrDict = Union[
-    _GenerateMemoriesRequestParameters, _GenerateMemoriesRequestParametersDict
+_GenerateAgentEngineMemoriesRequestParametersOrDict = Union[
+    _GenerateAgentEngineMemoriesRequestParameters,
+    _GenerateAgentEngineMemoriesRequestParametersDict,
 ]
 
 
@@ -11471,8 +11025,8 @@ GenerateMemoriesResponseOrDict = Union[
 ]
 
 
-class GenerateMemoriesOperation(_common.BaseModel):
-    """Operation that generates memories with a Memory Bank."""
+class AgentEngineGenerateMemoriesOperation(_common.BaseModel):
+    """Operation that generates memories for an agent engine."""
 
     name: Optional[str] = Field(
         default=None,
@@ -11495,8 +11049,8 @@ class GenerateMemoriesOperation(_common.BaseModel):
     )
 
 
-class GenerateMemoriesOperationDict(TypedDict, total=False):
-    """Operation that generates memories with a Memory Bank."""
+class AgentEngineGenerateMemoriesOperationDict(TypedDict, total=False):
+    """Operation that generates memories for an agent engine."""
 
     name: Optional[str]
     """The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`."""
@@ -11514,53 +11068,288 @@ class GenerateMemoriesOperationDict(TypedDict, total=False):
     """The response for generating memories."""
 
 
-GenerateMemoriesOperationOrDict = Union[
-    GenerateMemoriesOperation, GenerateMemoriesOperationDict
+AgentEngineGenerateMemoriesOperationOrDict = Union[
+    AgentEngineGenerateMemoriesOperation, AgentEngineGenerateMemoriesOperationDict
 ]
 
 
-class GetMemoryConfig(_common.BaseModel):
-    """Config for getting a Memory."""
+class GetAgentEngineMemoryConfig(_common.BaseModel):
+    """Config for getting an Agent Engine Memory."""
 
     http_options: Optional[genai_types.HttpOptions] = Field(
         default=None, description="""Used to override HTTP request options."""
     )
 
 
-class GetMemoryConfigDict(TypedDict, total=False):
-    """Config for getting a Memory."""
+class GetAgentEngineMemoryConfigDict(TypedDict, total=False):
+    """Config for getting an Agent Engine Memory."""
 
     http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
 
-GetMemoryConfigOrDict = Union[GetMemoryConfig, GetMemoryConfigDict]
-
-
-class _GetMemoryRequestParameters(_common.BaseModel):
-    """Parameters for getting a Memory."""
-
-    name: Optional[str] = Field(default=None, description="""Name of the memory.""")
-    config: Optional[GetMemoryConfig] = Field(default=None, description="""""")
-
-
-class _GetMemoryRequestParametersDict(TypedDict, total=False):
-    """Parameters for getting a Memory."""
-
-    name: Optional[str]
-    """Name of the memory."""
-
-    config: Optional[GetMemoryConfigDict]
-    """"""
-
-
-_GetMemoryRequestParametersOrDict = Union[
-    _GetMemoryRequestParameters, _GetMemoryRequestParametersDict
+GetAgentEngineMemoryConfigOrDict = Union[
+    GetAgentEngineMemoryConfig, GetAgentEngineMemoryConfigDict
 ]
 
 
-class ListMemoriesConfig(_common.BaseModel):
-    """Config for listing memories."""
+class _GetAgentEngineMemoryRequestParameters(_common.BaseModel):
+    """Parameters for getting an agent engine."""
+
+    name: Optional[str] = Field(
+        default=None, description="""Name of the agent engine."""
+    )
+    config: Optional[GetAgentEngineMemoryConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _GetAgentEngineMemoryRequestParametersDict(TypedDict, total=False):
+    """Parameters for getting an agent engine."""
+
+    name: Optional[str]
+    """Name of the agent engine."""
+
+    config: Optional[GetAgentEngineMemoryConfigDict]
+    """"""
+
+
+_GetAgentEngineMemoryRequestParametersOrDict = Union[
+    _GetAgentEngineMemoryRequestParameters, _GetAgentEngineMemoryRequestParametersDict
+]
+
+
+class IngestionDirectContentsSourceEvent(_common.BaseModel):
+    """The direct contents source event for ingesting events."""
+
+    content: Optional[genai_types.Content] = Field(
+        default=None, description="""Required. The content of the event."""
+    )
+    event_id: Optional[str] = Field(
+        default=None,
+        description="""Optional. A unique identifier for the event. If an event with the same event_id is ingested multiple times, it will be de-duplicated.""",
+    )
+    event_time: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Optional. The time at which the event occurred. If provided, this timestamp will be used for ordering events within a stream. If not provided, the server-side ingestion time will be used.""",
+    )
+
+
+class IngestionDirectContentsSourceEventDict(TypedDict, total=False):
+    """The direct contents source event for ingesting events."""
+
+    content: Optional[genai_types.Content]
+    """Required. The content of the event."""
+
+    event_id: Optional[str]
+    """Optional. A unique identifier for the event. If an event with the same event_id is ingested multiple times, it will be de-duplicated."""
+
+    event_time: Optional[datetime.datetime]
+    """Optional. The time at which the event occurred. If provided, this timestamp will be used for ordering events within a stream. If not provided, the server-side ingestion time will be used."""
+
+
+IngestionDirectContentsSourceEventOrDict = Union[
+    IngestionDirectContentsSourceEvent, IngestionDirectContentsSourceEventDict
+]
+
+
+class IngestionDirectContentsSource(_common.BaseModel):
+    """The direct contents source for ingesting events."""
+
+    events: Optional[list[IngestionDirectContentsSourceEvent]] = Field(
+        default=None, description="""Required. The events to ingest."""
+    )
+
+
+class IngestionDirectContentsSourceDict(TypedDict, total=False):
+    """The direct contents source for ingesting events."""
+
+    events: Optional[list[IngestionDirectContentsSourceEventDict]]
+    """Required. The events to ingest."""
+
+
+IngestionDirectContentsSourceOrDict = Union[
+    IngestionDirectContentsSource, IngestionDirectContentsSourceDict
+]
+
+
+class IngestEventsConfig(_common.BaseModel):
+    """Config for ingesting events."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    wait_for_completion: Optional[bool] = Field(
+        default=False,
+        description="""Waits for the underlying memory generation operation to complete
+      before returning. Defaults to false.""",
+    )
+    force_flush: Optional[bool] = Field(
+        default=None,
+        description="""Optional. Forces a flush of all pending events in the stream and triggers memory generation immediately bypassing any conditions configured in the `generation_trigger_config`.""",
+    )
+    revision_labels: Optional[dict[str, str]] = Field(
+        default=None,
+        description="""Labels to apply to the memory revision. For example, you can use this to label a revision with its data source.""",
+    )
+    revision_expire_time: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Optional. Input only. Timestamp of when the revision is considered expired. If not set, the memory revision will be kept until manually deleted.""",
+    )
+    revision_ttl: Optional[str] = Field(
+        default=None,
+        description="""Optional. Input only. The TTL for the revision. The expiration time is computed: now + TTL.""",
+    )
+    disable_memory_revisions: Optional[bool] = Field(
+        default=None,
+        description="""Optional. Input only. If true, no revisions will be created for this request.""",
+    )
+    metadata: Optional[dict[str, MemoryMetadataValue]] = Field(
+        default=None,
+        description="""Optional. User-provided metadata for the generated memories. This is not generated by Memory Bank.""",
+    )
+    metadata_merge_strategy: Optional[MemoryMetadataMergeStrategy] = Field(
+        default=None,
+        description="""Optional. The strategy to use when applying metadata to existing memories.""",
+    )
+
+
+class IngestEventsConfigDict(TypedDict, total=False):
+    """Config for ingesting events."""
+
+    http_options: Optional[genai_types.HttpOptions]
+    """Used to override HTTP request options."""
+
+    wait_for_completion: Optional[bool]
+    """Waits for the underlying memory generation operation to complete
+      before returning. Defaults to false."""
+
+    force_flush: Optional[bool]
+    """Optional. Forces a flush of all pending events in the stream and triggers memory generation immediately bypassing any conditions configured in the `generation_trigger_config`."""
+
+    revision_labels: Optional[dict[str, str]]
+    """Labels to apply to the memory revision. For example, you can use this to label a revision with its data source."""
+
+    revision_expire_time: Optional[datetime.datetime]
+    """Optional. Input only. Timestamp of when the revision is considered expired. If not set, the memory revision will be kept until manually deleted."""
+
+    revision_ttl: Optional[str]
+    """Optional. Input only. The TTL for the revision. The expiration time is computed: now + TTL."""
+
+    disable_memory_revisions: Optional[bool]
+    """Optional. Input only. If true, no revisions will be created for this request."""
+
+    metadata: Optional[dict[str, MemoryMetadataValueDict]]
+    """Optional. User-provided metadata for the generated memories. This is not generated by Memory Bank."""
+
+    metadata_merge_strategy: Optional[MemoryMetadataMergeStrategy]
+    """Optional. The strategy to use when applying metadata to existing memories."""
+
+
+IngestEventsConfigOrDict = Union[IngestEventsConfig, IngestEventsConfigDict]
+
+
+class _IngestEventsRequestParameters(_common.BaseModel):
+    """Parameters for purging agent engine memories."""
+
+    name: Optional[str] = Field(
+        default=None, description="""Name of the Agent Engine to ingest events into."""
+    )
+    stream_id: Optional[str] = Field(
+        default=None, description="""The ID of the stream to ingest events into."""
+    )
+    direct_contents_source: Optional[IngestionDirectContentsSource] = Field(
+        default=None,
+        description="""The direct memories source of the events that should be ingested.""",
+    )
+    scope: Optional[dict[str, str]] = Field(
+        default=None,
+        description="""The scope of the memories that should be generated from the stream.
+
+      Memories will be consolidated across memories with the same scope. Scope
+      values cannot contain the wildcard character '*'.""",
+    )
+    generation_trigger_config: Optional[MemoryGenerationTriggerConfig] = Field(
+        default=None,
+        description="""The configuration for the memory generation trigger.""",
+    )
+    config: Optional[IngestEventsConfig] = Field(default=None, description="""""")
+
+
+class _IngestEventsRequestParametersDict(TypedDict, total=False):
+    """Parameters for purging agent engine memories."""
+
+    name: Optional[str]
+    """Name of the Agent Engine to ingest events into."""
+
+    stream_id: Optional[str]
+    """The ID of the stream to ingest events into."""
+
+    direct_contents_source: Optional[IngestionDirectContentsSourceDict]
+    """The direct memories source of the events that should be ingested."""
+
+    scope: Optional[dict[str, str]]
+    """The scope of the memories that should be generated from the stream.
+
+      Memories will be consolidated across memories with the same scope. Scope
+      values cannot contain the wildcard character '*'."""
+
+    generation_trigger_config: Optional[MemoryGenerationTriggerConfigDict]
+    """The configuration for the memory generation trigger."""
+
+    config: Optional[IngestEventsConfigDict]
+    """"""
+
+
+_IngestEventsRequestParametersOrDict = Union[
+    _IngestEventsRequestParameters, _IngestEventsRequestParametersDict
+]
+
+
+class MemoryBankIngestEventsOperation(_common.BaseModel):
+    """Operation that ingests events into a memory bank."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`.""",
+    )
+    metadata: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any.""",
+    )
+    done: Optional[bool] = Field(
+        default=None,
+        description="""If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available.""",
+    )
+    error: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""The error result of the operation in case of failure or cancellation.""",
+    )
+
+
+class MemoryBankIngestEventsOperationDict(TypedDict, total=False):
+    """Operation that ingests events into a memory bank."""
+
+    name: Optional[str]
+    """The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`."""
+
+    metadata: Optional[dict[str, Any]]
+    """Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any."""
+
+    done: Optional[bool]
+    """If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available."""
+
+    error: Optional[dict[str, Any]]
+    """The error result of the operation in case of failure or cancellation."""
+
+
+MemoryBankIngestEventsOperationOrDict = Union[
+    MemoryBankIngestEventsOperation, MemoryBankIngestEventsOperationDict
+]
+
+
+class ListAgentEngineMemoryConfig(_common.BaseModel):
+    """Config for listing agent engine memories."""
 
     http_options: Optional[genai_types.HttpOptions] = Field(
         default=None, description="""Used to override HTTP request options."""
@@ -11585,8 +11374,8 @@ class ListMemoriesConfig(_common.BaseModel):
     )
 
 
-class ListMemoriesConfigDict(TypedDict, total=False):
-    """Config for listing memories."""
+class ListAgentEngineMemoryConfigDict(TypedDict, total=False):
+    """Config for listing agent engine memories."""
 
     http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
@@ -11612,47 +11401,51 @@ class ListMemoriesConfigDict(TypedDict, total=False):
       * `update_time`"""
 
 
-ListMemoriesConfigOrDict = Union[ListMemoriesConfig, ListMemoriesConfigDict]
-
-
-class _ListMemoriesRequestParameters(_common.BaseModel):
-    """Parameters for listing memories."""
-
-    name: Optional[str] = Field(
-        default=None, description="""Name of the Memory Bank."""
-    )
-    config: Optional[ListMemoriesConfig] = Field(default=None, description="""""")
-
-
-class _ListMemoriesRequestParametersDict(TypedDict, total=False):
-    """Parameters for listing memories."""
-
-    name: Optional[str]
-    """Name of the Memory Bank."""
-
-    config: Optional[ListMemoriesConfigDict]
-    """"""
-
-
-_ListMemoriesRequestParametersOrDict = Union[
-    _ListMemoriesRequestParameters, _ListMemoriesRequestParametersDict
+ListAgentEngineMemoryConfigOrDict = Union[
+    ListAgentEngineMemoryConfig, ListAgentEngineMemoryConfigDict
 ]
 
 
-class ListMemoriesResponse(_common.BaseModel):
-    """Response for listing memories."""
+class _ListAgentEngineMemoryRequestParameters(_common.BaseModel):
+    """Parameters for listing agent engines."""
+
+    name: Optional[str] = Field(
+        default=None, description="""Name of the agent engine."""
+    )
+    config: Optional[ListAgentEngineMemoryConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _ListAgentEngineMemoryRequestParametersDict(TypedDict, total=False):
+    """Parameters for listing agent engines."""
+
+    name: Optional[str]
+    """Name of the agent engine."""
+
+    config: Optional[ListAgentEngineMemoryConfigDict]
+    """"""
+
+
+_ListAgentEngineMemoryRequestParametersOrDict = Union[
+    _ListAgentEngineMemoryRequestParameters, _ListAgentEngineMemoryRequestParametersDict
+]
+
+
+class ListReasoningEnginesMemoriesResponse(_common.BaseModel):
+    """Response for listing agent engine memories."""
 
     sdk_http_response: Optional[genai_types.HttpResponse] = Field(
         default=None, description="""Used to retain the full HTTP response."""
     )
     next_page_token: Optional[str] = Field(default=None, description="""""")
     memories: Optional[list[Memory]] = Field(
-        default=None, description="""List of memories."""
+        default=None, description="""List of agent engine memories."""
     )
 
 
-class ListMemoriesResponseDict(TypedDict, total=False):
-    """Response for listing memories."""
+class ListReasoningEnginesMemoriesResponseDict(TypedDict, total=False):
+    """Response for listing agent engine memories."""
 
     sdk_http_response: Optional[genai_types.HttpResponse]
     """Used to retain the full HTTP response."""
@@ -11661,61 +11454,65 @@ class ListMemoriesResponseDict(TypedDict, total=False):
     """"""
 
     memories: Optional[list[MemoryDict]]
-    """List of memories."""
+    """List of agent engine memories."""
 
 
-ListMemoriesResponseOrDict = Union[ListMemoriesResponse, ListMemoriesResponseDict]
-
-
-class _GetMemoryOperationParameters(_common.BaseModel):
-    """Parameters for getting an operation with a memory as a response."""
-
-    operation_name: Optional[str] = Field(
-        default=None, description="""The server-assigned name for the operation."""
-    )
-    config: Optional[GetMemoryBankOperationConfig] = Field(
-        default=None, description="""Used to override the default configuration."""
-    )
-
-
-class _GetMemoryOperationParametersDict(TypedDict, total=False):
-    """Parameters for getting an operation with a memory as a response."""
-
-    operation_name: Optional[str]
-    """The server-assigned name for the operation."""
-
-    config: Optional[GetMemoryBankOperationConfigDict]
-    """Used to override the default configuration."""
-
-
-_GetMemoryOperationParametersOrDict = Union[
-    _GetMemoryOperationParameters, _GetMemoryOperationParametersDict
+ListReasoningEnginesMemoriesResponseOrDict = Union[
+    ListReasoningEnginesMemoriesResponse, ListReasoningEnginesMemoriesResponseDict
 ]
 
 
-class _GetGenerateMemoriesOperationParameters(_common.BaseModel):
+class _GetAgentEngineMemoryOperationParameters(_common.BaseModel):
+    """Parameters for getting an operation with a memory as a response."""
+
+    operation_name: Optional[str] = Field(
+        default=None, description="""The server-assigned name for the operation."""
+    )
+    config: Optional[GetAgentEngineOperationConfig] = Field(
+        default=None, description="""Used to override the default configuration."""
+    )
+
+
+class _GetAgentEngineMemoryOperationParametersDict(TypedDict, total=False):
+    """Parameters for getting an operation with a memory as a response."""
+
+    operation_name: Optional[str]
+    """The server-assigned name for the operation."""
+
+    config: Optional[GetAgentEngineOperationConfigDict]
+    """Used to override the default configuration."""
+
+
+_GetAgentEngineMemoryOperationParametersOrDict = Union[
+    _GetAgentEngineMemoryOperationParameters,
+    _GetAgentEngineMemoryOperationParametersDict,
+]
+
+
+class _GetAgentEngineGenerateMemoriesOperationParameters(_common.BaseModel):
     """Parameters for getting an operation with generated memories as a response."""
 
     operation_name: Optional[str] = Field(
         default=None, description="""The server-assigned name for the operation."""
     )
-    config: Optional[GetMemoryBankOperationConfig] = Field(
+    config: Optional[GetAgentEngineOperationConfig] = Field(
         default=None, description="""Used to override the default configuration."""
     )
 
 
-class _GetGenerateMemoriesOperationParametersDict(TypedDict, total=False):
+class _GetAgentEngineGenerateMemoriesOperationParametersDict(TypedDict, total=False):
     """Parameters for getting an operation with generated memories as a response."""
 
     operation_name: Optional[str]
     """The server-assigned name for the operation."""
 
-    config: Optional[GetMemoryBankOperationConfigDict]
+    config: Optional[GetAgentEngineOperationConfigDict]
     """Used to override the default configuration."""
 
 
-_GetGenerateMemoriesOperationParametersOrDict = Union[
-    _GetGenerateMemoriesOperationParameters, _GetGenerateMemoriesOperationParametersDict
+_GetAgentEngineGenerateMemoriesOperationParametersOrDict = Union[
+    _GetAgentEngineGenerateMemoriesOperationParameters,
+    _GetAgentEngineGenerateMemoriesOperationParametersDict,
 ]
 
 
@@ -11836,7 +11633,7 @@ MemoryConjunctionFilterOrDict = Union[
 ]
 
 
-class RetrieveMemoriesConfig(_common.BaseModel):
+class RetrieveAgentEngineMemoriesConfig(_common.BaseModel):
     """Config for retrieving memories."""
 
     http_options: Optional[genai_types.HttpOptions] = Field(
@@ -11879,7 +11676,7 @@ class RetrieveMemoriesConfig(_common.BaseModel):
     )
 
 
-class RetrieveMemoriesConfigDict(TypedDict, total=False):
+class RetrieveAgentEngineMemoriesConfigDict(TypedDict, total=False):
     """Config for retrieving memories."""
 
     http_options: Optional[genai_types.HttpOptions]
@@ -11918,15 +11715,17 @@ class RetrieveMemoriesConfigDict(TypedDict, total=False):
       retrieve memories matching any of the specified `MemoryType` values."""
 
 
-RetrieveMemoriesConfigOrDict = Union[RetrieveMemoriesConfig, RetrieveMemoriesConfigDict]
+RetrieveAgentEngineMemoriesConfigOrDict = Union[
+    RetrieveAgentEngineMemoriesConfig, RetrieveAgentEngineMemoriesConfigDict
+]
 
 
-class _RetrieveMemoriesRequestParameters(_common.BaseModel):
-    """Parameters for retrieving memories."""
+class _RetrieveAgentEngineMemoriesRequestParameters(_common.BaseModel):
+    """Parameters for retrieving agent engine memories."""
 
     name: Optional[str] = Field(
         default=None,
-        description="""Name of the Memory Bank to retrieve memories from.""",
+        description="""Name of the agent engine to retrieve memories from.""",
     )
     scope: Optional[dict[str, str]] = Field(
         default=None,
@@ -11948,14 +11747,16 @@ class _RetrieveMemoriesRequestParameters(_common.BaseModel):
             description="""Parameters for simple (non-similarity search) retrieval.""",
         )
     )
-    config: Optional[RetrieveMemoriesConfig] = Field(default=None, description="""""")
+    config: Optional[RetrieveAgentEngineMemoriesConfig] = Field(
+        default=None, description=""""""
+    )
 
 
-class _RetrieveMemoriesRequestParametersDict(TypedDict, total=False):
-    """Parameters for retrieving memories."""
+class _RetrieveAgentEngineMemoriesRequestParametersDict(TypedDict, total=False):
+    """Parameters for retrieving agent engine memories."""
 
     name: Optional[str]
-    """Name of the Memory Bank to retrieve memories from."""
+    """Name of the agent engine to retrieve memories from."""
 
     scope: Optional[dict[str, str]]
     """The scope of the memories to retrieve.
@@ -11972,12 +11773,13 @@ class _RetrieveMemoriesRequestParametersDict(TypedDict, total=False):
     simple_retrieval_params: Optional[RetrieveMemoriesRequestSimpleRetrievalParamsDict]
     """Parameters for simple (non-similarity search) retrieval."""
 
-    config: Optional[RetrieveMemoriesConfigDict]
+    config: Optional[RetrieveAgentEngineMemoriesConfigDict]
     """"""
 
 
-_RetrieveMemoriesRequestParametersOrDict = Union[
-    _RetrieveMemoriesRequestParameters, _RetrieveMemoriesRequestParametersDict
+_RetrieveAgentEngineMemoriesRequestParametersOrDict = Union[
+    _RetrieveAgentEngineMemoriesRequestParameters,
+    _RetrieveAgentEngineMemoriesRequestParametersDict,
 ]
 
 
@@ -12056,11 +11858,11 @@ RetrieveMemoryProfilesConfigOrDict = Union[
 
 
 class _RetrieveMemoryProfilesRequestParameters(_common.BaseModel):
-    """Parameters for retrieving memory profiles."""
+    """Parameters for retrieving agent engine memory profiles."""
 
     name: Optional[str] = Field(
         default=None,
-        description="""Name of the Memory Bank to retrieve memory profiles from.""",
+        description="""Name of the agent engine to retrieve memory profiles from.""",
     )
     scope: Optional[dict[str, str]] = Field(
         default=None,
@@ -12076,10 +11878,10 @@ class _RetrieveMemoryProfilesRequestParameters(_common.BaseModel):
 
 
 class _RetrieveMemoryProfilesRequestParametersDict(TypedDict, total=False):
-    """Parameters for retrieving memory profiles."""
+    """Parameters for retrieving agent engine memory profiles."""
 
     name: Optional[str]
-    """Name of the Memory Bank to retrieve memory profiles from."""
+    """Name of the agent engine to retrieve memory profiles from."""
 
     scope: Optional[dict[str, str]]
     """The scope of the memories to retrieve.
@@ -12150,7 +11952,7 @@ RetrieveProfilesResponseOrDict = Union[
 ]
 
 
-class RollbackMemoryConfig(_common.BaseModel):
+class RollbackAgentEngineMemoryConfig(_common.BaseModel):
     """Config for rolling back a memory."""
 
     http_options: Optional[genai_types.HttpOptions] = Field(
@@ -12162,7 +11964,7 @@ class RollbackMemoryConfig(_common.BaseModel):
     )
 
 
-class RollbackMemoryConfigDict(TypedDict, total=False):
+class RollbackAgentEngineMemoryConfigDict(TypedDict, total=False):
     """Config for rolling back a memory."""
 
     http_options: Optional[genai_types.HttpOptions]
@@ -12172,40 +11974,45 @@ class RollbackMemoryConfigDict(TypedDict, total=False):
     """Waits for the operation to complete before returning."""
 
 
-RollbackMemoryConfigOrDict = Union[RollbackMemoryConfig, RollbackMemoryConfigDict]
+RollbackAgentEngineMemoryConfigOrDict = Union[
+    RollbackAgentEngineMemoryConfig, RollbackAgentEngineMemoryConfigDict
+]
 
 
-class _RollbackMemoryRequestParameters(_common.BaseModel):
-    """Parameters for generating memories."""
+class _RollbackAgentEngineMemoryRequestParameters(_common.BaseModel):
+    """Parameters for generating agent engine memories."""
 
     name: Optional[str] = Field(
-        default=None, description="""Name of the memory to rollback."""
+        default=None, description="""Name of the agent engine memory to rollback."""
     )
     target_revision_id: Optional[str] = Field(
         default=None, description="""The ID of the revision to rollback to."""
     )
-    config: Optional[RollbackMemoryConfig] = Field(default=None, description="""""")
+    config: Optional[RollbackAgentEngineMemoryConfig] = Field(
+        default=None, description=""""""
+    )
 
 
-class _RollbackMemoryRequestParametersDict(TypedDict, total=False):
-    """Parameters for generating memories."""
+class _RollbackAgentEngineMemoryRequestParametersDict(TypedDict, total=False):
+    """Parameters for generating agent engine memories."""
 
     name: Optional[str]
-    """Name of the memory to rollback."""
+    """Name of the agent engine memory to rollback."""
 
     target_revision_id: Optional[str]
     """The ID of the revision to rollback to."""
 
-    config: Optional[RollbackMemoryConfigDict]
+    config: Optional[RollbackAgentEngineMemoryConfigDict]
     """"""
 
 
-_RollbackMemoryRequestParametersOrDict = Union[
-    _RollbackMemoryRequestParameters, _RollbackMemoryRequestParametersDict
+_RollbackAgentEngineMemoryRequestParametersOrDict = Union[
+    _RollbackAgentEngineMemoryRequestParameters,
+    _RollbackAgentEngineMemoryRequestParametersDict,
 ]
 
 
-class RollbackMemoryOperation(_common.BaseModel):
+class AgentEngineRollbackMemoryOperation(_common.BaseModel):
     """Operation that rolls back a memory."""
 
     name: Optional[str] = Field(
@@ -12226,7 +12033,7 @@ class RollbackMemoryOperation(_common.BaseModel):
     )
 
 
-class RollbackMemoryOperationDict(TypedDict, total=False):
+class AgentEngineRollbackMemoryOperationDict(TypedDict, total=False):
     """Operation that rolls back a memory."""
 
     name: Optional[str]
@@ -12242,13 +12049,13 @@ class RollbackMemoryOperationDict(TypedDict, total=False):
     """The error result of the operation in case of failure or cancellation."""
 
 
-RollbackMemoryOperationOrDict = Union[
-    RollbackMemoryOperation, RollbackMemoryOperationDict
+AgentEngineRollbackMemoryOperationOrDict = Union[
+    AgentEngineRollbackMemoryOperation, AgentEngineRollbackMemoryOperationDict
 ]
 
 
-class UpdateMemoryConfig(_common.BaseModel):
-    """Config for updating a memory."""
+class UpdateAgentEngineMemoryConfig(_common.BaseModel):
+    """Config for updating agent engine memory."""
 
     http_options: Optional[genai_types.HttpOptions] = Field(
         default=None, description="""Used to override HTTP request options."""
@@ -12303,8 +12110,8 @@ class UpdateMemoryConfig(_common.BaseModel):
     )
 
 
-class UpdateMemoryConfigDict(TypedDict, total=False):
-    """Config for updating a memory."""
+class UpdateAgentEngineMemoryConfigDict(TypedDict, total=False):
+    """Config for updating agent engine memory."""
 
     http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
@@ -12349,14 +12156,16 @@ class UpdateMemoryConfigDict(TypedDict, total=False):
       https://protobuf.dev/reference/protobuf/google.protobuf/#field-mask."""
 
 
-UpdateMemoryConfigOrDict = Union[UpdateMemoryConfig, UpdateMemoryConfigDict]
+UpdateAgentEngineMemoryConfigOrDict = Union[
+    UpdateAgentEngineMemoryConfig, UpdateAgentEngineMemoryConfigDict
+]
 
 
-class _UpdateMemoryRequestParameters(_common.BaseModel):
-    """Parameters for updating memories."""
+class _UpdateAgentEngineMemoryRequestParameters(_common.BaseModel):
+    """Parameters for updating agent engine memories."""
 
     name: Optional[str] = Field(
-        default=None, description="""Name of the memory to update."""
+        default=None, description="""Name of the agent engine memory to update."""
     )
     fact: Optional[str] = Field(
         default=None,
@@ -12372,14 +12181,16 @@ class _UpdateMemoryRequestParameters(_common.BaseModel):
       creating or generating memories. Up to 5 key-value pairs are accepted,
       and scope values cannot contain the wildcard character '*'.""",
     )
-    config: Optional[UpdateMemoryConfig] = Field(default=None, description="""""")
+    config: Optional[UpdateAgentEngineMemoryConfig] = Field(
+        default=None, description=""""""
+    )
 
 
-class _UpdateMemoryRequestParametersDict(TypedDict, total=False):
-    """Parameters for updating memories."""
+class _UpdateAgentEngineMemoryRequestParametersDict(TypedDict, total=False):
+    """Parameters for updating agent engine memories."""
 
     name: Optional[str]
-    """Name of the memory to update."""
+    """Name of the agent engine memory to update."""
 
     fact: Optional[str]
     """The updated fact of the memory.
@@ -12393,16 +12204,17 @@ class _UpdateMemoryRequestParametersDict(TypedDict, total=False):
       creating or generating memories. Up to 5 key-value pairs are accepted,
       and scope values cannot contain the wildcard character '*'."""
 
-    config: Optional[UpdateMemoryConfigDict]
+    config: Optional[UpdateAgentEngineMemoryConfigDict]
     """"""
 
 
-_UpdateMemoryRequestParametersOrDict = Union[
-    _UpdateMemoryRequestParameters, _UpdateMemoryRequestParametersDict
+_UpdateAgentEngineMemoryRequestParametersOrDict = Union[
+    _UpdateAgentEngineMemoryRequestParameters,
+    _UpdateAgentEngineMemoryRequestParametersDict,
 ]
 
 
-class PurgeMemoriesConfig(_common.BaseModel):
+class PurgeAgentEngineMemoriesConfig(_common.BaseModel):
     """Config for purging memories."""
 
     http_options: Optional[genai_types.HttpOptions] = Field(
@@ -12414,7 +12226,7 @@ class PurgeMemoriesConfig(_common.BaseModel):
     )
 
 
-class PurgeMemoriesConfigDict(TypedDict, total=False):
+class PurgeAgentEngineMemoriesConfigDict(TypedDict, total=False):
     """Config for purging memories."""
 
     http_options: Optional[genai_types.HttpOptions]
@@ -12424,14 +12236,16 @@ class PurgeMemoriesConfigDict(TypedDict, total=False):
     """Waits for the operation to complete before returning."""
 
 
-PurgeMemoriesConfigOrDict = Union[PurgeMemoriesConfig, PurgeMemoriesConfigDict]
+PurgeAgentEngineMemoriesConfigOrDict = Union[
+    PurgeAgentEngineMemoriesConfig, PurgeAgentEngineMemoriesConfigDict
+]
 
 
-class _PurgeMemoriesRequestParameters(_common.BaseModel):
-    """Parameters for purging memories."""
+class _PurgeAgentEngineMemoriesRequestParameters(_common.BaseModel):
+    """Parameters for purging agent engine memories."""
 
     name: Optional[str] = Field(
-        default=None, description="""Name of the Memory Bank to purge memories from."""
+        default=None, description="""Name of the Agent Engine to purge memories from."""
     )
     filter: Optional[str] = Field(
         default=None,
@@ -12459,14 +12273,16 @@ class _PurgeMemoriesRequestParameters(_common.BaseModel):
         default=None,
         description="""If true, the memories will actually be purged. If false, the purge request will be validated but not executed.""",
     )
-    config: Optional[PurgeMemoriesConfig] = Field(default=None, description="""""")
+    config: Optional[PurgeAgentEngineMemoriesConfig] = Field(
+        default=None, description=""""""
+    )
 
 
-class _PurgeMemoriesRequestParametersDict(TypedDict, total=False):
-    """Parameters for purging memories."""
+class _PurgeAgentEngineMemoriesRequestParametersDict(TypedDict, total=False):
+    """Parameters for purging agent engine memories."""
 
     name: Optional[str]
-    """Name of the Memory Bank to purge memories from."""
+    """Name of the Agent Engine to purge memories from."""
 
     filter: Optional[str]
     """The standard list filter to determine which memories to purge.
@@ -12491,12 +12307,13 @@ class _PurgeMemoriesRequestParametersDict(TypedDict, total=False):
     force: Optional[bool]
     """If true, the memories will actually be purged. If false, the purge request will be validated but not executed."""
 
-    config: Optional[PurgeMemoriesConfigDict]
+    config: Optional[PurgeAgentEngineMemoriesConfigDict]
     """"""
 
 
-_PurgeMemoriesRequestParametersOrDict = Union[
-    _PurgeMemoriesRequestParameters, _PurgeMemoriesRequestParametersDict
+_PurgeAgentEngineMemoriesRequestParametersOrDict = Union[
+    _PurgeAgentEngineMemoriesRequestParameters,
+    _PurgeAgentEngineMemoriesRequestParametersDict,
 ]
 
 
@@ -12518,8 +12335,8 @@ class PurgeMemoriesResponseDict(TypedDict, total=False):
 PurgeMemoriesResponseOrDict = Union[PurgeMemoriesResponse, PurgeMemoriesResponseDict]
 
 
-class PurgeMemoriesOperation(_common.BaseModel):
-    """Operation that purges memories from a Memory Bank."""
+class AgentEnginePurgeMemoriesOperation(_common.BaseModel):
+    """Operation that purges memories from an agent engine."""
 
     name: Optional[str] = Field(
         default=None,
@@ -12542,8 +12359,8 @@ class PurgeMemoriesOperation(_common.BaseModel):
     )
 
 
-class PurgeMemoriesOperationDict(TypedDict, total=False):
-    """Operation that purges memories from a Memory Bank."""
+class AgentEnginePurgeMemoriesOperationDict(TypedDict, total=False):
+    """Operation that purges memories from an agent engine."""
 
     name: Optional[str]
     """The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`."""
@@ -12561,50 +12378,55 @@ class PurgeMemoriesOperationDict(TypedDict, total=False):
     """The response for purging memories."""
 
 
-PurgeMemoriesOperationOrDict = Union[PurgeMemoriesOperation, PurgeMemoriesOperationDict]
+AgentEnginePurgeMemoriesOperationOrDict = Union[
+    AgentEnginePurgeMemoriesOperation, AgentEnginePurgeMemoriesOperationDict
+]
 
 
-class GetMemoryRevisionConfig(_common.BaseModel):
-    """Config for getting a Memory Revision."""
+class GetAgentEngineMemoryRevisionConfig(_common.BaseModel):
+    """Config for getting an Agent Engine Memory Revision."""
 
     http_options: Optional[genai_types.HttpOptions] = Field(
         default=None, description="""Used to override HTTP request options."""
     )
 
 
-class GetMemoryRevisionConfigDict(TypedDict, total=False):
-    """Config for getting a Memory Revision."""
+class GetAgentEngineMemoryRevisionConfigDict(TypedDict, total=False):
+    """Config for getting an Agent Engine Memory Revision."""
 
     http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
 
-GetMemoryRevisionConfigOrDict = Union[
-    GetMemoryRevisionConfig, GetMemoryRevisionConfigDict
+GetAgentEngineMemoryRevisionConfigOrDict = Union[
+    GetAgentEngineMemoryRevisionConfig, GetAgentEngineMemoryRevisionConfigDict
 ]
 
 
-class _GetMemoryRevisionRequestParameters(_common.BaseModel):
-    """Parameters for getting a memory revision."""
+class _GetAgentEngineMemoryRevisionRequestParameters(_common.BaseModel):
+    """Parameters for getting an Agent Engine memory revision."""
 
     name: Optional[str] = Field(
-        default=None, description="""Name of the Memory Revision."""
+        default=None, description="""Name of the agent engine."""
     )
-    config: Optional[GetMemoryRevisionConfig] = Field(default=None, description="""""")
+    config: Optional[GetAgentEngineMemoryRevisionConfig] = Field(
+        default=None, description=""""""
+    )
 
 
-class _GetMemoryRevisionRequestParametersDict(TypedDict, total=False):
-    """Parameters for getting a memory revision."""
+class _GetAgentEngineMemoryRevisionRequestParametersDict(TypedDict, total=False):
+    """Parameters for getting an Agent Engine memory revision."""
 
     name: Optional[str]
-    """Name of the Memory Revision."""
+    """Name of the agent engine."""
 
-    config: Optional[GetMemoryRevisionConfigDict]
+    config: Optional[GetAgentEngineMemoryRevisionConfigDict]
     """"""
 
 
-_GetMemoryRevisionRequestParametersOrDict = Union[
-    _GetMemoryRevisionRequestParameters, _GetMemoryRevisionRequestParametersDict
+_GetAgentEngineMemoryRevisionRequestParametersOrDict = Union[
+    _GetAgentEngineMemoryRevisionRequestParameters,
+    _GetAgentEngineMemoryRevisionRequestParametersDict,
 ]
 
 
@@ -12704,8 +12526,8 @@ class MemoryRevisionDict(TypedDict, total=False):
 MemoryRevisionOrDict = Union[MemoryRevision, MemoryRevisionDict]
 
 
-class ListMemoryRevisionsConfig(_common.BaseModel):
-    """Config for listing memory revisions."""
+class ListAgentEngineMemoryRevisionsConfig(_common.BaseModel):
+    """Config for listing Agent Engine memory revisions."""
 
     http_options: Optional[genai_types.HttpOptions] = Field(
         default=None, description="""Used to override HTTP request options."""
@@ -12719,8 +12541,8 @@ class ListMemoryRevisionsConfig(_common.BaseModel):
     )
 
 
-class ListMemoryRevisionsConfigDict(TypedDict, total=False):
-    """Config for listing memory revisions."""
+class ListAgentEngineMemoryRevisionsConfigDict(TypedDict, total=False):
+    """Config for listing Agent Engine memory revisions."""
 
     http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
@@ -12736,37 +12558,40 @@ class ListMemoryRevisionsConfigDict(TypedDict, total=False):
       For field names both snake_case and camelCase are supported."""
 
 
-ListMemoryRevisionsConfigOrDict = Union[
-    ListMemoryRevisionsConfig, ListMemoryRevisionsConfigDict
+ListAgentEngineMemoryRevisionsConfigOrDict = Union[
+    ListAgentEngineMemoryRevisionsConfig, ListAgentEngineMemoryRevisionsConfigDict
 ]
 
 
-class _ListMemoryRevisionsRequestParameters(_common.BaseModel):
-    """Parameters for listing memory revisions."""
+class _ListAgentEngineMemoryRevisionsRequestParameters(_common.BaseModel):
+    """Parameters for listing Agent Engine memory revisions."""
 
-    name: Optional[str] = Field(default=None, description="""Name of the memory""")
-    config: Optional[ListMemoryRevisionsConfig] = Field(
+    name: Optional[str] = Field(
+        default=None, description="""Name of the Agent Engine memory"""
+    )
+    config: Optional[ListAgentEngineMemoryRevisionsConfig] = Field(
         default=None, description=""""""
     )
 
 
-class _ListMemoryRevisionsRequestParametersDict(TypedDict, total=False):
-    """Parameters for listing memory revisions."""
+class _ListAgentEngineMemoryRevisionsRequestParametersDict(TypedDict, total=False):
+    """Parameters for listing Agent Engine memory revisions."""
 
     name: Optional[str]
-    """Name of the memory"""
+    """Name of the Agent Engine memory"""
 
-    config: Optional[ListMemoryRevisionsConfigDict]
+    config: Optional[ListAgentEngineMemoryRevisionsConfigDict]
     """"""
 
 
-_ListMemoryRevisionsRequestParametersOrDict = Union[
-    _ListMemoryRevisionsRequestParameters, _ListMemoryRevisionsRequestParametersDict
+_ListAgentEngineMemoryRevisionsRequestParametersOrDict = Union[
+    _ListAgentEngineMemoryRevisionsRequestParameters,
+    _ListAgentEngineMemoryRevisionsRequestParametersDict,
 ]
 
 
-class ListMemoryRevisionsResponse(_common.BaseModel):
-    """Response for listing memory revisions."""
+class ListAgentEngineMemoryRevisionsResponse(_common.BaseModel):
+    """Response for listing agent engine memory revisions."""
 
     sdk_http_response: Optional[genai_types.HttpResponse] = Field(
         default=None, description="""Used to retain the full HTTP response."""
@@ -12777,8 +12602,8 @@ class ListMemoryRevisionsResponse(_common.BaseModel):
     )
 
 
-class ListMemoryRevisionsResponseDict(TypedDict, total=False):
-    """Response for listing memory revisions."""
+class ListAgentEngineMemoryRevisionsResponseDict(TypedDict, total=False):
+    """Response for listing agent engine memory revisions."""
 
     sdk_http_response: Optional[genai_types.HttpResponse]
     """Used to retain the full HTTP response."""
@@ -12790,8 +12615,8 @@ class ListMemoryRevisionsResponseDict(TypedDict, total=False):
     """List of memory revisions."""
 
 
-ListMemoryRevisionsResponseOrDict = Union[
-    ListMemoryRevisionsResponse, ListMemoryRevisionsResponseDict
+ListAgentEngineMemoryRevisionsResponseOrDict = Union[
+    ListAgentEngineMemoryRevisionsResponse, ListAgentEngineMemoryRevisionsResponseDict
 ]
 
 

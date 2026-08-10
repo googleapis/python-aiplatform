@@ -19,7 +19,10 @@ from agentplatform._genai import types
 
 
 def test_generate_and_retrieve_profile(client):
-    # TODO: Switch to Memory Bank for creation once it supports configs.
+    # TODO: Use prod once available.
+    client._api_client._http_options.base_url = (
+        "https://us-central1-autopush-aiplatform.sandbox.googleapis.com"
+    )
     customization_config = {"disable_natural_language_memories": True}
     memory_bank_customization_config = types.MemoryBankCustomizationConfig(
         **customization_config
@@ -41,7 +44,7 @@ def test_generate_and_retrieve_profile(client):
     structured_memory_config_obj = types.StructuredMemoryConfig(
         **structured_memory_config
     )
-    memory_bank = client.agent_engines.create(
+    agent_engine = client.agent_engines.create(
         config={
             "context_spec": {
                 "memory_bank_config": {
@@ -53,8 +56,8 @@ def test_generate_and_retrieve_profile(client):
         },
     )
     try:
-        memory_bank = client.agent_engines.get(name=memory_bank.api_resource.name)
-        memory_bank_config = memory_bank.api_resource.context_spec.memory_bank_config
+        agent_engine = client.agent_engines.get(name=agent_engine.api_resource.name)
+        memory_bank_config = agent_engine.api_resource.context_spec.memory_bank_config
         assert memory_bank_config.customization_configs == [
             memory_bank_customization_config
         ]
@@ -63,16 +66,16 @@ def test_generate_and_retrieve_profile(client):
         ]
 
         scope = {"user_id": "123"}
-        client.memory_banks.memories.generate(
-            name=memory_bank.api_resource.name,
+        client.agent_engines.memories.generate(
+            name=agent_engine.api_resource.name,
             scope=scope,
             direct_contents_source={
                 "events": [{"content": {"parts": [{"text": "My name is Kim."}]}}]
             },
         )
         memories = list(
-            client.memory_banks.memories.retrieve(
-                name=memory_bank.api_resource.name,
+            client.agent_engines.memories.retrieve(
+                name=agent_engine.api_resource.name,
                 scope=scope,
                 config={"memory_types": ["STRUCTURED_PROFILE"]},
             )
@@ -80,18 +83,18 @@ def test_generate_and_retrieve_profile(client):
         assert len(memories) >= 1
         assert memories[0].memory.structured_content is not None
 
-        response = client.memory_banks.memories.retrieve_profiles(
-            name=memory_bank.api_resource.name, scope=scope
+        response = client.agent_engines.memories.retrieve_profiles(
+            name=agent_engine.api_resource.name, scope=scope
         )
         assert len(response.profiles) == 1
 
     finally:
         # Clean up resources.
-        client.memory_banks.delete(name=memory_bank.api_resource.name, force=True)
+        client.agent_engines.delete(name=agent_engine.api_resource.name, force=True)
 
 
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
-    test_method="memory_banks.memories.retrieve_profiles",
+    test_method="agent_engines.retrieve_profiles",
 )
