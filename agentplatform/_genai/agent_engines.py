@@ -2512,6 +2512,7 @@ class AgentEngines(_api_module.BaseModule):
                         raise ValueError(
                             f"Failed to convert agent card to dict (serialization error): {e}"
                         ) from e
+                    update_masks.append("spec.agent_card")
             update_masks.append("spec.agent_framework")
 
         if identity_type is not None or service_account is not None:
