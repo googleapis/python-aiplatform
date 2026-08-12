@@ -80,7 +80,7 @@ class TestSandbox:
         mock_sandbox = mock.Mock()
         mock_sandbox.connection_info.load_balancer_ip = None
         mock_sandbox.connection_info.load_balancer_hostname = (
-            "test-us-central1.sandbox.vertexai.goog"
+            "test-us-central1.example.vertexai.goog"
         )
         mock_sandbox.connection_info.routing_token = "test_routing_token"
         mock_http_client = mock_get_api_client.return_value
@@ -100,7 +100,7 @@ class TestSandbox:
         _, kwargs = call_args
         http_options = kwargs["http_options"]
         assert http_options.base_url == (
-            "https://test-us-central1.sandbox.vertexai.goog/test/path"
+            "https://test-us-central1.example.vertexai.goog/test/path"
         )
         assert http_options.headers["Authorization"] == "Bearer test_token"
 
@@ -116,7 +116,7 @@ class TestSandbox:
         mock_sandbox = mock.Mock()
         mock_sandbox.connection_info.load_balancer_ip = None
         mock_sandbox.connection_info.load_balancer_hostname = (
-            "test-us-central1.sandbox.vertexai.goog"
+            "test-us-central1.example.vertexai.goog"
         )
         mock_sandbox.connection_info.routing_token = "test_routing_token"
         mock_http_client = mock_get_api_client.return_value
@@ -130,7 +130,7 @@ class TestSandbox:
                 timeout=3600,
             )
         )
-        assert ws_url == "wss://test-us-central1.sandbox.vertexai.goog/test/endpoint"
+        assert ws_url == "wss://test-us-central1.example.vertexai.goog/test/endpoint"
         assert (
             headers["Sec-WebSocket-Protocol"]
             == "v1.stream, test_token, test_routing_token, 9222"

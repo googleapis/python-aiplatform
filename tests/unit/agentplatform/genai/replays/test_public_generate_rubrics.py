@@ -182,7 +182,7 @@ def test_public_method_generate_rubrics_with_metric(client):
     """Tests the public generate_rubrics method with a metric."""
     client._api_client._http_options.api_version = "v1beta1"
     client._api_client._http_options.base_url = (
-        "https://us-central1-staging-aiplatform.sandbox.googleapis.com/"
+        "https://us-central1-aiplatform.googleapis.com/"
     )
     metric_resource_name = "projects/977012026409/locations/us-central1/evaluationMetrics/6048334299558576128"
     metric = types.Metric(
