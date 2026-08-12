@@ -1031,6 +1031,9 @@ from .common import ReasoningEngineRuntimeRevision
 from .common import ReasoningEngineRuntimeRevisionDict
 from .common import ReasoningEngineRuntimeRevisionOrDict
 from .common import ReasoningEngineSpec
+from .common import ReasoningEngineSpecBuildSpec
+from .common import ReasoningEngineSpecBuildSpecDict
+from .common import ReasoningEngineSpecBuildSpecOrDict
 from .common import ReasoningEngineSpecContainerSpec
 from .common import ReasoningEngineSpecContainerSpecDict
 from .common import ReasoningEngineSpecContainerSpecOrDict
@@ -2082,6 +2085,9 @@ __all__ = [
     "ReasoningEngineSpecContainerSpec",
     "ReasoningEngineSpecContainerSpecDict",
     "ReasoningEngineSpecContainerSpecOrDict",
+    "ReasoningEngineSpecBuildSpec",
+    "ReasoningEngineSpecBuildSpecDict",
+    "ReasoningEngineSpecBuildSpecOrDict",
     "ReasoningEngineSpec",
     "ReasoningEngineSpecDict",
     "ReasoningEngineSpecOrDict",
