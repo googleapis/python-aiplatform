@@ -187,6 +187,9 @@ def _CreateEvaluationSetParameters_to_vertex(
     if getv(from_object, ["config"]) is not None:
         setv(to_object, ["config"], getv(from_object, ["config"]))
 
+    if getv(from_object, ["encryption_spec"]) is not None:
+        setv(to_object, ["encryptionSpec"], getv(from_object, ["encryption_spec"]))
+
     return to_object
 
 
@@ -1514,6 +1517,7 @@ class Evals(_api_module.BaseModule):
         evaluation_items: list[str],
         display_name: Optional[str] = None,
         config: Optional[types.CreateEvaluationSetConfigOrDict] = None,
+        encryption_spec: Optional[genai_types.EncryptionSpecOrDict] = None,
     ) -> types.EvaluationSet:
         """
         Creates an EvaluationSet.
@@ -1523,6 +1527,7 @@ class Evals(_api_module.BaseModule):
             evaluation_items=evaluation_items,
             display_name=display_name,
             config=config,
+            encryption_spec=encryption_spec,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -3527,18 +3532,20 @@ class Evals(_api_module.BaseModule):
         Returns:
           The evaluation item.
         """
-        return self._create_evaluation_item(
+        result = self._create_evaluation_item(
             evaluation_item_type=evaluation_item_type,
             gcs_uri=gcs_uri,
             display_name=display_name,
             config=config,
         )
+        return result
 
     def create_evaluation_set(
         self,
         *,
         evaluation_items: list[str],
         display_name: Optional[str] = None,
+        encryption_spec: Optional[genai_types.EncryptionSpecOrDict] = None,
         config: Optional[types.CreateEvaluationSetConfigOrDict] = None,
     ) -> types.EvaluationSet:
         """Creates an EvaluationSet.
@@ -3547,17 +3554,21 @@ class Evals(_api_module.BaseModule):
           evaluation_items: The list of evaluation item names. Format:
             `projects/{project}/locations/{location}/evaluationItems/{evaluation_item}`
           display_name: The display name of the evaluation set.
+          encryption_spec: Customer-managed encryption key spec. If set, this
+            EvaluationSet will be secured by the provided key.
           config: The optional configuration for the evaluation set. Must be a dict or
               `types.CreateEvaluationSetConfigOrDict` type.
 
         Returns:
           The evaluation set.
         """
-        return self._create_evaluation_set(
+        result = self._create_evaluation_set(
             evaluation_items=evaluation_items,
             display_name=display_name,
+            encryption_spec=encryption_spec,
             config=config,
         )
+        return result
 
     def generate_conversation_scenarios(
         self,
@@ -4164,6 +4175,7 @@ class AsyncEvals(_api_module.BaseModule):
         evaluation_items: list[str],
         display_name: Optional[str] = None,
         config: Optional[types.CreateEvaluationSetConfigOrDict] = None,
+        encryption_spec: Optional[genai_types.EncryptionSpecOrDict] = None,
     ) -> types.EvaluationSet:
         """
         Creates an EvaluationSet.
@@ -4173,6 +4185,7 @@ class AsyncEvals(_api_module.BaseModule):
             evaluation_items=evaluation_items,
             display_name=display_name,
             config=config,
+            encryption_spec=encryption_spec,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -5828,6 +5841,7 @@ class AsyncEvals(_api_module.BaseModule):
         *,
         evaluation_items: list[str],
         display_name: Optional[str] = None,
+        encryption_spec: Optional[genai_types.EncryptionSpecOrDict] = None,
         config: Optional[types.CreateEvaluationSetConfigOrDict] = None,
     ) -> types.EvaluationSet:
         """Creates an EvaluationSet.
@@ -5836,6 +5850,8 @@ class AsyncEvals(_api_module.BaseModule):
           evaluation_items: The list of evaluation item names. Format:
             `projects/{project}/locations/{location}/evaluationItems/{evaluation_item}`
           display_name: The display name of the evaluation set.
+          encryption_spec: Customer-managed encryption key spec. If set, this
+            EvaluationSet will be secured by the provided key.
           config: The optional configuration for the evaluation set. Must be a dict or
               `types.CreateEvaluationSetConfigOrDict` type.
 
@@ -5845,6 +5861,7 @@ class AsyncEvals(_api_module.BaseModule):
         result = await self._create_evaluation_set(
             evaluation_items=evaluation_items,
             display_name=display_name,
+            encryption_spec=encryption_spec,
             config=config,
         )
         return result
