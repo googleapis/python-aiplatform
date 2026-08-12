@@ -170,6 +170,9 @@ def _CreateEvaluationRunParameters_to_vertex(
             getv(from_object, ["evaluation_experiment"]),
         )
 
+    if getv(from_object, ["encryption_spec"]) is not None:
+        setv(to_object, ["encryptionSpec"], getv(from_object, ["encryption_spec"]))
+
     return to_object
 
 
@@ -676,6 +679,9 @@ def _EvaluationRun_from_vertex(
             ["analysis_configs"],
             [item for item in getv(from_object, ["analysisConfigs"])],
         )
+
+    if getv(from_object, ["encryptionSpec"]) is not None:
+        setv(to_object, ["encryption_spec"], getv(from_object, ["encryptionSpec"]))
 
     return to_object
 
@@ -1434,6 +1440,7 @@ class Evals(_api_module.BaseModule):
         config: Optional[types.CreateEvaluationRunConfigOrDict] = None,
         analysis_configs: Optional[list[types.AnalysisConfigOrDict]] = None,
         evaluation_experiment: Optional[str] = None,
+        encryption_spec: Optional[genai_types.EncryptionSpecOrDict] = None,
     ) -> types.EvaluationRun:
         """
         Creates an EvaluationRun.
@@ -1449,6 +1456,7 @@ class Evals(_api_module.BaseModule):
             config=config,
             analysis_configs=analysis_configs,
             evaluation_experiment=evaluation_experiment,
+            encryption_spec=encryption_spec,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -3249,69 +3257,70 @@ class Evals(_api_module.BaseModule):
         loss_analysis_metrics: Optional[list[Union[str, types.MetricOrDict]]] = None,
         loss_analysis_configs: Optional[list[types.LossAnalysisConfigOrDict]] = None,
         red_teaming_config: Optional[types.RedTeamingAnalysisConfigOrDict] = None,
+        encryption_spec: Optional[genai_types.EncryptionSpecOrDict] = None,
         config: Optional[types.CreateEvaluationRunConfigOrDict] = None,
     ) -> types.EvaluationRun:
         """Creates an EvaluationRun.
 
         Args:
-          dataset: The dataset to evaluate. Either an EvaluationRunDataSource or an EvaluationDataset.
-          dest: The GCS URI prefix to write the evaluation results to.
-          metrics: The list of metrics to evaluate.
-          name: The name of the evaluation run.
-          display_name: The display name of the evaluation run.
-          evaluation_experiment: The resource name of an existing
-              EvaluationExperiment to group this run under. If omitted, a new
-              EvaluationExperiment is created automatically so the run is visible in
-              the Agent Platform UI. Pass an existing experiment name to group
-              multiple runs together.
-          agent_info: The agent info to evaluate. Mutually exclusive with
-              `inference_configs`.
-          agent: The agent resource name in str type. Accepts either an Agent
-              Engine resource name
-              `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine_id}`
-              or a Gemini Agent (Vertex AI Agent) resource name
-              `projects/{project}/locations/{location}/agents/{agent}`. When a Gemini
-              Agent resource is provided, the backend scrapes the agent to produce
-              agent responses. If an Agent Engine resource name is provided, runs
-              inference with the deployed agent to get agent responses for evaluation.
-              The `agent` parameter is required if `agent_info` is provided.
-          user_simulator_config: The user simulator configuration for agent evaluation.
-              If `agent_info` is provided without `inference_configs`, this config is used
-              to automatically construct the inference configuration. If not specified,
-              or if `max_turn` is not set, `max_turn` defaults to 5.
-              The `model_name` inside this config can be either a full model path or a
-              short model name, e.g. `gemini-3-preview-flash`.
-          inference_configs: The candidate to inference config map for the evaluation run.
-              The key is the candidate name, and the value is the inference config.
-              If provided, `agent_info` must be None. If omitted and `agent_info` is provided,
-              this will be automatically constructed using `agent_info` and `user_simulator_config`.
-              The `model` field of an inference config accepts a short Gemini model
-              name (e.g. `gemini-2.5-flash`), which is automatically expanded to a
-              fully-qualified resource name using the client's project and location,
-              or an already fully-qualified publisher-model or endpoint resource
-              name.
-              Example:
-              {"candidate-1": types.EvaluationRunInferenceConfig(model="gemini-2.5-flash")}
-          labels: The labels to apply to the evaluation run.
-          loss_analysis_metrics: This field is experimental and may change in future
-              versions. Optional list of metrics to run loss analysis on. The
-              candidate is auto-inferred from ``inference_configs`` or
-              ``agent_info`` when there is exactly one candidate. Each metric can be
-              a string (e.g., ``"multi_turn_task_success_v1"``), a ``Metric``
-              object, or a ``RubricMetric`` enum
-              (e.g., ``types.RubricMetric.MULTI_TURN_TASK_SUCCESS``). Loss analysis
-              runs after metric calculation completes.
-              Mutually exclusive with ``loss_analysis_configs``.
-              Example::
+           dataset: The dataset to evaluate. Either an EvaluationRunDataSource or an EvaluationDataset.
+           dest: The GCS URI prefix to write the evaluation results to.
+           metrics: The list of metrics to evaluate.
+           name: The name of the evaluation run.
+           display_name: The display name of the evaluation run.
+           evaluation_experiment: The resource name of an existing
+               EvaluationExperiment to group this run under. If omitted, a new
+               EvaluationExperiment is created automatically so the run is visible in
+               the Agent Platform UI. Pass an existing experiment name to group
+               multiple runs together.
+           agent_info: The agent info to evaluate. Mutually exclusive with
+               `inference_configs`.
+           agent: The agent resource name in str type. Accepts either an Agent
+               Engine resource name
+               `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine_id}`
+               or a Gemini Agent (Vertex AI Agent) resource name
+               `projects/{project}/locations/{location}/agents/{agent}`. When a Gemini
+               Agent resource is provided, the backend scrapes the agent to produce
+               agent responses. If an Agent Engine resource name is provided, runs
+               inference with the deployed agent to get agent responses for evaluation.
+               The `agent` parameter is required if `agent_info` is provided.
+           user_simulator_config: The user simulator configuration for agent evaluation.
+               If `agent_info` is provided without `inference_configs`, this config is used
+               to automatically construct the inference configuration. If not specified,
+               or if `max_turn` is not set, `max_turn` defaults to 5.
+               The `model_name` inside this config can be either a full model path or a
+               short model name, e.g. `gemini-3-preview-flash`.
+           inference_configs: The candidate to inference config map for the evaluation run.
+               The key is the candidate name, and the value is the inference config.
+               If provided, `agent_info` must be None. If omitted and `agent_info` is provided,
+               this will be automatically constructed using `agent_info` and `user_simulator_config`.
+               The `model` field of an inference config accepts a short Gemini model
+               name (e.g. `gemini-2.5-flash`), which is automatically expanded to a
+               fully-qualified resource name using the client's project and location,
+               or an already fully-qualified publisher-model or endpoint resource
+               name.
+               Example:
+               {"candidate-1": types.EvaluationRunInferenceConfig(model="gemini-2.5-flash")}
+           labels: The labels to apply to the evaluation run.
+           loss_analysis_metrics: This field is experimental and may change in future
+               versions. Optional list of metrics to run loss analysis on. The
+               candidate is auto-inferred from ``inference_configs`` or
+               ``agent_info`` when there is exactly one candidate. Each metric can be
+               a string (e.g., ``"multi_turn_task_success_v1"``), a ``Metric``
+               object, or a ``RubricMetric`` enum
+               (e.g., ``types.RubricMetric.MULTI_TURN_TASK_SUCCESS``). Loss analysis
+               runs after metric calculation completes.
+               Mutually exclusive with ``loss_analysis_configs``.
+               Example::
 
-                  loss_analysis_metrics=[
-                      types.RubricMetric.MULTI_TURN_TASK_SUCCESS,
-                      types.RubricMetric.MULTI_TURN_TOOL_USE_QUALITY,
-                  ]
-          loss_analysis_configs: This field is experimental and may change in future
-              versions. Optional list of ``LossAnalysisConfig`` objects for full
-              control over loss analysis, including explicit candidate and
-              advanced options like ``predefined_taxonomy`` and
+                   loss_analysis_metrics=[
+                       types.RubricMetric.MULTI_TURN_TASK_SUCCESS,
+                       types.RubricMetric.MULTI_TURN_TOOL_USE_QUALITY,
+                   ]
+           loss_analysis_configs: This field is experimental and may change in future
+               versions. Optional list of ``LossAnalysisConfig`` objects for full
+               control over loss analysis, including explicit candidate and
+               advanced options like ``predefined_taxonomy`` and
               ``max_top_cluster_count``. Mutually exclusive with
               ``loss_analysis_metrics``.
           config: The configuration for the evaluation run.
@@ -3443,6 +3452,7 @@ class Evals(_api_module.BaseModule):
             inference_configs=resolved_inference_configs,
             analysis_configs=resolved_analysis_configs,
             labels=resolved_labels,
+            encryption_spec=encryption_spec,
             config=config,
         )
 
@@ -4090,6 +4100,7 @@ class AsyncEvals(_api_module.BaseModule):
         config: Optional[types.CreateEvaluationRunConfigOrDict] = None,
         analysis_configs: Optional[list[types.AnalysisConfigOrDict]] = None,
         evaluation_experiment: Optional[str] = None,
+        encryption_spec: Optional[genai_types.EncryptionSpecOrDict] = None,
     ) -> types.EvaluationRun:
         """
         Creates an EvaluationRun.
@@ -4105,6 +4116,7 @@ class AsyncEvals(_api_module.BaseModule):
             config=config,
             analysis_configs=analysis_configs,
             evaluation_experiment=evaluation_experiment,
+            encryption_spec=encryption_spec,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -5540,6 +5552,7 @@ class AsyncEvals(_api_module.BaseModule):
         labels: Optional[dict[str, str]] = None,
         loss_analysis_metrics: Optional[list[Union[str, types.MetricOrDict]]] = None,
         loss_analysis_configs: Optional[list[types.LossAnalysisConfigOrDict]] = None,
+        encryption_spec: Optional[genai_types.EncryptionSpecOrDict] = None,
         config: Optional[types.CreateEvaluationRunConfigOrDict] = None,
     ) -> types.EvaluationRun:
         """Creates an EvaluationRun.
@@ -5735,6 +5748,7 @@ class AsyncEvals(_api_module.BaseModule):
             inference_configs=resolved_inference_configs,
             analysis_configs=resolved_analysis_configs,
             labels=resolved_labels,
+            encryption_spec=encryption_spec,
             config=config,
         )
 

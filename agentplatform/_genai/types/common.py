@@ -3194,6 +3194,11 @@ class _CreateEvaluationRunParameters(_common.BaseModel):
       belongs to. Format:
       `projects/{project}/locations/{location}/evaluationExperiments/{evaluation_experiment}`.""",
     )
+    encryption_spec: Optional[genai_types.EncryptionSpec] = Field(
+        default=None,
+        description="""Customer-managed encryption key spec for this EvaluationRun.
+      If set, this EvaluationRun will be secured by this key.""",
+    )
 
 
 class _CreateEvaluationRunParametersDict(TypedDict, total=False):
@@ -3227,6 +3232,10 @@ class _CreateEvaluationRunParametersDict(TypedDict, total=False):
     """The resource name of the parent EvaluationExperiment that this run
       belongs to. Format:
       `projects/{project}/locations/{location}/evaluationExperiments/{evaluation_experiment}`."""
+
+    encryption_spec: Optional[genai_types.EncryptionSpec]
+    """Customer-managed encryption key spec for this EvaluationRun.
+      If set, this EvaluationRun will be secured by this key."""
 
 
 _CreateEvaluationRunParametersOrDict = Union[
@@ -4115,6 +4124,11 @@ class EvaluationRun(_common.BaseModel):
         default=None,
         description="""The analysis configurations for the evaluation run.""",
     )
+    encryption_spec: Optional[genai_types.EncryptionSpec] = Field(
+        default=None,
+        description="""Customer-managed encryption key spec for this EvaluationRun.
+      If set, this EvaluationRun will be secured by this key.""",
+    )
 
     # TODO(b/448806531): Remove all the overridden _from_response methods once the
     # ticket is resolved and published.
@@ -4217,6 +4231,10 @@ class EvaluationRunDict(TypedDict, total=False):
 
     analysis_configs: Optional[list[AnalysisConfigDict]]
     """The analysis configurations for the evaluation run."""
+
+    encryption_spec: Optional[genai_types.EncryptionSpec]
+    """Customer-managed encryption key spec for this EvaluationRun.
+      If set, this EvaluationRun will be secured by this key."""
 
 
 EvaluationRunOrDict = Union[EvaluationRun, EvaluationRunDict]
