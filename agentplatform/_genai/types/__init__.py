@@ -56,6 +56,7 @@ from .common import _DeleteAgentEngineSandboxRequestParameters
 from .common import _DeleteAgentEngineSessionRequestParameters
 from .common import _DeleteAgentEngineTaskRequestParameters
 from .common import _DeleteDatasetRequestParameters
+from .common import _DeleteEndpointRequestParameters
 from .common import _DeleteEvaluationExperimentParameters
 from .common import _DeleteEvaluationMetricParameters
 from .common import _DeleteMultimodalDatasetRequestParameters
@@ -93,6 +94,8 @@ from .common import _GetDatasetOperationParameters
 from .common import _GetDatasetParameters
 from .common import _GetDatasetVersionParameters
 from .common import _GetDeleteAgentEngineRuntimeRevisionOperationParameters
+from .common import _GetEndpointOperationParameters
+from .common import _GetEndpointParameters
 from .common import _GetEvaluationExperimentParameters
 from .common import _GetEvaluationItemParameters
 from .common import _GetEvaluationMetricParameters
@@ -144,6 +147,7 @@ from .common import _ListSkillRevisionsRequestParameters
 from .common import _ListSkillsRequestParameters
 from .common import _OptimizeRequestParameters
 from .common import _OptimizeRequestParameters
+from .common import _PredictParameters
 from .common import _PurgeAgentEngineMemoriesRequestParameters
 from .common import _QueryAgentEngineRequestParameters
 from .common import _QueryAgentEngineRuntimeRevisionRequestParameters
@@ -158,6 +162,7 @@ from .common import _RunQueryJobAgentEngineConfig
 from .common import _RunQueryJobAgentEngineConfigDict
 from .common import _RunQueryJobAgentEngineConfigOrDict
 from .common import _RunQueryJobAgentEngineRequestParameters
+from .common import _UndeployModelRequestParameters
 from .common import _UpdateAgentEngineMemoryRequestParameters
 from .common import _UpdateAgentEngineRequestParameters
 from .common import _UpdateAgentEngineSessionRequestParameters
@@ -284,6 +289,9 @@ from .common import BleuInstanceOrDict
 from .common import BleuResults
 from .common import BleuResultsDict
 from .common import BleuResultsOrDict
+from .common import BlurBaselineConfig
+from .common import BlurBaselineConfigDict
+from .common import BlurBaselineConfigOrDict
 from .common import CancelQueryJobAgentEngineConfig
 from .common import CancelQueryJobAgentEngineConfigDict
 from .common import CancelQueryJobAgentEngineConfigOrDict
@@ -307,7 +315,11 @@ from .common import CheckQueryJobResultOrDict
 from .common import Chunk
 from .common import ChunkDict
 from .common import ChunkOrDict
+from .common import ClientConnectionConfig
+from .common import ClientConnectionConfigDict
+from .common import ClientConnectionConfigOrDict
 from .common import CodeExecutionMetric
+from .common import ColorMap
 from .common import CometResult
 from .common import CometResultDict
 from .common import CometResultOrDict
@@ -395,6 +407,7 @@ from .common import CustomJobOrDict
 from .common import CustomJobSpec
 from .common import CustomJobSpecDict
 from .common import CustomJobSpecOrDict
+from .common import DataFormat
 from .common import Dataset
 from .common import DatasetDict
 from .common import DatasetOperation
@@ -444,6 +457,12 @@ from .common import DeleteAgentEngineSessionOperationOrDict
 from .common import DeleteAgentEngineTaskConfig
 from .common import DeleteAgentEngineTaskConfigDict
 from .common import DeleteAgentEngineTaskConfigOrDict
+from .common import DeleteEndpointConfig
+from .common import DeleteEndpointConfigDict
+from .common import DeleteEndpointConfigOrDict
+from .common import DeleteEndpointOperation
+from .common import DeleteEndpointOperationDict
+from .common import DeleteEndpointOperationOrDict
 from .common import DeleteEvaluationExperimentConfig
 from .common import DeleteEvaluationExperimentConfigDict
 from .common import DeleteEvaluationExperimentConfigOrDict
@@ -501,6 +520,13 @@ from .common import DeleteSkillConfigOrDict
 from .common import DeleteSkillOperation
 from .common import DeleteSkillOperationDict
 from .common import DeleteSkillOperationOrDict
+from .common import DeployedModel
+from .common import DeployedModelDict
+from .common import DeployedModelOrDict
+from .common import DeployedModelStatus
+from .common import DeployedModelStatusDict
+from .common import DeployedModelStatusOrDict
+from .common import DeploymentType
 from .common import DeployOption
 from .common import DeployOptionDict
 from .common import DeployOptionOrDict
@@ -513,6 +539,13 @@ from .common import DiskSpecOrDict
 from .common import DnsPeeringConfig
 from .common import DnsPeeringConfigDict
 from .common import DnsPeeringConfigOrDict
+from .common import Encoding
+from .common import Endpoint
+from .common import EndpointDict
+from .common import EndpointOperation
+from .common import EndpointOperationDict
+from .common import EndpointOperationOrDict
+from .common import EndpointOrDict
 from .common import EnvVar
 from .common import EnvVarDict
 from .common import EnvVarOrDict
@@ -626,12 +659,39 @@ from .common import ExactMatchResultsOrDict
 from .common import ExactMatchSpec
 from .common import ExactMatchSpecDict
 from .common import ExactMatchSpecOrDict
+from .common import Examples
+from .common import ExamplesDict
+from .common import ExamplesExampleGcsSource
+from .common import ExamplesExampleGcsSourceDict
+from .common import ExamplesExampleGcsSourceOrDict
+from .common import ExamplesOrDict
 from .common import ExecuteCodeAgentEngineSandboxConfig
 from .common import ExecuteCodeAgentEngineSandboxConfigDict
 from .common import ExecuteCodeAgentEngineSandboxConfigOrDict
 from .common import ExecuteSandboxEnvironmentResponse
 from .common import ExecuteSandboxEnvironmentResponseDict
 from .common import ExecuteSandboxEnvironmentResponseOrDict
+from .common import ExplanationMetadata
+from .common import ExplanationMetadataDict
+from .common import ExplanationMetadataInputMetadata
+from .common import ExplanationMetadataInputMetadataDict
+from .common import ExplanationMetadataInputMetadataFeatureValueDomain
+from .common import ExplanationMetadataInputMetadataFeatureValueDomainDict
+from .common import ExplanationMetadataInputMetadataFeatureValueDomainOrDict
+from .common import ExplanationMetadataInputMetadataOrDict
+from .common import ExplanationMetadataInputMetadataVisualization
+from .common import ExplanationMetadataInputMetadataVisualizationDict
+from .common import ExplanationMetadataInputMetadataVisualizationOrDict
+from .common import ExplanationMetadataOrDict
+from .common import ExplanationMetadataOutputMetadata
+from .common import ExplanationMetadataOutputMetadataDict
+from .common import ExplanationMetadataOutputMetadataOrDict
+from .common import ExplanationParameters
+from .common import ExplanationParametersDict
+from .common import ExplanationParametersOrDict
+from .common import ExplanationSpec
+from .common import ExplanationSpecDict
+from .common import ExplanationSpecOrDict
 from .common import ExportModelOperation
 from .common import ExportModelOperationDict
 from .common import ExportModelOperationOrDict
@@ -647,6 +707,15 @@ from .common import ExportPublisherModelResponseOrDict
 from .common import FailedRubric
 from .common import FailedRubricDict
 from .common import FailedRubricOrDict
+from .common import FasterDeploymentConfig
+from .common import FasterDeploymentConfigDict
+from .common import FasterDeploymentConfigOrDict
+from .common import FeatureNoiseSigma
+from .common import FeatureNoiseSigmaDict
+from .common import FeatureNoiseSigmaNoiseSigmaForFeature
+from .common import FeatureNoiseSigmaNoiseSigmaForFeatureDict
+from .common import FeatureNoiseSigmaNoiseSigmaForFeatureOrDict
+from .common import FeatureNoiseSigmaOrDict
 from .common import FeedbackContext
 from .common import FeedbackContextDict
 from .common import FeedbackContextOrDict
@@ -658,6 +727,12 @@ from .common import FlexStart
 from .common import FlexStartDict
 from .common import FlexStartOrDict
 from .common import Framework
+from .common import FullFineTunedResources
+from .common import FullFineTunedResourcesDict
+from .common import FullFineTunedResourcesOrDict
+from .common import GdcConfig
+from .common import GdcConfigDict
+from .common import GdcConfigOrDict
 from .common import GeminiAgentConfig
 from .common import GeminiAgentConfigDict
 from .common import GeminiAgentConfigOrDict
@@ -670,6 +745,12 @@ from .common import GeminiRequestReadConfigOrDict
 from .common import GeminiTemplateConfig
 from .common import GeminiTemplateConfigDict
 from .common import GeminiTemplateConfigOrDict
+from .common import GenAiAdvancedFeaturesConfig
+from .common import GenAiAdvancedFeaturesConfigDict
+from .common import GenAiAdvancedFeaturesConfigOrDict
+from .common import GenAiAdvancedFeaturesConfigRagConfig
+from .common import GenAiAdvancedFeaturesConfigRagConfigDict
+from .common import GenAiAdvancedFeaturesConfigRagConfigOrDict
 from .common import GenerateAgentEngineMemoriesConfig
 from .common import GenerateAgentEngineMemoriesConfigDict
 from .common import GenerateAgentEngineMemoriesConfigOrDict
@@ -746,6 +827,12 @@ from .common import GetDatasetOperationConfigOrDict
 from .common import GetDeleteAgentEngineRuntimeRevisionOperationConfig
 from .common import GetDeleteAgentEngineRuntimeRevisionOperationConfigDict
 from .common import GetDeleteAgentEngineRuntimeRevisionOperationConfigOrDict
+from .common import GetEndpointConfig
+from .common import GetEndpointConfigDict
+from .common import GetEndpointConfigOrDict
+from .common import GetEndpointOperationConfig
+from .common import GetEndpointOperationConfigDict
+from .common import GetEndpointOperationConfigOrDict
 from .common import GetEvaluationExperimentConfig
 from .common import GetEvaluationExperimentConfigDict
 from .common import GetEvaluationExperimentConfigOrDict
@@ -847,6 +934,9 @@ from .common import IngestionDirectContentsSourceEvent
 from .common import IngestionDirectContentsSourceEventDict
 from .common import IngestionDirectContentsSourceEventOrDict
 from .common import IngestionDirectContentsSourceOrDict
+from .common import IntegratedGradientsAttribution
+from .common import IntegratedGradientsAttributionDict
+from .common import IntegratedGradientsAttributionOrDict
 from .common import InteractionsDataSource
 from .common import InteractionsDataSourceDict
 from .common import InteractionsDataSourceOrDict
@@ -1135,6 +1225,7 @@ from .common import MetricSourceOrDict
 from .common import MetricxResult
 from .common import MetricxResultDict
 from .common import MetricxResultOrDict
+from .common import Modality
 from .common import ModelContainerSpec
 from .common import ModelContainerSpecDict
 from .common import ModelContainerSpecOrDict
@@ -1166,6 +1257,7 @@ from .common import OptimizeResponseEndpointDict
 from .common import OptimizeResponseEndpointOrDict
 from .common import OptimizeResponseOrDict
 from .common import OptimizeTarget
+from .common import OverlayType
 from .common import PairwiseMetricInput
 from .common import PairwiseMetricInputDict
 from .common import PairwiseMetricInputOrDict
@@ -1179,13 +1271,32 @@ from .common import PointwiseMetricInputOrDict
 from .common import PointwiseMetricInstance
 from .common import PointwiseMetricInstanceDict
 from .common import PointwiseMetricInstanceOrDict
+from .common import Polarity
 from .common import Port
 from .common import PortDict
 from .common import PortOrDict
 from .common import PostSnapshotAction
+from .common import PredictConfig
+from .common import PredictConfigDict
+from .common import PredictConfigOrDict
+from .common import PredictRequestResponseLoggingConfig
+from .common import PredictRequestResponseLoggingConfigDict
+from .common import PredictRequestResponseLoggingConfigOrDict
+from .common import PredictResponse
+from .common import PredictResponseDict
+from .common import PredictResponseOrDict
 from .common import PredictSchemata
 from .common import PredictSchemataDict
 from .common import PredictSchemataOrDict
+from .common import Presets
+from .common import PresetsDict
+from .common import PresetsOrDict
+from .common import PrivateEndpoints
+from .common import PrivateEndpointsDict
+from .common import PrivateEndpointsOrDict
+from .common import PrivateServiceConnectConfig
+from .common import PrivateServiceConnectConfigDict
+from .common import PrivateServiceConnectConfigOrDict
 from .common import Probe
 from .common import ProbeDict
 from .common import ProbeExecAction
@@ -1227,6 +1338,10 @@ from .common import PromptVersionRef
 from .common import PromptVersionRefDict
 from .common import PromptVersionRefOrDict
 from .common import Protocol
+from .common import PSCAutomationConfig
+from .common import PSCAutomationConfigDict
+from .common import PSCAutomationConfigOrDict
+from .common import PscAutomationState
 from .common import PscInterfaceConfig
 from .common import PscInterfaceConfigDict
 from .common import PscInterfaceConfigOrDict
@@ -1588,6 +1703,9 @@ from .common import RetrieveSkillsResponseOrDict
 from .common import RollbackAgentEngineMemoryConfig
 from .common import RollbackAgentEngineMemoryConfigDict
 from .common import RollbackAgentEngineMemoryConfigOrDict
+from .common import RolloutOptions
+from .common import RolloutOptionsDict
+from .common import RolloutOptionsOrDict
 from .common import RougeInput
 from .common import RougeInputDict
 from .common import RougeInputOrDict
@@ -1638,6 +1756,9 @@ from .common import RuntimeFeedbackContextOperationOrDict
 from .common import RuntimeFeedbackEntryOperation
 from .common import RuntimeFeedbackEntryOperationDict
 from .common import RuntimeFeedbackEntryOperationOrDict
+from .common import SampledShapleyAttribution
+from .common import SampledShapleyAttributionDict
+from .common import SampledShapleyAttributionOrDict
 from .common import SamplingConfig
 from .common import SamplingConfigDict
 from .common import SamplingConfigOrDict
@@ -1802,6 +1923,18 @@ from .common import SlackSourceSlackChannelsOrDict
 from .common import SlackSourceSlackChannelsSlackChannel
 from .common import SlackSourceSlackChannelsSlackChannelDict
 from .common import SlackSourceSlackChannelsSlackChannelOrDict
+from .common import SmoothGradConfig
+from .common import SmoothGradConfigDict
+from .common import SmoothGradConfigOrDict
+from .common import SpeculativeDecodingSpec
+from .common import SpeculativeDecodingSpecDict
+from .common import SpeculativeDecodingSpecDraftModelSpeculation
+from .common import SpeculativeDecodingSpecDraftModelSpeculationDict
+from .common import SpeculativeDecodingSpecDraftModelSpeculationOrDict
+from .common import SpeculativeDecodingSpecNgramSpeculation
+from .common import SpeculativeDecodingSpecNgramSpeculationDict
+from .common import SpeculativeDecodingSpecNgramSpeculationOrDict
+from .common import SpeculativeDecodingSpecOrDict
 from .common import State
 from .common import Strategy
 from .common import StructuredMemoryConfig
@@ -1919,6 +2052,12 @@ from .common import TuningValidationAssessmentResult
 from .common import TuningValidationAssessmentResultDict
 from .common import TuningValidationAssessmentResultOrDict
 from .common import Type
+from .common import UndeployModelConfig
+from .common import UndeployModelConfigDict
+from .common import UndeployModelConfigOrDict
+from .common import UndeployModelOperation
+from .common import UndeployModelOperationDict
+from .common import UndeployModelOperationOrDict
 from .common import UnifiedMetric
 from .common import UnifiedMetricDict
 from .common import UnifiedMetricOrDict
@@ -1983,6 +2122,9 @@ from .common import WinRateStatsOrDict
 from .common import WorkerPoolSpec
 from .common import WorkerPoolSpecDict
 from .common import WorkerPoolSpecOrDict
+from .common import XraiAttribution
+from .common import XraiAttributionDict
+from .common import XraiAttributionOrDict
 
 __all__ = [
     "DeleteAgentEngineTaskConfig",
@@ -2066,6 +2208,9 @@ __all__ = [
     "CandidateResponse",
     "CandidateResponseDict",
     "CandidateResponseOrDict",
+    "RubricGroup",
+    "RubricGroupDict",
+    "RubricGroupOrDict",
     "EvaluationItemRequest",
     "EvaluationItemRequestDict",
     "EvaluationItemRequestOrDict",
@@ -3284,6 +3429,12 @@ __all__ = [
     "SchemaPredictParamsGroundingConfig",
     "SchemaPredictParamsGroundingConfigDict",
     "SchemaPredictParamsGroundingConfigOrDict",
+    "SchemaPromptSpecPartList",
+    "SchemaPromptSpecPartListDict",
+    "SchemaPromptSpecPartListOrDict",
+    "SchemaPromptInstanceVariableValue",
+    "SchemaPromptInstanceVariableValueDict",
+    "SchemaPromptInstanceVariableValueOrDict",
     "SchemaPromptInstancePromptExecution",
     "SchemaPromptInstancePromptExecutionDict",
     "SchemaPromptInstancePromptExecutionOrDict",
@@ -3299,9 +3450,6 @@ __all__ = [
     "SchemaPromptSpecAppBuilderData",
     "SchemaPromptSpecAppBuilderDataDict",
     "SchemaPromptSpecAppBuilderDataOrDict",
-    "SchemaPromptSpecPartList",
-    "SchemaPromptSpecPartListDict",
-    "SchemaPromptSpecPartListOrDict",
     "SchemaPromptSpecInteractionData",
     "SchemaPromptSpecInteractionDataDict",
     "SchemaPromptSpecInteractionDataOrDict",
@@ -3599,6 +3747,135 @@ __all__ = [
     "UpdateRuntimeFeedbackContextConfig",
     "UpdateRuntimeFeedbackContextConfigDict",
     "UpdateRuntimeFeedbackContextConfigOrDict",
+    "UndeployModelConfig",
+    "UndeployModelConfigDict",
+    "UndeployModelConfigOrDict",
+    "UndeployModelOperation",
+    "UndeployModelOperationDict",
+    "UndeployModelOperationOrDict",
+    "PredictConfig",
+    "PredictConfigDict",
+    "PredictConfigOrDict",
+    "PredictResponse",
+    "PredictResponseDict",
+    "PredictResponseOrDict",
+    "DeleteEndpointConfig",
+    "DeleteEndpointConfigDict",
+    "DeleteEndpointConfigOrDict",
+    "DeleteEndpointOperation",
+    "DeleteEndpointOperationDict",
+    "DeleteEndpointOperationOrDict",
+    "GetEndpointConfig",
+    "GetEndpointConfigDict",
+    "GetEndpointConfigOrDict",
+    "ClientConnectionConfig",
+    "ClientConnectionConfigDict",
+    "ClientConnectionConfigOrDict",
+    "ExplanationMetadataInputMetadataFeatureValueDomain",
+    "ExplanationMetadataInputMetadataFeatureValueDomainDict",
+    "ExplanationMetadataInputMetadataFeatureValueDomainOrDict",
+    "ExplanationMetadataInputMetadataVisualization",
+    "ExplanationMetadataInputMetadataVisualizationDict",
+    "ExplanationMetadataInputMetadataVisualizationOrDict",
+    "ExplanationMetadataInputMetadata",
+    "ExplanationMetadataInputMetadataDict",
+    "ExplanationMetadataInputMetadataOrDict",
+    "ExplanationMetadataOutputMetadata",
+    "ExplanationMetadataOutputMetadataDict",
+    "ExplanationMetadataOutputMetadataOrDict",
+    "ExplanationMetadata",
+    "ExplanationMetadataDict",
+    "ExplanationMetadataOrDict",
+    "ExamplesExampleGcsSource",
+    "ExamplesExampleGcsSourceDict",
+    "ExamplesExampleGcsSourceOrDict",
+    "Presets",
+    "PresetsDict",
+    "PresetsOrDict",
+    "Examples",
+    "ExamplesDict",
+    "ExamplesOrDict",
+    "BlurBaselineConfig",
+    "BlurBaselineConfigDict",
+    "BlurBaselineConfigOrDict",
+    "FeatureNoiseSigmaNoiseSigmaForFeature",
+    "FeatureNoiseSigmaNoiseSigmaForFeatureDict",
+    "FeatureNoiseSigmaNoiseSigmaForFeatureOrDict",
+    "FeatureNoiseSigma",
+    "FeatureNoiseSigmaDict",
+    "FeatureNoiseSigmaOrDict",
+    "SmoothGradConfig",
+    "SmoothGradConfigDict",
+    "SmoothGradConfigOrDict",
+    "IntegratedGradientsAttribution",
+    "IntegratedGradientsAttributionDict",
+    "IntegratedGradientsAttributionOrDict",
+    "SampledShapleyAttribution",
+    "SampledShapleyAttributionDict",
+    "SampledShapleyAttributionOrDict",
+    "XraiAttribution",
+    "XraiAttributionDict",
+    "XraiAttributionOrDict",
+    "ExplanationParameters",
+    "ExplanationParametersDict",
+    "ExplanationParametersOrDict",
+    "ExplanationSpec",
+    "ExplanationSpecDict",
+    "ExplanationSpecOrDict",
+    "FasterDeploymentConfig",
+    "FasterDeploymentConfigDict",
+    "FasterDeploymentConfigOrDict",
+    "FullFineTunedResources",
+    "FullFineTunedResourcesDict",
+    "FullFineTunedResourcesOrDict",
+    "PrivateEndpoints",
+    "PrivateEndpointsDict",
+    "PrivateEndpointsOrDict",
+    "RolloutOptions",
+    "RolloutOptionsDict",
+    "RolloutOptionsOrDict",
+    "SpeculativeDecodingSpecDraftModelSpeculation",
+    "SpeculativeDecodingSpecDraftModelSpeculationDict",
+    "SpeculativeDecodingSpecDraftModelSpeculationOrDict",
+    "SpeculativeDecodingSpecNgramSpeculation",
+    "SpeculativeDecodingSpecNgramSpeculationDict",
+    "SpeculativeDecodingSpecNgramSpeculationOrDict",
+    "SpeculativeDecodingSpec",
+    "SpeculativeDecodingSpecDict",
+    "SpeculativeDecodingSpecOrDict",
+    "DeployedModelStatus",
+    "DeployedModelStatusDict",
+    "DeployedModelStatusOrDict",
+    "DeployedModel",
+    "DeployedModelDict",
+    "DeployedModelOrDict",
+    "GdcConfig",
+    "GdcConfigDict",
+    "GdcConfigOrDict",
+    "GenAiAdvancedFeaturesConfigRagConfig",
+    "GenAiAdvancedFeaturesConfigRagConfigDict",
+    "GenAiAdvancedFeaturesConfigRagConfigOrDict",
+    "GenAiAdvancedFeaturesConfig",
+    "GenAiAdvancedFeaturesConfigDict",
+    "GenAiAdvancedFeaturesConfigOrDict",
+    "PredictRequestResponseLoggingConfig",
+    "PredictRequestResponseLoggingConfigDict",
+    "PredictRequestResponseLoggingConfigOrDict",
+    "PSCAutomationConfig",
+    "PSCAutomationConfigDict",
+    "PSCAutomationConfigOrDict",
+    "PrivateServiceConnectConfig",
+    "PrivateServiceConnectConfigDict",
+    "PrivateServiceConnectConfigOrDict",
+    "Endpoint",
+    "EndpointDict",
+    "EndpointOrDict",
+    "GetEndpointOperationConfig",
+    "GetEndpointOperationConfigDict",
+    "GetEndpointOperationConfigOrDict",
+    "EndpointOperation",
+    "EndpointOperationDict",
+    "EndpointOperationOrDict",
     "PromptOptimizerConfig",
     "PromptOptimizerConfigDict",
     "PromptOptimizerConfigOrDict",
@@ -3623,9 +3900,6 @@ __all__ = [
     "ObservabilityEvalCase",
     "ObservabilityEvalCaseDict",
     "ObservabilityEvalCaseOrDict",
-    "RubricGroup",
-    "RubricGroupDict",
-    "RubricGroupOrDict",
     "PromptTemplate",
     "PromptTemplateDict",
     "PromptTemplateOrDict",
@@ -3665,9 +3939,6 @@ __all__ = [
     "Prompt",
     "PromptDict",
     "PromptOrDict",
-    "SchemaPromptInstanceVariableValue",
-    "SchemaPromptInstanceVariableValueDict",
-    "SchemaPromptInstanceVariableValueOrDict",
     "CreatePromptConfig",
     "CreatePromptConfigDict",
     "CreatePromptConfigOrDict",
@@ -3734,6 +4005,14 @@ __all__ = [
     "VersionState",
     "QuotaState",
     "FeedbackType",
+    "Encoding",
+    "ColorMap",
+    "OverlayType",
+    "Polarity",
+    "DataFormat",
+    "Modality",
+    "DeploymentType",
+    "PscAutomationState",
     "EvaluationExperimentMergeStrategy",
     "EvaluationItemType",
     "SamplingMethod",
@@ -3912,6 +4191,11 @@ __all__ = [
     "_GetRuntimeFeedbackContextRequestParameters",
     "_GetRuntimeFeedbackContextOperationParameters",
     "_UpdateRuntimeFeedbackContextRequestParameters",
+    "_UndeployModelRequestParameters",
+    "_PredictParameters",
+    "_DeleteEndpointRequestParameters",
+    "_GetEndpointParameters",
+    "_GetEndpointOperationParameters",
     "evals",
     "agent_engines",
     "prompts",

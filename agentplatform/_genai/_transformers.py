@@ -536,3 +536,68 @@ def t_inline_results(
                     api_results.append(api_eval_result)
 
     return api_results
+
+
+_ENDPOINT_RES_NAME_RES = (
+    re.compile(r"^projects/[^/]+/locations/[^/]+/endpoints/[^/]+$"),
+    re.compile(r"^endpoints/[^/]+$"),
+)
+_PUBLISHER_MODEL_RES_NAME_RES = (
+    re.compile(r"^projects/[^/]+/locations/[^/]+/publishers/[^/]+/models/[^/]+$"),
+    re.compile(r"^publishers/[^/]+/models/[^/]+$"),
+)
+
+
+def is_endpoint_resource_name(name: str) -> bool:
+    """Returns whether the name addresses an Endpoint resource."""
+    return any(pattern.match(name) for pattern in _ENDPOINT_RES_NAME_RES)
+
+
+def _is_publisher_model_resource_name(name: str) -> bool:
+    return any(pattern.match(name) for pattern in _PUBLISHER_MODEL_RES_NAME_RES)
+
+
+def t_endpoint(endpoint: str) -> str:
+    """Validates a name that may address an Endpoint or a publisher model."""
+    if not endpoint:
+        raise ValueError("endpoint is required.")
+
+    if is_endpoint_resource_name(endpoint) or _is_publisher_model_resource_name(
+        endpoint
+    ):
+        return endpoint
+
+    raise ValueError(
+        f"Invalid endpoint format: {endpoint}. Must be in the format of"
+        " projects/.../locations/.../endpoints/... or"
+        " projects/.../locations/.../publishers/.../models/... or"
+        " endpoints/... or publishers/.../models/..."
+    )
+
+
+def t_strict_endpoint(endpoint: str) -> str:
+    """Validates a name that must address an Endpoint resource.
+
+    A publisher model is served by the shared prediction endpoint and has no
+    Endpoint resource behind it, so it can be predicted against but never
+    fetched, undeployed or deleted. Methods that address the resource itself
+    must reject it here rather than issue a request against a publishers/... URL.
+    """
+    if not endpoint:
+        raise ValueError("endpoint is required.")
+
+    if is_endpoint_resource_name(endpoint):
+        return endpoint
+
+    if _is_publisher_model_resource_name(endpoint):
+        raise ValueError(
+            f"{endpoint} is a publisher model, which does not support this"
+            " method. Only endpoints in the format of"
+            " projects/.../locations/.../endpoints/... or endpoints/... are"
+            " supported."
+        )
+
+    raise ValueError(
+        f"Invalid endpoint format: {endpoint}. Must be in the format of"
+        " projects/.../locations/.../endpoints/... or endpoints/..."
+    )
