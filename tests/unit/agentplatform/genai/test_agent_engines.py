@@ -1910,6 +1910,57 @@ class TestAgentEngineHelpers:
         got = list(_agent_engines_utils._yield_parsed_json_from_httpbody(obj))
         assert got == expected
 
+    # pytest does not allow absl.testing.parameterized.named_parameters.
+    @pytest.mark.parametrize(
+        "obj, expected",
+        [
+            (
+                # "sse_single_event",
+                genai_types.HttpResponse(body='data: {"a": 1}\n\n'),
+                [{"a": 1}],
+            ),
+            (
+                # "sse_multiple_events",
+                genai_types.HttpResponse(body='data: {"a": 1}\n\ndata: {"a": 2}\n\n'),
+                [{"a": 1}, {"a": 2}],
+            ),
+            (
+                # "sse_no_space_after_colon",
+                genai_types.HttpResponse(body='data:{"a": 1}\n\n'),
+                [{"a": 1}],
+            ),
+            (
+                # "sse_crlf_line_endings",
+                genai_types.HttpResponse(body='data: {"a": 1}\r\n\r\n'),
+                [{"a": 1}],
+            ),
+            (
+                # "sse_empty_data_line_is_skipped",
+                genai_types.HttpResponse(body='data:\n\ndata: {"a": 1}\n\n'),
+                [{"a": 1}],
+            ),
+            (
+                # "json_string_value_beginning_with_data_is_untouched",
+                genai_types.HttpResponse(body='"data: hello"'),
+                ["data: hello"],
+            ),
+        ],
+    )
+    def test_to_parsed_json_server_sent_events(self, obj, expected):
+        """An SSE-framed response is parsed into the same objects as NDJSON."""
+        assert list(_agent_engines_utils._yield_parsed_json(obj)) == expected
+
+    def test_yield_parsed_json_from_httpbody_event_stream(self):
+        """The gRPC path parses SSE instead of yielding the raw proto."""
+        body = httpbody_pb2.HttpBody(
+            content_type="text/event-stream",
+            data=b'data: {"a": 1}\n\ndata: {"a": 2}\n\n',
+        )
+        assert list(_agent_engines_utils._yield_parsed_json_from_httpbody(body)) == [
+            {"a": 1},
+            {"a": 2},
+        ]
+
     def test_yield_parsed_json_from_httpbody_non_json_content_type(self):
         body = httpbody_pb2.HttpBody(content_type="text/plain", data=b"hello")
         assert list(_agent_engines_utils._yield_parsed_json_from_httpbody(body)) == [
