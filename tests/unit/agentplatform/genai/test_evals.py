@@ -10608,10 +10608,10 @@ class TestAllowCrossRegionModel:
                 ),
                 metrics=[
                     agentplatform_genai_types.EvaluationRunMetric(
-                        metric="general_quality_v1",
+                        metric="final_response_quality_v1",
                         metric_config=agentplatform_genai_types.UnifiedMetric(
                             predefined_metric_spec=genai_types.PredefinedMetricSpec(
-                                metric_spec_name="general_quality_v1",
+                                metric_spec_name="final_response_quality_v1",
                             )
                         ),
                     )
@@ -10650,10 +10650,10 @@ class TestAllowCrossRegionModel:
                 ),
                 metrics=[
                     agentplatform_genai_types.EvaluationRunMetric(
-                        metric="general_quality_v1",
+                        metric="final_response_quality_v1",
                         metric_config=agentplatform_genai_types.UnifiedMetric(
                             predefined_metric_spec=genai_types.PredefinedMetricSpec(
-                                metric_spec_name="general_quality_v1",
+                                metric_spec_name="final_response_quality_v1",
                             )
                         ),
                     )
@@ -11765,6 +11765,70 @@ class TestSandboxTurnMergingInAgentData:
         result = _evals_common._interaction_dict_to_agent_data(interaction_dict)
         # run_command is NOT a sandbox tool, so Turn 0 stays separate.
         assert len(result.turns) == 2
+
+
+class TestValidateManagedAgentMetrics:
+    """Tests for _validate_managed_agent_metrics."""
+
+    MANAGED_AGENT = "projects/p/locations/global/agents/my-agent"
+    NON_MANAGED_AGENT = "projects/p/locations/global/reasoningEngines/123"
+
+    def _make_metric(self, name):
+        return agentplatform_genai_types.Metric(name=name)
+
+    def test_supported_metric_passes(self):
+        _evals_common._validate_managed_agent_metrics(
+            self.MANAGED_AGENT,
+            [self._make_metric("safety_v1")],
+        )
+
+    def test_multiple_supported_metrics_pass(self):
+        _evals_common._validate_managed_agent_metrics(
+            self.MANAGED_AGENT,
+            [
+                self._make_metric("safety_v1"),
+                self._make_metric("final_response_quality_v1"),
+                self._make_metric("multi_turn_task_success_v1"),
+            ],
+        )
+
+    def test_unsupported_metric_raises(self):
+        with pytest.raises(ValueError, match="not supported for Managed Agent"):
+            _evals_common._validate_managed_agent_metrics(
+                self.MANAGED_AGENT,
+                [self._make_metric("hallucination_v1")],
+            )
+
+    def test_unsupported_metric_lists_supported(self):
+        with pytest.raises(ValueError, match="multi_turn_task_success_v1"):
+            _evals_common._validate_managed_agent_metrics(
+                self.MANAGED_AGENT,
+                [self._make_metric("multi_turn_trajectory_quality_v1")],
+            )
+
+    def test_non_managed_agent_allows_any_metric(self):
+        # Non-Managed Agent (reasoning engine) should allow any metric.
+        _evals_common._validate_managed_agent_metrics(
+            self.NON_MANAGED_AGENT,
+            [self._make_metric("hallucination_v1")],
+        )
+
+    def test_no_agent_allows_any_metric(self):
+        # No agent parameter should allow any metric.
+        _evals_common._validate_managed_agent_metrics(
+            None,
+            [self._make_metric("hallucination_v1")],
+        )
+
+    def test_mixed_supported_and_unsupported_raises(self):
+        with pytest.raises(ValueError, match="not supported"):
+            _evals_common._validate_managed_agent_metrics(
+                self.MANAGED_AGENT,
+                [
+                    self._make_metric("safety_v1"),
+                    self._make_metric("hallucination_v1"),
+                ],
+            )
 
 
 class TestMergeTextPartsInAgentData:

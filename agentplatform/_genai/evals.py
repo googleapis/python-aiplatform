@@ -3596,6 +3596,10 @@ class Evals(_api_module.BaseModule):
 
         if isinstance(dataset, types.EvaluationDataset):
             _evals_utils._validate_dataset_agent_data(dataset, inference_configs)
+        # Validate metrics are supported for Managed Agent evaluation.
+        # Pass metrics directly; _validate_managed_agent_metrics handles both
+        # EvaluationRunMetric (.metric field) and Metric (.name field).
+        _evals_common._validate_managed_agent_metrics(agent, metrics)
         resolved_dataset = _evals_common._resolve_dataset(
             self._api_client, dataset, dest, parsed_agent_info
         )
@@ -6095,6 +6099,10 @@ class AsyncEvals(_api_module.BaseModule):
 
         if isinstance(dataset, types.EvaluationDataset):
             _evals_utils._validate_dataset_agent_data(dataset, inference_configs)
+        # Validate metrics are supported for Managed Agent evaluation.
+        # Pass metrics directly; _validate_managed_agent_metrics handles both
+        # EvaluationRunMetric (.metric field) and Metric (.name field).
+        _evals_common._validate_managed_agent_metrics(agent, metrics)
         resolved_dataset = _evals_common._resolve_dataset(
             self._api_client, dataset, dest, parsed_agent_info
         )

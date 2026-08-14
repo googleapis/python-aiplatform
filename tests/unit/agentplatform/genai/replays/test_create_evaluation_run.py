@@ -952,7 +952,7 @@ def test_create_eval_run_with_gemini_agent(client):
         display_name="test_gemini_agent",
         dataset=types.EvaluationRunDataSource(evaluation_set=eval_set),
         dest=GCS_DEST,
-        metrics=[GENERAL_QUALITY_METRIC],
+        metrics=[FINAL_RESPONSE_QUALITY_METRIC],
         agent_info=types.evals.AgentInfo(name="gemini-agent"),
         agent=gemini_agent,
         user_simulator_config=types.evals.UserSimulatorConfig(max_turn=3),
