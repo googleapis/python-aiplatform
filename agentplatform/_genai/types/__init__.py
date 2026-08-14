@@ -59,6 +59,7 @@ from .common import _DeleteDatasetRequestParameters
 from .common import _DeleteEndpointRequestParameters
 from .common import _DeleteEvaluationExperimentParameters
 from .common import _DeleteEvaluationMetricParameters
+from .common import _DeleteEvaluationSetParameters
 from .common import _DeleteMultimodalDatasetRequestParameters
 from .common import _DeletePromptVersionRequestParameters
 from .common import _DeleteRagCorpusRequestParameters
@@ -136,6 +137,7 @@ from .common import _ListDatasetsRequestParameters
 from .common import _ListDatasetVersionsRequestParameters
 from .common import _ListEvaluationExperimentsParameters
 from .common import _ListEvaluationMetricsParameters
+from .common import _ListEvaluationSetsParameters
 from .common import _ListMultimodalDatasetsRequestParameters
 from .common import _ListPublisherModelsRequestParameters
 from .common import _ListRagCorporaRequestParameters
@@ -475,6 +477,12 @@ from .common import DeleteEvaluationMetricConfigOrDict
 from .common import DeleteEvaluationMetricOperation
 from .common import DeleteEvaluationMetricOperationDict
 from .common import DeleteEvaluationMetricOperationOrDict
+from .common import DeleteEvaluationSetConfig
+from .common import DeleteEvaluationSetConfigDict
+from .common import DeleteEvaluationSetConfigOrDict
+from .common import DeleteEvaluationSetOperation
+from .common import DeleteEvaluationSetOperationDict
+from .common import DeleteEvaluationSetOperationOrDict
 from .common import DeletePromptConfig
 from .common import DeletePromptConfigDict
 from .common import DeletePromptConfigOrDict
@@ -1027,6 +1035,12 @@ from .common import ListEvaluationMetricsConfigOrDict
 from .common import ListEvaluationMetricsResponse
 from .common import ListEvaluationMetricsResponseDict
 from .common import ListEvaluationMetricsResponseOrDict
+from .common import ListEvaluationSetsConfig
+from .common import ListEvaluationSetsConfigDict
+from .common import ListEvaluationSetsConfigOrDict
+from .common import ListEvaluationSetsResponse
+from .common import ListEvaluationSetsResponseDict
+from .common import ListEvaluationSetsResponseOrDict
 from .common import ListModelGardenModelsConfig
 from .common import ListModelGardenModelsConfigDict
 from .common import ListModelGardenModelsConfigOrDict
@@ -2361,6 +2375,12 @@ __all__ = [
     "DeleteEvaluationMetricOperation",
     "DeleteEvaluationMetricOperationDict",
     "DeleteEvaluationMetricOperationOrDict",
+    "DeleteEvaluationSetConfig",
+    "DeleteEvaluationSetConfigDict",
+    "DeleteEvaluationSetConfigOrDict",
+    "DeleteEvaluationSetOperation",
+    "DeleteEvaluationSetOperationDict",
+    "DeleteEvaluationSetOperationOrDict",
     "BleuInstance",
     "BleuInstanceDict",
     "BleuInstanceOrDict",
@@ -2553,6 +2573,12 @@ __all__ = [
     "ListEvaluationMetricsResponse",
     "ListEvaluationMetricsResponseDict",
     "ListEvaluationMetricsResponseOrDict",
+    "ListEvaluationSetsConfig",
+    "ListEvaluationSetsConfigDict",
+    "ListEvaluationSetsConfigOrDict",
+    "ListEvaluationSetsResponse",
+    "ListEvaluationSetsResponseDict",
+    "ListEvaluationSetsResponseOrDict",
     "UpdateEvaluationExperimentConfig",
     "UpdateEvaluationExperimentConfigDict",
     "UpdateEvaluationExperimentConfigOrDict",
@@ -4059,6 +4085,7 @@ __all__ = [
     "_CreateEvaluationSetParameters",
     "_DeleteEvaluationExperimentParameters",
     "_DeleteEvaluationMetricParameters",
+    "_DeleteEvaluationSetParameters",
     "_EvaluateInstancesRequestParameters",
     "_GenerateUserScenariosParameters",
     "_GenerateLossClustersParameters",
@@ -4070,6 +4097,7 @@ __all__ = [
     "_GetEvaluationItemParameters",
     "_ListEvaluationExperimentsParameters",
     "_ListEvaluationMetricsParameters",
+    "_ListEvaluationSetsParameters",
     "_UpdateEvaluationExperimentParameters",
     "_OptimizeRequestParameters",
     "_CustomJobParameters",

@@ -4527,6 +4527,92 @@ DeleteEvaluationMetricOperationOrDict = Union[
 ]
 
 
+class DeleteEvaluationSetConfig(_common.BaseModel):
+    """Config for deleting an evaluation set."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class DeleteEvaluationSetConfigDict(TypedDict, total=False):
+    """Config for deleting an evaluation set."""
+
+    http_options: Optional[genai_types.HttpOptions]
+    """Used to override HTTP request options."""
+
+
+DeleteEvaluationSetConfigOrDict = Union[
+    DeleteEvaluationSetConfig, DeleteEvaluationSetConfigDict
+]
+
+
+class _DeleteEvaluationSetParameters(_common.BaseModel):
+    """Parameters for deleting an evaluation set."""
+
+    name: Optional[str] = Field(default=None, description="""""")
+    config: Optional[DeleteEvaluationSetConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _DeleteEvaluationSetParametersDict(TypedDict, total=False):
+    """Parameters for deleting an evaluation set."""
+
+    name: Optional[str]
+    """"""
+
+    config: Optional[DeleteEvaluationSetConfigDict]
+    """"""
+
+
+_DeleteEvaluationSetParametersOrDict = Union[
+    _DeleteEvaluationSetParameters, _DeleteEvaluationSetParametersDict
+]
+
+
+class DeleteEvaluationSetOperation(_common.BaseModel):
+    """Operation for deleting an evaluation set."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`.""",
+    )
+    metadata: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any.""",
+    )
+    done: Optional[bool] = Field(
+        default=None,
+        description="""If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available.""",
+    )
+    error: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""The error result of the operation in case of failure or cancellation.""",
+    )
+
+
+class DeleteEvaluationSetOperationDict(TypedDict, total=False):
+    """Operation for deleting an evaluation set."""
+
+    name: Optional[str]
+    """The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`."""
+
+    metadata: Optional[dict[str, Any]]
+    """Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any."""
+
+    done: Optional[bool]
+    """If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available."""
+
+    error: Optional[dict[str, Any]]
+    """The error result of the operation in case of failure or cancellation."""
+
+
+DeleteEvaluationSetOperationOrDict = Union[
+    DeleteEvaluationSetOperation, DeleteEvaluationSetOperationDict
+]
+
+
 class BleuInstance(_common.BaseModel):
     """Bleu instance."""
 
@@ -6651,6 +6737,109 @@ class ListEvaluationMetricsResponseDict(TypedDict, total=False):
 
 ListEvaluationMetricsResponseOrDict = Union[
     ListEvaluationMetricsResponse, ListEvaluationMetricsResponseDict
+]
+
+
+class ListEvaluationSetsConfig(_common.BaseModel):
+    """Config for listing evaluation sets."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    page_size: Optional[int] = Field(default=None, description="""""")
+    page_token: Optional[str] = Field(default=None, description="""""")
+    filter: Optional[str] = Field(
+        default=None,
+        description="""An expression for filtering the results of the request.
+      For field names both snake_case and camelCase are supported.
+      For more information about filter syntax, see
+      `AIP-160 <https://google.aip.dev/160>`_.""",
+    )
+    order_by: Optional[str] = Field(
+        default=None,
+        description="""A comma-separated list of fields to order by, sorted in ascending
+      order by default. Use ``desc`` after a field name for descending.
+      Example: ``"create_time desc"``.""",
+    )
+
+
+class ListEvaluationSetsConfigDict(TypedDict, total=False):
+    """Config for listing evaluation sets."""
+
+    http_options: Optional[genai_types.HttpOptions]
+    """Used to override HTTP request options."""
+
+    page_size: Optional[int]
+    """"""
+
+    page_token: Optional[str]
+    """"""
+
+    filter: Optional[str]
+    """An expression for filtering the results of the request.
+      For field names both snake_case and camelCase are supported.
+      For more information about filter syntax, see
+      `AIP-160 <https://google.aip.dev/160>`_."""
+
+    order_by: Optional[str]
+    """A comma-separated list of fields to order by, sorted in ascending
+      order by default. Use ``desc`` after a field name for descending.
+      Example: ``"create_time desc"``."""
+
+
+ListEvaluationSetsConfigOrDict = Union[
+    ListEvaluationSetsConfig, ListEvaluationSetsConfigDict
+]
+
+
+class _ListEvaluationSetsParameters(_common.BaseModel):
+    """Parameters for listing evaluation sets."""
+
+    config: Optional[ListEvaluationSetsConfig] = Field(default=None, description="""""")
+
+
+class _ListEvaluationSetsParametersDict(TypedDict, total=False):
+    """Parameters for listing evaluation sets."""
+
+    config: Optional[ListEvaluationSetsConfigDict]
+    """"""
+
+
+_ListEvaluationSetsParametersOrDict = Union[
+    _ListEvaluationSetsParameters, _ListEvaluationSetsParametersDict
+]
+
+
+class ListEvaluationSetsResponse(_common.BaseModel):
+    """Response for listing evaluation sets."""
+
+    sdk_http_response: Optional[genai_types.HttpResponse] = Field(
+        default=None, description="""Used to retain the full HTTP response."""
+    )
+    next_page_token: Optional[str] = Field(default=None, description="""""")
+    evaluation_sets: Optional[list[EvaluationSet]] = Field(
+        default=None,
+        description="""List of evaluation sets.
+      """,
+    )
+
+
+class ListEvaluationSetsResponseDict(TypedDict, total=False):
+    """Response for listing evaluation sets."""
+
+    sdk_http_response: Optional[genai_types.HttpResponse]
+    """Used to retain the full HTTP response."""
+
+    next_page_token: Optional[str]
+    """"""
+
+    evaluation_sets: Optional[list[EvaluationSetDict]]
+    """List of evaluation sets.
+      """
+
+
+ListEvaluationSetsResponseOrDict = Union[
+    ListEvaluationSetsResponse, ListEvaluationSetsResponseDict
 ]
 
 
