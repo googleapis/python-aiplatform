@@ -5107,6 +5107,77 @@ class TestCustomContainerTrainingJob:
 
     @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 0.05)
     @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 0.05)
+    @pytest.mark.usefixtures("mock_pipeline_service_get_with_scheduling")
+    @pytest.mark.parametrize(
+        (
+            "scheduling_strategy",
+            "max_wait_duration",
+            "expected_max_wait_duration",
+        ),
+        [
+            pytest.param(
+                gca_custom_job.Scheduling.Strategy.FLEX_START,
+                None,
+                None,
+                id="omitted",
+            ),
+            pytest.param(
+                gca_custom_job.Scheduling.Strategy.FLEX_START,
+                0,
+                "0s",
+                id="zero-with-flex-start",
+            ),
+            pytest.param(
+                gca_custom_job.Scheduling.Strategy.FLEX_START,
+                _TEST_MAX_WAIT_DURATION,
+                f"{_TEST_MAX_WAIT_DURATION}s",
+                id="positive",
+            ),
+            pytest.param(None, 0, "0s", id="zero-without-strategy"),
+        ],
+    )
+    def test_run_preserves_max_wait_duration(
+        self,
+        mock_pipeline_service_create_with_scheduling,
+        scheduling_strategy,
+        max_wait_duration,
+        expected_max_wait_duration,
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_BUCKET_NAME,
+            credentials=_TEST_CREDENTIALS,
+        )
+
+        job = training_jobs.CustomContainerTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+            container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
+            command=_TEST_TRAINING_CONTAINER_CMD,
+        )
+
+        job.run(
+            base_output_dir=_TEST_BASE_OUTPUT_DIR,
+            machine_type=_TEST_MACHINE_TYPE,
+            scheduling_strategy=scheduling_strategy,
+            max_wait_duration=max_wait_duration,
+            create_request_timeout=None,
+        )
+
+        _, create_kwargs = mock_pipeline_service_create_with_scheduling.call_args_list[
+            0
+        ]
+        training_pipeline = create_kwargs["training_pipeline"]
+        training_task_inputs = training_pipeline.training_task_inputs
+        actual_max_wait_duration = (
+            training_task_inputs["scheduling"]["max_wait_duration"]
+            if "scheduling" in training_task_inputs
+            else None
+        )
+
+        assert actual_max_wait_duration == expected_max_wait_duration
+
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 0.05)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 0.05)
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_returns_none_if_no_model_to_upload(
         self,
