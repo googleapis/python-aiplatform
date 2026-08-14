@@ -287,7 +287,7 @@ def generate_gcs_directory_for_pipeline_artifacts(
     project: Optional[str] = None,
     location: Optional[str] = None,
 ):
-    """Gets or creates the GCS directory for Vertex Pipelines artifacts.
+    """Gets or creates the GCS directory for pipelines artifacts.
 
     Args:
         project: Optional. Google Cloud Project that contains the staging bucket.
@@ -311,7 +311,7 @@ def create_gcs_bucket_for_pipeline_artifacts_if_it_does_not_exist(
     location: Optional[str] = None,
     credentials: Optional[auth_credentials.Credentials] = None,
 ):
-    """Gets or creates the GCS directory for Vertex Pipelines artifacts.
+    """Gets or creates the GCS directory for pipelines artifacts.
 
     Args:
         output_artifacts_gcs_dir: Optional. The GCS location for the pipeline outputs.
@@ -353,9 +353,7 @@ def create_gcs_bucket_for_pipeline_artifacts_if_it_does_not_exist(
     )
 
     if not pipelines_bucket.exists():
-        _logger.info(
-            f'Creating GCS bucket for Vertex Pipelines: "{pipelines_bucket.name}"'
-        )
+        _logger.info(f'Creating GCS bucket for pipelines: "{pipelines_bucket.name}"')
         pipelines_bucket = storage_client.create_bucket(
             bucket_or_name=pipelines_bucket,
             project=project,
