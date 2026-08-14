@@ -177,10 +177,22 @@ from .common import _UpdateRuntimeFeedbackContextRequestParameters
 from .common import _UpdateRuntimeFeedbackEntryRequestParameters
 from .common import _UpdateSkillRequestParameters
 from .common import _UploadRagFileParameters
+from .common import A2aPart
+from .common import A2aPartDict
+from .common import A2aPartOrDict
 from .common import A2aTask
+from .common import A2aTaskArtifact
+from .common import A2aTaskArtifactDict
+from .common import A2aTaskArtifactOrDict
 from .common import A2aTaskDict
+from .common import A2aTaskMessage
+from .common import A2aTaskMessageDict
+from .common import A2aTaskMessageOrDict
 from .common import A2aTaskOrDict
 from .common import A2aTaskState
+from .common import A2aTaskStatus
+from .common import A2aTaskStatusDict
+from .common import A2aTaskStatusOrDict
 from .common import AcceleratorType
 from .common import AgentEngine
 from .common import AgentEngineConfig
@@ -933,6 +945,9 @@ from .common import ImportRagFilesRequestOrDict
 from .common import ImportRagFilesResponse
 from .common import ImportRagFilesResponseDict
 from .common import ImportRagFilesResponseOrDict
+from .common import InferenceEventLoggingConfig
+from .common import InferenceEventLoggingConfigDict
+from .common import InferenceEventLoggingConfigOrDict
 from .common import IngestEventsConfig
 from .common import IngestEventsConfigDict
 from .common import IngestEventsConfigOrDict
@@ -1243,6 +1258,7 @@ from .common import Modality
 from .common import ModelContainerSpec
 from .common import ModelContainerSpecDict
 from .common import ModelContainerSpecOrDict
+from .common import ModelProvider
 from .common import MultimodalDataset
 from .common import MultimodalDatasetDict
 from .common import MultimodalDatasetOperation
@@ -1387,6 +1403,12 @@ from .common import PublisherModelCallToActionRegionalResourceReferencesOrDict
 from .common import PublisherModelCallToActionViewRestApi
 from .common import PublisherModelCallToActionViewRestApiDict
 from .common import PublisherModelCallToActionViewRestApiOrDict
+from .common import PublisherModelConfig
+from .common import PublisherModelConfigClaudeFeatureConfig
+from .common import PublisherModelConfigClaudeFeatureConfigDict
+from .common import PublisherModelConfigClaudeFeatureConfigOrDict
+from .common import PublisherModelConfigDict
+from .common import PublisherModelConfigOrDict
 from .common import PublisherModelDict
 from .common import PublisherModelDocumentation
 from .common import PublisherModelDocumentationDict
@@ -1714,6 +1736,7 @@ from .common import RetrieveSkillsConfigOrDict
 from .common import RetrieveSkillsResponse
 from .common import RetrieveSkillsResponseDict
 from .common import RetrieveSkillsResponseOrDict
+from .common import Role
 from .common import RollbackAgentEngineMemoryConfig
 from .common import RollbackAgentEngineMemoryConfigDict
 from .common import RollbackAgentEngineMemoryConfigOrDict
@@ -1808,6 +1831,9 @@ from .common import SandboxEnvironmentTemplateDefaultContainerEnvironmentOrDict
 from .common import SandboxEnvironmentTemplateDict
 from .common import SandboxEnvironmentTemplateEgressControlConfig
 from .common import SandboxEnvironmentTemplateEgressControlConfigDict
+from .common import SandboxEnvironmentTemplateEgressControlConfigDnsPeeringConfig
+from .common import SandboxEnvironmentTemplateEgressControlConfigDnsPeeringConfigDict
+from .common import SandboxEnvironmentTemplateEgressControlConfigDnsPeeringConfigOrDict
 from .common import SandboxEnvironmentTemplateEgressControlConfigOrDict
 from .common import SandboxEnvironmentTemplateNetworkPort
 from .common import SandboxEnvironmentTemplateNetworkPortDict
@@ -2159,6 +2185,18 @@ __all__ = [
     "TaskStatusDetails",
     "TaskStatusDetailsDict",
     "TaskStatusDetailsOrDict",
+    "A2aPart",
+    "A2aPartDict",
+    "A2aPartOrDict",
+    "A2aTaskArtifact",
+    "A2aTaskArtifactDict",
+    "A2aTaskArtifactOrDict",
+    "A2aTaskMessage",
+    "A2aTaskMessageDict",
+    "A2aTaskMessageOrDict",
+    "A2aTaskStatus",
+    "A2aTaskStatusDict",
+    "A2aTaskStatusOrDict",
     "A2aTask",
     "A2aTaskDict",
     "A2aTaskOrDict",
@@ -3296,6 +3334,9 @@ __all__ = [
     "SandboxEnvironmentTemplateDefaultContainerEnvironment",
     "SandboxEnvironmentTemplateDefaultContainerEnvironmentDict",
     "SandboxEnvironmentTemplateDefaultContainerEnvironmentOrDict",
+    "SandboxEnvironmentTemplateEgressControlConfigDnsPeeringConfig",
+    "SandboxEnvironmentTemplateEgressControlConfigDnsPeeringConfigDict",
+    "SandboxEnvironmentTemplateEgressControlConfigDnsPeeringConfigOrDict",
     "SandboxEnvironmentTemplateEgressControlConfig",
     "SandboxEnvironmentTemplateEgressControlConfigDict",
     "SandboxEnvironmentTemplateEgressControlConfigOrDict",
@@ -3893,6 +3934,15 @@ __all__ = [
     "PrivateServiceConnectConfig",
     "PrivateServiceConnectConfigDict",
     "PrivateServiceConnectConfigOrDict",
+    "PublisherModelConfigClaudeFeatureConfig",
+    "PublisherModelConfigClaudeFeatureConfigDict",
+    "PublisherModelConfigClaudeFeatureConfigOrDict",
+    "InferenceEventLoggingConfig",
+    "InferenceEventLoggingConfigDict",
+    "InferenceEventLoggingConfigOrDict",
+    "PublisherModelConfig",
+    "PublisherModelConfigDict",
+    "PublisherModelConfigOrDict",
     "Endpoint",
     "EndpointDict",
     "EndpointOrDict",
@@ -4005,6 +4055,7 @@ __all__ = [
     "DeployOptionDict",
     "DeployOptionOrDict",
     "A2aTaskState",
+    "Role",
     "State",
     "Strategy",
     "AcceleratorType",
@@ -4039,6 +4090,7 @@ __all__ = [
     "Modality",
     "DeploymentType",
     "PscAutomationState",
+    "ModelProvider",
     "EvaluationExperimentMergeStrategy",
     "EvaluationItemType",
     "SamplingMethod",
