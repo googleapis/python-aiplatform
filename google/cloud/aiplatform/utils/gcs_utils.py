@@ -299,7 +299,9 @@ def generate_gcs_directory_for_pipeline_artifacts(
     project = project or initializer.global_config.project
     location = location or initializer.global_config.location
 
-    pipelines_bucket_name = project + "-vertex-pipelines-" + location
+    pipelines_bucket_name = (
+        project + "-vertex-pipelines-" + location + "-" + _DEFAULT_STAGING_BUCKET_SALT
+    )
     output_artifacts_gcs_dir = "gs://" + pipelines_bucket_name + "/output_artifacts/"
     return output_artifacts_gcs_dir
 
@@ -375,6 +377,14 @@ def create_gcs_bucket_for_pipeline_artifacts_if_it_does_not_exist(
             f"serviceAccount:{service_account}"
         )
         pipelines_bucket.set_iam_policy(bucket_iam_policy)
+    elif not _verify_bucket_ownership(pipelines_bucket, project, storage_client):
+        raise ValueError(
+            f'Output artifacts bucket "{pipelines_bucket.name}" exists but does '
+            f'not belong to project "{project}". This may indicate a '
+            f"bucket squatting attack. Please provide an explicit "
+            f"output_artifacts_gcs_dir parameter or configure one via "
+            f"aiplatform.init(output_artifacts_gcs_dir='gs://your-bucket')."
+        )
     return output_artifacts_gcs_dir
 
 

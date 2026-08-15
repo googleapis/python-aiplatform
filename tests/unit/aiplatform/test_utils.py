@@ -609,7 +609,8 @@ class TestGcsUtils:
         output = gcs_utils.generate_gcs_directory_for_pipeline_artifacts(
             "project", "us-central1"
         )
-        assert output == "gs://project-vertex-pipelines-us-central1/output_artifacts/"
+        assert output.startswith("gs://project-vertex-pipelines-us-central1-")
+        assert output.endswith("/output_artifacts/")
 
     @patch.object(storage.Bucket, "exists", return_value=False)
     @patch.object(storage, "Client")
@@ -627,9 +628,8 @@ class TestGcsUtils:
         assert mock_storage_client.called
         assert mock_bucket_not_exist.called
         assert mock_get_project_number.called
-        assert (
-            output == "gs://test-project-vertex-pipelines-us-central1/output_artifacts/"
-        )
+        assert output.startswith("gs://test-project-vertex-pipelines-us-central1-")
+        assert output.endswith("/output_artifacts/")
 
     def test_download_from_gcs_dir(
         self, mock_storage_client_list_blobs, mock_storage_blob_download_to_filename
