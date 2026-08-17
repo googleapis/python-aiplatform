@@ -68,6 +68,7 @@ from .common import _DeleteRuntimeFeedbackEntryRequestParameters
 from .common import _DeleteSandboxEnvironmentSnapshotRequestParameters
 from .common import _DeleteSandboxEnvironmentTemplateRequestParameters
 from .common import _DeleteSkillRequestParameters
+from .common import _DeployRequestParameters
 from .common import _EvaluateInstancesRequestParameters
 from .common import _ExecuteCodeAgentEngineSandboxRequestParameters
 from .common import _ExportPublisherModelRequestParameters
@@ -95,6 +96,7 @@ from .common import _GetDatasetOperationParameters
 from .common import _GetDatasetParameters
 from .common import _GetDatasetVersionParameters
 from .common import _GetDeleteAgentEngineRuntimeRevisionOperationParameters
+from .common import _GetDeployOperationParameters
 from .common import _GetEndpointOperationParameters
 from .common import _GetEndpointParameters
 from .common import _GetEvaluationExperimentParameters
@@ -540,6 +542,9 @@ from .common import DeleteSkillConfigOrDict
 from .common import DeleteSkillOperation
 from .common import DeleteSkillOperationDict
 from .common import DeleteSkillOperationOrDict
+from .common import DeployConfig
+from .common import DeployConfigDict
+from .common import DeployConfigOrDict
 from .common import DeployedModel
 from .common import DeployedModelDict
 from .common import DeployedModelOrDict
@@ -547,9 +552,30 @@ from .common import DeployedModelStatus
 from .common import DeployedModelStatusDict
 from .common import DeployedModelStatusOrDict
 from .common import DeploymentType
+from .common import DeployModelOperation
+from .common import DeployModelOperationDict
+from .common import DeployModelOperationOrDict
 from .common import DeployOption
 from .common import DeployOptionDict
 from .common import DeployOptionOrDict
+from .common import DeployPublisherModelConfig
+from .common import DeployPublisherModelConfigDict
+from .common import DeployPublisherModelConfigOrDict
+from .common import DeployRequestCustomModel
+from .common import DeployRequestCustomModelDict
+from .common import DeployRequestCustomModelOrDict
+from .common import DeployRequestDeployConfig
+from .common import DeployRequestDeployConfigDict
+from .common import DeployRequestDeployConfigOrDict
+from .common import DeployRequestEndpointConfig
+from .common import DeployRequestEndpointConfigDict
+from .common import DeployRequestEndpointConfigOrDict
+from .common import DeployRequestModelConfig
+from .common import DeployRequestModelConfigDict
+from .common import DeployRequestModelConfigOrDict
+from .common import DeployResponse
+from .common import DeployResponseDict
+from .common import DeployResponseOrDict
 from .common import DirectUploadSource
 from .common import DirectUploadSourceDict
 from .common import DirectUploadSourceOrDict
@@ -847,6 +873,9 @@ from .common import GetDatasetOperationConfigOrDict
 from .common import GetDeleteAgentEngineRuntimeRevisionOperationConfig
 from .common import GetDeleteAgentEngineRuntimeRevisionOperationConfigDict
 from .common import GetDeleteAgentEngineRuntimeRevisionOperationConfigOrDict
+from .common import GetDeployOperationConfig
+from .common import GetDeployOperationConfigDict
+from .common import GetDeployOperationConfigOrDict
 from .common import GetEndpointConfig
 from .common import GetEndpointConfigDict
 from .common import GetEndpointConfigOrDict
@@ -3769,6 +3798,36 @@ __all__ = [
     "GetExportPublisherModelOperationConfig",
     "GetExportPublisherModelOperationConfigDict",
     "GetExportPublisherModelOperationConfigOrDict",
+    "DeployConfig",
+    "DeployConfigDict",
+    "DeployConfigOrDict",
+    "DeployRequestCustomModel",
+    "DeployRequestCustomModelDict",
+    "DeployRequestCustomModelOrDict",
+    "DeployRequestModelConfig",
+    "DeployRequestModelConfigDict",
+    "DeployRequestModelConfigOrDict",
+    "PSCAutomationConfig",
+    "PSCAutomationConfigDict",
+    "PSCAutomationConfigOrDict",
+    "PrivateServiceConnectConfig",
+    "PrivateServiceConnectConfigDict",
+    "PrivateServiceConnectConfigOrDict",
+    "DeployRequestEndpointConfig",
+    "DeployRequestEndpointConfigDict",
+    "DeployRequestEndpointConfigOrDict",
+    "DeployRequestDeployConfig",
+    "DeployRequestDeployConfigDict",
+    "DeployRequestDeployConfigOrDict",
+    "DeployResponse",
+    "DeployResponseDict",
+    "DeployResponseOrDict",
+    "DeployModelOperation",
+    "DeployModelOperationDict",
+    "DeployModelOperationOrDict",
+    "GetDeployOperationConfig",
+    "GetDeployOperationConfigDict",
+    "GetDeployOperationConfigOrDict",
     "CreateRuntimeFeedbackEntryConfig",
     "CreateRuntimeFeedbackEntryConfigDict",
     "CreateRuntimeFeedbackEntryConfigOrDict",
@@ -3928,12 +3987,6 @@ __all__ = [
     "PredictRequestResponseLoggingConfig",
     "PredictRequestResponseLoggingConfigDict",
     "PredictRequestResponseLoggingConfigOrDict",
-    "PSCAutomationConfig",
-    "PSCAutomationConfigDict",
-    "PSCAutomationConfigOrDict",
-    "PrivateServiceConnectConfig",
-    "PrivateServiceConnectConfigDict",
-    "PrivateServiceConnectConfigOrDict",
     "PublisherModelConfigClaudeFeatureConfig",
     "PublisherModelConfigClaudeFeatureConfigDict",
     "PublisherModelConfigClaudeFeatureConfigOrDict",
@@ -4051,6 +4104,9 @@ __all__ = [
     "ExportOpenModelConfig",
     "ExportOpenModelConfigDict",
     "ExportOpenModelConfigOrDict",
+    "DeployPublisherModelConfig",
+    "DeployPublisherModelConfigDict",
+    "DeployPublisherModelConfigOrDict",
     "DeployOption",
     "DeployOptionDict",
     "DeployOptionOrDict",
@@ -4081,6 +4137,7 @@ __all__ = [
     "OpenSourceCategory",
     "VersionState",
     "QuotaState",
+    "PscAutomationState",
     "FeedbackType",
     "Encoding",
     "ColorMap",
@@ -4089,7 +4146,6 @@ __all__ = [
     "DataFormat",
     "Modality",
     "DeploymentType",
-    "PscAutomationState",
     "ModelProvider",
     "EvaluationExperimentMergeStrategy",
     "EvaluationItemType",
@@ -4261,6 +4317,8 @@ __all__ = [
     "_RecommendSpecRequestParameters",
     "_ExportPublisherModelRequestParameters",
     "_GetExportPublisherModelOperationParameters",
+    "_DeployRequestParameters",
+    "_GetDeployOperationParameters",
     "_CreateRuntimeFeedbackEntryRequestParameters",
     "_DeleteRuntimeFeedbackEntryRequestParameters",
     "_GetRuntimeFeedbackRequestParameters",

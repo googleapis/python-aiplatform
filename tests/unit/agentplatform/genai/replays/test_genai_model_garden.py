@@ -252,6 +252,164 @@ def test_export_open_model_invalid_name_raises(client):
     )
 
 
+def test_deploy_publisher_model_wait_for_completion(client):
+  """Default wait_for_completion=True path: blocks on the LRO, returns endpoint.
+
+  Covers the polling loop end to end. ``await_operation`` polls once before
+  sleeping, so the recorded LRO is already done on the first GET and the
+  replay completes without waiting out ``poll_interval_seconds``.
+  """
+  response = client.model_garden.deploy_publisher_model(
+      model="google/gemma2@gemma-2-2b-it",
+      config=types.DeployPublisherModelConfig(
+          accept_eula=True,
+          machine_type="g2-standard-12",
+          accelerator_type="NVIDIA_L4",
+          accelerator_count=1,
+          min_replica_count=1,
+          max_replica_count=1,
+          poll_interval_seconds=0.01,
+      ),
+  )
+  assert isinstance(response, types.DeployResponse)
+  assert "/endpoints/" in response.endpoint
+  assert "/models/" in response.model
+
+
+def test_get_deploy_publisher_model_operation(client):
+  """Public getter returns a DeployModelOperation for a running deploy LRO.
+
+  Chains a wait_for_completion=False deploy with an explicit poll via the
+  public getter -- the same call users doing their own polling (custom
+  backoff, cancellation, etc.) will make.
+  """
+  op = client.model_garden.deploy_publisher_model(
+      model="google/gemma2@gemma-2-2b-it",
+      config=types.DeployPublisherModelConfig(
+          accept_eula=True,
+          machine_type="g2-standard-12",
+          accelerator_type="NVIDIA_L4",
+          accelerator_count=1,
+          min_replica_count=1,
+          max_replica_count=1,
+          wait_for_completion=False,
+      ),
+  )
+  polled = client.model_garden.get_deploy_publisher_model_operation(
+      operation_name=op.name,
+  )
+  assert isinstance(polled, types.DeployModelOperation)
+  assert polled.name == op.name
+
+
+def test_deploy_publisher_model_no_wait_returns_operation(client):
+  """wait_for_completion=False returns the DeployModelOperation immediately.
+
+  Records only the initial Deploy POST (no LRO polling), so this is cheap to
+  record. Also pins the DedicatedResources wire mapping: machine_type /
+  accelerator_type / accelerator_count / replica counts must serialize into
+  ``deployConfig.dedicated_resources`` exactly as recorded, or the replay
+  framework's request-body comparison fails.
+  """
+  operation = client.model_garden.deploy_publisher_model(
+      model="google/gemma2@gemma-2-2b-it",
+      config=types.DeployPublisherModelConfig(
+          accept_eula=True,
+          machine_type="g2-standard-12",
+          accelerator_type="NVIDIA_L4",
+          accelerator_count=1,
+          min_replica_count=1,
+          max_replica_count=1,
+          wait_for_completion=False,
+      ),
+  )
+  assert isinstance(operation, types.DeployModelOperation)
+  assert operation.name
+  assert "/operations/" in operation.name
+  # The non-blocking path must not resolve the LRO.
+  assert operation.done is not True
+
+
+def test_deploy_publisher_model_no_wait_dict_config(client):
+  """The config may be passed as a plain dict; wait_for_completion=False path."""
+  operation = client.model_garden.deploy_publisher_model(
+      model="google/gemma2@gemma-2-2b-it",
+      config={
+          "accept_eula": True,
+          "machine_type": "g2-standard-12",
+          "accelerator_type": "NVIDIA_L4",
+          "accelerator_count": 1,
+          "min_replica_count": 1,
+          "max_replica_count": 1,
+          "wait_for_completion": False,
+      },
+  )
+  assert isinstance(operation, types.DeployModelOperation)
+  assert operation.name
+
+
+def test_deploy_publisher_model_hugging_face_no_wait(client):
+  """Hugging Face IDs go out as ``huggingFaceModelId``, lowercased.
+
+  The model is passed in mixed case; the recorded request body has the
+  lowercased form, so if ``_resolve_deploy_model_name`` ever stopped lowering
+  (or started sending HF IDs as ``publisherModelName``) the replay framework's
+  body comparison would fail here.
+  """
+  operation = client.model_garden.deploy_publisher_model(
+      model="CodeLlama/CodeLlama-7b-hf",
+      config=types.DeployPublisherModelConfig(wait_for_completion=False),
+  )
+  assert isinstance(operation, types.DeployModelOperation)
+  assert operation.name
+
+
+def test_deploy_publisher_model_invalid_name_raises(client):
+  """Invalid model name is rejected client-side; no RPC needed."""
+  with pytest.raises(ValueError, match="not a valid publisher model name"):
+    client.model_garden.deploy_publisher_model(model="not-a-valid-name")
+
+
+def test_deploy_publisher_model_container_override_without_image_raises(client):
+  """Container overrides without an image URI are rejected client-side.
+
+  Uses an invalid model name so that a regression in the container check
+  cannot fall through to a real DeployPublisherModel RPC: config validation
+  runs before model-name resolution, so a healthy SDK raises the container
+  error and a broken one raises the name error -- either way, no RPC and no
+  unrecorded interaction.
+  """
+  with pytest.raises(ValueError, match="require serving_container_image_uri"):
+    client.model_garden.deploy_publisher_model(
+        model="not-a-valid-name",
+        config=types.DeployPublisherModelConfig(
+            container_variables={"MODEL_ID": "gemma-2-2b-it"},
+        ),
+    )
+
+
+def test_deploy_publisher_model_container_command_without_image_raises(client):
+  """container_command has the same requirement as container_variables."""
+  with pytest.raises(ValueError, match="require serving_container_image_uri"):
+    client.model_garden.deploy_publisher_model(
+        model="not-a-valid-name",
+        config=types.DeployPublisherModelConfig(
+            container_command=["python", "-m", "server"],
+        ),
+    )
+
+
+def test_deploy_publisher_model_container_args_without_image_raises(client):
+  """container_args has the same requirement as container_variables."""
+  with pytest.raises(ValueError, match="require serving_container_image_uri"):
+    client.model_garden.deploy_publisher_model(
+        model="not-a-valid-name",
+        config=types.DeployPublisherModelConfig(
+            container_args=["--tensor-parallel-size=2"],
+        ),
+    )
+
+
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
@@ -342,3 +500,45 @@ async def test_get_export_publisher_model_operation_async(client):
   )
   assert isinstance(polled, types.ExportModelOperation)
   assert polled.name == op.name
+
+
+@pytest.mark.asyncio
+async def test_deploy_publisher_model_async_no_wait_returns_operation(client):
+  """Async wait_for_completion=False returns the DeployModelOperation immediately.
+
+  Also pins ``fast_tryout_enabled`` on the async surface: it must reach
+  ``deployConfig.fast_tryout_enabled`` exactly as recorded.
+  """
+  operation = await client.aio.model_garden.deploy_publisher_model(
+      model="google/gemma2@gemma-2-2b-it",
+      config=types.DeployPublisherModelConfig(
+          accept_eula=True,
+          fast_tryout_enabled=True,
+          wait_for_completion=False,
+      ),
+  )
+  assert isinstance(operation, types.DeployModelOperation)
+  assert operation.name
+  assert "/operations/" in operation.name
+  assert operation.done is not True
+
+
+@pytest.mark.asyncio
+async def test_deploy_publisher_model_async_invalid_name_raises(client):
+  """Async invalid model name is rejected client-side; no RPC needed."""
+  with pytest.raises(ValueError, match="not a valid publisher model name"):
+    await client.aio.model_garden.deploy_publisher_model(
+        model="not-a-valid-name"
+    )
+
+
+@pytest.mark.asyncio
+async def test_deploy_publisher_model_async_container_override_raises(client):
+  """Async container-override validation matches the sync surface."""
+  with pytest.raises(ValueError, match="require serving_container_image_uri"):
+    await client.aio.model_garden.deploy_publisher_model(
+        model="not-a-valid-name",
+        config=types.DeployPublisherModelConfig(
+            container_args=["--tensor-parallel-size=2"],
+        ),
+    )

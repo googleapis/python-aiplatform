@@ -1770,3 +1770,766 @@ def test_export_open_model_async_invalid_name_raises(mock_async_client):
           )
       )
     m_rpc.assert_not_called()
+
+
+# ---- deploy_publisher_model tests -------------------------------------
+
+
+_HF_MODEL = (  # mixed case to exercise lowering
+    "Meta-Llama/Llama-3.3-70B-Instruct"
+)
+
+_TEST_DEPLOY_OPERATION = "projects/p/locations/us-central1/operations/1"
+_TEST_ENDPOINT_NAME = "projects/p/locations/us-central1/endpoints/123"
+_TEST_DEPLOYED_MODEL_NAME = "projects/p/locations/us-central1/models/456"
+
+
+def _make_deploy_operation(
+    name=_TEST_DEPLOY_OPERATION,
+    *,
+    done=False,
+    endpoint=None,
+    model=None,
+    error=None,
+):
+  """Builds a fake DeployModelOperation for use in tests."""
+  op = types.DeployModelOperation(name=name, done=done)
+  if endpoint is not None or model is not None:
+    op.response = types.DeployResponse(endpoint=endpoint, model=model)
+  if error is not None:
+    op.error = error
+  return op
+
+
+def _done_deploy_operation():
+  """A completed deploy LRO carrying both resource names."""
+  return _make_deploy_operation(
+      done=True,
+      endpoint=_TEST_ENDPOINT_NAME,
+      model=_TEST_DEPLOYED_MODEL_NAME,
+  )
+
+
+def _patch_deploy_rpc(mock_client, initial_op=None):
+  """Mocks the private ``_deploy`` RPC to return ``initial_op``."""
+  return mock.patch.object(
+      mock_client,
+      "_deploy",
+      return_value=(
+          initial_op if initial_op is not None else _make_deploy_operation()
+      ),
+  )
+
+
+def _patch_async_deploy_rpc(mock_client, initial_op=None):
+  """Async variant of _patch_deploy_rpc."""
+  return mock.patch.object(
+      mock_client,
+      "_deploy",
+      new=mock.AsyncMock(
+          return_value=(
+              initial_op if initial_op is not None else _make_deploy_operation()
+          )
+      ),
+  )
+
+
+# --- Return type & blocking behavior ------------------------------------
+
+
+def test_deploy_publisher_model_returns_deploy_response_when_waiting(
+    mock_client,
+):
+  """Default (wait_for_completion=True) blocks on the LRO and returns DeployResponse."""
+  with (
+      _patch_deploy_rpc(mock_client),
+      mock.patch.object(
+          model_garden._operations_utils,
+          "await_operation",
+          return_value=_done_deploy_operation(),
+      ) as m_await,
+  ):
+    result = mock_client.deploy_publisher_model(model=_OPEN_MODEL)
+    m_await.assert_called_once()
+    assert isinstance(result, types.DeployResponse)
+    assert result.endpoint == _TEST_ENDPOINT_NAME
+    assert result.model == _TEST_DEPLOYED_MODEL_NAME
+
+
+def test_deploy_publisher_model_does_not_return_gapic_endpoint(mock_client):
+  """The return value is a plain SDK type, never a GAPIC aiplatform.Endpoint."""
+  with (
+      _patch_deploy_rpc(mock_client),
+      mock.patch.object(
+          model_garden._operations_utils,
+          "await_operation",
+          return_value=_done_deploy_operation(),
+      ),
+  ):
+    result = mock_client.deploy_publisher_model(model=_OPEN_MODEL)
+    assert isinstance(result, types.DeployResponse)
+    assert isinstance(result.endpoint, str)
+    assert isinstance(result.model, str)
+
+
+def test_deploy_publisher_model_returns_operation_when_not_waiting(mock_client):
+  """wait_for_completion=False returns the operation immediately (no polling)."""
+  initial_op = _make_deploy_operation()
+  with (
+      _patch_deploy_rpc(mock_client, initial_op=initial_op),
+      mock.patch.object(
+          model_garden._operations_utils, "await_operation"
+      ) as m_await,
+  ):
+    result = mock_client.deploy_publisher_model(
+        model=_OPEN_MODEL,
+        config=types.DeployPublisherModelConfig(wait_for_completion=False),
+    )
+    m_await.assert_not_called()
+    assert result is initial_op
+
+
+def test_deploy_publisher_model_polls_via_public_getter(mock_client):
+  """``get_deploy_publisher_model_operation`` is used as the polling callback."""
+  with (
+      _patch_deploy_rpc(mock_client),
+      mock.patch.object(
+          model_garden._operations_utils,
+          "await_operation",
+          return_value=_done_deploy_operation(),
+      ) as m_await,
+  ):
+    mock_client.deploy_publisher_model(model=_OPEN_MODEL)
+    kwargs = m_await.call_args.kwargs
+    assert (
+        kwargs["get_operation_fn"]
+        == mock_client.get_deploy_publisher_model_operation
+    )
+    assert kwargs["operation_name"] == _TEST_DEPLOY_OPERATION
+
+
+def test_deploy_publisher_model_uses_default_poll_and_timeout(mock_client):
+  """No override in config -> ModelGarden defaults are forwarded to the poller."""
+  with (
+      _patch_deploy_rpc(mock_client),
+      mock.patch.object(
+          model_garden._operations_utils,
+          "await_operation",
+          return_value=_done_deploy_operation(),
+      ) as m_await,
+  ):
+    mock_client.deploy_publisher_model(model=_OPEN_MODEL)
+    kwargs = m_await.call_args.kwargs
+    assert (
+        kwargs["poll_interval"] == 30
+    )  # _DEFAULT_DEPLOY_POLL_INTERVAL_SECONDS
+    assert (
+        kwargs["timeout_seconds"] == 2 * 60 * 60
+    )  # _DEFAULT_DEPLOY_TIMEOUT_SECONDS
+
+
+def test_deploy_publisher_model_config_overrides_poll_and_timeout(mock_client):
+  """Config values override the defaults on the polling call."""
+  with (
+      _patch_deploy_rpc(mock_client),
+      mock.patch.object(
+          model_garden._operations_utils,
+          "await_operation",
+          return_value=_done_deploy_operation(),
+      ) as m_await,
+  ):
+    mock_client.deploy_publisher_model(
+        model=_OPEN_MODEL,
+        config=types.DeployPublisherModelConfig(
+            poll_interval_seconds=5,
+            timeout_seconds=600,
+        ),
+    )
+    kwargs = m_await.call_args.kwargs
+    assert kwargs["poll_interval"] == 5
+    assert kwargs["timeout_seconds"] == 600
+
+
+def test_deploy_publisher_model_raises_on_operation_error(mock_client):
+  """A backend error on the LRO surfaces as RuntimeError."""
+  failed_op = _make_deploy_operation(
+      done=True, error={"message": "quota exceeded"}
+  )
+  with (
+      _patch_deploy_rpc(mock_client),
+      mock.patch.object(
+          model_garden._operations_utils,
+          "await_operation",
+          return_value=failed_op,
+      ),
+  ):
+    with pytest.raises(RuntimeError, match="Deploy failed"):
+      mock_client.deploy_publisher_model(model=_OPEN_MODEL)
+
+
+def test_deploy_publisher_model_raises_when_response_missing_endpoint(
+    mock_client,
+):
+  """A done LRO with no endpoint surfaces as RuntimeError."""
+  done_op = _make_deploy_operation(done=True)  # no response set
+  with (
+      _patch_deploy_rpc(mock_client),
+      mock.patch.object(
+          model_garden._operations_utils,
+          "await_operation",
+          return_value=done_op,
+      ),
+  ):
+    with pytest.raises(RuntimeError, match="no endpoint"):
+      mock_client.deploy_publisher_model(model=_OPEN_MODEL)
+
+
+# --- Model-name resolution ---------------------------------------------
+
+
+def test_deploy_publisher_model_simplified_name_reconciled(mock_client):
+  """Simplified '{publisher}/{model}@{version}' -> full resource name."""
+  with (
+      _patch_deploy_rpc(mock_client) as m_rpc,
+      mock.patch.object(
+          model_garden._operations_utils,
+          "await_operation",
+          return_value=_done_deploy_operation(),
+      ),
+  ):
+    mock_client.deploy_publisher_model(model=_OPEN_MODEL)
+    kwargs = m_rpc.call_args.kwargs
+    assert (
+        kwargs["publisher_model_name"]
+        == "publishers/google/models/gemma3@gemma-3-12b-it"
+    )
+    assert kwargs["hugging_face_model_id"] is None
+    assert kwargs["destination"] == (
+        f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
+    )
+
+
+def test_deploy_publisher_model_full_resource_name_preserved(mock_client):
+  """A full 'publishers/.../models/...@version' is passed through unchanged."""
+  with (
+      _patch_deploy_rpc(mock_client) as m_rpc,
+      mock.patch.object(
+          model_garden._operations_utils,
+          "await_operation",
+          return_value=_done_deploy_operation(),
+      ),
+  ):
+    mock_client.deploy_publisher_model(
+        model="publishers/google/models/gemma3@gemma-3-12b-it"
+    )
+    assert (
+        m_rpc.call_args.kwargs["publisher_model_name"]
+        == "publishers/google/models/gemma3@gemma-3-12b-it"
+    )
+
+
+def test_deploy_publisher_model_hugging_face_uses_hf_model_id(mock_client):
+  """HF IDs are lowercased and routed to huggingFaceModelId (legacy parity)."""
+  with (
+      _patch_deploy_rpc(mock_client) as m_rpc,
+      mock.patch.object(
+          model_garden._operations_utils,
+          "await_operation",
+          return_value=_done_deploy_operation(),
+      ),
+  ):
+    mock_client.deploy_publisher_model(model=_HF_MODEL)
+    kwargs = m_rpc.call_args.kwargs
+    assert kwargs["publisher_model_name"] is None
+    assert (
+        kwargs["hugging_face_model_id"] == "meta-llama/llama-3.3-70b-instruct"
+    )
+
+
+def test_deploy_publisher_model_invalid_name_raises_before_rpc(mock_client):
+  """Malformed model names raise ValueError; no _deploy call and no polling."""
+  with (
+      _patch_deploy_rpc(mock_client) as m_rpc,
+      mock.patch.object(
+          model_garden._operations_utils, "await_operation"
+      ) as m_await,
+  ):
+    with pytest.raises(ValueError, match="not a valid publisher model name"):
+      mock_client.deploy_publisher_model(model="not-a-valid-name")
+    m_rpc.assert_not_called()
+    m_await.assert_not_called()
+
+
+# --- Config validation --------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    "override",
+    [
+        {"container_command": ["python", "-m", "server"]},
+        {"container_args": ["--tensor-parallel-size=2"]},
+        {"container_variables": {"MODEL_ID": "gemma-3-12b-it"}},
+    ],
+)
+def test_deploy_publisher_model_container_override_without_image_raises(
+    mock_client, override
+):
+  """Container overrides without serving_container_image_uri fail loudly."""
+  with _patch_deploy_rpc(mock_client) as m_rpc:
+    with pytest.raises(ValueError, match="require serving_container_image_uri"):
+      mock_client.deploy_publisher_model(
+          model=_OPEN_MODEL,
+          config=types.DeployPublisherModelConfig(**override),
+      )
+    m_rpc.assert_not_called()
+
+
+def test_deploy_publisher_model_container_override_error_names_fields(
+    mock_client,
+):
+  """The ValueError names every offending field so the fix is obvious."""
+  with _patch_deploy_rpc(mock_client):
+    with pytest.raises(ValueError) as excinfo:
+      mock_client.deploy_publisher_model(
+          model=_OPEN_MODEL,
+          config=types.DeployPublisherModelConfig(
+              container_command=["python"],
+              container_variables={"FOO": "bar"},
+          ),
+      )
+    message = str(excinfo.value)
+    assert "container_command" in message
+    assert "container_variables" in message
+
+
+# --- Config translation to DeployRequest sub-messages -------------------
+
+
+def test_deploy_publisher_model_default_config_no_optional_blocks(mock_client):
+  """Empty config -> no DedicatedResources, no ContainerSpec, no PSC."""
+  with (
+      _patch_deploy_rpc(mock_client) as m_rpc,
+      mock.patch.object(
+          model_garden._operations_utils,
+          "await_operation",
+          return_value=_done_deploy_operation(),
+      ),
+  ):
+    mock_client.deploy_publisher_model(model=_OPEN_MODEL)
+    kwargs = m_rpc.call_args.kwargs
+    assert kwargs["deploy_config"].dedicated_resources is None
+    assert kwargs["model_config_val"].container_spec is None
+    assert kwargs["endpoint_config"].dedicated_endpoint_enabled is None
+    assert kwargs["endpoint_config"].private_service_connect_config is None
+
+
+def test_deploy_publisher_model_dict_config_validated(mock_client):
+  """A plain dict is validated into DeployPublisherModelConfig."""
+  with (
+      _patch_deploy_rpc(mock_client) as m_rpc,
+      mock.patch.object(
+          model_garden._operations_utils,
+          "await_operation",
+          return_value=_done_deploy_operation(),
+      ),
+  ):
+    mock_client.deploy_publisher_model(
+        model=_OPEN_MODEL,
+        config={"machine_type": "g2-standard-12", "accept_eula": True},
+    )
+    kwargs = m_rpc.call_args.kwargs
+    assert kwargs["model_config_val"].accept_eula is True
+    assert (
+        kwargs["deploy_config"].dedicated_resources.machine_spec.machine_type
+        == "g2-standard-12"
+    )
+
+
+def test_deploy_publisher_model_dict_config_honors_wait_for_completion(
+    mock_client,
+):
+  """wait_for_completion=False survives dict validation."""
+  initial_op = _make_deploy_operation()
+  with (
+      _patch_deploy_rpc(mock_client, initial_op=initial_op),
+      mock.patch.object(
+          model_garden._operations_utils, "await_operation"
+      ) as m_await,
+  ):
+    result = mock_client.deploy_publisher_model(
+        model=_OPEN_MODEL,
+        config={"wait_for_completion": False},
+    )
+    m_await.assert_not_called()
+    assert result is initial_op
+
+
+def test_deploy_publisher_model_machine_replica_and_spot_forwarded(mock_client):
+  """machine_type/accelerator/replicas/spot populate DedicatedResources."""
+  with (
+      _patch_deploy_rpc(mock_client) as m_rpc,
+      mock.patch.object(
+          model_garden._operations_utils,
+          "await_operation",
+          return_value=_done_deploy_operation(),
+      ),
+  ):
+    mock_client.deploy_publisher_model(
+        model=_OPEN_MODEL,
+        config=types.DeployPublisherModelConfig(
+            machine_type="g2-standard-12",
+            accelerator_type="NVIDIA_L4",
+            accelerator_count=1,
+            min_replica_count=2,
+            max_replica_count=5,
+            spot=True,
+        ),
+    )
+    dr = m_rpc.call_args.kwargs["deploy_config"].dedicated_resources
+    assert dr.machine_spec.machine_type == "g2-standard-12"
+    assert dr.machine_spec.accelerator_type == "NVIDIA_L4"
+    assert dr.machine_spec.accelerator_count == 1
+    assert dr.min_replica_count == 2
+    assert dr.max_replica_count == 5
+    assert dr.spot is True
+
+
+def test_deploy_publisher_model_accelerator_only_triggers_dedicated_resources(
+    mock_client,
+):
+  """A single machine-shape field (accelerator_type) is enough to send DedicatedResources."""
+  with (
+      _patch_deploy_rpc(mock_client) as m_rpc,
+      mock.patch.object(
+          model_garden._operations_utils,
+          "await_operation",
+          return_value=_done_deploy_operation(),
+      ),
+  ):
+    mock_client.deploy_publisher_model(
+        model=_OPEN_MODEL,
+        config=types.DeployPublisherModelConfig(accelerator_type="NVIDIA_L4"),
+    )
+    dr = m_rpc.call_args.kwargs["deploy_config"].dedicated_resources
+    assert dr is not None
+    assert dr.machine_spec.accelerator_type == "NVIDIA_L4"
+
+
+def test_deploy_publisher_model_dedicated_endpoint_disabled_inverts(
+    mock_client,
+):
+  """dedicated_endpoint_disabled=True maps to dedicated_endpoint_enabled=False on wire."""
+  with (
+      _patch_deploy_rpc(mock_client) as m_rpc,
+      mock.patch.object(
+          model_garden._operations_utils,
+          "await_operation",
+          return_value=_done_deploy_operation(),
+      ),
+  ):
+    mock_client.deploy_publisher_model(
+        model=_OPEN_MODEL,
+        config=types.DeployPublisherModelConfig(
+            dedicated_endpoint_disabled=True
+        ),
+    )
+    assert (
+        m_rpc.call_args.kwargs["endpoint_config"].dedicated_endpoint_enabled
+        is False
+    )
+
+
+def test_deploy_publisher_model_dedicated_endpoint_disabled_false_maps_to_true(
+    mock_client,
+):
+  """dedicated_endpoint_disabled=False maps to dedicated_endpoint_enabled=True."""
+  with (
+      _patch_deploy_rpc(mock_client) as m_rpc,
+      mock.patch.object(
+          model_garden._operations_utils,
+          "await_operation",
+          return_value=_done_deploy_operation(),
+      ),
+  ):
+    mock_client.deploy_publisher_model(
+        model=_OPEN_MODEL,
+        config=types.DeployPublisherModelConfig(
+            dedicated_endpoint_disabled=False
+        ),
+    )
+    assert (
+        m_rpc.call_args.kwargs["endpoint_config"].dedicated_endpoint_enabled
+        is True
+    )
+
+
+def test_deploy_publisher_model_private_service_connect(mock_client):
+  """PSC fields populate PrivateServiceConnectConfig."""
+  with (
+      _patch_deploy_rpc(mock_client) as m_rpc,
+      mock.patch.object(
+          model_garden._operations_utils,
+          "await_operation",
+          return_value=_done_deploy_operation(),
+      ),
+  ):
+    mock_client.deploy_publisher_model(
+        model=_OPEN_MODEL,
+        config=types.DeployPublisherModelConfig(
+            enable_private_service_connect=True,
+            psc_project_allow_list=["project-a", "project-b"],
+        ),
+    )
+    psc = m_rpc.call_args.kwargs[
+        "endpoint_config"
+    ].private_service_connect_config
+    assert psc.enable_private_service_connect is True
+    assert psc.project_allowlist == ["project-a", "project-b"]
+
+
+def test_deploy_publisher_model_private_service_connect_without_allowlist(
+    mock_client,
+):
+  """PSC without an allowlist is allowed (backend applies its own default)."""
+  with (
+      _patch_deploy_rpc(mock_client) as m_rpc,
+      mock.patch.object(
+          model_garden._operations_utils,
+          "await_operation",
+          return_value=_done_deploy_operation(),
+      ),
+  ):
+    mock_client.deploy_publisher_model(
+        model=_OPEN_MODEL,
+        config=types.DeployPublisherModelConfig(
+            enable_private_service_connect=True,
+        ),
+    )
+    psc = m_rpc.call_args.kwargs[
+        "endpoint_config"
+    ].private_service_connect_config
+    assert psc.enable_private_service_connect is True
+    assert psc.project_allowlist is None
+
+
+def test_deploy_publisher_model_custom_container_spec(mock_client):
+  """image_uri + command + args + variables all populate ModelContainerSpec."""
+  with (
+      _patch_deploy_rpc(mock_client) as m_rpc,
+      mock.patch.object(
+          model_garden._operations_utils,
+          "await_operation",
+          return_value=_done_deploy_operation(),
+      ),
+  ):
+    mock_client.deploy_publisher_model(
+        model=_OPEN_MODEL,
+        config=types.DeployPublisherModelConfig(
+            serving_container_image_uri="us-docker.pkg.dev/vertex-ai/vllm",
+            container_command=["python", "-m", "vllm.entrypoints.api_server"],
+            container_args=["--tensor-parallel-size=2"],
+            container_variables={"MODEL_ID": "gemma-3-12b-it"},
+        ),
+    )
+    spec = m_rpc.call_args.kwargs["model_config_val"].container_spec
+    assert spec.image_uri == "us-docker.pkg.dev/vertex-ai/vllm"
+    assert spec.command == ["python", "-m", "vllm.entrypoints.api_server"]
+    assert spec.args == ["--tensor-parallel-size=2"]
+    assert spec.env == [types.EnvVar(name="MODEL_ID", value="gemma-3-12b-it")]
+
+
+def test_deploy_publisher_model_container_image_without_variables_leaves_env_none(
+    mock_client,
+):
+  """serving_container_image_uri alone -> container_spec set, env stays None."""
+  with (
+      _patch_deploy_rpc(mock_client) as m_rpc,
+      mock.patch.object(
+          model_garden._operations_utils,
+          "await_operation",
+          return_value=_done_deploy_operation(),
+      ),
+  ):
+    mock_client.deploy_publisher_model(
+        model=_OPEN_MODEL,
+        config=types.DeployPublisherModelConfig(
+            serving_container_image_uri="us-docker.pkg.dev/vertex-ai/vllm",
+        ),
+    )
+    spec = m_rpc.call_args.kwargs["model_config_val"].container_spec
+    assert spec.image_uri == "us-docker.pkg.dev/vertex-ai/vllm"
+    assert spec.env is None
+
+
+def test_deploy_publisher_model_display_names_and_fast_tryout(mock_client):
+  """endpoint/model display names and fast_tryout_enabled land on the right sub-messages."""
+  with (
+      _patch_deploy_rpc(mock_client) as m_rpc,
+      mock.patch.object(
+          model_garden._operations_utils,
+          "await_operation",
+          return_value=_done_deploy_operation(),
+      ),
+  ):
+    mock_client.deploy_publisher_model(
+        model=_OPEN_MODEL,
+        config=types.DeployPublisherModelConfig(
+            endpoint_display_name="my-endpoint",
+            model_display_name="my-model",
+            fast_tryout_enabled=True,
+        ),
+    )
+    kwargs = m_rpc.call_args.kwargs
+    assert kwargs["endpoint_config"].endpoint_display_name == "my-endpoint"
+    assert kwargs["model_config_val"].model_display_name == "my-model"
+    assert kwargs["deploy_config"].fast_tryout_enabled is True
+
+
+def test_deploy_publisher_model_forwards_eula_and_hf_token(mock_client):
+  """accept_eula and hugging_face_access_token land on model_config."""
+  with (
+      _patch_deploy_rpc(mock_client) as m_rpc,
+      mock.patch.object(
+          model_garden._operations_utils,
+          "await_operation",
+          return_value=_done_deploy_operation(),
+      ),
+  ):
+    mock_client.deploy_publisher_model(
+        model=_HF_MODEL,
+        config=types.DeployPublisherModelConfig(
+            accept_eula=True,
+            hugging_face_access_token="hf_token_xyz",
+        ),
+    )
+    model_config = m_rpc.call_args.kwargs["model_config_val"]
+    assert model_config.accept_eula is True
+    assert model_config.hugging_face_access_token == "hf_token_xyz"
+
+
+# --- Async surface parity ----------------------------------------------
+
+
+def test_deploy_publisher_model_async_returns_deploy_response_when_waiting(
+    mock_async_client,
+):
+  """Async default (wait=True) awaits the LRO and returns DeployResponse."""
+  with (
+      _patch_async_deploy_rpc(mock_async_client),
+      mock.patch.object(
+          model_garden._operations_utils,
+          "await_operation_async",
+          new=mock.AsyncMock(return_value=_done_deploy_operation()),
+      ),
+  ):
+    result = asyncio.run(
+        mock_async_client.deploy_publisher_model(
+            model=_OPEN_MODEL,
+            config=types.DeployPublisherModelConfig(
+                machine_type="g2-standard-12"
+            ),
+        )
+    )
+    assert isinstance(result, types.DeployResponse)
+    assert result.endpoint == _TEST_ENDPOINT_NAME
+    assert result.model == _TEST_DEPLOYED_MODEL_NAME
+
+
+def test_deploy_publisher_model_async_returns_operation_when_not_waiting(
+    mock_async_client,
+):
+  """Async wait=False returns the operation immediately."""
+  initial_op = _make_deploy_operation()
+  with (
+      _patch_async_deploy_rpc(mock_async_client, initial_op=initial_op),
+      mock.patch.object(
+          model_garden._operations_utils, "await_operation_async"
+      ) as m_await,
+  ):
+    result = asyncio.run(
+        mock_async_client.deploy_publisher_model(
+            model=_OPEN_MODEL,
+            config=types.DeployPublisherModelConfig(wait_for_completion=False),
+        )
+    )
+    m_await.assert_not_called()
+    assert result is initial_op
+
+
+def test_deploy_publisher_model_async_hugging_face(mock_async_client):
+  """Async HF path also lowercases and routes to hugging_face_model_id."""
+  with (
+      _patch_async_deploy_rpc(mock_async_client) as m_rpc,
+      mock.patch.object(
+          model_garden._operations_utils,
+          "await_operation_async",
+          new=mock.AsyncMock(return_value=_done_deploy_operation()),
+      ),
+  ):
+    asyncio.run(mock_async_client.deploy_publisher_model(model=_HF_MODEL))
+    kwargs = m_rpc.call_args.kwargs
+    assert kwargs["publisher_model_name"] is None
+    assert (
+        kwargs["hugging_face_model_id"] == "meta-llama/llama-3.3-70b-instruct"
+    )
+
+
+def test_deploy_publisher_model_async_invalid_name_raises(mock_async_client):
+  """Async invalid model name raises ValueError before any RPC or polling."""
+  with _patch_async_deploy_rpc(mock_async_client) as m_rpc:
+    with pytest.raises(ValueError, match="not a valid publisher model name"):
+      asyncio.run(
+          mock_async_client.deploy_publisher_model(model="not-a-valid-name")
+      )
+    m_rpc.assert_not_called()
+
+
+def test_deploy_publisher_model_async_container_override_without_image_raises(
+    mock_async_client,
+):
+  """Async container-override validation matches the sync surface."""
+  with _patch_async_deploy_rpc(mock_async_client) as m_rpc:
+    with pytest.raises(ValueError, match="require serving_container_image_uri"):
+      asyncio.run(
+          mock_async_client.deploy_publisher_model(
+              model=_OPEN_MODEL,
+              config=types.DeployPublisherModelConfig(
+                  container_args=["--flag"]
+              ),
+          )
+      )
+    m_rpc.assert_not_called()
+
+
+def test_deploy_publisher_model_async_raises_on_operation_error(
+    mock_async_client,
+):
+  """Async backend error on the LRO surfaces as RuntimeError."""
+  failed_op = _make_deploy_operation(
+      done=True, error={"message": "quota exceeded"}
+  )
+  with (
+      _patch_async_deploy_rpc(mock_async_client),
+      mock.patch.object(
+          model_garden._operations_utils,
+          "await_operation_async",
+          new=mock.AsyncMock(return_value=failed_op),
+      ),
+  ):
+    with pytest.raises(RuntimeError, match="Deploy failed"):
+      asyncio.run(mock_async_client.deploy_publisher_model(model=_OPEN_MODEL))
+
+
+# --- Private (pre-GA) surface ------------------------------------------
+#
+# No direct unit tests: `agentplatform/private/**` is excluded from the
+# buildable ":aiplatform" library (CORE_LIBRARY_EXCLUDES) and is not
+# importable today -- `private/types/evals.py` references
+# `genai_types.RubricVerdict`, which does not exist in the vendored
+# `google.genai`, so importing the package raises AttributeError at HEAD
+# independently of Model Garden.
+#
+# The private deploy surface cannot drift from the public one regardless:
+# both are generated from the same `model_garden.py.in` + `deploy.py`
+# config, and `generator_diff_test_private_vertex_sdk` fails if the
+# checked-in private files stop matching generator output.
