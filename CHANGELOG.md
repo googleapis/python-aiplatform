@@ -1,5 +1,53 @@
 # Changelog
 
+## [1.164.0](https://github.com/googleapis/python-aiplatform/compare/v1.163.0...v1.164.0) (2026-08-12)
+
+
+### Features
+
+* Add build configuration support to Vertex AI Reasoning Engine ([e20c003](https://github.com/googleapis/python-aiplatform/commit/e20c003ead17cb84873cd250f0319a647728ebd9))
+* Add encryption_spec (CMEK) support to EvaluationMetric SDK. ([6dd3179](https://github.com/googleapis/python-aiplatform/commit/6dd3179fc6ef4eeb33ea73c294481de945ff1ac8))
+* Add encryption_spec (CMEK) support to EvaluationRun SDK ([50a43af](https://github.com/googleapis/python-aiplatform/commit/50a43afece2123c71428b42ca7b03c673eb4aa71))
+* Add encryption_spec (CMEK) support to EvaluationSet resource ([c2244f9](https://github.com/googleapis/python-aiplatform/commit/c2244f9a9317535e0dbd50fb63522512c78adc45))
+* Add endpoint field to BatchPredictionJob for bring-your-own-endpoint batch prediction ([19144a4](https://github.com/googleapis/python-aiplatform/commit/19144a44189ae0eeb5a6483e570193e83c5a4f74))
+* Add sandbox templates and snapshots submodules to the Vertex AI GenAI SDK for Java. ([f7e3a70](https://github.com/googleapis/python-aiplatform/commit/f7e3a70122b4d023dc4eafef9f9242ae4be9ae29))
+* Add Tool.ExaAiSearch to Vertex AI v1 ([19144a4](https://github.com/googleapis/python-aiplatform/commit/19144a44189ae0eeb5a6483e570193e83c5a4f74))
+* Add Tool.ExaAiSearch to Vertex AI v1beta1 ([19144a4](https://github.com/googleapis/python-aiplatform/commit/19144a44189ae0eeb5a6483e570193e83c5a4f74))
+* Allow users to configure max wait time for prompt management queries for Python and JS ([ad63bfe](https://github.com/googleapis/python-aiplatform/commit/ad63bfee932843ad8a0477ebb07b0159269c74bb))
+* Allow users to search for spaces without requiring admin privileges ([19144a4](https://github.com/googleapis/python-aiplatform/commit/19144a44189ae0eeb5a6483e570193e83c5a4f74))
+* Forward per-request labels to RunConfig in streaming_agent_run_with_events ([f8eb68c](https://github.com/googleapis/python-aiplatform/commit/f8eb68c1748aff52d3506838d9d8c1ec537e56f5))
+* GenAI Client(evals) - async auto-create EvaluationExperiment parity ([e689f0e](https://github.com/googleapis/python-aiplatform/commit/e689f0ec00ad9b4a79b3982e8bb23c47bf0cb197))
+* GenAI Client(evals) - auto-create EvaluationExperiment in create_evaluation_run ([eb75e14](https://github.com/googleapis/python-aiplatform/commit/eb75e149302b9807330068b062d38b8dad9f9ef8))
+* GenAI Client(evals) - Pin SDK predefined metrics to latest Gemini 3.5 Flash versions by default ([f5d94b4](https://github.com/googleapis/python-aiplatform/commit/f5d94b4a0be671234604fc04acd8ce3bf7455e64))
+* GenAI Client(evals) - Support show() for EvaluationDataset built from eval_cases ([5b1a0aa](https://github.com/googleapis/python-aiplatform/commit/5b1a0aaeef86a55b8b14579719300380c10ec412))
+* Support Endpoints module for OpenModel prediction, and .get/undeploy/delete ([8848353](https://github.com/googleapis/python-aiplatform/commit/8848353237320a55e1bc7a38cd80c7d9a781764f))
+* Update Compute v1 to revision 20260722 ([19144a4](https://github.com/googleapis/python-aiplatform/commit/19144a44189ae0eeb5a6483e570193e83c5a4f74))
+
+
+### Bug Fixes
+
+* Add aiohttp to ADK extra requirements. ([390f2d1](https://github.com/googleapis/python-aiplatform/commit/390f2d1a3b2d3c0aa1cb35d19d2939e34eeebf56))
+* **deps:** Update the Java code generator (gapic-generator-java) to v2.75.0 ([19144a4](https://github.com/googleapis/python-aiplatform/commit/19144a44189ae0eeb5a6483e570193e83c5a4f74))
+* Enable automatic session creation in ADK template. ([f343270](https://github.com/googleapis/python-aiplatform/commit/f3432707f4e729910dd6781cce571d19b8956d49))
+* GenAI Client(evals) - skip agent config fetch when agent and client locations differ ([8b43add](https://github.com/googleapis/python-aiplatform/commit/8b43add1d5272a14fcf1c7a9a73b00949d425446))
+* Import `iam_credentials_v1` lazily in the sandboxes module. ([2a18bff](https://github.com/googleapis/python-aiplatform/commit/2a18bffab16255a2744f52b41d94d20e433c7dc4))
+* Persist the AgentCard on Agent Engine update() ([5d5a1ca](https://github.com/googleapis/python-aiplatform/commit/5d5a1cac8d4681521124ed3c225d2ad9c1e27643)), refs [#7064](https://github.com/googleapis/python-aiplatform/issues/7064)
+* Remove the `google-cloud-iam` dependency from the `agent_engines` extra. ([25deb44](https://github.com/googleapis/python-aiplatform/commit/25deb44cd7eb4876a5c2c964162919fa27cc62c8))
+* Update generator configuration and SDK bindings for Agent Engine Session update calls to return Session directly. ([2702857](https://github.com/googleapis/python-aiplatform/commit/270285774d9f210140a6c196d5c2b60d37cad33a))
+
+
+### Documentation
+
+* A comment for field `order_by` in message `.google.chat.v1.SearchSpacesRequest` is changed ([19144a4](https://github.com/googleapis/python-aiplatform/commit/19144a44189ae0eeb5a6483e570193e83c5a4f74))
+* A comment for field `query` in message `.google.chat.v1.SearchSpacesRequest` is changed ([19144a4](https://github.com/googleapis/python-aiplatform/commit/19144a44189ae0eeb5a6483e570193e83c5a4f74))
+* A comment for field `spaces` in message `.google.chat.v1.SearchSpacesResponse` is changed ([19144a4](https://github.com/googleapis/python-aiplatform/commit/19144a44189ae0eeb5a6483e570193e83c5a4f74))
+* A comment for field `use_admin_access` in message `.google.chat.v1.SearchSpacesRequest` is changed ([19144a4](https://github.com/googleapis/python-aiplatform/commit/19144a44189ae0eeb5a6483e570193e83c5a4f74))
+* A comment for method `SearchSpaces` in service `ChatService` is changed ([19144a4](https://github.com/googleapis/python-aiplatform/commit/19144a44189ae0eeb5a6483e570193e83c5a4f74))
+* Communicate on upcoming updates in the next major version ([c64b25f](https://github.com/googleapis/python-aiplatform/commit/c64b25f574742d9a22bde5cbfacc0cb286dc40c6))
+* Communicate on upcoming updates in the next major version ([76b9616](https://github.com/googleapis/python-aiplatform/commit/76b961689be5f573d76b43e64e6930d23dd12e33))
+* Update copyright year ([19144a4](https://github.com/googleapis/python-aiplatform/commit/19144a44189ae0eeb5a6483e570193e83c5a4f74))
+* Update various comments ([19144a4](https://github.com/googleapis/python-aiplatform/commit/19144a44189ae0eeb5a6483e570193e83c5a4f74))
+
 ## [1.163.0](https://github.com/googleapis/python-aiplatform/compare/v1.162.0...v1.163.0) (2026-07-28)
 
 

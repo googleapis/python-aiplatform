@@ -1564,11 +1564,61 @@ def _build_interaction_id_dataset(
     return types.EvaluationDataset(eval_cases=eval_cases)
 
 
+# Metrics supported for Managed Agent evaluation.
+_MANAGED_AGENT_SUPPORTED_METRICS = frozenset(
+    {
+        "safety_v1",
+        "final_response_quality_v1",
+        "multi_turn_task_success_v1",
+    }
+)
+
+
 def _has_interactions_data_source(
     eval_cases: list[types.EvalCase],
 ) -> bool:
     """Returns True if any EvalCase has interactions_data_source set."""
     return any(case.interactions_data_source is not None for case in eval_cases)
+
+
+def _validate_managed_agent_metrics(
+    agent: Optional[str],
+    metrics: Union[list[types.Metric], list[types.EvaluationRunMetric]],
+) -> None:
+    """Validates metrics are supported for Managed Agent evaluation.
+
+    When the ``agent`` parameter is a Gemini Agent resource name
+    (``projects/{p}/locations/{l}/agents/{id}``), only a subset of
+    metrics are supported for Preview. This function raises ValueError
+    if any unsupported metrics are requested.
+
+    Args:
+        agent: The agent resource name, or None.
+        metrics: The list of metrics to validate. Accepts either
+            ``types.Metric`` objects (which expose a ``name`` attribute)
+            or ``types.EvaluationRunMetric`` objects (which expose a
+            ``metric`` attribute holding the metric name string).
+
+    Raises:
+        ValueError: If any metric is not in the supported set.
+    """
+    if not agent or not _is_gemini_agent_resource(agent):
+        return
+
+    unsupported = []
+    for metric in metrics:
+        # EvaluationRunMetric uses `.metric` (str); types.Metric uses `.name`.
+        name = getattr(metric, "metric", None) or getattr(metric, "name", None)
+        if name:
+            name_lower = name.lower()
+            if name_lower not in _MANAGED_AGENT_SUPPORTED_METRICS:
+                unsupported.append(name_lower)
+    if unsupported:
+        raise ValueError(
+            f"Metrics {unsupported} are not supported for Managed Agent"
+            " evaluation. Supported metrics:"
+            f" {sorted(_MANAGED_AGENT_SUPPORTED_METRICS)}."
+        )
 
 
 def _resolve_interactions_to_eval_cases(
@@ -3036,6 +3086,9 @@ def _execute_evaluation(  # type: ignore[no-untyped-def]
     )
 
     resolved_metrics = _resolve_metrics(metrics, api_client)
+
+    # Validate metrics are supported for Managed Agent evaluation.
+    _validate_managed_agent_metrics(agent, resolved_metrics)
 
     evaluation_run_config = _evals_metric_handlers.EvaluationRunConfig(
         evals_module=evals.Evals(api_client_=api_client),

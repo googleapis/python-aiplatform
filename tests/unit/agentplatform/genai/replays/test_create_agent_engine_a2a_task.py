@@ -74,7 +74,7 @@ def test_create_simple_a2a_task(client):
     assert isinstance(task, types.A2aTask)
     assert task.name == f"{agent_engine.api_resource.name}/a2aTasks/task123"
     assert task.context_id == "context123"
-    assert task.state == types.State.SUBMITTED
+    assert task.state == types.A2aTaskState.SUBMITTED
     assert task.status_details.task_message.role == "user"
     assert task.status_details.task_message.message_id == "message123"
     assert task.status_details.task_message.parts[0].text == "hello123"
@@ -155,7 +155,7 @@ async def test_create_simple_a2a_task_async(client):
     assert isinstance(task, types.A2aTask)
     assert task.name == f"{agent_engine.api_resource.name}/a2aTasks/task123"
     assert task.context_id == "context123"
-    assert task.state == types.State.SUBMITTED
+    assert task.state == types.A2aTaskState.SUBMITTED
     assert task.status_details.task_message.role == "user"
     assert task.status_details.task_message.message_id == "message123"
     assert task.status_details.task_message.parts[0].text == "hello123"

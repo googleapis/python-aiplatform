@@ -175,7 +175,6 @@ agent_engines_extra_require = [
     "opentelemetry-exporter-otlp-proto-http < 2",
     "pydantic >= 2.11.1, < 3",
     "typing_extensions",
-    "google-cloud-iam",
     "aiohttp",  # for ADK users to use aiohttp rather than httpx client
 ]
 
@@ -193,7 +192,8 @@ evaluation_extra_require = [
     "jsonschema",
     "ruamel.yaml",
     "pyyaml",
-    "litellm>=1.83.7, <1.86.0",
+    "litellm>=1.83.7, <1.86.0; python_version<'3.14'",
+    "litellm>=1.93.0, <1.97.0; python_version>='3.14'",
     # For LiteLLM tests. Lower bound: CVE-2026-35030 plus 4 follow-on
     # advisories patched in 1.83.7. Upper bound <1.86.0 for stable interface only.
 ]
@@ -274,7 +274,6 @@ testing_extra_require = (
         "bigframes; python_version>='3.10' and python_version<'3.14'",
         # google-api-core 2.x is required since kfp requires protobuf > 4
         "google-api-core >= 2.11, < 3.0.0",
-        "google-cloud-iam",
         "grpcio-testing",
         "grpcio-tools >= 1.63.0; python_version>='3.13'",
         "ipython",

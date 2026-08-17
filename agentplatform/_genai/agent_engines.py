@@ -2006,6 +2006,7 @@ class AgentEngines(_api_module.BaseModule):
             agent_config_source=agent_config_source,
             container_spec=config.container_spec,
             keep_alive_probe=keep_alive_probe,
+            build_config=config.build_config,
         )
         operation = self._create(config=api_config)
         reasoning_engine_id = _agent_engines_utils._get_reasoning_engine_id(
@@ -2319,6 +2320,7 @@ class AgentEngines(_api_module.BaseModule):
         container_spec: Optional[types.ReasoningEngineSpecContainerSpecDict] = None,
         keep_alive_probe: Optional[dict[str, Any]] = None,
         traffic_config: Optional[types.ReasoningEngineTrafficConfigDict] = None,
+        build_config: Optional[types.ReasoningEngineSpecBuildSpecDict] = None,
     ) -> types.UpdateAgentEngineConfigDict:
         import sys
 
@@ -2510,6 +2512,7 @@ class AgentEngines(_api_module.BaseModule):
                         raise ValueError(
                             f"Failed to convert agent card to dict (serialization error): {e}"
                         ) from e
+                    update_masks.append("spec.agent_card")
             update_masks.append("spec.agent_framework")
 
         if identity_type is not None or service_account is not None:
@@ -2524,6 +2527,25 @@ class AgentEngines(_api_module.BaseModule):
                 if service_account:
                     agent_engine_spec["service_account"] = service_account
                 update_masks.append("spec.service_account")
+
+        if build_config is not None:
+            if agent_engine_spec is None:
+                agent_engine_spec = {}
+            build_spec: dict[str, Any] = {}
+            if isinstance(build_config, dict):
+                worker_pool = build_config.get("worker_pool")
+                build_service_account = build_config.get("service_account")
+            else:
+                worker_pool = getattr(build_config, "worker_pool", None)
+                build_service_account = getattr(build_config, "service_account", None)
+            if worker_pool is not None:
+                build_spec["worker_pool"] = worker_pool
+                update_masks.append("spec.build_spec.worker_pool")
+            if build_service_account is not None:
+                build_spec["service_account"] = build_service_account
+                update_masks.append("spec.build_spec.service_account")
+            if build_spec:
+                agent_engine_spec["build_spec"] = build_spec
 
         if agent_engine_spec is not None:
             config["spec"] = agent_engine_spec
@@ -2796,6 +2818,7 @@ class AgentEngines(_api_module.BaseModule):
             container_spec=container_spec,
             keep_alive_probe=keep_alive_probe,
             traffic_config=traffic_config,
+            build_config=config.build_config,
         )
         operation = self._update(name=name, config=api_config)
         reasoning_engine_id = _agent_engines_utils._get_reasoning_engine_id(

@@ -24,8 +24,9 @@ import time
 from typing import Any, Iterator, Optional, Union
 from urllib.parse import urlencode
 
+from google import auth as google_auth
 from google import genai
-from google.cloud import iam_credentials_v1  # type: ignore[attr-defined]
+from google.auth.transport import requests as google_auth_requests
 from google.genai import _api_module
 from google.genai import _common
 from google.genai import types as genai_types
@@ -883,22 +884,58 @@ class Sandboxes(_api_module.BaseModule):
         Returns:
             str: The signed JWT.
         """
-        client = iam_credentials_v1.IAMCredentialsClient()
-        name = f"projects/-/serviceAccounts/{service_account_email}"
+        issued_at = int(time.time())
         payload = {
-            "iat": int(time.time()),
-            "exp": int(time.time()) + timeout,
+            "iat": issued_at,
+            "exp": issued_at + timeout,
             "iss": service_account_email,
             "sub": service_account_email,
             "nonce": secrets.randbelow(1000000000) + 1,
             "aud": "https://aiplatform.googleapis.com/",  # default audience for sandbox proxy
         }
-        request = iam_credentials_v1.SignJwtRequest(
-            name=name,
-            payload=json.dumps(payload),
+        credentials, _ = google_auth.default(
+            scopes=["https://www.googleapis.com/auth/cloud-platform"]
         )
-        response = client.sign_jwt(request=request)
-        return response.signed_jwt  # type: ignore[no-any-return]
+        # Resolve the endpoint against the credentials' universe domain so this
+        # keeps working off googleapis.com, the same way google.auth.iam does.
+        universe_domain = (
+            getattr(credentials, "universe_domain", None) or "googleapis.com"
+        )
+        session = google_auth_requests.AuthorizedSession(credentials)  # type: ignore[no-untyped-call]
+        # The generated IAM client this replaced used the mTLS endpoint when
+        # client certificates are enabled, and so does the genai client that
+        # serves every other call in this module. configure_mtls_channel()
+        # self-gates on GOOGLE_API_USE_CLIENT_CERTIFICATE and on discovered
+        # workload certificates, so it is a no-op when mTLS is not in use.
+        session.configure_mtls_channel()  # type: ignore[no-untyped-call]
+        # mTLS is only defined on the default universe.
+        host = f"iamcredentials.{universe_domain}"
+        if session.is_mtls and universe_domain == "googleapis.com":
+            host = f"iamcredentials.mtls.{universe_domain}"
+        url = (
+            f"https://{host}/v1/"
+            f"projects/-/serviceAccounts/{service_account_email}:signJwt"
+        )
+        # The generated IAM client this replaced retried UNAVAILABLE and
+        # DEADLINE_EXCEEDED with initial=0.1s and multiplier=1.3 under a 60s
+        # total deadline. requests does not retry at all, so reproduce that
+        # policy here rather than silently dropping it.
+        deadline = time.monotonic() + 60.0
+        delay = 0.1
+        while True:
+            response = session.post(
+                url,
+                json={"payload": json.dumps(payload)},
+                timeout=max(1.0, deadline - time.monotonic()),
+            )
+            if response.status_code not in (503, 504):
+                break
+            if deadline - time.monotonic() <= delay:
+                break
+            time.sleep(delay)
+            delay *= 1.3
+        response.raise_for_status()
+        return response.json()["signedJwt"]  # type: ignore[no-any-return]
 
     def send_command(
         self,

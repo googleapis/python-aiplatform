@@ -34,6 +34,7 @@ from google.cloud.aiplatform import compat
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils as aiplatform_utils
 from google.cloud.aiplatform.metadata import experiment_resources
+from google.cloud.aiplatform.utils import gcs_utils
 from google.cloud.aiplatform_v1beta1.services import gen_ai_tuning_service
 from google.cloud.aiplatform_v1beta1.types import job_state
 from google.cloud.aiplatform_v1beta1.types import tuning_job as gca_tuning_job
@@ -282,6 +283,13 @@ class TestgenerativeModelTuning:
         target=storage.Bucket,
         attribute="exists",
         new=lambda _: True,
+    )
+    @mock.patch.object(
+        target=gcs_utils,
+        attribute="_verify_bucket_ownership",
+        # Override bucket ownership check to allow tests to use a non-existent
+        # bucket.
+        new=lambda *args, **kwargs: True,
     )
     def test_genai_tuning_service_distillation_distill_model(self):
         distillation_train = _distillation.distill_model

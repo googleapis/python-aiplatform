@@ -108,6 +108,9 @@ def _CreateEvaluationMetricParameters_to_vertex(
             t.t_metric_for_registry(getv(from_object, ["metric"])),
         )
 
+    if getv(from_object, ["encryption_spec"]) is not None:
+        setv(to_object, ["encryptionSpec"], getv(from_object, ["encryption_spec"]))
+
     if getv(from_object, ["config"]) is not None:
         setv(to_object, ["config"], getv(from_object, ["config"]))
 
@@ -167,6 +170,9 @@ def _CreateEvaluationRunParameters_to_vertex(
             getv(from_object, ["evaluation_experiment"]),
         )
 
+    if getv(from_object, ["encryption_spec"]) is not None:
+        setv(to_object, ["encryptionSpec"], getv(from_object, ["encryption_spec"]))
+
     return to_object
 
 
@@ -183,6 +189,9 @@ def _CreateEvaluationSetParameters_to_vertex(
 
     if getv(from_object, ["config"]) is not None:
         setv(to_object, ["config"], getv(from_object, ["config"]))
+
+    if getv(from_object, ["encryption_spec"]) is not None:
+        setv(to_object, ["encryptionSpec"], getv(from_object, ["encryption_spec"]))
 
     return to_object
 
@@ -256,6 +265,20 @@ def _DeleteEvaluationMetricParameters_to_vertex(
             ["_url", "evaluation_metric"],
             getv(from_object, ["metric_resource_name"]),
         )
+
+    if getv(from_object, ["config"]) is not None:
+        setv(to_object, ["config"], getv(from_object, ["config"]))
+
+    return to_object
+
+
+def _DeleteEvaluationSetParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["name"]) is not None:
+        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
 
     if getv(from_object, ["config"]) is not None:
         setv(to_object, ["config"], getv(from_object, ["config"]))
@@ -414,6 +437,9 @@ def _EvaluationMetric_from_vertex(
             ["metric"],
             _UnifiedMetric_from_vertex(getv(from_object, ["metric"]), to_object),
         )
+
+    if getv(from_object, ["encryptionSpec"]) is not None:
+        setv(to_object, ["encryption_spec"], getv(from_object, ["encryptionSpec"]))
 
     return to_object
 
@@ -667,6 +693,9 @@ def _EvaluationRun_from_vertex(
             ["analysis_configs"],
             [item for item in getv(from_object, ["analysisConfigs"])],
         )
+
+    if getv(from_object, ["encryptionSpec"]) is not None:
+        setv(to_object, ["encryption_spec"], getv(from_object, ["encryptionSpec"]))
 
     return to_object
 
@@ -946,6 +975,44 @@ def _ListEvaluationMetricsResponse_from_vertex(
                 _EvaluationMetric_from_vertex(item, to_object)
                 for item in getv(from_object, ["evaluationMetrics"])
             ],
+        )
+
+    return to_object
+
+
+def _ListEvaluationSetsConfig_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+
+    if getv(from_object, ["page_size"]) is not None:
+        setv(parent_object, ["_query", "pageSize"], getv(from_object, ["page_size"]))
+
+    if getv(from_object, ["page_token"]) is not None:
+        setv(parent_object, ["_query", "pageToken"], getv(from_object, ["page_token"]))
+
+    if getv(from_object, ["filter"]) is not None:
+        setv(parent_object, ["_query", "filter"], getv(from_object, ["filter"]))
+
+    if getv(from_object, ["order_by"]) is not None:
+        setv(parent_object, ["_query", "orderBy"], getv(from_object, ["order_by"]))
+
+    return to_object
+
+
+def _ListEvaluationSetsParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["config"]) is not None:
+        setv(
+            to_object,
+            ["config"],
+            _ListEvaluationSetsConfig_to_vertex(
+                getv(from_object, ["config"]), to_object
+            ),
         )
 
     return to_object
@@ -1336,6 +1403,7 @@ class Evals(_api_module.BaseModule):
         display_name: Optional[str] = None,
         description: Optional[str] = None,
         metric: Optional[types.MetricOrDict] = None,
+        encryption_spec: Optional[genai_types.EncryptionSpecOrDict] = None,
         config: Optional[types.CreateEvaluationMetricConfigOrDict] = None,
     ) -> types.EvaluationMetric:
         """
@@ -1346,6 +1414,7 @@ class Evals(_api_module.BaseModule):
             display_name=display_name,
             description=description,
             metric=metric,
+            encryption_spec=encryption_spec,
             config=config,
         )
 
@@ -1423,6 +1492,7 @@ class Evals(_api_module.BaseModule):
         config: Optional[types.CreateEvaluationRunConfigOrDict] = None,
         analysis_configs: Optional[list[types.AnalysisConfigOrDict]] = None,
         evaluation_experiment: Optional[str] = None,
+        encryption_spec: Optional[genai_types.EncryptionSpecOrDict] = None,
     ) -> types.EvaluationRun:
         """
         Creates an EvaluationRun.
@@ -1438,6 +1508,7 @@ class Evals(_api_module.BaseModule):
             config=config,
             analysis_configs=analysis_configs,
             evaluation_experiment=evaluation_experiment,
+            encryption_spec=encryption_spec,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -1506,6 +1577,7 @@ class Evals(_api_module.BaseModule):
         evaluation_items: list[str],
         display_name: Optional[str] = None,
         config: Optional[types.CreateEvaluationSetConfigOrDict] = None,
+        encryption_spec: Optional[genai_types.EncryptionSpecOrDict] = None,
     ) -> types.EvaluationSet:
         """
         Creates an EvaluationSet.
@@ -1515,6 +1587,7 @@ class Evals(_api_module.BaseModule):
             evaluation_items=evaluation_items,
             display_name=display_name,
             config=config,
+            encryption_spec=encryption_spec,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -1706,6 +1779,78 @@ class Evals(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.DeleteEvaluationMetricOperation._from_response(
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    def _delete_evaluation_set(
+        self,
+        *,
+        name: str,
+        config: Optional[types.DeleteEvaluationSetConfigOrDict] = None,
+    ) -> types.DeleteEvaluationSetOperation:
+        """
+        Deletes an EvaluationSet.
+        """
+
+        parameter_model = types._DeleteEvaluationSetParameters(
+            name=name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
+        else:
+            request_dict = _DeleteEvaluationSetParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "evaluationSets/{name}".format_map(request_url_dict)
+            else:
+                path = "evaluationSets/{name}"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = self._api_client.request("delete", path, request_dict, http_options)
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.DeleteEvaluationSetOperation._from_response(
             response=response_dict,
             kwargs=(
                 {
@@ -2607,6 +2752,74 @@ class Evals(_api_module.BaseModule):
         self._api_client._verify_response(return_value)
         return return_value
 
+    def _list_evaluation_sets(
+        self, *, config: Optional[types.ListEvaluationSetsConfigOrDict] = None
+    ) -> types.ListEvaluationSetsResponse:
+        """
+        Lists EvaluationSets.
+        """
+
+        parameter_model = types._ListEvaluationSetsParameters(
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
+        else:
+            request_dict = _ListEvaluationSetsParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "evaluationSets".format_map(request_url_dict)
+            else:
+                path = "evaluationSets"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = self._api_client.request("get", path, request_dict, http_options)
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.ListEvaluationSetsResponse._from_response(
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
     def update_evaluation_experiment(
         self,
         *,
@@ -3236,69 +3449,70 @@ class Evals(_api_module.BaseModule):
         loss_analysis_metrics: Optional[list[Union[str, types.MetricOrDict]]] = None,
         loss_analysis_configs: Optional[list[types.LossAnalysisConfigOrDict]] = None,
         red_teaming_config: Optional[types.RedTeamingAnalysisConfigOrDict] = None,
+        encryption_spec: Optional[genai_types.EncryptionSpecOrDict] = None,
         config: Optional[types.CreateEvaluationRunConfigOrDict] = None,
     ) -> types.EvaluationRun:
         """Creates an EvaluationRun.
 
         Args:
-          dataset: The dataset to evaluate. Either an EvaluationRunDataSource or an EvaluationDataset.
-          dest: The GCS URI prefix to write the evaluation results to.
-          metrics: The list of metrics to evaluate.
-          name: The name of the evaluation run.
-          display_name: The display name of the evaluation run.
-          evaluation_experiment: The resource name of an existing
-              EvaluationExperiment to group this run under. If omitted, a new
-              EvaluationExperiment is created automatically so the run is visible in
-              the Agent Platform UI. Pass an existing experiment name to group
-              multiple runs together.
-          agent_info: The agent info to evaluate. Mutually exclusive with
-              `inference_configs`.
-          agent: The agent resource name in str type. Accepts either an Agent
-              Engine resource name
-              `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine_id}`
-              or a Gemini Agent (Vertex AI Agent) resource name
-              `projects/{project}/locations/{location}/agents/{agent}`. When a Gemini
-              Agent resource is provided, the backend scrapes the agent to produce
-              agent responses. If an Agent Engine resource name is provided, runs
-              inference with the deployed agent to get agent responses for evaluation.
-              The `agent` parameter is required if `agent_info` is provided.
-          user_simulator_config: The user simulator configuration for agent evaluation.
-              If `agent_info` is provided without `inference_configs`, this config is used
-              to automatically construct the inference configuration. If not specified,
-              or if `max_turn` is not set, `max_turn` defaults to 5.
-              The `model_name` inside this config can be either a full model path or a
-              short model name, e.g. `gemini-3-preview-flash`.
-          inference_configs: The candidate to inference config map for the evaluation run.
-              The key is the candidate name, and the value is the inference config.
-              If provided, `agent_info` must be None. If omitted and `agent_info` is provided,
-              this will be automatically constructed using `agent_info` and `user_simulator_config`.
-              The `model` field of an inference config accepts a short Gemini model
-              name (e.g. `gemini-2.5-flash`), which is automatically expanded to a
-              fully-qualified resource name using the client's project and location,
-              or an already fully-qualified publisher-model or endpoint resource
-              name.
-              Example:
-              {"candidate-1": types.EvaluationRunInferenceConfig(model="gemini-2.5-flash")}
-          labels: The labels to apply to the evaluation run.
-          loss_analysis_metrics: This field is experimental and may change in future
-              versions. Optional list of metrics to run loss analysis on. The
-              candidate is auto-inferred from ``inference_configs`` or
-              ``agent_info`` when there is exactly one candidate. Each metric can be
-              a string (e.g., ``"multi_turn_task_success_v1"``), a ``Metric``
-              object, or a ``RubricMetric`` enum
-              (e.g., ``types.RubricMetric.MULTI_TURN_TASK_SUCCESS``). Loss analysis
-              runs after metric calculation completes.
-              Mutually exclusive with ``loss_analysis_configs``.
-              Example::
+           dataset: The dataset to evaluate. Either an EvaluationRunDataSource or an EvaluationDataset.
+           dest: The GCS URI prefix to write the evaluation results to.
+           metrics: The list of metrics to evaluate.
+           name: The name of the evaluation run.
+           display_name: The display name of the evaluation run.
+           evaluation_experiment: The resource name of an existing
+               EvaluationExperiment to group this run under. If omitted, a new
+               EvaluationExperiment is created automatically so the run is visible in
+               the Agent Platform UI. Pass an existing experiment name to group
+               multiple runs together.
+           agent_info: The agent info to evaluate. Mutually exclusive with
+               `inference_configs`.
+           agent: The agent resource name in str type. Accepts either an Agent
+               Engine resource name
+               `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine_id}`
+               or a Gemini Agent (Vertex AI Agent) resource name
+               `projects/{project}/locations/{location}/agents/{agent}`. When a Gemini
+               Agent resource is provided, the backend scrapes the agent to produce
+               agent responses. If an Agent Engine resource name is provided, runs
+               inference with the deployed agent to get agent responses for evaluation.
+               The `agent` parameter is required if `agent_info` is provided.
+           user_simulator_config: The user simulator configuration for agent evaluation.
+               If `agent_info` is provided without `inference_configs`, this config is used
+               to automatically construct the inference configuration. If not specified,
+               or if `max_turn` is not set, `max_turn` defaults to 5.
+               The `model_name` inside this config can be either a full model path or a
+               short model name, e.g. `gemini-3-preview-flash`.
+           inference_configs: The candidate to inference config map for the evaluation run.
+               The key is the candidate name, and the value is the inference config.
+               If provided, `agent_info` must be None. If omitted and `agent_info` is provided,
+               this will be automatically constructed using `agent_info` and `user_simulator_config`.
+               The `model` field of an inference config accepts a short Gemini model
+               name (e.g. `gemini-2.5-flash`), which is automatically expanded to a
+               fully-qualified resource name using the client's project and location,
+               or an already fully-qualified publisher-model or endpoint resource
+               name.
+               Example:
+               {"candidate-1": types.EvaluationRunInferenceConfig(model="gemini-2.5-flash")}
+           labels: The labels to apply to the evaluation run.
+           loss_analysis_metrics: This field is experimental and may change in future
+               versions. Optional list of metrics to run loss analysis on. The
+               candidate is auto-inferred from ``inference_configs`` or
+               ``agent_info`` when there is exactly one candidate. Each metric can be
+               a string (e.g., ``"multi_turn_task_success_v1"``), a ``Metric``
+               object, or a ``RubricMetric`` enum
+               (e.g., ``types.RubricMetric.MULTI_TURN_TASK_SUCCESS``). Loss analysis
+               runs after metric calculation completes.
+               Mutually exclusive with ``loss_analysis_configs``.
+               Example::
 
-                  loss_analysis_metrics=[
-                      types.RubricMetric.MULTI_TURN_TASK_SUCCESS,
-                      types.RubricMetric.MULTI_TURN_TOOL_USE_QUALITY,
-                  ]
-          loss_analysis_configs: This field is experimental and may change in future
-              versions. Optional list of ``LossAnalysisConfig`` objects for full
-              control over loss analysis, including explicit candidate and
-              advanced options like ``predefined_taxonomy`` and
+                   loss_analysis_metrics=[
+                       types.RubricMetric.MULTI_TURN_TASK_SUCCESS,
+                       types.RubricMetric.MULTI_TURN_TOOL_USE_QUALITY,
+                   ]
+           loss_analysis_configs: This field is experimental and may change in future
+               versions. Optional list of ``LossAnalysisConfig`` objects for full
+               control over loss analysis, including explicit candidate and
+               advanced options like ``predefined_taxonomy`` and
               ``max_top_cluster_count``. Mutually exclusive with
               ``loss_analysis_metrics``.
           config: The configuration for the evaluation run.
@@ -3382,6 +3596,10 @@ class Evals(_api_module.BaseModule):
 
         if isinstance(dataset, types.EvaluationDataset):
             _evals_utils._validate_dataset_agent_data(dataset, inference_configs)
+        # Validate metrics are supported for Managed Agent evaluation.
+        # Pass metrics directly; _validate_managed_agent_metrics handles both
+        # EvaluationRunMetric (.metric field) and Metric (.name field).
+        _evals_common._validate_managed_agent_metrics(agent, metrics)
         resolved_dataset = _evals_common._resolve_dataset(
             self._api_client, dataset, dest, parsed_agent_info
         )
@@ -3430,6 +3648,7 @@ class Evals(_api_module.BaseModule):
             inference_configs=resolved_inference_configs,
             analysis_configs=resolved_analysis_configs,
             labels=resolved_labels,
+            encryption_spec=encryption_spec,
             config=config,
         )
 
@@ -3519,18 +3738,20 @@ class Evals(_api_module.BaseModule):
         Returns:
           The evaluation item.
         """
-        return self._create_evaluation_item(
+        result = self._create_evaluation_item(
             evaluation_item_type=evaluation_item_type,
             gcs_uri=gcs_uri,
             display_name=display_name,
             config=config,
         )
+        return result
 
     def create_evaluation_set(
         self,
         *,
         evaluation_items: list[str],
         display_name: Optional[str] = None,
+        encryption_spec: Optional[genai_types.EncryptionSpecOrDict] = None,
         config: Optional[types.CreateEvaluationSetConfigOrDict] = None,
     ) -> types.EvaluationSet:
         """Creates an EvaluationSet.
@@ -3539,17 +3760,81 @@ class Evals(_api_module.BaseModule):
           evaluation_items: The list of evaluation item names. Format:
             `projects/{project}/locations/{location}/evaluationItems/{evaluation_item}`
           display_name: The display name of the evaluation set.
+          encryption_spec: Customer-managed encryption key spec. If set, this
+            EvaluationSet will be secured by the provided key.
           config: The optional configuration for the evaluation set. Must be a dict or
               `types.CreateEvaluationSetConfigOrDict` type.
 
         Returns:
           The evaluation set.
         """
-        return self._create_evaluation_set(
+        result = self._create_evaluation_set(
             evaluation_items=evaluation_items,
             display_name=display_name,
+            encryption_spec=encryption_spec,
             config=config,
         )
+        return result
+
+    def list_evaluation_sets(
+        self,
+        *,
+        filter: Optional[str] = None,
+        order_by: Optional[str] = None,
+        config: Optional[types.ListEvaluationSetsConfigOrDict] = None,
+    ) -> types.ListEvaluationSetsResponse:
+        """Lists EvaluationSets.
+
+        Args:
+          filter: An expression for filtering the results of the request. For
+            field names both snake_case and camelCase are supported. For more
+            information about filter syntax, see
+            `AIP-160 <https://google.aip.dev/160>`_.
+            Example: ``'display_name="my_dataset"'``.
+          order_by: A comma-separated list of fields to order by, sorted in
+            ascending order by default. Use ``desc`` after a field name for
+            descending. Example: ``"create_time desc"``.
+          config: Optional configuration for the list operation, including
+            pagination (``page_size``, ``page_token``), ``filter``, and
+            ``order_by``. Top-level ``filter`` and ``order_by`` arguments
+            take precedence over values set in ``config``.
+
+        Returns:
+          The list evaluation sets response.
+        """
+        if config is None:
+            config = types.ListEvaluationSetsConfig()
+        if isinstance(config, dict):
+            config = types.ListEvaluationSetsConfig.model_validate(config)
+        if filter is not None:
+            config.filter = filter
+        if order_by is not None:
+            config.order_by = order_by
+        return self._list_evaluation_sets(
+            config=config,
+        )
+
+    def delete_evaluation_set(
+        self,
+        *,
+        name: str,
+        config: Optional[types.DeleteEvaluationSetConfigOrDict] = None,
+    ) -> None:
+        """Deletes an EvaluationSet.
+
+        This initiates the deletion and returns once the request is accepted; it
+        does not block until the long-running delete operation completes.
+
+        Args:
+          name: The resource name of the EvaluationSet to delete. Format:
+            `projects/{project}/locations/{location}/evaluationSets/{evaluation_set}`
+          config: The optional configuration for the delete operation.
+        """
+        if not name:
+            raise ValueError("name cannot be empty.")
+        if name.startswith("projects/"):
+            name = name.split("/")[-1]
+        self._delete_evaluation_set(name=name, config=config)
 
     def generate_conversation_scenarios(
         self,
@@ -3695,6 +3980,7 @@ class Evals(_api_module.BaseModule):
         display_name: Optional[str] = None,
         description: Optional[str] = None,
         metric: Optional[types.MetricOrDict] = None,
+        encryption_spec: Optional[genai_types.EncryptionSpecOrDict] = None,
         config: Optional[types.CreateEvaluationMetricConfigOrDict] = None,
     ) -> str:
         """Creates an EvaluationMetric."""
@@ -3717,6 +4003,7 @@ class Evals(_api_module.BaseModule):
             display_name=display_name,
             description=description,
             metric=metric,
+            encryption_spec=encryption_spec,
             config=config,
         )
         # result.name is Optional[str], but we know it's always returned on creation
@@ -3978,6 +4265,7 @@ class AsyncEvals(_api_module.BaseModule):
         display_name: Optional[str] = None,
         description: Optional[str] = None,
         metric: Optional[types.MetricOrDict] = None,
+        encryption_spec: Optional[genai_types.EncryptionSpecOrDict] = None,
         config: Optional[types.CreateEvaluationMetricConfigOrDict] = None,
     ) -> types.EvaluationMetric:
         """
@@ -3988,6 +4276,7 @@ class AsyncEvals(_api_module.BaseModule):
             display_name=display_name,
             description=description,
             metric=metric,
+            encryption_spec=encryption_spec,
             config=config,
         )
 
@@ -4067,6 +4356,7 @@ class AsyncEvals(_api_module.BaseModule):
         config: Optional[types.CreateEvaluationRunConfigOrDict] = None,
         analysis_configs: Optional[list[types.AnalysisConfigOrDict]] = None,
         evaluation_experiment: Optional[str] = None,
+        encryption_spec: Optional[genai_types.EncryptionSpecOrDict] = None,
     ) -> types.EvaluationRun:
         """
         Creates an EvaluationRun.
@@ -4082,6 +4372,7 @@ class AsyncEvals(_api_module.BaseModule):
             config=config,
             analysis_configs=analysis_configs,
             evaluation_experiment=evaluation_experiment,
+            encryption_spec=encryption_spec,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -4152,6 +4443,7 @@ class AsyncEvals(_api_module.BaseModule):
         evaluation_items: list[str],
         display_name: Optional[str] = None,
         config: Optional[types.CreateEvaluationSetConfigOrDict] = None,
+        encryption_spec: Optional[genai_types.EncryptionSpecOrDict] = None,
     ) -> types.EvaluationSet:
         """
         Creates an EvaluationSet.
@@ -4161,6 +4453,7 @@ class AsyncEvals(_api_module.BaseModule):
             evaluation_items=evaluation_items,
             display_name=display_name,
             config=config,
+            encryption_spec=encryption_spec,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -4358,6 +4651,80 @@ class AsyncEvals(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.DeleteEvaluationMetricOperation._from_response(
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    async def _delete_evaluation_set(
+        self,
+        *,
+        name: str,
+        config: Optional[types.DeleteEvaluationSetConfigOrDict] = None,
+    ) -> types.DeleteEvaluationSetOperation:
+        """
+        Deletes an EvaluationSet.
+        """
+
+        parameter_model = types._DeleteEvaluationSetParameters(
+            name=name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
+        else:
+            request_dict = _DeleteEvaluationSetParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "evaluationSets/{name}".format_map(request_url_dict)
+            else:
+                path = "evaluationSets/{name}"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = await self._api_client.async_request(
+            "delete", path, request_dict, http_options
+        )
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.DeleteEvaluationSetOperation._from_response(
             response=response_dict,
             kwargs=(
                 {
@@ -5281,6 +5648,76 @@ class AsyncEvals(_api_module.BaseModule):
         self._api_client._verify_response(return_value)
         return return_value
 
+    async def _list_evaluation_sets(
+        self, *, config: Optional[types.ListEvaluationSetsConfigOrDict] = None
+    ) -> types.ListEvaluationSetsResponse:
+        """
+        Lists EvaluationSets.
+        """
+
+        parameter_model = types._ListEvaluationSetsParameters(
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
+        else:
+            request_dict = _ListEvaluationSetsParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "evaluationSets".format_map(request_url_dict)
+            else:
+                path = "evaluationSets"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = await self._api_client.async_request(
+            "get", path, request_dict, http_options
+        )
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.ListEvaluationSetsResponse._from_response(
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
     async def update_evaluation_experiment(
         self,
         *,
@@ -5515,6 +5952,7 @@ class AsyncEvals(_api_module.BaseModule):
         labels: Optional[dict[str, str]] = None,
         loss_analysis_metrics: Optional[list[Union[str, types.MetricOrDict]]] = None,
         loss_analysis_configs: Optional[list[types.LossAnalysisConfigOrDict]] = None,
+        encryption_spec: Optional[genai_types.EncryptionSpecOrDict] = None,
         config: Optional[types.CreateEvaluationRunConfigOrDict] = None,
     ) -> types.EvaluationRun:
         """Creates an EvaluationRun.
@@ -5661,6 +6099,10 @@ class AsyncEvals(_api_module.BaseModule):
 
         if isinstance(dataset, types.EvaluationDataset):
             _evals_utils._validate_dataset_agent_data(dataset, inference_configs)
+        # Validate metrics are supported for Managed Agent evaluation.
+        # Pass metrics directly; _validate_managed_agent_metrics handles both
+        # EvaluationRunMetric (.metric field) and Metric (.name field).
+        _evals_common._validate_managed_agent_metrics(agent, metrics)
         resolved_dataset = _evals_common._resolve_dataset(
             self._api_client, dataset, dest, parsed_agent_info
         )
@@ -5710,6 +6152,7 @@ class AsyncEvals(_api_module.BaseModule):
             inference_configs=resolved_inference_configs,
             analysis_configs=resolved_analysis_configs,
             labels=resolved_labels,
+            encryption_spec=encryption_spec,
             config=config,
         )
 
@@ -5816,6 +6259,7 @@ class AsyncEvals(_api_module.BaseModule):
         *,
         evaluation_items: list[str],
         display_name: Optional[str] = None,
+        encryption_spec: Optional[genai_types.EncryptionSpecOrDict] = None,
         config: Optional[types.CreateEvaluationSetConfigOrDict] = None,
     ) -> types.EvaluationSet:
         """Creates an EvaluationSet.
@@ -5824,6 +6268,8 @@ class AsyncEvals(_api_module.BaseModule):
           evaluation_items: The list of evaluation item names. Format:
             `projects/{project}/locations/{location}/evaluationItems/{evaluation_item}`
           display_name: The display name of the evaluation set.
+          encryption_spec: Customer-managed encryption key spec. If set, this
+            EvaluationSet will be secured by the provided key.
           config: The optional configuration for the evaluation set. Must be a dict or
               `types.CreateEvaluationSetConfigOrDict` type.
 
@@ -5833,9 +6279,70 @@ class AsyncEvals(_api_module.BaseModule):
         result = await self._create_evaluation_set(
             evaluation_items=evaluation_items,
             display_name=display_name,
+            encryption_spec=encryption_spec,
             config=config,
         )
         return result
+
+    async def list_evaluation_sets(
+        self,
+        *,
+        filter: Optional[str] = None,
+        order_by: Optional[str] = None,
+        config: Optional[types.ListEvaluationSetsConfigOrDict] = None,
+    ) -> types.ListEvaluationSetsResponse:
+        """Lists EvaluationSets.
+
+        Args:
+          filter: An expression for filtering the results of the request. For
+            field names both snake_case and camelCase are supported. For more
+            information about filter syntax, see
+            `AIP-160 <https://google.aip.dev/160>`_.
+            Example: ``'display_name="my_dataset"'``.
+          order_by: A comma-separated list of fields to order by, sorted in
+            ascending order by default. Use ``desc`` after a field name for
+            descending. Example: ``"create_time desc"``.
+          config: Optional configuration for the list operation, including
+            pagination (``page_size``, ``page_token``), ``filter``, and
+            ``order_by``. Top-level ``filter`` and ``order_by`` arguments
+            take precedence over values set in ``config``.
+
+        Returns:
+          The list evaluation sets response.
+        """
+        if config is None:
+            config = types.ListEvaluationSetsConfig()
+        if isinstance(config, dict):
+            config = types.ListEvaluationSetsConfig.model_validate(config)
+        if filter is not None:
+            config.filter = filter
+        if order_by is not None:
+            config.order_by = order_by
+        return await self._list_evaluation_sets(
+            config=config,
+        )
+
+    async def delete_evaluation_set(
+        self,
+        *,
+        name: str,
+        config: Optional[types.DeleteEvaluationSetConfigOrDict] = None,
+    ) -> None:
+        """Deletes an EvaluationSet.
+
+        This initiates the deletion and returns once the request is accepted; it
+        does not block until the long-running delete operation completes.
+
+        Args:
+          name: The resource name of the EvaluationSet to delete. Format:
+            `projects/{project}/locations/{location}/evaluationSets/{evaluation_set}`
+          config: The optional configuration for the delete operation.
+        """
+        if not name:
+            raise ValueError("name cannot be empty.")
+        if name.startswith("projects/"):
+            name = name.split("/")[-1]
+        await self._delete_evaluation_set(name=name, config=config)
 
     async def generate_conversation_scenarios(
         self,
@@ -5981,6 +6488,7 @@ class AsyncEvals(_api_module.BaseModule):
         display_name: Optional[str] = None,
         description: Optional[str] = None,
         metric: Optional[types.MetricOrDict] = None,
+        encryption_spec: Optional[genai_types.EncryptionSpecOrDict] = None,
         config: Optional[types.CreateEvaluationMetricConfigOrDict] = None,
     ) -> str:
         """Creates an EvaluationMetric."""
@@ -6001,6 +6509,7 @@ class AsyncEvals(_api_module.BaseModule):
             display_name=display_name,
             description=description,
             metric=metric,
+            encryption_spec=encryption_spec,
             config=config,
         )
         return cast(str, result.name)

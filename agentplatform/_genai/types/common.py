@@ -116,29 +116,38 @@ class A2aTaskState(_common.CaseInSensitiveEnum):
     """Task is paused."""
 
 
+class Role(_common.CaseInSensitiveEnum):
+    """The role of the sender of the message."""
+
+    ROLE_UNSPECIFIED = "ROLE_UNSPECIFIED"
+    """The role is unspecified."""
+    ROLE_USER = "ROLE_USER"
+    """The message is from the client to the server."""
+    ROLE_AGENT = "ROLE_AGENT"
+    """The message is from the server to the client."""
+
+
 class State(_common.CaseInSensitiveEnum):
-    """The new state of the task."""
+    """Output only. The current state of the task."""
 
     STATE_UNSPECIFIED = "STATE_UNSPECIFIED"
-    """Task state unspecified. Default value if not set."""
-    SUBMITTED = "SUBMITTED"
-    """Task is submitted and waiting to be processed."""
-    WORKING = "WORKING"
-    """Task is actively being processed."""
-    COMPLETED = "COMPLETED"
-    """Task is finished."""
-    CANCELLED = "CANCELLED"
-    """Task is cancelled."""
-    FAILED = "FAILED"
-    """Task has failed."""
-    REJECTED = "REJECTED"
-    """Task is rejected by the system."""
-    INPUT_REQUIRED = "INPUT_REQUIRED"
-    """Task requires input from the user."""
-    AUTH_REQUIRED = "AUTH_REQUIRED"
-    """Task requires auth (e.g. OAuth) from the user."""
-    PAUSED = "PAUSED"
-    """Task is paused."""
+    """The task is in an unknown or indeterminate state."""
+    TASK_STATE_SUBMITTED = "TASK_STATE_SUBMITTED"
+    """Indicates that a task has been successfully submitted and acknowledged."""
+    TASK_STATE_WORKING = "TASK_STATE_WORKING"
+    """Indicates that a task is actively being processed by the agent."""
+    TASK_STATE_COMPLETED = "TASK_STATE_COMPLETED"
+    """Indicates that a task has finished successfully. This is a terminal state."""
+    TASK_STATE_FAILED = "TASK_STATE_FAILED"
+    """Indicates that a task has finished with an error. This is a terminal state."""
+    TASK_STATE_CANCELED = "TASK_STATE_CANCELED"
+    """Indicates that a task was canceled before completion. This is a terminal state."""
+    TASK_STATE_INPUT_REQUIRED = "TASK_STATE_INPUT_REQUIRED"
+    """Indicates that the agent requires additional user input to proceed. This is an interrupted state."""
+    TASK_STATE_REJECTED = "TASK_STATE_REJECTED"
+    """Indicates that the agent has decided to not perform the task. This may be done during initial task creation or later once an agent has determined it can't or won't proceed. This is a terminal state."""
+    TASK_STATE_AUTH_REQUIRED = "TASK_STATE_AUTH_REQUIRED"
+    """Indicates that authentication is required to proceed. This is an interrupted state."""
 
 
 class Strategy(_common.CaseInSensitiveEnum):
@@ -381,6 +390,10 @@ class DefaultContainerCategory(_common.CaseInSensitiveEnum):
     """The default value. This value is unused."""
     DEFAULT_CONTAINER_CATEGORY_COMPUTER_USE = "DEFAULT_CONTAINER_CATEGORY_COMPUTER_USE"
     """The default container image for Computer Use."""
+    DEFAULT_CONTAINER_CATEGORY_SHELL_SANDBOX = (
+        "DEFAULT_CONTAINER_CATEGORY_SHELL_SANDBOX"
+    )
+    """The default container image for Shell Sandbox."""
 
 
 class PostSnapshotAction(_common.CaseInSensitiveEnum):
@@ -496,6 +509,125 @@ class FeedbackType(_common.CaseInSensitiveEnum):
     """Indicates positive feedback (e.g., a "thumbs up")."""
     THUMBS_DOWN = "THUMBS_DOWN"
     """Indicates a thumbs down feedback (e.g., a "thumbs down")."""
+
+
+class Encoding(_common.CaseInSensitiveEnum):
+    """Defines how the feature is encoded into the input tensor. Defaults to IDENTITY."""
+
+    ENCODING_UNSPECIFIED = "ENCODING_UNSPECIFIED"
+    """Default value. This is the same as IDENTITY."""
+    IDENTITY = "IDENTITY"
+    """The tensor represents one feature."""
+    BAG_OF_FEATURES = "BAG_OF_FEATURES"
+    """The tensor represents a bag of features where each index maps to a feature. InputMetadata.index_feature_mapping must be provided for this encoding. For example: ``` input = [27, 6.0, 150] index_feature_mapping = ["age", "height", "weight"] ```"""
+    BAG_OF_FEATURES_SPARSE = "BAG_OF_FEATURES_SPARSE"
+    """The tensor represents a bag of features where each index maps to a feature. Zero values in the tensor indicates feature being non-existent. InputMetadata.index_feature_mapping must be provided for this encoding. For example: ``` input = [2, 0, 5, 0, 1] index_feature_mapping = ["a", "b", "c", "d", "e"] ```"""
+    INDICATOR = "INDICATOR"
+    """The tensor is a list of binaries representing whether a feature exists or not (1 indicates existence). InputMetadata.index_feature_mapping must be provided for this encoding. For example: ``` input = [1, 0, 1, 0, 1] index_feature_mapping = ["a", "b", "c", "d", "e"] ```"""
+    COMBINED_EMBEDDING = "COMBINED_EMBEDDING"
+    """The tensor is encoded into a 1-dimensional array represented by an encoded tensor. InputMetadata.encoded_tensor_name must be provided for this encoding. For example: ``` input = ["This", "is", "a", "test", "."] encoded = [0.1, 0.2, 0.3, 0.4, 0.5] ```"""
+    CONCAT_EMBEDDING = "CONCAT_EMBEDDING"
+    """Select this encoding when the input tensor is encoded into a 2-dimensional array represented by an encoded tensor. InputMetadata.encoded_tensor_name must be provided for this encoding. The first dimension of the encoded tensor's shape is the same as the input tensor's shape. For example: ``` input = ["This", "is", "a", "test", "."] encoded = [[0.1, 0.2, 0.3, 0.4, 0.5], [0.2, 0.1, 0.4, 0.3, 0.5], [0.5, 0.1, 0.3, 0.5, 0.4], [0.5, 0.3, 0.1, 0.2, 0.4], [0.4, 0.3, 0.2, 0.5, 0.1]] ```"""
+
+
+class ColorMap(_common.CaseInSensitiveEnum):
+    """The color scheme used for the highlighted areas. Defaults to PINK_GREEN for Integrated Gradients attribution, which shows positive attributions in green and negative in pink. Defaults to VIRIDIS for XRAI attribution, which highlights the most influential regions in yellow and the least influential in blue."""
+
+    COLOR_MAP_UNSPECIFIED = "COLOR_MAP_UNSPECIFIED"
+    """Should not be used."""
+    PINK_GREEN = "PINK_GREEN"
+    """Positive: green. Negative: pink."""
+    VIRIDIS = "VIRIDIS"
+    """Viridis color map: A perceptually uniform color mapping which is easier to see by those with colorblindness and progresses from yellow to green to blue. Positive: yellow. Negative: blue."""
+    RED = "RED"
+    """Positive: red. Negative: red."""
+    GREEN = "GREEN"
+    """Positive: green. Negative: green."""
+    RED_GREEN = "RED_GREEN"
+    """Positive: green. Negative: red."""
+    PINK_WHITE_GREEN = "PINK_WHITE_GREEN"
+    """PiYG palette."""
+
+
+class OverlayType(_common.CaseInSensitiveEnum):
+    """How the original image is displayed in the visualization. Adjusting the overlay can help increase visual clarity if the original image makes it difficult to view the visualization. Defaults to NONE."""
+
+    OVERLAY_TYPE_UNSPECIFIED = "OVERLAY_TYPE_UNSPECIFIED"
+    """Default value. This is the same as NONE."""
+    NONE = "NONE"
+    """No overlay."""
+    ORIGINAL = "ORIGINAL"
+    """The attributions are shown on top of the original image."""
+    GRAYSCALE = "GRAYSCALE"
+    """The attributions are shown on top of grayscaled version of the original image."""
+    MASK_BLACK = "MASK_BLACK"
+    """The attributions are used as a mask to reveal predictive parts of the image and hide the un-predictive parts."""
+
+
+class Polarity(_common.CaseInSensitiveEnum):
+    """Whether to only highlight pixels with positive contributions, negative or both. Defaults to POSITIVE."""
+
+    POLARITY_UNSPECIFIED = "POLARITY_UNSPECIFIED"
+    """Default value. This is the same as POSITIVE."""
+    POSITIVE = "POSITIVE"
+    """Highlights the pixels/outlines that were most influential to the model's prediction."""
+    NEGATIVE = "NEGATIVE"
+    """Setting polarity to negative highlights areas that does not lead to the models's current prediction."""
+    BOTH = "BOTH"
+    """Shows both positive and negative attributions."""
+
+
+class DataFormat(_common.CaseInSensitiveEnum):
+    """The format in which instances are given, if not specified, assume it's JSONL format. Currently only JSONL format is supported."""
+
+    DATA_FORMAT_UNSPECIFIED = "DATA_FORMAT_UNSPECIFIED"
+    """Format unspecified, used when unset."""
+    JSONL = "JSONL"
+    """Examples are stored in JSONL files."""
+
+
+class Modality(_common.CaseInSensitiveEnum):
+    """The modality of the uploaded model, which automatically configures the distance measurement and feature normalization for the underlying example index and queries. If your model does not precisely fit one of these types, it is okay to choose the closest type."""
+
+    MODALITY_UNSPECIFIED = "MODALITY_UNSPECIFIED"
+    """Should not be set. Added as a recommended best practice for enums"""
+    IMAGE = "IMAGE"
+    """IMAGE modality"""
+    TEXT = "TEXT"
+    """TEXT modality"""
+    TABULAR = "TABULAR"
+    """TABULAR modality"""
+
+
+class DeploymentType(_common.CaseInSensitiveEnum):
+    """The kind of deployment."""
+
+    DEPLOYMENT_TYPE_UNSPECIFIED = "DEPLOYMENT_TYPE_UNSPECIFIED"
+    """Unspecified deployment type."""
+    DEPLOYMENT_TYPE_EVAL = "DEPLOYMENT_TYPE_EVAL"
+    """Eval deployment type."""
+    DEPLOYMENT_TYPE_PROD = "DEPLOYMENT_TYPE_PROD"
+    """Prod deployment type."""
+
+
+class PscAutomationState(_common.CaseInSensitiveEnum):
+    """Output only. The state of the PSC service automation."""
+
+    PSC_AUTOMATION_STATE_UNSPECIFIED = "PSC_AUTOMATION_STATE_UNSPECIFIED"
+    """Should not be used."""
+    PSC_AUTOMATION_STATE_SUCCESSFUL = "PSC_AUTOMATION_STATE_SUCCESSFUL"
+    """The PSC service automation is successful."""
+    PSC_AUTOMATION_STATE_FAILED = "PSC_AUTOMATION_STATE_FAILED"
+    """The PSC service automation has failed."""
+
+
+class ModelProvider(_common.CaseInSensitiveEnum):
+    """The model provider (publisher) for which the customer has enabled data sharing. For publisher models that are configured to require data sharing, a prediction request is only allowed when the model's publisher matches this provider. Otherwise, the request is rejected."""
+
+    MODEL_PROVIDER_UNSPECIFIED = "MODEL_PROVIDER_UNSPECIFIED"
+    """Unspecified model provider."""
+    ANTHROPIC = "ANTHROPIC"
+    """Anthropic."""
 
 
 class EvaluationExperimentMergeStrategy(_common.CaseInSensitiveEnum):
@@ -843,6 +975,201 @@ class TaskStatusDetailsDict(TypedDict, total=False):
 TaskStatusDetailsOrDict = Union[TaskStatusDetails, TaskStatusDetailsDict]
 
 
+class A2aPart(_common.BaseModel):
+    """A single part of a message or artifact. A part carries exactly one kind of content."""
+
+    data: Optional[dict[str, Any]] = Field(
+        default=None, description="""Optional. Structured data content."""
+    )
+    filename: Optional[str] = Field(
+        default=None,
+        description="""Optional. The name of the file, when the part represents a file.""",
+    )
+    media_type: Optional[str] = Field(
+        default=None,
+        description="""Optional. The IANA media type of the content, e.g. "text/plain" or "image/png".""",
+    )
+    metadata: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Optional. Additional context or parameters related to the part. Extensions can be used to strongly type metadata values for specific use cases.""",
+    )
+    raw: Optional[bytes] = Field(
+        default=None, description="""Optional. Raw binary content."""
+    )
+    text: Optional[str] = Field(
+        default=None, description="""Optional. Textual content."""
+    )
+    url: Optional[str] = Field(
+        default=None, description="""Optional. A URL pointing to the content."""
+    )
+
+
+class A2aPartDict(TypedDict, total=False):
+    """A single part of a message or artifact. A part carries exactly one kind of content."""
+
+    data: Optional[dict[str, Any]]
+    """Optional. Structured data content."""
+
+    filename: Optional[str]
+    """Optional. The name of the file, when the part represents a file."""
+
+    media_type: Optional[str]
+    """Optional. The IANA media type of the content, e.g. "text/plain" or "image/png"."""
+
+    metadata: Optional[dict[str, Any]]
+    """Optional. Additional context or parameters related to the part. Extensions can be used to strongly type metadata values for specific use cases."""
+
+    raw: Optional[bytes]
+    """Optional. Raw binary content."""
+
+    text: Optional[str]
+    """Optional. Textual content."""
+
+    url: Optional[str]
+    """Optional. A URL pointing to the content."""
+
+
+A2aPartOrDict = Union[A2aPart, A2aPartDict]
+
+
+class A2aTaskArtifact(_common.BaseModel):
+    """Represents a single artifact produced by a task."""
+
+    artifact_id: Optional[str] = Field(
+        default=None,
+        description="""Required. The unique identifier of the artifact within the task.""",
+    )
+    description: Optional[str] = Field(
+        default=None,
+        description="""Optional. A human-readable description of the artifact.""",
+    )
+    display_name: Optional[str] = Field(
+        default=None,
+        description="""Optional. The human-readable name of the artifact.""",
+    )
+    extensions: Optional[list[str]] = Field(
+        default=None,
+        description="""Optional. A2A protocol extensions associated with the artifact.""",
+    )
+    metadata: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Optional. Additional context or parameters related to the artifact. Extensions can be used to strongly type metadata values for specific use cases.""",
+    )
+    parts: Optional[list[A2aPart]] = Field(
+        default=None,
+        description="""Required. The content parts that make up the artifact.""",
+    )
+
+
+class A2aTaskArtifactDict(TypedDict, total=False):
+    """Represents a single artifact produced by a task."""
+
+    artifact_id: Optional[str]
+    """Required. The unique identifier of the artifact within the task."""
+
+    description: Optional[str]
+    """Optional. A human-readable description of the artifact."""
+
+    display_name: Optional[str]
+    """Optional. The human-readable name of the artifact."""
+
+    extensions: Optional[list[str]]
+    """Optional. A2A protocol extensions associated with the artifact."""
+
+    metadata: Optional[dict[str, Any]]
+    """Optional. Additional context or parameters related to the artifact. Extensions can be used to strongly type metadata values for specific use cases."""
+
+    parts: Optional[list[A2aPartDict]]
+    """Required. The content parts that make up the artifact."""
+
+
+A2aTaskArtifactOrDict = Union[A2aTaskArtifact, A2aTaskArtifactDict]
+
+
+class A2aTaskMessage(_common.BaseModel):
+    """Represents a single message in a conversation, compliant with the A2A specification."""
+
+    extensions: Optional[list[str]] = Field(
+        default=None,
+        description="""Optional. A2A protocol extensions associated with the message.""",
+    )
+    message_id: Optional[str] = Field(
+        default=None, description="""Required. The unique identifier of the message."""
+    )
+    metadata: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Optional. Additional context or parameters related to the message. Extensions can be used to strongly type metadata values for specific use cases.""",
+    )
+    parts: Optional[list[A2aPart]] = Field(
+        default=None,
+        description="""Required. The content parts that make up the message.""",
+    )
+    reference_task_ids: Optional[list[str]] = Field(
+        default=None,
+        description="""Optional. The IDs of other tasks referenced by this message.""",
+    )
+    role: Optional[Role] = Field(
+        default=None, description="""Required. The role of the sender of the message."""
+    )
+
+
+class A2aTaskMessageDict(TypedDict, total=False):
+    """Represents a single message in a conversation, compliant with the A2A specification."""
+
+    extensions: Optional[list[str]]
+    """Optional. A2A protocol extensions associated with the message."""
+
+    message_id: Optional[str]
+    """Required. The unique identifier of the message."""
+
+    metadata: Optional[dict[str, Any]]
+    """Optional. Additional context or parameters related to the message. Extensions can be used to strongly type metadata values for specific use cases."""
+
+    parts: Optional[list[A2aPartDict]]
+    """Required. The content parts that make up the message."""
+
+    reference_task_ids: Optional[list[str]]
+    """Optional. The IDs of other tasks referenced by this message."""
+
+    role: Optional[Role]
+    """Required. The role of the sender of the message."""
+
+
+A2aTaskMessageOrDict = Union[A2aTaskMessage, A2aTaskMessageDict]
+
+
+class A2aTaskStatus(_common.BaseModel):
+    """Represents the status of an A2aTask."""
+
+    message: Optional[A2aTaskMessage] = Field(
+        default=None,
+        description="""Output only. The status message associated with the state.""",
+    )
+    state: Optional[State] = Field(
+        default=None, description="""Output only. The current state of the task."""
+    )
+    timestamp: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Output only. The time at which the state was set.""",
+    )
+
+
+class A2aTaskStatusDict(TypedDict, total=False):
+    """Represents the status of an A2aTask."""
+
+    message: Optional[A2aTaskMessageDict]
+    """Output only. The status message associated with the state."""
+
+    state: Optional[State]
+    """Output only. The current state of the task."""
+
+    timestamp: Optional[datetime.datetime]
+    """Output only. The time at which the state was set."""
+
+
+A2aTaskStatusOrDict = Union[A2aTaskStatus, A2aTaskStatusDict]
+
+
 class A2aTask(_common.BaseModel):
     """A task."""
 
@@ -858,7 +1185,7 @@ class A2aTask(_common.BaseModel):
     )
     name: Optional[str] = Field(
         default=None,
-        description="""Identifier. The resource name of the task. Format: `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/a2aTasks/{a2a_task}`""",
+        description="""Identifier. The resource name of the task. Format: `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/a2aTasks/{a2a_task}` or `projects/{project}/locations/{location}/taskStores/{task_store}/a2aTasks/{a2a_task}`""",
     )
     next_event_sequence_number: Optional[int] = Field(
         default=None,
@@ -886,6 +1213,26 @@ class A2aTask(_common.BaseModel):
         default=None,
         description="""Optional. Input only. The TTL (Time To Live) for the task. If not set, the task will expire in 24 hours by default. Valid range: (0 seconds, 1000 days]""",
     )
+    app_id: Optional[str] = Field(
+        default=None,
+        description="""Optional. Agent application which created the task.""",
+    )
+    artifacts: Optional[list[A2aTaskArtifact]] = Field(
+        default=None, description="""Output only. The artifacts produced by the task."""
+    )
+    generation: Optional[int] = Field(
+        default=None, description="""Output only. The task generation number."""
+    )
+    history: Optional[list[A2aTaskMessage]] = Field(
+        default=None, description="""Output only. The history of the task messages."""
+    )
+    status: Optional[A2aTaskStatus] = Field(
+        default=None,
+        description="""Output only. The status of the task, including the state, status message, and timestamp.""",
+    )
+    user_id: Optional[str] = Field(
+        default=None, description="""Optional. Task owner user ID."""
+    )
 
 
 class A2aTaskDict(TypedDict, total=False):
@@ -901,7 +1248,7 @@ class A2aTaskDict(TypedDict, total=False):
     """Optional. Arbitrary, user-defined metadata."""
 
     name: Optional[str]
-    """Identifier. The resource name of the task. Format: `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/a2aTasks/{a2a_task}`"""
+    """Identifier. The resource name of the task. Format: `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/a2aTasks/{a2a_task}` or `projects/{project}/locations/{location}/taskStores/{task_store}/a2aTasks/{a2a_task}`"""
 
     next_event_sequence_number: Optional[int]
     """Output only. The next event sequence number to be appended to the task. This value starts at 1 and is guaranteed to be monotonically increasing."""
@@ -923,6 +1270,24 @@ class A2aTaskDict(TypedDict, total=False):
 
     ttl: Optional[str]
     """Optional. Input only. The TTL (Time To Live) for the task. If not set, the task will expire in 24 hours by default. Valid range: (0 seconds, 1000 days]"""
+
+    app_id: Optional[str]
+    """Optional. Agent application which created the task."""
+
+    artifacts: Optional[list[A2aTaskArtifactDict]]
+    """Output only. The artifacts produced by the task."""
+
+    generation: Optional[int]
+    """Output only. The task generation number."""
+
+    history: Optional[list[A2aTaskMessageDict]]
+    """Output only. The history of the task messages."""
+
+    status: Optional[A2aTaskStatusDict]
+    """Output only. The status of the task, including the state, status message, and timestamp."""
+
+    user_id: Optional[str]
+    """Optional. Task owner user ID."""
 
 
 A2aTaskOrDict = Union[A2aTask, A2aTaskDict]
@@ -1785,6 +2150,49 @@ class CandidateResponseDict(TypedDict, total=False):
 CandidateResponseOrDict = Union[CandidateResponse, CandidateResponseDict]
 
 
+class RubricGroup(_common.BaseModel):
+    """A group of rubrics.
+
+    Used for grouping rubrics based on a metric or a version.
+    """
+
+    group_id: Optional[str] = Field(
+        default=None, description="""Unique identifier for the group."""
+    )
+    display_name: Optional[str] = Field(
+        default=None,
+        description="""Human-readable name for the group. This should be unique
+      within a given context if used for display or selection.
+      Example: "Instruction Following V1", "Content Quality - Summarization
+      Task".""",
+    )
+    rubrics: Optional[list[evals_types.Rubric]] = Field(
+        default=None, description="""Rubrics that are part of this group."""
+    )
+
+
+class RubricGroupDict(TypedDict, total=False):
+    """A group of rubrics.
+
+    Used for grouping rubrics based on a metric or a version.
+    """
+
+    group_id: Optional[str]
+    """Unique identifier for the group."""
+
+    display_name: Optional[str]
+    """Human-readable name for the group. This should be unique
+      within a given context if used for display or selection.
+      Example: "Instruction Following V1", "Content Quality - Summarization
+      Task"."""
+
+    rubrics: Optional[list[evals_types.Rubric]]
+    """Rubrics that are part of this group."""
+
+
+RubricGroupOrDict = Union[RubricGroup, RubricGroupDict]
+
+
 class EvaluationItemRequest(_common.BaseModel):
     """Single evaluation request."""
 
@@ -1794,7 +2202,7 @@ class EvaluationItemRequest(_common.BaseModel):
     golden_response: Optional[CandidateResponse] = Field(
         default=None, description="""The ideal response or ground truth."""
     )
-    rubrics: Optional[dict[str, "RubricGroup"]] = Field(
+    rubrics: Optional[dict[str, RubricGroup]] = Field(
         default=None,
         description="""Named groups of rubrics associated with this prompt. The key is a user-defined name for the rubric group.""",
     )
@@ -1813,7 +2221,7 @@ class EvaluationItemRequestDict(TypedDict, total=False):
     golden_response: Optional[CandidateResponseDict]
     """The ideal response or ground truth."""
 
-    rubrics: Optional[dict[str, "RubricGroupDict"]]
+    rubrics: Optional[dict[str, RubricGroupDict]]
     """Named groups of rubrics associated with this prompt. The key is a user-defined name for the rubric group."""
 
     candidate_responses: Optional[list[CandidateResponseDict]]
@@ -2301,6 +2709,11 @@ class _CreateEvaluationMetricParameters(_common.BaseModel):
         default=None,
         description="""The metric configuration of the evaluation metric.""",
     )
+    encryption_spec: Optional[genai_types.EncryptionSpec] = Field(
+        default=None,
+        description="""Customer-managed encryption key spec for this EvaluationMetric.
+      If set, this EvaluationMetric will be secured by this key.""",
+    )
     config: Optional[CreateEvaluationMetricConfig] = Field(
         default=None, description=""""""
     )
@@ -2321,6 +2734,10 @@ class _CreateEvaluationMetricParametersDict(TypedDict, total=False):
 
     metric: Optional[MetricDict]
     """The metric configuration of the evaluation metric."""
+
+    encryption_spec: Optional[genai_types.EncryptionSpec]
+    """Customer-managed encryption key spec for this EvaluationMetric.
+      If set, this EvaluationMetric will be secured by this key."""
 
     config: Optional[CreateEvaluationMetricConfigDict]
     """"""
@@ -2446,6 +2863,11 @@ class EvaluationMetric(_common.BaseModel):
         default=None,
         description="""The metric configuration of the evaluation metric.""",
     )
+    encryption_spec: Optional[genai_types.EncryptionSpec] = Field(
+        default=None,
+        description="""Customer-managed encryption key spec for this EvaluationMetric.
+      If set, this EvaluationMetric will be secured by this key.""",
+    )
 
 
 class EvaluationMetricDict(TypedDict, total=False):
@@ -2462,6 +2884,10 @@ class EvaluationMetricDict(TypedDict, total=False):
 
     metric: Optional[UnifiedMetricDict]
     """The metric configuration of the evaluation metric."""
+
+    encryption_spec: Optional[genai_types.EncryptionSpec]
+    """Customer-managed encryption key spec for this EvaluationMetric.
+      If set, this EvaluationMetric will be secured by this key."""
 
 
 EvaluationMetricOrDict = Union[EvaluationMetric, EvaluationMetricDict]
@@ -3023,6 +3449,11 @@ class _CreateEvaluationRunParameters(_common.BaseModel):
       belongs to. Format:
       `projects/{project}/locations/{location}/evaluationExperiments/{evaluation_experiment}`.""",
     )
+    encryption_spec: Optional[genai_types.EncryptionSpec] = Field(
+        default=None,
+        description="""Customer-managed encryption key spec for this EvaluationRun.
+      If set, this EvaluationRun will be secured by this key.""",
+    )
 
 
 class _CreateEvaluationRunParametersDict(TypedDict, total=False):
@@ -3056,6 +3487,10 @@ class _CreateEvaluationRunParametersDict(TypedDict, total=False):
     """The resource name of the parent EvaluationExperiment that this run
       belongs to. Format:
       `projects/{project}/locations/{location}/evaluationExperiments/{evaluation_experiment}`."""
+
+    encryption_spec: Optional[genai_types.EncryptionSpec]
+    """Customer-managed encryption key spec for this EvaluationRun.
+      If set, this EvaluationRun will be secured by this key."""
 
 
 _CreateEvaluationRunParametersOrDict = Union[
@@ -3619,7 +4054,7 @@ class EvalCase(_common.BaseModel):
         default=None,
         description="""List of all prior messages in the conversation (chat history).""",
     )
-    rubric_groups: Optional[dict[str, "RubricGroup"]] = Field(
+    rubric_groups: Optional[dict[str, RubricGroup]] = Field(
         default=None,
         description="""Named groups of rubrics associated with this prompt. The key is a user-defined name for the rubric group.""",
     )
@@ -3666,7 +4101,7 @@ class EvalCaseDict(TypedDict, total=False):
     conversation_history: Optional[list[evals_types.Message]]
     """List of all prior messages in the conversation (chat history)."""
 
-    rubric_groups: Optional[dict[str, "RubricGroupDict"]]
+    rubric_groups: Optional[dict[str, RubricGroupDict]]
     """Named groups of rubrics associated with this prompt. The key is a user-defined name for the rubric group."""
 
     eval_case_id: Optional[str]
@@ -3944,6 +4379,11 @@ class EvaluationRun(_common.BaseModel):
         default=None,
         description="""The analysis configurations for the evaluation run.""",
     )
+    encryption_spec: Optional[genai_types.EncryptionSpec] = Field(
+        default=None,
+        description="""Customer-managed encryption key spec for this EvaluationRun.
+      If set, this EvaluationRun will be secured by this key.""",
+    )
 
     # TODO(b/448806531): Remove all the overridden _from_response methods once the
     # ticket is resolved and published.
@@ -4047,6 +4487,10 @@ class EvaluationRunDict(TypedDict, total=False):
     analysis_configs: Optional[list[AnalysisConfigDict]]
     """The analysis configurations for the evaluation run."""
 
+    encryption_spec: Optional[genai_types.EncryptionSpec]
+    """Customer-managed encryption key spec for this EvaluationRun.
+      If set, this EvaluationRun will be secured by this key."""
+
 
 EvaluationRunOrDict = Union[EvaluationRun, EvaluationRunDict]
 
@@ -4079,6 +4523,11 @@ class _CreateEvaluationSetParameters(_common.BaseModel):
     config: Optional[CreateEvaluationSetConfig] = Field(
         default=None, description=""""""
     )
+    encryption_spec: Optional[genai_types.EncryptionSpec] = Field(
+        default=None,
+        description="""Customer-managed encryption key spec for this EvaluationSet.
+      If set, this EvaluationSet will be secured by this key.""",
+    )
 
 
 class _CreateEvaluationSetParametersDict(TypedDict, total=False):
@@ -4092,6 +4541,10 @@ class _CreateEvaluationSetParametersDict(TypedDict, total=False):
 
     config: Optional[CreateEvaluationSetConfigDict]
     """"""
+
+    encryption_spec: Optional[genai_types.EncryptionSpec]
+    """Customer-managed encryption key spec for this EvaluationSet.
+      If set, this EvaluationSet will be secured by this key."""
 
 
 _CreateEvaluationSetParametersOrDict = Union[
@@ -4121,6 +4574,11 @@ class EvaluationSet(_common.BaseModel):
     metadata: Optional[dict[str, Any]] = Field(
         default=None, description="""The metadata of the evaluation set."""
     )
+    encryption_spec: Optional[genai_types.EncryptionSpec] = Field(
+        default=None,
+        description="""Customer-managed encryption key spec for this EvaluationSet.
+      If set, this EvaluationSet will be secured by this key.""",
+    )
 
 
 class EvaluationSetDict(TypedDict, total=False):
@@ -4143,6 +4601,10 @@ class EvaluationSetDict(TypedDict, total=False):
 
     metadata: Optional[dict[str, Any]]
     """The metadata of the evaluation set."""
+
+    encryption_spec: Optional[genai_types.EncryptionSpec]
+    """Customer-managed encryption key spec for this EvaluationSet.
+      If set, this EvaluationSet will be secured by this key."""
 
 
 EvaluationSetOrDict = Union[EvaluationSet, EvaluationSetDict]
@@ -4317,6 +4779,92 @@ class DeleteEvaluationMetricOperationDict(TypedDict, total=False):
 
 DeleteEvaluationMetricOperationOrDict = Union[
     DeleteEvaluationMetricOperation, DeleteEvaluationMetricOperationDict
+]
+
+
+class DeleteEvaluationSetConfig(_common.BaseModel):
+    """Config for deleting an evaluation set."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class DeleteEvaluationSetConfigDict(TypedDict, total=False):
+    """Config for deleting an evaluation set."""
+
+    http_options: Optional[genai_types.HttpOptions]
+    """Used to override HTTP request options."""
+
+
+DeleteEvaluationSetConfigOrDict = Union[
+    DeleteEvaluationSetConfig, DeleteEvaluationSetConfigDict
+]
+
+
+class _DeleteEvaluationSetParameters(_common.BaseModel):
+    """Parameters for deleting an evaluation set."""
+
+    name: Optional[str] = Field(default=None, description="""""")
+    config: Optional[DeleteEvaluationSetConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _DeleteEvaluationSetParametersDict(TypedDict, total=False):
+    """Parameters for deleting an evaluation set."""
+
+    name: Optional[str]
+    """"""
+
+    config: Optional[DeleteEvaluationSetConfigDict]
+    """"""
+
+
+_DeleteEvaluationSetParametersOrDict = Union[
+    _DeleteEvaluationSetParameters, _DeleteEvaluationSetParametersDict
+]
+
+
+class DeleteEvaluationSetOperation(_common.BaseModel):
+    """Operation for deleting an evaluation set."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`.""",
+    )
+    metadata: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any.""",
+    )
+    done: Optional[bool] = Field(
+        default=None,
+        description="""If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available.""",
+    )
+    error: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""The error result of the operation in case of failure or cancellation.""",
+    )
+
+
+class DeleteEvaluationSetOperationDict(TypedDict, total=False):
+    """Operation for deleting an evaluation set."""
+
+    name: Optional[str]
+    """The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`."""
+
+    metadata: Optional[dict[str, Any]]
+    """Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any."""
+
+    done: Optional[bool]
+    """If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available."""
+
+    error: Optional[dict[str, Any]]
+    """The error result of the operation in case of failure or cancellation."""
+
+
+DeleteEvaluationSetOperationOrDict = Union[
+    DeleteEvaluationSetOperation, DeleteEvaluationSetOperationDict
 ]
 
 
@@ -4907,7 +5455,7 @@ class EvaluationInstance(_common.BaseModel):
     agent_data: Optional[evals_types.AgentData] = Field(
         default=None, description="""Data used for agent evaluation."""
     )
-    rubric_groups: Optional[dict[str, "RubricGroup"]] = Field(
+    rubric_groups: Optional[dict[str, RubricGroup]] = Field(
         default=None,
         description="""Named groups of rubrics associated with this prompt. The key is a user-defined name for the rubric group.""",
     )
@@ -4938,7 +5486,7 @@ class EvaluationInstanceDict(TypedDict, total=False):
     agent_data: Optional[evals_types.AgentData]
     """Data used for agent evaluation."""
 
-    rubric_groups: Optional[dict[str, "RubricGroupDict"]]
+    rubric_groups: Optional[dict[str, RubricGroupDict]]
     """Named groups of rubrics associated with this prompt. The key is a user-defined name for the rubric group."""
 
     interactions_data_source: Optional[InteractionsDataSourceDict]
@@ -6444,6 +6992,109 @@ class ListEvaluationMetricsResponseDict(TypedDict, total=False):
 
 ListEvaluationMetricsResponseOrDict = Union[
     ListEvaluationMetricsResponse, ListEvaluationMetricsResponseDict
+]
+
+
+class ListEvaluationSetsConfig(_common.BaseModel):
+    """Config for listing evaluation sets."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    page_size: Optional[int] = Field(default=None, description="""""")
+    page_token: Optional[str] = Field(default=None, description="""""")
+    filter: Optional[str] = Field(
+        default=None,
+        description="""An expression for filtering the results of the request.
+      For field names both snake_case and camelCase are supported.
+      For more information about filter syntax, see
+      `AIP-160 <https://google.aip.dev/160>`_.""",
+    )
+    order_by: Optional[str] = Field(
+        default=None,
+        description="""A comma-separated list of fields to order by, sorted in ascending
+      order by default. Use ``desc`` after a field name for descending.
+      Example: ``"create_time desc"``.""",
+    )
+
+
+class ListEvaluationSetsConfigDict(TypedDict, total=False):
+    """Config for listing evaluation sets."""
+
+    http_options: Optional[genai_types.HttpOptions]
+    """Used to override HTTP request options."""
+
+    page_size: Optional[int]
+    """"""
+
+    page_token: Optional[str]
+    """"""
+
+    filter: Optional[str]
+    """An expression for filtering the results of the request.
+      For field names both snake_case and camelCase are supported.
+      For more information about filter syntax, see
+      `AIP-160 <https://google.aip.dev/160>`_."""
+
+    order_by: Optional[str]
+    """A comma-separated list of fields to order by, sorted in ascending
+      order by default. Use ``desc`` after a field name for descending.
+      Example: ``"create_time desc"``."""
+
+
+ListEvaluationSetsConfigOrDict = Union[
+    ListEvaluationSetsConfig, ListEvaluationSetsConfigDict
+]
+
+
+class _ListEvaluationSetsParameters(_common.BaseModel):
+    """Parameters for listing evaluation sets."""
+
+    config: Optional[ListEvaluationSetsConfig] = Field(default=None, description="""""")
+
+
+class _ListEvaluationSetsParametersDict(TypedDict, total=False):
+    """Parameters for listing evaluation sets."""
+
+    config: Optional[ListEvaluationSetsConfigDict]
+    """"""
+
+
+_ListEvaluationSetsParametersOrDict = Union[
+    _ListEvaluationSetsParameters, _ListEvaluationSetsParametersDict
+]
+
+
+class ListEvaluationSetsResponse(_common.BaseModel):
+    """Response for listing evaluation sets."""
+
+    sdk_http_response: Optional[genai_types.HttpResponse] = Field(
+        default=None, description="""Used to retain the full HTTP response."""
+    )
+    next_page_token: Optional[str] = Field(default=None, description="""""")
+    evaluation_sets: Optional[list[EvaluationSet]] = Field(
+        default=None,
+        description="""List of evaluation sets.
+      """,
+    )
+
+
+class ListEvaluationSetsResponseDict(TypedDict, total=False):
+    """Response for listing evaluation sets."""
+
+    sdk_http_response: Optional[genai_types.HttpResponse]
+    """Used to retain the full HTTP response."""
+
+    next_page_token: Optional[str]
+    """"""
+
+    evaluation_sets: Optional[list[EvaluationSetDict]]
+    """List of evaluation sets.
+      """
+
+
+ListEvaluationSetsResponseOrDict = Union[
+    ListEvaluationSetsResponse, ListEvaluationSetsResponseDict
 ]
 
 
@@ -8838,6 +9489,10 @@ class ReasoningEngineSpecContainerSpec(_common.BaseModel):
         default=None,
         description="""Required. The Artifact Registry Docker image URI (e.g., us-central1-docker.pkg.dev/my-project/my-repo/my-image:tag) of the container image that is to be run on each worker replica.""",
     )
+    port: Optional[int] = Field(
+        default=None,
+        description="""Optional. The port the container listens on. Defaults to 8080 if unset.""",
+    )
 
 
 class ReasoningEngineSpecContainerSpecDict(TypedDict, total=False):
@@ -8846,9 +9501,40 @@ class ReasoningEngineSpecContainerSpecDict(TypedDict, total=False):
     image_uri: Optional[str]
     """Required. The Artifact Registry Docker image URI (e.g., us-central1-docker.pkg.dev/my-project/my-repo/my-image:tag) of the container image that is to be run on each worker replica."""
 
+    port: Optional[int]
+    """Optional. The port the container listens on. Defaults to 8080 if unset."""
+
 
 ReasoningEngineSpecContainerSpecOrDict = Union[
     ReasoningEngineSpecContainerSpec, ReasoningEngineSpecContainerSpecDict
+]
+
+
+class ReasoningEngineSpecBuildSpec(_common.BaseModel):
+    """Specification for building container image."""
+
+    service_account: Optional[str] = Field(
+        default=None,
+        description="""Optional. The service account that Cloud Build uses to run the build. This field is only applicable when `worker_pool` is specified (i.e., for custom worker pools). If `worker_pool` is not specified, this field is ignored and the build runs using the Google-managed service agent. Format: `projects/{project}/serviceAccounts/{service_account}` or `{service_account}@{project}.iam.gserviceaccount.com`""",
+    )
+    worker_pool: Optional[str] = Field(
+        default=None,
+        description="""Optional. Identifier. The resource name of the Cloud Build WorkerPool to use for the build. Format: `projects/{project}/locations/{location}/workerPools/{worker_pool}`""",
+    )
+
+
+class ReasoningEngineSpecBuildSpecDict(TypedDict, total=False):
+    """Specification for building container image."""
+
+    service_account: Optional[str]
+    """Optional. The service account that Cloud Build uses to run the build. This field is only applicable when `worker_pool` is specified (i.e., for custom worker pools). If `worker_pool` is not specified, this field is ignored and the build runs using the Google-managed service agent. Format: `projects/{project}/serviceAccounts/{service_account}` or `{service_account}@{project}.iam.gserviceaccount.com`"""
+
+    worker_pool: Optional[str]
+    """Optional. Identifier. The resource name of the Cloud Build WorkerPool to use for the build. Format: `projects/{project}/locations/{location}/workerPools/{worker_pool}`"""
+
+
+ReasoningEngineSpecBuildSpecOrDict = Union[
+    ReasoningEngineSpecBuildSpec, ReasoningEngineSpecBuildSpecDict
 ]
 
 
@@ -8895,6 +9581,10 @@ class ReasoningEngineSpec(_common.BaseModel):
         default=None,
         description="""Deploy from a container image with a defined entrypoint and commands.""",
     )
+    build_spec: Optional[ReasoningEngineSpecBuildSpec] = Field(
+        default=None,
+        description="""Optional. Configuration for building container image.""",
+    )
 
 
 class ReasoningEngineSpecDict(TypedDict, total=False):
@@ -8929,6 +9619,9 @@ class ReasoningEngineSpecDict(TypedDict, total=False):
 
     container_spec: Optional[ReasoningEngineSpecContainerSpecDict]
     """Deploy from a container image with a defined entrypoint and commands."""
+
+    build_spec: Optional[ReasoningEngineSpecBuildSpecDict]
+    """Optional. Configuration for building container image."""
 
 
 ReasoningEngineSpecOrDict = Union[ReasoningEngineSpec, ReasoningEngineSpecDict]
@@ -17026,11 +17719,63 @@ SandboxEnvironmentTemplateDefaultContainerEnvironmentOrDict = Union[
 ]
 
 
+class SandboxEnvironmentTemplateEgressControlConfigDnsPeeringConfig(_common.BaseModel):
+    """Configuration for peering a customer's private DNS zone so that sandbox egress can resolve customer-internal domains via the customer VPC."""
+
+    domain: Optional[str] = Field(
+        default=None,
+        description="""Required. The DNS name suffix of the zone being peered to, e.g., "my-internal-domain.corp.". Must end with a dot.""",
+    )
+    target_network: Optional[str] = Field(
+        default=None,
+        description="""Required. The VPC network name in the target_project where the DNS zone specified by 'domain' is visible.""",
+    )
+    target_project: Optional[str] = Field(
+        default=None,
+        description="""Required. The project ID hosting the Cloud DNS managed zone that contains the 'domain'. The Vertex AI Service Agent requires the dns.peer role on this project.""",
+    )
+
+
+class SandboxEnvironmentTemplateEgressControlConfigDnsPeeringConfigDict(
+    TypedDict, total=False
+):
+    """Configuration for peering a customer's private DNS zone so that sandbox egress can resolve customer-internal domains via the customer VPC."""
+
+    domain: Optional[str]
+    """Required. The DNS name suffix of the zone being peered to, e.g., "my-internal-domain.corp.". Must end with a dot."""
+
+    target_network: Optional[str]
+    """Required. The VPC network name in the target_project where the DNS zone specified by 'domain' is visible."""
+
+    target_project: Optional[str]
+    """Required. The project ID hosting the Cloud DNS managed zone that contains the 'domain'. The Vertex AI Service Agent requires the dns.peer role on this project."""
+
+
+SandboxEnvironmentTemplateEgressControlConfigDnsPeeringConfigOrDict = Union[
+    SandboxEnvironmentTemplateEgressControlConfigDnsPeeringConfig,
+    SandboxEnvironmentTemplateEgressControlConfigDnsPeeringConfigDict,
+]
+
+
 class SandboxEnvironmentTemplateEgressControlConfig(_common.BaseModel):
     """Configuration for egress control of sandbox instances."""
 
     internet_access: Optional[bool] = Field(
         default=None, description="""Optional. Whether to allow internet access."""
+    )
+    customer_vpc_network: Optional[str] = Field(
+        default=None,
+        description="""Optional. The customer VPC network that sandbox egress is routed into.""",
+    )
+    dns_peering_configs: Optional[
+        list[SandboxEnvironmentTemplateEgressControlConfigDnsPeeringConfig]
+    ] = Field(
+        default=None,
+        description="""Optional. DNS peering configurations that allow sandbox egress to resolve customer-internal domains via the customer VPC.""",
+    )
+    network_attachment: Optional[str] = Field(
+        default=None,
+        description="""Optional. The name of the customer VPC NetworkAttachment used to draw a PSC interface IP into the customer VPC for sandbox egress.""",
     )
 
 
@@ -17039,6 +17784,17 @@ class SandboxEnvironmentTemplateEgressControlConfigDict(TypedDict, total=False):
 
     internet_access: Optional[bool]
     """Optional. Whether to allow internet access."""
+
+    customer_vpc_network: Optional[str]
+    """Optional. The customer VPC network that sandbox egress is routed into."""
+
+    dns_peering_configs: Optional[
+        list[SandboxEnvironmentTemplateEgressControlConfigDnsPeeringConfigDict]
+    ]
+    """Optional. DNS peering configurations that allow sandbox egress to resolve customer-internal domains via the customer VPC."""
+
+    network_attachment: Optional[str]
+    """Optional. The name of the customer VPC NetworkAttachment used to draw a PSC interface IP into the customer VPC for sandbox egress."""
 
 
 SandboxEnvironmentTemplateEgressControlConfigOrDict = Union[
@@ -20096,10 +20852,50 @@ SchemaPredictParamsGroundingConfigOrDict = Union[
 ]
 
 
+class SchemaPromptSpecPartList(_common.BaseModel):
+    """Represents a prompt spec part list."""
+
+    parts: Optional[list[genai_types.Part]] = Field(
+        default=None, description="""A list of elements that can be part of a prompt."""
+    )
+
+
+class SchemaPromptSpecPartListDict(TypedDict, total=False):
+    """Represents a prompt spec part list."""
+
+    parts: Optional[list[genai_types.Part]]
+    """A list of elements that can be part of a prompt."""
+
+
+SchemaPromptSpecPartListOrDict = Union[
+    SchemaPromptSpecPartList, SchemaPromptSpecPartListDict
+]
+
+
+class SchemaPromptInstanceVariableValue(_common.BaseModel):
+    """Represents a prompt instance variable."""
+
+    part_list: Optional[SchemaPromptSpecPartList] = Field(
+        default=None, description="""The parts of the variable value."""
+    )
+
+
+class SchemaPromptInstanceVariableValueDict(TypedDict, total=False):
+    """Represents a prompt instance variable."""
+
+    part_list: Optional[SchemaPromptSpecPartListDict]
+    """The parts of the variable value."""
+
+
+SchemaPromptInstanceVariableValueOrDict = Union[
+    SchemaPromptInstanceVariableValue, SchemaPromptInstanceVariableValueDict
+]
+
+
 class SchemaPromptInstancePromptExecution(_common.BaseModel):
     """A prompt instance's parameters set that contains a set of variable values."""
 
-    arguments: Optional[dict[str, "SchemaPromptInstanceVariableValue"]] = Field(
+    arguments: Optional[dict[str, SchemaPromptInstanceVariableValue]] = Field(
         default=None, description="""Maps variable names to their value."""
     )
 
@@ -20107,7 +20903,7 @@ class SchemaPromptInstancePromptExecution(_common.BaseModel):
 class SchemaPromptInstancePromptExecutionDict(TypedDict, total=False):
     """A prompt instance's parameters set that contains a set of variable values."""
 
-    arguments: Optional[dict[str, "SchemaPromptInstanceVariableValueDict"]]
+    arguments: Optional[dict[str, SchemaPromptInstanceVariableValueDict]]
     """Maps variable names to their value."""
 
 
@@ -20271,26 +21067,6 @@ class SchemaPromptSpecAppBuilderDataDict(TypedDict, total=False):
 
 SchemaPromptSpecAppBuilderDataOrDict = Union[
     SchemaPromptSpecAppBuilderData, SchemaPromptSpecAppBuilderDataDict
-]
-
-
-class SchemaPromptSpecPartList(_common.BaseModel):
-    """Represents a prompt spec part list."""
-
-    parts: Optional[list[genai_types.Part]] = Field(
-        default=None, description="""A list of elements that can be part of a prompt."""
-    )
-
-
-class SchemaPromptSpecPartListDict(TypedDict, total=False):
-    """Represents a prompt spec part list."""
-
-    parts: Optional[list[genai_types.Part]]
-    """A list of elements that can be part of a prompt."""
-
-
-SchemaPromptSpecPartListOrDict = Union[
-    SchemaPromptSpecPartList, SchemaPromptSpecPartListDict
 ]
 
 
@@ -24533,45 +25309,46 @@ class FeedbackEntry(_common.BaseModel):
 
     create_time: Optional[datetime.datetime] = Field(
         default=None,
-        description="""Output only. Timestamp when the feedback entry was created.""",
+        description="""Output only. The time at which the entry was created.""",
     )
     custom_metadata: Optional[dict[str, str]] = Field(
         default=None,
-        description="""Optional. Additional key-value metadata associated with the feedback. Allows the collect data for which there is no dedicated field in the resource, ex. version, LLM temperature etc.""",
+        description="""Optional. Additional key-value metadata associated with the feedback.""",
     )
     event_id: Optional[str] = Field(
         default=None,
-        description="""Required. The ID of the event to which the feedback relates to.""",
+        description="""Required. The ID of the event within the session that the feedback relates to.""",
     )
     feedback_labels: Optional[list[str]] = Field(
-        default=None,
-        description="""Optional. Specific labels for feedback (non-factual, offensive, etc.).""",
+        default=None, description="""feedbackLabels"""
     )
     feedback_text: Optional[str] = Field(
         default=None,
         description="""Optional. Qualitative free-form comments provided by the user.""",
     )
     feedback_type: Optional[FeedbackType] = Field(
-        default=None, description="""Required. The type of feedback provided."""
+        default=None,
+        description="""Required. The coarse-grained type of feedback provided by the user. Must be set to a value other than `FEEDBACK_TYPE_UNSPECIFIED`.""",
     )
     name: Optional[str] = Field(
         default=None,
-        description="""Identifier. The resource name of the feedback entry. Format: 'projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/feedbackEntries/{feedback_entry}'.""",
+        description="""Identifier. The resource name. Assigned by the server on create. Format: `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/feedbackEntries/{feedback_entry}`""",
     )
     session_id: Optional[str] = Field(
         default=None,
-        description="""Required. The ID of the session to which the feedback relates to.""",
+        description="""Required. The ID of the session that the feedback relates to.""",
     )
     source: Optional[str] = Field(
         default=None,
-        description="""Optional. Originating UI surface (e.g. 'ADK Web UI').""",
+        description="""Optional. The surface that the feedback originated from.""",
     )
     update_time: Optional[datetime.datetime] = Field(
         default=None,
-        description="""Output only. Timestamp when the feedback entry was last updated.""",
+        description="""Output only. The time at which the entry was most recently updated.""",
     )
     user_id: Optional[str] = Field(
-        default=None, description="""Optional. User provided identifier."""
+        default=None,
+        description="""Optional. A caller-supplied identifier for the user who provided the feedback. The semantics of this field (for example whether it is an opaque token, a hashed value, or a user-visible identifier) are determined by the calling application.""",
     )
 
 
@@ -24579,37 +25356,37 @@ class FeedbackEntryDict(TypedDict, total=False):
     """A Feedback Entry."""
 
     create_time: Optional[datetime.datetime]
-    """Output only. Timestamp when the feedback entry was created."""
+    """Output only. The time at which the entry was created."""
 
     custom_metadata: Optional[dict[str, str]]
-    """Optional. Additional key-value metadata associated with the feedback. Allows the collect data for which there is no dedicated field in the resource, ex. version, LLM temperature etc."""
+    """Optional. Additional key-value metadata associated with the feedback."""
 
     event_id: Optional[str]
-    """Required. The ID of the event to which the feedback relates to."""
+    """Required. The ID of the event within the session that the feedback relates to."""
 
     feedback_labels: Optional[list[str]]
-    """Optional. Specific labels for feedback (non-factual, offensive, etc.)."""
+    """feedbackLabels"""
 
     feedback_text: Optional[str]
     """Optional. Qualitative free-form comments provided by the user."""
 
     feedback_type: Optional[FeedbackType]
-    """Required. The type of feedback provided."""
+    """Required. The coarse-grained type of feedback provided by the user. Must be set to a value other than `FEEDBACK_TYPE_UNSPECIFIED`."""
 
     name: Optional[str]
-    """Identifier. The resource name of the feedback entry. Format: 'projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/feedbackEntries/{feedback_entry}'."""
+    """Identifier. The resource name. Assigned by the server on create. Format: `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/feedbackEntries/{feedback_entry}`"""
 
     session_id: Optional[str]
-    """Required. The ID of the session to which the feedback relates to."""
+    """Required. The ID of the session that the feedback relates to."""
 
     source: Optional[str]
-    """Optional. Originating UI surface (e.g. 'ADK Web UI')."""
+    """Optional. The surface that the feedback originated from."""
 
     update_time: Optional[datetime.datetime]
-    """Output only. Timestamp when the feedback entry was last updated."""
+    """Output only. The time at which the entry was most recently updated."""
 
     user_id: Optional[str]
-    """Optional. User provided identifier."""
+    """Optional. A caller-supplied identifier for the user who provided the feedback. The semantics of this field (for example whether it is an opaque token, a hashed value, or a user-visible identifier) are determined by the calling application."""
 
 
 FeedbackEntryOrDict = Union[FeedbackEntry, FeedbackEntryDict]
@@ -25116,11 +25893,11 @@ class FeedbackContext(_common.BaseModel):
 
     context_events: Optional[list[SessionEvent]] = Field(
         default=None,
-        description="""Optional. Events from the conversation relevant to the parent feedback entry.""",
+        description="""Optional. The session events from the originating session.""",
     )
     name: Optional[str] = Field(
         default=None,
-        description="""Identifier. The resource name of the feedback context. Format: 'projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/feedbackEntries/{feedback_entry}/feedbackContext'.""",
+        description="""Identifier. The resource name. Assigned by the server on create. Format: `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/feedbackEntries/{feedback_entry}/feedbackContext`""",
     )
 
 
@@ -25128,10 +25905,10 @@ class FeedbackContextDict(TypedDict, total=False):
     """A Feedback Context."""
 
     context_events: Optional[list[SessionEventDict]]
-    """Optional. Events from the conversation relevant to the parent feedback entry."""
+    """Optional. The session events from the originating session."""
 
     name: Optional[str]
-    """Identifier. The resource name of the feedback context. Format: 'projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/feedbackEntries/{feedback_entry}/feedbackContext'."""
+    """Identifier. The resource name. Assigned by the server on create. Format: `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/feedbackEntries/{feedback_entry}/feedbackContext`"""
 
 
 FeedbackContextOrDict = Union[FeedbackContext, FeedbackContextDict]
@@ -25302,6 +26079,2029 @@ _UpdateRuntimeFeedbackContextRequestParametersOrDict = Union[
     _UpdateRuntimeFeedbackContextRequestParameters,
     _UpdateRuntimeFeedbackContextRequestParametersDict,
 ]
+
+
+class UndeployModelConfig(_common.BaseModel):
+    """Config for a Vertex SDK undeploy model from endpoint."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    traffic_split: Optional[dict[str, int]] = Field(
+        default=None,
+        description="""If this field is provided, then the Endpoint's
+      [traffic_split][Endpoint.traffic_split] will be overwritten with it. If
+      last DeployedModel is being undeployed from the Endpoint, the
+      [Endpoint.traffic_split] will always end up empty when this call returns.
+      A DeployedModel will be successfully undeployed only if it doesn't have
+      any traffic assigned to it when this method executes, or if this field
+      unassigns any traffic to it.""",
+    )
+    wait_for_completion: Optional[bool] = Field(
+        default=True,
+        description="""Whether to wait for the long running operation to complete.""",
+    )
+
+
+class UndeployModelConfigDict(TypedDict, total=False):
+    """Config for a Vertex SDK undeploy model from endpoint."""
+
+    http_options: Optional[genai_types.HttpOptions]
+    """Used to override HTTP request options."""
+
+    traffic_split: Optional[dict[str, int]]
+    """If this field is provided, then the Endpoint's
+      [traffic_split][Endpoint.traffic_split] will be overwritten with it. If
+      last DeployedModel is being undeployed from the Endpoint, the
+      [Endpoint.traffic_split] will always end up empty when this call returns.
+      A DeployedModel will be successfully undeployed only if it doesn't have
+      any traffic assigned to it when this method executes, or if this field
+      unassigns any traffic to it."""
+
+    wait_for_completion: Optional[bool]
+    """Whether to wait for the long running operation to complete."""
+
+
+UndeployModelConfigOrDict = Union[UndeployModelConfig, UndeployModelConfigDict]
+
+
+class _UndeployModelRequestParameters(_common.BaseModel):
+    """Parameters for undeploying a model from an endpoint."""
+
+    name: Optional[str] = Field(
+        default=None, description="""ID of the endpoint to undeploy the model from."""
+    )
+    deployed_model_id: Optional[str] = Field(
+        default=None, description="""ID of the deployed model to be undeployed."""
+    )
+    config: Optional[UndeployModelConfig] = Field(default=None, description="""""")
+
+
+class _UndeployModelRequestParametersDict(TypedDict, total=False):
+    """Parameters for undeploying a model from an endpoint."""
+
+    name: Optional[str]
+    """ID of the endpoint to undeploy the model from."""
+
+    deployed_model_id: Optional[str]
+    """ID of the deployed model to be undeployed."""
+
+    config: Optional[UndeployModelConfigDict]
+    """"""
+
+
+_UndeployModelRequestParametersOrDict = Union[
+    _UndeployModelRequestParameters, _UndeployModelRequestParametersDict
+]
+
+
+class UndeployModelOperation(_common.BaseModel):
+    """Operation for undeploying a model."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`.""",
+    )
+    metadata: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any.""",
+    )
+    done: Optional[bool] = Field(
+        default=None,
+        description="""If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available.""",
+    )
+    error: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""The error result of the operation in case of failure or cancellation.""",
+    )
+
+
+class UndeployModelOperationDict(TypedDict, total=False):
+    """Operation for undeploying a model."""
+
+    name: Optional[str]
+    """The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`."""
+
+    metadata: Optional[dict[str, Any]]
+    """Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any."""
+
+    done: Optional[bool]
+    """If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available."""
+
+    error: Optional[dict[str, Any]]
+    """The error result of the operation in case of failure or cancellation."""
+
+
+UndeployModelOperationOrDict = Union[UndeployModelOperation, UndeployModelOperationDict]
+
+
+class PredictConfig(_common.BaseModel):
+    """Config for a Vertex SDK predict endpoint."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    parameters: Optional[str] = Field(
+        default=None,
+        description="""The parameters that govern the prediction. The schema of the
+      parameters may be specified via Endpoint's DeployedModels' [Model's ][
+      DeployedModel.model] [PredictSchemata's][Model.predict_schemata]
+      [parameters_schema_uri][PredictSchemata.parameters_schema_uri].
+      """,
+    )
+
+
+class PredictConfigDict(TypedDict, total=False):
+    """Config for a Vertex SDK predict endpoint."""
+
+    http_options: Optional[genai_types.HttpOptions]
+    """Used to override HTTP request options."""
+
+    parameters: Optional[str]
+    """The parameters that govern the prediction. The schema of the
+      parameters may be specified via Endpoint's DeployedModels' [Model's ][
+      DeployedModel.model] [PredictSchemata's][Model.predict_schemata]
+      [parameters_schema_uri][PredictSchemata.parameters_schema_uri].
+      """
+
+
+PredictConfigOrDict = Union[PredictConfig, PredictConfigDict]
+
+
+class _PredictParameters(_common.BaseModel):
+    """Parameters for performing an online prediction."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""The endpoint that serves the prediction. It could be endpoints/...
+      or publishers/.../models/...
+      """,
+    )
+    instances: Optional[list[dict[str, Any]]] = Field(
+        default=None,
+        description="""The instances that are the input to the prediction call. The
+      schema of any single instance may be specified via Endpoint's DeployedModels'
+      [Model's ][DeployedModel.model] [PredictSchemata's][Model.predict_schemata]
+      [instance_schema_uri][PredictSchemata.instance_schema_uri].
+      """,
+    )
+    config: Optional[PredictConfig] = Field(default=None, description="""""")
+
+
+class _PredictParametersDict(TypedDict, total=False):
+    """Parameters for performing an online prediction."""
+
+    name: Optional[str]
+    """The endpoint that serves the prediction. It could be endpoints/...
+      or publishers/.../models/...
+      """
+
+    instances: Optional[list[dict[str, Any]]]
+    """The instances that are the input to the prediction call. The
+      schema of any single instance may be specified via Endpoint's DeployedModels'
+      [Model's ][DeployedModel.model] [PredictSchemata's][Model.predict_schemata]
+      [instance_schema_uri][PredictSchemata.instance_schema_uri].
+      """
+
+    config: Optional[PredictConfigDict]
+    """"""
+
+
+_PredictParametersOrDict = Union[_PredictParameters, _PredictParametersDict]
+
+
+class PredictResponse(_common.BaseModel):
+    """Response message for PredictionService.Predict API."""
+
+    deployed_model_id: Optional[str] = Field(
+        default=None,
+        description="""ID of the Endpoint's DeployedModel that served this prediction.""",
+    )
+    metadata: Optional[Any] = Field(
+        default=None,
+        description="""Output only. Request-level metadata returned by the model. The metadata type will be dependent upon the model implementation.""",
+    )
+    model: Optional[str] = Field(
+        default=None,
+        description="""Output only. The resource name of the Model which is deployed as the DeployedModel that this prediction hits.""",
+    )
+    model_display_name: Optional[str] = Field(
+        default=None,
+        description="""Output only. The display name of the Model which is deployed as the DeployedModel that this prediction hits.""",
+    )
+    model_version_id: Optional[str] = Field(
+        default=None,
+        description="""Output only. The version ID of the Model which is deployed as the DeployedModel that this prediction hits.""",
+    )
+    predictions: Optional[list[Any]] = Field(
+        default=None,
+        description="""The predictions that are the output of the predictions call. The schema of any single prediction may be specified via Endpoint's DeployedModels' Model's PredictSchemata's prediction_schema_uri.""",
+    )
+
+
+class PredictResponseDict(TypedDict, total=False):
+    """Response message for PredictionService.Predict API."""
+
+    deployed_model_id: Optional[str]
+    """ID of the Endpoint's DeployedModel that served this prediction."""
+
+    metadata: Optional[Any]
+    """Output only. Request-level metadata returned by the model. The metadata type will be dependent upon the model implementation."""
+
+    model: Optional[str]
+    """Output only. The resource name of the Model which is deployed as the DeployedModel that this prediction hits."""
+
+    model_display_name: Optional[str]
+    """Output only. The display name of the Model which is deployed as the DeployedModel that this prediction hits."""
+
+    model_version_id: Optional[str]
+    """Output only. The version ID of the Model which is deployed as the DeployedModel that this prediction hits."""
+
+    predictions: Optional[list[Any]]
+    """The predictions that are the output of the predictions call. The schema of any single prediction may be specified via Endpoint's DeployedModels' Model's PredictSchemata's prediction_schema_uri."""
+
+
+PredictResponseOrDict = Union[PredictResponse, PredictResponseDict]
+
+
+class DeleteEndpointConfig(_common.BaseModel):
+    """Config for a Vertex SDK delete endpoint."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    wait_for_completion: Optional[bool] = Field(
+        default=True,
+        description="""Whether to wait for the long running operation to complete.""",
+    )
+
+
+class DeleteEndpointConfigDict(TypedDict, total=False):
+    """Config for a Vertex SDK delete endpoint."""
+
+    http_options: Optional[genai_types.HttpOptions]
+    """Used to override HTTP request options."""
+
+    wait_for_completion: Optional[bool]
+    """Whether to wait for the long running operation to complete."""
+
+
+DeleteEndpointConfigOrDict = Union[DeleteEndpointConfig, DeleteEndpointConfigDict]
+
+
+class _DeleteEndpointRequestParameters(_common.BaseModel):
+    """Parameters for deleting an endpoint."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""Required. The resource name of the endpoint to be deleted.""",
+    )
+    config: Optional[DeleteEndpointConfig] = Field(default=None, description="""""")
+
+
+class _DeleteEndpointRequestParametersDict(TypedDict, total=False):
+    """Parameters for deleting an endpoint."""
+
+    name: Optional[str]
+    """Required. The resource name of the endpoint to be deleted."""
+
+    config: Optional[DeleteEndpointConfigDict]
+    """"""
+
+
+_DeleteEndpointRequestParametersOrDict = Union[
+    _DeleteEndpointRequestParameters, _DeleteEndpointRequestParametersDict
+]
+
+
+class DeleteEndpointOperation(_common.BaseModel):
+    """Operation for deleting a endpoint."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`.""",
+    )
+    metadata: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any.""",
+    )
+    done: Optional[bool] = Field(
+        default=None,
+        description="""If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available.""",
+    )
+    error: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""The error result of the operation in case of failure or cancellation.""",
+    )
+
+
+class DeleteEndpointOperationDict(TypedDict, total=False):
+    """Operation for deleting a endpoint."""
+
+    name: Optional[str]
+    """The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`."""
+
+    metadata: Optional[dict[str, Any]]
+    """Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any."""
+
+    done: Optional[bool]
+    """If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available."""
+
+    error: Optional[dict[str, Any]]
+    """The error result of the operation in case of failure or cancellation."""
+
+
+DeleteEndpointOperationOrDict = Union[
+    DeleteEndpointOperation, DeleteEndpointOperationDict
+]
+
+
+class GetEndpointConfig(_common.BaseModel):
+    """Optional parameters for endpoints.get method."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class GetEndpointConfigDict(TypedDict, total=False):
+    """Optional parameters for endpoints.get method."""
+
+    http_options: Optional[genai_types.HttpOptions]
+    """Used to override HTTP request options."""
+
+
+GetEndpointConfigOrDict = Union[GetEndpointConfig, GetEndpointConfigDict]
+
+
+class _GetEndpointParameters(_common.BaseModel):
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""Required. The resource name of the Endpoint to get.""",
+    )
+    config: Optional[GetEndpointConfig] = Field(
+        default=None, description="""Optional parameters for the request."""
+    )
+
+
+class _GetEndpointParametersDict(TypedDict, total=False):
+
+    name: Optional[str]
+    """Required. The resource name of the Endpoint to get."""
+
+    config: Optional[GetEndpointConfigDict]
+    """Optional parameters for the request."""
+
+
+_GetEndpointParametersOrDict = Union[_GetEndpointParameters, _GetEndpointParametersDict]
+
+
+class ClientConnectionConfig(_common.BaseModel):
+    """Configurations (e.g. inference timeout) that are applied on your endpoints."""
+
+    inference_timeout: Optional[str] = Field(
+        default=None, description="""Customizable online prediction request timeout."""
+    )
+
+
+class ClientConnectionConfigDict(TypedDict, total=False):
+    """Configurations (e.g. inference timeout) that are applied on your endpoints."""
+
+    inference_timeout: Optional[str]
+    """Customizable online prediction request timeout."""
+
+
+ClientConnectionConfigOrDict = Union[ClientConnectionConfig, ClientConnectionConfigDict]
+
+
+class ExplanationMetadataInputMetadataFeatureValueDomain(_common.BaseModel):
+    """Domain details of the input feature value. Provides numeric information about the feature, such as its range (min, max). If the feature has been pre-processed, for example with z-scoring, then it provides information about how to recover the original feature. For example, if the input feature is an image and it has been pre-processed to obtain 0-mean and stddev = 1 values, then original_mean, and original_stddev refer to the mean and stddev of the original feature (e.g. image tensor) from which input feature (with mean = 0 and stddev = 1) was obtained."""
+
+    max_value: Optional[float] = Field(
+        default=None, description="""The maximum permissible value for this feature."""
+    )
+    min_value: Optional[float] = Field(
+        default=None, description="""The minimum permissible value for this feature."""
+    )
+    original_mean: Optional[float] = Field(
+        default=None,
+        description="""If this input feature has been normalized to a mean value of 0, the original_mean specifies the mean value of the domain prior to normalization.""",
+    )
+    original_stddev: Optional[float] = Field(
+        default=None,
+        description="""If this input feature has been normalized to a standard deviation of 1.0, the original_stddev specifies the standard deviation of the domain prior to normalization.""",
+    )
+
+
+class ExplanationMetadataInputMetadataFeatureValueDomainDict(TypedDict, total=False):
+    """Domain details of the input feature value. Provides numeric information about the feature, such as its range (min, max). If the feature has been pre-processed, for example with z-scoring, then it provides information about how to recover the original feature. For example, if the input feature is an image and it has been pre-processed to obtain 0-mean and stddev = 1 values, then original_mean, and original_stddev refer to the mean and stddev of the original feature (e.g. image tensor) from which input feature (with mean = 0 and stddev = 1) was obtained."""
+
+    max_value: Optional[float]
+    """The maximum permissible value for this feature."""
+
+    min_value: Optional[float]
+    """The minimum permissible value for this feature."""
+
+    original_mean: Optional[float]
+    """If this input feature has been normalized to a mean value of 0, the original_mean specifies the mean value of the domain prior to normalization."""
+
+    original_stddev: Optional[float]
+    """If this input feature has been normalized to a standard deviation of 1.0, the original_stddev specifies the standard deviation of the domain prior to normalization."""
+
+
+ExplanationMetadataInputMetadataFeatureValueDomainOrDict = Union[
+    ExplanationMetadataInputMetadataFeatureValueDomain,
+    ExplanationMetadataInputMetadataFeatureValueDomainDict,
+]
+
+
+class ExplanationMetadataInputMetadataVisualization(_common.BaseModel):
+    """Visualization configurations for image explanation."""
+
+    clip_percent_lowerbound: Optional[float] = Field(
+        default=None,
+        description="""Excludes attributions below the specified percentile, from the highlighted areas. Defaults to 62.""",
+    )
+    clip_percent_upperbound: Optional[float] = Field(
+        default=None,
+        description="""Excludes attributions above the specified percentile from the highlighted areas. Using the clip_percent_upperbound and clip_percent_lowerbound together can be useful for filtering out noise and making it easier to see areas of strong attribution. Defaults to 99.9.""",
+    )
+    color_map: Optional[ColorMap] = Field(
+        default=None,
+        description="""The color scheme used for the highlighted areas. Defaults to PINK_GREEN for Integrated Gradients attribution, which shows positive attributions in green and negative in pink. Defaults to VIRIDIS for XRAI attribution, which highlights the most influential regions in yellow and the least influential in blue.""",
+    )
+    overlay_type: Optional[OverlayType] = Field(
+        default=None,
+        description="""How the original image is displayed in the visualization. Adjusting the overlay can help increase visual clarity if the original image makes it difficult to view the visualization. Defaults to NONE.""",
+    )
+    polarity: Optional[Polarity] = Field(
+        default=None,
+        description="""Whether to only highlight pixels with positive contributions, negative or both. Defaults to POSITIVE.""",
+    )
+    type: Optional[Type] = Field(
+        default=None,
+        description="""Type of the image visualization. Only applicable to Integrated Gradients attribution. OUTLINES shows regions of attribution, while PIXELS shows per-pixel attribution. Defaults to OUTLINES.""",
+    )
+
+
+class ExplanationMetadataInputMetadataVisualizationDict(TypedDict, total=False):
+    """Visualization configurations for image explanation."""
+
+    clip_percent_lowerbound: Optional[float]
+    """Excludes attributions below the specified percentile, from the highlighted areas. Defaults to 62."""
+
+    clip_percent_upperbound: Optional[float]
+    """Excludes attributions above the specified percentile from the highlighted areas. Using the clip_percent_upperbound and clip_percent_lowerbound together can be useful for filtering out noise and making it easier to see areas of strong attribution. Defaults to 99.9."""
+
+    color_map: Optional[ColorMap]
+    """The color scheme used for the highlighted areas. Defaults to PINK_GREEN for Integrated Gradients attribution, which shows positive attributions in green and negative in pink. Defaults to VIRIDIS for XRAI attribution, which highlights the most influential regions in yellow and the least influential in blue."""
+
+    overlay_type: Optional[OverlayType]
+    """How the original image is displayed in the visualization. Adjusting the overlay can help increase visual clarity if the original image makes it difficult to view the visualization. Defaults to NONE."""
+
+    polarity: Optional[Polarity]
+    """Whether to only highlight pixels with positive contributions, negative or both. Defaults to POSITIVE."""
+
+    type: Optional[Type]
+    """Type of the image visualization. Only applicable to Integrated Gradients attribution. OUTLINES shows regions of attribution, while PIXELS shows per-pixel attribution. Defaults to OUTLINES."""
+
+
+ExplanationMetadataInputMetadataVisualizationOrDict = Union[
+    ExplanationMetadataInputMetadataVisualization,
+    ExplanationMetadataInputMetadataVisualizationDict,
+]
+
+
+class ExplanationMetadataInputMetadata(_common.BaseModel):
+    """Metadata of the input of a feature. Fields other than InputMetadata.input_baselines are applicable only for Models that are using Vertex AI-provided images for Tensorflow."""
+
+    dense_shape_tensor_name: Optional[str] = Field(
+        default=None,
+        description="""Specifies the shape of the values of the input if the input is a sparse representation. Refer to Tensorflow documentation for more details: https://www.tensorflow.org/api_docs/python/tf/sparse/SparseTensor.""",
+    )
+    encoded_baselines: Optional[list[Any]] = Field(
+        default=None,
+        description="""A list of baselines for the encoded tensor. The shape of each baseline should match the shape of the encoded tensor. If a scalar is provided, Vertex AI broadcasts to the same shape as the encoded tensor.""",
+    )
+    encoded_tensor_name: Optional[str] = Field(
+        default=None,
+        description="""Encoded tensor is a transformation of the input tensor. Must be provided if choosing Integrated Gradients attribution or XRAI attribution and the input tensor is not differentiable. An encoded tensor is generated if the input tensor is encoded by a lookup table.""",
+    )
+    encoding: Optional[Encoding] = Field(
+        default=None,
+        description="""Defines how the feature is encoded into the input tensor. Defaults to IDENTITY.""",
+    )
+    feature_value_domain: Optional[
+        ExplanationMetadataInputMetadataFeatureValueDomain
+    ] = Field(
+        default=None,
+        description="""The domain details of the input feature value. Like min/max, original mean or standard deviation if normalized.""",
+    )
+    group_name: Optional[str] = Field(
+        default=None,
+        description="""Name of the group that the input belongs to. Features with the same group name will be treated as one feature when computing attributions. Features grouped together can have different shapes in value. If provided, there will be one single attribution generated in Attribution.feature_attributions, keyed by the group name.""",
+    )
+    index_feature_mapping: Optional[list[str]] = Field(
+        default=None,
+        description="""A list of feature names for each index in the input tensor. Required when the input InputMetadata.encoding is BAG_OF_FEATURES, BAG_OF_FEATURES_SPARSE, INDICATOR.""",
+    )
+    indices_tensor_name: Optional[str] = Field(
+        default=None,
+        description="""Specifies the index of the values of the input tensor. Required when the input tensor is a sparse representation. Refer to Tensorflow documentation for more details: https://www.tensorflow.org/api_docs/python/tf/sparse/SparseTensor.""",
+    )
+    input_baselines: Optional[list[Any]] = Field(
+        default=None,
+        description="""Baseline inputs for this feature. If no baseline is specified, Vertex AI chooses the baseline for this feature. If multiple baselines are specified, Vertex AI returns the average attributions across them in Attribution.feature_attributions. For Vertex AI-provided Tensorflow images (both 1.x and 2.x), the shape of each baseline must match the shape of the input tensor. If a scalar is provided, we broadcast to the same shape as the input tensor. For custom images, the element of the baselines must be in the same format as the feature's input in the instance[]. The schema of any single instance may be specified via Endpoint's DeployedModels' Model's PredictSchemata's instance_schema_uri.""",
+    )
+    input_tensor_name: Optional[str] = Field(
+        default=None,
+        description="""Name of the input tensor for this feature. Required and is only applicable to Vertex AI-provided images for Tensorflow.""",
+    )
+    modality: Optional[str] = Field(
+        default=None,
+        description="""Modality of the feature. Valid values are: numeric, image. Defaults to numeric.""",
+    )
+    visualization: Optional[ExplanationMetadataInputMetadataVisualization] = Field(
+        default=None,
+        description="""Visualization configurations for image explanation.""",
+    )
+
+
+class ExplanationMetadataInputMetadataDict(TypedDict, total=False):
+    """Metadata of the input of a feature. Fields other than InputMetadata.input_baselines are applicable only for Models that are using Vertex AI-provided images for Tensorflow."""
+
+    dense_shape_tensor_name: Optional[str]
+    """Specifies the shape of the values of the input if the input is a sparse representation. Refer to Tensorflow documentation for more details: https://www.tensorflow.org/api_docs/python/tf/sparse/SparseTensor."""
+
+    encoded_baselines: Optional[list[Any]]
+    """A list of baselines for the encoded tensor. The shape of each baseline should match the shape of the encoded tensor. If a scalar is provided, Vertex AI broadcasts to the same shape as the encoded tensor."""
+
+    encoded_tensor_name: Optional[str]
+    """Encoded tensor is a transformation of the input tensor. Must be provided if choosing Integrated Gradients attribution or XRAI attribution and the input tensor is not differentiable. An encoded tensor is generated if the input tensor is encoded by a lookup table."""
+
+    encoding: Optional[Encoding]
+    """Defines how the feature is encoded into the input tensor. Defaults to IDENTITY."""
+
+    feature_value_domain: Optional[
+        ExplanationMetadataInputMetadataFeatureValueDomainDict
+    ]
+    """The domain details of the input feature value. Like min/max, original mean or standard deviation if normalized."""
+
+    group_name: Optional[str]
+    """Name of the group that the input belongs to. Features with the same group name will be treated as one feature when computing attributions. Features grouped together can have different shapes in value. If provided, there will be one single attribution generated in Attribution.feature_attributions, keyed by the group name."""
+
+    index_feature_mapping: Optional[list[str]]
+    """A list of feature names for each index in the input tensor. Required when the input InputMetadata.encoding is BAG_OF_FEATURES, BAG_OF_FEATURES_SPARSE, INDICATOR."""
+
+    indices_tensor_name: Optional[str]
+    """Specifies the index of the values of the input tensor. Required when the input tensor is a sparse representation. Refer to Tensorflow documentation for more details: https://www.tensorflow.org/api_docs/python/tf/sparse/SparseTensor."""
+
+    input_baselines: Optional[list[Any]]
+    """Baseline inputs for this feature. If no baseline is specified, Vertex AI chooses the baseline for this feature. If multiple baselines are specified, Vertex AI returns the average attributions across them in Attribution.feature_attributions. For Vertex AI-provided Tensorflow images (both 1.x and 2.x), the shape of each baseline must match the shape of the input tensor. If a scalar is provided, we broadcast to the same shape as the input tensor. For custom images, the element of the baselines must be in the same format as the feature's input in the instance[]. The schema of any single instance may be specified via Endpoint's DeployedModels' Model's PredictSchemata's instance_schema_uri."""
+
+    input_tensor_name: Optional[str]
+    """Name of the input tensor for this feature. Required and is only applicable to Vertex AI-provided images for Tensorflow."""
+
+    modality: Optional[str]
+    """Modality of the feature. Valid values are: numeric, image. Defaults to numeric."""
+
+    visualization: Optional[ExplanationMetadataInputMetadataVisualizationDict]
+    """Visualization configurations for image explanation."""
+
+
+ExplanationMetadataInputMetadataOrDict = Union[
+    ExplanationMetadataInputMetadata, ExplanationMetadataInputMetadataDict
+]
+
+
+class ExplanationMetadataOutputMetadata(_common.BaseModel):
+    """Metadata of the prediction output to be explained."""
+
+    display_name_mapping_key: Optional[str] = Field(
+        default=None,
+        description="""Specify a field name in the prediction to look for the display name. Use this if the prediction contains the display names for the outputs. The display names in the prediction must have the same shape of the outputs, so that it can be located by Attribution.output_index for a specific output.""",
+    )
+    index_display_name_mapping: Optional[Any] = Field(
+        default=None,
+        description="""Static mapping between the index and display name. Use this if the outputs are a deterministic n-dimensional array, e.g. a list of scores of all the classes in a pre-defined order for a multi-classification Model. It's not feasible if the outputs are non-deterministic, e.g. the Model produces top-k classes or sort the outputs by their values. The shape of the value must be an n-dimensional array of strings. The number of dimensions must match that of the outputs to be explained. The Attribution.output_display_name is populated by locating in the mapping with Attribution.output_index.""",
+    )
+    output_tensor_name: Optional[str] = Field(
+        default=None,
+        description="""Name of the output tensor. Required and is only applicable to Vertex AI provided images for Tensorflow.""",
+    )
+
+
+class ExplanationMetadataOutputMetadataDict(TypedDict, total=False):
+    """Metadata of the prediction output to be explained."""
+
+    display_name_mapping_key: Optional[str]
+    """Specify a field name in the prediction to look for the display name. Use this if the prediction contains the display names for the outputs. The display names in the prediction must have the same shape of the outputs, so that it can be located by Attribution.output_index for a specific output."""
+
+    index_display_name_mapping: Optional[Any]
+    """Static mapping between the index and display name. Use this if the outputs are a deterministic n-dimensional array, e.g. a list of scores of all the classes in a pre-defined order for a multi-classification Model. It's not feasible if the outputs are non-deterministic, e.g. the Model produces top-k classes or sort the outputs by their values. The shape of the value must be an n-dimensional array of strings. The number of dimensions must match that of the outputs to be explained. The Attribution.output_display_name is populated by locating in the mapping with Attribution.output_index."""
+
+    output_tensor_name: Optional[str]
+    """Name of the output tensor. Required and is only applicable to Vertex AI provided images for Tensorflow."""
+
+
+ExplanationMetadataOutputMetadataOrDict = Union[
+    ExplanationMetadataOutputMetadata, ExplanationMetadataOutputMetadataDict
+]
+
+
+class ExplanationMetadata(_common.BaseModel):
+    """Metadata describing the Model's input and output for explanation."""
+
+    feature_attributions_schema_uri: Optional[str] = Field(
+        default=None,
+        description="""Points to a YAML file stored on Google Cloud Storage describing the format of the feature attributions. The schema is defined as an OpenAPI 3.0.2 [Schema Object](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.2.md#schemaObject). AutoML tabular Models always have this field populated by Vertex AI. Note: The URI given on output may be different, including the URI scheme, than the one given on input. The output URI will point to a location where the user only has a read access.""",
+    )
+    inputs: Optional[dict[str, ExplanationMetadataInputMetadata]] = Field(
+        default=None,
+        description="""Required. Map from feature names to feature input metadata. Keys are the name of the features. Values are the specification of the feature. An empty InputMetadata is valid. It describes a text feature which has the name specified as the key in ExplanationMetadata.inputs. The baseline of the empty feature is chosen by Vertex AI. For Vertex AI-provided Tensorflow images, the key can be any friendly name of the feature. Once specified, featureAttributions are keyed by this key (if not grouped with another feature). For custom images, the key must match with the key in instance.""",
+    )
+    latent_space_source: Optional[str] = Field(
+        default=None,
+        description="""Name of the source to generate embeddings for example based explanations.""",
+    )
+    outputs: Optional[dict[str, ExplanationMetadataOutputMetadata]] = Field(
+        default=None,
+        description="""Required. Map from output names to output metadata. For Vertex AI-provided Tensorflow images, keys can be any user defined string that consists of any UTF-8 characters. For custom images, keys are the name of the output field in the prediction to be explained. Currently only one key is allowed.""",
+    )
+
+
+class ExplanationMetadataDict(TypedDict, total=False):
+    """Metadata describing the Model's input and output for explanation."""
+
+    feature_attributions_schema_uri: Optional[str]
+    """Points to a YAML file stored on Google Cloud Storage describing the format of the feature attributions. The schema is defined as an OpenAPI 3.0.2 [Schema Object](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.2.md#schemaObject). AutoML tabular Models always have this field populated by Vertex AI. Note: The URI given on output may be different, including the URI scheme, than the one given on input. The output URI will point to a location where the user only has a read access."""
+
+    inputs: Optional[dict[str, ExplanationMetadataInputMetadataDict]]
+    """Required. Map from feature names to feature input metadata. Keys are the name of the features. Values are the specification of the feature. An empty InputMetadata is valid. It describes a text feature which has the name specified as the key in ExplanationMetadata.inputs. The baseline of the empty feature is chosen by Vertex AI. For Vertex AI-provided Tensorflow images, the key can be any friendly name of the feature. Once specified, featureAttributions are keyed by this key (if not grouped with another feature). For custom images, the key must match with the key in instance."""
+
+    latent_space_source: Optional[str]
+    """Name of the source to generate embeddings for example based explanations."""
+
+    outputs: Optional[dict[str, ExplanationMetadataOutputMetadataDict]]
+    """Required. Map from output names to output metadata. For Vertex AI-provided Tensorflow images, keys can be any user defined string that consists of any UTF-8 characters. For custom images, keys are the name of the output field in the prediction to be explained. Currently only one key is allowed."""
+
+
+ExplanationMetadataOrDict = Union[ExplanationMetadata, ExplanationMetadataDict]
+
+
+class ExamplesExampleGcsSource(_common.BaseModel):
+    """The Cloud Storage input instances."""
+
+    data_format: Optional[DataFormat] = Field(
+        default=None,
+        description="""The format in which instances are given, if not specified, assume it's JSONL format. Currently only JSONL format is supported.""",
+    )
+    gcs_source: Optional[genai_types.GcsSource] = Field(
+        default=None,
+        description="""The Cloud Storage location for the input instances.""",
+    )
+
+
+class ExamplesExampleGcsSourceDict(TypedDict, total=False):
+    """The Cloud Storage input instances."""
+
+    data_format: Optional[DataFormat]
+    """The format in which instances are given, if not specified, assume it's JSONL format. Currently only JSONL format is supported."""
+
+    gcs_source: Optional[genai_types.GcsSourceDict]
+    """The Cloud Storage location for the input instances."""
+
+
+ExamplesExampleGcsSourceOrDict = Union[
+    ExamplesExampleGcsSource, ExamplesExampleGcsSourceDict
+]
+
+
+class Presets(_common.BaseModel):
+    """Preset configuration for example-based explanations"""
+
+    modality: Optional[Modality] = Field(
+        default=None,
+        description="""The modality of the uploaded model, which automatically configures the distance measurement and feature normalization for the underlying example index and queries. If your model does not precisely fit one of these types, it is okay to choose the closest type.""",
+    )
+    query: Optional[Literal["PRECISE", "FAST"]] = Field(
+        default=None,
+        description="""Preset option controlling parameters for speed-precision trade-off when querying for examples. If omitted, defaults to `PRECISE`.""",
+    )
+
+
+class PresetsDict(TypedDict, total=False):
+    """Preset configuration for example-based explanations"""
+
+    modality: Optional[Modality]
+    """The modality of the uploaded model, which automatically configures the distance measurement and feature normalization for the underlying example index and queries. If your model does not precisely fit one of these types, it is okay to choose the closest type."""
+
+    query: Optional[Literal["PRECISE", "FAST"]]
+    """Preset option controlling parameters for speed-precision trade-off when querying for examples. If omitted, defaults to `PRECISE`."""
+
+
+PresetsOrDict = Union[Presets, PresetsDict]
+
+
+class Examples(_common.BaseModel):
+    """Example-based explainability that returns the nearest neighbors from the provided dataset."""
+
+    example_gcs_source: Optional[ExamplesExampleGcsSource] = Field(
+        default=None, description="""The Cloud Storage input instances."""
+    )
+    gcs_source: Optional[genai_types.GcsSource] = Field(
+        default=None,
+        description="""The Cloud Storage locations that contain the instances to be indexed for approximate nearest neighbor search.""",
+    )
+    nearest_neighbor_search_config: Optional[Any] = Field(
+        default=None,
+        description="""The full configuration for the generated index, the semantics are the same as metadata and should match [NearestNeighborSearchConfig](https://cloud.google.com/vertex-ai/docs/explainable-ai/configuring-explanations-example-based#nearest-neighbor-search-config).""",
+    )
+    neighbor_count: Optional[int] = Field(
+        default=None,
+        description="""The number of neighbors to return when querying for examples.""",
+    )
+    presets: Optional[Presets] = Field(
+        default=None,
+        description="""Simplified preset configuration, which automatically sets configuration values based on the desired query speed-precision trade-off and modality.""",
+    )
+
+
+class ExamplesDict(TypedDict, total=False):
+    """Example-based explainability that returns the nearest neighbors from the provided dataset."""
+
+    example_gcs_source: Optional[ExamplesExampleGcsSourceDict]
+    """The Cloud Storage input instances."""
+
+    gcs_source: Optional[genai_types.GcsSourceDict]
+    """The Cloud Storage locations that contain the instances to be indexed for approximate nearest neighbor search."""
+
+    nearest_neighbor_search_config: Optional[Any]
+    """The full configuration for the generated index, the semantics are the same as metadata and should match [NearestNeighborSearchConfig](https://cloud.google.com/vertex-ai/docs/explainable-ai/configuring-explanations-example-based#nearest-neighbor-search-config)."""
+
+    neighbor_count: Optional[int]
+    """The number of neighbors to return when querying for examples."""
+
+    presets: Optional[PresetsDict]
+    """Simplified preset configuration, which automatically sets configuration values based on the desired query speed-precision trade-off and modality."""
+
+
+ExamplesOrDict = Union[Examples, ExamplesDict]
+
+
+class BlurBaselineConfig(_common.BaseModel):
+    """Config for blur baseline. When enabled, a linear path from the maximally blurred image to the input image is created. Using a blurred baseline instead of zero (black image) is motivated by the BlurIG approach explained here: https://arxiv.org/abs/2004.03383"""
+
+    max_blur_sigma: Optional[float] = Field(
+        default=None,
+        description="""The standard deviation of the blur kernel for the blurred baseline. The same blurring parameter is used for both the height and the width dimension. If not set, the method defaults to the zero (i.e. black for images) baseline.""",
+    )
+
+
+class BlurBaselineConfigDict(TypedDict, total=False):
+    """Config for blur baseline. When enabled, a linear path from the maximally blurred image to the input image is created. Using a blurred baseline instead of zero (black image) is motivated by the BlurIG approach explained here: https://arxiv.org/abs/2004.03383"""
+
+    max_blur_sigma: Optional[float]
+    """The standard deviation of the blur kernel for the blurred baseline. The same blurring parameter is used for both the height and the width dimension. If not set, the method defaults to the zero (i.e. black for images) baseline."""
+
+
+BlurBaselineConfigOrDict = Union[BlurBaselineConfig, BlurBaselineConfigDict]
+
+
+class FeatureNoiseSigmaNoiseSigmaForFeature(_common.BaseModel):
+    """Noise sigma for a single feature."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""The name of the input feature for which noise sigma is provided. The features are defined in explanation metadata inputs.""",
+    )
+    sigma: Optional[float] = Field(
+        default=None,
+        description="""This represents the standard deviation of the Gaussian kernel that will be used to add noise to the feature prior to computing gradients. Similar to noise_sigma but represents the noise added to the current feature. Defaults to 0.1.""",
+    )
+
+
+class FeatureNoiseSigmaNoiseSigmaForFeatureDict(TypedDict, total=False):
+    """Noise sigma for a single feature."""
+
+    name: Optional[str]
+    """The name of the input feature for which noise sigma is provided. The features are defined in explanation metadata inputs."""
+
+    sigma: Optional[float]
+    """This represents the standard deviation of the Gaussian kernel that will be used to add noise to the feature prior to computing gradients. Similar to noise_sigma but represents the noise added to the current feature. Defaults to 0.1."""
+
+
+FeatureNoiseSigmaNoiseSigmaForFeatureOrDict = Union[
+    FeatureNoiseSigmaNoiseSigmaForFeature, FeatureNoiseSigmaNoiseSigmaForFeatureDict
+]
+
+
+class FeatureNoiseSigma(_common.BaseModel):
+    """Noise sigma by features. Noise sigma represents the standard deviation of the gaussian kernel that will be used to add noise to interpolated inputs prior to computing gradients."""
+
+    noise_sigma: Optional[list[FeatureNoiseSigmaNoiseSigmaForFeature]] = Field(
+        default=None,
+        description="""Noise sigma per feature. No noise is added to features that are not set.""",
+    )
+
+
+class FeatureNoiseSigmaDict(TypedDict, total=False):
+    """Noise sigma by features. Noise sigma represents the standard deviation of the gaussian kernel that will be used to add noise to interpolated inputs prior to computing gradients."""
+
+    noise_sigma: Optional[list[FeatureNoiseSigmaNoiseSigmaForFeatureDict]]
+    """Noise sigma per feature. No noise is added to features that are not set."""
+
+
+FeatureNoiseSigmaOrDict = Union[FeatureNoiseSigma, FeatureNoiseSigmaDict]
+
+
+class SmoothGradConfig(_common.BaseModel):
+    """Config for SmoothGrad approximation of gradients. When enabled, the gradients are approximated by averaging the gradients from noisy samples in the vicinity of the inputs. Adding noise can help improve the computed gradients. Refer to this paper for more details: https://arxiv.org/pdf/1706.03825.pdf"""
+
+    feature_noise_sigma: Optional[FeatureNoiseSigma] = Field(
+        default=None,
+        description="""This is similar to noise_sigma, but provides additional flexibility. A separate noise sigma can be provided for each feature, which is useful if their distributions are different. No noise is added to features that are not set. If this field is unset, noise_sigma will be used for all features.""",
+    )
+    noise_sigma: Optional[float] = Field(
+        default=None,
+        description="""This is a single float value and will be used to add noise to all the features. Use this field when all features are normalized to have the same distribution: scale to range [0, 1], [-1, 1] or z-scoring, where features are normalized to have 0-mean and 1-variance. Learn more about [normalization](https://developers.google.com/machine-learning/data-prep/transform/normalization). For best results the recommended value is about 10% - 20% of the standard deviation of the input feature. Refer to section 3.2 of the SmoothGrad paper: https://arxiv.org/pdf/1706.03825.pdf. Defaults to 0.1. If the distribution is different per feature, set feature_noise_sigma instead for each feature.""",
+    )
+    noisy_sample_count: Optional[int] = Field(
+        default=None,
+        description="""The number of gradient samples to use for approximation. The higher this number, the more accurate the gradient is, but the runtime complexity increases by this factor as well. Valid range of its value is [1, 50]. Defaults to 3.""",
+    )
+
+
+class SmoothGradConfigDict(TypedDict, total=False):
+    """Config for SmoothGrad approximation of gradients. When enabled, the gradients are approximated by averaging the gradients from noisy samples in the vicinity of the inputs. Adding noise can help improve the computed gradients. Refer to this paper for more details: https://arxiv.org/pdf/1706.03825.pdf"""
+
+    feature_noise_sigma: Optional[FeatureNoiseSigmaDict]
+    """This is similar to noise_sigma, but provides additional flexibility. A separate noise sigma can be provided for each feature, which is useful if their distributions are different. No noise is added to features that are not set. If this field is unset, noise_sigma will be used for all features."""
+
+    noise_sigma: Optional[float]
+    """This is a single float value and will be used to add noise to all the features. Use this field when all features are normalized to have the same distribution: scale to range [0, 1], [-1, 1] or z-scoring, where features are normalized to have 0-mean and 1-variance. Learn more about [normalization](https://developers.google.com/machine-learning/data-prep/transform/normalization). For best results the recommended value is about 10% - 20% of the standard deviation of the input feature. Refer to section 3.2 of the SmoothGrad paper: https://arxiv.org/pdf/1706.03825.pdf. Defaults to 0.1. If the distribution is different per feature, set feature_noise_sigma instead for each feature."""
+
+    noisy_sample_count: Optional[int]
+    """The number of gradient samples to use for approximation. The higher this number, the more accurate the gradient is, but the runtime complexity increases by this factor as well. Valid range of its value is [1, 50]. Defaults to 3."""
+
+
+SmoothGradConfigOrDict = Union[SmoothGradConfig, SmoothGradConfigDict]
+
+
+class IntegratedGradientsAttribution(_common.BaseModel):
+    """An attribution method that computes the Aumann-Shapley value taking advantage of the model's fully differentiable structure. Refer to this paper for more details: https://arxiv.org/abs/1703.01365"""
+
+    blur_baseline_config: Optional[BlurBaselineConfig] = Field(
+        default=None,
+        description="""Config for IG with blur baseline. When enabled, a linear path from the maximally blurred image to the input image is created. Using a blurred baseline instead of zero (black image) is motivated by the BlurIG approach explained here: https://arxiv.org/abs/2004.03383""",
+    )
+    smooth_grad_config: Optional[SmoothGradConfig] = Field(
+        default=None,
+        description="""Config for SmoothGrad approximation of gradients. When enabled, the gradients are approximated by averaging the gradients from noisy samples in the vicinity of the inputs. Adding noise can help improve the computed gradients. Refer to this paper for more details: https://arxiv.org/pdf/1706.03825.pdf""",
+    )
+    step_count: Optional[int] = Field(
+        default=None,
+        description="""Required. The number of steps for approximating the path integral. A good value to start is 50 and gradually increase until the sum to diff property is within the desired error range. Valid range of its value is [1, 100], inclusively.""",
+    )
+
+
+class IntegratedGradientsAttributionDict(TypedDict, total=False):
+    """An attribution method that computes the Aumann-Shapley value taking advantage of the model's fully differentiable structure. Refer to this paper for more details: https://arxiv.org/abs/1703.01365"""
+
+    blur_baseline_config: Optional[BlurBaselineConfigDict]
+    """Config for IG with blur baseline. When enabled, a linear path from the maximally blurred image to the input image is created. Using a blurred baseline instead of zero (black image) is motivated by the BlurIG approach explained here: https://arxiv.org/abs/2004.03383"""
+
+    smooth_grad_config: Optional[SmoothGradConfigDict]
+    """Config for SmoothGrad approximation of gradients. When enabled, the gradients are approximated by averaging the gradients from noisy samples in the vicinity of the inputs. Adding noise can help improve the computed gradients. Refer to this paper for more details: https://arxiv.org/pdf/1706.03825.pdf"""
+
+    step_count: Optional[int]
+    """Required. The number of steps for approximating the path integral. A good value to start is 50 and gradually increase until the sum to diff property is within the desired error range. Valid range of its value is [1, 100], inclusively."""
+
+
+IntegratedGradientsAttributionOrDict = Union[
+    IntegratedGradientsAttribution, IntegratedGradientsAttributionDict
+]
+
+
+class SampledShapleyAttribution(_common.BaseModel):
+    """An attribution method that approximates Shapley values for features that contribute to the label being predicted. A sampling strategy is used to approximate the value rather than considering all subsets of features."""
+
+    path_count: Optional[int] = Field(
+        default=None,
+        description="""Required. The number of feature permutations to consider when approximating the Shapley values. Valid range of its value is [1, 50], inclusively.""",
+    )
+
+
+class SampledShapleyAttributionDict(TypedDict, total=False):
+    """An attribution method that approximates Shapley values for features that contribute to the label being predicted. A sampling strategy is used to approximate the value rather than considering all subsets of features."""
+
+    path_count: Optional[int]
+    """Required. The number of feature permutations to consider when approximating the Shapley values. Valid range of its value is [1, 50], inclusively."""
+
+
+SampledShapleyAttributionOrDict = Union[
+    SampledShapleyAttribution, SampledShapleyAttributionDict
+]
+
+
+class XraiAttribution(_common.BaseModel):
+    """An explanation method that redistributes Integrated Gradients attributions to segmented regions, taking advantage of the model's fully differentiable structure. Refer to this paper for more details: https://arxiv.org/abs/1906.02825 Supported only by image Models."""
+
+    blur_baseline_config: Optional[BlurBaselineConfig] = Field(
+        default=None,
+        description="""Config for XRAI with blur baseline. When enabled, a linear path from the maximally blurred image to the input image is created. Using a blurred baseline instead of zero (black image) is motivated by the BlurIG approach explained here: https://arxiv.org/abs/2004.03383""",
+    )
+    smooth_grad_config: Optional[SmoothGradConfig] = Field(
+        default=None,
+        description="""Config for SmoothGrad approximation of gradients. When enabled, the gradients are approximated by averaging the gradients from noisy samples in the vicinity of the inputs. Adding noise can help improve the computed gradients. Refer to this paper for more details: https://arxiv.org/pdf/1706.03825.pdf""",
+    )
+    step_count: Optional[int] = Field(
+        default=None,
+        description="""Required. The number of steps for approximating the path integral. A good value to start is 50 and gradually increase until the sum to diff property is met within the desired error range. Valid range of its value is [1, 100], inclusively.""",
+    )
+
+
+class XraiAttributionDict(TypedDict, total=False):
+    """An explanation method that redistributes Integrated Gradients attributions to segmented regions, taking advantage of the model's fully differentiable structure. Refer to this paper for more details: https://arxiv.org/abs/1906.02825 Supported only by image Models."""
+
+    blur_baseline_config: Optional[BlurBaselineConfigDict]
+    """Config for XRAI with blur baseline. When enabled, a linear path from the maximally blurred image to the input image is created. Using a blurred baseline instead of zero (black image) is motivated by the BlurIG approach explained here: https://arxiv.org/abs/2004.03383"""
+
+    smooth_grad_config: Optional[SmoothGradConfigDict]
+    """Config for SmoothGrad approximation of gradients. When enabled, the gradients are approximated by averaging the gradients from noisy samples in the vicinity of the inputs. Adding noise can help improve the computed gradients. Refer to this paper for more details: https://arxiv.org/pdf/1706.03825.pdf"""
+
+    step_count: Optional[int]
+    """Required. The number of steps for approximating the path integral. A good value to start is 50 and gradually increase until the sum to diff property is met within the desired error range. Valid range of its value is [1, 100], inclusively."""
+
+
+XraiAttributionOrDict = Union[XraiAttribution, XraiAttributionDict]
+
+
+class ExplanationParameters(_common.BaseModel):
+    """Parameters to configure explaining for Model's predictions."""
+
+    examples: Optional[Examples] = Field(
+        default=None,
+        description="""Example-based explanations that returns the nearest neighbors from the provided dataset.""",
+    )
+    integrated_gradients_attribution: Optional[IntegratedGradientsAttribution] = Field(
+        default=None,
+        description="""An attribution method that computes Aumann-Shapley values taking advantage of the model's fully differentiable structure. Refer to this paper for more details: https://arxiv.org/abs/1703.01365""",
+    )
+    output_indices: Optional[list[Any]] = Field(
+        default=None,
+        description="""If populated, only returns attributions that have output_index contained in output_indices. It must be an ndarray of integers, with the same shape of the output it's explaining. If not populated, returns attributions for top_k indices of outputs. If neither top_k nor output_indices is populated, returns the argmax index of the outputs. Only applicable to Models that predict multiple outputs (e,g, multi-class Models that predict multiple classes).""",
+    )
+    sampled_shapley_attribution: Optional[SampledShapleyAttribution] = Field(
+        default=None,
+        description="""An attribution method that approximates Shapley values for features that contribute to the label being predicted. A sampling strategy is used to approximate the value rather than considering all subsets of features. Refer to this paper for model details: https://arxiv.org/abs/1306.4265.""",
+    )
+    top_k: Optional[int] = Field(
+        default=None,
+        description="""If populated, returns attributions for top K indices of outputs (defaults to 1). Only applies to Models that predicts more than one outputs (e,g, multi-class Models). When set to -1, returns explanations for all outputs.""",
+    )
+    xrai_attribution: Optional[XraiAttribution] = Field(
+        default=None,
+        description="""An attribution method that redistributes Integrated Gradients attribution to segmented regions, taking advantage of the model's fully differentiable structure. Refer to this paper for more details: https://arxiv.org/abs/1906.02825 XRAI currently performs better on natural images, like a picture of a house or an animal. If the images are taken in artificial environments, like a lab or manufacturing line, or from diagnostic equipment, like x-rays or quality-control cameras, use Integrated Gradients instead.""",
+    )
+
+
+class ExplanationParametersDict(TypedDict, total=False):
+    """Parameters to configure explaining for Model's predictions."""
+
+    examples: Optional[ExamplesDict]
+    """Example-based explanations that returns the nearest neighbors from the provided dataset."""
+
+    integrated_gradients_attribution: Optional[IntegratedGradientsAttributionDict]
+    """An attribution method that computes Aumann-Shapley values taking advantage of the model's fully differentiable structure. Refer to this paper for more details: https://arxiv.org/abs/1703.01365"""
+
+    output_indices: Optional[list[Any]]
+    """If populated, only returns attributions that have output_index contained in output_indices. It must be an ndarray of integers, with the same shape of the output it's explaining. If not populated, returns attributions for top_k indices of outputs. If neither top_k nor output_indices is populated, returns the argmax index of the outputs. Only applicable to Models that predict multiple outputs (e,g, multi-class Models that predict multiple classes)."""
+
+    sampled_shapley_attribution: Optional[SampledShapleyAttributionDict]
+    """An attribution method that approximates Shapley values for features that contribute to the label being predicted. A sampling strategy is used to approximate the value rather than considering all subsets of features. Refer to this paper for model details: https://arxiv.org/abs/1306.4265."""
+
+    top_k: Optional[int]
+    """If populated, returns attributions for top K indices of outputs (defaults to 1). Only applies to Models that predicts more than one outputs (e,g, multi-class Models). When set to -1, returns explanations for all outputs."""
+
+    xrai_attribution: Optional[XraiAttributionDict]
+    """An attribution method that redistributes Integrated Gradients attribution to segmented regions, taking advantage of the model's fully differentiable structure. Refer to this paper for more details: https://arxiv.org/abs/1906.02825 XRAI currently performs better on natural images, like a picture of a house or an animal. If the images are taken in artificial environments, like a lab or manufacturing line, or from diagnostic equipment, like x-rays or quality-control cameras, use Integrated Gradients instead."""
+
+
+ExplanationParametersOrDict = Union[ExplanationParameters, ExplanationParametersDict]
+
+
+class ExplanationSpec(_common.BaseModel):
+    """Specification of Model explanation."""
+
+    metadata: Optional[ExplanationMetadata] = Field(
+        default=None,
+        description="""Optional. Metadata describing the Model's input and output for explanation.""",
+    )
+    parameters: Optional[ExplanationParameters] = Field(
+        default=None,
+        description="""Required. Parameters that configure explaining of the Model's predictions.""",
+    )
+
+
+class ExplanationSpecDict(TypedDict, total=False):
+    """Specification of Model explanation."""
+
+    metadata: Optional[ExplanationMetadataDict]
+    """Optional. Metadata describing the Model's input and output for explanation."""
+
+    parameters: Optional[ExplanationParametersDict]
+    """Required. Parameters that configure explaining of the Model's predictions."""
+
+
+ExplanationSpecOrDict = Union[ExplanationSpec, ExplanationSpecDict]
+
+
+class FasterDeploymentConfig(_common.BaseModel):
+    """Configuration for faster model deployment."""
+
+    fast_tryout_enabled: Optional[bool] = Field(
+        default=None,
+        description="""If true, enable fast tryout feature for this deployed model.""",
+    )
+
+
+class FasterDeploymentConfigDict(TypedDict, total=False):
+    """Configuration for faster model deployment."""
+
+    fast_tryout_enabled: Optional[bool]
+    """If true, enable fast tryout feature for this deployed model."""
+
+
+FasterDeploymentConfigOrDict = Union[FasterDeploymentConfig, FasterDeploymentConfigDict]
+
+
+class FullFineTunedResources(_common.BaseModel):
+    """Resources for an fft model."""
+
+    deployment_type: Optional[DeploymentType] = Field(
+        default=None, description="""Required. The kind of deployment."""
+    )
+    model_inference_unit_count: Optional[int] = Field(
+        default=None,
+        description="""Optional. The number of model inference units to use for this deployment. This can only be specified for DEPLOYMENT_TYPE_PROD. The following table lists the number of model inference units for different model types: * Gemini 2.5 Flash * Foundation FMIU: 25 * Expansion FMIU: 4 * Gemini 2.5 Pro * Foundation FMIU: 32 * Expansion FMIU: 16 * Veo 3.0 (undistilled) * Foundation FMIU: 63 * Expansion FMIU: 7 * Veo 3.0 (distilled) * Foundation FMIU: 30 * Expansion FMIU: 10""",
+    )
+
+
+class FullFineTunedResourcesDict(TypedDict, total=False):
+    """Resources for an fft model."""
+
+    deployment_type: Optional[DeploymentType]
+    """Required. The kind of deployment."""
+
+    model_inference_unit_count: Optional[int]
+    """Optional. The number of model inference units to use for this deployment. This can only be specified for DEPLOYMENT_TYPE_PROD. The following table lists the number of model inference units for different model types: * Gemini 2.5 Flash * Foundation FMIU: 25 * Expansion FMIU: 4 * Gemini 2.5 Pro * Foundation FMIU: 32 * Expansion FMIU: 16 * Veo 3.0 (undistilled) * Foundation FMIU: 63 * Expansion FMIU: 7 * Veo 3.0 (distilled) * Foundation FMIU: 30 * Expansion FMIU: 10"""
+
+
+FullFineTunedResourcesOrDict = Union[FullFineTunedResources, FullFineTunedResourcesDict]
+
+
+class PrivateEndpoints(_common.BaseModel):
+    """PrivateEndpoints proto is used to provide paths for users to send requests privately. To send request via private service access, use predict_http_uri, explain_http_uri or health_http_uri. To send request via private service connect, use service_attachment."""
+
+    explain_http_uri: Optional[str] = Field(
+        default=None,
+        description="""Output only. Http(s) path to send explain requests.""",
+    )
+    health_http_uri: Optional[str] = Field(
+        default=None,
+        description="""Output only. Http(s) path to send health check requests.""",
+    )
+    predict_http_uri: Optional[str] = Field(
+        default=None,
+        description="""Output only. Http(s) path to send prediction requests.""",
+    )
+    service_attachment: Optional[str] = Field(
+        default=None,
+        description="""Output only. The name of the service attachment resource. Populated if private service connect is enabled.""",
+    )
+
+
+class PrivateEndpointsDict(TypedDict, total=False):
+    """PrivateEndpoints proto is used to provide paths for users to send requests privately. To send request via private service access, use predict_http_uri, explain_http_uri or health_http_uri. To send request via private service connect, use service_attachment."""
+
+    explain_http_uri: Optional[str]
+    """Output only. Http(s) path to send explain requests."""
+
+    health_http_uri: Optional[str]
+    """Output only. Http(s) path to send health check requests."""
+
+    predict_http_uri: Optional[str]
+    """Output only. Http(s) path to send prediction requests."""
+
+    service_attachment: Optional[str]
+    """Output only. The name of the service attachment resource. Populated if private service connect is enabled."""
+
+
+PrivateEndpointsOrDict = Union[PrivateEndpoints, PrivateEndpointsDict]
+
+
+class RolloutOptions(_common.BaseModel):
+    """Configuration for rolling deployments."""
+
+    max_surge_percentage: Optional[int] = Field(
+        default=None,
+        description="""Percentage of allowed additional replicas. For autoscaling deployments, this refers to the target replica count.""",
+    )
+    max_surge_replicas: Optional[int] = Field(
+        default=None, description="""Absolute count of allowed additional replicas."""
+    )
+    max_unavailable_percentage: Optional[int] = Field(
+        default=None,
+        description="""Percentage of replicas allowed to be unavailable. For autoscaling deployments, this refers to the target replica count.""",
+    )
+    max_unavailable_replicas: Optional[int] = Field(
+        default=None,
+        description="""Absolute count of replicas allowed to be unavailable.""",
+    )
+    previous_deployed_model: Optional[str] = Field(
+        default=None,
+        description="""ID of the DeployedModel that this deployment should replace.""",
+    )
+    revision_number: Optional[int] = Field(
+        default=None,
+        description="""Output only. Read-only. Revision number determines the relative priority of DeployedModels in the same rollout. The DeployedModel with the largest revision number specifies the intended state of the deployment.""",
+    )
+
+
+class RolloutOptionsDict(TypedDict, total=False):
+    """Configuration for rolling deployments."""
+
+    max_surge_percentage: Optional[int]
+    """Percentage of allowed additional replicas. For autoscaling deployments, this refers to the target replica count."""
+
+    max_surge_replicas: Optional[int]
+    """Absolute count of allowed additional replicas."""
+
+    max_unavailable_percentage: Optional[int]
+    """Percentage of replicas allowed to be unavailable. For autoscaling deployments, this refers to the target replica count."""
+
+    max_unavailable_replicas: Optional[int]
+    """Absolute count of replicas allowed to be unavailable."""
+
+    previous_deployed_model: Optional[str]
+    """ID of the DeployedModel that this deployment should replace."""
+
+    revision_number: Optional[int]
+    """Output only. Read-only. Revision number determines the relative priority of DeployedModels in the same rollout. The DeployedModel with the largest revision number specifies the intended state of the deployment."""
+
+
+RolloutOptionsOrDict = Union[RolloutOptions, RolloutOptionsDict]
+
+
+class SpeculativeDecodingSpecDraftModelSpeculation(_common.BaseModel):
+    """Draft model speculation works by using the smaller model to generate candidate tokens for speculative decoding."""
+
+    draft_model: Optional[str] = Field(
+        default=None, description="""Required. The resource name of the draft model."""
+    )
+
+
+class SpeculativeDecodingSpecDraftModelSpeculationDict(TypedDict, total=False):
+    """Draft model speculation works by using the smaller model to generate candidate tokens for speculative decoding."""
+
+    draft_model: Optional[str]
+    """Required. The resource name of the draft model."""
+
+
+SpeculativeDecodingSpecDraftModelSpeculationOrDict = Union[
+    SpeculativeDecodingSpecDraftModelSpeculation,
+    SpeculativeDecodingSpecDraftModelSpeculationDict,
+]
+
+
+class SpeculativeDecodingSpecNgramSpeculation(_common.BaseModel):
+    """N-Gram speculation works by trying to find matching tokens in the previous prompt sequence and use those as speculation for generating new tokens."""
+
+    ngram_size: Optional[int] = Field(
+        default=None,
+        description="""The number of last N input tokens used as ngram to search/match against the previous prompt sequence. This is equal to the N in N-Gram. The default value is 3 if not specified.""",
+    )
+
+
+class SpeculativeDecodingSpecNgramSpeculationDict(TypedDict, total=False):
+    """N-Gram speculation works by trying to find matching tokens in the previous prompt sequence and use those as speculation for generating new tokens."""
+
+    ngram_size: Optional[int]
+    """The number of last N input tokens used as ngram to search/match against the previous prompt sequence. This is equal to the N in N-Gram. The default value is 3 if not specified."""
+
+
+SpeculativeDecodingSpecNgramSpeculationOrDict = Union[
+    SpeculativeDecodingSpecNgramSpeculation, SpeculativeDecodingSpecNgramSpeculationDict
+]
+
+
+class SpeculativeDecodingSpec(_common.BaseModel):
+    """Configuration for Speculative Decoding."""
+
+    draft_model_speculation: Optional[SpeculativeDecodingSpecDraftModelSpeculation] = (
+        Field(default=None, description="""draft model speculation.""")
+    )
+    ngram_speculation: Optional[SpeculativeDecodingSpecNgramSpeculation] = Field(
+        default=None, description="""N-Gram speculation."""
+    )
+    speculative_token_count: Optional[int] = Field(
+        default=None,
+        description="""The number of speculative tokens to generate at each step.""",
+    )
+
+
+class SpeculativeDecodingSpecDict(TypedDict, total=False):
+    """Configuration for Speculative Decoding."""
+
+    draft_model_speculation: Optional[SpeculativeDecodingSpecDraftModelSpeculationDict]
+    """draft model speculation."""
+
+    ngram_speculation: Optional[SpeculativeDecodingSpecNgramSpeculationDict]
+    """N-Gram speculation."""
+
+    speculative_token_count: Optional[int]
+    """The number of speculative tokens to generate at each step."""
+
+
+SpeculativeDecodingSpecOrDict = Union[
+    SpeculativeDecodingSpec, SpeculativeDecodingSpecDict
+]
+
+
+class DeployedModelStatus(_common.BaseModel):
+    """Runtime status of the deployed model."""
+
+    available_replica_count: Optional[int] = Field(
+        default=None,
+        description="""Output only. The number of available replicas of the deployed model.""",
+    )
+    last_update_time: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Output only. The time at which the status was last updated.""",
+    )
+    message: Optional[str] = Field(
+        default=None,
+        description="""Output only. The latest deployed model's status message (if any).""",
+    )
+
+
+class DeployedModelStatusDict(TypedDict, total=False):
+    """Runtime status of the deployed model."""
+
+    available_replica_count: Optional[int]
+    """Output only. The number of available replicas of the deployed model."""
+
+    last_update_time: Optional[datetime.datetime]
+    """Output only. The time at which the status was last updated."""
+
+    message: Optional[str]
+    """Output only. The latest deployed model's status message (if any)."""
+
+
+DeployedModelStatusOrDict = Union[DeployedModelStatus, DeployedModelStatusDict]
+
+
+class DeployedModel(_common.BaseModel):
+    """A deployment of a Model. Endpoints contain one or more DeployedModels."""
+
+    automatic_resources: Optional[AutomaticResources] = Field(
+        default=None,
+        description="""A description of resources that to large degree are decided by Vertex AI, and require only a modest additional configuration.""",
+    )
+    checkpoint_id: Optional[str] = Field(
+        default=None, description="""The checkpoint id of the model."""
+    )
+    create_time: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Output only. Timestamp when the DeployedModel was created.""",
+    )
+    dedicated_resources: Optional[DedicatedResources] = Field(
+        default=None,
+        description="""A description of resources that are dedicated to the DeployedModel, and that need a higher degree of manual configuration.""",
+    )
+    disable_container_logging: Optional[bool] = Field(
+        default=None,
+        description="""For custom-trained Models and AutoML Tabular Models, the container of the DeployedModel instances will send `stderr` and `stdout` streams to Cloud Logging by default. Please note that the logs incur cost, which are subject to [Cloud Logging pricing](https://cloud.google.com/logging/pricing). User can disable container logging by setting this flag to true.""",
+    )
+    disable_explanations: Optional[bool] = Field(
+        default=None,
+        description="""If true, deploy the model without explainable feature, regardless the existence of Model.explanation_spec or explanation_spec.""",
+    )
+    display_name: Optional[str] = Field(
+        default=None,
+        description="""The display name of the DeployedModel. If not provided upon creation, the Model's display_name is used.""",
+    )
+    enable_access_logging: Optional[bool] = Field(
+        default=None,
+        description="""If true, online prediction access logs are sent to Cloud Logging. These logs are like standard server access logs, containing information like timestamp and latency for each prediction request. Note that logs may incur a cost, especially if your project receives prediction requests at a high queries per second rate (QPS). Estimate your costs before enabling this option.""",
+    )
+    enable_container_logging: Optional[bool] = Field(
+        default=None,
+        description="""If true, the container of the DeployedModel instances will send `stderr` and `stdout` streams to Cloud Logging. Only supported for custom-trained Models and AutoML Tabular Models.""",
+    )
+    explanation_spec: Optional[ExplanationSpec] = Field(
+        default=None,
+        description="""Explanation configuration for this DeployedModel. When deploying a Model using EndpointService.DeployModel, this value overrides the value of Model.explanation_spec. All fields of explanation_spec are optional in the request. If a field of explanation_spec is not populated, the value of the same field of Model.explanation_spec is inherited. If the corresponding Model.explanation_spec is not populated, all fields of the explanation_spec will be used for the explanation configuration.""",
+    )
+    faster_deployment_config: Optional[FasterDeploymentConfig] = Field(
+        default=None, description="""Configuration for faster model deployment."""
+    )
+    full_fine_tuned_resources: Optional[FullFineTunedResources] = Field(
+        default=None, description="""Optional. Resources for a full fine tuned model."""
+    )
+    gdc_connected_model: Optional[str] = Field(
+        default=None,
+        description="""GDC pretrained / Gemini model name. The model name is a plain model name, e.g. gemini-1.5-flash-002.""",
+    )
+    id: Optional[str] = Field(
+        default=None,
+        description="""Immutable. The ID of the DeployedModel. If not provided upon deployment, Vertex AI will generate a value for this ID. This value should be 1-10 characters, and valid characters are `/[0-9]/`.""",
+    )
+    model: Optional[str] = Field(
+        default=None,
+        description="""The resource name of the Model that this is the deployment of. Note that the Model may be in a different location than the DeployedModel's Endpoint. The resource name may contain version id or version alias to specify the version. Example: `projects/{project}/locations/{location}/models/{model}@2` or `projects/{project}/locations/{location}/models/{model}@golden` if no version is specified, the default version will be deployed.""",
+    )
+    model_version_id: Optional[str] = Field(
+        default=None,
+        description="""Output only. The version ID of the model that is deployed.""",
+    )
+    private_endpoints: Optional[PrivateEndpoints] = Field(
+        default=None,
+        description="""Output only. Provide paths for users to send predict/explain/health requests directly to the deployed model services running on Cloud via private services access. This field is populated if network is configured.""",
+    )
+    rollout_options: Optional[RolloutOptions] = Field(
+        default=None, description="""Options for configuring rolling deployments."""
+    )
+    service_account: Optional[str] = Field(
+        default=None,
+        description="""The service account that the DeployedModel's container runs as. Specify the email address of the service account. If this service account is not specified, the container runs as a service account that doesn't have access to the resource project. Users deploying the Model must have the `iam.serviceAccounts.actAs` permission on this service account.""",
+    )
+    shared_resources: Optional[str] = Field(
+        default=None,
+        description="""The resource name of the shared DeploymentResourcePool to deploy on. Format: `projects/{project}/locations/{location}/deploymentResourcePools/{deployment_resource_pool}`""",
+    )
+    speculative_decoding_spec: Optional[SpeculativeDecodingSpec] = Field(
+        default=None,
+        description="""Optional. Spec for configuring speculative decoding.""",
+    )
+    status: Optional[DeployedModelStatus] = Field(
+        default=None,
+        description="""Output only. Runtime status of the deployed model.""",
+    )
+    system_labels: Optional[dict[str, str]] = Field(
+        default=None,
+        description="""System labels to apply to Model Garden deployments. System labels are managed by Google for internal use only.""",
+    )
+
+
+class DeployedModelDict(TypedDict, total=False):
+    """A deployment of a Model. Endpoints contain one or more DeployedModels."""
+
+    automatic_resources: Optional[AutomaticResourcesDict]
+    """A description of resources that to large degree are decided by Vertex AI, and require only a modest additional configuration."""
+
+    checkpoint_id: Optional[str]
+    """The checkpoint id of the model."""
+
+    create_time: Optional[datetime.datetime]
+    """Output only. Timestamp when the DeployedModel was created."""
+
+    dedicated_resources: Optional[DedicatedResourcesDict]
+    """A description of resources that are dedicated to the DeployedModel, and that need a higher degree of manual configuration."""
+
+    disable_container_logging: Optional[bool]
+    """For custom-trained Models and AutoML Tabular Models, the container of the DeployedModel instances will send `stderr` and `stdout` streams to Cloud Logging by default. Please note that the logs incur cost, which are subject to [Cloud Logging pricing](https://cloud.google.com/logging/pricing). User can disable container logging by setting this flag to true."""
+
+    disable_explanations: Optional[bool]
+    """If true, deploy the model without explainable feature, regardless the existence of Model.explanation_spec or explanation_spec."""
+
+    display_name: Optional[str]
+    """The display name of the DeployedModel. If not provided upon creation, the Model's display_name is used."""
+
+    enable_access_logging: Optional[bool]
+    """If true, online prediction access logs are sent to Cloud Logging. These logs are like standard server access logs, containing information like timestamp and latency for each prediction request. Note that logs may incur a cost, especially if your project receives prediction requests at a high queries per second rate (QPS). Estimate your costs before enabling this option."""
+
+    enable_container_logging: Optional[bool]
+    """If true, the container of the DeployedModel instances will send `stderr` and `stdout` streams to Cloud Logging. Only supported for custom-trained Models and AutoML Tabular Models."""
+
+    explanation_spec: Optional[ExplanationSpecDict]
+    """Explanation configuration for this DeployedModel. When deploying a Model using EndpointService.DeployModel, this value overrides the value of Model.explanation_spec. All fields of explanation_spec are optional in the request. If a field of explanation_spec is not populated, the value of the same field of Model.explanation_spec is inherited. If the corresponding Model.explanation_spec is not populated, all fields of the explanation_spec will be used for the explanation configuration."""
+
+    faster_deployment_config: Optional[FasterDeploymentConfigDict]
+    """Configuration for faster model deployment."""
+
+    full_fine_tuned_resources: Optional[FullFineTunedResourcesDict]
+    """Optional. Resources for a full fine tuned model."""
+
+    gdc_connected_model: Optional[str]
+    """GDC pretrained / Gemini model name. The model name is a plain model name, e.g. gemini-1.5-flash-002."""
+
+    id: Optional[str]
+    """Immutable. The ID of the DeployedModel. If not provided upon deployment, Vertex AI will generate a value for this ID. This value should be 1-10 characters, and valid characters are `/[0-9]/`."""
+
+    model: Optional[str]
+    """The resource name of the Model that this is the deployment of. Note that the Model may be in a different location than the DeployedModel's Endpoint. The resource name may contain version id or version alias to specify the version. Example: `projects/{project}/locations/{location}/models/{model}@2` or `projects/{project}/locations/{location}/models/{model}@golden` if no version is specified, the default version will be deployed."""
+
+    model_version_id: Optional[str]
+    """Output only. The version ID of the model that is deployed."""
+
+    private_endpoints: Optional[PrivateEndpointsDict]
+    """Output only. Provide paths for users to send predict/explain/health requests directly to the deployed model services running on Cloud via private services access. This field is populated if network is configured."""
+
+    rollout_options: Optional[RolloutOptionsDict]
+    """Options for configuring rolling deployments."""
+
+    service_account: Optional[str]
+    """The service account that the DeployedModel's container runs as. Specify the email address of the service account. If this service account is not specified, the container runs as a service account that doesn't have access to the resource project. Users deploying the Model must have the `iam.serviceAccounts.actAs` permission on this service account."""
+
+    shared_resources: Optional[str]
+    """The resource name of the shared DeploymentResourcePool to deploy on. Format: `projects/{project}/locations/{location}/deploymentResourcePools/{deployment_resource_pool}`"""
+
+    speculative_decoding_spec: Optional[SpeculativeDecodingSpecDict]
+    """Optional. Spec for configuring speculative decoding."""
+
+    status: Optional[DeployedModelStatusDict]
+    """Output only. Runtime status of the deployed model."""
+
+    system_labels: Optional[dict[str, str]]
+    """System labels to apply to Model Garden deployments. System labels are managed by Google for internal use only."""
+
+
+DeployedModelOrDict = Union[DeployedModel, DeployedModelDict]
+
+
+class GdcConfig(_common.BaseModel):
+    """Google Distributed Cloud (GDC) config."""
+
+    zone: Optional[str] = Field(
+        default=None,
+        description="""GDC zone. A cluster will be designated for the Vertex AI workload in this zone.""",
+    )
+
+
+class GdcConfigDict(TypedDict, total=False):
+    """Google Distributed Cloud (GDC) config."""
+
+    zone: Optional[str]
+    """GDC zone. A cluster will be designated for the Vertex AI workload in this zone."""
+
+
+GdcConfigOrDict = Union[GdcConfig, GdcConfigDict]
+
+
+class GenAiAdvancedFeaturesConfigRagConfig(_common.BaseModel):
+    """Configuration for Retrieval Augmented Generation feature."""
+
+    enable_rag: Optional[bool] = Field(
+        default=None,
+        description="""If true, enable Retrieval Augmented Generation in ChatCompletion request. Once enabled, the endpoint will be identified as GenAI endpoint and Arthedain router will be used.""",
+    )
+
+
+class GenAiAdvancedFeaturesConfigRagConfigDict(TypedDict, total=False):
+    """Configuration for Retrieval Augmented Generation feature."""
+
+    enable_rag: Optional[bool]
+    """If true, enable Retrieval Augmented Generation in ChatCompletion request. Once enabled, the endpoint will be identified as GenAI endpoint and Arthedain router will be used."""
+
+
+GenAiAdvancedFeaturesConfigRagConfigOrDict = Union[
+    GenAiAdvancedFeaturesConfigRagConfig, GenAiAdvancedFeaturesConfigRagConfigDict
+]
+
+
+class GenAiAdvancedFeaturesConfig(_common.BaseModel):
+    """Configuration for GenAiAdvancedFeatures."""
+
+    rag_config: Optional[GenAiAdvancedFeaturesConfigRagConfig] = Field(
+        default=None,
+        description="""Configuration for Retrieval Augmented Generation feature.""",
+    )
+
+
+class GenAiAdvancedFeaturesConfigDict(TypedDict, total=False):
+    """Configuration for GenAiAdvancedFeatures."""
+
+    rag_config: Optional[GenAiAdvancedFeaturesConfigRagConfigDict]
+    """Configuration for Retrieval Augmented Generation feature."""
+
+
+GenAiAdvancedFeaturesConfigOrDict = Union[
+    GenAiAdvancedFeaturesConfig, GenAiAdvancedFeaturesConfigDict
+]
+
+
+class PredictRequestResponseLoggingConfig(_common.BaseModel):
+    """Configuration for logging request-response to a BigQuery table."""
+
+    bigquery_destination: Optional[BigQueryDestination] = Field(
+        default=None,
+        description="""BigQuery table for logging. If only given a project, a new dataset will be created with name `logging__` where will be made BigQuery-dataset-name compatible (e.g. most special characters will become underscores). If no table name is given, a new table will be created with name `request_response_logging`""",
+    )
+    enable_otel_logging: Optional[bool] = Field(
+        default=None,
+        description="""This field is used for large models. If true, in addition to the original large model logs, logs will be converted in OTel schema format, and saved in otel_log column. Default value is false.""",
+    )
+    enabled: Optional[bool] = Field(
+        default=None, description="""If logging is enabled or not."""
+    )
+    error_sampling_rate: Optional[float] = Field(
+        default=None,
+        description="""Optional. Percentage of failed requests to be logged, expressed as a fraction in range [0,1]. Only non-transient errors will be logged (currently `500/Internal` errors).""",
+    )
+    request_response_logging_schema_version: Optional[str] = Field(
+        default=None,
+        description="""Output only. The schema version used in creating the BigQuery table for the request response logging. The versions are "v1" and "v2". The current default version is "v1".""",
+    )
+    sampling_rate: Optional[float] = Field(
+        default=None,
+        description="""Percentage of requests to be logged, expressed as a fraction in range(0,1].""",
+    )
+
+
+class PredictRequestResponseLoggingConfigDict(TypedDict, total=False):
+    """Configuration for logging request-response to a BigQuery table."""
+
+    bigquery_destination: Optional[BigQueryDestinationDict]
+    """BigQuery table for logging. If only given a project, a new dataset will be created with name `logging__` where will be made BigQuery-dataset-name compatible (e.g. most special characters will become underscores). If no table name is given, a new table will be created with name `request_response_logging`"""
+
+    enable_otel_logging: Optional[bool]
+    """This field is used for large models. If true, in addition to the original large model logs, logs will be converted in OTel schema format, and saved in otel_log column. Default value is false."""
+
+    enabled: Optional[bool]
+    """If logging is enabled or not."""
+
+    error_sampling_rate: Optional[float]
+    """Optional. Percentage of failed requests to be logged, expressed as a fraction in range [0,1]. Only non-transient errors will be logged (currently `500/Internal` errors)."""
+
+    request_response_logging_schema_version: Optional[str]
+    """Output only. The schema version used in creating the BigQuery table for the request response logging. The versions are "v1" and "v2". The current default version is "v1"."""
+
+    sampling_rate: Optional[float]
+    """Percentage of requests to be logged, expressed as a fraction in range(0,1]."""
+
+
+PredictRequestResponseLoggingConfigOrDict = Union[
+    PredictRequestResponseLoggingConfig, PredictRequestResponseLoggingConfigDict
+]
+
+
+class PSCAutomationConfig(_common.BaseModel):
+    """PSC config that is used to automatically create PSC endpoints in the user projects."""
+
+    error_message: Optional[str] = Field(
+        default=None,
+        description="""Output only. Error message if the PSC service automation failed.""",
+    )
+    forwarding_rule: Optional[str] = Field(
+        default=None,
+        description="""Output only. Forwarding rule created by the PSC service automation.""",
+    )
+    ip_address: Optional[str] = Field(
+        default=None,
+        description="""Output only. IP address rule created by the PSC service automation.""",
+    )
+    network: Optional[str] = Field(
+        default=None,
+        description="""Required. The full name of the Google Compute Engine [network](https://cloud.google.com/compute/docs/networks-and-firewalls#networks). [Format](https://cloud.google.com/compute/docs/reference/rest/v1/networks/get): `projects/{project}/global/networks/{network}`.""",
+    )
+    project_id: Optional[str] = Field(
+        default=None,
+        description="""Required. Project id used to create forwarding rule.""",
+    )
+    state: Optional[PscAutomationState] = Field(
+        default=None,
+        description="""Output only. The state of the PSC service automation.""",
+    )
+
+
+class PSCAutomationConfigDict(TypedDict, total=False):
+    """PSC config that is used to automatically create PSC endpoints in the user projects."""
+
+    error_message: Optional[str]
+    """Output only. Error message if the PSC service automation failed."""
+
+    forwarding_rule: Optional[str]
+    """Output only. Forwarding rule created by the PSC service automation."""
+
+    ip_address: Optional[str]
+    """Output only. IP address rule created by the PSC service automation."""
+
+    network: Optional[str]
+    """Required. The full name of the Google Compute Engine [network](https://cloud.google.com/compute/docs/networks-and-firewalls#networks). [Format](https://cloud.google.com/compute/docs/reference/rest/v1/networks/get): `projects/{project}/global/networks/{network}`."""
+
+    project_id: Optional[str]
+    """Required. Project id used to create forwarding rule."""
+
+    state: Optional[PscAutomationState]
+    """Output only. The state of the PSC service automation."""
+
+
+PSCAutomationConfigOrDict = Union[PSCAutomationConfig, PSCAutomationConfigDict]
+
+
+class PrivateServiceConnectConfig(_common.BaseModel):
+    """Represents configuration for private service connect."""
+
+    enable_private_service_connect: Optional[bool] = Field(
+        default=None,
+        description="""Required. If true, expose the IndexEndpoint via private service connect.""",
+    )
+    enable_secure_private_service_connect: Optional[bool] = Field(
+        default=None,
+        description="""Optional. If set to true, enable secure private service connect with IAM authorization. Otherwise, private service connect will be done without authorization. Note latency will be slightly increased if authorization is enabled.""",
+    )
+    project_allowlist: Optional[list[str]] = Field(
+        default=None,
+        description="""A list of Projects from which the forwarding rule will target the service attachment.""",
+    )
+    psc_automation_configs: Optional[list[PSCAutomationConfig]] = Field(
+        default=None,
+        description="""Optional. List of projects and networks where the PSC endpoints will be created. This field is used by Online Inference(Prediction) only.""",
+    )
+    service_attachment: Optional[str] = Field(
+        default=None,
+        description="""Output only. The name of the generated service attachment resource. This is only populated if the endpoint is deployed with PrivateServiceConnect.""",
+    )
+
+
+class PrivateServiceConnectConfigDict(TypedDict, total=False):
+    """Represents configuration for private service connect."""
+
+    enable_private_service_connect: Optional[bool]
+    """Required. If true, expose the IndexEndpoint via private service connect."""
+
+    enable_secure_private_service_connect: Optional[bool]
+    """Optional. If set to true, enable secure private service connect with IAM authorization. Otherwise, private service connect will be done without authorization. Note latency will be slightly increased if authorization is enabled."""
+
+    project_allowlist: Optional[list[str]]
+    """A list of Projects from which the forwarding rule will target the service attachment."""
+
+    psc_automation_configs: Optional[list[PSCAutomationConfigDict]]
+    """Optional. List of projects and networks where the PSC endpoints will be created. This field is used by Online Inference(Prediction) only."""
+
+    service_attachment: Optional[str]
+    """Output only. The name of the generated service attachment resource. This is only populated if the endpoint is deployed with PrivateServiceConnect."""
+
+
+PrivateServiceConnectConfigOrDict = Union[
+    PrivateServiceConnectConfig, PrivateServiceConnectConfigDict
+]
+
+
+class PublisherModelConfigClaudeFeatureConfig(_common.BaseModel):
+    """Config for Claude-specific features."""
+
+    advanced_ai_enabled: Optional[bool] = Field(
+        default=None,
+        description="""Optional. Indicates whether the customer has enabled advanced AI features for this publisher model (data retention opt-in). See b/528731813. This is the source of truth; the deprecated `cyber_verification_program_enabled` is no longer consulted on read.""",
+    )
+    cyber_verification_program_enabled: Optional[bool] = Field(
+        default=None,
+        description="""Optional. Deprecated: use `advanced_ai_enabled` instead. Indicates whether the customer has enabled the Cyber Verification Program (CVP) for this publisher model (data retention opt-in). See b/528731813.""",
+    )
+
+
+class PublisherModelConfigClaudeFeatureConfigDict(TypedDict, total=False):
+    """Config for Claude-specific features."""
+
+    advanced_ai_enabled: Optional[bool]
+    """Optional. Indicates whether the customer has enabled advanced AI features for this publisher model (data retention opt-in). See b/528731813. This is the source of truth; the deprecated `cyber_verification_program_enabled` is no longer consulted on read."""
+
+    cyber_verification_program_enabled: Optional[bool]
+    """Optional. Deprecated: use `advanced_ai_enabled` instead. Indicates whether the customer has enabled the Cyber Verification Program (CVP) for this publisher model (data retention opt-in). See b/528731813."""
+
+
+PublisherModelConfigClaudeFeatureConfigOrDict = Union[
+    PublisherModelConfigClaudeFeatureConfig, PublisherModelConfigClaudeFeatureConfigDict
+]
+
+
+class InferenceEventLoggingConfig(_common.BaseModel):
+    """Configures emission of the per-request `aiplatform.googleapis.com/inference_request` Cloud Logging log."""
+
+    state: Optional[State] = Field(
+        default=None,
+        description="""Optional. Whether the `aiplatform.googleapis.com/inference_request` log is enabled.""",
+    )
+
+
+class InferenceEventLoggingConfigDict(TypedDict, total=False):
+    """Configures emission of the per-request `aiplatform.googleapis.com/inference_request` Cloud Logging log."""
+
+    state: Optional[State]
+    """Optional. Whether the `aiplatform.googleapis.com/inference_request` log is enabled."""
+
+
+InferenceEventLoggingConfigOrDict = Union[
+    InferenceEventLoggingConfig, InferenceEventLoggingConfigDict
+]
+
+
+class PublisherModelConfig(_common.BaseModel):
+    """This message contains configs of a publisher model."""
+
+    claude_feature_config: Optional[PublisherModelConfigClaudeFeatureConfig] = Field(
+        default=None, description="""Optional. Config for Claude-specific features."""
+    )
+    data_sharing_enabled_provider: Optional[ModelProvider] = Field(
+        default=None,
+        description="""Optional. The model provider (publisher) for which the customer has enabled data sharing. For publisher models that are configured to require data sharing, a prediction request is only allowed when the model's publisher matches this provider. Otherwise, the request is rejected.""",
+    )
+    inference_event_logging_config: Optional[InferenceEventLoggingConfig] = Field(
+        default=None,
+        description="""Optional. Turns the per-request `aiplatform.googleapis.com/inference_request` Cloud Logging log on or off. The log records structured per-request metadata (such as principal, traffic type, and token usage). When enabled, logs are emitted for all publisher-model traffic on the model -- Provisioned Throughput and on-demand alike. This is distinct from `logging_config` above: that one logs raw request/response payloads to a BigQuery table, while this one controls structured per-request metadata in Cloud Logging.""",
+    )
+    logging_config: Optional[PredictRequestResponseLoggingConfig] = Field(
+        default=None,
+        description="""Optional. The prediction request/response logging config.""",
+    )
+
+
+class PublisherModelConfigDict(TypedDict, total=False):
+    """This message contains configs of a publisher model."""
+
+    claude_feature_config: Optional[PublisherModelConfigClaudeFeatureConfigDict]
+    """Optional. Config for Claude-specific features."""
+
+    data_sharing_enabled_provider: Optional[ModelProvider]
+    """Optional. The model provider (publisher) for which the customer has enabled data sharing. For publisher models that are configured to require data sharing, a prediction request is only allowed when the model's publisher matches this provider. Otherwise, the request is rejected."""
+
+    inference_event_logging_config: Optional[InferenceEventLoggingConfigDict]
+    """Optional. Turns the per-request `aiplatform.googleapis.com/inference_request` Cloud Logging log on or off. The log records structured per-request metadata (such as principal, traffic type, and token usage). When enabled, logs are emitted for all publisher-model traffic on the model -- Provisioned Throughput and on-demand alike. This is distinct from `logging_config` above: that one logs raw request/response payloads to a BigQuery table, while this one controls structured per-request metadata in Cloud Logging."""
+
+    logging_config: Optional[PredictRequestResponseLoggingConfigDict]
+    """Optional. The prediction request/response logging config."""
+
+
+PublisherModelConfigOrDict = Union[PublisherModelConfig, PublisherModelConfigDict]
+
+
+class Endpoint(_common.BaseModel):
+    """An endpoint where you deploy models."""
+
+    client_connection_config: Optional[ClientConnectionConfig] = Field(
+        default=None,
+        description="""Configurations that are applied to the endpoint for online prediction.""",
+    )
+    create_time: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Output only. Timestamp when this Endpoint was created.""",
+    )
+    dedicated_endpoint_dns: Optional[str] = Field(
+        default=None,
+        description="""Output only. DNS of the dedicated endpoint. Will only be populated if dedicated_endpoint_enabled is true. Depending on the features enabled, uid might be a random number or a string. For example, if fast_tryout is enabled, uid will be fasttryout. Format: `https://{endpoint_id}.{region}-{uid}.prediction.vertexai.goog`.""",
+    )
+    dedicated_endpoint_enabled: Optional[bool] = Field(
+        default=None,
+        description="""If true, the endpoint will be exposed through a dedicated DNS [Endpoint.dedicated_endpoint_dns]. Your request to the dedicated DNS will be isolated from other users' traffic and will have better performance and reliability. Note: Once you enabled dedicated endpoint, you won't be able to send request to the shared DNS {region}-aiplatform.googleapis.com. The limitation will be removed soon.""",
+    )
+    deployed_models: Optional[list[DeployedModel]] = Field(
+        default=None,
+        description="""Output only. The models deployed in this Endpoint. To add or remove DeployedModels use EndpointService.DeployModel and EndpointService.UndeployModel respectively.""",
+    )
+    description: Optional[str] = Field(
+        default=None, description="""The description of the Endpoint."""
+    )
+    display_name: Optional[str] = Field(
+        default=None,
+        description="""Required. The display name of the Endpoint. The name can be up to 128 characters long and can consist of any UTF-8 characters.""",
+    )
+    enable_private_service_connect: Optional[bool] = Field(
+        default=None,
+        description="""Deprecated: If true, expose the Endpoint via private service connect. Only one of the fields, network or enable_private_service_connect, can be set.""",
+    )
+    encryption_spec: Optional[genai_types.EncryptionSpec] = Field(
+        default=None,
+        description="""Customer-managed encryption key spec for an Endpoint. If set, this Endpoint and all sub-resources of this Endpoint will be secured by this key.""",
+    )
+    etag: Optional[str] = Field(
+        default=None,
+        description="""Used to perform consistent read-modify-write updates. If not set, a blind "overwrite" update happens.""",
+    )
+    gdc_config: Optional[GdcConfig] = Field(
+        default=None,
+        description="""Configures the Google Distributed Cloud (GDC) environment for online prediction. Only set this field when the Endpoint is to be deployed in a GDC environment.""",
+    )
+    gen_ai_advanced_features_config: Optional[GenAiAdvancedFeaturesConfig] = Field(
+        default=None,
+        description="""Optional. Configuration for GenAiAdvancedFeatures. If the endpoint is serving GenAI models, advanced features like native RAG integration can be configured. Currently, only Model Garden models are supported.""",
+    )
+    labels: Optional[dict[str, str]] = Field(
+        default=None,
+        description="""The labels with user-defined metadata to organize your Endpoints. Label keys and values can be no longer than 64 characters (Unicode codepoints), can only contain lowercase letters, numeric characters, underscores and dashes. International characters are allowed. See https://goo.gl/xmQnxf for more information and examples of labels.""",
+    )
+    model_deployment_monitoring_job: Optional[str] = Field(
+        default=None,
+        description="""Output only. Resource name of the Model Monitoring job associated with this Endpoint if monitoring is enabled by JobService.CreateModelDeploymentMonitoringJob. Format: `projects/{project}/locations/{location}/modelDeploymentMonitoringJobs/{model_deployment_monitoring_job}`""",
+    )
+    name: Optional[str] = Field(
+        default=None, description="""Identifier. The resource name of the Endpoint."""
+    )
+    network: Optional[str] = Field(
+        default=None,
+        description="""Optional. The full name of the Google Compute Engine [network](https://cloud.google.com//compute/docs/networks-and-firewalls#networks) to which the Endpoint should be peered. Private services access must already be configured for the network. If left unspecified, the Endpoint is not peered with any network. Only one of the fields, network or enable_private_service_connect, can be set. [Format](https://cloud.google.com/compute/docs/reference/rest/v1/networks/insert): `projects/{project}/global/networks/{network}`. Where `{project}` is a project number, as in `12345`, and `{network}` is network name.""",
+    )
+    predict_request_response_logging_config: Optional[
+        PredictRequestResponseLoggingConfig
+    ] = Field(
+        default=None,
+        description="""Configures the request-response logging for online prediction.""",
+    )
+    private_service_connect_config: Optional[PrivateServiceConnectConfig] = Field(
+        default=None,
+        description="""Optional. Configuration for private service connect. network and private_service_connect_config are mutually exclusive.""",
+    )
+    satisfies_pzi: Optional[bool] = Field(
+        default=None, description="""Output only. Reserved for future use."""
+    )
+    satisfies_pzs: Optional[bool] = Field(
+        default=None, description="""Output only. Reserved for future use."""
+    )
+    traffic_split: Optional[dict[str, int]] = Field(
+        default=None,
+        description="""A map from a DeployedModel's ID to the percentage of this Endpoint's traffic that should be forwarded to that DeployedModel. If a DeployedModel's ID is not listed in this map, then it receives no traffic. The traffic percentage values must add up to 100, or map must be empty if the Endpoint is to not accept any traffic at a moment.""",
+    )
+    update_time: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Output only. Timestamp when this Endpoint was last updated.""",
+    )
+    publisher_model_config: Optional[PublisherModelConfig] = Field(
+        default=None,
+        description="""Optional. Configuration for a Publisher Model. This message contains details about a publisher model used with this Endpoint, such as logging config or data sharing settings.""",
+    )
+
+
+class EndpointDict(TypedDict, total=False):
+    """An endpoint where you deploy models."""
+
+    client_connection_config: Optional[ClientConnectionConfigDict]
+    """Configurations that are applied to the endpoint for online prediction."""
+
+    create_time: Optional[datetime.datetime]
+    """Output only. Timestamp when this Endpoint was created."""
+
+    dedicated_endpoint_dns: Optional[str]
+    """Output only. DNS of the dedicated endpoint. Will only be populated if dedicated_endpoint_enabled is true. Depending on the features enabled, uid might be a random number or a string. For example, if fast_tryout is enabled, uid will be fasttryout. Format: `https://{endpoint_id}.{region}-{uid}.prediction.vertexai.goog`."""
+
+    dedicated_endpoint_enabled: Optional[bool]
+    """If true, the endpoint will be exposed through a dedicated DNS [Endpoint.dedicated_endpoint_dns]. Your request to the dedicated DNS will be isolated from other users' traffic and will have better performance and reliability. Note: Once you enabled dedicated endpoint, you won't be able to send request to the shared DNS {region}-aiplatform.googleapis.com. The limitation will be removed soon."""
+
+    deployed_models: Optional[list[DeployedModelDict]]
+    """Output only. The models deployed in this Endpoint. To add or remove DeployedModels use EndpointService.DeployModel and EndpointService.UndeployModel respectively."""
+
+    description: Optional[str]
+    """The description of the Endpoint."""
+
+    display_name: Optional[str]
+    """Required. The display name of the Endpoint. The name can be up to 128 characters long and can consist of any UTF-8 characters."""
+
+    enable_private_service_connect: Optional[bool]
+    """Deprecated: If true, expose the Endpoint via private service connect. Only one of the fields, network or enable_private_service_connect, can be set."""
+
+    encryption_spec: Optional[genai_types.EncryptionSpecDict]
+    """Customer-managed encryption key spec for an Endpoint. If set, this Endpoint and all sub-resources of this Endpoint will be secured by this key."""
+
+    etag: Optional[str]
+    """Used to perform consistent read-modify-write updates. If not set, a blind "overwrite" update happens."""
+
+    gdc_config: Optional[GdcConfigDict]
+    """Configures the Google Distributed Cloud (GDC) environment for online prediction. Only set this field when the Endpoint is to be deployed in a GDC environment."""
+
+    gen_ai_advanced_features_config: Optional[GenAiAdvancedFeaturesConfigDict]
+    """Optional. Configuration for GenAiAdvancedFeatures. If the endpoint is serving GenAI models, advanced features like native RAG integration can be configured. Currently, only Model Garden models are supported."""
+
+    labels: Optional[dict[str, str]]
+    """The labels with user-defined metadata to organize your Endpoints. Label keys and values can be no longer than 64 characters (Unicode codepoints), can only contain lowercase letters, numeric characters, underscores and dashes. International characters are allowed. See https://goo.gl/xmQnxf for more information and examples of labels."""
+
+    model_deployment_monitoring_job: Optional[str]
+    """Output only. Resource name of the Model Monitoring job associated with this Endpoint if monitoring is enabled by JobService.CreateModelDeploymentMonitoringJob. Format: `projects/{project}/locations/{location}/modelDeploymentMonitoringJobs/{model_deployment_monitoring_job}`"""
+
+    name: Optional[str]
+    """Identifier. The resource name of the Endpoint."""
+
+    network: Optional[str]
+    """Optional. The full name of the Google Compute Engine [network](https://cloud.google.com//compute/docs/networks-and-firewalls#networks) to which the Endpoint should be peered. Private services access must already be configured for the network. If left unspecified, the Endpoint is not peered with any network. Only one of the fields, network or enable_private_service_connect, can be set. [Format](https://cloud.google.com/compute/docs/reference/rest/v1/networks/insert): `projects/{project}/global/networks/{network}`. Where `{project}` is a project number, as in `12345`, and `{network}` is network name."""
+
+    predict_request_response_logging_config: Optional[
+        PredictRequestResponseLoggingConfigDict
+    ]
+    """Configures the request-response logging for online prediction."""
+
+    private_service_connect_config: Optional[PrivateServiceConnectConfigDict]
+    """Optional. Configuration for private service connect. network and private_service_connect_config are mutually exclusive."""
+
+    satisfies_pzi: Optional[bool]
+    """Output only. Reserved for future use."""
+
+    satisfies_pzs: Optional[bool]
+    """Output only. Reserved for future use."""
+
+    traffic_split: Optional[dict[str, int]]
+    """A map from a DeployedModel's ID to the percentage of this Endpoint's traffic that should be forwarded to that DeployedModel. If a DeployedModel's ID is not listed in this map, then it receives no traffic. The traffic percentage values must add up to 100, or map must be empty if the Endpoint is to not accept any traffic at a moment."""
+
+    update_time: Optional[datetime.datetime]
+    """Output only. Timestamp when this Endpoint was last updated."""
+
+    publisher_model_config: Optional[PublisherModelConfigDict]
+    """Optional. Configuration for a Publisher Model. This message contains details about a publisher model used with this Endpoint, such as logging config or data sharing settings."""
+
+
+EndpointOrDict = Union[Endpoint, EndpointDict]
+
+
+class GetEndpointOperationConfig(_common.BaseModel):
+    """Optional parameters for endpoints.get_endpoint_operation method."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class GetEndpointOperationConfigDict(TypedDict, total=False):
+    """Optional parameters for endpoints.get_endpoint_operation method."""
+
+    http_options: Optional[genai_types.HttpOptions]
+    """Used to override HTTP request options."""
+
+
+GetEndpointOperationConfigOrDict = Union[
+    GetEndpointOperationConfig, GetEndpointOperationConfigDict
+]
+
+
+class _GetEndpointOperationParameters(_common.BaseModel):
+    """Parameters for getting an operation."""
+
+    operation_name: Optional[str] = Field(
+        default=None, description="""The server-assigned name for the operation."""
+    )
+    config: Optional[GetEndpointOperationConfig] = Field(
+        default=None, description="""Used to override the default configuration."""
+    )
+
+
+class _GetEndpointOperationParametersDict(TypedDict, total=False):
+    """Parameters for getting an operation."""
+
+    operation_name: Optional[str]
+    """The server-assigned name for the operation."""
+
+    config: Optional[GetEndpointOperationConfigDict]
+    """Used to override the default configuration."""
+
+
+_GetEndpointOperationParametersOrDict = Union[
+    _GetEndpointOperationParameters, _GetEndpointOperationParametersDict
+]
+
+
+class EndpointOperation(_common.BaseModel):
+    """Operation that has an endpoint as a response."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`.""",
+    )
+    metadata: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any.""",
+    )
+    done: Optional[bool] = Field(
+        default=None,
+        description="""If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available.""",
+    )
+    error: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""The error result of the operation in case of failure or cancellation.""",
+    )
+    response: Optional[Endpoint] = Field(
+        default=None, description="""The created Endpoint."""
+    )
+
+
+class EndpointOperationDict(TypedDict, total=False):
+    """Operation that has an endpoint as a response."""
+
+    name: Optional[str]
+    """The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`."""
+
+    metadata: Optional[dict[str, Any]]
+    """Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any."""
+
+    done: Optional[bool]
+    """If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available."""
+
+    error: Optional[dict[str, Any]]
+    """The error result of the operation in case of failure or cancellation."""
+
+    response: Optional[EndpointDict]
+    """The created Endpoint."""
+
+
+EndpointOperationOrDict = Union[EndpointOperation, EndpointOperationDict]
 
 
 class PromptOptimizerConfig(_common.BaseModel):
@@ -25575,49 +28375,6 @@ class ObservabilityEvalCaseDict(TypedDict, total=False):
 
 
 ObservabilityEvalCaseOrDict = Union[ObservabilityEvalCase, ObservabilityEvalCaseDict]
-
-
-class RubricGroup(_common.BaseModel):
-    """A group of rubrics.
-
-    Used for grouping rubrics based on a metric or a version.
-    """
-
-    group_id: Optional[str] = Field(
-        default=None, description="""Unique identifier for the group."""
-    )
-    display_name: Optional[str] = Field(
-        default=None,
-        description="""Human-readable name for the group. This should be unique
-      within a given context if used for display or selection.
-      Example: "Instruction Following V1", "Content Quality - Summarization
-      Task".""",
-    )
-    rubrics: Optional[list[evals_types.Rubric]] = Field(
-        default=None, description="""Rubrics that are part of this group."""
-    )
-
-
-class RubricGroupDict(TypedDict, total=False):
-    """A group of rubrics.
-
-    Used for grouping rubrics based on a metric or a version.
-    """
-
-    group_id: Optional[str]
-    """Unique identifier for the group."""
-
-    display_name: Optional[str]
-    """Human-readable name for the group. This should be unique
-      within a given context if used for display or selection.
-      Example: "Instruction Following V1", "Content Quality - Summarization
-      Task"."""
-
-    rubrics: Optional[list[evals_types.Rubric]]
-    """Rubrics that are part of this group."""
-
-
-RubricGroupOrDict = Union[RubricGroup, RubricGroupDict]
 
 
 class PromptTemplate(_common.BaseModel):
@@ -26372,6 +29129,10 @@ class AgentEngineConfig(_common.BaseModel):
     traffic_config: Optional[ReasoningEngineTrafficConfig] = Field(
         default=None, description="""The traffic config for the Agent Engine."""
     )
+    build_config: Optional[ReasoningEngineSpecBuildSpec] = Field(
+        default=None,
+        description="""The build config for the Agent Engine. Allows bringing your own Cloud Build private worker pool (BYOBP) and, optionally, a build-time service account for the container build. Supported keys: `worker_pool` (the resource name of the Cloud Build WorkerPool to use for the build) and `service_account` (the service account that Cloud Build uses to run the build; only applicable when `worker_pool` is specified).""",
+    )
 
 
 class AgentEngineConfigDict(TypedDict, total=False):
@@ -26558,6 +29319,9 @@ class AgentEngineConfigDict(TypedDict, total=False):
 
     traffic_config: Optional[ReasoningEngineTrafficConfigDict]
     """The traffic config for the Agent Engine."""
+
+    build_config: Optional[ReasoningEngineSpecBuildSpecDict]
+    """The build config for the Agent Engine. Allows bringing your own Cloud Build private worker pool (BYOBP) and, optionally, a build-time service account for the container build. Supported keys: `worker_pool` (the resource name of the Cloud Build WorkerPool to use for the build) and `service_account` (the service account that Cloud Build uses to run the build; only applicable when `worker_pool` is specified)."""
 
 
 AgentEngineConfigOrDict = Union[AgentEngineConfig, AgentEngineConfigDict]
@@ -26942,26 +29706,6 @@ class PromptDict(TypedDict, total=False):
 
 
 PromptOrDict = Union[Prompt, PromptDict]
-
-
-class SchemaPromptInstanceVariableValue(_common.BaseModel):
-    """Represents a prompt instance variable."""
-
-    part_list: Optional[SchemaPromptSpecPartList] = Field(
-        default=None, description="""The parts of the variable value."""
-    )
-
-
-class SchemaPromptInstanceVariableValueDict(TypedDict, total=False):
-    """Represents a prompt instance variable."""
-
-    part_list: Optional[SchemaPromptSpecPartListDict]
-    """The parts of the variable value."""
-
-
-SchemaPromptInstanceVariableValueOrDict = Union[
-    SchemaPromptInstanceVariableValue, SchemaPromptInstanceVariableValueDict
-]
 
 
 class CreatePromptConfig(_common.BaseModel):
@@ -27410,7 +30154,7 @@ ListCustomModelDeployOptionsConfigOrDict = Union[
 
 
 class ExportOpenModelConfig(_common.BaseModel):
-    """Config for ``export_open_model``."""
+    """Config for export_open_model."""
 
     wait_for_completion: Optional[bool] = Field(
         default=True,
@@ -27434,7 +30178,7 @@ class ExportOpenModelConfig(_common.BaseModel):
 
 
 class ExportOpenModelConfigDict(TypedDict, total=False):
-    """Config for ``export_open_model``."""
+    """Config for export_open_model."""
 
     wait_for_completion: Optional[bool]
     """Whether to block on the export long-running operation. When

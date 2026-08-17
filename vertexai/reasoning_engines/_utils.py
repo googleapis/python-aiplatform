@@ -162,6 +162,39 @@ def to_json_serializable_llama_index_object(
     return str(obj)
 
 
+_SSE_DATA_PREFIX = "data:"
+_STREAMABLE_CONTENT_TYPES = ("application/json", "text/event-stream")
+
+
+def _strip_sse_framing(line: str) -> str:
+    """Returns the payload of a Server-Sent Events `data:` line.
+
+    Streaming responses are newline-delimited JSON. A response may instead
+    arrive as Server-Sent Events, in which case each JSON object is wrapped in a
+    `data:` frame; removing that framing here lets both shapes be parsed the
+    same way
+    (https://github.com/googleapis/python-aiplatform/issues/5586).
+
+    A serialized JSON value never begins with `data:` -- it begins with `{`,
+    `[`, `"`, a digit, or one of `true`/`false`/`null` -- so stripping the
+    prefix unconditionally cannot corrupt a newline-delimited JSON response. A
+    chunk whose value is the string `data: hello` is serialized as
+    `"data: hello"`, with the quote first.
+
+    Args:
+        line: A single line of the response body.
+
+    Returns:
+        The line with any SSE `data:` framing removed.
+    """
+    line = line.rstrip("\r")
+    if not line.startswith(_SSE_DATA_PREFIX):
+        return line
+    # The single space after the colon is optional per the SSE specification.
+    payload = line[len(_SSE_DATA_PREFIX) :]
+    return payload[1:] if payload.startswith(" ") else payload
+
+
 def yield_parsed_json(body: httpbody_pb2.HttpBody) -> Iterable[Any]:
     """Converts the contents of the httpbody message to JSON format.
 
@@ -175,7 +208,11 @@ def yield_parsed_json(body: httpbody_pb2.HttpBody) -> Iterable[Any]:
     content_type = getattr(body, "content_type", None)
     data = getattr(body, "data", None)
 
-    if content_type is None or data is None or "application/json" not in content_type:
+    if (
+        content_type is None
+        or data is None
+        or not any(t in content_type for t in _STREAMABLE_CONTENT_TYPES)
+    ):
         yield body
         return
 
@@ -192,6 +229,9 @@ def yield_parsed_json(body: httpbody_pb2.HttpBody) -> Iterable[Any]:
 
     # Handle the case of multiple dictionaries delimited by newlines.
     for line in utf8_data.split("\n"):
+        # Strip before the emptiness check so the blank line that terminates an
+        # SSE frame, and a `data:` line with an empty payload, are both skipped.
+        line = _strip_sse_framing(line)
         if line:
             try:
                 line = json.loads(line)

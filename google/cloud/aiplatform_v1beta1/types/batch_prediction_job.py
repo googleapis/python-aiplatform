@@ -90,6 +90,12 @@ class BatchPredictionJob(proto.Message):
             prediction without requiring uploading to model registry.
             Exactly one of model and unmanaged_container_model must be
             set.
+        endpoint (str):
+            For Bring-Your-Own-Endpoint (BYOE), the name of the Endpoint
+            resource that produces the predictions via this job, must
+            share the same ancestor Location. Exactly one of model,
+            unmanaged_container_model, or endpoint must be set. Example:
+            ``projects/193595526740/locations/us-central1/endpoints/4203439000301600768``
         input_config (google.cloud.aiplatform_v1beta1.types.BatchPredictionJob.InputConfig):
             Required. Input configuration of the instances on which
             predictions are performed. The schema of any single instance
@@ -636,6 +642,10 @@ class BatchPredictionJob(proto.Message):
             number=28,
             message=gca_unmanaged_container_model.UnmanagedContainerModel,
         )
+    )
+    endpoint: str = proto.Field(
+        proto.STRING,
+        number=41,
     )
     input_config: InputConfig = proto.Field(
         proto.MESSAGE,

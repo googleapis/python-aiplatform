@@ -2400,8 +2400,7 @@ def _fix_schema_dict_for_gapic_in_place(schema_dict: Dict[str, Any]) -> None:
     #          those listed in "properties".  We remove this because that is
     #          already our default behavior.
     #    True: This means that additional properties are allowed with any value
-    #          type.  We replace this with an equivalent empty dict:
-    #          https://screenshot.googleplex.com/yvgmAmZay5Dw7qY
+    #          type.  We replace this with an equivalent empty dict.
     if (additional := schema_dict.get("additionalProperties")) is not None:
         if additional is False:
             del schema_dict["additionalProperties"]
