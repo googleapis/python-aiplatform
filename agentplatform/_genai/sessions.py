@@ -770,6 +770,33 @@ class Sessions(_api_module.BaseModule):
                 )
         return operation
 
+    def update(
+        self,
+        *,
+        name: str,
+        config: Optional[types.UpdateAgentEngineSessionConfigOrDict] = None,
+    ) -> types.Session:
+        """Updates an Agent Engine session.
+
+        Args:
+            name (str):
+                Required. The name of the Agent Engine session to be updated. Format:
+                    `projects/{project}/locations/{location}/reasoningEngines/{resource_id}/sessions/{session_id}`.
+            config (UpdateAgentEngineSessionConfig):
+                Optional. The configuration for the session to update.
+
+        Returns:
+            Session: The updated Agent Engine session.
+        """
+        if config is None:
+            config = types.UpdateAgentEngineSessionConfig()
+        elif isinstance(config, dict):
+            config = types.UpdateAgentEngineSessionConfig.model_validate(config)
+        return self._update(
+            name=name,
+            config=config,
+        )
+
     def list(
         self,
         *,
@@ -1368,6 +1395,33 @@ class AsyncSessions(_api_module.BaseModule):
                     f"Operation name: {operation.name}"
                 )
         return operation
+
+    async def update(
+        self,
+        *,
+        name: str,
+        config: Optional[types.UpdateAgentEngineSessionConfigOrDict] = None,
+    ) -> types.Session:
+        """Updates an Agent Engine session.
+
+        Args:
+            name (str):
+                Required. The name of the Agent Engine session to be updated. Format:
+                    `projects/{project}/locations/{location}/reasoningEngines/{resource_id}/sessions/{session_id}`.
+            config (UpdateAgentEngineSessionConfig):
+                Optional. The configuration for the session to update.
+
+        Returns:
+            Session: The updated Agent Engine session.
+        """
+        if config is None:
+            config = types.UpdateAgentEngineSessionConfig()
+        elif isinstance(config, dict):
+            config = types.UpdateAgentEngineSessionConfig.model_validate(config)
+        return await self._update(
+            name=name,
+            config=config,
+        )
 
     async def list(
         self,
