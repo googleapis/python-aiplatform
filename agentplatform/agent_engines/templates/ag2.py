@@ -91,8 +91,6 @@ def _default_runnable_builder(
 def _default_instrumentor_builder(project_id: str):
     from agentplatform._genai import _agent_engines_utils
 
-    cloud_trace_exporter = _agent_engines_utils._import_cloud_trace_exporter_or_warn()
-    cloud_trace_v2 = _agent_engines_utils._import_cloud_trace_v2_or_warn()
     openinference_autogen = _agent_engines_utils._import_openinference_autogen_or_warn()
     opentelemetry = _agent_engines_utils._import_opentelemetry_or_warn()
     opentelemetry_sdk_trace = (
@@ -100,21 +98,37 @@ def _default_instrumentor_builder(project_id: str):
     )
     if all(
         (
-            cloud_trace_exporter,
-            cloud_trace_v2,
             openinference_autogen,
             opentelemetry,
             opentelemetry_sdk_trace,
         )
     ):
-        import google.auth
+        try:
+            import opentelemetry.exporter.otlp.proto.http.trace_exporter
+            import opentelemetry.sdk.resources
+            import google.auth
+            import google.auth.transport.requests
+        except (ImportError, AttributeError):
+            from google.cloud.aiplatform import base
+
+            _LOGGER = base.Logger(__name__)
+            _LOGGER.warning(
+                "enable_tracing=True but proceeding with tracing disabled "
+                "because opentelemetry-exporter-otlp-proto-http is not installed."
+            )
+            return None
 
         credentials, _ = google.auth.default()
-        span_exporter = cloud_trace_exporter.CloudTraceSpanExporter(
-            project_id=project_id,
-            client=cloud_trace_v2.TraceServiceClient(
-                credentials=credentials.with_quota_project(project_id),
-            ),
+        resource = opentelemetry.sdk.resources.Resource.create(
+            attributes={"gcp.project_id": project_id},
+        ).merge(opentelemetry.sdk.resources.OTELResourceDetector().detect())
+        span_exporter = (
+            opentelemetry.exporter.otlp.proto.http.trace_exporter.OTLPSpanExporter(
+                session=google.auth.transport.requests.AuthorizedSession(
+                    credentials=credentials
+                ),
+                endpoint="https://telemetry.googleapis.com/v1/traces",
+            )
         )
         span_processor: SpanProcessor = (
             opentelemetry_sdk_trace.export.SimpleSpanProcessor(
@@ -139,13 +153,13 @@ def _default_instrumentor_builder(project_id: str):
                 "OTEL_PYTHON_TRACER_PROVIDER, _TRACER_PROVIDER, "
                 "or _PROXY_TRACER_PROVIDER."
             )
-            tracer_provider = opentelemetry_sdk_trace.TracerProvider()
+            tracer_provider = opentelemetry_sdk_trace.TracerProvider(resource=resource)
             opentelemetry.trace.set_tracer_provider(tracer_provider)
         # Avoids AttributeError:
         # 'ProxyTracerProvider' and 'NoOpTracerProvider' objects has no
         # attribute 'add_span_processor'.
         if _agent_engines_utils.is_noop_or_proxy_tracer_provider(tracer_provider):
-            tracer_provider = opentelemetry_sdk_trace.TracerProvider()
+            tracer_provider = opentelemetry_sdk_trace.TracerProvider(resource=resource)
             opentelemetry.trace.set_tracer_provider(tracer_provider)
         # Avoids OpenTelemetry client already exists error.
         _override_active_span_processor(

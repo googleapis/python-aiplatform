@@ -2256,34 +2256,6 @@ def _import_opentelemetry_sdk_trace_or_warn() -> Optional[types.ModuleType]:
     return None
 
 
-def _import_cloud_trace_v2_or_warn() -> Optional[types.ModuleType]:
-    """Tries to import the google.cloud.trace_v2 module."""
-    try:
-        import google.cloud.trace_v2
-
-        return google.cloud.trace_v2
-    except ImportError:
-        logger.warning(
-            "google-cloud-trace is not installed. Please call "
-            "'pip install google-cloud-aiplatform[agent_engines]'."
-        )
-    return None
-
-
-def _import_cloud_trace_exporter_or_warn() -> Optional[types.ModuleType]:
-    """Tries to import the opentelemetry.exporter.cloud_trace module."""
-    try:
-        import opentelemetry.exporter.cloud_trace
-
-        return opentelemetry.exporter.cloud_trace
-    except ImportError:
-        logger.warning(
-            "opentelemetry-exporter-gcp-trace is not installed. Please "
-            "call 'pip install google-cloud-aiplatform[agent_engines]'."
-        )
-    return None
-
-
 def _import_openinference_langchain_or_warn() -> Optional[types.ModuleType]:
     """Tries to import the openinference.instrumentation.langchain module."""
     try:

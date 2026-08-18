@@ -150,10 +150,8 @@ adk_extra_require = [
 
 reasoning_engine_extra_require = [
     "cloudpickle >= 3.0, < 4.0",
-    "google-cloud-trace < 2",
     "opentelemetry-sdk < 2",
     "opentelemetry-exporter-gcp-logging >= 1.11.0a0, < 2.0.0",
-    "opentelemetry-exporter-gcp-trace < 2",
     "opentelemetry-exporter-otlp-proto-http < 2",
     "opentelemetry-instrumentation-google-genai>=0.3b0, <1.0.0",
     # TODO(b/538550724): update to stable version of
@@ -167,11 +165,9 @@ reasoning_engine_extra_require = [
 agent_engines_extra_require = [
     "packaging >= 24.0",
     "cloudpickle >= 3.0, < 4.0",
-    "google-cloud-trace < 2",
     "google-cloud-logging < 4",
     "opentelemetry-sdk < 2",
     "opentelemetry-exporter-gcp-logging >= 1.11.0a0, < 2.0.0",
-    "opentelemetry-exporter-gcp-trace < 2",
     "opentelemetry-exporter-otlp-proto-http < 2",
     "pydantic >= 2.11.1, < 3",
     "typing_extensions",

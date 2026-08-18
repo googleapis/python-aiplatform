@@ -22,7 +22,9 @@ from google.cloud.aiplatform import initializer
 from agentplatform.agent_engines.templates import (
     llama_index,
 )
-from agentplatform._genai.agent_engines import _agent_engines_utils
+from agentplatform._genai.agent_engines import (
+    _agent_engines_utils,
+)
 
 from llama_index.core import prompts
 from llama_index.core.base.llms import types
@@ -69,15 +71,6 @@ def model_builder_mock():
 
 
 @pytest.fixture
-def cloud_trace_exporter_mock():
-    with mock.patch.object(
-        _agent_engines_utils,
-        "_import_cloud_trace_exporter_or_warn",
-    ) as cloud_trace_exporter_mock:
-        yield cloud_trace_exporter_mock
-
-
-@pytest.fixture
 def tracer_provider_mock():
     with mock.patch("opentelemetry.sdk.trace.TracerProvider") as tracer_provider_mock:
         yield tracer_provider_mock
@@ -89,6 +82,46 @@ def simple_span_processor_mock():
         "opentelemetry.sdk.trace.export.SimpleSpanProcessor"
     ) as simple_span_processor_mock:
         yield simple_span_processor_mock
+
+
+@pytest.fixture
+def otlp_span_exporter_mock():
+    import opentelemetry.exporter.otlp.proto.http.trace_exporter
+
+    with mock.patch.object(
+        opentelemetry.exporter.otlp.proto.http.trace_exporter,
+        "OTLPSpanExporter",
+    ) as otlp_span_exporter_mock:
+        yield otlp_span_exporter_mock
+
+
+@pytest.fixture
+def resource_create_mock():
+    import opentelemetry.sdk.resources
+
+    with mock.patch.object(
+        opentelemetry.sdk.resources.Resource, "create"
+    ) as resource_create_mock:
+        yield resource_create_mock
+
+
+@pytest.fixture
+def otel_resource_detector_mock():
+    import opentelemetry.sdk.resources
+
+    with mock.patch.object(
+        opentelemetry.sdk.resources, "OTELResourceDetector"
+    ) as otel_resource_detector_mock:
+        yield otel_resource_detector_mock
+
+
+@pytest.fixture
+def is_noop_or_proxy_tracer_provider_mock():
+    with mock.patch.object(
+        _agent_engines_utils, "is_noop_or_proxy_tracer_provider"
+    ) as is_noop_or_proxy_tracer_provider_mock:
+        is_noop_or_proxy_tracer_provider_mock.return_value = True
+        yield is_noop_or_proxy_tracer_provider_mock
 
 
 @pytest.fixture
@@ -228,7 +261,6 @@ class TestLlamaIndexQueryPipelineAgent:
     def test_enable_tracing(
         self,
         caplog,
-        cloud_trace_exporter_mock,
         tracer_provider_mock,
         simple_span_processor_mock,
         llama_index_instrumentor_mock,
@@ -259,6 +291,51 @@ class TestLlamaIndexQueryPipelineAgent:
         # agent.set_up()
         # assert "enable_tracing=True but proceeding with tracing disabled" in caplog.text
 
+    def test_tracing_setup(
+        self,
+        tracer_provider_mock,
+        simple_span_processor_mock,
+        otlp_span_exporter_mock,
+        resource_create_mock,
+        otel_resource_detector_mock,
+        is_noop_or_proxy_tracer_provider_mock,
+        llama_index_instrumentor_mock,
+    ):
+        agent = llama_index.LlamaIndexQueryPipelineAgent(
+            model=_TEST_MODEL,
+            prompt=self.prompt,
+            model_builder=lambda **kwargs: kwargs,
+            runnable_builder=lambda **kwargs: kwargs,
+            enable_tracing=True,
+        )
+        assert agent._instrumentor is None
+
+        agent.set_up()
+
+        otlp_span_exporter_mock.assert_called_once_with(
+            session=mock.ANY,
+            endpoint="https://telemetry.googleapis.com/v1/traces",
+        )
+        resource_create_mock.assert_called_with(
+            attributes={"gcp.project_id": _TEST_PROJECT},
+        )
+        tracer_provider_mock.assert_called_with(
+            resource=resource_create_mock.return_value.merge.return_value,
+        )
+        simple_span_processor_mock.assert_called_once_with(
+            span_exporter=otlp_span_exporter_mock.return_value,
+        )
+        tracer_provider_mock.return_value.add_span_processor.assert_called_once_with(
+            simple_span_processor_mock.return_value,
+        )
+        llama_index_instrumentor_class = (
+            llama_index_instrumentor_mock.return_value.LlamaIndexInstrumentor
+        )
+        llama_index_instrumentor_class.assert_called_once_with()
+        llama_index_instrumentor_class.return_value.uninstrument.assert_called_once_with()
+        llama_index_instrumentor_class.return_value.instrument.assert_called_once_with()
+        assert agent._instrumentor is llama_index_instrumentor_class.return_value
+
 
 class TestToJsonSerializableLlamaIndexObject:
     """Tests for `_utils.to_json_serializable_llama_index_object`."""
@@ -285,7 +362,9 @@ class TestToJsonSerializableLlamaIndexObject:
             "source_nodes": ['{"name": "model1"}', '{"name": "model2"}'],
             "metadata": {"key": "value"},
         }
-        got = _agent_engines_utils.to_json_serializable_llama_index_object(mock_response)
+        got = _agent_engines_utils.to_json_serializable_llama_index_object(
+            mock_response
+        )
         assert got == want
 
     def test_llama_index_chat_response(self):
@@ -298,7 +377,9 @@ class TestToJsonSerializableLlamaIndexObject:
         )
 
         want = {"content": "chat message"}
-        got = _agent_engines_utils.to_json_serializable_llama_index_object(mock_chat_response)
+        got = _agent_engines_utils.to_json_serializable_llama_index_object(
+            mock_chat_response
+        )
         assert got == want
 
     def test_llama_index_base_model(self):
@@ -308,7 +389,9 @@ class TestToJsonSerializableLlamaIndexObject:
         mock_base_model.model_dump_json = lambda: '{"name": "test_model"}'
 
         want = {"name": "test_model"}
-        got = _agent_engines_utils.to_json_serializable_llama_index_object(mock_base_model)
+        got = _agent_engines_utils.to_json_serializable_llama_index_object(
+            mock_base_model
+        )
         assert got == want
 
     def test_sequence_of_llama_index_base_model(self):
@@ -323,7 +406,9 @@ class TestToJsonSerializableLlamaIndexObject:
         mock_base_model_list = [mock_base_model1, mock_base_model2]
 
         want = [{"name": "test_model1"}, {"name": "test_model2"}]
-        got = _agent_engines_utils.to_json_serializable_llama_index_object(mock_base_model_list)
+        got = _agent_engines_utils.to_json_serializable_llama_index_object(
+            mock_base_model_list
+        )
         assert got == want
 
     def test_sequence_of_mixed_types(self):
