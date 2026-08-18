@@ -12700,3 +12700,143 @@ class TestAsyncCreateEvaluationRunAutoExperiment:
             request_body.get("evaluationExperiment")
             == "projects/123/locations/us-central1/evaluationExperiments/existing"
         )
+
+
+class TestImportEvaluationSet:
+
+    def setup_method(self, method):
+        self.mock_api_client = mock.MagicMock()
+        self.mock_api_client.vertexai = True
+        self.mock_response = mock.MagicMock()
+        self.mock_response.body = json.dumps({"name": "operations/123"})
+        self.mock_api_client.request.return_value = self.mock_response
+
+    def _import(self, evals_module):
+        return evals_module.import_evaluation_set(
+            evaluation_set=agentplatform_genai_types.EvaluationSet(
+                display_name="imported_set"
+            ),
+            gcs_destination=genai_types.GcsDestination(
+                output_uri_prefix="gs://bucket/output/"
+            ),
+            gcs_source=agentplatform_genai_types.EvaluationSetGcsSource(
+                gcs_uri="gs://bucket/items.jsonl",
+                import_schema_config=agentplatform_genai_types.ImportSchemaConfig(
+                    data_format=agentplatform_genai_types.ImportDataFormat.JSONL
+                ),
+            ),
+        )
+
+    def test_import_evaluation_set_posts_to_import_path(self):
+        evals_module = evals.Evals(api_client_=self.mock_api_client)
+
+        self._import(evals_module)
+
+        self.mock_api_client.request.assert_called_once()
+        call_args = self.mock_api_client.request.call_args
+        assert call_args[0][0] == "post"
+        assert call_args[0][1] == "evaluationSets:import"
+
+    def test_import_evaluation_set_sends_gcs_source(self):
+        evals_module = evals.Evals(api_client_=self.mock_api_client)
+
+        self._import(evals_module)
+
+        request_body = self.mock_api_client.request.call_args[0][2]
+        gcs_source = request_body["gcsSource"]
+        assert gcs_source["gcs_uri"] == "gs://bucket/items.jsonl"
+        assert gcs_source["import_schema_config"]["data_format"] == "JSONL"
+
+    def test_import_evaluation_set_sends_gcs_destination(self):
+        evals_module = evals.Evals(api_client_=self.mock_api_client)
+
+        self._import(evals_module)
+
+        request_body = self.mock_api_client.request.call_args[0][2]
+        assert (
+            request_body["gcsDestination"]["output_uri_prefix"] == "gs://bucket/output/"
+        )
+
+    def test_import_evaluation_set_returns_operation(self):
+        evals_module = evals.Evals(api_client_=self.mock_api_client)
+
+        operation = self._import(evals_module)
+
+        assert operation.name == "operations/123"
+
+    def test_import_evaluation_set_from_inline_source(self):
+        evals_module = evals.Evals(api_client_=self.mock_api_client)
+
+        evals_module.import_evaluation_set(
+            evaluation_set=agentplatform_genai_types.EvaluationSet(
+                display_name="imported_set"
+            ),
+            gcs_destination=genai_types.GcsDestination(
+                output_uri_prefix="gs://bucket/output/"
+            ),
+            inline_source=agentplatform_genai_types.EvaluationSetInlineSource(
+                content=b'{"evaluationRequest": {}}\n',
+                import_schema_config=agentplatform_genai_types.ImportSchemaConfig(
+                    data_format=agentplatform_genai_types.ImportDataFormat.JSONL
+                ),
+            ),
+        )
+
+        request_body = self.mock_api_client.request.call_args[0][2]
+        assert "inlineSource" in request_body
+        assert (
+            request_body["inlineSource"]["import_schema_config"]["data_format"]
+            == "JSONL"
+        )
+
+    def test_import_evaluation_set_from_cloud_trace_source(self):
+        evals_module = evals.Evals(api_client_=self.mock_api_client)
+
+        evals_module.import_evaluation_set(
+            evaluation_set=agentplatform_genai_types.EvaluationSet(
+                display_name="imported_set"
+            ),
+            gcs_destination=genai_types.GcsDestination(
+                output_uri_prefix="gs://bucket/output/"
+            ),
+            cloud_trace_source=agentplatform_genai_types.EvaluationSetCloudTraceSource(
+                project_id="test-project",
+                session_ids=["session-1"],
+            ),
+        )
+
+        request_body = self.mock_api_client.request.call_args[0][2]
+        cloud_trace_source = request_body["cloudTraceSource"]
+        assert cloud_trace_source["project_id"] == "test-project"
+        assert cloud_trace_source["session_ids"] == ["session-1"]
+
+    def test_import_evaluation_set_requires_exactly_one_source(self):
+        evals_module = evals.Evals(api_client_=self.mock_api_client)
+        evaluation_set = agentplatform_genai_types.EvaluationSet(
+            display_name="imported_set"
+        )
+        gcs_destination = genai_types.GcsDestination(
+            output_uri_prefix="gs://bucket/output/"
+        )
+        gcs_source = agentplatform_genai_types.EvaluationSetGcsSource(
+            gcs_uri="gs://bucket/items.jsonl",
+            import_schema_config=agentplatform_genai_types.ImportSchemaConfig(
+                data_format=agentplatform_genai_types.ImportDataFormat.JSONL
+            ),
+        )
+        cloud_trace_source = agentplatform_genai_types.EvaluationSetCloudTraceSource(
+            project_id="test-project"
+        )
+
+        with pytest.raises(ValueError):
+            evals_module.import_evaluation_set(
+                evaluation_set=evaluation_set, gcs_destination=gcs_destination
+            )
+
+        with pytest.raises(ValueError):
+            evals_module.import_evaluation_set(
+                evaluation_set=evaluation_set,
+                gcs_destination=gcs_destination,
+                gcs_source=gcs_source,
+                cloud_trace_source=cloud_trace_source,
+            )

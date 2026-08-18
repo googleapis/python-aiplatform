@@ -124,6 +124,7 @@ from .common import _GetSandboxEnvironmentTemplateRequestParameters
 from .common import _GetSkillOperationParameters
 from .common import _GetSkillRequestParameters
 from .common import _GetSkillRevisionRequestParameters
+from .common import _ImportEvaluationSetParameters
 from .common import _ImportRagFilesRequestParameters
 from .common import _IngestEventsRequestParameters
 from .common import _ListAgentEngineMemoryRequestParameters
@@ -683,7 +684,16 @@ from .common import EvaluationRunResultsDict
 from .common import EvaluationRunResultsOrDict
 from .common import EvaluationRunState
 from .common import EvaluationSet
+from .common import EvaluationSetCloudTraceSource
+from .common import EvaluationSetCloudTraceSourceDict
+from .common import EvaluationSetCloudTraceSourceOrDict
 from .common import EvaluationSetDict
+from .common import EvaluationSetGcsSource
+from .common import EvaluationSetGcsSourceDict
+from .common import EvaluationSetGcsSourceOrDict
+from .common import EvaluationSetInlineSource
+from .common import EvaluationSetInlineSourceDict
+from .common import EvaluationSetInlineSourceOrDict
 from .common import EvaluationSetOrDict
 from .common import Event
 from .common import EventActions
@@ -959,6 +969,13 @@ from .common import GoogleDriveSourceResourceIdDict
 from .common import GoogleDriveSourceResourceIdOrDict
 from .common import IdentityType
 from .common import Importance
+from .common import ImportDataFormat
+from .common import ImportEvaluationSetConfig
+from .common import ImportEvaluationSetConfigDict
+from .common import ImportEvaluationSetConfigOrDict
+from .common import ImportEvaluationSetOperation
+from .common import ImportEvaluationSetOperationDict
+from .common import ImportEvaluationSetOperationOrDict
 from .common import ImportRagFilesConfig
 from .common import ImportRagFilesConfigDict
 from .common import ImportRagFilesConfigOrDict
@@ -974,6 +991,9 @@ from .common import ImportRagFilesRequestOrDict
 from .common import ImportRagFilesResponse
 from .common import ImportRagFilesResponseDict
 from .common import ImportRagFilesResponseOrDict
+from .common import ImportSchemaConfig
+from .common import ImportSchemaConfigDict
+from .common import ImportSchemaConfigOrDict
 from .common import InferenceEventLoggingConfig
 from .common import InferenceEventLoggingConfigDict
 from .common import InferenceEventLoggingConfigOrDict
@@ -2628,6 +2648,24 @@ __all__ = [
     "GetEvaluationItemConfig",
     "GetEvaluationItemConfigDict",
     "GetEvaluationItemConfigOrDict",
+    "ImportSchemaConfig",
+    "ImportSchemaConfigDict",
+    "ImportSchemaConfigOrDict",
+    "EvaluationSetGcsSource",
+    "EvaluationSetGcsSourceDict",
+    "EvaluationSetGcsSourceOrDict",
+    "EvaluationSetInlineSource",
+    "EvaluationSetInlineSourceDict",
+    "EvaluationSetInlineSourceOrDict",
+    "EvaluationSetCloudTraceSource",
+    "EvaluationSetCloudTraceSourceDict",
+    "EvaluationSetCloudTraceSourceOrDict",
+    "ImportEvaluationSetConfig",
+    "ImportEvaluationSetConfigDict",
+    "ImportEvaluationSetConfigOrDict",
+    "ImportEvaluationSetOperation",
+    "ImportEvaluationSetOperationDict",
+    "ImportEvaluationSetOperationOrDict",
     "ListEvaluationExperimentsConfig",
     "ListEvaluationExperimentsConfigDict",
     "ListEvaluationExperimentsConfigOrDict",
@@ -4151,6 +4189,7 @@ __all__ = [
     "EvaluationItemType",
     "SamplingMethod",
     "EvaluationRunState",
+    "ImportDataFormat",
     "OptimizeTarget",
     "MemoryMetadataMergeStrategy",
     "GenerateMemoriesResponseGeneratedMemoryAction",
@@ -4203,6 +4242,7 @@ __all__ = [
     "_GetEvaluationRunParameters",
     "_GetEvaluationSetParameters",
     "_GetEvaluationItemParameters",
+    "_ImportEvaluationSetParameters",
     "_ListEvaluationExperimentsParameters",
     "_ListEvaluationMetricsParameters",
     "_ListEvaluationSetsParameters",

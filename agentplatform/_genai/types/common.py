@@ -682,6 +682,15 @@ class EvaluationRunState(_common.CaseInSensitiveEnum):
     """Evaluation run is performing rubric generation."""
 
 
+class ImportDataFormat(_common.CaseInSensitiveEnum):
+    """The format of the input data for an evaluation set import."""
+
+    DATA_FORMAT_UNSPECIFIED = "DATA_FORMAT_UNSPECIFIED"
+    """Unspecified data format."""
+    JSONL = "JSONL"
+    """JSONL format where each line is a JSON-encoded EvaluationItem."""
+
+
 class OptimizeTarget(_common.CaseInSensitiveEnum):
     """Specifies the method for calling the optimize_prompt."""
 
@@ -6782,6 +6791,236 @@ class _GetEvaluationItemParametersDict(TypedDict, total=False):
 
 _GetEvaluationItemParametersOrDict = Union[
     _GetEvaluationItemParameters, _GetEvaluationItemParametersDict
+]
+
+
+class ImportSchemaConfig(_common.BaseModel):
+    """Configuration for the input data format."""
+
+    data_format: Optional[ImportDataFormat] = Field(
+        default=None, description="""The format of the input data."""
+    )
+    data_format_version: Optional[str] = Field(
+        default=None, description="""Version of the data format."""
+    )
+
+
+class ImportSchemaConfigDict(TypedDict, total=False):
+    """Configuration for the input data format."""
+
+    data_format: Optional[ImportDataFormat]
+    """The format of the input data."""
+
+    data_format_version: Optional[str]
+    """Version of the data format."""
+
+
+ImportSchemaConfigOrDict = Union[ImportSchemaConfig, ImportSchemaConfigDict]
+
+
+class EvaluationSetGcsSource(_common.BaseModel):
+    """Source for loading data from Cloud Storage."""
+
+    gcs_uri: Optional[str] = Field(
+        default=None, description="""The Cloud Storage location of the input data."""
+    )
+    import_schema_config: Optional[ImportSchemaConfig] = Field(
+        default=None, description="""Schema configuration for the input data."""
+    )
+
+
+class EvaluationSetGcsSourceDict(TypedDict, total=False):
+    """Source for loading data from Cloud Storage."""
+
+    gcs_uri: Optional[str]
+    """The Cloud Storage location of the input data."""
+
+    import_schema_config: Optional[ImportSchemaConfigDict]
+    """Schema configuration for the input data."""
+
+
+EvaluationSetGcsSourceOrDict = Union[EvaluationSetGcsSource, EvaluationSetGcsSourceDict]
+
+
+class EvaluationSetInlineSource(_common.BaseModel):
+    """Wrapper for inline data."""
+
+    content: Optional[bytes] = Field(
+        default=None, description="""The content of the inline data."""
+    )
+    import_schema_config: Optional[ImportSchemaConfig] = Field(
+        default=None, description="""Schema configuration for the inline data."""
+    )
+
+
+class EvaluationSetInlineSourceDict(TypedDict, total=False):
+    """Wrapper for inline data."""
+
+    content: Optional[bytes]
+    """The content of the inline data."""
+
+    import_schema_config: Optional[ImportSchemaConfigDict]
+    """Schema configuration for the inline data."""
+
+
+EvaluationSetInlineSourceOrDict = Union[
+    EvaluationSetInlineSource, EvaluationSetInlineSourceDict
+]
+
+
+class EvaluationSetCloudTraceSource(_common.BaseModel):
+    """Source for loading traces directly from Cloud Trace."""
+
+    project_id: Optional[str] = Field(
+        default=None, description="""Project ID for the Cloud Trace."""
+    )
+    trace_ids: Optional[list[str]] = Field(
+        default=None, description="""Trace IDs to import."""
+    )
+    session_ids: Optional[list[str]] = Field(
+        default=None,
+        description="""Session IDs to import traces for. If both trace_ids and
+      session_ids are specified, the union of the two will be imported.""",
+    )
+
+
+class EvaluationSetCloudTraceSourceDict(TypedDict, total=False):
+    """Source for loading traces directly from Cloud Trace."""
+
+    project_id: Optional[str]
+    """Project ID for the Cloud Trace."""
+
+    trace_ids: Optional[list[str]]
+    """Trace IDs to import."""
+
+    session_ids: Optional[list[str]]
+    """Session IDs to import traces for. If both trace_ids and
+      session_ids are specified, the union of the two will be imported."""
+
+
+EvaluationSetCloudTraceSourceOrDict = Union[
+    EvaluationSetCloudTraceSource, EvaluationSetCloudTraceSourceDict
+]
+
+
+class ImportEvaluationSetConfig(_common.BaseModel):
+    """Config for importing an evaluation set."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class ImportEvaluationSetConfigDict(TypedDict, total=False):
+    """Config for importing an evaluation set."""
+
+    http_options: Optional[genai_types.HttpOptions]
+    """Used to override HTTP request options."""
+
+
+ImportEvaluationSetConfigOrDict = Union[
+    ImportEvaluationSetConfig, ImportEvaluationSetConfigDict
+]
+
+
+class _ImportEvaluationSetParameters(_common.BaseModel):
+    """Parameters for importing an evaluation set."""
+
+    evaluation_set: Optional[EvaluationSet] = Field(
+        default=None,
+        description="""The EvaluationSet to create. Used to specify 'display_name' and
+      'metadata'. The 'evaluation_items' field is ignored and populated by the
+      import process.""",
+    )
+    gcs_destination: Optional[genai_types.GcsDestination] = Field(
+        default=None,
+        description="""The Cloud Storage location where the resulting EvaluationItem
+      payloads will be stored.""",
+    )
+    gcs_source: Optional[EvaluationSetGcsSource] = Field(
+        default=None, description="""Google Cloud Storage location."""
+    )
+    inline_source: Optional[EvaluationSetInlineSource] = Field(
+        default=None, description="""Inline source for small payloads (< 4MB)."""
+    )
+    cloud_trace_source: Optional[EvaluationSetCloudTraceSource] = Field(
+        default=None,
+        description="""Source for loading data directly from Cloud Trace.""",
+    )
+    config: Optional[ImportEvaluationSetConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _ImportEvaluationSetParametersDict(TypedDict, total=False):
+    """Parameters for importing an evaluation set."""
+
+    evaluation_set: Optional[EvaluationSetDict]
+    """The EvaluationSet to create. Used to specify 'display_name' and
+      'metadata'. The 'evaluation_items' field is ignored and populated by the
+      import process."""
+
+    gcs_destination: Optional[genai_types.GcsDestination]
+    """The Cloud Storage location where the resulting EvaluationItem
+      payloads will be stored."""
+
+    gcs_source: Optional[EvaluationSetGcsSourceDict]
+    """Google Cloud Storage location."""
+
+    inline_source: Optional[EvaluationSetInlineSourceDict]
+    """Inline source for small payloads (< 4MB)."""
+
+    cloud_trace_source: Optional[EvaluationSetCloudTraceSourceDict]
+    """Source for loading data directly from Cloud Trace."""
+
+    config: Optional[ImportEvaluationSetConfigDict]
+    """"""
+
+
+_ImportEvaluationSetParametersOrDict = Union[
+    _ImportEvaluationSetParameters, _ImportEvaluationSetParametersDict
+]
+
+
+class ImportEvaluationSetOperation(_common.BaseModel):
+    """Operation for importing an evaluation set."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`.""",
+    )
+    metadata: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any.""",
+    )
+    done: Optional[bool] = Field(
+        default=None,
+        description="""If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available.""",
+    )
+    error: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""The error result of the operation in case of failure or cancellation.""",
+    )
+
+
+class ImportEvaluationSetOperationDict(TypedDict, total=False):
+    """Operation for importing an evaluation set."""
+
+    name: Optional[str]
+    """The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`."""
+
+    metadata: Optional[dict[str, Any]]
+    """Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any."""
+
+    done: Optional[bool]
+    """If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available."""
+
+    error: Optional[dict[str, Any]]
+    """The error result of the operation in case of failure or cancellation."""
+
+
+ImportEvaluationSetOperationOrDict = Union[
+    ImportEvaluationSetOperation, ImportEvaluationSetOperationDict
 ]
 
 
