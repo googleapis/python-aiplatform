@@ -90,6 +90,9 @@ class ReasoningEngineSpec(proto.Message):
             If not specified, the ``service_account`` field will be used
             if set, otherwise the default Vertex AI Reasoning Engine
             Service Agent in the project will be used.
+        build_spec (google.cloud.aiplatform_v1.types.ReasoningEngineSpec.BuildSpec):
+            Optional. Configuration for building
+            container image.
     """
 
     class IdentityType(proto.Enum):
@@ -444,6 +447,37 @@ class ReasoningEngineSpec(proto.Message):
             number=1,
         )
 
+    class BuildSpec(proto.Message):
+        r"""Specification for building container image.
+
+        Attributes:
+            worker_pool (str):
+                Optional. The resource name of the Cloud Build WorkerPool to
+                use for the build. Format:
+                ``projects/{project}/locations/{location}/workerPools/{worker_pool}``
+            service_account (str):
+                Optional. The service account that Cloud Build uses to run
+                the build.
+
+                This field is only applicable when ``worker_pool`` is
+                specified (i.e., for custom worker pools). If
+                ``worker_pool`` is not specified, this field is ignored and
+                the build runs using the Google-managed service agent.
+
+                Format:
+                ``projects/{project}/serviceAccounts/{service_account}`` or
+                ``{service_account}@{project}.iam.gserviceaccount.com``
+        """
+
+        worker_pool: str = proto.Field(
+            proto.STRING,
+            number=1,
+        )
+        service_account: str = proto.Field(
+            proto.STRING,
+            number=2,
+        )
+
     source_code_spec: SourceCodeSpec = proto.Field(
         proto.MESSAGE,
         number=11,
@@ -484,6 +518,11 @@ class ReasoningEngineSpec(proto.Message):
         proto.ENUM,
         number=12,
         enum=IdentityType,
+    )
+    build_spec: BuildSpec = proto.Field(
+        proto.MESSAGE,
+        number=16,
+        message=BuildSpec,
     )
 
 
