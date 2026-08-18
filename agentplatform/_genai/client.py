@@ -16,16 +16,17 @@
 import asyncio
 import importlib
 import sys
-from typing import Optional, Union, TYPE_CHECKING
-from types import TracebackType, ModuleType
+from types import ModuleType, TracebackType
+from typing import Optional, TYPE_CHECKING, Union
 
 import google.auth
-from google.cloud.aiplatform import version as aip_version
+from agentplatform import __version__
+from google.genai import _api_client as genai_api_client
 from google.genai import _common
 from google.genai import client as genai_client
 from google.genai import types
 from google.genai import version as genai_version
-from google.genai import _api_client as genai_api_client
+
 from . import live
 
 if TYPE_CHECKING:
@@ -60,7 +61,7 @@ _GENAI_MODULES_TELEMETRY_HEADER = "vertex-genai-modules"
 def _custom_append_library_version_headers(headers: dict[str, str]) -> None:
     """Overridde GenAI SDK header injection to use custom vertex-genai-modules header."""
     genai_sdk_version = genai_version.__version__
-    module_version = aip_version.__version__
+    module_version = __version__
     python_version = sys.version.split()[0]
 
     combined_label = f"google-genai-sdk/{genai_sdk_version}+{_GENAI_MODULES_TELEMETRY_HEADER}/{module_version}"
