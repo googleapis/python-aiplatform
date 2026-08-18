@@ -103,6 +103,10 @@ _DEFAULT_APP_NAME = "default-app-name"
 _DEFAULT_USER_ID = "default-user-id"
 _DEFAULT_TELEMETRY_ENDPOINT = "https://telemetry.googleapis.com/v1/traces"
 _DEFAULT_MTLS_TELEMETRY_ENDPOINT = "https://telemetry.mtls.googleapis.com/v1/traces"
+# Timeout (in seconds) for the best-effort Telemetry API enablement check. This
+# check runs on the agent server's critical startup path, so it must fail fast
+# rather than inherit AuthorizedSession's 120s default.
+_TELEMETRY_API_CHECK_TIMEOUT_SECONDS = 5.0
 
 
 class _MtlsEndpoint(enum.Enum):
@@ -1724,27 +1728,39 @@ class AdkApp:
         )
 
     def _warn_if_telemetry_api_disabled(self):
-        """Warn if telemetry API is disabled."""
+        """Warns if the Telemetry API is disabled.
+
+        This is a best-effort diagnostic that runs from `set_up()`, on the
+        agent server's critical startup path. No failure here (blocked egress,
+        an unreachable endpoint, unavailable credentials) may prevent the
+        container from starting, so the whole body is non-fatal.
+        """
         try:
             import google.auth.transport.requests
             import google.auth
         except (ImportError, AttributeError):
             return
-        credentials, project = google.auth.default()
-        session = requests_auth.AuthorizedSession(credentials=credentials)
+        try:
+            credentials, project = google.auth.default()
+            session = requests_auth.AuthorizedSession(credentials=credentials)
 
-        use_client_cert = _use_client_cert_effective()
-        if use_client_cert:
-            client_cert_source = (
-                mtls.default_client_cert_source()
-                if mtls.has_default_client_cert_source()
-                else None
+            use_client_cert = _use_client_cert_effective()
+            if use_client_cert:
+                client_cert_source = (
+                    mtls.default_client_cert_source()
+                    if mtls.has_default_client_cert_source()
+                    else None
+                )
+                session.configure_mtls_channel()
+                endpoint = _get_api_endpoint(client_cert_source)
+            else:
+                endpoint = _DEFAULT_TELEMETRY_ENDPOINT
+            r = session.post(
+                endpoint, data=None, timeout=_TELEMETRY_API_CHECK_TIMEOUT_SECONDS
             )
-            session.configure_mtls_channel()
-            endpoint = _get_api_endpoint(client_cert_source)
-        else:
-            endpoint = _DEFAULT_TELEMETRY_ENDPOINT
-        r = session.post(endpoint, data=None)
+        except Exception as e:  # pylint: disable=broad-exception-caught
+            _warn(f"Could not verify whether the Telemetry API is enabled: {e}")
+            return
         if "Telemetry API has not been used in project" in r.text:
             _warn(_TELEMETRY_API_DISABLED_WARNING % (project, project))
 

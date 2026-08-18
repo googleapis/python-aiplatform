@@ -41,6 +41,7 @@ from agentplatform.agent_engines.templates import (
 )
 from google.genai import types
 import pytest
+import requests
 from google.adk.sessions.base_session_service import BaseSessionService
 
 
@@ -1733,6 +1734,32 @@ class TestAgentEngines:
 class TestAdkAppMtls:
     """Test cases for mTLS functionality in AdkApp."""
 
+    @pytest.fixture(autouse=True)
+    def _isolate_global_tracer_provider(self):
+        """Isolates these tests from span processors left by earlier tests.
+
+        `_default_instrumentor_builder` shuts down whatever span processor is
+        already installed on the global tracer provider. A processor left there
+        by another test in the same process holds a real `AuthorizedSession`,
+        and closing it raises `TypeError` while these tests have
+        `AuthorizedSession` patched out, so the outcome depends on which other
+        tests happen to share the shard.
+        """
+        import opentelemetry.sdk.trace
+        import opentelemetry.trace
+
+        tracer_provider = opentelemetry.trace.get_tracer_provider()
+        original = getattr(tracer_provider, "_active_span_processor", None)
+        if original is not None:
+            tracer_provider._active_span_processor = (
+                opentelemetry.sdk.trace.SynchronousMultiSpanProcessor()
+            )
+        try:
+            yield
+        finally:
+            if original is not None:
+                tracer_provider._active_span_processor = original
+
     def setup_method(self):
         import opentelemetry.trace
 
@@ -1865,7 +1892,9 @@ class TestAdkAppMtls:
         mock_session.configure_mtls_channel.assert_called_once()
         # Verify the check was performed against the mTLS endpoint
         mock_session.post.assert_called_once_with(
-            adk_template._DEFAULT_MTLS_TELEMETRY_ENDPOINT, data=None
+            adk_template._DEFAULT_MTLS_TELEMETRY_ENDPOINT,
+            data=None,
+            timeout=adk_template._TELEMETRY_API_CHECK_TIMEOUT_SECONDS,
         )
 
     @mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "invalid_value"})
@@ -1957,7 +1986,39 @@ class TestAdkAppMtls:
         mock_session.configure_mtls_channel.assert_not_called()
         # Verify the check was performed against the regular endpoint
         mock_session.post.assert_called_once_with(
-            adk_template._DEFAULT_TELEMETRY_ENDPOINT, data=None
+            adk_template._DEFAULT_TELEMETRY_ENDPOINT,
+            data=None,
+            timeout=adk_template._TELEMETRY_API_CHECK_TIMEOUT_SECONDS,
+        )
+
+    @mock.patch("google.auth.default", return_value=(mock.Mock(), _TEST_PROJECT))
+    @mock.patch.object(adk_template.requests_auth, "AuthorizedSession")
+    def test_warn_if_telemetry_api_disabled_survives_connection_error(
+        self,
+        mock_session_cls,
+        mock_auth_default,
+    ):
+        """The telemetry check must never propagate a failure to its caller.
+
+        Regression test for b/546241881: this check runs from `set_up()` on the
+        agent server's startup path, where an unhandled `ConnectionError` took
+        down the container instead of degrading to a warning.
+        """
+        mock_session = mock_session_cls.return_value
+        mock_session.post.side_effect = requests.exceptions.ConnectionError(
+            "('Connection aborted.', RemoteDisconnected('Remote end closed"
+            " connection without response'))"
+        )
+
+        with mock.patch.object(
+            adk_template, "_use_client_cert_effective", return_value=False
+        ):
+            with mock.patch.object(adk_template, "_warn") as mock_warn:
+                adk_template._warn_if_telemetry_api_disabled()
+
+        mock_warn.assert_called_once()
+        assert "Could not verify whether the Telemetry API is enabled" in (
+            mock_warn.call_args.args[0]
         )
 
     @mock.patch("google.auth.default", return_value=(mock.Mock(), _TEST_PROJECT))
