@@ -591,6 +591,7 @@ class TestAdkApp:
         # Define an async generator for run_async mock return value
         async def mock_run_async(*args, **kwargs):
             from google.adk.events import event
+
             yield event.Event(
                 **{
                     "author": "currency_exchange_agent",
@@ -789,7 +790,6 @@ class TestAdkApp:
             state=None,
             expire_time="2026-03-01T00:00:00Z",
         )
-
 
     @pytest.mark.asyncio
     async def test_async_get_session(self, get_project_id_mock: mock.Mock):
@@ -1761,3 +1761,132 @@ class TestAdkAppMtls:
             mock_exporter.call_args.kwargs["endpoint"]
             == adk_template._DEFAULT_TELEMETRY_ENDPOINT
         )
+
+
+@pytest.mark.usefixtures("google_auth_mock")
+class TestAdkTemplateLoggingExport:
+    """Covers _default_instrumentor_builder's logging branch.
+
+    Agent Engine logs now go straight to telemetry.googleapis.com rather than
+    through CloudLoggingExporter, so the MonitoredResource and log naming that
+    exporter used to produce have to be reproduced by the resource and record
+    attributes we send.
+    """
+
+    def _build(self, monkeypatch, **env):
+        """Runs the instrumentor builder and returns the installed provider."""
+        import opentelemetry._logs
+
+        for key in (
+            "OTEL_SEMCONV_STABILITY_OPT_IN",
+            "GOOGLE_CLOUD_AGENT_ENGINE_ID",
+            "GOOGLE_CLOUD_AGENT_ENGINE_LOCATION",
+            "GOOGLE_CLOUD_LOCATION",
+            "GCP_DEFAULT_LOG_NAME",
+        ):
+            monkeypatch.delenv(key, raising=False)
+        for key, value in env.items():
+            monkeypatch.setenv(key, value)
+
+        installed = {}
+        monkeypatch.setattr(
+            opentelemetry._logs,
+            "set_logger_provider",
+            lambda logger_provider: installed.update(provider=logger_provider),
+        )
+        with mock.patch(
+            "opentelemetry.exporter.otlp.proto.http._log_exporter.OTLPLogExporter"
+        ) as exporter, mock.patch.object(adk_template, "requests_auth"):
+            adk_template._default_instrumentor_builder(
+                _TEST_PROJECT, enable_logging=True
+            )
+        return installed["provider"], exporter
+
+    @pytest.mark.parametrize(
+        "semconv",
+        ["", "gen_ai_latest_experimental"],
+        ids=["stable_semconv", "experimental_semconv"],
+    )
+    def test_logs_go_to_telemetry_api(self, monkeypatch, semconv):
+        """One OTLP path serves both semconv modes.
+
+        The stdout branch experimental semconv used to need is gone with
+        CloudLoggingExporter (b/480102541).
+        """
+        _, exporter = self._build(monkeypatch, OTEL_SEMCONV_STABILITY_OPT_IN=semconv)
+
+        _, kwargs = exporter.call_args
+        assert kwargs["endpoint"] == "https://telemetry.googleapis.com/v1/logs"
+        assert kwargs["headers"]["User-Agent"].startswith("Vertex-Agent-Engine/")
+
+    def test_monitored_resource_matches_cloud_logging_exporter(self, monkeypatch):
+        """Entries must stay on aiplatform.googleapis.com/ReasoningEngine."""
+        provider, _ = self._build(
+            monkeypatch,
+            GOOGLE_CLOUD_AGENT_ENGINE_ID="1234567890",
+            GOOGLE_CLOUD_AGENT_ENGINE_LOCATION=_TEST_LOCATION,
+        )
+
+        attributes = provider.resource.attributes
+        assert (
+            attributes["gcp.resource_type"]
+            == "aiplatform.googleapis.com/ReasoningEngine"
+        )
+        assert attributes["location"] == _TEST_LOCATION
+        assert attributes["reasoning_engine_id"] == "1234567890"
+        # Cloud Logging fills resource_container from these.
+        assert attributes["gcp.project_id"] == _TEST_PROJECT
+
+    def test_monitored_resource_pins_without_a_location(self, monkeypatch):
+        """A missing location empties the label rather than dropping the pin.
+
+        Every log line from one deployment must land on the same
+        MonitoredResource, so the set of labels can't depend on which env vars
+        happen to be set.
+
+        Args:
+            monkeypatch: The pytest monkeypatch fixture.
+        """
+        provider, _ = self._build(
+            monkeypatch, GOOGLE_CLOUD_AGENT_ENGINE_ID="1234567890"
+        )
+
+        attributes = provider.resource.attributes
+        assert (
+            attributes["gcp.resource_type"]
+            == "aiplatform.googleapis.com/ReasoningEngine"
+        )
+        assert not attributes["location"]
+
+    @pytest.mark.parametrize(
+        "log_record_kwargs, expected_attributes",
+        [
+            ({}, {"gcp.log_name": "adk-on-agent-engine"}),
+            (
+                {"event_name": "gen_ai.client.inference.operation.details"},
+                {"event.name": "gen_ai.client.inference.operation.details"},
+            ),
+            (
+                {"attributes": {"gcp.log_name": "my-log"}},
+                {"gcp.log_name": "my-log"},
+            ),
+        ],
+        ids=["default_log_name", "event_name_as_label", "explicit_log_name"],
+    )
+    def test_log_naming_matches_cloud_logging_exporter(
+        self, monkeypatch, log_record_kwargs, expected_attributes
+    ):
+        """Log name and labels must not shift under customers' log filters."""
+        from opentelemetry.sdk._logs import ReadWriteLogRecord
+        from opentelemetry.sdk._logs._internal import LogRecord
+
+        provider, _ = self._build(monkeypatch)
+        processor = provider._multi_log_record_processor._log_record_processors[0]
+        record = ReadWriteLogRecord(log_record=LogRecord(**log_record_kwargs))
+        with mock.patch.object(
+            type(processor).__mro__[1], "on_emit", lambda self, _: None
+        ):
+            processor.on_emit(record)
+
+        assert dict(record.log_record.attributes or {}) == expected_attributes
+        provider.shutdown()
