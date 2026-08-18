@@ -1,5 +1,24 @@
 # Changelog
 
+## [1.165.0](https://github.com/googleapis/python-aiplatform/compare/v1.164.0...v1.165.0) (2026-08-18)
+
+
+### Features
+
+* Add enable_data_retention to ToolParallelAiSearch, Add step_count to ReinforcementTuningHyperParameters, Add BidiGenerateContentSetup ([09acba7](https://github.com/googleapis/python-aiplatform/commit/09acba7b26fdf4d5c5d166fe01f3f924f752545e))
+* Expose public update() and update_async() methods on Sessions and AsyncSessions client modules. ([5df3113](https://github.com/googleapis/python-aiplatform/commit/5df31136000c5ff992cc9dee1a1c60554e75143e))
+* GenAI Client(evals) - add import_evaluation_set ([eed0b4f](https://github.com/googleapis/python-aiplatform/commit/eed0b4f344ce3f0e2b9a829f03745a2736fca371))
+* GenAI Client(evals) - add list_evaluation_sets and delete_evaluation_set ([6ee088b](https://github.com/googleapis/python-aiplatform/commit/6ee088b4cf6052b84f7e273382959bfd3426874b))
+* Onboard Vertex Model Garden to GenAI Python SDK: Add deploy_publisher_model support ([9ef9093](https://github.com/googleapis/python-aiplatform/commit/9ef9093922a42aacf075319a6e9a043e64f23f2d))
+
+
+### Bug Fixes
+
+* Check GCS ownership for default pipeline bucket ([2baea5b](https://github.com/googleapis/python-aiplatform/commit/2baea5b1a36e4cd5f9b07d6f3e7ae17ebc61d585))
+* Make the Telemetry API enablement check non-fatal in AdkApp.set_up(). ([20205a8](https://github.com/googleapis/python-aiplatform/commit/20205a8328030ed3365af49093cced8684d8dac5))
+* Parse Server-Sent Events in Agent Engine streaming responses ([7cb2fe9](https://github.com/googleapis/python-aiplatform/commit/7cb2fe94e12638c3349e987f7627f9afd82afcc2))
+* Stop logging the "experimental" warning when creating a computer-use sandbox in the Vertex AI GenAI Python SDK. ([6056aa0](https://github.com/googleapis/python-aiplatform/commit/6056aa0534356fe268e823fbefc5da7b3de483bc))
+
 ## [1.164.0](https://github.com/googleapis/python-aiplatform/compare/v1.163.0...v1.164.0) (2026-08-12)
 
 
