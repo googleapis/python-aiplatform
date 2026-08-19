@@ -612,6 +612,17 @@ class TestGcsUtils:
         assert output.startswith("gs://project-vertex-pipelines-us-central1-")
         assert output.endswith("/output_artifacts/")
 
+    def test_generate_gcs_directory_for_pipeline_artifacts_max_length(self):
+        long_project = "gcp-daci-apinsights-prd"
+        location = "us-east4"
+        output = gcs_utils.generate_gcs_directory_for_pipeline_artifacts(
+            long_project, location
+        )
+        bucket_name = output.replace("gs://", "").split("/")[0]
+        assert len(bucket_name) <= 63
+        assert not bucket_name.endswith("-")
+        assert output.endswith("/output_artifacts/")
+
     @patch.object(storage.Bucket, "exists", return_value=False)
     @patch.object(storage, "Client")
     @patch.object(

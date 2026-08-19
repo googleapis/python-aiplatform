@@ -240,7 +240,7 @@ def stage_local_data_in_gcs(
         # regional.
         staging_bucket_name = (
             project + "-vertex-staging-" + location + "-" + _DEFAULT_STAGING_BUCKET_SALT
-        )[:63]
+        )[:63].rstrip("-")
         client = storage.Client(project=project, credentials=credentials)
         staging_bucket = storage.Bucket(client=client, name=staging_bucket_name)
         if not staging_bucket.exists():
@@ -301,7 +301,7 @@ def generate_gcs_directory_for_pipeline_artifacts(
 
     pipelines_bucket_name = (
         project + "-vertex-pipelines-" + location + "-" + _DEFAULT_STAGING_BUCKET_SALT
-    )
+    )[:63].rstrip("-")
     output_artifacts_gcs_dir = "gs://" + pipelines_bucket_name + "/output_artifacts/"
     return output_artifacts_gcs_dir
 
