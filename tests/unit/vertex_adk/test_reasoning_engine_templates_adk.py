@@ -47,6 +47,7 @@ except ImportError:
 _TEST_LOCATION = "us-central1"
 _TEST_PROJECT = "test-project"
 _TEST_PROJECT_ID = "test-project-id"
+_TEST_PROJECT_NUMBER = "123456789"
 _TEST_MODEL = "gemini-2.0-flash"
 _TEST_USER_ID = "test_user_id"
 _TEST_AGENT_NAME = "test_agent"
@@ -1010,11 +1011,9 @@ class TestAdkApp:
             headers=mock.ANY,
         )
 
-        calls = [
-            mock.call(project_number=_TEST_PROJECT_ID, credentials=mock.ANY),
-            mock.call(_TEST_PROJECT_ID),
-        ]
-        get_project_id_mock.assert_has_calls(calls)
+        get_project_id_mock.assert_called_once_with(
+            project_number=_TEST_PROJECT_ID, credentials=mock.ANY
+        )
 
         user_agent = otlp_span_exporter_mock.call_args.kwargs["headers"]["User-Agent"]
         assert (
@@ -1028,6 +1027,44 @@ class TestAdkApp:
             trace_provider_mock.call_args.kwargs["resource"].attributes
             == expected_attributes
         )
+
+    def test_project_id_skips_lookup_for_project_id(
+        self,
+        get_project_id_mock: mock.Mock,
+    ):
+        """Project IDs are returned as-is without a GetProject call."""
+        app = reasoning_engines.AdkApp(agent=_TEST_AGENT)
+        app._tmpl_attrs["project"] = _TEST_PROJECT
+        # Discard the lookup that vertexai.init() made in setup_method.
+        get_project_id_mock.reset_mock()
+
+        assert app.project_id() == _TEST_PROJECT
+        get_project_id_mock.assert_not_called()
+
+    def test_project_id_resolves_project_number(
+        self,
+        get_project_id_mock: mock.Mock,
+    ):
+        """Project numbers are resolved to project IDs via GetProject."""
+        app = reasoning_engines.AdkApp(agent=_TEST_AGENT)
+        app._tmpl_attrs["project"] = _TEST_PROJECT_NUMBER
+        # Discard the lookup that vertexai.init() made in setup_method.
+        get_project_id_mock.reset_mock()
+
+        assert app.project_id() == _TEST_PROJECT_ID
+        get_project_id_mock.assert_called_once_with(_TEST_PROJECT_NUMBER)
+
+    def test_project_id_without_project(
+        self,
+        get_project_id_mock: mock.Mock,
+    ):
+        app = reasoning_engines.AdkApp(agent=_TEST_AGENT)
+        app._tmpl_attrs["project"] = None
+        # Discard the lookup that vertexai.init() made in setup_method.
+        get_project_id_mock.reset_mock()
+
+        assert app.project_id() is None
+        get_project_id_mock.assert_not_called()
 
     @mock.patch.dict(os.environ)
     def test_span_content_capture_disabled_by_default(self):

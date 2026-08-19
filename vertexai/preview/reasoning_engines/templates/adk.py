@@ -1765,7 +1765,8 @@ class AdkApp:
             _warn(_TELEMETRY_API_DISABLED_WARNING % (project, project))
 
     def project_id(self) -> Optional[str]:
-        if project := self._tmpl_attrs.get("project"):
+        project = self._tmpl_attrs.get("project")
+        if project and str(project).isdigit():
             try:
                 from google.cloud.aiplatform.utils import (
                     resource_manager_utils,
@@ -1777,4 +1778,4 @@ class AdkApp:
             except (exceptions.PermissionDenied, exceptions.Unauthenticated):
                 return project
 
-        return None
+        return project or None

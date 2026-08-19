@@ -60,6 +60,7 @@ except ImportError:
 _TEST_LOCATION = "us-central1"
 _TEST_PROJECT = "test-project"
 _TEST_PROJECT_ID = "test-project-id"
+_TEST_PROJECT_NUMBER = "123456789"
 _TEST_API_KEY = "test-api-key"
 _TEST_MODEL = "gemini-2.0-flash"
 _TEST_USER_ID = "test_user_id"
@@ -1251,7 +1252,7 @@ class TestAdkApp:
 
         # Assert
         default_instrumentor_builder_mock.assert_called_once_with(
-            _TEST_PROJECT_ID,
+            _TEST_PROJECT,
             enable_tracing=want_tracing_setup,
             enable_logging=want_logging_setup,
         )
@@ -1314,7 +1315,7 @@ class TestAdkApp:
 
         # Assert
         if want_custom_instrumentor_called:
-            custom_instrumentor.assert_called_once_with(_TEST_PROJECT_ID)
+            custom_instrumentor.assert_called_once_with(_TEST_PROJECT)
         else:
             custom_instrumentor.assert_not_called()
 
@@ -1347,7 +1348,7 @@ class TestAdkApp:
             headers=mock.ANY,
         )
 
-        get_project_id_mock.assert_called_with(_TEST_PROJECT)
+        get_project_id_mock.assert_not_called()
 
         user_agent = otlp_span_exporter_mock.call_args.kwargs["headers"]["User-Agent"]
         assert (
@@ -1357,6 +1358,38 @@ class TestAdkApp:
             )
             is not None
         )
+
+    def test_project_id_skips_lookup_for_project_id(
+        self,
+        get_project_id_mock: mock.Mock,
+    ):
+        """Project IDs are returned as-is without a GetProject call."""
+        app = adk_template.AdkApp(agent=_TEST_AGENT)
+        app._tmpl_attrs["project"] = _TEST_PROJECT
+
+        assert app.project_id() == _TEST_PROJECT
+        get_project_id_mock.assert_not_called()
+
+    def test_project_id_resolves_project_number(
+        self,
+        get_project_id_mock: mock.Mock,
+    ):
+        """Project numbers are resolved to project IDs via GetProject."""
+        app = adk_template.AdkApp(agent=_TEST_AGENT)
+        app._tmpl_attrs["project"] = _TEST_PROJECT_NUMBER
+
+        assert app.project_id() == _TEST_PROJECT_ID
+        get_project_id_mock.assert_called_once_with(_TEST_PROJECT_NUMBER)
+
+    def test_project_id_without_project(
+        self,
+        get_project_id_mock: mock.Mock,
+    ):
+        app = adk_template.AdkApp(agent=_TEST_AGENT)
+        app._tmpl_attrs["project"] = None
+
+        assert app.project_id() is None
+        get_project_id_mock.assert_not_called()
 
     @pytest.mark.usefixtures("caplog")
     def test_enable_tracing(
