@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.165.1](https://github.com/googleapis/python-aiplatform/compare/v1.165.0...v1.165.1) (2026-08-19)
+
+
+### Bug Fixes
+
+* Truncate default pipeline and staging bucket names to 63 chars ([03edd90](https://github.com/googleapis/python-aiplatform/commit/03edd9086df178070adf458d223119ce69b80d48))
+
 ## [1.165.0](https://github.com/googleapis/python-aiplatform/compare/v1.164.0...v1.165.0) (2026-08-18)
 
 
