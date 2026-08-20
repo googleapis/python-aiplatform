@@ -50,6 +50,9 @@ if TYPE_CHECKING:
     from agentplatform._genai import (
         endpoints as endpoints_module,
     )
+    from agentplatform._genai import (
+        example_stores as example_stores_module,
+    )
 
 _GENAI_MODULES_TELEMETRY_HEADER = "vertex-genai-modules"
 
@@ -96,6 +99,7 @@ class AsyncClient:
         self._model_garden: Optional[ModuleType] = None
         self._feedback_entries: Optional[ModuleType] = None
         self._endpoints: Optional[ModuleType] = None
+        self._example_stores: Optional[ModuleType] = None
 
     @property
     @_common.experimental_warning(
@@ -194,6 +198,15 @@ class AsyncClient:
                 __package__,
             )
         return self._endpoints.AsyncEndpoints(self._api_client)  # type: ignore[no-any-return]
+
+    @property
+    def example_stores(self) -> "example_stores_module.AsyncExampleStores":
+        if self._example_stores is None:
+            self._example_stores = importlib.import_module(
+                ".example_stores",
+                __package__,
+            )
+        return self._example_stores.AsyncExampleStores(self._api_client)  # type: ignore[no-any-return]
 
     @property
     @_common.experimental_warning(
@@ -328,6 +341,7 @@ class Client:
         self._model_garden: Optional[ModuleType] = None
         self._feedback_entries: Optional[ModuleType] = None
         self._endpoints: Optional[ModuleType] = None
+        self._example_stores: Optional[ModuleType] = None
 
     @property
     def evals(self) -> "evals_module.Evals":
@@ -451,6 +465,15 @@ class Client:
                 __package__,
             )
         return self._endpoints.Endpoints(self._api_client)  # type: ignore[no-any-return]
+
+    @property
+    def example_stores(self) -> "example_stores_module.ExampleStores":
+        if self._example_stores is None:
+            self._example_stores = importlib.import_module(
+                ".example_stores",
+                __package__,
+            )
+        return self._example_stores.ExampleStores(self._api_client)  # type: ignore[no-any-return]
 
     @property
     @_common.experimental_warning(

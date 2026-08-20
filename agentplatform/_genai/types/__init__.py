@@ -41,6 +41,7 @@ from .common import _CreateEvaluationItemParameters
 from .common import _CreateEvaluationMetricParameters
 from .common import _CreateEvaluationRunParameters
 from .common import _CreateEvaluationSetParameters
+from .common import _CreateExampleStoreParameters
 from .common import _CreateMultimodalDatasetParameters
 from .common import _CreateRagCorpusRequestParameters
 from .common import _CreateRuntimeFeedbackEntryRequestParameters
@@ -60,6 +61,7 @@ from .common import _DeleteEndpointRequestParameters
 from .common import _DeleteEvaluationExperimentParameters
 from .common import _DeleteEvaluationMetricParameters
 from .common import _DeleteEvaluationSetParameters
+from .common import _DeleteExampleStoreRequestParameters
 from .common import _DeleteMultimodalDatasetRequestParameters
 from .common import _DeletePromptVersionRequestParameters
 from .common import _DeleteRagCorpusRequestParameters
@@ -72,6 +74,7 @@ from .common import _DeployRequestParameters
 from .common import _EvaluateInstancesRequestParameters
 from .common import _ExecuteCodeAgentEngineSandboxRequestParameters
 from .common import _ExportPublisherModelRequestParameters
+from .common import _FetchExamplesParameters
 from .common import _GenerateAgentEngineMemoriesRequestParameters
 from .common import _GenerateInstanceRubricsRequest
 from .common import _GenerateLossClustersParameters
@@ -104,6 +107,8 @@ from .common import _GetEvaluationItemParameters
 from .common import _GetEvaluationMetricParameters
 from .common import _GetEvaluationRunParameters
 from .common import _GetEvaluationSetParameters
+from .common import _GetExampleStoreOperationParameters
+from .common import _GetExampleStoreParameters
 from .common import _GetExportPublisherModelOperationParameters
 from .common import _GetImportFilesOperationParameters
 from .common import _GetMultimodalDatasetOperationParameters
@@ -157,6 +162,7 @@ from .common import _PurgeAgentEngineMemoriesRequestParameters
 from .common import _QueryAgentEngineRequestParameters
 from .common import _QueryAgentEngineRuntimeRevisionRequestParameters
 from .common import _RecommendSpecRequestParameters
+from .common import _RemoveExamplesParameters
 from .common import _RestoreVersionRequestParameters
 from .common import _RetrieveAgentEngineMemoriesRequestParameters
 from .common import _RetrieveMemoryProfilesRequestParameters
@@ -167,6 +173,7 @@ from .common import _RunQueryJobAgentEngineConfig
 from .common import _RunQueryJobAgentEngineConfigDict
 from .common import _RunQueryJobAgentEngineConfigOrDict
 from .common import _RunQueryJobAgentEngineRequestParameters
+from .common import _SearchExamplesParameters
 from .common import _UndeployModelRequestParameters
 from .common import _UpdateAgentEngineMemoryRequestParameters
 from .common import _UpdateAgentEngineRequestParameters
@@ -180,6 +187,7 @@ from .common import _UpdateRuntimeFeedbackContextRequestParameters
 from .common import _UpdateRuntimeFeedbackEntryRequestParameters
 from .common import _UpdateSkillRequestParameters
 from .common import _UploadRagFileParameters
+from .common import _UpsertExamplesParameters
 from .common import A2aPart
 from .common import A2aPartDict
 from .common import A2aPartOrDict
@@ -255,6 +263,7 @@ from .common import AppendAgentEngineTaskEventConfigOrDict
 from .common import AppendAgentEngineTaskEventResponse
 from .common import AppendAgentEngineTaskEventResponseDict
 from .common import AppendAgentEngineTaskEventResponseOrDict
+from .common import ArrayOperator
 from .common import AskContextsConfig
 from .common import AskContextsConfigDict
 from .common import AskContextsConfigOrDict
@@ -273,6 +282,12 @@ from .common import AssessDatasetConfigOrDict
 from .common import AttackCategoryResult
 from .common import AttackCategoryResultDict
 from .common import AttackCategoryResultOrDict
+from .common import AudioTranscription
+from .common import AudioTranscriptionDict
+from .common import AudioTranscriptionOrDict
+from .common import AudioTranscriptionWordInfo
+from .common import AudioTranscriptionWordInfoDict
+from .common import AudioTranscriptionWordInfoOrDict
 from .common import AutomaticResources
 from .common import AutomaticResourcesDict
 from .common import AutomaticResourcesOrDict
@@ -349,6 +364,12 @@ from .common import ContentMapContentsDict
 from .common import ContentMapContentsOrDict
 from .common import ContentMapDict
 from .common import ContentMapOrDict
+from .common import ContentsExample
+from .common import ContentsExampleDict
+from .common import ContentsExampleExpectedContent
+from .common import ContentsExampleExpectedContentDict
+from .common import ContentsExampleExpectedContentOrDict
+from .common import ContentsExampleOrDict
 from .common import CorpusOperation
 from .common import CorpusOperationDict
 from .common import CorpusOperationOrDict
@@ -391,6 +412,9 @@ from .common import CreateEvaluationRunConfigOrDict
 from .common import CreateEvaluationSetConfig
 from .common import CreateEvaluationSetConfigDict
 from .common import CreateEvaluationSetConfigOrDict
+from .common import CreateExampleStoreConfig
+from .common import CreateExampleStoreConfigDict
+from .common import CreateExampleStoreConfigOrDict
 from .common import CreateMultimodalDatasetConfig
 from .common import CreateMultimodalDatasetConfigDict
 from .common import CreateMultimodalDatasetConfigOrDict
@@ -498,6 +522,12 @@ from .common import DeleteEvaluationSetConfigOrDict
 from .common import DeleteEvaluationSetOperation
 from .common import DeleteEvaluationSetOperationDict
 from .common import DeleteEvaluationSetOperationOrDict
+from .common import DeleteExampleStoreConfig
+from .common import DeleteExampleStoreConfigDict
+from .common import DeleteExampleStoreConfigOrDict
+from .common import DeleteExampleStoreOperation
+from .common import DeleteExampleStoreOperationDict
+from .common import DeleteExampleStoreOperationOrDict
 from .common import DeletePromptConfig
 from .common import DeletePromptConfigDict
 from .common import DeletePromptConfigOrDict
@@ -715,12 +745,27 @@ from .common import ExactMatchResultsOrDict
 from .common import ExactMatchSpec
 from .common import ExactMatchSpecDict
 from .common import ExactMatchSpecOrDict
+from .common import Example
+from .common import ExampleDict
+from .common import ExampleOrDict
 from .common import Examples
+from .common import ExamplesArrayFilter
+from .common import ExamplesArrayFilterDict
+from .common import ExamplesArrayFilterOrDict
 from .common import ExamplesDict
 from .common import ExamplesExampleGcsSource
 from .common import ExamplesExampleGcsSourceDict
 from .common import ExamplesExampleGcsSourceOrDict
 from .common import ExamplesOrDict
+from .common import ExampleStore
+from .common import ExampleStoreConfig
+from .common import ExampleStoreConfigDict
+from .common import ExampleStoreConfigOrDict
+from .common import ExampleStoreDict
+from .common import ExampleStoreOperation
+from .common import ExampleStoreOperationDict
+from .common import ExampleStoreOperationOrDict
+from .common import ExampleStoreOrDict
 from .common import ExecuteCodeAgentEngineSandboxConfig
 from .common import ExecuteCodeAgentEngineSandboxConfigDict
 from .common import ExecuteCodeAgentEngineSandboxConfigOrDict
@@ -779,6 +824,12 @@ from .common import FeedbackEntry
 from .common import FeedbackEntryDict
 from .common import FeedbackEntryOrDict
 from .common import FeedbackType
+from .common import FetchExamplesConfig
+from .common import FetchExamplesConfigDict
+from .common import FetchExamplesConfigOrDict
+from .common import FetchExamplesResponse
+from .common import FetchExamplesResponseDict
+from .common import FetchExamplesResponseOrDict
 from .common import FlexStart
 from .common import FlexStartDict
 from .common import FlexStartOrDict
@@ -786,6 +837,7 @@ from .common import Framework
 from .common import FullFineTunedResources
 from .common import FullFineTunedResourcesDict
 from .common import FullFineTunedResourcesOrDict
+from .common import FunctionResponseScheduling
 from .common import GdcConfig
 from .common import GdcConfigDict
 from .common import GdcConfigOrDict
@@ -907,6 +959,12 @@ from .common import GetEvaluationRunConfigOrDict
 from .common import GetEvaluationSetConfig
 from .common import GetEvaluationSetConfigDict
 from .common import GetEvaluationSetConfigOrDict
+from .common import GetExampleStoreConfig
+from .common import GetExampleStoreConfigDict
+from .common import GetExampleStoreConfigOrDict
+from .common import GetExampleStoreOperationConfig
+from .common import GetExampleStoreOperationConfigDict
+from .common import GetExampleStoreOperationConfigOrDict
 from .common import GetExportPublisherModelOperationConfig
 from .common import GetExportPublisherModelOperationConfigDict
 from .common import GetExportPublisherModelOperationConfigOrDict
@@ -1207,6 +1265,7 @@ from .common import ManagedTopicEnum
 from .common import MapInstance
 from .common import MapInstanceDict
 from .common import MapInstanceOrDict
+from .common import MediaResolution
 from .common import Memory
 from .common import MemoryBankCustomizationConfig
 from .common import MemoryBankCustomizationConfigConsolidationConfig
@@ -1336,6 +1395,7 @@ from .common import OptimizeResponseEndpointDict
 from .common import OptimizeResponseEndpointOrDict
 from .common import OptimizeResponseOrDict
 from .common import OptimizeTarget
+from .common import Outcome
 from .common import OverlayType
 from .common import PairwiseMetricInput
 from .common import PairwiseMetricInputDict
@@ -1733,6 +1793,12 @@ from .common import RedTeamingAnalysisConfigOrDict
 from .common import RedTeamingAnalysisResult
 from .common import RedTeamingAnalysisResultDict
 from .common import RedTeamingAnalysisResultOrDict
+from .common import RemoveExamplesConfig
+from .common import RemoveExamplesConfigDict
+from .common import RemoveExamplesConfigOrDict
+from .common import RemoveExamplesResponse
+from .common import RemoveExamplesResponseDict
+from .common import RemoveExamplesResponseOrDict
 from .common import ReservationAffinity
 from .common import ReservationAffinityDict
 from .common import ReservationAffinityOrDict
@@ -1973,6 +2039,15 @@ from .common import SchemaTablesDatasetMetadataOrDict
 from .common import SchemaTextPromptDatasetMetadata
 from .common import SchemaTextPromptDatasetMetadataDict
 from .common import SchemaTextPromptDatasetMetadataOrDict
+from .common import SearchExamplesConfig
+from .common import SearchExamplesConfigDict
+from .common import SearchExamplesConfigOrDict
+from .common import SearchExamplesResponse
+from .common import SearchExamplesResponseDict
+from .common import SearchExamplesResponseOrDict
+from .common import SearchExamplesResponseSimilarExample
+from .common import SearchExamplesResponseSimilarExampleDict
+from .common import SearchExamplesResponseSimilarExampleOrDict
 from .common import SecretEnvVar
 from .common import SecretEnvVarDict
 from .common import SecretEnvVarOrDict
@@ -2025,6 +2100,24 @@ from .common import SpeculativeDecodingSpecNgramSpeculationDict
 from .common import SpeculativeDecodingSpecNgramSpeculationOrDict
 from .common import SpeculativeDecodingSpecOrDict
 from .common import State
+from .common import StoredContentsExample
+from .common import StoredContentsExampleDict
+from .common import StoredContentsExampleFilter
+from .common import StoredContentsExampleFilterDict
+from .common import StoredContentsExampleFilterOrDict
+from .common import StoredContentsExampleOrDict
+from .common import StoredContentsExampleParameters
+from .common import StoredContentsExampleParametersContentSearchKey
+from .common import StoredContentsExampleParametersContentSearchKeyDict
+from .common import StoredContentsExampleParametersContentSearchKeyOrDict
+from .common import StoredContentsExampleParametersDict
+from .common import StoredContentsExampleParametersOrDict
+from .common import StoredContentsExampleSearchKeyGenerationMethod
+from .common import StoredContentsExampleSearchKeyGenerationMethodDict
+from .common import StoredContentsExampleSearchKeyGenerationMethodLastEntry
+from .common import StoredContentsExampleSearchKeyGenerationMethodLastEntryDict
+from .common import StoredContentsExampleSearchKeyGenerationMethodLastEntryOrDict
+from .common import StoredContentsExampleSearchKeyGenerationMethodOrDict
 from .common import Strategy
 from .common import StructuredMemoryConfig
 from .common import StructuredMemoryConfigDict
@@ -2195,6 +2288,15 @@ from .common import UploadRagFileRequestConfigOrDict
 from .common import UploadRagFileResponse
 from .common import UploadRagFileResponseDict
 from .common import UploadRagFileResponseOrDict
+from .common import UpsertExamplesConfig
+from .common import UpsertExamplesConfigDict
+from .common import UpsertExamplesConfigOrDict
+from .common import UpsertExamplesResponse
+from .common import UpsertExamplesResponseDict
+from .common import UpsertExamplesResponseOrDict
+from .common import UpsertExamplesResponseUpsertResult
+from .common import UpsertExamplesResponseUpsertResultDict
+from .common import UpsertExamplesResponseUpsertResultOrDict
 from .common import VersionState
 from .common import VertexAiSearchConfig
 from .common import VertexAiSearchConfigDict
@@ -4043,6 +4145,96 @@ __all__ = [
     "EndpointOperation",
     "EndpointOperationDict",
     "EndpointOperationOrDict",
+    "CreateExampleStoreConfig",
+    "CreateExampleStoreConfigDict",
+    "CreateExampleStoreConfigOrDict",
+    "ExampleStoreConfig",
+    "ExampleStoreConfigDict",
+    "ExampleStoreConfigOrDict",
+    "ExampleStore",
+    "ExampleStoreDict",
+    "ExampleStoreOrDict",
+    "ExampleStoreOperation",
+    "ExampleStoreOperationDict",
+    "ExampleStoreOperationOrDict",
+    "GetExampleStoreConfig",
+    "GetExampleStoreConfigDict",
+    "GetExampleStoreConfigOrDict",
+    "DeleteExampleStoreConfig",
+    "DeleteExampleStoreConfigDict",
+    "DeleteExampleStoreConfigOrDict",
+    "DeleteExampleStoreOperation",
+    "DeleteExampleStoreOperationDict",
+    "DeleteExampleStoreOperationOrDict",
+    "UpsertExamplesConfig",
+    "UpsertExamplesConfigDict",
+    "UpsertExamplesConfigOrDict",
+    "AudioTranscriptionWordInfo",
+    "AudioTranscriptionWordInfoDict",
+    "AudioTranscriptionWordInfoOrDict",
+    "AudioTranscription",
+    "AudioTranscriptionDict",
+    "AudioTranscriptionOrDict",
+    "ContentsExampleExpectedContent",
+    "ContentsExampleExpectedContentDict",
+    "ContentsExampleExpectedContentOrDict",
+    "ContentsExample",
+    "ContentsExampleDict",
+    "ContentsExampleOrDict",
+    "StoredContentsExampleSearchKeyGenerationMethodLastEntry",
+    "StoredContentsExampleSearchKeyGenerationMethodLastEntryDict",
+    "StoredContentsExampleSearchKeyGenerationMethodLastEntryOrDict",
+    "StoredContentsExampleSearchKeyGenerationMethod",
+    "StoredContentsExampleSearchKeyGenerationMethodDict",
+    "StoredContentsExampleSearchKeyGenerationMethodOrDict",
+    "StoredContentsExample",
+    "StoredContentsExampleDict",
+    "StoredContentsExampleOrDict",
+    "Example",
+    "ExampleDict",
+    "ExampleOrDict",
+    "UpsertExamplesResponseUpsertResult",
+    "UpsertExamplesResponseUpsertResultDict",
+    "UpsertExamplesResponseUpsertResultOrDict",
+    "UpsertExamplesResponse",
+    "UpsertExamplesResponseDict",
+    "UpsertExamplesResponseOrDict",
+    "SearchExamplesConfig",
+    "SearchExamplesConfigDict",
+    "SearchExamplesConfigOrDict",
+    "StoredContentsExampleParametersContentSearchKey",
+    "StoredContentsExampleParametersContentSearchKeyDict",
+    "StoredContentsExampleParametersContentSearchKeyOrDict",
+    "ExamplesArrayFilter",
+    "ExamplesArrayFilterDict",
+    "ExamplesArrayFilterOrDict",
+    "StoredContentsExampleParameters",
+    "StoredContentsExampleParametersDict",
+    "StoredContentsExampleParametersOrDict",
+    "SearchExamplesResponseSimilarExample",
+    "SearchExamplesResponseSimilarExampleDict",
+    "SearchExamplesResponseSimilarExampleOrDict",
+    "SearchExamplesResponse",
+    "SearchExamplesResponseDict",
+    "SearchExamplesResponseOrDict",
+    "StoredContentsExampleFilter",
+    "StoredContentsExampleFilterDict",
+    "StoredContentsExampleFilterOrDict",
+    "FetchExamplesConfig",
+    "FetchExamplesConfigDict",
+    "FetchExamplesConfigOrDict",
+    "FetchExamplesResponse",
+    "FetchExamplesResponseDict",
+    "FetchExamplesResponseOrDict",
+    "RemoveExamplesConfig",
+    "RemoveExamplesConfigDict",
+    "RemoveExamplesConfigOrDict",
+    "RemoveExamplesResponse",
+    "RemoveExamplesResponseDict",
+    "RemoveExamplesResponseOrDict",
+    "GetExampleStoreOperationConfig",
+    "GetExampleStoreOperationConfigDict",
+    "GetExampleStoreOperationConfigOrDict",
     "PromptOptimizerConfig",
     "PromptOptimizerConfigDict",
     "PromptOptimizerConfigOrDict",
@@ -4185,6 +4377,10 @@ __all__ = [
     "Modality",
     "DeploymentType",
     "ModelProvider",
+    "Outcome",
+    "FunctionResponseScheduling",
+    "MediaResolution",
+    "ArrayOperator",
     "EvaluationExperimentMergeStrategy",
     "EvaluationItemType",
     "SamplingMethod",
@@ -4374,6 +4570,14 @@ __all__ = [
     "_DeleteEndpointRequestParameters",
     "_GetEndpointParameters",
     "_GetEndpointOperationParameters",
+    "_CreateExampleStoreParameters",
+    "_GetExampleStoreParameters",
+    "_DeleteExampleStoreRequestParameters",
+    "_UpsertExamplesParameters",
+    "_SearchExamplesParameters",
+    "_FetchExamplesParameters",
+    "_RemoveExamplesParameters",
+    "_GetExampleStoreOperationParameters",
     "evals",
     "agent_engines",
     "prompts",

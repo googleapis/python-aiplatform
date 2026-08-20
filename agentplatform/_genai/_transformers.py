@@ -601,3 +601,28 @@ def t_strict_endpoint(endpoint: str) -> str:
         f"Invalid endpoint format: {endpoint}. Must be in the format of"
         " projects/.../locations/.../endpoints/... or endpoints/..."
     )
+
+
+_EXAMPLE_STORE_RES_NAME_RES = (
+    re.compile(r"^projects/[^/]+/locations/[^/]+/exampleStores/[^/]+$"),
+    re.compile(r"^exampleStores/[^/]+$"),
+)
+
+
+def is_example_store_resource_name(name: str) -> bool:
+    """Returns whether the name addresses an ExampleStore resource."""
+    return any(pattern.match(name) for pattern in _EXAMPLE_STORE_RES_NAME_RES)
+
+
+def t_example_store(example_store: str) -> str:
+    """Validates a name that must address an ExampleStore resource."""
+    if not example_store:
+        raise ValueError("example_store is required.")
+
+    if is_example_store_resource_name(example_store):
+        return example_store
+
+    raise ValueError(
+        f"Invalid example store format: {example_store}. Must be in the format"
+        " of projects/.../locations/.../exampleStores/... or exampleStores/..."
+    )

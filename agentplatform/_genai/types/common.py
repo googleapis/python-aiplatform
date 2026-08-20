@@ -630,6 +630,58 @@ class ModelProvider(_common.CaseInSensitiveEnum):
     """Anthropic."""
 
 
+class Outcome(_common.CaseInSensitiveEnum):
+    """Outcome of the code execution."""
+
+    OUTCOME_UNSPECIFIED = "OUTCOME_UNSPECIFIED"
+    """Unspecified status. This value should not be used."""
+    OUTCOME_OK = "OUTCOME_OK"
+    """Code execution completed successfully. `output` contains the stdout, if any."""
+    OUTCOME_FAILED = "OUTCOME_FAILED"
+    """Code execution failed. `output` contains the stderr and stdout, if any."""
+    OUTCOME_DEADLINE_EXCEEDED = "OUTCOME_DEADLINE_EXCEEDED"
+    """Code execution ran for too long, and was cancelled. There may or may not be a partial `output` present."""
+
+
+class FunctionResponseScheduling(_common.CaseInSensitiveEnum):
+    """Specifies how the response should be scheduled in the conversation. Only applicable to NON_BLOCKING function calls, is ignored otherwise. Defaults to WHEN_IDLE."""
+
+    SCHEDULING_UNSPECIFIED = "SCHEDULING_UNSPECIFIED"
+    """This value is unused."""
+    SILENT = "SILENT"
+    """Only add the result to the conversation context, do not interrupt or trigger generation."""
+    WHEN_IDLE = "WHEN_IDLE"
+    """Add the result to the conversation context, and prompt to generate output without interrupting ongoing generation."""
+    INTERRUPT = "INTERRUPT"
+    """Add the result to the conversation context, interrupt ongoing generation and prompt to generate output."""
+
+
+class MediaResolution(_common.CaseInSensitiveEnum):
+    """The tokenization quality used for given media."""
+
+    MEDIA_RESOLUTION_UNSPECIFIED = "MEDIA_RESOLUTION_UNSPECIFIED"
+    """Media resolution has not been set."""
+    MEDIA_RESOLUTION_LOW = "MEDIA_RESOLUTION_LOW"
+    """Media resolution set to low."""
+    MEDIA_RESOLUTION_MEDIUM = "MEDIA_RESOLUTION_MEDIUM"
+    """Media resolution set to medium."""
+    MEDIA_RESOLUTION_HIGH = "MEDIA_RESOLUTION_HIGH"
+    """Media resolution set to high."""
+    MEDIA_RESOLUTION_ULTRA_HIGH = "MEDIA_RESOLUTION_ULTRA_HIGH"
+    """Media resolution set to ultra high. This is for image only."""
+
+
+class ArrayOperator(_common.CaseInSensitiveEnum):
+    """The operator logic to use for filtering."""
+
+    ARRAY_OPERATOR_UNSPECIFIED = "ARRAY_OPERATOR_UNSPECIFIED"
+    """Not specified. This value should not be used."""
+    CONTAINS_ANY = "CONTAINS_ANY"
+    """The metadata array field in the example must contain at least one of the values."""
+    CONTAINS_ALL = "CONTAINS_ALL"
+    """The metadata array field in the example must contain all of the values."""
+
+
 class EvaluationExperimentMergeStrategy(_common.CaseInSensitiveEnum):
     """Merge strategy for the evaluation experiment."""
 
@@ -28700,6 +28752,1123 @@ class EndpointOperationDict(TypedDict, total=False):
 
 
 EndpointOperationOrDict = Union[EndpointOperation, EndpointOperationDict]
+
+
+class CreateExampleStoreConfig(_common.BaseModel):
+    """Config for creating an Example Store."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    wait_for_completion: Optional[bool] = Field(
+        default=True,
+        description="""Whether to wait for the long running operation to complete.""",
+    )
+    description: Optional[str] = Field(
+        default=None, description="""Optional. The description of the Example Store."""
+    )
+    vertex_embedding_model: Optional[str] = Field(
+        default=None,
+        description="""Optional. The embedding model used to generate the search key for
+      stored examples.
+      """,
+    )
+
+
+class CreateExampleStoreConfigDict(TypedDict, total=False):
+    """Config for creating an Example Store."""
+
+    http_options: Optional[genai_types.HttpOptions]
+    """Used to override HTTP request options."""
+
+    wait_for_completion: Optional[bool]
+    """Whether to wait for the long running operation to complete."""
+
+    description: Optional[str]
+    """Optional. The description of the Example Store."""
+
+    vertex_embedding_model: Optional[str]
+    """Optional. The embedding model used to generate the search key for
+      stored examples.
+      """
+
+
+CreateExampleStoreConfigOrDict = Union[
+    CreateExampleStoreConfig, CreateExampleStoreConfigDict
+]
+
+
+class _CreateExampleStoreParameters(_common.BaseModel):
+    """Parameters for creating an Example Store."""
+
+    display_name: Optional[str] = Field(
+        default=None, description="""Required. The display name of the Example Store."""
+    )
+    config: Optional[CreateExampleStoreConfig] = Field(
+        default=None, description="""Used to override the default configuration."""
+    )
+
+
+class _CreateExampleStoreParametersDict(TypedDict, total=False):
+    """Parameters for creating an Example Store."""
+
+    display_name: Optional[str]
+    """Required. The display name of the Example Store."""
+
+    config: Optional[CreateExampleStoreConfigDict]
+    """Used to override the default configuration."""
+
+
+_CreateExampleStoreParametersOrDict = Union[
+    _CreateExampleStoreParameters, _CreateExampleStoreParametersDict
+]
+
+
+class ExampleStoreConfig(_common.BaseModel):
+    """Configuration for the Example Store."""
+
+    vertex_embedding_model: Optional[str] = Field(
+        default=None,
+        description="""Required. The embedding model to be used for vector embedding. Immutable. Supported models: * "text-embedding-005" * "text-multilingual-embedding-002".""",
+    )
+
+
+class ExampleStoreConfigDict(TypedDict, total=False):
+    """Configuration for the Example Store."""
+
+    vertex_embedding_model: Optional[str]
+    """Required. The embedding model to be used for vector embedding. Immutable. Supported models: * "text-embedding-005" * "text-multilingual-embedding-002"."""
+
+
+ExampleStoreConfigOrDict = Union[ExampleStoreConfig, ExampleStoreConfigDict]
+
+
+class ExampleStore(_common.BaseModel):
+    """A storage bucket for few-shot examples used to steer a model."""
+
+    create_time: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Output only. Timestamp when this ExampleStore was created.""",
+    )
+    description: Optional[str] = Field(
+        default=None, description="""Optional. Description of the ExampleStore."""
+    )
+    display_name: Optional[str] = Field(
+        default=None, description="""Required. Display name of the ExampleStore."""
+    )
+    example_store_config: Optional[ExampleStoreConfig] = Field(
+        default=None, description="""Required. Example Store config."""
+    )
+    name: Optional[str] = Field(
+        default=None,
+        description="""Identifier. The resource name of the ExampleStore. This is a unique identifier. Format: projects/{project}/locations/{location}/exampleStores/{example_store}""",
+    )
+    update_time: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Output only. Timestamp when this ExampleStore was most recently updated.""",
+    )
+
+
+class ExampleStoreDict(TypedDict, total=False):
+    """A storage bucket for few-shot examples used to steer a model."""
+
+    create_time: Optional[datetime.datetime]
+    """Output only. Timestamp when this ExampleStore was created."""
+
+    description: Optional[str]
+    """Optional. Description of the ExampleStore."""
+
+    display_name: Optional[str]
+    """Required. Display name of the ExampleStore."""
+
+    example_store_config: Optional[ExampleStoreConfigDict]
+    """Required. Example Store config."""
+
+    name: Optional[str]
+    """Identifier. The resource name of the ExampleStore. This is a unique identifier. Format: projects/{project}/locations/{location}/exampleStores/{example_store}"""
+
+    update_time: Optional[datetime.datetime]
+    """Output only. Timestamp when this ExampleStore was most recently updated."""
+
+
+ExampleStoreOrDict = Union[ExampleStore, ExampleStoreDict]
+
+
+class ExampleStoreOperation(_common.BaseModel):
+    """Operation that has an Example Store as a response."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`.""",
+    )
+    metadata: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any.""",
+    )
+    done: Optional[bool] = Field(
+        default=None,
+        description="""If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available.""",
+    )
+    error: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""The error result of the operation in case of failure or cancellation.""",
+    )
+    response: Optional[ExampleStore] = Field(
+        default=None, description="""The created Example Store."""
+    )
+
+
+class ExampleStoreOperationDict(TypedDict, total=False):
+    """Operation that has an Example Store as a response."""
+
+    name: Optional[str]
+    """The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`."""
+
+    metadata: Optional[dict[str, Any]]
+    """Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any."""
+
+    done: Optional[bool]
+    """If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available."""
+
+    error: Optional[dict[str, Any]]
+    """The error result of the operation in case of failure or cancellation."""
+
+    response: Optional[ExampleStoreDict]
+    """The created Example Store."""
+
+
+ExampleStoreOperationOrDict = Union[ExampleStoreOperation, ExampleStoreOperationDict]
+
+
+class GetExampleStoreConfig(_common.BaseModel):
+    """Optional parameters for example_stores.get method."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class GetExampleStoreConfigDict(TypedDict, total=False):
+    """Optional parameters for example_stores.get method."""
+
+    http_options: Optional[genai_types.HttpOptions]
+    """Used to override HTTP request options."""
+
+
+GetExampleStoreConfigOrDict = Union[GetExampleStoreConfig, GetExampleStoreConfigDict]
+
+
+class _GetExampleStoreParameters(_common.BaseModel):
+    """Parameters for retrieving an Example Store."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""Required. The resource name of the Example Store to get.""",
+    )
+    config: Optional[GetExampleStoreConfig] = Field(
+        default=None, description="""Optional parameters for the request."""
+    )
+
+
+class _GetExampleStoreParametersDict(TypedDict, total=False):
+    """Parameters for retrieving an Example Store."""
+
+    name: Optional[str]
+    """Required. The resource name of the Example Store to get."""
+
+    config: Optional[GetExampleStoreConfigDict]
+    """Optional parameters for the request."""
+
+
+_GetExampleStoreParametersOrDict = Union[
+    _GetExampleStoreParameters, _GetExampleStoreParametersDict
+]
+
+
+class DeleteExampleStoreConfig(_common.BaseModel):
+    """Config for deleting an Example Store."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    wait_for_completion: Optional[bool] = Field(
+        default=True,
+        description="""Whether to wait for the long running operation to complete.""",
+    )
+
+
+class DeleteExampleStoreConfigDict(TypedDict, total=False):
+    """Config for deleting an Example Store."""
+
+    http_options: Optional[genai_types.HttpOptions]
+    """Used to override HTTP request options."""
+
+    wait_for_completion: Optional[bool]
+    """Whether to wait for the long running operation to complete."""
+
+
+DeleteExampleStoreConfigOrDict = Union[
+    DeleteExampleStoreConfig, DeleteExampleStoreConfigDict
+]
+
+
+class _DeleteExampleStoreRequestParameters(_common.BaseModel):
+    """Parameters for deleting an Example Store."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""Required. The resource name of the Example Store to delete.""",
+    )
+    config: Optional[DeleteExampleStoreConfig] = Field(
+        default=None, description="""Used to override the default configuration."""
+    )
+
+
+class _DeleteExampleStoreRequestParametersDict(TypedDict, total=False):
+    """Parameters for deleting an Example Store."""
+
+    name: Optional[str]
+    """Required. The resource name of the Example Store to delete."""
+
+    config: Optional[DeleteExampleStoreConfigDict]
+    """Used to override the default configuration."""
+
+
+_DeleteExampleStoreRequestParametersOrDict = Union[
+    _DeleteExampleStoreRequestParameters, _DeleteExampleStoreRequestParametersDict
+]
+
+
+class DeleteExampleStoreOperation(_common.BaseModel):
+    """Operation for deleting an Example Store."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`.""",
+    )
+    metadata: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any.""",
+    )
+    done: Optional[bool] = Field(
+        default=None,
+        description="""If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available.""",
+    )
+    error: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""The error result of the operation in case of failure or cancellation.""",
+    )
+
+
+class DeleteExampleStoreOperationDict(TypedDict, total=False):
+    """Operation for deleting an Example Store."""
+
+    name: Optional[str]
+    """The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`."""
+
+    metadata: Optional[dict[str, Any]]
+    """Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any."""
+
+    done: Optional[bool]
+    """If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available."""
+
+    error: Optional[dict[str, Any]]
+    """The error result of the operation in case of failure or cancellation."""
+
+
+DeleteExampleStoreOperationOrDict = Union[
+    DeleteExampleStoreOperation, DeleteExampleStoreOperationDict
+]
+
+
+class UpsertExamplesConfig(_common.BaseModel):
+    """Config for upserting examples into an Example Store."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    overwrite: Optional[bool] = Field(
+        default=None,
+        description="""Optional. Whether to overwrite an example that already exists. If
+      false, the request fails when an example with the same id already exists.
+      """,
+    )
+
+
+class UpsertExamplesConfigDict(TypedDict, total=False):
+    """Config for upserting examples into an Example Store."""
+
+    http_options: Optional[genai_types.HttpOptions]
+    """Used to override HTTP request options."""
+
+    overwrite: Optional[bool]
+    """Optional. Whether to overwrite an example that already exists. If
+      false, the request fails when an example with the same id already exists.
+      """
+
+
+UpsertExamplesConfigOrDict = Union[UpsertExamplesConfig, UpsertExamplesConfigDict]
+
+
+class AudioTranscriptionWordInfo(_common.BaseModel):
+    """Information about a single recognized word."""
+
+    end_offset: Optional[str] = Field(
+        default=None,
+        description="""Optional. End offset in time of the word relative to the start of the audio.""",
+    )
+    start_offset: Optional[str] = Field(
+        default=None,
+        description="""Optional. Start offset in time of the word relative to the start of the audio.""",
+    )
+    word: Optional[str] = Field(
+        default=None, description="""Required. Transcript of the word."""
+    )
+
+
+class AudioTranscriptionWordInfoDict(TypedDict, total=False):
+    """Information about a single recognized word."""
+
+    end_offset: Optional[str]
+    """Optional. End offset in time of the word relative to the start of the audio."""
+
+    start_offset: Optional[str]
+    """Optional. Start offset in time of the word relative to the start of the audio."""
+
+    word: Optional[str]
+    """Required. Transcript of the word."""
+
+
+AudioTranscriptionWordInfoOrDict = Union[
+    AudioTranscriptionWordInfo, AudioTranscriptionWordInfoDict
+]
+
+
+class AudioTranscription(_common.BaseModel):
+    """The transcription of an audio part. For multi-speaker audio, each speaker segment is a separate Part with its own AudioTranscription carrying the speaker_label."""
+
+    speaker_label: Optional[str] = Field(
+        default=None,
+        description="""Optional. A label identifying the speaker of this audio segment (e.g. "spk_1", "spk_2"). Present when diarization is set.""",
+    )
+    text: Optional[str] = Field(
+        default=None,
+        description="""Required. The transcription text of this audio segment.""",
+    )
+    words: Optional[list[AudioTranscriptionWordInfo]] = Field(
+        default=None,
+        description="""Optional. Detailed word-level transcriptions and timing details. Present when word_timestamp is set.""",
+    )
+
+
+class AudioTranscriptionDict(TypedDict, total=False):
+    """The transcription of an audio part. For multi-speaker audio, each speaker segment is a separate Part with its own AudioTranscription carrying the speaker_label."""
+
+    speaker_label: Optional[str]
+    """Optional. A label identifying the speaker of this audio segment (e.g. "spk_1", "spk_2"). Present when diarization is set."""
+
+    text: Optional[str]
+    """Required. The transcription text of this audio segment."""
+
+    words: Optional[list[AudioTranscriptionWordInfoDict]]
+    """Optional. Detailed word-level transcriptions and timing details. Present when word_timestamp is set."""
+
+
+AudioTranscriptionOrDict = Union[AudioTranscription, AudioTranscriptionDict]
+
+
+class ContentsExampleExpectedContent(_common.BaseModel):
+    """A single step of the expected output."""
+
+    content: Optional[genai_types.Content] = Field(
+        default=None, description="""Required. A single step's content."""
+    )
+
+
+class ContentsExampleExpectedContentDict(TypedDict, total=False):
+    """A single step of the expected output."""
+
+    content: Optional[genai_types.ContentDict]
+    """Required. A single step's content."""
+
+
+ContentsExampleExpectedContentOrDict = Union[
+    ContentsExampleExpectedContent, ContentsExampleExpectedContentDict
+]
+
+
+class ContentsExample(_common.BaseModel):
+    """A single example of a conversation with the model."""
+
+    contents: Optional[list[genai_types.Content]] = Field(
+        default=None,
+        description="""Required. The content of the conversation with the model that resulted in the expected output.""",
+    )
+    expected_contents: Optional[list[ContentsExampleExpectedContent]] = Field(
+        default=None,
+        description="""Required. The expected output for the given `contents`. To represent multi-step reasoning, this is a repeated field that contains the iterative steps of the expected output.""",
+    )
+
+
+class ContentsExampleDict(TypedDict, total=False):
+    """A single example of a conversation with the model."""
+
+    contents: Optional[list[genai_types.ContentDict]]
+    """Required. The content of the conversation with the model that resulted in the expected output."""
+
+    expected_contents: Optional[list[ContentsExampleExpectedContentDict]]
+    """Required. The expected output for the given `contents`. To represent multi-step reasoning, this is a repeated field that contains the iterative steps of the expected output."""
+
+
+ContentsExampleOrDict = Union[ContentsExample, ContentsExampleDict]
+
+
+class StoredContentsExampleSearchKeyGenerationMethodLastEntry(_common.BaseModel):
+    """Configuration for using only the last entry of the conversation history as the search key."""
+
+    pass
+
+
+class StoredContentsExampleSearchKeyGenerationMethodLastEntryDict(
+    TypedDict, total=False
+):
+    """Configuration for using only the last entry of the conversation history as the search key."""
+
+    pass
+
+
+StoredContentsExampleSearchKeyGenerationMethodLastEntryOrDict = Union[
+    StoredContentsExampleSearchKeyGenerationMethodLastEntry,
+    StoredContentsExampleSearchKeyGenerationMethodLastEntryDict,
+]
+
+
+class StoredContentsExampleSearchKeyGenerationMethod(_common.BaseModel):
+    """Options for generating the search key from the conversation history."""
+
+    last_entry: Optional[StoredContentsExampleSearchKeyGenerationMethodLastEntry] = (
+        Field(
+            default=None,
+            description="""Use only the last entry of the conversation history (`contents_example.contents`) as the search key.""",
+        )
+    )
+
+
+class StoredContentsExampleSearchKeyGenerationMethodDict(TypedDict, total=False):
+    """Options for generating the search key from the conversation history."""
+
+    last_entry: Optional[StoredContentsExampleSearchKeyGenerationMethodLastEntryDict]
+    """Use only the last entry of the conversation history (`contents_example.contents`) as the search key."""
+
+
+StoredContentsExampleSearchKeyGenerationMethodOrDict = Union[
+    StoredContentsExampleSearchKeyGenerationMethod,
+    StoredContentsExampleSearchKeyGenerationMethodDict,
+]
+
+
+class StoredContentsExample(_common.BaseModel):
+    """A ContentsExample to be used with GenerateContent alongside information required for storage and retrieval with Example Store."""
+
+    contents_example: Optional[ContentsExample] = Field(
+        default=None,
+        description="""Required. The example to be used with GenerateContent.""",
+    )
+    search_key: Optional[str] = Field(
+        default=None,
+        description="""Optional. (Optional) the search key used for retrieval. If not provided at upload-time, the search key will be generated from `contents_example.contents` using the method provided by `search_key_generation_method`. The generated search key will be included in retrieved examples.""",
+    )
+    search_key_generation_method: Optional[
+        StoredContentsExampleSearchKeyGenerationMethod
+    ] = Field(
+        default=None,
+        description="""Optional. The method used to generate the search key from `contents_example.contents`. This is ignored when uploading an example if `search_key` is provided.""",
+    )
+
+
+class StoredContentsExampleDict(TypedDict, total=False):
+    """A ContentsExample to be used with GenerateContent alongside information required for storage and retrieval with Example Store."""
+
+    contents_example: Optional[ContentsExampleDict]
+    """Required. The example to be used with GenerateContent."""
+
+    search_key: Optional[str]
+    """Optional. (Optional) the search key used for retrieval. If not provided at upload-time, the search key will be generated from `contents_example.contents` using the method provided by `search_key_generation_method`. The generated search key will be included in retrieved examples."""
+
+    search_key_generation_method: Optional[
+        StoredContentsExampleSearchKeyGenerationMethodDict
+    ]
+    """Optional. The method used to generate the search key from `contents_example.contents`. This is ignored when uploading an example if `search_key` is provided."""
+
+
+StoredContentsExampleOrDict = Union[StoredContentsExample, StoredContentsExampleDict]
+
+
+class Example(_common.BaseModel):
+
+    create_time: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Output only. Timestamp when this Example was created.""",
+    )
+    display_name: Optional[str] = Field(
+        default=None, description="""Optional. The display name for Example."""
+    )
+    example_id: Optional[str] = Field(
+        default=None,
+        description="""Optional. Immutable. Unique identifier of an example. If not specified when upserting new examples, the example_id will be generated.""",
+    )
+    stored_contents_example: Optional[StoredContentsExample] = Field(
+        default=None,
+        description="""An example of chat history and its expected outcome to be used with GenerateContent.""",
+    )
+
+
+class ExampleDict(TypedDict, total=False):
+
+    create_time: Optional[datetime.datetime]
+    """Output only. Timestamp when this Example was created."""
+
+    display_name: Optional[str]
+    """Optional. The display name for Example."""
+
+    example_id: Optional[str]
+    """Optional. Immutable. Unique identifier of an example. If not specified when upserting new examples, the example_id will be generated."""
+
+    stored_contents_example: Optional[StoredContentsExampleDict]
+    """An example of chat history and its expected outcome to be used with GenerateContent."""
+
+
+ExampleOrDict = Union[Example, ExampleDict]
+
+
+class _UpsertExamplesParameters(_common.BaseModel):
+    """Parameters for upserting examples."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""Required. The Example Store to upsert examples into.""",
+    )
+    examples: Optional[list[Example]] = Field(
+        default=None, description="""Required. The examples to upsert."""
+    )
+    config: Optional[UpsertExamplesConfig] = Field(default=None, description="""""")
+
+
+class _UpsertExamplesParametersDict(TypedDict, total=False):
+    """Parameters for upserting examples."""
+
+    name: Optional[str]
+    """Required. The Example Store to upsert examples into."""
+
+    examples: Optional[list[ExampleDict]]
+    """Required. The examples to upsert."""
+
+    config: Optional[UpsertExamplesConfigDict]
+    """"""
+
+
+_UpsertExamplesParametersOrDict = Union[
+    _UpsertExamplesParameters, _UpsertExamplesParametersDict
+]
+
+
+class UpsertExamplesResponseUpsertResult(_common.BaseModel):
+    """The result for creating/updating a single example."""
+
+    example: Optional[Example] = Field(
+        default=None, description="""The example created/updated successfully."""
+    )
+    status: Optional[genai_types.GoogleRpcStatus] = Field(
+        default=None,
+        description="""The error message of the example that was not created/updated successfully.""",
+    )
+
+
+class UpsertExamplesResponseUpsertResultDict(TypedDict, total=False):
+    """The result for creating/updating a single example."""
+
+    example: Optional[ExampleDict]
+    """The example created/updated successfully."""
+
+    status: Optional[genai_types.GoogleRpcStatusDict]
+    """The error message of the example that was not created/updated successfully."""
+
+
+UpsertExamplesResponseUpsertResultOrDict = Union[
+    UpsertExamplesResponseUpsertResult, UpsertExamplesResponseUpsertResultDict
+]
+
+
+class UpsertExamplesResponse(_common.BaseModel):
+    """Response message for ExampleStoreService.UpsertExamples."""
+
+    results: Optional[list[UpsertExamplesResponseUpsertResult]] = Field(
+        default=None,
+        description="""A list of results for creating/updating. It's either a successfully created/updated example or a status with an error message.""",
+    )
+
+
+class UpsertExamplesResponseDict(TypedDict, total=False):
+    """Response message for ExampleStoreService.UpsertExamples."""
+
+    results: Optional[list[UpsertExamplesResponseUpsertResultDict]]
+    """A list of results for creating/updating. It's either a successfully created/updated example or a status with an error message."""
+
+
+UpsertExamplesResponseOrDict = Union[UpsertExamplesResponse, UpsertExamplesResponseDict]
+
+
+class SearchExamplesConfig(_common.BaseModel):
+    """Config for searching an Example Store."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    top_k: Optional[int] = Field(
+        default=None,
+        description="""Optional. The number of similar examples to return.""",
+    )
+
+
+class SearchExamplesConfigDict(TypedDict, total=False):
+    """Config for searching an Example Store."""
+
+    http_options: Optional[genai_types.HttpOptions]
+    """Used to override HTTP request options."""
+
+    top_k: Optional[int]
+    """Optional. The number of similar examples to return."""
+
+
+SearchExamplesConfigOrDict = Union[SearchExamplesConfig, SearchExamplesConfigDict]
+
+
+class StoredContentsExampleParametersContentSearchKey(_common.BaseModel):
+    """The chat history to use to generate the search key for retrieval."""
+
+    contents: Optional[list[genai_types.Content]] = Field(
+        default=None,
+        description="""Required. The conversation for generating a search key.""",
+    )
+    search_key_generation_method: Optional[
+        StoredContentsExampleSearchKeyGenerationMethod
+    ] = Field(
+        default=None, description="""Required. The method of generating a search key."""
+    )
+
+
+class StoredContentsExampleParametersContentSearchKeyDict(TypedDict, total=False):
+    """The chat history to use to generate the search key for retrieval."""
+
+    contents: Optional[list[genai_types.ContentDict]]
+    """Required. The conversation for generating a search key."""
+
+    search_key_generation_method: Optional[
+        StoredContentsExampleSearchKeyGenerationMethodDict
+    ]
+    """Required. The method of generating a search key."""
+
+
+StoredContentsExampleParametersContentSearchKeyOrDict = Union[
+    StoredContentsExampleParametersContentSearchKey,
+    StoredContentsExampleParametersContentSearchKeyDict,
+]
+
+
+class ExamplesArrayFilter(_common.BaseModel):
+    """Filters for examples' array metadata fields. An array field is example metadata where multiple values are attributed to a single example."""
+
+    array_operator: Optional[ArrayOperator] = Field(
+        default=None,
+        description="""Required. The operator logic to use for filtering.""",
+    )
+    values: Optional[list[str]] = Field(
+        default=None,
+        description="""Required. The values by which to filter examples.""",
+    )
+
+
+class ExamplesArrayFilterDict(TypedDict, total=False):
+    """Filters for examples' array metadata fields. An array field is example metadata where multiple values are attributed to a single example."""
+
+    array_operator: Optional[ArrayOperator]
+    """Required. The operator logic to use for filtering."""
+
+    values: Optional[list[str]]
+    """Required. The values by which to filter examples."""
+
+
+ExamplesArrayFilterOrDict = Union[ExamplesArrayFilter, ExamplesArrayFilterDict]
+
+
+class StoredContentsExampleParameters(_common.BaseModel):
+    """The metadata filters that will be used to search StoredContentsExamples. If a field is unspecified, then no filtering for that field will be applied"""
+
+    content_search_key: Optional[StoredContentsExampleParametersContentSearchKey] = (
+        Field(
+            default=None,
+            description="""The chat history to use to generate the search key for retrieval.""",
+        )
+    )
+    function_names: Optional[ExamplesArrayFilter] = Field(
+        default=None, description="""Optional. The function names for filtering."""
+    )
+    search_key: Optional[str] = Field(
+        default=None, description="""The exact search key to use for retrieval."""
+    )
+
+
+class StoredContentsExampleParametersDict(TypedDict, total=False):
+    """The metadata filters that will be used to search StoredContentsExamples. If a field is unspecified, then no filtering for that field will be applied"""
+
+    content_search_key: Optional[StoredContentsExampleParametersContentSearchKeyDict]
+    """The chat history to use to generate the search key for retrieval."""
+
+    function_names: Optional[ExamplesArrayFilterDict]
+    """Optional. The function names for filtering."""
+
+    search_key: Optional[str]
+    """The exact search key to use for retrieval."""
+
+
+StoredContentsExampleParametersOrDict = Union[
+    StoredContentsExampleParameters, StoredContentsExampleParametersDict
+]
+
+
+class _SearchExamplesParameters(_common.BaseModel):
+    """Parameters for searching examples."""
+
+    name: Optional[str] = Field(
+        default=None, description="""Required. The Example Store to search."""
+    )
+    stored_contents_example_parameters: Optional[StoredContentsExampleParameters] = (
+        Field(
+            default=None,
+            description="""Optional. The parameters that determine which examples to
+      retrieve.
+      """,
+        )
+    )
+    config: Optional[SearchExamplesConfig] = Field(default=None, description="""""")
+
+
+class _SearchExamplesParametersDict(TypedDict, total=False):
+    """Parameters for searching examples."""
+
+    name: Optional[str]
+    """Required. The Example Store to search."""
+
+    stored_contents_example_parameters: Optional[StoredContentsExampleParametersDict]
+    """Optional. The parameters that determine which examples to
+      retrieve.
+      """
+
+    config: Optional[SearchExamplesConfigDict]
+    """"""
+
+
+_SearchExamplesParametersOrDict = Union[
+    _SearchExamplesParameters, _SearchExamplesParametersDict
+]
+
+
+class SearchExamplesResponseSimilarExample(_common.BaseModel):
+    """The result of the similar example."""
+
+    example: Optional[Example] = Field(
+        default=None,
+        description="""The example that is similar to the searched query.""",
+    )
+    similarity_score: Optional[float] = Field(
+        default=None, description="""The similarity score of this example."""
+    )
+
+
+class SearchExamplesResponseSimilarExampleDict(TypedDict, total=False):
+    """The result of the similar example."""
+
+    example: Optional[ExampleDict]
+    """The example that is similar to the searched query."""
+
+    similarity_score: Optional[float]
+    """The similarity score of this example."""
+
+
+SearchExamplesResponseSimilarExampleOrDict = Union[
+    SearchExamplesResponseSimilarExample, SearchExamplesResponseSimilarExampleDict
+]
+
+
+class SearchExamplesResponse(_common.BaseModel):
+    """Response message for ExampleStoreService.SearchExamples."""
+
+    results: Optional[list[SearchExamplesResponseSimilarExample]] = Field(
+        default=None, description="""The results of searching for similar examples."""
+    )
+
+
+class SearchExamplesResponseDict(TypedDict, total=False):
+    """Response message for ExampleStoreService.SearchExamples."""
+
+    results: Optional[list[SearchExamplesResponseSimilarExampleDict]]
+    """The results of searching for similar examples."""
+
+
+SearchExamplesResponseOrDict = Union[SearchExamplesResponse, SearchExamplesResponseDict]
+
+
+class StoredContentsExampleFilter(_common.BaseModel):
+    """The metadata filters that will be used to remove or fetch StoredContentsExamples. If a field is unspecified, then no filtering for that field will be applied."""
+
+    function_names: Optional[ExamplesArrayFilter] = Field(
+        default=None, description="""Optional. The function names for filtering."""
+    )
+    search_keys: Optional[list[str]] = Field(
+        default=None,
+        description="""Optional. The search keys for filtering. Only examples with one of the specified search keys (StoredContentsExample.search_key) are eligible to be returned.""",
+    )
+
+
+class StoredContentsExampleFilterDict(TypedDict, total=False):
+    """The metadata filters that will be used to remove or fetch StoredContentsExamples. If a field is unspecified, then no filtering for that field will be applied."""
+
+    function_names: Optional[ExamplesArrayFilterDict]
+    """Optional. The function names for filtering."""
+
+    search_keys: Optional[list[str]]
+    """Optional. The search keys for filtering. Only examples with one of the specified search keys (StoredContentsExample.search_key) are eligible to be returned."""
+
+
+StoredContentsExampleFilterOrDict = Union[
+    StoredContentsExampleFilter, StoredContentsExampleFilterDict
+]
+
+
+class FetchExamplesConfig(_common.BaseModel):
+    """Config for fetching examples from an Example Store."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    example_ids: Optional[list[str]] = Field(
+        default=None,
+        description="""Optional. Example IDs to fetch. If both this and the filter are
+      set, the fetched examples must match every example id AND the filter.
+      """,
+    )
+    stored_contents_example_filter: Optional[StoredContentsExampleFilter] = Field(
+        default=None,
+        description="""Optional. The filter to apply to the fetched examples.""",
+    )
+    page_size: Optional[int] = Field(
+        default=None,
+        description="""Optional. The maximum number of examples to return.""",
+    )
+    page_token: Optional[str] = Field(
+        default=None,
+        description="""Optional. A page token from a previous FetchExamples call.""",
+    )
+
+
+class FetchExamplesConfigDict(TypedDict, total=False):
+    """Config for fetching examples from an Example Store."""
+
+    http_options: Optional[genai_types.HttpOptions]
+    """Used to override HTTP request options."""
+
+    example_ids: Optional[list[str]]
+    """Optional. Example IDs to fetch. If both this and the filter are
+      set, the fetched examples must match every example id AND the filter.
+      """
+
+    stored_contents_example_filter: Optional[StoredContentsExampleFilterDict]
+    """Optional. The filter to apply to the fetched examples."""
+
+    page_size: Optional[int]
+    """Optional. The maximum number of examples to return."""
+
+    page_token: Optional[str]
+    """Optional. A page token from a previous FetchExamples call."""
+
+
+FetchExamplesConfigOrDict = Union[FetchExamplesConfig, FetchExamplesConfigDict]
+
+
+class _FetchExamplesParameters(_common.BaseModel):
+    """Parameters for fetching examples."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""Required. The Example Store to fetch examples from.""",
+    )
+    config: Optional[FetchExamplesConfig] = Field(default=None, description="""""")
+
+
+class _FetchExamplesParametersDict(TypedDict, total=False):
+    """Parameters for fetching examples."""
+
+    name: Optional[str]
+    """Required. The Example Store to fetch examples from."""
+
+    config: Optional[FetchExamplesConfigDict]
+    """"""
+
+
+_FetchExamplesParametersOrDict = Union[
+    _FetchExamplesParameters, _FetchExamplesParametersDict
+]
+
+
+class FetchExamplesResponse(_common.BaseModel):
+    """Response message for ExampleStoreService.FetchExamples."""
+
+    examples: Optional[list[Example]] = Field(
+        default=None,
+        description="""The examples in the Example Store that satisfy the metadata filters.""",
+    )
+    next_page_token: Optional[str] = Field(
+        default=None,
+        description="""A token, which can be sent as FetchExamplesRequest.page_token to retrieve the next page. Absence of this field indicates there are no subsequent pages.""",
+    )
+
+
+class FetchExamplesResponseDict(TypedDict, total=False):
+    """Response message for ExampleStoreService.FetchExamples."""
+
+    examples: Optional[list[ExampleDict]]
+    """The examples in the Example Store that satisfy the metadata filters."""
+
+    next_page_token: Optional[str]
+    """A token, which can be sent as FetchExamplesRequest.page_token to retrieve the next page. Absence of this field indicates there are no subsequent pages."""
+
+
+FetchExamplesResponseOrDict = Union[FetchExamplesResponse, FetchExamplesResponseDict]
+
+
+class RemoveExamplesConfig(_common.BaseModel):
+    """Config for removing examples from an Example Store."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    example_ids: Optional[list[str]] = Field(
+        default=None,
+        description="""Optional. Example IDs to remove. If both this and the filter are
+      set, the removed examples must match every example id AND the filter.
+      """,
+    )
+    stored_contents_example_filter: Optional[StoredContentsExampleFilter] = Field(
+        default=None,
+        description="""Optional. The filter selecting which examples to remove.""",
+    )
+
+
+class RemoveExamplesConfigDict(TypedDict, total=False):
+    """Config for removing examples from an Example Store."""
+
+    http_options: Optional[genai_types.HttpOptions]
+    """Used to override HTTP request options."""
+
+    example_ids: Optional[list[str]]
+    """Optional. Example IDs to remove. If both this and the filter are
+      set, the removed examples must match every example id AND the filter.
+      """
+
+    stored_contents_example_filter: Optional[StoredContentsExampleFilterDict]
+    """Optional. The filter selecting which examples to remove."""
+
+
+RemoveExamplesConfigOrDict = Union[RemoveExamplesConfig, RemoveExamplesConfigDict]
+
+
+class _RemoveExamplesParameters(_common.BaseModel):
+    """Parameters for removing examples."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""Required. The Example Store to remove examples from.""",
+    )
+    config: Optional[RemoveExamplesConfig] = Field(default=None, description="""""")
+
+
+class _RemoveExamplesParametersDict(TypedDict, total=False):
+    """Parameters for removing examples."""
+
+    name: Optional[str]
+    """Required. The Example Store to remove examples from."""
+
+    config: Optional[RemoveExamplesConfigDict]
+    """"""
+
+
+_RemoveExamplesParametersOrDict = Union[
+    _RemoveExamplesParameters, _RemoveExamplesParametersDict
+]
+
+
+class RemoveExamplesResponse(_common.BaseModel):
+    """Response message for ExampleStoreService.RemoveExamples."""
+
+    example_ids: Optional[list[str]] = Field(
+        default=None, description="""The IDs for the removed examples."""
+    )
+
+
+class RemoveExamplesResponseDict(TypedDict, total=False):
+    """Response message for ExampleStoreService.RemoveExamples."""
+
+    example_ids: Optional[list[str]]
+    """The IDs for the removed examples."""
+
+
+RemoveExamplesResponseOrDict = Union[RemoveExamplesResponse, RemoveExamplesResponseDict]
+
+
+class GetExampleStoreOperationConfig(_common.BaseModel):
+    """Optional parameters for example_stores.get_example_store_operation."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class GetExampleStoreOperationConfigDict(TypedDict, total=False):
+    """Optional parameters for example_stores.get_example_store_operation."""
+
+    http_options: Optional[genai_types.HttpOptions]
+    """Used to override HTTP request options."""
+
+
+GetExampleStoreOperationConfigOrDict = Union[
+    GetExampleStoreOperationConfig, GetExampleStoreOperationConfigDict
+]
+
+
+class _GetExampleStoreOperationParameters(_common.BaseModel):
+    """Parameters for getting an operation."""
+
+    operation_name: Optional[str] = Field(
+        default=None, description="""The server-assigned name for the operation."""
+    )
+    config: Optional[GetExampleStoreOperationConfig] = Field(
+        default=None, description="""Used to override the default configuration."""
+    )
+
+
+class _GetExampleStoreOperationParametersDict(TypedDict, total=False):
+    """Parameters for getting an operation."""
+
+    operation_name: Optional[str]
+    """The server-assigned name for the operation."""
+
+    config: Optional[GetExampleStoreOperationConfigDict]
+    """Used to override the default configuration."""
+
+
+_GetExampleStoreOperationParametersOrDict = Union[
+    _GetExampleStoreOperationParameters, _GetExampleStoreOperationParametersDict
+]
 
 
 class PromptOptimizerConfig(_common.BaseModel):
