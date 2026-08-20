@@ -348,6 +348,42 @@ _TEST_INPUT_REASONING_ENGINE_OBJ = types.ReasoningEngine(
 _TEST_INPUT_REASONING_ENGINE_OBJ.spec.class_methods.append(
     _TEST_REASONING_ENGINE_QUERY_SCHEMA
 )
+_TEST_CUSTOM_SERVICE_ACCOUNT = "test-custom-service-account"
+_TEST_AGENT_IDENTITY_TYPE = types.ReasoningEngineSpec.IdentityType.AGENT_IDENTITY
+_TEST_SERVICE_ACCOUNT_IDENTITY_TYPE = (
+    types.ReasoningEngineSpec.IdentityType.SERVICE_ACCOUNT
+)
+_TEST_INPUT_REASONING_ENGINE_OBJ_WITH_SERVICE_ACCOUNT = types.ReasoningEngine(
+    display_name=_TEST_REASONING_ENGINE_DISPLAY_NAME,
+    spec=types.ReasoningEngineSpec(
+        package_spec=types.ReasoningEngineSpec.PackageSpec(
+            python_version=f"{sys.version_info.major}.{sys.version_info.minor}",
+            pickle_object_gcs_uri=_TEST_REASONING_ENGINE_GCS_URI,
+            dependency_files_gcs_uri=_TEST_REASONING_ENGINE_DEPENDENCY_FILES_GCS_URI,
+            requirements_gcs_uri=_TEST_REASONING_ENGINE_REQUIREMENTS_GCS_URI,
+        ),
+        service_account=_TEST_CUSTOM_SERVICE_ACCOUNT,
+        identity_type=_TEST_SERVICE_ACCOUNT_IDENTITY_TYPE,
+    ),
+)
+_TEST_INPUT_REASONING_ENGINE_OBJ_WITH_SERVICE_ACCOUNT.spec.class_methods.append(
+    _TEST_REASONING_ENGINE_QUERY_SCHEMA
+)
+_TEST_INPUT_REASONING_ENGINE_OBJ_WITH_AGENT_IDENTITY = types.ReasoningEngine(
+    display_name=_TEST_REASONING_ENGINE_DISPLAY_NAME,
+    spec=types.ReasoningEngineSpec(
+        package_spec=types.ReasoningEngineSpec.PackageSpec(
+            python_version=f"{sys.version_info.major}.{sys.version_info.minor}",
+            pickle_object_gcs_uri=_TEST_REASONING_ENGINE_GCS_URI,
+            dependency_files_gcs_uri=_TEST_REASONING_ENGINE_DEPENDENCY_FILES_GCS_URI,
+            requirements_gcs_uri=_TEST_REASONING_ENGINE_REQUIREMENTS_GCS_URI,
+        ),
+        identity_type=_TEST_AGENT_IDENTITY_TYPE,
+    ),
+)
+_TEST_INPUT_REASONING_ENGINE_OBJ_WITH_AGENT_IDENTITY.spec.class_methods.append(
+    _TEST_REASONING_ENGINE_QUERY_SCHEMA
+)
 _TEST_REASONING_ENGINE_OBJ = types.ReasoningEngine(
     name=_TEST_REASONING_ENGINE_RESOURCE_NAME,
     display_name=_TEST_REASONING_ENGINE_DISPLAY_NAME,
@@ -794,6 +830,57 @@ class TestReasoningEngine:
             retry=_TEST_RETRY,
         )
 
+    def test_create_reasoning_engine_with_service_account(
+        self,
+        create_reasoning_engine_mock,
+        cloud_storage_create_bucket_mock,
+        tarfile_open_mock,
+        cloudpickle_dump_mock,
+        get_reasoning_engine_mock,
+        get_gca_resource_mock,
+    ):
+        reasoning_engines.ReasoningEngine.create(
+            self.test_app,
+            display_name=_TEST_REASONING_ENGINE_DISPLAY_NAME,
+            requirements=_TEST_REASONING_ENGINE_REQUIREMENTS,
+            extra_packages=[_TEST_REASONING_ENGINE_EXTRA_PACKAGE_PATH],
+            service_account=_TEST_CUSTOM_SERVICE_ACCOUNT,
+            identity_type=_TEST_SERVICE_ACCOUNT_IDENTITY_TYPE,
+        )
+        create_reasoning_engine_mock.assert_called_with(
+            parent=_TEST_PARENT,
+            reasoning_engine=_TEST_INPUT_REASONING_ENGINE_OBJ_WITH_SERVICE_ACCOUNT,
+        )
+
+    @pytest.mark.parametrize(
+        "identity_type",
+        [
+            _TEST_AGENT_IDENTITY_TYPE,
+            "AGENT_IDENTITY",
+        ],
+    )
+    def test_create_reasoning_engine_with_agent_identity(
+        self,
+        create_reasoning_engine_mock,
+        cloud_storage_create_bucket_mock,
+        tarfile_open_mock,
+        cloudpickle_dump_mock,
+        get_reasoning_engine_mock,
+        get_gca_resource_mock,
+        identity_type,
+    ):
+        reasoning_engines.ReasoningEngine.create(
+            self.test_app,
+            display_name=_TEST_REASONING_ENGINE_DISPLAY_NAME,
+            requirements=_TEST_REASONING_ENGINE_REQUIREMENTS,
+            extra_packages=[_TEST_REASONING_ENGINE_EXTRA_PACKAGE_PATH],
+            identity_type=identity_type,
+        )
+        create_reasoning_engine_mock.assert_called_with(
+            parent=_TEST_PARENT,
+            reasoning_engine=_TEST_INPUT_REASONING_ENGINE_OBJ_WITH_AGENT_IDENTITY,
+        )
+
     @pytest.mark.usefixtures("caplog")
     def test_create_reasoning_engine_warn_resource_name(
         self,
@@ -988,6 +1075,56 @@ class TestReasoningEngine:
                         description=_TEST_REASONING_ENGINE_DESCRIPTION,
                     ),
                     update_mask=field_mask_pb2.FieldMask(paths=["description"]),
+                ),
+            ),
+            (
+                "Update the service_account",
+                {"service_account": _TEST_CUSTOM_SERVICE_ACCOUNT},
+                types.reasoning_engine_service.UpdateReasoningEngineRequest(
+                    reasoning_engine=types.ReasoningEngine(
+                        name=_TEST_REASONING_ENGINE_RESOURCE_NAME,
+                        spec=types.ReasoningEngineSpec(
+                            service_account=_TEST_CUSTOM_SERVICE_ACCOUNT,
+                        ),
+                    ),
+                    update_mask=field_mask_pb2.FieldMask(
+                        paths=["spec.service_account"]
+                    ),
+                ),
+            ),
+            (
+                "Update the identity_type",
+                {"identity_type": _TEST_AGENT_IDENTITY_TYPE},
+                types.reasoning_engine_service.UpdateReasoningEngineRequest(
+                    reasoning_engine=types.ReasoningEngine(
+                        name=_TEST_REASONING_ENGINE_RESOURCE_NAME,
+                        spec=types.ReasoningEngineSpec(
+                            identity_type=_TEST_AGENT_IDENTITY_TYPE,
+                        ),
+                    ),
+                    update_mask=field_mask_pb2.FieldMask(paths=["spec.identity_type"]),
+                ),
+            ),
+            (
+                "Update the service_account and identity_type",
+                {
+                    "service_account": _TEST_CUSTOM_SERVICE_ACCOUNT,
+                    "identity_type": _TEST_SERVICE_ACCOUNT_IDENTITY_TYPE,
+                },
+                types.reasoning_engine_service.UpdateReasoningEngineRequest(
+                    reasoning_engine=types.ReasoningEngine(
+                        name=_TEST_REASONING_ENGINE_RESOURCE_NAME,
+                        spec=types.ReasoningEngineSpec(
+                            service_account=_TEST_CUSTOM_SERVICE_ACCOUNT,
+                            identity_type=_TEST_SERVICE_ACCOUNT_IDENTITY_TYPE,
+                        ),
+                    ),
+                    update_mask=field_mask_pb2.FieldMask(
+                        paths=[
+                            "spec.service_account",
+                            "spec.identity_type",
+                        ]
+                    ),
                 ),
             ),
         ],
@@ -2010,12 +2147,61 @@ class TestReasoningEngineErrors:
             ValueError,
             match=(
                 "At least one of `reasoning_engine`, `requirements`, "
-                "`extra_packages`, `display_name`, or `description` "
-                "must be specified."
+                "`extra_packages`, `display_name`, `description`, "
+                "`service_account`, or `identity_type` must be specified."
             ),
         ):
             test_reasoning_engine = _generate_reasoning_engine_to_update()
             test_reasoning_engine.update()
+
+    @pytest.mark.parametrize(
+        "identity_type",
+        [
+            _TEST_AGENT_IDENTITY_TYPE,
+            "AGENT_IDENTITY",
+        ],
+    )
+    def test_create_reasoning_engine_with_agent_identity_and_service_account(
+        self,
+        identity_type,
+    ):
+        with pytest.raises(
+            ValueError,
+            match=(
+                "`service_account` must not be specified when `identity_type` "
+                "is `AGENT_IDENTITY`"
+            ),
+        ):
+            reasoning_engines.ReasoningEngine.create(
+                CapitalizeEngine(),
+                service_account=_TEST_CUSTOM_SERVICE_ACCOUNT,
+                identity_type=identity_type,
+            )
+
+    @pytest.mark.parametrize(
+        "identity_type",
+        [
+            _TEST_AGENT_IDENTITY_TYPE,
+            "AGENT_IDENTITY",
+        ],
+    )
+    def test_update_reasoning_engine_with_agent_identity_and_service_account(
+        self,
+        update_reasoning_engine_mock,
+        identity_type,
+    ):
+        with pytest.raises(
+            ValueError,
+            match=(
+                "`service_account` must not be specified when `identity_type` "
+                "is `AGENT_IDENTITY`"
+            ),
+        ):
+            test_reasoning_engine = _generate_reasoning_engine_to_update()
+            test_reasoning_engine.update(
+                service_account=_TEST_CUSTOM_SERVICE_ACCOUNT,
+                identity_type=identity_type,
+            )
 
     def test_create_class_methods_spec_with_registered_operation_not_found(self):
         with pytest.raises(

@@ -46,7 +46,6 @@ from google.cloud.aiplatform_v1beta1.types import reasoning_engine_service
 from vertexai.reasoning_engines import _utils
 from google.protobuf import field_mask_pb2
 
-
 _LOGGER = base.Logger(__name__)
 _SUPPORTED_PYTHON_VERSIONS = ("3.10", "3.11", "3.12", "3.13", "3.14")
 _DEFAULT_GCS_DIR_NAME = "reasoning_engine"
@@ -161,6 +160,10 @@ class ReasoningEngine(base.VertexAiResourceNounWithFutureManager):
         gcs_dir_name: str = _DEFAULT_GCS_DIR_NAME,
         sys_version: Optional[str] = None,
         extra_packages: Optional[Sequence[str]] = None,
+        service_account: Optional[str] = None,
+        identity_type: Optional[
+            Union[str, aip_types.ReasoningEngineSpec.IdentityType]
+        ] = None,
     ) -> "ReasoningEngine":
         """Creates a new ReasoningEngine.
 
@@ -229,6 +232,19 @@ class ReasoningEngine(base.VertexAiResourceNounWithFutureManager):
                 sys.version_info.
             extra_packages (Sequence[str]):
                 Optional. The set of extra user-provided packages (if any).
+            service_account (str):
+                Optional. The service account that the Reasoning Engine runs
+                as. If not specified, the default Reasoning Engine Service
+                Agent in the project will be used.
+            identity_type (Union[str, aip_types.ReasoningEngineSpec.IdentityType]):
+                Optional. The identity type to be used by the Reasoning Engine
+                at runtime. Set it to `AGENT_IDENTITY` to run the Reasoning
+                Engine under a resource-scoped workload identity with no
+                default project permissions, instead of the shared Reasoning
+                Engine Service Agent. `service_account` must not be specified
+                when `AGENT_IDENTITY` is used. If not specified,
+                `service_account` is used if set, otherwise the default
+                Reasoning Engine Service Agent is used.
 
         Returns:
             ReasoningEngine: The Reasoning Engine that was created.
@@ -239,6 +255,8 @@ class ReasoningEngine(base.VertexAiResourceNounWithFutureManager):
             ValueError: If the `location` was not set using `vertexai.init`.
             ValueError: If the `staging_bucket` was not set using vertexai.init.
             ValueError: If the `staging_bucket` does not start with "gs://".
+            ValueError: If `service_account` is specified and `identity_type`
+            is `AGENT_IDENTITY`.
             FileNotFoundError: If `extra_packages` includes a file or directory
             that does not exist.
             IOError: If requirements is a string that corresponds to a
@@ -247,6 +265,10 @@ class ReasoningEngine(base.VertexAiResourceNounWithFutureManager):
         if not sys_version:
             sys_version = f"{sys.version_info.major}.{sys.version_info.minor}"
         _validate_sys_version_or_raise(sys_version)
+        _validate_identity_type_or_raise(
+            identity_type=identity_type,
+            service_account=service_account,
+        )
         reasoning_engine = _validate_reasoning_engine_or_raise(reasoning_engine)
         requirements = _validate_requirements_or_raise(requirements)
         extra_packages = _validate_extra_packages_or_raise(extra_packages)
@@ -305,6 +327,10 @@ class ReasoningEngine(base.VertexAiResourceNounWithFutureManager):
             reasoning_engine, _get_registered_operations(reasoning_engine)
         )
         reasoning_engine_spec.class_methods.extend(class_methods_spec)
+        if service_account:
+            reasoning_engine_spec.service_account = service_account
+        if identity_type is not None:
+            reasoning_engine_spec.identity_type = identity_type
         operation_future = sdk_resource.api_client.create_reasoning_engine(
             parent=initializer.global_config.common_location_path(
                 project=sdk_resource.project, location=sdk_resource.location
@@ -351,6 +377,10 @@ class ReasoningEngine(base.VertexAiResourceNounWithFutureManager):
         gcs_dir_name: str = _DEFAULT_GCS_DIR_NAME,
         sys_version: Optional[str] = None,
         extra_packages: Optional[Sequence[str]] = None,
+        service_account: Optional[str] = None,
+        identity_type: Optional[
+            Union[str, aip_types.ReasoningEngineSpec.IdentityType]
+        ] = None,
     ) -> "ReasoningEngine":
         """Updates an existing ReasoningEngine.
 
@@ -390,6 +420,18 @@ class ReasoningEngine(base.VertexAiResourceNounWithFutureManager):
                 it is not specified, the existing extra packages will be used.
                 If it is set to an empty list, the existing extra packages will
                 be removed.
+            service_account (str):
+                Optional. The service account that the Reasoning Engine runs
+                as. If not specified, the existing service account will be
+                used.
+            identity_type (Union[str, aip_types.ReasoningEngineSpec.IdentityType]):
+                Optional. The identity type to be used by the Reasoning Engine
+                at runtime. Set it to `AGENT_IDENTITY` to run the Reasoning
+                Engine under a resource-scoped workload identity with no
+                default project permissions, instead of the shared Reasoning
+                Engine Service Agent. `service_account` must not be specified
+                when `AGENT_IDENTITY` is used. If not specified, the existing
+                identity type will be used.
 
         Returns:
             ReasoningEngine: The Reasoning Engine that was updated.
@@ -403,6 +445,8 @@ class ReasoningEngine(base.VertexAiResourceNounWithFutureManager):
             ValueError: if none of `display_name`, `description`,
             `requirements`, `extra_packages`, or `reasoning_engine` were
             specified.
+            ValueError: If `service_account` is specified and `identity_type`
+            is `AGENT_IDENTITY`.
             IOError: If requirements is a string that corresponds to a
             nonexistent file.
         """
@@ -418,13 +462,19 @@ class ReasoningEngine(base.VertexAiResourceNounWithFutureManager):
                 extra_packages,
                 display_name,
                 description,
+                service_account,
+                identity_type is not None,
             ]
         ):
             raise ValueError(
                 "At least one of `reasoning_engine`, `requirements`, "
-                "`extra_packages`, `display_name`, or `description` must be "
-                "specified."
+                "`extra_packages`, `display_name`, `description`, "
+                "`service_account`, or `identity_type` must be specified."
             )
+        _validate_identity_type_or_raise(
+            identity_type=identity_type,
+            service_account=service_account,
+        )
         if sys_version:
             _LOGGER.warning("Updated sys_version is not supported.")
         if requirements is not None:
@@ -456,6 +506,8 @@ class ReasoningEngine(base.VertexAiResourceNounWithFutureManager):
             extra_packages=extra_packages,
             display_name=display_name,
             description=description,
+            service_account=service_account,
+            identity_type=identity_type,
         )
         operation_future = self.api_client.update_reasoning_engine(
             request=update_request
@@ -521,6 +573,36 @@ def _validate_staging_bucket_or_raise(staging_bucket: str) -> str:
         raise ValueError("Please provide a `staging_bucket` in `vertexai.init(...)`")
     if not staging_bucket.startswith("gs://"):
         raise ValueError(f"{staging_bucket=} must start with `gs://`")
+
+
+def _validate_identity_type_or_raise(
+    identity_type: Optional[Union[str, aip_types.ReasoningEngineSpec.IdentityType]],
+    service_account: Optional[str],
+) -> None:
+    """Tries to validate the identity type against the service account.
+
+    Args:
+        identity_type: The identity type to be used by the Reasoning Engine.
+        service_account: The service account to be used by the Reasoning
+            Engine.
+
+    Raises:
+        ValueError: If `identity_type` is `AGENT_IDENTITY` and `service_account`
+        is also specified, because the two are mutually exclusive.
+    """
+    if (
+        identity_type
+        in (
+            aip_types.ReasoningEngineSpec.IdentityType.AGENT_IDENTITY,
+            "AGENT_IDENTITY",
+        )
+        and service_account
+    ):
+        raise ValueError(
+            "`service_account` must not be specified when `identity_type` is "
+            "`AGENT_IDENTITY`, because the Reasoning Engine runs under a "
+            "resource-scoped workload identity instead of a service account."
+        )
 
 
 def _validate_reasoning_engine_or_raise(
@@ -723,6 +805,10 @@ def _generate_update_request_or_raise(
     extra_packages: Optional[Sequence[str]] = None,
     display_name: Optional[str] = None,
     description: Optional[str] = None,
+    service_account: Optional[str] = None,
+    identity_type: Optional[
+        Union[str, aip_types.ReasoningEngineSpec.IdentityType]
+    ] = None,
 ) -> reasoning_engine_service.UpdateReasoningEngineRequest:
     """Tries to generates the update request for the reasoning engine."""
     is_spec_update = False
@@ -758,10 +844,19 @@ def _generate_update_request_or_raise(
         )
         reasoning_engine_spec.class_methods.extend(class_methods_spec)
         update_masks.append("spec.class_methods")
+    if service_account is not None:
+        is_spec_update = True
+        update_masks.append("spec.service_account")
+        reasoning_engine_spec.service_account = service_account
+    if identity_type is not None:
+        is_spec_update = True
+        update_masks.append("spec.identity_type")
+        reasoning_engine_spec.identity_type = identity_type
 
     reasoning_engine_message = aip_types.ReasoningEngine(name=resource_name)
     if is_spec_update:
-        reasoning_engine_spec.package_spec = package_spec
+        if package_spec:
+            reasoning_engine_spec.package_spec = package_spec
         reasoning_engine_message.spec = reasoning_engine_spec
     if display_name:
         reasoning_engine_message.display_name = display_name
@@ -772,8 +867,8 @@ def _generate_update_request_or_raise(
     if not update_masks:
         raise ValueError(
             "At least one of `reasoning_engine`, `requirements`, "
-            "`extra_packages`, `display_name`, or `description` must be "
-            "specified."
+            "`extra_packages`, `display_name`, `description`, "
+            "`service_account`, or `identity_type` must be specified."
         )
     return reasoning_engine_service.UpdateReasoningEngineRequest(
         reasoning_engine=reasoning_engine_message,
@@ -897,8 +992,7 @@ def _register_api_methods_or_raise(obj: "ReasoningEngine"):
         api_mode = operation_schema.get(_MODE_KEY_IN_SCHEMA)
         if _METHOD_NAME_KEY_IN_SCHEMA not in operation_schema:
             raise ValueError(
-                f"Operation schema {operation_schema} does not"
-                " contain a `name` field."
+                f"Operation schema {operation_schema} does not contain a `name` field."
             )
         method_name = operation_schema.get(_METHOD_NAME_KEY_IN_SCHEMA)
         method_description = operation_schema.get("description")

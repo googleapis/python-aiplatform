@@ -76,6 +76,9 @@ def create(
     ] = None,
     build_options: Optional[Dict[str, Sequence[str]]] = None,
     service_account: Optional[str] = None,
+    identity_type: Optional[
+        Union[str, aip_types.ReasoningEngineSpec.IdentityType]
+    ] = None,
     psc_interface_config: Optional[aip_types.PscInterfaceConfig] = None,
     min_instances: Optional[int] = None,
     max_instances: Optional[int] = None,
@@ -159,6 +162,14 @@ def create(
             Optional. The service account to be used for the Agent Engine. If
             not specified, the default reasoning engine service agent service
             account will be used.
+        identity_type (Union[str, ReasoningEngineSpec.IdentityType]):
+            Optional. The identity type to be used by the Agent Engine at
+            runtime. Set it to `AGENT_IDENTITY` to run the Agent Engine under a
+            resource-scoped workload identity with no default project
+            permissions, instead of the shared Reasoning Engine Service Agent.
+            `service_account` must not be specified when `AGENT_IDENTITY` is
+            used. If not specified, `service_account` is used if set, otherwise
+            the default Reasoning Engine Service Agent is used.
         psc_interface_config (PscInterfaceConfig):
             Optional. The PSC interface config for the Agent Engine. If not
             specified, the default PSC interface config will be used.
@@ -186,6 +197,8 @@ def create(
         ValueError: If the `location` was not set using `vertexai.init`.
         ValueError: If the `staging_bucket` was not set using vertexai.init.
         ValueError: If the `staging_bucket` does not start with "gs://".
+        ValueError: If `service_account` is specified and `identity_type` is
+        `AGENT_IDENTITY`.
         FileNotFoundError: If `extra_packages` includes a file or directory
         that does not exist.
         IOError: If requirements is a string that corresponds to a
@@ -201,6 +214,7 @@ def create(
         env_vars=env_vars,
         build_options=build_options,
         service_account=service_account,
+        identity_type=identity_type,
         psc_interface_config=psc_interface_config,
         min_instances=min_instances,
         max_instances=max_instances,
@@ -293,6 +307,9 @@ def update(
     ] = None,
     build_options: Optional[Dict[str, Sequence[str]]] = None,
     service_account: Optional[str] = None,
+    identity_type: Optional[
+        Union[str, aip_types.ReasoningEngineSpec.IdentityType]
+    ] = None,
     psc_interface_config: Optional[aip_types.PscInterfaceConfig] = None,
     min_instances: Optional[int] = None,
     max_instances: Optional[int] = None,
@@ -349,6 +366,13 @@ def update(
             Optional. The service account to be used for the Agent Engine. If
             not specified, the default reasoning engine service agent service
             account will be used.
+        identity_type (Union[str, ReasoningEngineSpec.IdentityType]):
+            Optional. The identity type to be used by the Agent Engine at
+            runtime. Set it to `AGENT_IDENTITY` to run the Agent Engine under a
+            resource-scoped workload identity with no default project
+            permissions, instead of the shared Reasoning Engine Service Agent.
+            `service_account` must not be specified when `AGENT_IDENTITY` is
+            used. If not specified, the existing identity type will be used.
         min_instances (int):
             Optional. The minimum number of instances to run the Agent Engine.
             If not specified, the default value will be used.
@@ -376,6 +400,8 @@ def update(
         ValueError: if none of `display_name`, `description`,
         `requirements`, `extra_packages`, `agent_engine`, or `build_options`
         were specified.
+        ValueError: If `service_account` is specified and `identity_type` is
+        `AGENT_IDENTITY`.
         IOError: If requirements is a string that corresponds to a
         nonexistent file.
     """
@@ -390,6 +416,7 @@ def update(
         env_vars=env_vars,
         build_options=build_options,
         service_account=service_account,
+        identity_type=identity_type,
         psc_interface_config=psc_interface_config,
         min_instances=min_instances,
         max_instances=max_instances,
