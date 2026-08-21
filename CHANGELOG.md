@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.166.0](https://github.com/googleapis/python-aiplatform/compare/v1.165.1...v1.166.0) (2026-08-21)
+
+
+### Features
+
+* Add Shell Sandbox environment support to the Agent Engine sandbox SDK ([8f87082](https://github.com/googleapis/python-aiplatform/commit/8f87082ae4aa0e4c116245b3c8a328e9a55ea6a0))
+* **agentplatform:** Support ExampleStores module for few-shot example management ([5248240](https://github.com/googleapis/python-aiplatform/commit/52482409f21fadbfa062b7d5c6c95e92309e8ac5))
+
+
+### Bug Fixes
+
+* Propagate the underlying API error from AdkApp's synchronous session methods and streaming agent runs ([91cc8ce](https://github.com/googleapis/python-aiplatform/commit/91cc8ce4f015771b5d8c43c8764ea9dc9abdb216))
+
 ## [1.165.1](https://github.com/googleapis/python-aiplatform/compare/v1.165.0...v1.165.1) (2026-08-19)
 
 
