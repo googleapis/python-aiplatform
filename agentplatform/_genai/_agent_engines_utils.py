@@ -234,6 +234,26 @@ _DEFAULT_METHOD_RETURN_TYPE_MAP = {
 logger = logging.getLogger("agentplatform_genai.agentengines")
 
 
+def has_field(obj: Union[BaseModel, JsonDict], field_name: str) -> bool:
+    """Returns whether `obj` has `field_name` set to a non-None value.
+
+    Supports both pydantic models (or any attribute-bearing object) and dicts.
+
+    Args:
+        obj: The object to inspect. May be a pydantic model, a dict, or None.
+        field_name: The name of the field to check for.
+
+    Returns:
+        True if `obj` is non-empty and `field_name` is set to a non-None value,
+        False otherwise.
+    """
+    if not obj:
+        return False
+    if isinstance(obj, dict):
+        return obj.get(field_name) is not None
+    return getattr(obj, field_name, None) is not None
+
+
 @typing.runtime_checkable
 class Queryable(Protocol):
     """Protocol for Agent Engines that can be queried."""

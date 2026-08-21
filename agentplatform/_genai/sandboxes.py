@@ -706,15 +706,83 @@ class Sandboxes(_api_module.BaseModule):
         Returns:
             AgentEngineSandboxOperation: The operation for creating the sandbox.
         """
+        if config is None:
+            config = types.CreateAgentEngineSandboxConfig()
+        elif isinstance(config, dict):
+            config = types.CreateAgentEngineSandboxConfig.model_validate(config)
+
+        # A sandbox environment must be provided inline via `spec` (with an
+        # environment set), or by referencing an existing template or snapshot in
+        # `config`.
+        spec_has_environment = any(
+            _agent_engines_utils.has_field(spec, field_name)
+            for field_name in (
+                "code_execution_environment",
+                "computer_use_environment",
+                "shell_environment",
+            )
+        )
+        if (
+            not spec_has_environment
+            and not config.sandbox_environment_template
+            and not config.sandbox_environment_snapshot
+        ):
+            raise ValueError(
+                "A sandbox environment must be provided via `spec`, "
+                "`config.sandbox_environment_template`, or "
+                "`config.sandbox_environment_snapshot`."
+            )
+
+        if spec:
+            # Environments that can auto-provision a default sandbox
+            # environment template when the caller does not supply one. Ordered by
+            # precedence: the first matching environment is used.
+            environments = (
+                (
+                    "shell_environment",
+                    types.DefaultContainerCategory.DEFAULT_CONTAINER_CATEGORY_SHELL_SANDBOX,
+                    "shell-sandbox-template",
+                ),
+                (
+                    "computer_use_environment",
+                    types.DefaultContainerCategory.DEFAULT_CONTAINER_CATEGORY_COMPUTER_USE,
+                    "computer-use-template",
+                ),
+            )
+
+            for field_name, category, display_name in environments:
+                if not _agent_engines_utils.has_field(spec, field_name):
+                    continue
+
+                if (
+                    not config.sandbox_environment_template
+                    and not config.sandbox_environment_snapshot
+                ):
+                    default_container_environment = (
+                        types.SandboxEnvironmentTemplateDefaultContainerEnvironment(
+                            default_container_category=category,
+                        )
+                    )
+                    template_operation = self.templates.create(
+                        name=name,
+                        display_name=display_name,
+                        config=types.CreateSandboxEnvironmentTemplateConfig(
+                            default_container_environment=default_container_environment,
+                        ),
+                        poll_interval_seconds=poll_interval_seconds,
+                    )
+                    if not template_operation.response:
+                        raise ValueError(f"Error creating {display_name}.")
+                    config.sandbox_environment_template = (
+                        template_operation.response.name
+                    )
+                break
+
         operation = self._create(
             name=name,
             spec=spec,
             config=config,
         )
-        if config is None:
-            config = types.CreateAgentEngineSandboxConfig()
-        elif isinstance(config, dict):
-            config = types.CreateAgentEngineSandboxConfig.model_validate(config)
         if config.wait_for_completion:
             if not operation.done:
                 operation = _agent_engines_utils._await_operation(

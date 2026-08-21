@@ -1933,6 +1933,9 @@ from .common import SandboxEnvironmentSpecComputerUseEnvironmentDict
 from .common import SandboxEnvironmentSpecComputerUseEnvironmentOrDict
 from .common import SandboxEnvironmentSpecDict
 from .common import SandboxEnvironmentSpecOrDict
+from .common import SandboxEnvironmentSpecShellEnvironment
+from .common import SandboxEnvironmentSpecShellEnvironmentDict
+from .common import SandboxEnvironmentSpecShellEnvironmentOrDict
 from .common import SandboxEnvironmentTemplate
 from .common import SandboxEnvironmentTemplateCustomContainerEnvironment
 from .common import SandboxEnvironmentTemplateCustomContainerEnvironmentDict
@@ -3446,6 +3449,9 @@ __all__ = [
     "SandboxEnvironmentSpecComputerUseEnvironment",
     "SandboxEnvironmentSpecComputerUseEnvironmentDict",
     "SandboxEnvironmentSpecComputerUseEnvironmentOrDict",
+    "SandboxEnvironmentSpecShellEnvironment",
+    "SandboxEnvironmentSpecShellEnvironmentDict",
+    "SandboxEnvironmentSpecShellEnvironmentOrDict",
     "SandboxEnvironmentSpec",
     "SandboxEnvironmentSpecDict",
     "SandboxEnvironmentSpecOrDict",

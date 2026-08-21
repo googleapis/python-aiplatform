@@ -17161,6 +17161,23 @@ SandboxEnvironmentSpecComputerUseEnvironmentOrDict = Union[
 ]
 
 
+class SandboxEnvironmentSpecShellEnvironment(_common.BaseModel):
+    """The shell environment with customized settings."""
+
+    pass
+
+
+class SandboxEnvironmentSpecShellEnvironmentDict(TypedDict, total=False):
+    """The shell environment with customized settings."""
+
+    pass
+
+
+SandboxEnvironmentSpecShellEnvironmentOrDict = Union[
+    SandboxEnvironmentSpecShellEnvironment, SandboxEnvironmentSpecShellEnvironmentDict
+]
+
+
 class SandboxEnvironmentSpec(_common.BaseModel):
     """The specification of a sandbox environment."""
 
@@ -17169,6 +17186,9 @@ class SandboxEnvironmentSpec(_common.BaseModel):
     ] = Field(default=None, description="""Optional. The code execution environment.""")
     computer_use_environment: Optional[SandboxEnvironmentSpecComputerUseEnvironment] = (
         Field(default=None, description="""Optional. The computer use environment.""")
+    )
+    shell_environment: Optional[SandboxEnvironmentSpecShellEnvironment] = Field(
+        default=None, description="""Optional. The shell environment."""
     )
 
 
@@ -17182,6 +17202,9 @@ class SandboxEnvironmentSpecDict(TypedDict, total=False):
 
     computer_use_environment: Optional[SandboxEnvironmentSpecComputerUseEnvironmentDict]
     """Optional. The computer use environment."""
+
+    shell_environment: Optional[SandboxEnvironmentSpecShellEnvironmentDict]
+    """Optional. The shell environment."""
 
 
 SandboxEnvironmentSpecOrDict = Union[SandboxEnvironmentSpec, SandboxEnvironmentSpecDict]

@@ -22,7 +22,9 @@ from google import auth
 from google.auth import credentials as auth_credentials
 import agentplatform
 from google.cloud import aiplatform
+from agentplatform._genai import sandbox_templates
 from agentplatform._genai import sandboxes
+from agentplatform._genai import types as agentplatform_types
 from google.cloud.aiplatform import initializer
 from vertexai._genai import (
     sandboxes as vertexai_sandboxes,
@@ -43,6 +45,11 @@ _TEST_AGENT_ENGINE_RESOURCE_NAME = (
 )
 _TEST_SANDBOX_RESOURCE_NAME = (
     f"{_TEST_AGENT_ENGINE_RESOURCE_NAME}/sandboxes/{_TEST_SANDBOX_ID}"
+)
+_TEST_SANDBOX_TEMPLATE_ID = "template-123"
+_TEST_SANDBOX_TEMPLATE_RESOURCE_NAME = (
+    f"{_TEST_AGENT_ENGINE_RESOURCE_NAME}"
+    f"/sandboxEnvironmentTemplates/{_TEST_SANDBOX_TEMPLATE_ID}"
 )
 _TEST_AGENT_ENGINE_ENV_KEY = "GOOGLE_CLOUD_AGENT_ENGINE_ENV"
 _TEST_AGENT_ENGINE_ENV_VALUE = "test_env_value"
@@ -135,6 +142,159 @@ class TestSandbox:
             headers["Sec-WebSocket-Protocol"]
             == "v1.stream, test_token, test_routing_token, 9222"
         )
+
+    @mock.patch.object(sandboxes.Sandboxes, "_create")
+    def test_create_with_shell_environment_and_existing_template(self, mock_create):
+        mock_operation = mock.Mock()
+        mock_create.return_value = mock_operation
+
+        result = self.client.agent_engines.sandboxes.create(
+            name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+            spec={"shell_environment": {}},
+            config={
+                "sandbox_environment_template": _TEST_SANDBOX_TEMPLATE_RESOURCE_NAME,
+                "wait_for_completion": False,
+            },
+        )
+
+        assert result is mock_operation
+        mock_create.assert_called_once()
+        _, kwargs = mock_create.call_args
+        assert kwargs["name"] == _TEST_AGENT_ENGINE_RESOURCE_NAME
+        assert (
+            kwargs["config"].sandbox_environment_template
+            == _TEST_SANDBOX_TEMPLATE_RESOURCE_NAME
+        )
+
+    @mock.patch.object(sandboxes.Sandboxes, "_create")
+    @mock.patch.object(sandbox_templates.SandboxTemplates, "create")
+    def test_create_with_shell_environment_creates_template_when_absent(
+        self, mock_template_create, mock_create
+    ):
+        mock_template_operation = mock.Mock()
+        mock_template_operation.response.name = _TEST_SANDBOX_TEMPLATE_RESOURCE_NAME
+        mock_template_create.return_value = mock_template_operation
+        mock_create.return_value = mock.Mock()
+
+        self.client.agent_engines.sandboxes.create(
+            name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+            spec={"shell_environment": {}},
+            config={"wait_for_completion": False},
+        )
+
+        mock_template_create.assert_called_once()
+        _, template_kwargs = mock_template_create.call_args
+        template_config = template_kwargs["config"]
+        assert (
+            template_config.default_container_environment.default_container_category
+            == agentplatform_types.DefaultContainerCategory.DEFAULT_CONTAINER_CATEGORY_SHELL_SANDBOX
+        )
+        mock_create.assert_called_once()
+        _, create_kwargs = mock_create.call_args
+        assert (
+            create_kwargs["config"].sandbox_environment_template
+            == _TEST_SANDBOX_TEMPLATE_RESOURCE_NAME
+        )
+
+    @mock.patch.object(sandboxes.Sandboxes, "_create")
+    @mock.patch.object(sandbox_templates.SandboxTemplates, "create")
+    def test_create_with_typed_shell_environment_creates_template_when_absent(
+        self, mock_template_create, mock_create
+    ):
+        mock_template_operation = mock.Mock()
+        mock_template_operation.response.name = _TEST_SANDBOX_TEMPLATE_RESOURCE_NAME
+        mock_template_create.return_value = mock_template_operation
+        mock_create.return_value = mock.Mock()
+
+        shell_environment = agentplatform_types.SandboxEnvironmentSpecShellEnvironment()
+        self.client.agent_engines.sandboxes.create(
+            name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+            spec=agentplatform_types.SandboxEnvironmentSpec(
+                shell_environment=shell_environment,
+            ),
+            config={"wait_for_completion": False},
+        )
+
+        mock_template_create.assert_called_once()
+        _, template_kwargs = mock_template_create.call_args
+        template_config = template_kwargs["config"]
+        assert (
+            template_config.default_container_environment.default_container_category
+            == agentplatform_types.DefaultContainerCategory.DEFAULT_CONTAINER_CATEGORY_SHELL_SANDBOX
+        )
+        mock_create.assert_called_once()
+        _, create_kwargs = mock_create.call_args
+        assert (
+            create_kwargs["config"].sandbox_environment_template
+            == _TEST_SANDBOX_TEMPLATE_RESOURCE_NAME
+        )
+
+    @mock.patch.object(sandboxes.Sandboxes, "_create")
+    @mock.patch.object(sandbox_templates.SandboxTemplates, "create")
+    def test_create_with_computer_use_environment_creates_template_when_absent(
+        self, mock_template_create, mock_create
+    ):
+        mock_template_operation = mock.Mock()
+        mock_template_operation.response.name = _TEST_SANDBOX_TEMPLATE_RESOURCE_NAME
+        mock_template_create.return_value = mock_template_operation
+        mock_create.return_value = mock.Mock()
+
+        self.client.agent_engines.sandboxes.create(
+            name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+            spec={"computer_use_environment": {}},
+            config={"wait_for_completion": False},
+        )
+
+        mock_template_create.assert_called_once()
+        _, template_kwargs = mock_template_create.call_args
+        template_config = template_kwargs["config"]
+        assert (
+            template_config.default_container_environment.default_container_category
+            == agentplatform_types.DefaultContainerCategory.DEFAULT_CONTAINER_CATEGORY_COMPUTER_USE
+        )
+        mock_create.assert_called_once()
+        _, create_kwargs = mock_create.call_args
+        assert (
+            create_kwargs["config"].sandbox_environment_template
+            == _TEST_SANDBOX_TEMPLATE_RESOURCE_NAME
+        )
+
+    @mock.patch.object(sandboxes.Sandboxes, "_create")
+    @mock.patch.object(sandbox_templates.SandboxTemplates, "create")
+    def test_create_with_snapshot_does_not_create_template(
+        self, mock_template_create, mock_create
+    ):
+        mock_operation = mock.Mock()
+        mock_create.return_value = mock_operation
+
+        result = self.client.agent_engines.sandboxes.create(
+            name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+            spec={"computer_use_environment": {}},
+            config={
+                "sandbox_environment_snapshot": "projects/p/locations/l/agentEngines/ae/sandboxEnvironmentSnapshots/s1",
+                "wait_for_completion": False,
+            },
+        )
+
+        assert result is mock_operation
+        mock_template_create.assert_not_called()
+        mock_create.assert_called_once()
+        _, create_kwargs = mock_create.call_args
+        assert (
+            create_kwargs["config"].sandbox_environment_snapshot
+            == "projects/p/locations/l/agentEngines/ae/sandboxEnvironmentSnapshots/s1"
+        )
+
+    @mock.patch.object(sandboxes.Sandboxes, "_create")
+    def test_create_without_spec_template_or_snapshot_raises(self, mock_create):
+        for spec in (None, {}, agentplatform_types.SandboxEnvironmentSpec()):
+            with pytest.raises(ValueError, match="must be provided"):
+                self.client.agent_engines.sandboxes.create(
+                    name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                    spec=spec,
+                )
+
+        mock_create.assert_not_called()
 
 
 _MODULES = pytest.mark.parametrize(
