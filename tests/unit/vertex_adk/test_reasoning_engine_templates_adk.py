@@ -18,6 +18,7 @@ import importlib
 import json
 import os
 import re
+import threading
 from unittest import mock
 from typing import Optional
 
@@ -27,6 +28,7 @@ from google.cloud.aiplatform import initializer
 from vertexai.agent_engines import _utils
 from vertexai.preview import reasoning_engines
 from vertexai.preview.reasoning_engines.templates import adk as adk_template
+from google.genai import errors as genai_errors
 from google.genai import types
 import pytest
 import uuid
@@ -659,6 +661,90 @@ class TestAdkApp:
         events = list(app.streaming_agent_run_with_events(request_json=request_json))
         assert len(events) == 1
 
+    def test_streaming_agent_run_with_events_reraises_api_error(self):
+        """A mid-stream backend failure reaches the caller.
+
+        `google.genai.errors.APIError` is not a `RuntimeError`, so the stream
+        used to just stop, which is indistinguishable from a short but
+        successful response (b/550103401).
+        """
+        error = genai_errors.ServerError(
+            500, {"error": {"message": "Internal error.", "status": "INTERNAL"}}
+        )
+
+        class _FailingRunner(_MockRunner):
+            def run(self, *args, **kwargs):
+                yield from super().run(*args, **kwargs)
+                raise error
+
+        app = reasoning_engines.AdkApp(
+            agent=Agent(name=_TEST_AGENT_NAME, model=_TEST_MODEL)
+        )
+        app.set_up()
+        app._tmpl_attrs[  # pylint: disable=protected-access
+            "in_memory_runner"
+        ] = _FailingRunner()
+        request_json = json.dumps(
+            {
+                "user_id": _TEST_USER_ID,
+                "message": {
+                    "parts": [{"text": "What is the exchange rate from USD to SEK?"}],
+                    "role": "user",
+                },
+            }
+        )
+
+        with pytest.raises(genai_errors.ServerError) as exc_info:
+            list(app.streaming_agent_run_with_events(request_json=request_json))
+        assert exc_info.value is error
+
+    def test_streaming_agent_run_with_events_closed_early_after_error(self):
+        """Abandoning a failing stream does not deadlock.
+
+        The worker thread queues exactly one terminal item. Queueing both the
+        exception and a `None` sentinel would park it forever on the
+        `maxsize=1` queue once the consumer stopped reading, taking the
+        generator's `thread.join()` down with it (b/550103401).
+        """
+        error = genai_errors.ServerError(
+            500, {"error": {"message": "Internal error.", "status": "INTERNAL"}}
+        )
+
+        class _FailingRunner(_MockRunner):
+            def run(self, *args, **kwargs):
+                yield from super().run(*args, **kwargs)
+                raise error
+
+        app = reasoning_engines.AdkApp(
+            agent=Agent(name=_TEST_AGENT_NAME, model=_TEST_MODEL)
+        )
+        app.set_up()
+        app._tmpl_attrs[  # pylint: disable=protected-access
+            "in_memory_runner"
+        ] = _FailingRunner()
+        request_json = json.dumps(
+            {
+                "user_id": _TEST_USER_ID,
+                "message": {
+                    "parts": [{"text": "What is the exchange rate from USD to SEK?"}],
+                    "role": "user",
+                },
+            }
+        )
+
+        def _take_one_event_then_close():
+            stream = app.streaming_agent_run_with_events(request_json=request_json)
+            for _ in stream:
+                break
+            stream.close()
+
+        # Consume on a worker so a regression fails this test rather than
+        # hanging the whole suite.
+        consumer = threading.Thread(target=_take_one_event_then_close, daemon=True)
+        consumer.start()
+        consumer.join(timeout=60)
+        assert not consumer.is_alive(), "streaming generator deadlocked on close"
+
     def test_streaming_agent_run_with_events_propagates_labels(self):
         from google.adk.agents.run_config import RunConfig
 
@@ -1203,6 +1289,45 @@ class TestAdkAppErrors:
         ):
             async for _ in app.async_stream_query(user_id=_TEST_USER_ID, message=123):
                 pass
+
+    @pytest.mark.parametrize(
+        "method_name,method_kwargs",
+        [
+            ("create_session", {"user_id": _TEST_USER_ID}),
+            (
+                "get_session",
+                {"user_id": _TEST_USER_ID, "session_id": "test_session_id"},
+            ),
+            ("list_sessions", {"user_id": _TEST_USER_ID}),
+            (
+                "delete_session",
+                {"user_id": _TEST_USER_ID, "session_id": "test_session_id"},
+            ),
+        ],
+    )
+    def test_sync_session_method_reraises_api_error(self, method_name, method_kwargs):
+        """A backend error reaches the caller instead of being swallowed.
+
+        `google.genai.errors.APIError` is not a `RuntimeError`, so it used to
+        escape the worker thread and leave the caller with a generic error, a
+        `None`, or the exception object itself (b/550103401).
+        """
+        app = reasoning_engines.AdkApp(
+            agent=Agent(name=_TEST_AGENT_NAME, model=_TEST_MODEL)
+        )
+        error = genai_errors.ServerError(
+            500, {"error": {"message": "Internal error.", "status": "INTERNAL"}}
+        )
+
+        async def _raise_server_error(*args, **kwargs):
+            raise error
+
+        with mock.patch.object(
+            adk_template.AdkApp, f"async_{method_name}", _raise_server_error
+        ):
+            with pytest.raises(genai_errors.ServerError) as exc_info:
+                getattr(app, method_name)(**method_kwargs)
+        assert exc_info.value is error
 
     @pytest.mark.asyncio
     async def test_bidi_stream_query_invalid_request_queue(self):

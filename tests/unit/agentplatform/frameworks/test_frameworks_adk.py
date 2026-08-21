@@ -39,6 +39,7 @@ from agentplatform._genai import _agent_engines_utils
 from agentplatform.agent_engines.templates import (
     adk as adk_template,
 )
+from google.genai import errors as genai_errors
 from google.genai import types
 import pytest
 import requests
@@ -1550,6 +1551,43 @@ class TestAdkAppErrors:
         ):
             async for _ in app.async_stream_query(user_id=_TEST_USER_ID, message=123):
                 pass
+
+    @pytest.mark.parametrize(
+        "method_name,method_kwargs",
+        [
+            ("create_session", {"user_id": _TEST_USER_ID}),
+            (
+                "get_session",
+                {"user_id": _TEST_USER_ID, "session_id": "test_session_id"},
+            ),
+            ("list_sessions", {"user_id": _TEST_USER_ID}),
+            (
+                "delete_session",
+                {"user_id": _TEST_USER_ID, "session_id": "test_session_id"},
+            ),
+        ],
+    )
+    def test_sync_session_method_reraises_api_error(self, method_name, method_kwargs):
+        """A backend error reaches the caller instead of being swallowed.
+
+        `google.genai.errors.APIError` is not a `RuntimeError`, so it used to
+        escape the worker thread and leave the caller with a generic error, a
+        `None`, or the exception object itself (b/550103401).
+        """
+        app = adk_template.AdkApp(agent=_TEST_AGENT)
+        error = genai_errors.ServerError(
+            500, {"error": {"message": "Internal error.", "status": "INTERNAL"}}
+        )
+
+        async def _raise_server_error(*args, **kwargs):
+            raise error
+
+        with mock.patch.object(
+            adk_template.AdkApp, f"async_{method_name}", _raise_server_error
+        ):
+            with pytest.raises(genai_errors.ServerError) as exc_info:
+                getattr(app, method_name)(**method_kwargs)
+        assert exc_info.value is error
 
 
 @pytest.fixture(scope="module")
