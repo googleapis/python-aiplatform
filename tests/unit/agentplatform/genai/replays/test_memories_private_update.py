@@ -18,21 +18,27 @@ from tests.unit.agentplatform.genai.replays import pytest_helper
 from agentplatform._genai import types
 
 
-def test_private_retrieve(client):
-    ae_name = "projects/964831358985/locations/us-central1/reasoningEngines/2886612747586371584"
-    retrieved_memories = client.agent_engines.memories._retrieve(
-        name=ae_name,
-        scope={"user_id": "123"},
-    )
-    assert isinstance(retrieved_memories, types.RetrieveMemoriesResponse)
-    assert isinstance(
-        retrieved_memories.retrieved_memories[0],
-        types.RetrieveMemoriesResponseRetrievedMemory,
-    )
+def test_private_update_memory(client):
+    memory_bank = client.memory_banks.create()
+    try:
+        memory_operation = client.memory_banks.memories.create(
+            name=memory_bank.name,
+            fact="memory_fact",
+            scope={"user_id": "123"},
+        )
+        memory_name = memory_operation.response.name
+        memory_update_operation = client.memory_banks.memories._update(
+            name=memory_name,
+            fact="memory_fact_updated",
+            scope={"user_id": "123"},
+        )
+        assert isinstance(memory_update_operation, types.MemoryOperation)
+    finally:
+        client.memory_banks.delete(name=memory_bank.name, force=True)
 
 
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
-    test_method="agent_engines.memories._retrieve",
+    test_method="memory_banks.memories._update",
 )
