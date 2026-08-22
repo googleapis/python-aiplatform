@@ -2559,6 +2559,10 @@ class CodeExecutionMetric(Metric):
         default=None,
         description="""The Python function code to be executed on the server side.""",
     )
+    code_execution_region: Optional[str] = Field(
+        default=None,
+        description="""Optional. The region to use for code execution sandbox. If set, overrides the request location for sandbox routing. Must be one of the supported regions for the Code Execution Sandbox.""",
+    )
 
     # You can also add hand-written validators or methods here
     @field_validator("custom_function")
