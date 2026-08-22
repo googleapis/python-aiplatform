@@ -161,6 +161,9 @@ class ReasoningEngine(base.VertexAiResourceNounWithFutureManager):
         gcs_dir_name: str = _DEFAULT_GCS_DIR_NAME,
         sys_version: Optional[str] = None,
         extra_packages: Optional[Sequence[str]] = None,
+        labels: Optional[Dict[str, str]] = None,
+        agent_framework: Optional[str] = None,
+        env_vars: Optional[List[Dict[str, str]]] = None,
     ) -> "ReasoningEngine":
         """Creates a new ReasoningEngine.
 
@@ -305,6 +308,21 @@ class ReasoningEngine(base.VertexAiResourceNounWithFutureManager):
             reasoning_engine, _get_registered_operations(reasoning_engine)
         )
         reasoning_engine_spec.class_methods.extend(class_methods_spec)
+        if agent_framework:
+            reasoning_engine_spec.agent_framework = agent_framework
+        if env_vars:
+            # Manually construct EnvVar protos if needed, or pass list of dicts if supported
+            # The proto definition expects a list of EnvVar messages.
+            # aip_types.EnvVar is the type.
+            env_var_protos = []
+            for ev in env_vars:
+                env_var_protos.append(aip_types.EnvVar(name=ev["name"], value=ev["value"]))
+            
+            # deployment_spec might be None, so we initialize it
+            if not reasoning_engine_spec.deployment_spec:
+                 reasoning_engine_spec.deployment_spec = aip_types.ReasoningEngineSpec.DeploymentSpec()
+            reasoning_engine_spec.deployment_spec.env.extend(env_var_protos)
+
         operation_future = sdk_resource.api_client.create_reasoning_engine(
             parent=initializer.global_config.common_location_path(
                 project=sdk_resource.project, location=sdk_resource.location
@@ -314,6 +332,7 @@ class ReasoningEngine(base.VertexAiResourceNounWithFutureManager):
                 display_name=display_name,
                 description=description,
                 spec=reasoning_engine_spec,
+                labels=labels,
             ),
         )
         _LOGGER.log_create_with_lro(cls, operation_future)
