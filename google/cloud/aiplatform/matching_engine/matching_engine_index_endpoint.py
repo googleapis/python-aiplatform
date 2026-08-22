@@ -1865,7 +1865,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                         dimensions=query.sparse_embedding_dimensions,
                     ),
                 )
-                if query.rrf_ranking_alpha:
+                if query.rrf_ranking_alpha is not None:
                     find_neighbors_query.rrf = (
                         gca_match_service_v1beta1.FindNeighborsRequest.Query.RRF(
                             alpha=query.rrf_ranking_alpha,
@@ -2200,7 +2200,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                         match_service_pb2.MatchRequest.RRF(
                             alpha=query.rrf_ranking_alpha,
                         )
-                        if query_is_hybrid and query.rrf_ranking_alpha
+                        if query_is_hybrid and query.rrf_ranking_alpha is not None
                         else None
                     ),
                 )

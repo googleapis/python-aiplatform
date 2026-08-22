@@ -258,6 +258,11 @@ _TEST_HYBRID_QUERIES = [
         sparse_embedding_dimensions=[1, 2, 3],
         sparse_embedding_values=[0.1, 0.2, 0.3],
     ),
+    HybridQuery(
+        sparse_embedding_dimensions=[1, 2, 3],
+        sparse_embedding_values=[0.1, 0.2, 0.3],
+        rrf_ranking_alpha=0.0,  # Test edge case where alpha is 0
+    ),
 ]
 _TEST_NUM_NEIGHBOURS = 1
 _TEST_FILTER = [
@@ -1539,7 +1544,7 @@ class TestMatchingEngineIndexEndpoint:
                                 match_service_pb2.MatchRequest.RRF(
                                     alpha=_TEST_HYBRID_QUERIES[i].rrf_ranking_alpha,
                                 )
-                                if _TEST_HYBRID_QUERIES[i].rrf_ranking_alpha
+                                if _TEST_HYBRID_QUERIES[i].rrf_ranking_alpha is not None
                                 else None
                             ),
                         )
@@ -2088,6 +2093,27 @@ class TestMatchingEngineIndexEndpoint:
                         sparse_embedding=gca_index_v1beta1.IndexDatapoint.SparseEmbedding(
                             values=[0.1, 0.2, 0.3], dimensions=[1, 2, 3]
                         ),
+                    ),
+                    per_crowding_attribute_neighbor_count=_TEST_PER_CROWDING_ATTRIBUTE_NUM_NEIGHBOURS,
+                    approximate_neighbor_count=_TEST_APPROX_NUM_NEIGHBORS,
+                    fraction_leaf_nodes_to_search_override=_TEST_FRACTION_LEAF_NODES_TO_SEARCH_OVERRIDE,
+                ),
+                gca_match_service_v1beta1.FindNeighborsRequest.Query(
+                    neighbor_count=_TEST_NUM_NEIGHBOURS,
+                    datapoint=gca_index_v1beta1.IndexDatapoint(
+                        restricts=[
+                            gca_index_v1beta1.IndexDatapoint.Restriction(
+                                namespace="class",
+                                allow_list=["token_1"],
+                                deny_list=["token_2"],
+                            )
+                        ],
+                        sparse_embedding=gca_index_v1beta1.IndexDatapoint.SparseEmbedding(
+                            values=[0.1, 0.2, 0.3], dimensions=[1, 2, 3]
+                        ),
+                    ),
+                    rrf=gca_match_service_v1beta1.FindNeighborsRequest.Query.RRF(
+                        alpha=0.0,
                     ),
                     per_crowding_attribute_neighbor_count=_TEST_PER_CROWDING_ATTRIBUTE_NUM_NEIGHBOURS,
                     approximate_neighbor_count=_TEST_APPROX_NUM_NEIGHBORS,
