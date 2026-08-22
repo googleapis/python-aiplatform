@@ -18,15 +18,21 @@ from tests.unit.agentplatform.genai.replays import pytest_helper
 from agentplatform._genai import types
 
 
-def test_get_memory(client):
-    memory_name = "projects/964831358985/locations/us-central1/reasoningEngines/2886612747586371584/memories/3858070028511346688"
-    ae_memory = client.agent_engines.memories.get(name=memory_name)
-    assert isinstance(ae_memory, types.Memory)
-    assert ae_memory.name == memory_name
+def test_private_create_memory(client):
+    memory_bank = client.memory_banks.create()
+    try:
+        memory_operation = client.memory_banks.memories._create(
+            name=memory_bank.name,
+            fact="memory_fact",
+            scope={"user_id": "123"},
+        )
+        assert isinstance(memory_operation, types.MemoryOperation)
+    finally:
+        client.memory_banks.delete(name=memory_bank.name, force=True)
 
 
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
-    test_method="agent_engines.memories.get",
+    test_method="agent_engines.memories._create",
 )

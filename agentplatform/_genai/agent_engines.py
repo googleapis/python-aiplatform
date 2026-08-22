@@ -37,12 +37,10 @@ from . import types
 
 if typing.TYPE_CHECKING:
     from . import sessions as sessions_module
-    from . import memories as memories_module
     from . import a2a_tasks as a2a_tasks_module
     from . import runtimes as runtimes_module
 
     _ = sessions_module
-    __ = memories_module
     ___ = a2a_tasks_module
     ____ = runtimes_module
 
@@ -1513,7 +1511,6 @@ class AgentEngines(_api_module.BaseModule):
         return return_value
 
     _a2a_tasks = None
-    _memories = None
     _sandboxes = None
     _sessions = None
     _runtimes = None
@@ -1547,21 +1544,6 @@ class AgentEngines(_api_module.BaseModule):
                     "google-cloud-aiplatform[agent_engines]"
                 ) from e
         return self._a2a_tasks.A2aTasks(self._api_client)  # type: ignore[no-any-return]
-
-    @property
-    def memories(self) -> "memories_module.Memories":
-        if self._memories is None:
-            try:
-                # We need to lazy load the memories module to handle the
-                # possibility of ImportError when dependencies are not installed.
-                self._memories = importlib.import_module(".memories", __package__)
-            except ImportError as e:
-                raise ImportError(
-                    "The 'agent_engines.memories' module requires additional "
-                    "packages. Please install them using pip install "
-                    "google-cloud-aiplatform[agent_engines]"
-                ) from e
-        return self._memories.Memories(self._api_client)  # type: ignore[no-any-return]
 
     @property
     def sandboxes(self) -> Any:
@@ -2922,145 +2904,6 @@ class AgentEngines(_api_module.BaseModule):
         async for response in async_iterator:
             yield response
 
-    def create_memory(
-        self,
-        *,
-        name: str,
-        fact: str,
-        scope: dict[str, str],
-        config: Optional[types.AgentEngineMemoryConfigOrDict] = None,
-    ) -> types.AgentEngineMemoryOperation:
-        """Deprecated. Use agent_engines.memories.create instead."""
-        warnings.warn(
-            (
-                "agent_engines.create_memory is deprecated. "
-                "Use agent_engines.memories.create instead."
-            ),
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return self.memories.create(
-            name=name,
-            fact=fact,
-            scope=scope,
-            config=config,
-        )
-
-    def delete_memory(
-        self,
-        *,
-        name: str,
-        config: Optional[types.DeleteAgentEngineMemoryConfigOrDict] = None,
-    ) -> types.DeleteAgentEngineMemoryOperation:
-        """Deprecated. Use agent_engines.memories.delete instead."""
-        warnings.warn(
-            (
-                "agent_engines.delete_memory is deprecated. "
-                "Use agent_engines.memories.delete instead."
-            ),
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return self.memories.delete(name=name, config=config)
-
-    def generate_memories(
-        self,
-        *,
-        name: str,
-        vertex_session_source: Optional[
-            types.GenerateMemoriesRequestVertexSessionSourceOrDict
-        ] = None,
-        direct_contents_source: Optional[
-            types.GenerateMemoriesRequestDirectContentsSourceOrDict
-        ] = None,
-        direct_memories_source: Optional[
-            types.GenerateMemoriesRequestDirectMemoriesSourceOrDict
-        ] = None,
-        scope: Optional[dict[str, str]] = None,
-        config: Optional[types.GenerateAgentEngineMemoriesConfigOrDict] = None,
-    ) -> types.AgentEngineGenerateMemoriesOperation:
-        """Deprecated. Use agent_engines.memories.generate instead."""
-        warnings.warn(
-            (
-                "agent_engines.generate_memories is deprecated. "
-                "Use agent_engines.memories.generate instead."
-            ),
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return self.memories.generate(
-            name=name,
-            vertex_session_source=vertex_session_source,
-            direct_contents_source=direct_contents_source,
-            direct_memories_source=direct_memories_source,
-            scope=scope,
-            config=config,
-        )
-
-    def get_memory(
-        self,
-        *,
-        name: str,
-        config: Optional[types.GetAgentEngineMemoryConfigOrDict] = None,
-    ) -> types.Memory:
-        """Deprecated. Use agent_engines.memories.get instead."""
-        warnings.warn(
-            (
-                "agent_engines.get_memory is deprecated. "
-                "Use agent_engines.memories.get instead."
-            ),
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return self.memories.get(name=name, config=config)
-
-    def list_memories(
-        self,
-        *,
-        name: str,
-        config: Optional[types.ListAgentEngineMemoryConfigOrDict] = None,
-    ) -> Iterator[types.Memory]:
-        """Deprecated. Use agent_engines.memories.list instead."""
-        warnings.warn(
-            (
-                "agent_engines.list_memories is deprecated. "
-                "Use agent_engines.memories.list instead."
-            ),
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return self.memories.list(name=name, config=config)
-
-    def retrieve_memories(
-        self,
-        *,
-        name: str,
-        scope: dict[str, str],
-        similarity_search_params: Optional[
-            types.RetrieveMemoriesRequestSimilaritySearchParamsOrDict
-        ] = None,
-        simple_retrieval_params: Optional[
-            types.RetrieveMemoriesRequestSimpleRetrievalParamsOrDict
-        ] = None,
-        config: Optional[types.RetrieveAgentEngineMemoriesConfigOrDict] = None,
-    ) -> Iterator[types.RetrieveMemoriesResponseRetrievedMemory]:
-        """Deprecated. Use agent_engines.memories.retrieve instead."""
-        warnings.warn(
-            (
-                "agent_engines.retrieve_memories is deprecated. "
-                "Use agent_engines.memories.retrieve instead."
-            ),
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return self.memories.retrieve(
-            name=name,
-            scope=scope,
-            similarity_search_params=similarity_search_params,
-            simple_retrieval_params=simple_retrieval_params,
-            config=config,
-        )
-
     def create_session(
         self,
         *,
@@ -3951,7 +3794,6 @@ class AsyncAgentEngines(_api_module.BaseModule):
         return return_value
 
     _a2a_tasks = None
-    _memories = None
     _sessions = None
     _runtimes = None
 
@@ -4014,21 +3856,6 @@ class AsyncAgentEngines(_api_module.BaseModule):
         return self._a2a_tasks.AsyncA2aTasks(self._api_client)  # type: ignore[no-any-return]
 
     @property
-    def memories(self) -> "memories_module.AsyncMemories":
-        if self._memories is None:
-            try:
-                # We need to lazy load the memories module to handle the
-                # possibility of ImportError when dependencies are not installed.
-                self._memories = importlib.import_module(".memories", __package__)
-            except ImportError as e:
-                raise ImportError(
-                    "The 'agent_engines.memories' module requires additional "
-                    "packages. Please install them using pip install "
-                    "google-cloud-aiplatform[agent_engines]"
-                ) from e
-        return self._memories.AsyncMemories(self._api_client)  # type: ignore[no-any-return]
-
-    @property
     def sessions(self) -> "sessions_module.AsyncSessions":
         if self._sessions is None:
             try:
@@ -4069,23 +3896,6 @@ class AsyncAgentEngines(_api_module.BaseModule):
             config=config,
         )
 
-    async def delete_memory(
-        self,
-        *,
-        name: str,
-        config: Optional[types.DeleteAgentEngineMemoryConfigOrDict] = None,
-    ) -> types.DeleteAgentEngineMemoryOperation:
-        """Deprecated. Use agent_engines.memories.delete instead."""
-        warnings.warn(
-            (
-                "agent_engines.delete_memory is deprecated. "
-                "Use agent_engines.memories.delete instead."
-            ),
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return await self.memories.delete(name=name, config=config)
-
     async def delete_session(
         self,
         *,
@@ -4102,23 +3912,6 @@ class AsyncAgentEngines(_api_module.BaseModule):
             stacklevel=2,
         )
         return await self.sessions.delete(name=name, config=config)
-
-    async def get_memory(
-        self,
-        *,
-        name: str,
-        config: Optional[types.GetAgentEngineMemoryConfigOrDict] = None,
-    ) -> types.Memory:
-        """Deprecated. Use agent_engines.memories.get instead."""
-        warnings.warn(
-            (
-                "agent_engines.get_memory is deprecated. "
-                "Use agent_engines.memories.get instead."
-            ),
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return await self.memories.get(name=name, config=config)
 
     async def get_session(
         self,

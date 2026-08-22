@@ -19,14 +19,30 @@ from agentplatform._genai import types
 
 
 def test_get_memory_revisions(client):
-    memory_name = "projects/964831358985/locations/us-central1/reasoningEngines/2886612747586371584/memories/3858070028511346688/revisions/516064922187071488"
-    memory_revision = client.agent_engines.memories.revisions.get(name=memory_name)
-    assert isinstance(memory_revision, types.MemoryRevision)
-    assert memory_revision.name == memory_name
+    memory_bank = client.memory_banks.create()
+    try:
+        operation = client.memory_banks.memories.create(
+            name=memory_bank.name,
+            fact="memory_fact",
+            scope={"user_id": "123"},
+        )
+        memory_revisions = list(
+            client.memory_banks.memories.revisions.list(
+                name=operation.response.name,
+            )
+        )
+        memory_revision_name = memory_revisions[0].name
+        memory_revision = client.memory_banks.memories.revisions.get(
+            name=memory_revision_name
+        )
+        assert isinstance(memory_revision, types.MemoryRevision)
+        assert memory_revision.name == memory_revision_name
+    finally:
+        client.memory_banks.delete(name=memory_bank.name, force=True)
 
 
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
-    test_method="agent_engines.memories.revisions.get",
+    test_method="memory_banks.memories.revisions.get",
 )
