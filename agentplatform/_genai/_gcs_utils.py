@@ -13,22 +13,53 @@
 # limitations under the License.
 #
 
+from importlib.metadata import version as get_version
 import io
 import json
 import logging
 from typing import Any, Union
+import uuid
 
 from google.cloud import storage  # type: ignore[attr-defined]
-from google.cloud.aiplatform.utils.gcs_utils import blob_from_uri
 from google.genai._api_client import BaseApiClient
+from packaging.version import Version
 import pandas as pd
-import uuid
 
 
 logger = logging.getLogger(__name__)
 
 
 GCS_PREFIX = "gs://"
+
+
+# Detect google-cloud-storage version once at module load
+try:
+    _GCS_VERSION = Version(get_version("google-cloud-storage"))
+except Exception:
+    # Fallback if version detection fails (should not happen in normal use)
+    _GCS_VERSION = Version("3.0.0")
+
+_USE_FROM_URI = _GCS_VERSION >= Version("3.0.0")
+
+
+def blob_from_uri(uri: str, client: storage.Client) -> storage.Blob:
+    """Create a Blob from a GCS URI, compatible with v2 and v3.
+
+    This function provides compatibility across google-cloud-storage versions:
+    - v3.x: Uses Blob.from_uri()
+    - v2.x: Uses Blob.from_string() (deprecated in v3)
+
+    Args:
+        uri: GCS URI (e.g., 'gs://bucket/path/to/blob')
+        client: Storage client instance
+
+    Returns:
+        storage.Blob: Blob instance
+    """
+    if _USE_FROM_URI:
+        return storage.Blob.from_uri(uri, client=client)
+    else:
+        return storage.Blob.from_string(uri, client=client)
 
 
 class GcsUtils:

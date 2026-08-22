@@ -17,10 +17,17 @@
 import importlib
 import sys
 
-from google.cloud.aiplatform import init
-from google.cloud.aiplatform import version as aiplatform_version
+try:
+    from google.cloud.aiplatform import init
+except ImportError:
+    init = None
 
-__version__ = aiplatform_version.__version__
+try:
+    from google.cloud.aiplatform import version as aiplatform_version
+
+    __version__ = aiplatform_version.__version__
+except ImportError:
+    from .version import __version__  # noqa: F401
 
 _genai_client = None
 _genai_types = None
@@ -60,3 +67,6 @@ __all__ = [
     "Client",
     "types",
 ]
+
+if init is None:
+    __all__.remove("init")
