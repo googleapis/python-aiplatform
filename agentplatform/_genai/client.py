@@ -53,6 +53,9 @@ if TYPE_CHECKING:
     from agentplatform._genai import (
         example_stores as example_stores_module,
     )
+    from agentplatform._genai import (
+        memory_banks as memory_banks_module,
+    )
 
 _GENAI_MODULES_TELEMETRY_HEADER = "vertex-genai-modules"
 
@@ -100,6 +103,7 @@ class AsyncClient:
         self._feedback_entries: Optional[ModuleType] = None
         self._endpoints: Optional[ModuleType] = None
         self._example_stores: Optional[ModuleType] = None
+        self._memory_banks: Optional[ModuleType] = None
 
     @property
     @_common.experimental_warning(
@@ -233,6 +237,12 @@ class AsyncClient:
             )
         return self._model_garden.AsyncModelGarden(self._api_client)  # type: ignore[no-any-return]
 
+    @property
+    def memory_banks(self) -> "memory_banks_module.AsyncMemoryBanks":
+        if self._memory_banks is None:
+            self._memory_banks = importlib.import_module(".memory_banks", __package__)
+        return self._memory_banks.AsyncMemoryBanks(self._api_client)  # type: ignore[no-any-return]
+
     async def aclose(self) -> None:
         """Closes the async client explicitly.
 
@@ -342,6 +352,7 @@ class Client:
         self._feedback_entries: Optional[ModuleType] = None
         self._endpoints: Optional[ModuleType] = None
         self._example_stores: Optional[ModuleType] = None
+        self._memory_banks: Optional[ModuleType] = None
 
     @property
     def evals(self) -> "evals_module.Evals":
@@ -499,3 +510,9 @@ class Client:
                 __package__,
             )
         return self._model_garden.ModelGarden(self._api_client)  # type: ignore[no-any-return]
+
+    @property
+    def memory_banks(self) -> "memory_banks_module.MemoryBanks":
+        if self._memory_banks is None:
+            self._memory_banks = importlib.import_module(".memory_banks", __package__)
+        return self._memory_banks.MemoryBanks(self._api_client)  # type: ignore[no-any-return]

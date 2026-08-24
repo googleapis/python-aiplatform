@@ -22,28 +22,28 @@ from tests.unit.agentplatform.genai.replays import pytest_helper
 
 def test_purge_memories(client):
     """Tests purging memories."""
-    agent_engine = client.agent_engines.create()
+    memory_bank = client.memory_banks.create()
     try:
-        client.agent_engines.memories.create(
-            name=agent_engine.api_resource.name,
+        client.memory_banks.memories.create(
+            name=memory_bank.name,
             fact="memory_fact_1",
             scope={"user_id": "123"},
             config={"wait_for_completion": True},
         )
-        client.agent_engines.memories.create(
-            name=agent_engine.api_resource.name,
+        client.memory_banks.memories.create(
+            name=memory_bank.name,
             fact="memory_fact_2",
             scope={"user_id": "123"},
             config={"wait_for_completion": True},
         )
-        client.agent_engines.memories.create(
-            name=agent_engine.api_resource.name,
+        client.memory_banks.memories.create(
+            name=memory_bank.name,
             fact="memory_fact_3",
             scope={"user_id": "456"},
             config={"wait_for_completion": True},
         )
-        client.agent_engines.memories.create(
-            name=agent_engine.api_resource.name,
+        client.memory_banks.memories.create(
+            name=memory_bank.name,
             fact="memory_fact_4",
             scope={"user_id": "456"},
             config={
@@ -51,46 +51,28 @@ def test_purge_memories(client):
                 "metadata": {"my_key": {"string_value": "my_value"}},
             },
         )
-        operation = client.agent_engines.memories.purge(
-            name=agent_engine.api_resource.name,
+        operation = client.memory_banks.memories.purge(
+            name=memory_bank.name,
             filter="scope.user_id=123",
             config={"wait_for_completion": True},
         )
         assert operation.done
         assert operation.response.purge_count == 2
         # Memories were not actually purged, because `force` was False.
-        assert (
-            len(
-                list(
-                    client.agent_engines.memories.list(
-                        name=agent_engine.api_resource.name
-                    )
-                )
-            )
-            == 4
-        )
+        assert len(list(client.memory_banks.memories.list(name=memory_bank.name))) == 4
         # Now, actually purge the memories.
-        operation = client.agent_engines.memories.purge(
-            name=agent_engine.api_resource.name,
+        operation = client.memory_banks.memories.purge(
+            name=memory_bank.name,
             filter="scope.user_id=123",
             force=True,
             config={"wait_for_completion": True},
         )
         assert operation.done
         assert operation.response.purge_count == 2
-        assert (
-            len(
-                list(
-                    client.agent_engines.memories.list(
-                        name=agent_engine.api_resource.name
-                    )
-                )
-            )
-            == 2
-        )
+        assert len(list(client.memory_banks.memories.list(name=memory_bank.name))) == 2
         # Purge memories using filter groups.
-        operation = client.agent_engines.memories.purge(
-            name=agent_engine.api_resource.name,
+        operation = client.memory_banks.memories.purge(
+            name=memory_bank.name,
             force=True,
             filter_groups=[
                 {"filters": [{"key": "my_key", "value": {"string_value": "my_value"}}]}
@@ -101,24 +83,15 @@ def test_purge_memories(client):
         )
         assert operation.done
         assert operation.response.purge_count == 1
-        assert (
-            len(
-                list(
-                    client.agent_engines.memories.list(
-                        name=agent_engine.api_resource.name
-                    )
-                )
-            )
-            == 1
-        )
+        assert len(list(client.memory_banks.memories.list(name=memory_bank.name))) == 1
     finally:
-        client.agent_engines.delete(name=agent_engine.api_resource.name, force=True)
+        client.memory_banks.delete(name=memory_bank.name, force=True)
 
 
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
-    test_method="agent_engines.memories.purge",
+    test_method="memory_banks.memories.purge",
 )
 
 
@@ -127,63 +100,45 @@ pytest_plugins = ("pytest_asyncio",)
 
 @pytest.mark.asyncio
 async def test_purge_memories_async(client):
-    agent_engine = client.agent_engines.create()
+    memory_bank = client.memory_banks.create()
     try:
-        client.agent_engines.memories.create(
-            name=agent_engine.api_resource.name,
+        client.memory_banks.memories.create(
+            name=memory_bank.name,
             fact="memory_fact_1",
             scope={"user_id": "123"},
             config={"wait_for_completion": True},
         )
-        client.agent_engines.memories.create(
-            name=agent_engine.api_resource.name,
+        client.memory_banks.memories.create(
+            name=memory_bank.name,
             fact="memory_fact_2",
             scope={"user_id": "123"},
             config={"wait_for_completion": True},
         )
-        client.agent_engines.memories.create(
-            name=agent_engine.api_resource.name,
+        client.memory_banks.memories.create(
+            name=memory_bank.name,
             fact="memory_fact_3",
             scope={"user_id": "456"},
             config={"wait_for_completion": True},
         )
 
-        operation = await client.aio.agent_engines.memories.purge(
-            name=agent_engine.api_resource.name,
+        operation = await client.aio.memory_banks.memories.purge(
+            name=memory_bank.name,
             filter="scope.user_id=123",
             config={"wait_for_completion": True},
         )
         assert operation.done
         assert operation.response.purge_count == 2
         # Memories were not actually purged, because `force` was False.
-        assert (
-            len(
-                list(
-                    client.agent_engines.memories.list(
-                        name=agent_engine.api_resource.name
-                    )
-                )
-            )
-            == 3
-        )
+        assert len(list(client.memory_banks.memories.list(name=memory_bank.name))) == 3
         # Now, actually purge the memories.
-        operation = await client.aio.agent_engines.memories.purge(
-            name=agent_engine.api_resource.name,
+        operation = await client.aio.memory_banks.memories.purge(
+            name=memory_bank.name,
             filter="scope.user_id=123",
             force=True,
             config={"wait_for_completion": True},
         )
         assert operation.done
         assert operation.response.purge_count == 2
-        assert (
-            len(
-                list(
-                    client.agent_engines.memories.list(
-                        name=agent_engine.api_resource.name
-                    )
-                )
-            )
-            == 1
-        )
+        assert len(list(client.memory_banks.memories.list(name=memory_bank.name))) == 1
     finally:
-        client.agent_engines.delete(name=agent_engine.api_resource.name, force=True)
+        client.memory_banks.delete(name=memory_bank.name, force=True)
