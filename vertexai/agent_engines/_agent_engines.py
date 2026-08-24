@@ -52,7 +52,6 @@ import proto
 
 from google.protobuf import field_mask_pb2
 
-
 _LOGGER = _utils.LOGGER
 _SUPPORTED_PYTHON_VERSIONS = ("3.10", "3.11", "3.12", "3.13", "3.14")
 _DEFAULT_GCS_DIR_NAME = "agent_engine"
@@ -387,6 +386,9 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
         ] = None,
         build_options: Optional[Dict[str, Sequence[str]]] = None,
         service_account: Optional[str] = None,
+        identity_type: Optional[
+            Union[str, aip_types.ReasoningEngineSpec.IdentityType]
+        ] = None,
         psc_interface_config: Optional[aip_types.PscInterfaceConfig] = None,
         min_instances: Optional[int] = None,
         max_instances: Optional[int] = None,
@@ -475,6 +477,15 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
                 Optional. The service account to be used for the Agent Engine.
                 If not specified, the default reasoning engine service agent
                 service account will be used.
+            identity_type (Union[str, aip_types.ReasoningEngineSpec.IdentityType]):
+                Optional. The identity type to be used by the Agent Engine at
+                runtime. Set it to `AGENT_IDENTITY` to run the Agent Engine
+                under a resource-scoped workload identity with no default
+                project permissions, instead of the shared Reasoning Engine
+                Service Agent. `service_account` must not be specified when
+                `AGENT_IDENTITY` is used. If not specified, `service_account`
+                is used if set, otherwise the default Reasoning Engine Service
+                Agent is used.
             psc_interface_config (aip_types.PscInterfaceConfig):
                 Optional. The Private Service Connect interface config for the
                 Agent Engine.
@@ -505,6 +516,8 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
             ValueError: If the `staging_bucket` does not start with "gs://".
             ValueError: If `extra_packages` is specified but `agent_engine` is None.
             ValueError: If `requirements` is specified but `agent_engine` is None.
+            ValueError: If `service_account` is specified and `identity_type` is
+            `AGENT_IDENTITY`.
             ValueError: If `env_vars` has a dictionary entry that does not
             correspond to a SecretRef.
             ValueError: If `env_vars` is a list which contains a string that
@@ -518,6 +531,10 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
         """
         sys_version = f"{sys.version_info.major}.{sys.version_info.minor}"
         _validate_sys_version_or_raise(sys_version)
+        _validate_identity_type_or_raise(
+            identity_type=identity_type,
+            service_account=service_account,
+        )
         gcs_dir_name = gcs_dir_name or _DEFAULT_GCS_DIR_NAME
         staging_bucket = initializer.global_config.staging_bucket
 
@@ -611,6 +628,8 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
             agent_engine_spec.class_methods.extend(class_methods_spec)
             if service_account:
                 agent_engine_spec.service_account = service_account
+            if identity_type is not None:
+                agent_engine_spec.identity_type = identity_type
             reasoning_engine.spec = agent_engine_spec
             reasoning_engine.spec.agent_framework = _get_agent_framework(agent_engine)
         operation_future = sdk_resource.api_client.create_reasoning_engine(
@@ -666,6 +685,9 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
         ] = None,
         build_options: Optional[Dict[str, Sequence[str]]] = None,
         service_account: Optional[str] = None,
+        identity_type: Optional[
+            Union[str, aip_types.ReasoningEngineSpec.IdentityType]
+        ] = None,
         psc_interface_config: Optional[aip_types.PscInterfaceConfig] = None,
         min_instances: Optional[int] = None,
         max_instances: Optional[int] = None,
@@ -725,6 +747,14 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
                 Optional. The service account to be used for the Agent Engine.
                 If not specified, the default reasoning engine service agent
                 service account will be used.
+            identity_type (Union[str, aip_types.ReasoningEngineSpec.IdentityType]):
+                Optional. The identity type to be used by the Agent Engine at
+                runtime. Set it to `AGENT_IDENTITY` to run the Agent Engine
+                under a resource-scoped workload identity with no default
+                project permissions, instead of the shared Reasoning Engine
+                Service Agent. `service_account` must not be specified when
+                `AGENT_IDENTITY` is used. If not specified, the existing
+                identity type will be used.
             psc_interface_config (aip_types.PscInterfaceConfig):
                 Optional. The Private Service Connect interface config for the
                 Agent Engine.
@@ -761,6 +791,8 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
             that does not exist.
             ValueError: if none of `display_name`, `description`, `requirements`,
             `extra_packages`, `env_vars`, or `agent_engine` were specified.
+            ValueError: If `service_account` is specified and `identity_type` is
+            `AGENT_IDENTITY`.
             IOError: If requirements is a string that corresponds to a
             nonexistent file.
         """
@@ -780,6 +812,7 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
                 env_vars,
                 build_options,
                 service_account,
+                identity_type is not None,
                 psc_interface_config,
                 min_instances is not None,
                 max_instances is not None,
@@ -792,10 +825,14 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
                 "At least one of `agent_engine`, `requirements`, "
                 "`extra_packages`, `display_name`, `description`, "
                 "`env_vars`, `build_options`, `service_account`, "
-                "`psc_interface_config`, `min_instances`, `max_instances`, "
-                "`resource_limits`, `container_concurrency`, or "
-                "`encryption_spec` must be specified."
+                "`identity_type`, `psc_interface_config`, `min_instances`, "
+                "`max_instances`, `resource_limits`, `container_concurrency`, "
+                "or `encryption_spec` must be specified."
             )
+        _validate_identity_type_or_raise(
+            identity_type=identity_type,
+            service_account=service_account,
+        )
         if requirements is not None:
             requirements = _validate_requirements_or_raise(
                 agent_engine=agent_engine,
@@ -835,6 +872,7 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
             description=description,
             env_vars=env_vars,
             service_account=service_account,
+            identity_type=identity_type,
             psc_interface_config=psc_interface_config,
             min_instances=min_instances,
             max_instances=max_instances,
@@ -938,6 +976,35 @@ def _validate_staging_bucket_or_raise(staging_bucket: Optional[str]) -> str:
     if not staging_bucket.startswith("gs://"):
         raise ValueError(f"{staging_bucket=} must start with `gs://`")
     return staging_bucket
+
+
+def _validate_identity_type_or_raise(
+    identity_type: Optional[Union[str, aip_types.ReasoningEngineSpec.IdentityType]],
+    service_account: Optional[str],
+) -> None:
+    """Tries to validate the identity type against the service account.
+
+    Args:
+        identity_type: The identity type to be used by the Agent Engine.
+        service_account: The service account to be used by the Agent Engine.
+
+    Raises:
+        ValueError: If `identity_type` is `AGENT_IDENTITY` and `service_account`
+        is also specified, because the two are mutually exclusive.
+    """
+    if (
+        identity_type
+        in (
+            aip_types.ReasoningEngineSpec.IdentityType.AGENT_IDENTITY,
+            "AGENT_IDENTITY",
+        )
+        and service_account
+    ):
+        raise ValueError(
+            "`service_account` must not be specified when `identity_type` is "
+            "`AGENT_IDENTITY`, because the Agent Engine runs under a "
+            "resource-scoped workload identity instead of a service account."
+        )
 
 
 def _validate_agent_engine_or_raise(
@@ -1451,6 +1518,9 @@ def _generate_update_request_or_raise(
         Union[Sequence[str], Dict[str, Union[str, aip_types.SecretRef]]]
     ] = None,
     service_account: Optional[str] = None,
+    identity_type: Optional[
+        Union[str, aip_types.ReasoningEngineSpec.IdentityType]
+    ] = None,
     psc_interface_config: Optional[aip_types.PscInterfaceConfig] = None,
     min_instances: Optional[int] = None,
     max_instances: Optional[int] = None,
@@ -1518,6 +1588,10 @@ def _generate_update_request_or_raise(
         is_spec_update = True
         update_masks.append("spec.service_account")
         agent_engine_spec.service_account = service_account
+    if identity_type is not None:
+        is_spec_update = True
+        update_masks.append("spec.identity_type")
+        agent_engine_spec.identity_type = identity_type
 
     agent_engine_message = aip_types.ReasoningEngine(name=resource_name)
     if is_spec_update:
@@ -1536,8 +1610,8 @@ def _generate_update_request_or_raise(
     if not update_masks:
         raise ValueError(
             "At least one of `agent_engine`, `requirements`, `extra_packages`, "
-            "`display_name`, `description`, `env_vars`, or "
-            "`encryption_spec` must be specified."
+            "`display_name`, `description`, `env_vars`, `service_account`, "
+            "`identity_type`, or `encryption_spec` must be specified."
         )
     return reasoning_engine_service.UpdateReasoningEngineRequest(
         reasoning_engine=agent_engine_message,

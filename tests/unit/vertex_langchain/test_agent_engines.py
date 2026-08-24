@@ -613,6 +613,10 @@ _TEST_INSTALLATION_SUBDIR = _utils._INSTALLATION_SUBDIR
 _TEST_INSTALLATION_SCRIPT_PATH = f"{_TEST_INSTALLATION_SUBDIR}/install_package.sh"
 
 _TEST_CUSTOM_SERVICE_ACCOUNT = "test-custom-service-account"
+_TEST_AGENT_IDENTITY_TYPE = types.ReasoningEngineSpec.IdentityType.AGENT_IDENTITY
+_TEST_SERVICE_ACCOUNT_IDENTITY_TYPE = (
+    types.ReasoningEngineSpec.IdentityType.SERVICE_ACCOUNT
+)
 _TEST_AGENT_ENGINE_PSC_INTERFACE_CONFIG = {
     "network_attachment": "test-network-attachment",
     "dns_peering_configs": [
@@ -1284,6 +1288,80 @@ class TestAgentEngine:
             retry=_TEST_RETRY,
         )
 
+    @pytest.mark.parametrize(
+        "identity_type",
+        [
+            _TEST_AGENT_IDENTITY_TYPE,
+            "AGENT_IDENTITY",
+        ],
+    )
+    def test_create_agent_engine_with_agent_identity(
+        self,
+        create_agent_engine_mock,
+        cloud_storage_create_bucket_mock,
+        tarfile_open_mock,
+        cloudpickle_dump_mock,
+        cloudpickle_load_mock,
+        importlib_metadata_version_mock,
+        get_agent_engine_mock,
+        get_gca_resource_mock,
+        identity_type,
+    ):
+        agent_engines.create(
+            self.test_agent,
+            display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+            requirements=_TEST_AGENT_ENGINE_REQUIREMENTS,
+            extra_packages=[_TEST_AGENT_ENGINE_EXTRA_PACKAGE_PATH],
+            identity_type=identity_type,
+        )
+        test_spec = types.ReasoningEngineSpec(
+            package_spec=_TEST_AGENT_ENGINE_PACKAGE_SPEC,
+            agent_framework=_agent_engines._DEFAULT_AGENT_FRAMEWORK,
+            identity_type=_TEST_AGENT_IDENTITY_TYPE,
+        )
+        test_spec.class_methods.append(_TEST_AGENT_ENGINE_QUERY_SCHEMA)
+        create_agent_engine_mock.assert_called_with(
+            parent=_TEST_PARENT,
+            reasoning_engine=types.ReasoningEngine(
+                display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+                spec=test_spec,
+            ),
+        )
+
+    def test_create_agent_engine_with_service_account_identity_type(
+        self,
+        create_agent_engine_mock,
+        cloud_storage_create_bucket_mock,
+        tarfile_open_mock,
+        cloudpickle_dump_mock,
+        cloudpickle_load_mock,
+        importlib_metadata_version_mock,
+        get_agent_engine_mock,
+        get_gca_resource_mock,
+    ):
+        agent_engines.create(
+            self.test_agent,
+            display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+            requirements=_TEST_AGENT_ENGINE_REQUIREMENTS,
+            extra_packages=[_TEST_AGENT_ENGINE_EXTRA_PACKAGE_PATH],
+            service_account=_TEST_CUSTOM_SERVICE_ACCOUNT,
+            identity_type=_TEST_SERVICE_ACCOUNT_IDENTITY_TYPE,
+        )
+        test_spec = types.ReasoningEngineSpec(
+            package_spec=_TEST_AGENT_ENGINE_PACKAGE_SPEC,
+            agent_framework=_agent_engines._DEFAULT_AGENT_FRAMEWORK,
+            service_account=_TEST_CUSTOM_SERVICE_ACCOUNT,
+            identity_type=_TEST_SERVICE_ACCOUNT_IDENTITY_TYPE,
+        )
+        test_spec.class_methods.append(_TEST_AGENT_ENGINE_QUERY_SCHEMA)
+        create_agent_engine_mock.assert_called_with(
+            parent=_TEST_PARENT,
+            reasoning_engine=types.ReasoningEngine(
+                display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+                spec=test_spec,
+            ),
+        )
+
     def test_create_agent_engine_with_psc_interface_config(
         self,
         create_agent_engine_mock,
@@ -1805,6 +1883,45 @@ class TestAgentEngine:
                     update_mask=field_mask_pb2.FieldMask(
                         paths=[
                             "spec.service_account",
+                        ],
+                    ),
+                ),
+            ),
+            (
+                "Update the agent_engine with identity_type attribute",
+                {"identity_type": _TEST_AGENT_IDENTITY_TYPE},
+                types.reasoning_engine_service.UpdateReasoningEngineRequest(
+                    reasoning_engine=types.ReasoningEngine(
+                        name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                        spec=types.ReasoningEngineSpec(
+                            identity_type=_TEST_AGENT_IDENTITY_TYPE,
+                        ),
+                    ),
+                    update_mask=field_mask_pb2.FieldMask(
+                        paths=[
+                            "spec.identity_type",
+                        ],
+                    ),
+                ),
+            ),
+            (
+                "Update the agent_engine with service_account and identity_type",
+                {
+                    "service_account": _TEST_CUSTOM_SERVICE_ACCOUNT,
+                    "identity_type": _TEST_SERVICE_ACCOUNT_IDENTITY_TYPE,
+                },
+                types.reasoning_engine_service.UpdateReasoningEngineRequest(
+                    reasoning_engine=types.ReasoningEngine(
+                        name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                        spec=types.ReasoningEngineSpec(
+                            service_account=_TEST_CUSTOM_SERVICE_ACCOUNT,
+                            identity_type=_TEST_SERVICE_ACCOUNT_IDENTITY_TYPE,
+                        ),
+                    ),
+                    update_mask=field_mask_pb2.FieldMask(
+                        paths=[
+                            "spec.service_account",
+                            "spec.identity_type",
                         ],
                     ),
                 ),
@@ -3406,13 +3523,62 @@ class TestAgentEngineErrors:
                 "At least one of `agent_engine`, `requirements`, "
                 "`extra_packages`, `display_name`, `description`, "
                 "`env_vars`, `build_options`, `service_account`, "
-                "`psc_interface_config`, `min_instances`, `max_instances`, "
-                "`resource_limits`, `container_concurrency`, or "
-                "`encryption_spec` must be specified."
+                "`identity_type`, `psc_interface_config`, `min_instances`, "
+                "`max_instances`, `resource_limits`, `container_concurrency`, "
+                "or `encryption_spec` must be specified."
             ),
         ):
             test_agent_engine = _generate_agent_engine_to_update()
             test_agent_engine.update()
+
+    @pytest.mark.parametrize(
+        "identity_type",
+        [
+            _TEST_AGENT_IDENTITY_TYPE,
+            "AGENT_IDENTITY",
+        ],
+    )
+    def test_create_agent_engine_with_agent_identity_and_service_account(
+        self,
+        identity_type,
+    ):
+        with pytest.raises(
+            ValueError,
+            match=(
+                "`service_account` must not be specified when `identity_type` "
+                "is `AGENT_IDENTITY`"
+            ),
+        ):
+            agent_engines.create(
+                CapitalizeEngine(),
+                service_account=_TEST_CUSTOM_SERVICE_ACCOUNT,
+                identity_type=identity_type,
+            )
+
+    @pytest.mark.parametrize(
+        "identity_type",
+        [
+            _TEST_AGENT_IDENTITY_TYPE,
+            "AGENT_IDENTITY",
+        ],
+    )
+    def test_update_agent_engine_with_agent_identity_and_service_account(
+        self,
+        update_agent_engine_mock,
+        identity_type,
+    ):
+        with pytest.raises(
+            ValueError,
+            match=(
+                "`service_account` must not be specified when `identity_type` "
+                "is `AGENT_IDENTITY`"
+            ),
+        ):
+            test_agent_engine = _generate_agent_engine_to_update()
+            test_agent_engine.update(
+                service_account=_TEST_CUSTOM_SERVICE_ACCOUNT,
+                identity_type=identity_type,
+            )
 
     def test_create_class_methods_spec_with_registered_operation_not_found(self):
         with pytest.raises(
