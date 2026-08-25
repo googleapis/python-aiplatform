@@ -312,3 +312,70 @@ class TestAgentEngineA2A:
                 requirements=_TEST_AGENT_ENGINE_REQUIREMENTS,
                 extra_packages=[_TEST_AGENT_ENGINE_EXTRA_PACKAGE_PATH],
             )
+
+
+class TestA2aPublicCardRoutes:
+    """Verifies the public agent card is served at the Agent Runtime card paths."""
+
+    def _build_agent(self):
+        """Builds an A2aAgent from the vertexai template and runs set_up()."""
+        # pylint: disable=g-import-not-at-top
+        from a2a import types as a2a_types
+        from vertexai.agent_engines.templates import (
+            a2a as a2a_template,
+        )
+
+        # pylint: enable=g-import-not-at-top
+        card = a2a_types.AgentCard(
+            name="Test",
+            description="Test",
+            supported_interfaces=[
+                a2a_types.AgentInterface(
+                    url="http://example.com",
+                    protocol_binding="HTTP+JSON",
+                    protocol_version="1.0",
+                )
+            ],
+            version="0.0.1",
+            capabilities=a2a_types.AgentCapabilities(),
+            skills=[
+                a2a_types.AgentSkill(
+                    id="hello_world",
+                    name="Returns hello world",
+                    description="just returns hello world",
+                    tags=["hello world"],
+                    examples=["hi"],
+                )
+            ],
+            default_input_modes=["text/plain"],
+            default_output_modes=["text/plain"],
+        )
+        agent = a2a_template.A2aAgent(agent_card=card)
+        with mock.patch.dict(
+            os.environ,
+            {
+                "GOOGLE_CLOUD_PROJECT": _TEST_PROJECT,
+                "GOOGLE_CLOUD_LOCATION": _TEST_LOCATION,
+            },
+        ):
+            agent.set_up()
+        return agent
+
+    def _client(self, agent):
+        """Builds a Starlette test client over the agent's registered routes."""
+        # pylint: disable=g-import-not-at-top
+        from starlette.applications import Starlette
+        from starlette.testclient import TestClient
+
+        # pylint: enable=g-import-not-at-top
+        return TestClient(Starlette(routes=agent.rest_routes))
+
+    def test_public_card_routes_not_shadowed_by_tenant_mount(self):
+        """The public card resolves and is not shadowed by the tenant Mount."""
+        client = self._client(self._build_agent())
+        for path in ("/a2a/card", "/a2a/v1/card"):
+            resp = client.get(path)
+            assert resp.status_code == 200
+            body = resp.json()
+            assert body["name"] == "Test"
+            assert body["skills"][0]["id"] == "hello_world"

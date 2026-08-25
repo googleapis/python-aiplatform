@@ -314,6 +314,7 @@ class A2aAgent:
         """Sets up the A2A application."""
         # pylint: disable=g-import-not-at-top
         from a2a.server.request_handlers import DefaultRequestHandler
+        from a2a.server.routes.agent_card_routes import create_agent_card_routes
         from a2a.server.routes.rest_routes import create_rest_routes
         from a2a.server.tasks import InMemoryTaskStore
 
@@ -388,6 +389,16 @@ class A2aAgent:
             enable_v0_3_compat=enable_v0_3,
             path_prefix="/a2a",
         )
+        # wire public agent card routes
+        card_routes = []
+        for card_url in ("/a2a/card", "/a2a/v1/card"):
+            card_routes.extend(
+                create_agent_card_routes(
+                    agent_card=self.agent_card,
+                    card_url=card_url,
+                )
+            )
+        self.rest_routes = card_routes + self.rest_routes
 
     def __getattr__(self, name: str) -> Any:
         """Delegates all missing RequestHandler methods to the underlying request_handler."""
