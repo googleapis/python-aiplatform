@@ -1227,6 +1227,7 @@ from .common import ManagedTopicEnum
 from .common import MapInstance
 from .common import MapInstanceDict
 from .common import MapInstanceOrDict
+from .common import MediaProcessing
 from .common import MediaResolution
 from .common import Memory
 from .common import MemoryBank
@@ -3446,6 +3447,12 @@ __all__ = [
     "CreateSandboxEnvironmentTemplateConfig",
     "CreateSandboxEnvironmentTemplateConfigDict",
     "CreateSandboxEnvironmentTemplateConfigOrDict",
+    "PSCAutomationConfig",
+    "PSCAutomationConfigDict",
+    "PSCAutomationConfigOrDict",
+    "PrivateServiceConnectConfig",
+    "PrivateServiceConnectConfigDict",
+    "PrivateServiceConnectConfigOrDict",
     "SandboxEnvironmentTemplate",
     "SandboxEnvironmentTemplateDict",
     "SandboxEnvironmentTemplateOrDict",
@@ -3881,12 +3888,6 @@ __all__ = [
     "DeployRequestModelConfig",
     "DeployRequestModelConfigDict",
     "DeployRequestModelConfigOrDict",
-    "PSCAutomationConfig",
-    "PSCAutomationConfigDict",
-    "PSCAutomationConfigOrDict",
-    "PrivateServiceConnectConfig",
-    "PrivateServiceConnectConfigDict",
-    "PrivateServiceConnectConfigOrDict",
     "DeployRequestEndpointConfig",
     "DeployRequestEndpointConfigDict",
     "DeployRequestEndpointConfigOrDict",
@@ -4294,6 +4295,7 @@ __all__ = [
     "SandboxState",
     "Protocol",
     "DefaultContainerCategory",
+    "PscAutomationState",
     "PostSnapshotAction",
     "Framework",
     "SkillSource",
@@ -4302,7 +4304,6 @@ __all__ = [
     "OpenSourceCategory",
     "VersionState",
     "QuotaState",
-    "PscAutomationState",
     "FeedbackType",
     "Encoding",
     "ColorMap",
@@ -4312,6 +4313,7 @@ __all__ = [
     "Modality",
     "DeploymentType",
     "ModelProvider",
+    "MediaProcessing",
     "Outcome",
     "FunctionResponseScheduling",
     "MediaResolution",
