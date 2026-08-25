@@ -837,17 +837,9 @@ class AdkApp:
         """Initializes the session, and returns the session id."""
         from google.adk.events.event import Event
 
-        session_state = None
-        if request.authorizations:
-            session_state = {}
-            for auth_id, auth in request.authorizations.items():
-                auth = _Authorization(**auth)
-                session_state[auth_id] = auth.access_token
-
         session = await session_service.create_session(
             app_name=self._app_name(),
             user_id=request.user_id,
-            state=session_state,
         )
         if not session:
             raise RuntimeError("Create session failed.")
@@ -1379,8 +1371,18 @@ class AdkApp:
         ):
             self.set_up()
 
-        # Try to get the session, if it doesn't exist, create a new one.
+        # Forward the user's OAuth access tokens as ephemeral `temp:` state.
+        # ADK exposes `temp:` keys to the agent for the duration of the
+        # invocation but trims them before the session is written to durable
+        # storage, so the tokens are never persisted.
         state_delta = None
+        if request.authorizations:
+            state_delta = {}
+            for auth_id, auth in request.authorizations.items():
+                auth = _Authorization(**auth)
+                state_delta[f"temp:{auth_id}"] = auth.access_token
+
+        # Try to get the session, if it doesn't exist, create a new one.
         if request.session_id:
             session_service = self._tmpl_attrs.get("session_service")
             artifact_service = self._tmpl_attrs.get("artifact_service")
@@ -1398,11 +1400,6 @@ class AdkApp:
                         artifact_service=artifact_service,
                         request=request,
                     )
-                    if request.authorizations:
-                        state_delta = {}
-                        for auth_id, auth in request.authorizations.items():
-                            auth = _Authorization(**auth)
-                            state_delta[auth_id] = auth.access_token
             except ClientError:
                 pass
             if not session:

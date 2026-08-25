@@ -24,6 +24,10 @@ import uuid
 
 import cloudpickle
 from google import auth
+from google.adk.events.event import Event
+from google.adk.events.event_actions import EventActions
+from google.adk.sessions.base_session_service import BaseSessionService
+from google.adk.sessions.in_memory_session_service import InMemorySessionService
 from google.api_core import operation as ga_operation
 from google.auth import credentials as auth_credentials
 from google.auth.transport import mtls
@@ -42,7 +46,6 @@ from google.genai import errors as genai_errors
 from google.genai import types
 import pytest
 import requests
-from google.adk.sessions.base_session_service import BaseSessionService
 
 
 try:
@@ -449,9 +452,6 @@ class TestAdkApp:
         get_project_id_mock: mock.Mock,
     ):
         from google.adk.runners import Runner
-        from google.adk.sessions.in_memory_session_service import (
-            InMemorySessionService,
-        )
 
         app = agent_engines.AdkApp(agent=_TEST_AGENT)
         app.set_up()
@@ -635,9 +635,89 @@ class TestAdkApp:
             user_id=_TEST_USER_ID,
             session_id="test_session_id",
             new_message=mock.ANY,
-            state_delta={"test_user_id1": "test_access_token"},
+            state_delta={"temp:test_user_id1": "test_access_token"},
             run_config=None,
         )
+
+    @pytest.mark.asyncio
+    async def test_streaming_agent_run_with_events_new_session_uses_temp_state(
+        self,
+        default_instrumentor_builder_mock: mock.Mock,
+        get_project_id_mock: mock.Mock,
+    ):
+        """Tokens reach a new session as `temp:` state, never as initial state."""
+        app = agent_engines.AdkApp(agent=_TEST_AGENT)
+        app.set_up()
+
+        session_service = app._tmpl_attrs["in_memory_session_service"]
+        create_session_spy = mock.AsyncMock(wraps=session_service.create_session)
+        session_service.create_session = create_session_spy
+
+        async def mock_run_async(*args, **kwargs):
+            yield Event(
+                **{
+                    "author": "currency_exchange_agent",
+                    "content": {"parts": [{"text": "Sweden"}], "role": "model"},
+                    "id": "9aaItGK9",
+                    "invocation_id": "e-6543c213-6417-484b-9551-b67915d1d5f7",
+                }
+            )
+
+        run_async_spy = mock.MagicMock(side_effect=mock_run_async)
+        runner_mock = mock.Mock()
+        runner_mock.run_async = run_async_spy
+        app._tmpl_attrs["in_memory_runner"] = runner_mock
+
+        request_json = json.dumps(
+            {
+                "authorizations": {
+                    "test_user_id1": {"access_token": "test_access_token"},
+                },
+                "user_id": _TEST_USER_ID,
+                "message": {
+                    "parts": [{"text": "What is the exchange rate from USD to SEK?"}],
+                    "role": "user",
+                },
+            }
+        )
+        async for _ in app.streaming_agent_run_with_events(
+            request_json=request_json,
+        ):
+            pass
+
+        # The token must not be seeded into the session's persisted state.
+        create_session_spy.assert_called_once()
+        initial_state = create_session_spy.call_args.kwargs.get("state") or {}
+        assert "test_access_token" not in json.dumps(initial_state)
+
+        # It reaches the turn as ephemeral `temp:` state instead.
+        run_async_spy.assert_called_once()
+        assert run_async_spy.call_args.kwargs["state_delta"] == {
+            "temp:test_user_id1": "test_access_token"
+        }
+
+    @pytest.mark.asyncio
+    async def test_temp_state_delta_is_readable_but_not_persisted(self):
+        """Guards the ADK contract the fix relies on (google-adk >= 1.27.0)."""
+        service = InMemorySessionService()
+        session = await service.create_session(
+            app_name="test_app", user_id=_TEST_USER_ID
+        )
+        appended = await service.append_event(
+            session,
+            Event(
+                author="user",
+                invocation_id="test_invocation_id",
+                actions=EventActions(
+                    state_delta={"temp:test_user_id1": "test_access_token"}
+                ),
+            ),
+        )
+
+        # Readable by the agent for the duration of the invocation ...
+        assert session.state["temp:test_user_id1"] == "test_access_token"
+        # ... but trimmed from the delta the session service writes out.
+        assert not appended.actions.state_delta
 
     @pytest.mark.asyncio
     async def test_streaming_agent_run_with_events_propagates_labels(

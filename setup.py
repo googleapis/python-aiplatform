@@ -144,7 +144,7 @@ ray_testing_extra_require = ray_extra_require + [
 ]
 
 adk_extra_require = [
-    "google-adk >= 1.5.0, < 3.0.0",
+    "google-adk >= 1.27.0, < 3.0.0",
     "aiohttp",  # for ADK users to use aiohttp
 ]
 
