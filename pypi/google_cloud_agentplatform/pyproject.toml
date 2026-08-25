@@ -1,0 +1,96 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "google-cloud-agentplatform"
+dynamic = ["version"]
+description = "Google Cloud Agent Platform Client Library"
+authors = [
+    {name = "Google LLC", email = "googleapis-packages@google.com"}
+]
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "Apache-2.0"}
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+dependencies = [
+    "google-auth",
+    "google-api-core",
+    "proto-plus",
+    "protobuf",
+    "packaging",
+    "pydantic < 3",
+    "typing_extensions",
+    "google-genai",
+]
+
+[project.optional-dependencies]
+agent_engines = [
+    "cloudpickle >= 3.0, < 4.0",
+    "google-cloud-storage >= 1.32.0, < 4.0.0",
+]
+adk = [
+    "google-cloud-agentplatform[agent_engines]",
+    "google-adk >= 1.5.0, < 3.0.0",
+    "aiohttp",
+]
+langchain = [
+    "google-cloud-agentplatform[agent_engines]",
+    "langchain >= 1.0.0, < 2.0.0",
+    "langchain-core >= 1.0.0, < 2.0.0",
+    "langchain-google-genai >= 4.0.0",
+    "langgraph >= 1.0.0, < 2.0.0",
+]
+ag2 = [
+    "google-cloud-agentplatform[agent_engines]",
+    "autogen[gemini] >= 0.14.1, < 1",
+]
+llama_index = [
+    "google-cloud-agentplatform[agent_engines]",
+    "llama-index",
+    "llama-index-llms-google-genai",
+]
+evaluation = [
+    "pandas >= 1.0.0",
+    "tqdm >= 4.23.0",
+    "pyyaml",
+    "litellm >= 1.83.7, < 1.97.0",
+    "google-cloud-storage >= 1.32.0, < 4.0.0",
+]
+bigquery = [
+    "google-cloud-bigquery >= 1.15.0, < 4.0.0",
+    "bigframes",
+    "pandas >= 1.0.0",
+]
+live = [
+    "websockets",
+]
+all = [
+    "google-cloud-agentplatform[agent_engines,adk,langchain,ag2,llama_index,evaluation,bigquery,live]",
+]
+
+[tool.setuptools.dynamic]
+version = {attr = "agentplatform.version.__version__"}
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["agentplatform", "agentplatform._genai*"]
+exclude = [
+    "agentplatform.agent_engines*",
+    "agentplatform.rag*",
+    "agentplatform.private*",
+    "agentplatform.model_garden*",
+    "agentplatform.preview*",
+    "agentplatform.resources*",
+    "agentplatform.batch_prediction*",
+]
