@@ -14,12 +14,11 @@
 #
 # pylint: disable=protected-access,bad-continuation,missing-function-docstring
 
-from tests.unit.agentplatform.genai.replays import pytest_helper
 from agentplatform._genai import types
+from tests.unit.agentplatform.genai.replays import pytest_helper
 
 
 def test_generate_and_retrieve_profile(client):
-    # TODO: Switch to Memory Bank for creation once it supports configs.
     customization_config = {"disable_natural_language_memories": True}
     memory_bank_customization_config = types.MemoryBankCustomizationConfig(
         **customization_config
@@ -41,30 +40,23 @@ def test_generate_and_retrieve_profile(client):
     structured_memory_config_obj = types.StructuredMemoryConfig(
         **structured_memory_config
     )
-    memory_bank = client.agent_engines.create(
-        config={
-            "context_spec": {
-                "memory_bank_config": {
-                    "customization_configs": [memory_bank_customization_config],
-                    "structured_memory_configs": [structured_memory_config_obj],
-                },
-            },
-            "http_options": {"api_version": "v1beta1"},
-        },
+    memory_bank = client.memory_banks.create(
+        managed_semantic_memory_config={
+            "unstructured_memory_configs": [memory_bank_customization_config],
+            "structured_memory_configs": [structured_memory_config_obj],
+        }
     )
     try:
-        memory_bank = client.agent_engines.get(name=memory_bank.api_resource.name)
-        memory_bank_config = memory_bank.api_resource.context_spec.memory_bank_config
-        assert memory_bank_config.customization_configs == [
+        memory_bank = client.memory_banks.get(name=memory_bank.name)
+        memory_config = memory_bank.managed_semantic_memory_config
+        assert memory_config.unstructured_memory_configs == [
             memory_bank_customization_config
         ]
-        assert memory_bank_config.structured_memory_configs == [
-            structured_memory_config_obj
-        ]
+        assert memory_config.structured_memory_configs == [structured_memory_config_obj]
 
         scope = {"user_id": "123"}
         client.memory_banks.memories.generate(
-            name=memory_bank.api_resource.name,
+            name=memory_bank.name,
             scope=scope,
             direct_contents_source={
                 "events": [{"content": {"parts": [{"text": "My name is Kim."}]}}]
@@ -72,7 +64,7 @@ def test_generate_and_retrieve_profile(client):
         )
         memories = list(
             client.memory_banks.memories.retrieve(
-                name=memory_bank.api_resource.name,
+                name=memory_bank.name,
                 scope=scope,
                 config={"memory_types": ["STRUCTURED_PROFILE"]},
             )
@@ -81,13 +73,13 @@ def test_generate_and_retrieve_profile(client):
         assert memories[0].memory.structured_content is not None
 
         response = client.memory_banks.memories.retrieve_profiles(
-            name=memory_bank.api_resource.name, scope=scope
+            name=memory_bank.name, scope=scope
         )
         assert len(response.profiles) == 1
 
     finally:
         # Clean up resources.
-        client.memory_banks.delete(name=memory_bank.api_resource.name, force=True)
+        client.memory_banks.delete(name=memory_bank.name, force=True)
 
 
 pytestmark = pytest_helper.setup(

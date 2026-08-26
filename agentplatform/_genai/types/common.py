@@ -8778,7 +8778,7 @@ MemoryBankCustomizationConfigConsolidationConfigOrDict = Union[
 
 
 class MemoryBankCustomizationConfig(_common.BaseModel):
-    """Represents configuration for organizing natural language memories for a particular scope."""
+    """Represents configuration for organizing natural language memories."""
 
     enable_third_person_memories: Optional[bool] = Field(
         default=None,
@@ -8811,7 +8811,7 @@ class MemoryBankCustomizationConfig(_common.BaseModel):
 
 
 class MemoryBankCustomizationConfigDict(TypedDict, total=False):
-    """Represents configuration for organizing natural language memories for a particular scope."""
+    """Represents configuration for organizing natural language memories."""
 
     enable_third_person_memories: Optional[bool]
     """Optional. Indicates whether the memories will be generated in the third person (i.e. "The user generates memories with Memory Bank."). By default, the memories will be generated in the first person (i.e. "I generate memories with Memory Bank.")"""
@@ -11174,6 +11174,21 @@ class CreateMemoryBankConfig(_common.BaseModel):
     http_options: Optional[genai_types.HttpOptions] = Field(
         default=None, description="""Used to override HTTP request options."""
     )
+    display_name: Optional[str] = Field(
+        default=None,
+        description="""The user-defined name of the Memory Bank.
+
+      The display name can be up to 128 characters long and can comprise any
+      UTF-8 characters.
+      """,
+    )
+    description: Optional[str] = Field(
+        default=None, description="""The description of the Memory Bank."""
+    )
+    encryption_spec: Optional[genai_types.EncryptionSpec] = Field(
+        default=None,
+        description="""The encryption spec to be used for the Memory Bank.""",
+    )
 
 
 class CreateMemoryBankConfigDict(TypedDict, total=False):
@@ -11181,6 +11196,19 @@ class CreateMemoryBankConfigDict(TypedDict, total=False):
 
     http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
+
+    display_name: Optional[str]
+    """The user-defined name of the Memory Bank.
+
+      The display name can be up to 128 characters long and can comprise any
+      UTF-8 characters.
+      """
+
+    description: Optional[str]
+    """The description of the Memory Bank."""
+
+    encryption_spec: Optional[genai_types.EncryptionSpec]
+    """The encryption spec to be used for the Memory Bank."""
 
 
 CreateMemoryBankConfigOrDict = Union[CreateMemoryBankConfig, CreateMemoryBankConfigDict]
@@ -11190,6 +11218,9 @@ class _CreateMemoryBankRequestParameters(_common.BaseModel):
     """Parameters for creating memory banks."""
 
     config: Optional[CreateMemoryBankConfig] = Field(default=None, description="""""")
+    memory_bank_config: Optional[ReasoningEngineContextSpecMemoryBankConfig] = Field(
+        default=None, description=""""""
+    )
 
 
 class _CreateMemoryBankRequestParametersDict(TypedDict, total=False):
@@ -11198,9 +11229,226 @@ class _CreateMemoryBankRequestParametersDict(TypedDict, total=False):
     config: Optional[CreateMemoryBankConfigDict]
     """"""
 
+    memory_bank_config: Optional[ReasoningEngineContextSpecMemoryBankConfigDict]
+    """"""
+
 
 _CreateMemoryBankRequestParametersOrDict = Union[
     _CreateMemoryBankRequestParameters, _CreateMemoryBankRequestParametersDict
+]
+
+
+class ManagedSemanticMemoryConfigGenerationConfig(_common.BaseModel):
+    """The configuration for generating memories."""
+
+    model: Optional[str] = Field(
+        default=None,
+        description="""The model used to generate memories.
+
+      Format:
+      `projects/{project}/locations/{location}/publishers/google/models/{model}`.""",
+    )
+    generation_trigger_config: Optional[MemoryGenerationTriggerConfig] = Field(
+        default=None,
+        description="""The configuration for triggering memory generation.""",
+    )
+
+
+class ManagedSemanticMemoryConfigGenerationConfigDict(TypedDict, total=False):
+    """The configuration for generating memories."""
+
+    model: Optional[str]
+    """The model used to generate memories.
+
+      Format:
+      `projects/{project}/locations/{location}/publishers/google/models/{model}`."""
+
+    generation_trigger_config: Optional[MemoryGenerationTriggerConfigDict]
+    """The configuration for triggering memory generation."""
+
+
+ManagedSemanticMemoryConfigGenerationConfigOrDict = Union[
+    ManagedSemanticMemoryConfigGenerationConfig,
+    ManagedSemanticMemoryConfigGenerationConfigDict,
+]
+
+
+class ManagedSemanticMemoryConfigSimilaritySearchConfig(_common.BaseModel):
+    """The configuration for similarity search."""
+
+    embedding_model: Optional[str] = Field(
+        default=None,
+        description="""The model used to generate embeddings to look up similar memories.
+      Format:
+      `projects/{project}/locations/{location}/publishers/google/models/{model}`.""",
+    )
+
+
+class ManagedSemanticMemoryConfigSimilaritySearchConfigDict(TypedDict, total=False):
+    """The configuration for similarity search."""
+
+    embedding_model: Optional[str]
+    """The model used to generate embeddings to look up similar memories.
+      Format:
+      `projects/{project}/locations/{location}/publishers/google/models/{model}`."""
+
+
+ManagedSemanticMemoryConfigSimilaritySearchConfigOrDict = Union[
+    ManagedSemanticMemoryConfigSimilaritySearchConfig,
+    ManagedSemanticMemoryConfigSimilaritySearchConfigDict,
+]
+
+
+class ManagedSemanticMemoryConfigTtlConfigGranularTtlConfig(_common.BaseModel):
+    """The configuration for granular TTL."""
+
+    create_ttl: Optional[str] = Field(
+        default=None,
+        description="""Optional. The TTL duration for memories uploaded via
+      CreateMemory.""",
+    )
+    generate_created_ttl: Optional[str] = Field(
+        default=None,
+        description="""Optional. The TTL duration for memories generated via
+      GenerateMemories.""",
+    )
+    generate_updated_ttl: Optional[str] = Field(
+        default=None,
+        description="""Optional. The TTL duration for memories updated via
+      GenerateMemories (GenerateMemoriesResponse.GeneratedMemory.Action.UPDATED).
+      In the case of an UPDATE action, the `expire_time` of the existing memory
+      will be updated to the new value (now + TTL).""",
+    )
+
+
+class ManagedSemanticMemoryConfigTtlConfigGranularTtlConfigDict(TypedDict, total=False):
+    """The configuration for granular TTL."""
+
+    create_ttl: Optional[str]
+    """Optional. The TTL duration for memories uploaded via
+      CreateMemory."""
+
+    generate_created_ttl: Optional[str]
+    """Optional. The TTL duration for memories generated via
+      GenerateMemories."""
+
+    generate_updated_ttl: Optional[str]
+    """Optional. The TTL duration for memories updated via
+      GenerateMemories (GenerateMemoriesResponse.GeneratedMemory.Action.UPDATED).
+      In the case of an UPDATE action, the `expire_time` of the existing memory
+      will be updated to the new value (now + TTL)."""
+
+
+ManagedSemanticMemoryConfigTtlConfigGranularTtlConfigOrDict = Union[
+    ManagedSemanticMemoryConfigTtlConfigGranularTtlConfig,
+    ManagedSemanticMemoryConfigTtlConfigGranularTtlConfigDict,
+]
+
+
+class ManagedSemanticMemoryConfigTtlConfig(_common.BaseModel):
+    """The configuration for automatic TTL ('time-to-live') of the memories."""
+
+    default_ttl: Optional[str] = Field(
+        default=None,
+        description="""The default TTL for memories in the Memory Bank. If not set, TTL will not be applied automatically. The TTL can be explicitly set by modifying the `expire_time` of each Memory resource.""",
+    )
+    granular_ttl_config: Optional[
+        ManagedSemanticMemoryConfigTtlConfigGranularTtlConfig
+    ] = Field(default=None, description="""The granular TTL config for memories.""")
+    memory_revision_default_ttl: Optional[str] = Field(
+        default=None,
+        description="""The default TTL for memory revisions in the Memory Bank. If not set, TTL will not be applied automatically. The TTL can be explicitly set by modifying the `expire_time` of each Memory resource.""",
+    )
+
+
+class ManagedSemanticMemoryConfigTtlConfigDict(TypedDict, total=False):
+    """The configuration for automatic TTL ('time-to-live') of the memories."""
+
+    default_ttl: Optional[str]
+    """The default TTL for memories in the Memory Bank. If not set, TTL will not be applied automatically. The TTL can be explicitly set by modifying the `expire_time` of each Memory resource."""
+
+    granular_ttl_config: Optional[
+        ManagedSemanticMemoryConfigTtlConfigGranularTtlConfigDict
+    ]
+    """The granular TTL config for memories."""
+
+    memory_revision_default_ttl: Optional[str]
+    """The default TTL for memory revisions in the Memory Bank. If not set, TTL will not be applied automatically. The TTL can be explicitly set by modifying the `expire_time` of each Memory resource."""
+
+
+ManagedSemanticMemoryConfigTtlConfigOrDict = Union[
+    ManagedSemanticMemoryConfigTtlConfig, ManagedSemanticMemoryConfigTtlConfigDict
+]
+
+
+class ManagedSemanticMemoryConfig(_common.BaseModel):
+    """The configuration for managed semantic memory."""
+
+    generation_config: Optional[ManagedSemanticMemoryConfigGenerationConfig] = Field(
+        default=None, description="""Represents configuration for LLMs calls."""
+    )
+    ttl_config: Optional[ManagedSemanticMemoryConfigTtlConfig] = Field(
+        default=None,
+        description="""Configuration for automatic TTL ('time-to-live') of the memories in
+      the Memory Bank. If not set, TTL will not be applied automatically. The
+      TTL can be explicitly set by modifying the `expire_time` of each Memory
+      resource.""",
+    )
+    disable_memory_revisions: Optional[bool] = Field(
+        default=None,
+        description="""If true, no memory revisions will be created for any requests to
+      Memory Bank.""",
+    )
+    similarity_search_config: Optional[
+        ManagedSemanticMemoryConfigSimilaritySearchConfig
+    ] = Field(
+        default=None,
+        description="""Configuration for how to perform similarity search on memories.""",
+    )
+    unstructured_memory_configs: Optional[list[MemoryBankCustomizationConfig]] = Field(
+        default=None,
+        description="""Configuration for how to customize Memory Bank behavior for a
+      particular scope for unstructured memories.""",
+    )
+    structured_memory_configs: Optional[list[StructuredMemoryConfig]] = Field(
+        default=None,
+        description="""Configuration for organizing structured memories for a particular
+      scope.""",
+    )
+
+
+class ManagedSemanticMemoryConfigDict(TypedDict, total=False):
+    """The configuration for managed semantic memory."""
+
+    generation_config: Optional[ManagedSemanticMemoryConfigGenerationConfigDict]
+    """Represents configuration for LLMs calls."""
+
+    ttl_config: Optional[ManagedSemanticMemoryConfigTtlConfigDict]
+    """Configuration for automatic TTL ('time-to-live') of the memories in
+      the Memory Bank. If not set, TTL will not be applied automatically. The
+      TTL can be explicitly set by modifying the `expire_time` of each Memory
+      resource."""
+
+    disable_memory_revisions: Optional[bool]
+    """If true, no memory revisions will be created for any requests to
+      Memory Bank."""
+
+    similarity_search_config: Optional[
+        ManagedSemanticMemoryConfigSimilaritySearchConfigDict
+    ]
+    """Configuration for how to perform similarity search on memories."""
+
+    unstructured_memory_configs: Optional[list[MemoryBankCustomizationConfigDict]]
+    """Configuration for how to customize Memory Bank behavior for a
+      particular scope for unstructured memories."""
+
+    structured_memory_configs: Optional[list[StructuredMemoryConfigDict]]
+    """Configuration for organizing structured memories for a particular
+      scope."""
+
+
+ManagedSemanticMemoryConfigOrDict = Union[
+    ManagedSemanticMemoryConfig, ManagedSemanticMemoryConfigDict
 ]
 
 
@@ -11211,6 +11459,27 @@ class MemoryBank(_common.BaseModel):
         default=None,
         description="""Required. Represents the ID of the schema. Must be 1-63 characters, start with a lowercase letter, and consist of lowercase letters, numbers, and hyphens.""",
     )
+    managed_semantic_memory_config: Optional[ManagedSemanticMemoryConfig] = Field(
+        default=None,
+        description="""Represents the configuration for managed memories in Memory Bank. If not set, then the default configuration will be used.""",
+    )
+    display_name: Optional[str] = Field(
+        default=None, description="""Represents the display name of the Memory Bank."""
+    )
+    description: Optional[str] = Field(
+        default=None, description="""Represents the description of the Memory Bank."""
+    )
+    create_time: Optional[datetime.datetime] = Field(
+        default=None, description="""Timestamp when this Memory Bank was created."""
+    )
+    update_time: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Timestamp when this Memory Bank was most recently updated.""",
+    )
+    encryption_spec: Optional[genai_types.EncryptionSpec] = Field(
+        default=None,
+        description="""Customer-managed encryption key spec for a Memory Bank. If set, this Memory Bank and all sub-resources of this Memory Bank will be secured by this key.""",
+    )
 
 
 class MemoryBankDict(TypedDict, total=False):
@@ -11218,6 +11487,24 @@ class MemoryBankDict(TypedDict, total=False):
 
     name: Optional[str]
     """Required. Represents the ID of the schema. Must be 1-63 characters, start with a lowercase letter, and consist of lowercase letters, numbers, and hyphens."""
+
+    managed_semantic_memory_config: Optional[ManagedSemanticMemoryConfigDict]
+    """Represents the configuration for managed memories in Memory Bank. If not set, then the default configuration will be used."""
+
+    display_name: Optional[str]
+    """Represents the display name of the Memory Bank."""
+
+    description: Optional[str]
+    """Represents the description of the Memory Bank."""
+
+    create_time: Optional[datetime.datetime]
+    """Timestamp when this Memory Bank was created."""
+
+    update_time: Optional[datetime.datetime]
+    """Timestamp when this Memory Bank was most recently updated."""
+
+    encryption_spec: Optional[genai_types.EncryptionSpecDict]
+    """Customer-managed encryption key spec for a Memory Bank. If set, this Memory Bank and all sub-resources of this Memory Bank will be secured by this key."""
 
 
 MemoryBankOrDict = Union[MemoryBank, MemoryBankDict]
@@ -11357,6 +11644,48 @@ class DeleteMemoryBankOperationDict(TypedDict, total=False):
 
 DeleteMemoryBankOperationOrDict = Union[
     DeleteMemoryBankOperation, DeleteMemoryBankOperationDict
+]
+
+
+class GetMemoryBankConfig(_common.BaseModel):
+    """Config for getting a Memory Bank."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class GetMemoryBankConfigDict(TypedDict, total=False):
+    """Config for getting a Memory Bank."""
+
+    http_options: Optional[genai_types.HttpOptions]
+    """Used to override HTTP request options."""
+
+
+GetMemoryBankConfigOrDict = Union[GetMemoryBankConfig, GetMemoryBankConfigDict]
+
+
+class _GetMemoryBankRequestParameters(_common.BaseModel):
+    """Parameters for getting a Memory Bank."""
+
+    name: Optional[str] = Field(
+        default=None, description="""Name of the Memory Bank."""
+    )
+    config: Optional[GetMemoryBankConfig] = Field(default=None, description="""""")
+
+
+class _GetMemoryBankRequestParametersDict(TypedDict, total=False):
+    """Parameters for getting a Memory Bank."""
+
+    name: Optional[str]
+    """Name of the Memory Bank."""
+
+    config: Optional[GetMemoryBankConfigDict]
+    """"""
+
+
+_GetMemoryBankRequestParametersOrDict = Union[
+    _GetMemoryBankRequestParameters, _GetMemoryBankRequestParametersDict
 ]
 
 
@@ -11623,6 +11952,50 @@ class MemoryBankIngestEventsOperationDict(TypedDict, total=False):
 
 MemoryBankIngestEventsOperationOrDict = Union[
     MemoryBankIngestEventsOperation, MemoryBankIngestEventsOperationDict
+]
+
+
+class ListMemoryBanksConfig(_common.BaseModel):
+    """Config for listing Memory Banks."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    page_size: Optional[int] = Field(default=None, description="""""")
+    page_token: Optional[str] = Field(default=None, description="""""")
+
+
+class ListMemoryBanksConfigDict(TypedDict, total=False):
+    """Config for listing Memory Banks."""
+
+    http_options: Optional[genai_types.HttpOptions]
+    """Used to override HTTP request options."""
+
+    page_size: Optional[int]
+    """"""
+
+    page_token: Optional[str]
+    """"""
+
+
+ListMemoryBanksConfigOrDict = Union[ListMemoryBanksConfig, ListMemoryBanksConfigDict]
+
+
+class _ListMemoryBanksRequestParameters(_common.BaseModel):
+    """Parameters for listing Memory Banks."""
+
+    config: Optional[ListMemoryBanksConfig] = Field(default=None, description="""""")
+
+
+class _ListMemoryBanksRequestParametersDict(TypedDict, total=False):
+    """Parameters for listing Memory Banks."""
+
+    config: Optional[ListMemoryBanksConfigDict]
+    """"""
+
+
+_ListMemoryBanksRequestParametersOrDict = Union[
+    _ListMemoryBanksRequestParameters, _ListMemoryBanksRequestParametersDict
 ]
 
 
@@ -32389,3 +32762,23 @@ class DeployOptionDict(TypedDict, total=False):
 
 
 DeployOptionOrDict = Union[DeployOption, DeployOptionDict]
+
+
+class ListMemoryBanksResponse(_common.BaseModel):
+    """The response for listing Memory Banks."""
+
+    memory_banks: Optional[list[MemoryBank]] = Field(
+        default=None, description="""The list of Memory Banks."""
+    )
+
+
+class ListMemoryBanksResponseDict(TypedDict, total=False):
+    """The response for listing Memory Banks."""
+
+    memory_banks: Optional[list[MemoryBankDict]]
+    """The list of Memory Banks."""
+
+
+ListMemoryBanksResponseOrDict = Union[
+    ListMemoryBanksResponse, ListMemoryBanksResponseDict
+]

@@ -111,6 +111,7 @@ from .common import _GetExportPublisherModelOperationParameters
 from .common import _GetGenerateMemoriesOperationParameters
 from .common import _GetImportFilesOperationParameters
 from .common import _GetMemoryBankOperationParameters
+from .common import _GetMemoryBankRequestParameters
 from .common import _GetMemoryOperationParameters
 from .common import _GetMemoryRequestParameters
 from .common import _GetMemoryRevisionRequestParameters
@@ -148,6 +149,7 @@ from .common import _ListEvaluationExperimentsParameters
 from .common import _ListEvaluationMetricsParameters
 from .common import _ListEvaluationSetsParameters
 from .common import _ListMemoriesRequestParameters
+from .common import _ListMemoryBanksRequestParameters
 from .common import _ListMemoryRevisionsRequestParameters
 from .common import _ListMultimodalDatasetsRequestParameters
 from .common import _ListPublisherModelsRequestParameters
@@ -965,6 +967,9 @@ from .common import GetExportPublisherModelOperationConfigOrDict
 from .common import GetImportFilesOperationConfig
 from .common import GetImportFilesOperationConfigDict
 from .common import GetImportFilesOperationConfigOrDict
+from .common import GetMemoryBankConfig
+from .common import GetMemoryBankConfigDict
+from .common import GetMemoryBankConfigOrDict
 from .common import GetMemoryBankOperationConfig
 from .common import GetMemoryBankOperationConfigDict
 from .common import GetMemoryBankOperationConfigOrDict
@@ -1163,6 +1168,12 @@ from .common import ListMemoriesConfigOrDict
 from .common import ListMemoriesResponse
 from .common import ListMemoriesResponseDict
 from .common import ListMemoriesResponseOrDict
+from .common import ListMemoryBanksConfig
+from .common import ListMemoryBanksConfigDict
+from .common import ListMemoryBanksConfigOrDict
+from .common import ListMemoryBanksResponse
+from .common import ListMemoryBanksResponseDict
+from .common import ListMemoryBanksResponseOrDict
 from .common import ListMemoryRevisionsConfig
 from .common import ListMemoryRevisionsConfigDict
 from .common import ListMemoryRevisionsConfigOrDict
@@ -1264,6 +1275,21 @@ from .common import MachineConfig
 from .common import MachineSpec
 from .common import MachineSpecDict
 from .common import MachineSpecOrDict
+from .common import ManagedSemanticMemoryConfig
+from .common import ManagedSemanticMemoryConfigDict
+from .common import ManagedSemanticMemoryConfigGenerationConfig
+from .common import ManagedSemanticMemoryConfigGenerationConfigDict
+from .common import ManagedSemanticMemoryConfigGenerationConfigOrDict
+from .common import ManagedSemanticMemoryConfigOrDict
+from .common import ManagedSemanticMemoryConfigSimilaritySearchConfig
+from .common import ManagedSemanticMemoryConfigSimilaritySearchConfigDict
+from .common import ManagedSemanticMemoryConfigSimilaritySearchConfigOrDict
+from .common import ManagedSemanticMemoryConfigTtlConfig
+from .common import ManagedSemanticMemoryConfigTtlConfigDict
+from .common import ManagedSemanticMemoryConfigTtlConfigGranularTtlConfig
+from .common import ManagedSemanticMemoryConfigTtlConfigGranularTtlConfigDict
+from .common import ManagedSemanticMemoryConfigTtlConfigGranularTtlConfigOrDict
+from .common import ManagedSemanticMemoryConfigTtlConfigOrDict
 from .common import ManagedTopicEnum
 from .common import MapInstance
 from .common import MapInstanceDict
@@ -3050,6 +3076,21 @@ __all__ = [
     "CreateMemoryBankConfig",
     "CreateMemoryBankConfigDict",
     "CreateMemoryBankConfigOrDict",
+    "ManagedSemanticMemoryConfigGenerationConfig",
+    "ManagedSemanticMemoryConfigGenerationConfigDict",
+    "ManagedSemanticMemoryConfigGenerationConfigOrDict",
+    "ManagedSemanticMemoryConfigSimilaritySearchConfig",
+    "ManagedSemanticMemoryConfigSimilaritySearchConfigDict",
+    "ManagedSemanticMemoryConfigSimilaritySearchConfigOrDict",
+    "ManagedSemanticMemoryConfigTtlConfigGranularTtlConfig",
+    "ManagedSemanticMemoryConfigTtlConfigGranularTtlConfigDict",
+    "ManagedSemanticMemoryConfigTtlConfigGranularTtlConfigOrDict",
+    "ManagedSemanticMemoryConfigTtlConfig",
+    "ManagedSemanticMemoryConfigTtlConfigDict",
+    "ManagedSemanticMemoryConfigTtlConfigOrDict",
+    "ManagedSemanticMemoryConfig",
+    "ManagedSemanticMemoryConfigDict",
+    "ManagedSemanticMemoryConfigOrDict",
     "MemoryBank",
     "MemoryBankDict",
     "MemoryBankOrDict",
@@ -3062,6 +3103,9 @@ __all__ = [
     "DeleteMemoryBankOperation",
     "DeleteMemoryBankOperationDict",
     "DeleteMemoryBankOperationOrDict",
+    "GetMemoryBankConfig",
+    "GetMemoryBankConfigDict",
+    "GetMemoryBankConfigOrDict",
     "IngestionDirectContentsSourceEvent",
     "IngestionDirectContentsSourceEventDict",
     "IngestionDirectContentsSourceEventOrDict",
@@ -3077,6 +3121,9 @@ __all__ = [
     "MemoryBankIngestEventsOperation",
     "MemoryBankIngestEventsOperationDict",
     "MemoryBankIngestEventsOperationOrDict",
+    "ListMemoryBanksConfig",
+    "ListMemoryBanksConfigDict",
+    "ListMemoryBanksConfigOrDict",
     "GetMemoryBankOperationConfig",
     "GetMemoryBankOperationConfigDict",
     "GetMemoryBankOperationConfigOrDict",
@@ -4385,6 +4432,9 @@ __all__ = [
     "DeployOption",
     "DeployOptionDict",
     "DeployOptionOrDict",
+    "ListMemoryBanksResponse",
+    "ListMemoryBanksResponseDict",
+    "ListMemoryBanksResponseOrDict",
     "A2aTaskState",
     "Role",
     "State",
@@ -4503,7 +4553,9 @@ __all__ = [
     "_UpdateAgentEngineRequestParameters",
     "_CreateMemoryBankRequestParameters",
     "_DeleteMemoryBankRequestParameters",
+    "_GetMemoryBankRequestParameters",
     "_IngestEventsRequestParameters",
+    "_ListMemoryBanksRequestParameters",
     "_GetMemoryBankOperationParameters",
     "_CreateMemoryRequestParameters",
     "_DeleteMemoryRequestParameters",

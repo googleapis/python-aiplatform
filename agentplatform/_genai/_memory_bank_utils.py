@@ -15,6 +15,7 @@
 """Utility functions for memory banks."""
 
 import asyncio
+import json
 import re
 import time
 from typing import (
@@ -140,3 +141,66 @@ async def _await_async_operation(
         operation = await get_operation_fn(operation_name=operation.name)
 
     return operation
+
+
+def _managed_semantic_memory_config_to_memory_bank_config(
+    semantic_memory_config: genai_types.ManagedSemanticMemoryConfigOrDict,
+) -> genai_types.ReasoningEngineContextSpecMemoryBankConfigDict:
+    """Converts ManagedSemanticMemoryConfig to MemoryBankConfig."""
+    if semantic_memory_config is None:
+        semantic_memory_config = {}
+    if isinstance(semantic_memory_config, dict):
+        semantic_memory_config = genai_types.ManagedSemanticMemoryConfig.model_validate(
+            semantic_memory_config
+        )
+    elif not isinstance(
+        semantic_memory_config, genai_types.ManagedSemanticMemoryConfig
+    ):
+        raise TypeError(
+            "managed_semantic_memory_config must be a dict or "
+            "ManagedSemanticMemoryConfig, "
+            f"but got {type(semantic_memory_config)}."
+        )
+
+    memory_bank_config = json.loads(semantic_memory_config.model_dump_json())
+    if "unstructured_memory_configs" in memory_bank_config:
+        memory_bank_config["customization_configs"] = memory_bank_config.pop(
+            "unstructured_memory_configs"
+        )
+    return memory_bank_config
+
+
+def _memory_bank_config_to_managed_semantic_memories_config(
+    memory_bank_config: genai_types.ReasoningEngineContextSpecMemoryBankConfig,
+) -> genai_types.ManagedSemanticMemoryConfigDict:
+    """Converts MemoryBankConfig to ManagedSemanticMemoriesConfig."""
+    memory_bank_config = json.loads(memory_bank_config.model_dump_json())
+    if "customization_configs" in memory_bank_config:
+        memory_bank_config["unstructured_memory_configs"] = memory_bank_config.pop(
+            "customization_configs"
+        )
+    return memory_bank_config
+
+
+def _reasoning_engine_to_memory_bank(
+    reasoning_engine: genai_types.ReasoningEngine,
+) -> genai_types.MemoryBank:
+    """Converts ReasoningEngine to MemoryBank."""
+    if reasoning_engine.context_spec is not None:
+        semantic_memory_config = (
+            _memory_bank_config_to_managed_semantic_memories_config(
+                reasoning_engine.context_spec.memory_bank_config
+            )
+        )
+    else:
+        semantic_memory_config = {}
+    memory_bank = genai_types.MemoryBank(
+        name=reasoning_engine.name,
+        create_time=reasoning_engine.create_time,
+        update_time=reasoning_engine.update_time,
+        display_name=reasoning_engine.display_name,
+        description=reasoning_engine.description,
+        encryption_spec=reasoning_engine.encryption_spec,
+        managed_semantic_memory_config=semantic_memory_config,
+    )
+    return memory_bank

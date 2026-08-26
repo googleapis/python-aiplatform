@@ -93,23 +93,21 @@ def test_ingest_events(client):
                 "page_size": 1,
             },
         ).page
-        # TODO: Re-enable this test once the bug resulting in no metadata being
-        # applied is fixed.
-        # # With `wait_for_completion` and `force_flush` set to True, there should be
-        # # memories immediately after the call.
-        # assert len(memories) >= 1
-        # # The user-provided `metadata` should be applied to the generated memory.
-        # assert memories[0].memory.metadata["topic"].string_value == "jobs"
+        # With `wait_for_completion` and `force_flush` set to True, there should be
+        # memories immediately after the call.
+        assert len(memories) >= 1
+        # The user-provided `metadata` should be applied to the generated memory.
+        assert memories[0].memory.metadata["topic"].string_value == "jobs"
 
-        # # The user-provided `revision_labels` are applied to the generated memory's
-        # # revision (not the Memory itself), so list the memory's revisions to verify.
-        # revisions = list(
-        #     client.memory_banks.memories.revisions.list(
-        #         name=memories[0].memory.name,
-        #     )
-        # )
-        # assert revisions
-        # assert revisions[0].labels == {"source": "ingest-events-test"}
+        # The user-provided `revision_labels` are applied to the generated memory's
+        # revision (not the Memory itself), so list the memory's revisions to verify.
+        revisions = list(
+            client.memory_banks.memories.revisions.list(
+                name=memories[0].memory.name,
+            )
+        )
+        assert revisions
+        assert revisions[0].labels == {"source": "ingest-events-test"}
 
     finally:
         time.sleep(10)
