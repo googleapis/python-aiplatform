@@ -22,13 +22,13 @@ def test_private_get(client):
 
     sandbox_name = "projects/964831358985/locations/us-central1/reasoningEngines/2886612747586371584/sandboxEnvironments/3186171392039059456"
 
-    agent_engine_sandbox = client.agent_engines.sandboxes._get(name=sandbox_name)
-    assert isinstance(agent_engine_sandbox, types.SandboxEnvironment)
-    assert agent_engine_sandbox.name == sandbox_name
+    runtime_sandbox = client.sandboxes._get(name=sandbox_name)
+    assert isinstance(runtime_sandbox, types.SandboxEnvironment)
+    assert runtime_sandbox.name == sandbox_name
 
 
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
-    test_method="agent_engines.sandboxes._get",
+    test_method="sandboxes._get",
 )

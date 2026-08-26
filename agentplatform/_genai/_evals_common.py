@@ -139,21 +139,21 @@ def _get_api_client_with_location(
     )._api_client
 
 
-def _get_agent_engine_instance(
+def _get_runtime_instance(
     agent_name: str, api_client: BaseApiClient
-) -> Union[types.AgentEngine, Any]:
+) -> Union[types.Runtime, Any]:
     """Gets or creates an agent engine instance for the current thread."""
-    if not hasattr(_thread_local_data, "agent_engine_instances"):
-        _thread_local_data.agent_engine_instances = {}
-    if agent_name not in _thread_local_data.agent_engine_instances:
+    if not hasattr(_thread_local_data, "runtime_instances"):
+        _thread_local_data.runtime_instances = {}
+    if agent_name not in _thread_local_data.runtime_instances:
         client = agentplatform.Client(
             project=api_client.project,
             location=api_client.location,
         )
-        _thread_local_data.agent_engine_instances[agent_name] = (
-            client.agent_engines.get(name=agent_name)
+        _thread_local_data.runtime_instances[agent_name] = client.runtimes.get(
+            name=agent_name
         )
-    return _thread_local_data.agent_engine_instances[agent_name]
+    return _thread_local_data.runtime_instances[agent_name]
 
 
 def _generate_content_with_retry(
@@ -1804,7 +1804,7 @@ def _execute_inference_concurrently(
     model_or_fn: Optional[Union[str, Callable[[Any], Any]]] = None,
     gemini_config: Optional[genai_types.GenerateContentConfig] = None,
     inference_fn: Optional[Callable[..., Any]] = None,
-    agent_engine: Optional[Union[str, types.AgentEngine]] = None,
+    runtime: Optional[Union[str, types.Runtime]] = None,
     agent: Optional["LlmAgent"] = None,  # type: ignore # noqa: F821
     user_simulator_config: Optional[types.evals.UserSimulatorConfig] = None,
 ) -> list[
@@ -1834,7 +1834,7 @@ def _execute_inference_concurrently(
     # prompt from the structured agent_data rather than requiring a flat
     # prompt/request column.
     has_agent_data = (
-        agent is not None or agent_engine is not None
+        agent is not None or runtime is not None
     ) and AGENT_DATA in prompt_dataset.columns
 
     primary_prompt_column: Optional[str] = None
@@ -1851,7 +1851,7 @@ def _execute_inference_concurrently(
             f" Found: {prompt_dataset.columns.tolist()}"
         )
 
-    max_workers = AGENT_MAX_WORKERS if agent_engine or agent else MAX_WORKERS
+    max_workers = AGENT_MAX_WORKERS if runtime or agent else MAX_WORKERS
     with tqdm(total=len(prompt_dataset), desc=progress_desc) as pbar:
         with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
             for index, row in prompt_dataset.iterrows():
@@ -1907,29 +1907,29 @@ def _execute_inference_concurrently(
                     pbar.update(1)
                     continue
 
-                if agent_engine or agent:
+                if runtime or agent:
 
                     def agent_run_wrapper(  # type: ignore[no-untyped-def]
                         row_arg,
                         contents_arg,
-                        agent_engine_arg,
+                        runtime_arg,
                         agent_arg,
                         inference_fn_arg,
                         api_client_arg,
                         user_simulator_config_arg,
                     ) -> Any:
-                        if agent_engine_arg:
-                            if isinstance(agent_engine_arg, str):
-                                agent_engine_instance = _get_agent_engine_instance(
-                                    agent_engine_arg, api_client_arg
+                        if runtime_arg:
+                            if isinstance(runtime_arg, str):
+                                runtime_instance = _get_runtime_instance(
+                                    runtime_arg, api_client_arg
                                 )
                             else:
-                                agent_engine_instance = agent_engine_arg
+                                runtime_instance = runtime_arg
 
                             return inference_fn_arg(
                                 row=row_arg,
                                 contents=contents_arg,
-                                agent_engine=agent_engine_instance,
+                                runtime=runtime_instance,
                             )
                         elif agent_arg:
                             return inference_fn_arg(
@@ -1944,7 +1944,7 @@ def _execute_inference_concurrently(
                         agent_run_wrapper,
                         row,
                         contents,
-                        agent_engine,
+                        runtime,
                         agent,
                         inference_fn,
                         api_client,
@@ -2559,7 +2559,7 @@ def _execute_inference(
     api_client: BaseApiClient,
     src: Union[str, pd.DataFrame],
     model: Optional[Union[Callable[[Any], Any], str]] = None,
-    agent_engine: Optional[Union[str, types.AgentEngine]] = None,
+    runtime: Optional[Union[str, types.Runtime]] = None,
     agent: Optional["LlmAgent"] = None,  # type: ignore # noqa: F821
     gemini_agent: Optional[str] = None,
     dest: Optional[str] = None,
@@ -2577,8 +2577,8 @@ def _execute_inference(
           GCS path, or a BigQuery table) or a Pandas DataFrame.
         model: The model to use for inference. Can be a callable function or a
           string representing a model.
-        agent_engine: The agent engine to use for inference. Can be a resource
-          name string or an `AgentEngine` instance.
+        runtime: The agent engine to use for inference. Can be a resource
+          name string or an `Runtime` instance.
         agent: The local agent to use for inference. Can be an ADK agent instance.
         gemini_agent: The Gemini Agents API agent resource name to run inference
           against via the Interactions API.
@@ -2599,10 +2599,9 @@ def _execute_inference(
     if location:
         api_client = _get_api_client_with_location(api_client, location)
 
-    if sum(x is not None for x in [model, agent_engine, agent, gemini_agent]) != 1:
+    if sum(x is not None for x in [model, runtime, agent, gemini_agent]) != 1:
         raise ValueError(
-            "Exactly one of model, agent_engine, agent, or gemini_agent must be"
-            " provided."
+            "Exactly one of model, runtime, agent, or gemini_agent must be" " provided."
         )
 
     prompt_dataset = _load_dataframe(api_client, src)
@@ -2665,27 +2664,26 @@ def _execute_inference(
             eval_dataset_df=results_df,
             candidate_name=candidate_name,
         )
-    elif agent_engine or agent:
+    elif runtime or agent:
         candidate_name = None
-        if agent_engine:
-            candidate_name = "agent_engine_0"
+        if runtime:
+            candidate_name = "runtime_0"
         elif agent:
             agent_config = types.evals.AgentConfig.from_agent(agent)
             candidate_name = agent_config.agent_id or "agent_0"
 
         if (
-            agent_engine
-            and not isinstance(agent_engine, str)
+            runtime
+            and not isinstance(runtime, str)
             and not (
-                hasattr(agent_engine, "api_client")
-                and type(agent_engine).__name__ == "AgentEngine"
+                hasattr(runtime, "api_client") and type(runtime).__name__ == "Runtime"
             )
         ):
             raise TypeError(
-                f"Unsupported agent_engine type: {type(agent_engine)}. Expecting a"
+                f"Unsupported runtime type: {type(runtime)}. Expecting a"
                 " string (agent engine resource name in"
                 " 'projects/{project_id}/locations/{location_id}/reasoningEngines/{reasoning_engine_id}'"
-                " format) or a types.AgentEngine instance."
+                " format) or a types.Runtime instance."
             )
         if (
             _evals_constant.INTERMEDIATE_EVENTS in prompt_dataset.columns
@@ -2701,7 +2699,7 @@ def _execute_inference(
         logger.debug("Starting Agent Run process ...")
         results_df = _run_agent_internal(
             api_client=api_client,
-            agent_engine=agent_engine,
+            runtime=runtime,
             agent=agent,
             prompt_dataset=prompt_dataset,
             user_simulator_config=user_simulator_config,
@@ -2716,7 +2714,7 @@ def _execute_inference(
             candidate_name=candidate_name,
         )
     else:
-        raise ValueError("Either model, agent_engine or agent must be provided.")
+        raise ValueError("Either model, runtime or agent must be provided.")
 
     if dest:
         file_name = "inference_results.jsonl" if model else "agent_run_results.jsonl"
@@ -3316,7 +3314,7 @@ def _create_agent_results_dataframe(
 
 def _run_agent_internal(
     api_client: BaseApiClient,
-    agent_engine: Optional[Union[str, types.AgentEngine]],
+    runtime: Optional[Union[str, types.Runtime]],
     agent: Optional["LlmAgent"],  # type: ignore # noqa: F821
     prompt_dataset: pd.DataFrame,
     user_simulator_config: Optional[types.evals.UserSimulatorConfig] = None,
@@ -3325,7 +3323,7 @@ def _run_agent_internal(
     """Runs an agent."""
     raw_responses = _run_agent(
         api_client=api_client,
-        agent_engine=agent_engine,
+        runtime=runtime,
         agent=agent,
         prompt_dataset=prompt_dataset,
         user_simulator_config=user_simulator_config,
@@ -3367,7 +3365,7 @@ def _run_agent_internal(
 
 def _run_agent(
     api_client: BaseApiClient,
-    agent_engine: Optional[Union[str, types.AgentEngine]],
+    runtime: Optional[Union[str, types.Runtime]],
     agent: Optional["LlmAgent"],  # type: ignore # noqa: F821
     prompt_dataset: pd.DataFrame,
     user_simulator_config: Optional[types.evals.UserSimulatorConfig] = None,
@@ -3386,10 +3384,10 @@ def _run_agent(
     simulator is never routed to a different region.
     """
     del allow_cross_region_model  # Simulator always runs in the client region.
-    if agent_engine:
+    if runtime:
         return _execute_inference_concurrently(
             api_client=api_client,
-            agent_engine=agent_engine,
+            runtime=runtime,
             prompt_dataset=prompt_dataset,
             progress_desc="Agent Run",
             gemini_config=None,
@@ -3407,12 +3405,12 @@ def _run_agent(
             inference_fn=_execute_local_agent_run_with_retry,
         )
     else:
-        raise ValueError("Neither agent_engine nor agent is provided.")
+        raise ValueError("Neither runtime nor agent is provided.")
 
 
-def _create_agent_engine_session(
+def _create_runtime_session(
     *,
-    agent_engine: types.AgentEngine,
+    runtime: types.Runtime,
     user_id: str,
     session_state: Optional[dict[str, Any]] = None,
 ) -> Any:
@@ -3424,7 +3422,7 @@ def _create_agent_engine_session(
     Sessions API.
 
     Args:
-        agent_engine: The AgentEngine instance.
+        runtime: The Runtime instance.
         user_id: The user ID for the session.
         session_state: Optional initial state for the session.
 
@@ -3435,7 +3433,7 @@ def _create_agent_engine_session(
         RuntimeError: If the session could not be created via either path.
     """
     try:
-        session = agent_engine.create_session(  # type: ignore[attr-defined]
+        session = runtime.create_session(  # type: ignore[attr-defined]
             user_id=user_id,
             state=session_state,
         )
@@ -3448,18 +3446,18 @@ def _create_agent_engine_session(
             "Agent engine does not have 'create_session' operation registered."
             " Falling back to managed Sessions API."
         )
-        if agent_engine.api_resource is None:
+        if runtime.api_resource is None:
             raise RuntimeError(
-                "Failed to create session: agent_engine.api_resource is None."
+                "Failed to create session: runtime.api_resource is None."
             ) from exc
-        if agent_engine.api_client is None:
+        if runtime.api_client is None:
             raise RuntimeError(
-                "Failed to create session: agent_engine.api_client is None."
+                "Failed to create session: runtime.api_client is None."
             ) from exc
-        operation = agent_engine.api_client.sessions.create(
-            name=agent_engine.api_resource.name,
+        operation = runtime.api_client.sessions.create(
+            name=runtime.api_resource.name,
             user_id=user_id,
-            config=types.CreateAgentEngineSessionConfig(
+            config=types.CreateRuntimeSessionConfig(
                 session_state=session_state,
             ),
         )
@@ -3481,7 +3479,7 @@ def _create_agent_engine_session(
 def _execute_agent_run_with_retry(
     row: pd.Series,
     contents: Union[genai_types.ContentListUnion, genai_types.ContentListUnionDict],
-    agent_engine: types.AgentEngine,
+    runtime: types.Runtime,
     max_retries: int = 3,
 ) -> Union[list[dict[str, Any]], dict[str, Any]]:
     """Executes agent run over agent engine for a single prompt."""
@@ -3497,8 +3495,8 @@ def _execute_agent_run_with_retry(
         return {"error": f"Failed to get all required agent engine inputs: {e}"}
 
     try:
-        session_id = _create_agent_engine_session(
-            agent_engine=agent_engine,
+        session_id = _create_runtime_session(
+            runtime=runtime,
             user_id=user_id,
             session_state=session_state,
         )
@@ -3516,19 +3514,19 @@ def _execute_agent_run_with_retry(
             agent_data_obj = types.evals.AgentData.model_validate(agent_data_obj)
         _, history_events = _extract_prompt_from_agent_data(agent_data_obj)
 
-        if agent_engine.api_resource is None:
-            return {"error": "agent_engine.api_resource is None."}
-        if agent_engine.api_client is None:
-            return {"error": "agent_engine.api_client is None."}
-        session_name = f"{agent_engine.api_resource.name}/sessions/{session_id}"
+        if runtime.api_resource is None:
+            return {"error": "runtime.api_resource is None."}
+        if runtime.api_client is None:
+            return {"error": "runtime.api_client is None."}
+        session_name = f"{runtime.api_resource.name}/sessions/{session_id}"
         base_ts = datetime.datetime(2000, 1, 1, tzinfo=datetime.timezone.utc)
         for i, ag_event in enumerate(history_events):
-            agent_engine.api_client.sessions.events.append(
+            runtime.api_client.sessions.events.append(
                 name=session_name,
                 author=ag_event.author or "user",
                 invocation_id="history",
                 timestamp=base_ts + datetime.timedelta(seconds=i),
-                config=types.AppendAgentEngineSessionEventConfig(
+                config=types.AppendRuntimeSessionEventConfig(
                     content=ag_event.content,
                 ),
             )
@@ -3537,7 +3535,7 @@ def _execute_agent_run_with_retry(
     for attempt in range(max_retries):
         try:
             responses = []
-            for event in agent_engine.stream_query(  # type: ignore[attr-defined]
+            for event in runtime.stream_query(  # type: ignore[attr-defined]
                 user_id=user_id,
                 session_id=session_id,
                 message=contents,
@@ -4159,7 +4157,7 @@ def _create_evaluation_set_from_dataframe(
                 agent_data_obj = agent_data_val
 
         # When agent_data exists but has no agents map (e.g. from remote
-        # agent_engine inference), inject the agents map from agent_info so
+        # runtime inference), inject the agents map from agent_info so
         # the server-side autorater can access tool definitions and
         # instructions.
         if (

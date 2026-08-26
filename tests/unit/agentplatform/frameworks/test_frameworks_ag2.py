@@ -15,14 +15,14 @@
 import dataclasses
 import importlib
 import json
+import os
 from typing import Optional
 from unittest import mock
 
 from google import auth
 import agentplatform
-from google.cloud.aiplatform import initializer
-from agentplatform import agent_engines
-from agentplatform._genai import _agent_engines_utils
+from agentplatform import frameworks
+from agentplatform._genai import _runtimes_utils
 import pytest
 
 
@@ -94,7 +94,7 @@ def dataclasses_is_dataclass_mock():
 @pytest.fixture
 def to_json_serializable_autogen_object_mock():
     with mock.patch.object(
-        _agent_engines_utils,
+        _runtimes_utils,
         "to_json_serializable_autogen_object",
     ) as to_json_serializable_autogen_object_mock:
         to_json_serializable_autogen_object_mock.return_value = {}
@@ -149,7 +149,7 @@ def otel_resource_detector_mock():
 @pytest.fixture
 def is_noop_or_proxy_tracer_provider_mock():
     with mock.patch.object(
-        _agent_engines_utils, "is_noop_or_proxy_tracer_provider"
+        _runtimes_utils, "is_noop_or_proxy_tracer_provider"
     ) as is_noop_or_proxy_tracer_provider_mock:
         is_noop_or_proxy_tracer_provider_mock.return_value = True
         yield is_noop_or_proxy_tracer_provider_mock
@@ -158,7 +158,7 @@ def is_noop_or_proxy_tracer_provider_mock():
 @pytest.fixture
 def autogen_instrumentor_mock():
     with mock.patch.object(
-        _agent_engines_utils,
+        _runtimes_utils,
         "_import_openinference_autogen_or_warn",
     ) as autogen_instrumentor_mock:
         yield autogen_instrumentor_mock
@@ -167,7 +167,7 @@ def autogen_instrumentor_mock():
 @pytest.fixture
 def autogen_instrumentor_none_mock():
     with mock.patch.object(
-        _agent_engines_utils,
+        _runtimes_utils,
         "_import_openinference_autogen_or_warn",
     ) as autogen_instrumentor_mock:
         autogen_instrumentor_mock.return_value = None
@@ -177,7 +177,7 @@ def autogen_instrumentor_none_mock():
 @pytest.fixture
 def autogen_tools_mock():
     with mock.patch.object(
-        _agent_engines_utils,
+        _runtimes_utils,
         "_import_autogen_tools_or_warn",
     ) as autogen_tools_mock:
         autogen_tools_mock.return_value = mock.MagicMock()
@@ -201,24 +201,24 @@ class MockCost:
 @pytest.mark.usefixtures("google_auth_mock")
 class TestAG2Agent:
     def setup_method(self):
-        importlib.reload(initializer)
         importlib.reload(agentplatform)
-        agentplatform.init(
-            project=_TEST_PROJECT,
-            location=_TEST_LOCATION,
-        )
+        os.environ["GOOGLE_CLOUD_PROJECT"] = _TEST_PROJECT
+        os.environ["GOOGLE_CLOUD_LOCATION"] = _TEST_LOCATION
 
     def teardown_method(self):
-        initializer.global_pool.shutdown(wait=True)
+        for key in [
+            "GOOGLE_CLOUD_PROJECT",
+            "GOOGLE_CLOUD_AGENT_ENGINE_LOCATION",
+            "GOOGLE_CLOUD_LOCATION",
+        ]:
+            os.environ.pop(key, None)
 
     def test_initialization(self):
-        agent = agent_engines.AG2Agent(
+        agent = frameworks.AG2Agent(
             model=_TEST_MODEL, runnable_name=_TEST_RUNNABLE_NAME
         )
         assert agent._tmpl_attrs.get("model_name") == _TEST_MODEL
         assert agent._tmpl_attrs.get("runnable_name") == _TEST_RUNNABLE_NAME
-        assert agent._tmpl_attrs.get("project") == _TEST_PROJECT
-        assert agent._tmpl_attrs.get("location") == _TEST_LOCATION
         assert agent._tmpl_attrs.get("runnable") is None
 
     def test_initialization_with_tools(self, autogen_tools_mock):
@@ -226,7 +226,7 @@ class TestAG2Agent:
             place_tool_query,
             place_photo_query,
         ]
-        agent = agent_engines.AG2Agent(
+        agent = frameworks.AG2Agent(
             model=_TEST_MODEL,
             runnable_name=_TEST_RUNNABLE_NAME,
             system_instruction=_TEST_SYSTEM_INSTRUCTION,
@@ -241,7 +241,7 @@ class TestAG2Agent:
         assert agent._tmpl_attrs.get("ag2_tool_objects")
 
     def test_set_up(self):
-        agent = agent_engines.AG2Agent(
+        agent = frameworks.AG2Agent(
             model=_TEST_MODEL,
             runnable_name=_TEST_RUNNABLE_NAME,
             runnable_builder=lambda **kwargs: kwargs,
@@ -251,7 +251,7 @@ class TestAG2Agent:
         assert agent._tmpl_attrs.get("runnable") is not None
 
     def test_clone(self):
-        agent = agent_engines.AG2Agent(
+        agent = frameworks.AG2Agent(
             model=_TEST_MODEL,
             runnable_name=_TEST_RUNNABLE_NAME,
             runnable_builder=lambda **kwargs: kwargs,
@@ -265,7 +265,7 @@ class TestAG2Agent:
         assert agent_clone._tmpl_attrs.get("runnable") is not None
 
     def test_query(self, to_json_serializable_autogen_object_mock):
-        agent = agent_engines.AG2Agent(
+        agent = frameworks.AG2Agent(
             model=_TEST_MODEL,
             runnable_name=_TEST_RUNNABLE_NAME,
         )
@@ -292,7 +292,7 @@ class TestAG2Agent:
         simple_span_processor_mock,
         autogen_instrumentor_mock,
     ):
-        agent = agent_engines.AG2Agent(
+        agent = frameworks.AG2Agent(
             model=_TEST_MODEL,
             runnable_name=_TEST_RUNNABLE_NAME,
             enable_tracing=True,
@@ -305,7 +305,7 @@ class TestAG2Agent:
 
     @pytest.mark.usefixtures("caplog")
     def test_enable_tracing_warning(self, caplog, autogen_instrumentor_none_mock):
-        agent = agent_engines.AG2Agent(
+        agent = frameworks.AG2Agent(
             model=_TEST_MODEL,
             runnable_name=_TEST_RUNNABLE_NAME,
             enable_tracing=True,
@@ -325,7 +325,7 @@ class TestAG2Agent:
         is_noop_or_proxy_tracer_provider_mock,
         autogen_instrumentor_mock,
     ):
-        agent = agent_engines.AG2Agent(
+        agent = frameworks.AG2Agent(
             model=_TEST_MODEL,
             runnable_name=_TEST_RUNNABLE_NAME,
             runnable_builder=lambda **kwargs: kwargs,
@@ -371,7 +371,7 @@ def _return_input_no_typing(input_):
 class TestConvertToolsOrRaiseErrors:
     def test_raise_untyped_input_args(self, agentplatform_init_mock):
         with pytest.raises(TypeError, match=r"has untyped input_arg"):
-            agent_engines.AG2Agent(
+            frameworks.AG2Agent(
                 model=_TEST_MODEL,
                 runnable_name=_TEST_RUNNABLE_NAME,
                 tools=[_return_input_no_typing],
@@ -379,23 +379,23 @@ class TestConvertToolsOrRaiseErrors:
 
 
 class TestToJsonSerializableAutoGenObject:
-    """Tests for `_agent_engines_utils.to_json_serializable_autogen_object`."""
+    """Tests for `_runtimes_utils.to_json_serializable_autogen_object`."""
 
     def test_autogen_chat_result(
         self,
         dataclasses_asdict_mock,
         dataclasses_is_dataclass_mock,
     ):
-        mock_chat_result: _agent_engines_utils.AutogenChatResult = mock.Mock(
-            spec=_agent_engines_utils.AutogenChatResult
+        mock_chat_result: _runtimes_utils.AutogenChatResult = mock.Mock(
+            spec=_runtimes_utils.AutogenChatResult
         )
-        _agent_engines_utils.to_json_serializable_autogen_object(mock_chat_result)
+        _runtimes_utils.to_json_serializable_autogen_object(mock_chat_result)
         dataclasses_is_dataclass_mock.assert_called_once_with(mock_chat_result)
         dataclasses_asdict_mock.assert_called_once_with(mock_chat_result)
 
     def test_autogen_run_response(self):
-        mock_response: _agent_engines_utils.AutogenRunResponse = mock.Mock(
-            spec=_agent_engines_utils.AutogenRunResponse
+        mock_response: _runtimes_utils.AutogenRunResponse = mock.Mock(
+            spec=_runtimes_utils.AutogenRunResponse
         )
         mock_agent = MockAgent(
             name="TestAgent",
@@ -419,13 +419,13 @@ class TestToJsonSerializableAutoGenObject:
             },
             "cost": {"total_cost": 5.5},
         }
-        got = _agent_engines_utils.to_json_serializable_autogen_object(mock_response)
+        got = _runtimes_utils.to_json_serializable_autogen_object(mock_response)
         mock_response.process.assert_called_once()
         assert got == want
 
     def test_autogen_empty_run_response(self):
-        mock_response: _agent_engines_utils.AutogenRunResponse = mock.Mock(
-            spec=_agent_engines_utils.AutogenRunResponse
+        mock_response: _runtimes_utils.AutogenRunResponse = mock.Mock(
+            spec=_runtimes_utils.AutogenRunResponse
         )
         mock_response.summary = None
         mock_response.messages = []
@@ -439,7 +439,7 @@ class TestToJsonSerializableAutoGenObject:
             "last_speaker": None,
             "cost": None,
         }
-        got = _agent_engines_utils.to_json_serializable_autogen_object(mock_response)
+        got = _runtimes_utils.to_json_serializable_autogen_object(mock_response)
         assert got == want
 
 
@@ -454,7 +454,7 @@ class TestDataClassToJsonSerializable:
 
         instance = SimpleDataClass(field1="value1", field2=123)
         want = {"field1": "value1", "field2": 123}
-        got = _agent_engines_utils._dataclass_to_dict_or_raise(instance)
+        got = _runtimes_utils._dataclass_to_dict_or_raise(instance)
         assert got == want
 
     def test_not_a_dataclass_raises_type_error(self):
@@ -463,4 +463,4 @@ class TestDataClassToJsonSerializable:
 
         instance = NotADataclass()
         with pytest.raises(TypeError, match="Object is not a dataclass"):
-            _agent_engines_utils._dataclass_to_dict_or_raise(instance)
+            _runtimes_utils._dataclass_to_dict_or_raise(instance)

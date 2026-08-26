@@ -19,11 +19,11 @@ from agentplatform._genai import types
 
 
 def test_private_list_session_events(client):
-    session_event_list_response = client.agent_engines.sessions.events._list(
+    session_event_list_response = client.sessions.events._list(
         name="reasoningEngines/2886612747586371584/sessions/6922431337672474624",
     )
     assert isinstance(
-        session_event_list_response, types.ListAgentEngineSessionEventsResponse
+        session_event_list_response, types.ListRuntimeSessionEventsResponse
     )
     assert len(session_event_list_response.session_events) == 1
     assert isinstance(session_event_list_response.session_events[0], types.SessionEvent)
@@ -32,5 +32,5 @@ def test_private_list_session_events(client):
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
-    test_method="agent_engines.sessions.events._list",
+    test_method="sessions.events._list",
 )

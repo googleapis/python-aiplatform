@@ -37,7 +37,7 @@ def test_create_config_lightweight(client):
     if not os.environ.get("GCS_BUCKET"):
         raise ValueError("GCS_BUCKET environment variable is not set.")
 
-    config = client.agent_engines._create_config(
+    config = client.runtimes._create_config(
         mode="create",
         staging_bucket=os.environ["GCS_BUCKET"],
         display_name=agent_display_name,
@@ -51,12 +51,12 @@ def test_create_config_lightweight(client):
 
 def test_create_with_labels(client):
     labels = {"test-label": "test-value"}
-    agent_engine = client.agent_engines.create(
+    runtime = client.runtimes.create(
         config={"labels": labels},
     )
-    assert agent_engine.api_resource.labels == labels
+    assert runtime.api_resource.labels == labels
     # Clean up resources.
-    client.agent_engines.delete(name=agent_engine.api_resource.name, force=True)
+    client.runtimes.delete(name=runtime.api_resource.name, force=True)
 
 
 def test_create_with_context_spec(client):
@@ -99,7 +99,7 @@ def test_create_with_context_spec(client):
         **generation_trigger_config
     )
 
-    agent_engine = client.agent_engines.create(
+    runtime = client.runtimes.create(
         config={
             "context_spec": {
                 "memory_bank_config": {
@@ -117,8 +117,8 @@ def test_create_with_context_spec(client):
             "http_options": {"api_version": "v1beta1"},
         },
     )
-    agent_engine = client.agent_engines.get(name=agent_engine.api_resource.name)
-    memory_bank_config = agent_engine.api_resource.context_spec.memory_bank_config
+    runtime = client.runtimes.get(name=runtime.api_resource.name)
+    memory_bank_config = runtime.api_resource.context_spec.memory_bank_config
     assert memory_bank_config.generation_config.model == generation_model
     assert (
         memory_bank_config.generation_config.generation_trigger_config
@@ -132,13 +132,13 @@ def test_create_with_context_spec(client):
         memory_bank_customization_config
     ]
     # Clean up resources.
-    client.agent_engines.delete(name=agent_engine.api_resource.name, force=True)
+    client.runtimes.delete(name=runtime.api_resource.name, force=True)
 
 
 def test_create_with_source_packages(
     client,
-    mock_agent_engine_create_base64_encoded_tarball,
-    mock_agent_engine_create_path_exists,
+    mock_runtime_create_base64_encoded_tarball,
+    mock_runtime_create_path_exists,
 ):
     """Tests creating an agent engine with source packages."""
     if sys.version_info >= (3, 13):
@@ -168,10 +168,10 @@ def test_create_with_source_packages(
         except Exception:
             pass
     with (
-        mock_agent_engine_create_base64_encoded_tarball,
-        mock_agent_engine_create_path_exists,
+        mock_runtime_create_base64_encoded_tarball,
+        mock_runtime_create_path_exists,
     ):
-        agent_engine = client.agent_engines.create(
+        runtime = client.runtimes.create(
             config={
                 "display_name": "test-agent-engine-source-packages",
                 "source_packages": [
@@ -187,32 +187,32 @@ def test_create_with_source_packages(
                 },
             },
         )
-    assert agent_engine.api_resource.display_name == "test-agent-engine-source-packages"
+    assert runtime.api_resource.display_name == "test-agent-engine-source-packages"
     # Clean up resources.
-    client.agent_engines.delete(name=agent_engine.api_resource.name, force=True)
+    client.runtimes.delete(name=runtime.api_resource.name, force=True)
 
 
 def test_create_with_identity_type(client):
     """Tests creating an agent engine with identity type."""
-    agent_engine = client.agent_engines.create(
+    runtime = client.runtimes.create(
         config={
             "identity_type": types.IdentityType.AGENT_IDENTITY,
             "http_options": {"api_version": "v1beta1"},
         },
     )
     assert (
-        agent_engine.api_resource.spec.identity_type
+        runtime.api_resource.spec.identity_type
         == types.IdentityType.AGENT_IDENTITY
     )
     assert _AGENT_IDENTITY_REGEX.match(
-        agent_engine.api_resource.spec.effective_identity
+        runtime.api_resource.spec.effective_identity
     )
     # Clean up resources.
-    client.agent_engines.delete(name=agent_engine.api_resource.name, force=True)
+    client.runtimes.delete(name=runtime.api_resource.name, force=True)
 
 
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
-    test_method="agent_engines.create",
+    test_method="runtimes.create",
 )

@@ -114,15 +114,11 @@ def _default_model_builder(
         )
         return model
     except ImportError:
-        import agentplatform
-        from google.cloud.aiplatform import initializer
         from langchain_google_vertexai import ChatVertexAI
 
-        current_project = initializer.global_config.project
-        current_location = initializer.global_config.location
-        agentplatform.init(project=project, location=location)
-        model = ChatVertexAI(model_name=model_name, **model_kwargs)
-        agentplatform.init(project=current_project, location=current_location)
+        model = ChatVertexAI(
+            model_name=model_name, project=project, location=location, **model_kwargs
+        )
         return model
 
 
@@ -192,15 +188,11 @@ def _default_runnable_builder(
 
 
 def _default_instrumentor_builder(project_id: str):
-    from agentplatform._genai import _agent_engines_utils
+    from agentplatform._genai import _runtimes_utils
 
-    openinference_langchain = (
-        _agent_engines_utils._import_openinference_langchain_or_warn()
-    )
-    opentelemetry = _agent_engines_utils._import_opentelemetry_or_warn()
-    opentelemetry_sdk_trace = (
-        _agent_engines_utils._import_opentelemetry_sdk_trace_or_warn()
-    )
+    openinference_langchain = _runtimes_utils._import_openinference_langchain_or_warn()
+    opentelemetry = _runtimes_utils._import_opentelemetry_or_warn()
+    opentelemetry_sdk_trace = _runtimes_utils._import_opentelemetry_sdk_trace_or_warn()
     if all(
         (
             openinference_langchain,
@@ -263,7 +255,7 @@ def _default_instrumentor_builder(project_id: str):
         # Avoids AttributeError:
         # 'ProxyTracerProvider' and 'NoOpTracerProvider' objects has no
         # attribute 'add_span_processor'.
-        if _agent_engines_utils.is_noop_or_proxy_tracer_provider(tracer_provider):
+        if _runtimes_utils.is_noop_or_proxy_tracer_provider(tracer_provider):
             tracer_provider = opentelemetry_sdk_trace.TracerProvider(resource=resource)
             opentelemetry.trace.set_tracer_provider(tracer_provider)
         # Avoids OpenTelemetry client already exists error.
@@ -555,11 +547,7 @@ class LangchainAgent:
             TypeError: If there is an invalid tool (e.g. function with an input
             that did not specify its type).
         """
-        from google.cloud.aiplatform import initializer
-
         self._tmpl_attrs: dict[str, Any] = {
-            "project": initializer.global_config.project,
-            "location": initializer.global_config.location,
             "tools": [],
             "model_name": model,
             "system_instruction": system_instruction,
@@ -600,20 +588,26 @@ class LangchainAgent:
         service for deployment, as it might initialize clients that can not be
         serialized.
         """
+        import os
+
+        project = os.environ.get("GOOGLE_CLOUD_PROJECT")
+        location = os.getenv("GOOGLE_CLOUD_AGENT_ENGINE_LOCATION") or os.getenv(
+            "GOOGLE_CLOUD_LOCATION"
+        )
         if self._tmpl_attrs.get("enable_tracing"):
             instrumentor_builder = (
                 self._tmpl_attrs.get("instrumentor_builder")
                 or _default_instrumentor_builder
             )
             self._tmpl_attrs["instrumentor"] = instrumentor_builder(
-                project_id=self._tmpl_attrs.get("project")
+                project_id=project,
             )
         model_builder = self._tmpl_attrs.get("model_builder") or _default_model_builder
         self._tmpl_attrs["model"] = model_builder(
             model_name=self._tmpl_attrs.get("model_name"),
             model_kwargs=self._tmpl_attrs.get("model_kwargs"),
-            project=self._tmpl_attrs.get("project"),
-            location=self._tmpl_attrs.get("location"),
+            project=project,
+            location=location,
         )
         runnable_builder = (
             self._tmpl_attrs.get("runnable_builder") or _default_runnable_builder

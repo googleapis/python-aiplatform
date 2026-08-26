@@ -32,13 +32,13 @@ pytest_plugins = ("pytest_asyncio",)
 
 
 def test_update(client):
-    agent_engine = client.agent_engines.create()
-    assert isinstance(agent_engine, types.AgentEngine)
-    assert isinstance(agent_engine.api_resource, types.ReasoningEngine)
+    runtime = client.runtimes.create()
+    assert isinstance(runtime, types.Runtime)
+    assert isinstance(runtime.api_resource, types.ReasoningEngine)
 
     try:
         operation = client.feedback_entries.create(
-            name=agent_engine.api_resource.name,
+            name=runtime.api_resource.name,
             session_id="session_123",
             event_id="event_456",
             feedback_type=types.FeedbackType.THUMBS_UP,
@@ -113,21 +113,21 @@ def test_update(client):
 
     finally:
         # Clean up resources.
-        client.agent_engines.delete(
-            name=agent_engine.api_resource.name,
+        client.runtimes.delete(
+            name=runtime.api_resource.name,
             force=True,
         )
 
 
 @pytest.mark.asyncio
 async def test_update_async(client):
-    agent_engine = client.agent_engines.create()
-    assert isinstance(agent_engine, types.AgentEngine)
-    assert isinstance(agent_engine.api_resource, types.ReasoningEngine)
+    runtime = client.runtimes.create()
+    assert isinstance(runtime, types.Runtime)
+    assert isinstance(runtime.api_resource, types.ReasoningEngine)
 
     try:
         operation = await client.aio.feedback_entries.create(
-            name=agent_engine.api_resource.name,
+            name=runtime.api_resource.name,
             session_id="session_123",
             event_id="event_456",
             feedback_type=types.FeedbackType.THUMBS_UP,
@@ -202,7 +202,7 @@ async def test_update_async(client):
 
     finally:
         # Clean up resources.
-        await client.aio.agent_engines.delete(
-            name=agent_engine.api_resource.name,
+        await client.aio.runtimes.delete(
+            name=runtime.api_resource.name,
             force=True,
         )

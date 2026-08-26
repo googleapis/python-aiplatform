@@ -29,7 +29,7 @@ from google.genai._common import get_value_by_path as getv
 from google.genai._common import set_value_by_path as setv
 from google.genai.pagers import AsyncPager, Pager
 
-from . import _agent_engines_utils
+from . import _runtimes_utils
 from . import types
 
 if typing.TYPE_CHECKING:
@@ -43,7 +43,7 @@ logger = logging.getLogger("agentplatform_genai.sessions")
 logger.setLevel(logging.INFO)
 
 
-def _CreateAgentEngineSessionConfig_to_vertex(
+def _CreateRuntimeSessionConfig_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
@@ -70,7 +70,7 @@ def _CreateAgentEngineSessionConfig_to_vertex(
     return to_object
 
 
-def _CreateAgentEngineSessionRequestParameters_to_vertex(
+def _CreateRuntimeSessionRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
@@ -82,14 +82,12 @@ def _CreateAgentEngineSessionRequestParameters_to_vertex(
         setv(to_object, ["userId"], getv(from_object, ["user_id"]))
 
     if getv(from_object, ["config"]) is not None:
-        _CreateAgentEngineSessionConfig_to_vertex(
-            getv(from_object, ["config"]), to_object
-        )
+        _CreateRuntimeSessionConfig_to_vertex(getv(from_object, ["config"]), to_object)
 
     return to_object
 
 
-def _DeleteAgentEngineSessionRequestParameters_to_vertex(
+def _DeleteRuntimeSessionRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
@@ -100,7 +98,7 @@ def _DeleteAgentEngineSessionRequestParameters_to_vertex(
     return to_object
 
 
-def _GetAgentEngineSessionOperationParameters_to_vertex(
+def _GetRuntimeSessionOperationParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
@@ -113,7 +111,7 @@ def _GetAgentEngineSessionOperationParameters_to_vertex(
     return to_object
 
 
-def _GetAgentEngineSessionRequestParameters_to_vertex(
+def _GetRuntimeSessionRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
@@ -124,7 +122,7 @@ def _GetAgentEngineSessionRequestParameters_to_vertex(
     return to_object
 
 
-def _ListAgentEngineSessionsConfig_to_vertex(
+def _ListRuntimeSessionsConfig_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
@@ -142,7 +140,7 @@ def _ListAgentEngineSessionsConfig_to_vertex(
     return to_object
 
 
-def _ListAgentEngineSessionsRequestParameters_to_vertex(
+def _ListRuntimeSessionsRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
@@ -151,14 +149,12 @@ def _ListAgentEngineSessionsRequestParameters_to_vertex(
         setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
 
     if getv(from_object, ["config"]) is not None:
-        _ListAgentEngineSessionsConfig_to_vertex(
-            getv(from_object, ["config"]), to_object
-        )
+        _ListRuntimeSessionsConfig_to_vertex(getv(from_object, ["config"]), to_object)
 
     return to_object
 
 
-def _UpdateAgentEngineSessionConfig_to_vertex(
+def _UpdateRuntimeSessionConfig_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
@@ -193,7 +189,7 @@ def _UpdateAgentEngineSessionConfig_to_vertex(
     return to_object
 
 
-def _UpdateAgentEngineSessionRequestParameters_to_vertex(
+def _UpdateRuntimeSessionRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
@@ -202,9 +198,7 @@ def _UpdateAgentEngineSessionRequestParameters_to_vertex(
         setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
 
     if getv(from_object, ["config"]) is not None:
-        _UpdateAgentEngineSessionConfig_to_vertex(
-            getv(from_object, ["config"]), to_object
-        )
+        _UpdateRuntimeSessionConfig_to_vertex(getv(from_object, ["config"]), to_object)
 
     return to_object
 
@@ -216,24 +210,24 @@ class Sessions(_api_module.BaseModule):
         *,
         name: str,
         user_id: str,
-        config: Optional[types.CreateAgentEngineSessionConfigOrDict] = None,
-    ) -> types.AgentEngineSessionOperation:
+        config: Optional[types.CreateRuntimeSessionConfigOrDict] = None,
+    ) -> types.RuntimeSessionOperation:
         """
-        Creates a new session in the Agent Engine.
+        Creates a new session in the Agent Runtime.
 
         Args:
-            name (str): Required. The name of the Agent Engine to create the session under. Format:
+            name (str): Required. The name of the Agent Runtime to create the session under. Format:
                 `projects/{project}/locations/{location}/reasoningEngines/{resource_id}`.
             user_id (str): Required. The user ID of the session.
-            config (CreateAgentEngineSessionConfig):
-                Optional. Additional configurations for creating the Agent Engine session.
+            config (CreateRuntimeSessionConfig):
+                Optional. Additional configurations for creating the Agent Runtime session.
 
         Returns:
-            AgentEngineSessionOperation: The operation for creating the Agent Engine session.
+            RuntimeSessionOperation: The operation for creating the Agent Runtime session.
 
         """
 
-        parameter_model = types._CreateAgentEngineSessionRequestParameters(
+        parameter_model = types._CreateRuntimeSessionRequestParameters(
             name=name,
             user_id=user_id,
             config=config,
@@ -245,7 +239,7 @@ class Sessions(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _CreateAgentEngineSessionRequestParameters_to_vertex(
+            request_dict = _CreateRuntimeSessionRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -274,7 +268,7 @@ class Sessions(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
-        return_value = types.AgentEngineSessionOperation._from_response(
+        return_value = types.RuntimeSessionOperation._from_response(
             response=response_dict,
             kwargs=(
                 {
@@ -302,23 +296,23 @@ class Sessions(_api_module.BaseModule):
         self,
         *,
         name: str,
-        config: Optional[types.DeleteAgentEngineSessionConfigOrDict] = None,
-    ) -> types.DeleteAgentEngineSessionOperation:
+        config: Optional[types.DeleteRuntimeSessionConfigOrDict] = None,
+    ) -> types.DeleteRuntimeSessionOperation:
         """
-        Delete an Agent Engine session.
+        Delete an Agent Runtime session.
 
         Args:
-            name (str): Required. The name of the Agent Engine session to be deleted. Format:
+            name (str): Required. The name of the Agent Runtime session to be deleted. Format:
                 `projects/{project}/locations/{location}/reasoningEngines/{resource_id}/sessions/{session_id}`.
-            config (DeleteAgentEngineSessionConfig):
-                Optional. Additional configurations for deleting the Agent Engine session.
+            config (DeleteRuntimeSessionConfig):
+                Optional. Additional configurations for deleting the Agent Runtime session.
 
         Returns:
-            DeleteAgentEngineSessionOperation: The operation for deleting the Agent Engine session.
+            DeleteRuntimeSessionOperation: The operation for deleting the Agent Runtime session.
 
         """
 
-        parameter_model = types._DeleteAgentEngineSessionRequestParameters(
+        parameter_model = types._DeleteRuntimeSessionRequestParameters(
             name=name,
             config=config,
         )
@@ -329,7 +323,7 @@ class Sessions(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _DeleteAgentEngineSessionRequestParameters_to_vertex(
+            request_dict = _DeleteRuntimeSessionRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -358,7 +352,7 @@ class Sessions(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
-        return_value = types.DeleteAgentEngineSessionOperation._from_response(
+        return_value = types.DeleteRuntimeSessionOperation._from_response(
             response=response_dict,
             kwargs=(
                 {
@@ -383,26 +377,23 @@ class Sessions(_api_module.BaseModule):
         return return_value
 
     def get(
-        self,
-        *,
-        name: str,
-        config: Optional[types.GetAgentEngineSessionConfigOrDict] = None,
+        self, *, name: str, config: Optional[types.GetRuntimeSessionConfigOrDict] = None
     ) -> types.Session:
         """
-        Gets an agent engine session.
+        Gets an agent runtime session.
 
         Args:
-            name (str): Required. The name of the Agent Engine session to get. Format:
+            name (str): Required. The name of the Agent Runtime session to get. Format:
                 `projects/{project}/locations/{location}/reasoningEngines/{resource_id}/sessions/{session_id}`.
-            config (GetAgentEngineSessionConfig):
-                Optional. Additional configurations for getting the Agent Engine session.
+            config (GetRuntimeSessionConfig):
+                Optional. Additional configurations for getting the Agent Runtime session.
 
         Returns:
-            AgentEngineSession: The requested Agent Engine session.
+            RuntimeSession: The requested Agent Runtime session.
 
         """
 
-        parameter_model = types._GetAgentEngineSessionRequestParameters(
+        parameter_model = types._GetRuntimeSessionRequestParameters(
             name=name,
             config=config,
         )
@@ -413,7 +404,7 @@ class Sessions(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetAgentEngineSessionRequestParameters_to_vertex(
+            request_dict = _GetRuntimeSessionRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -470,23 +461,23 @@ class Sessions(_api_module.BaseModule):
         self,
         *,
         name: str,
-        config: Optional[types.ListAgentEngineSessionsConfigOrDict] = None,
+        config: Optional[types.ListRuntimeSessionsConfigOrDict] = None,
     ) -> types.ListReasoningEnginesSessionsResponse:
         """
-        Lists Agent Engine sessions.
+        Lists Agent Runtime sessions.
 
         Args:
-            name (str): Required. The name of the Agent Engine to list sessions for. Format:
+            name (str): Required. The name of the Agent Runtime to list sessions for. Format:
                 `projects/{project}/locations/{location}/reasoningEngines/{resource_id}`.
-            config (ListAgentEngineSessionsConfig):
-                Optional. Additional configurations for listing the Agent Engine sessions.
+            config (ListRuntimeSessionsConfig):
+                Optional. Additional configurations for listing the Agent Runtime sessions.
 
         Returns:
-            ListReasoningEnginesSessionsResponse: The requested Agent Engine sessions.
+            ListReasoningEnginesSessionsResponse: The requested Agent Runtime sessions.
 
         """
 
-        parameter_model = types._ListAgentEngineSessionsRequestParameters(
+        parameter_model = types._ListRuntimeSessionsRequestParameters(
             name=name,
             config=config,
         )
@@ -497,7 +488,7 @@ class Sessions(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _ListAgentEngineSessionsRequestParameters_to_vertex(
+            request_dict = _ListRuntimeSessionsRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -554,9 +545,9 @@ class Sessions(_api_module.BaseModule):
         self,
         *,
         operation_name: str,
-        config: Optional[types.GetAgentEngineOperationConfigOrDict] = None,
-    ) -> types.AgentEngineSessionOperation:
-        parameter_model = types._GetAgentEngineSessionOperationParameters(
+        config: Optional[types.GetRuntimeOperationConfigOrDict] = None,
+    ) -> types.RuntimeSessionOperation:
+        parameter_model = types._GetRuntimeSessionOperationParameters(
             operation_name=operation_name,
             config=config,
         )
@@ -567,7 +558,7 @@ class Sessions(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetAgentEngineSessionOperationParameters_to_vertex(
+            request_dict = _GetRuntimeSessionOperationParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -596,7 +587,7 @@ class Sessions(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
-        return_value = types.AgentEngineSessionOperation._from_response(
+        return_value = types.RuntimeSessionOperation._from_response(
             response=response_dict,
             kwargs=(
                 {
@@ -624,23 +615,23 @@ class Sessions(_api_module.BaseModule):
         self,
         *,
         name: str,
-        config: Optional[types.UpdateAgentEngineSessionConfigOrDict] = None,
+        config: Optional[types.UpdateRuntimeSessionConfigOrDict] = None,
     ) -> types.Session:
         """
-        Updates an Agent Engine session.
+        Updates an Agent Runtime session.
 
         Args:
-            name (str): Required. The name of the Agent Engine session to be updated. Format:
+            name (str): Required. The name of the Agent Runtime session to be updated. Format:
                 `projects/{project}/locations/{location}/reasoningEngines/{resource_id}/sessions/{session_id}`.
-            config (UpdateAgentEngineSessionConfig):
-                Optional. Additional configurations for updating the Agent Engine session.
+            config (UpdateRuntimeSessionConfig):
+                Optional. Additional configurations for updating the Agent Runtime session.
 
         Returns:
-            types.Session: The updated Agent Engine session.
+            types.Session: The updated Agent Runtime session.
 
         """
 
-        parameter_model = types._UpdateAgentEngineSessionRequestParameters(
+        parameter_model = types._UpdateRuntimeSessionRequestParameters(
             name=name,
             config=config,
         )
@@ -651,7 +642,7 @@ class Sessions(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _UpdateAgentEngineSessionRequestParameters_to_vertex(
+            request_dict = _UpdateRuntimeSessionRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -715,7 +706,7 @@ class Sessions(_api_module.BaseModule):
                 self._events = importlib.import_module(".session_events", __package__)
             except ImportError as e:
                 raise ImportError(
-                    "The 'agent_engines.sessions.events' module requires"
+                    "The 'sessions.events' module requires"
                     "additional packages. Please install them using pip install "
                     "google-cloud-aiplatform[agent_engines]"
                 ) from e
@@ -726,25 +717,25 @@ class Sessions(_api_module.BaseModule):
         *,
         name: str,
         user_id: str,
-        config: Optional[types.CreateAgentEngineSessionConfigOrDict] = None,
-    ) -> types.AgentEngineSessionOperation:
-        """Creates a new session in the Agent Engine.
+        config: Optional[types.CreateRuntimeSessionConfigOrDict] = None,
+    ) -> types.RuntimeSessionOperation:
+        """Creates a new session in the Agent Runtime.
 
         Args:
             name (str):
-                Required. The name of the agent engine to create the session for.
+                Required. The name of the agent runtime to create the session for.
             user_id (str):
                 Required. The user ID of the session.
-            config (CreateAgentEngineSessionConfig):
+            config (CreateRuntimeSessionConfig):
                 Optional. The configuration for the session to create.
 
         Returns:
-            AgentEngineSessionOperation: The operation for creating the session.
+            RuntimeSessionOperation: The operation for creating the session.
         """
         if config is None:
-            config = types.CreateAgentEngineSessionConfig()
+            config = types.CreateRuntimeSessionConfig()
         elif isinstance(config, dict):
-            config = types.CreateAgentEngineSessionConfig.model_validate(config)
+            config = types.CreateRuntimeSessionConfig.model_validate(config)
         operation = self._create(
             name=name,
             user_id=user_id,
@@ -752,7 +743,7 @@ class Sessions(_api_module.BaseModule):
         )
         if config.wait_for_completion:
             if not operation.done:
-                operation = _agent_engines_utils._await_operation(
+                operation = _runtimes_utils._await_operation(
                     operation_name=operation.name,
                     get_operation_fn=self._get_session_operation,
                     poll_interval_seconds=0.5,
@@ -774,24 +765,24 @@ class Sessions(_api_module.BaseModule):
         self,
         *,
         name: str,
-        config: Optional[types.UpdateAgentEngineSessionConfigOrDict] = None,
+        config: Optional[types.UpdateRuntimeSessionConfigOrDict] = None,
     ) -> types.Session:
-        """Updates an Agent Engine session.
+        """Updates an Agent Runtime session.
 
         Args:
             name (str):
-                Required. The name of the Agent Engine session to be updated. Format:
-                    `projects/{project}/locations/{location}/reasoningEngines/{resource_id}/sessions/{session_id}`.
-            config (UpdateAgentEngineSessionConfig):
+                Required. The name of the Agent Runtime session to be updated. Format:
+                    `projects/{project}/locations/{location}/runtimes/{resource_id}/sessions/{session_id}`.
+            config (UpdateRuntimeSessionConfig):
                 Optional. The configuration for the session to update.
 
         Returns:
-            Session: The updated Agent Engine session.
+            Session: The updated Agent Runtime session.
         """
         if config is None:
-            config = types.UpdateAgentEngineSessionConfig()
+            config = types.UpdateRuntimeSessionConfig()
         elif isinstance(config, dict):
-            config = types.UpdateAgentEngineSessionConfig.model_validate(config)
+            config = types.UpdateRuntimeSessionConfig.model_validate(config)
         return self._update(
             name=name,
             config=config,
@@ -801,14 +792,14 @@ class Sessions(_api_module.BaseModule):
         self,
         *,
         name: str,
-        config: Optional[types.ListAgentEngineSessionsConfigOrDict] = None,
+        config: Optional[types.ListRuntimeSessionsConfigOrDict] = None,
     ) -> Iterator[types.Session]:
-        """Lists Agent Engine sessions.
+        """Lists Agent Runtime sessions.
 
         Args:
-            name (str): Required. The name of the agent engine to list sessions
+            name (str): Required. The name of the agent runtime to list sessions
                 for.
-            config (ListAgentEngineSessionConfig): Optional. The configuration
+            config (ListRuntimeSessionConfig): Optional. The configuration
                 for the sessions to list.
 
         Returns:
@@ -830,24 +821,24 @@ class AsyncSessions(_api_module.BaseModule):
         *,
         name: str,
         user_id: str,
-        config: Optional[types.CreateAgentEngineSessionConfigOrDict] = None,
-    ) -> types.AgentEngineSessionOperation:
+        config: Optional[types.CreateRuntimeSessionConfigOrDict] = None,
+    ) -> types.RuntimeSessionOperation:
         """
-        Creates a new session in the Agent Engine.
+        Creates a new session in the Agent Runtime.
 
         Args:
-            name (str): Required. The name of the Agent Engine to create the session under. Format:
+            name (str): Required. The name of the Agent Runtime to create the session under. Format:
                 `projects/{project}/locations/{location}/reasoningEngines/{resource_id}`.
             user_id (str): Required. The user ID of the session.
-            config (CreateAgentEngineSessionConfig):
-                Optional. Additional configurations for creating the Agent Engine session.
+            config (CreateRuntimeSessionConfig):
+                Optional. Additional configurations for creating the Agent Runtime session.
 
         Returns:
-            AgentEngineSessionOperation: The operation for creating the Agent Engine session.
+            RuntimeSessionOperation: The operation for creating the Agent Runtime session.
 
         """
 
-        parameter_model = types._CreateAgentEngineSessionRequestParameters(
+        parameter_model = types._CreateRuntimeSessionRequestParameters(
             name=name,
             user_id=user_id,
             config=config,
@@ -859,7 +850,7 @@ class AsyncSessions(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _CreateAgentEngineSessionRequestParameters_to_vertex(
+            request_dict = _CreateRuntimeSessionRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -890,7 +881,7 @@ class AsyncSessions(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
-        return_value = types.AgentEngineSessionOperation._from_response(
+        return_value = types.RuntimeSessionOperation._from_response(
             response=response_dict,
             kwargs=(
                 {
@@ -918,23 +909,23 @@ class AsyncSessions(_api_module.BaseModule):
         self,
         *,
         name: str,
-        config: Optional[types.DeleteAgentEngineSessionConfigOrDict] = None,
-    ) -> types.DeleteAgentEngineSessionOperation:
+        config: Optional[types.DeleteRuntimeSessionConfigOrDict] = None,
+    ) -> types.DeleteRuntimeSessionOperation:
         """
-        Delete an Agent Engine session.
+        Delete an Agent Runtime session.
 
         Args:
-            name (str): Required. The name of the Agent Engine session to be deleted. Format:
+            name (str): Required. The name of the Agent Runtime session to be deleted. Format:
                 `projects/{project}/locations/{location}/reasoningEngines/{resource_id}/sessions/{session_id}`.
-            config (DeleteAgentEngineSessionConfig):
-                Optional. Additional configurations for deleting the Agent Engine session.
+            config (DeleteRuntimeSessionConfig):
+                Optional. Additional configurations for deleting the Agent Runtime session.
 
         Returns:
-            DeleteAgentEngineSessionOperation: The operation for deleting the Agent Engine session.
+            DeleteRuntimeSessionOperation: The operation for deleting the Agent Runtime session.
 
         """
 
-        parameter_model = types._DeleteAgentEngineSessionRequestParameters(
+        parameter_model = types._DeleteRuntimeSessionRequestParameters(
             name=name,
             config=config,
         )
@@ -945,7 +936,7 @@ class AsyncSessions(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _DeleteAgentEngineSessionRequestParameters_to_vertex(
+            request_dict = _DeleteRuntimeSessionRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -976,7 +967,7 @@ class AsyncSessions(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
-        return_value = types.DeleteAgentEngineSessionOperation._from_response(
+        return_value = types.DeleteRuntimeSessionOperation._from_response(
             response=response_dict,
             kwargs=(
                 {
@@ -1001,26 +992,23 @@ class AsyncSessions(_api_module.BaseModule):
         return return_value
 
     async def get(
-        self,
-        *,
-        name: str,
-        config: Optional[types.GetAgentEngineSessionConfigOrDict] = None,
+        self, *, name: str, config: Optional[types.GetRuntimeSessionConfigOrDict] = None
     ) -> types.Session:
         """
-        Gets an agent engine session.
+        Gets an agent runtime session.
 
         Args:
-            name (str): Required. The name of the Agent Engine session to get. Format:
+            name (str): Required. The name of the Agent Runtime session to get. Format:
                 `projects/{project}/locations/{location}/reasoningEngines/{resource_id}/sessions/{session_id}`.
-            config (GetAgentEngineSessionConfig):
-                Optional. Additional configurations for getting the Agent Engine session.
+            config (GetRuntimeSessionConfig):
+                Optional. Additional configurations for getting the Agent Runtime session.
 
         Returns:
-            AgentEngineSession: The requested Agent Engine session.
+            RuntimeSession: The requested Agent Runtime session.
 
         """
 
-        parameter_model = types._GetAgentEngineSessionRequestParameters(
+        parameter_model = types._GetRuntimeSessionRequestParameters(
             name=name,
             config=config,
         )
@@ -1031,7 +1019,7 @@ class AsyncSessions(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetAgentEngineSessionRequestParameters_to_vertex(
+            request_dict = _GetRuntimeSessionRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -1090,23 +1078,23 @@ class AsyncSessions(_api_module.BaseModule):
         self,
         *,
         name: str,
-        config: Optional[types.ListAgentEngineSessionsConfigOrDict] = None,
+        config: Optional[types.ListRuntimeSessionsConfigOrDict] = None,
     ) -> types.ListReasoningEnginesSessionsResponse:
         """
-        Lists Agent Engine sessions.
+        Lists Agent Runtime sessions.
 
         Args:
-            name (str): Required. The name of the Agent Engine to list sessions for. Format:
+            name (str): Required. The name of the Agent Runtime to list sessions for. Format:
                 `projects/{project}/locations/{location}/reasoningEngines/{resource_id}`.
-            config (ListAgentEngineSessionsConfig):
-                Optional. Additional configurations for listing the Agent Engine sessions.
+            config (ListRuntimeSessionsConfig):
+                Optional. Additional configurations for listing the Agent Runtime sessions.
 
         Returns:
-            ListReasoningEnginesSessionsResponse: The requested Agent Engine sessions.
+            ListReasoningEnginesSessionsResponse: The requested Agent Runtime sessions.
 
         """
 
-        parameter_model = types._ListAgentEngineSessionsRequestParameters(
+        parameter_model = types._ListRuntimeSessionsRequestParameters(
             name=name,
             config=config,
         )
@@ -1117,7 +1105,7 @@ class AsyncSessions(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _ListAgentEngineSessionsRequestParameters_to_vertex(
+            request_dict = _ListRuntimeSessionsRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -1176,9 +1164,9 @@ class AsyncSessions(_api_module.BaseModule):
         self,
         *,
         operation_name: str,
-        config: Optional[types.GetAgentEngineOperationConfigOrDict] = None,
-    ) -> types.AgentEngineSessionOperation:
-        parameter_model = types._GetAgentEngineSessionOperationParameters(
+        config: Optional[types.GetRuntimeOperationConfigOrDict] = None,
+    ) -> types.RuntimeSessionOperation:
+        parameter_model = types._GetRuntimeSessionOperationParameters(
             operation_name=operation_name,
             config=config,
         )
@@ -1189,7 +1177,7 @@ class AsyncSessions(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetAgentEngineSessionOperationParameters_to_vertex(
+            request_dict = _GetRuntimeSessionOperationParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -1220,7 +1208,7 @@ class AsyncSessions(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
-        return_value = types.AgentEngineSessionOperation._from_response(
+        return_value = types.RuntimeSessionOperation._from_response(
             response=response_dict,
             kwargs=(
                 {
@@ -1248,23 +1236,23 @@ class AsyncSessions(_api_module.BaseModule):
         self,
         *,
         name: str,
-        config: Optional[types.UpdateAgentEngineSessionConfigOrDict] = None,
+        config: Optional[types.UpdateRuntimeSessionConfigOrDict] = None,
     ) -> types.Session:
         """
-        Updates an Agent Engine session.
+        Updates an Agent Runtime session.
 
         Args:
-            name (str): Required. The name of the Agent Engine session to be updated. Format:
+            name (str): Required. The name of the Agent Runtime session to be updated. Format:
                 `projects/{project}/locations/{location}/reasoningEngines/{resource_id}/sessions/{session_id}`.
-            config (UpdateAgentEngineSessionConfig):
-                Optional. Additional configurations for updating the Agent Engine session.
+            config (UpdateRuntimeSessionConfig):
+                Optional. Additional configurations for updating the Agent Runtime session.
 
         Returns:
-            types.Session: The updated Agent Engine session.
+            types.Session: The updated Agent Runtime session.
 
         """
 
-        parameter_model = types._UpdateAgentEngineSessionRequestParameters(
+        parameter_model = types._UpdateRuntimeSessionRequestParameters(
             name=name,
             config=config,
         )
@@ -1275,7 +1263,7 @@ class AsyncSessions(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _UpdateAgentEngineSessionRequestParameters_to_vertex(
+            request_dict = _UpdateRuntimeSessionRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -1341,7 +1329,7 @@ class AsyncSessions(_api_module.BaseModule):
                 self._events = importlib.import_module(".session_events", __package__)
             except ImportError as e:
                 raise ImportError(
-                    "The 'agent_engines.sessions.events' module requires"
+                    "The 'sessions.events' module requires"
                     "additional packages. Please install them using pip install "
                     "google-cloud-aiplatform[agent_engines]"
                 ) from e
@@ -1352,25 +1340,25 @@ class AsyncSessions(_api_module.BaseModule):
         *,
         name: str,
         user_id: str,
-        config: Optional[types.CreateAgentEngineSessionConfigOrDict] = None,
-    ) -> types.AgentEngineSessionOperation:
-        """Creates a new session in the Agent Engine.
+        config: Optional[types.CreateRuntimeSessionConfigOrDict] = None,
+    ) -> types.RuntimeSessionOperation:
+        """Creates a new session in the Agent Runtime.
 
         Args:
             name (str):
-                Required. The name of the agent engine to create the session for.
+                Required. The name of the agent runtime to create the session for.
             user_id (str):
                 Required. The user ID of the session.
-            config (CreateAgentEngineSessionConfig):
+            config (CreateRuntimeSessionConfig):
                 Optional. The configuration for the session to create.
 
         Returns:
-            AgentEngineSessionOperation: The operation for creating the session.
+            RuntimeSessionOperation: The operation for creating the session.
         """
         if config is None:
-            config = types.CreateAgentEngineSessionConfig()
+            config = types.CreateRuntimeSessionConfig()
         elif isinstance(config, dict):
-            config = types.CreateAgentEngineSessionConfig.model_validate(config)
+            config = types.CreateRuntimeSessionConfig.model_validate(config)
         operation = await self._create(
             name=name,
             user_id=user_id,
@@ -1378,7 +1366,7 @@ class AsyncSessions(_api_module.BaseModule):
         )
         if config.wait_for_completion:
             if not operation.done:
-                operation = await _agent_engines_utils._await_async_operation(
+                operation = await _runtimes_utils._await_async_operation(
                     operation_name=operation.name,
                     get_operation_fn=self._get_session_operation,
                     poll_interval_seconds=0.5,
@@ -1400,24 +1388,24 @@ class AsyncSessions(_api_module.BaseModule):
         self,
         *,
         name: str,
-        config: Optional[types.UpdateAgentEngineSessionConfigOrDict] = None,
+        config: Optional[types.UpdateRuntimeSessionConfigOrDict] = None,
     ) -> types.Session:
-        """Updates an Agent Engine session.
+        """Updates an Agent Runtime session.
 
         Args:
             name (str):
-                Required. The name of the Agent Engine session to be updated. Format:
-                    `projects/{project}/locations/{location}/reasoningEngines/{resource_id}/sessions/{session_id}`.
-            config (UpdateAgentEngineSessionConfig):
+                Required. The name of the Agent Runtime session to be updated. Format:
+                    `projects/{project}/locations/{location}/runtimes/{resource_id}/sessions/{session_id}`.
+            config (UpdateRuntimeSessionConfig):
                 Optional. The configuration for the session to update.
 
         Returns:
-            Session: The updated Agent Engine session.
+            Session: The updated Agent Runtime session.
         """
         if config is None:
-            config = types.UpdateAgentEngineSessionConfig()
+            config = types.UpdateRuntimeSessionConfig()
         elif isinstance(config, dict):
-            config = types.UpdateAgentEngineSessionConfig.model_validate(config)
+            config = types.UpdateRuntimeSessionConfig.model_validate(config)
         return await self._update(
             name=name,
             config=config,
@@ -1427,14 +1415,14 @@ class AsyncSessions(_api_module.BaseModule):
         self,
         *,
         name: str,
-        config: Optional[types.ListAgentEngineSessionsConfigOrDict] = None,
+        config: Optional[types.ListRuntimeSessionsConfigOrDict] = None,
     ) -> AsyncPager[types.Session]:
-        """Lists Agent Engine sessions.
+        """Lists Agent Runtime sessions.
 
         Args:
-            name (str): Required. The name of the agent engine to list sessions
+            name (str): Required. The name of the agent runtime to list sessions
                 for.
-            config (ListAgentEngineSessionConfig): Optional. The configuration
+            config (ListRuntimeSessionConfig): Optional. The configuration
                 for the sessions to list.
 
         Returns:

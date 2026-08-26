@@ -41,7 +41,7 @@ with open("test.txt", "r") as input:
         ),
     ]
 
-    execute_code_response = client.agent_engines.sandboxes._execute_code(
+    execute_code_response = client.sandboxes._execute_code(
         name=(
             "reasoningEngines/2886612747586371584/sandboxEnvironments/6068475153556176896"
         ),
@@ -58,5 +58,5 @@ with open("test.txt", "r") as input:
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
-    test_method="agent_engines.sandboxes._execute_code",
+    test_method="sandboxes._execute_code",
 )

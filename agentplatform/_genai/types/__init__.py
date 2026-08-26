@@ -22,17 +22,12 @@ import typing
 from . import agent_engines
 from . import evals
 from . import prompts
-from .common import _AppendAgentEngineSessionEventRequestParameters
-from .common import _AppendAgentEngineTaskEventRequestParameters
+from .common import _AppendRuntimeSessionEventRequestParameters
 from .common import _AskContextsRequestParameters
 from .common import _AssembleDatasetParameters
 from .common import _AssessDatasetParameters
-from .common import _CancelQueryJobAgentEngineRequestParameters
-from .common import _CheckQueryJobAgentEngineRequestParameters
-from .common import _CreateAgentEngineRequestParameters
-from .common import _CreateAgentEngineSandboxRequestParameters
-from .common import _CreateAgentEngineSessionRequestParameters
-from .common import _CreateAgentEngineTaskRequestParameters
+from .common import _CancelQueryJobRuntimeRequestParameters
+from .common import _CheckQueryJobRuntimeRequestParameters
 from .common import _CreateDatasetParameters
 from .common import _CreateDatasetVersionParameters
 from .common import _CreateEvaluationExperimentParameters
@@ -46,16 +41,14 @@ from .common import _CreateMemoryRequestParameters
 from .common import _CreateMultimodalDatasetParameters
 from .common import _CreateRagCorpusRequestParameters
 from .common import _CreateRuntimeFeedbackEntryRequestParameters
+from .common import _CreateRuntimeRequestParameters
+from .common import _CreateRuntimeSandboxRequestParameters
+from .common import _CreateRuntimeSessionRequestParameters
 from .common import _CreateSandboxEnvironmentSnapshotRequestParameters
 from .common import _CreateSandboxEnvironmentTemplateRequestParameters
 from .common import _CreateSkillRequestParameters
 from .common import _CustomJobParameters
 from .common import _CustomJobParameters
-from .common import _DeleteAgentEngineRequestParameters
-from .common import _DeleteAgentEngineRuntimeRevisionRequestParameters
-from .common import _DeleteAgentEngineSandboxRequestParameters
-from .common import _DeleteAgentEngineSessionRequestParameters
-from .common import _DeleteAgentEngineTaskRequestParameters
 from .common import _DeleteDatasetRequestParameters
 from .common import _DeleteEndpointRequestParameters
 from .common import _DeleteEvaluationExperimentParameters
@@ -69,34 +62,29 @@ from .common import _DeletePromptVersionRequestParameters
 from .common import _DeleteRagCorpusRequestParameters
 from .common import _DeleteRagFileRequestParameters
 from .common import _DeleteRuntimeFeedbackEntryRequestParameters
+from .common import _DeleteRuntimeRequestParameters
+from .common import _DeleteRuntimeRevisionRequestParameters
+from .common import _DeleteRuntimeSandboxRequestParameters
+from .common import _DeleteRuntimeSessionRequestParameters
 from .common import _DeleteSandboxEnvironmentSnapshotRequestParameters
 from .common import _DeleteSandboxEnvironmentTemplateRequestParameters
 from .common import _DeleteSkillRequestParameters
 from .common import _DeployRequestParameters
 from .common import _EvaluateInstancesRequestParameters
-from .common import _ExecuteCodeAgentEngineSandboxRequestParameters
+from .common import _ExecuteCodeRuntimeSandboxRequestParameters
 from .common import _ExportPublisherModelRequestParameters
 from .common import _FetchExamplesParameters
 from .common import _GenerateInstanceRubricsRequest
 from .common import _GenerateLossClustersParameters
 from .common import _GenerateMemoriesRequestParameters
 from .common import _GenerateUserScenariosParameters
-from .common import _GetAgentEngineOperationParameters
-from .common import _GetAgentEngineRequestParameters
-from .common import _GetAgentEngineRuntimeRevisionRequestParameters
-from .common import _GetAgentEngineSandboxOperationParameters
-from .common import _GetAgentEngineSandboxRequestParameters
-from .common import _GetAgentEngineSandboxSnapshotOperationParameters
-from .common import _GetAgentEngineSessionOperationParameters
-from .common import _GetAgentEngineSessionRequestParameters
-from .common import _GetAgentEngineTaskRequestParameters
 from .common import _GetCorpusOperationParameters
 from .common import _GetCustomJobParameters
 from .common import _GetCustomJobParameters
 from .common import _GetDatasetOperationParameters
 from .common import _GetDatasetParameters
 from .common import _GetDatasetVersionParameters
-from .common import _GetDeleteAgentEngineRuntimeRevisionOperationParameters
+from .common import _GetDeleteRuntimeRevisionOperationParameters
 from .common import _GetDeployOperationParameters
 from .common import _GetEndpointOperationParameters
 from .common import _GetEndpointParameters
@@ -127,6 +115,14 @@ from .common import _GetRuntimeFeedbackContextRequestParameters
 from .common import _GetRuntimeFeedbackOperationParameters
 from .common import _GetRuntimeFeedbackOperationParameters
 from .common import _GetRuntimeFeedbackRequestParameters
+from .common import _GetRuntimeOperationParameters
+from .common import _GetRuntimeRequestParameters
+from .common import _GetRuntimeRevisionRequestParameters
+from .common import _GetRuntimeSandboxOperationParameters
+from .common import _GetRuntimeSandboxRequestParameters
+from .common import _GetRuntimeSandboxSnapshotOperationParameters
+from .common import _GetRuntimeSessionOperationParameters
+from .common import _GetRuntimeSessionRequestParameters
 from .common import _GetSandboxEnvironmentSnapshotRequestParameters
 from .common import _GetSandboxEnvironmentTemplateOperationParameters
 from .common import _GetSandboxEnvironmentTemplateRequestParameters
@@ -136,13 +132,6 @@ from .common import _GetSkillRevisionRequestParameters
 from .common import _ImportEvaluationSetParameters
 from .common import _ImportRagFilesRequestParameters
 from .common import _IngestEventsRequestParameters
-from .common import _ListAgentEngineRequestParameters
-from .common import _ListAgentEngineRuntimeRevisionsRequestParameters
-from .common import _ListAgentEngineSandboxesRequestParameters
-from .common import _ListAgentEngineSessionEventsRequestParameters
-from .common import _ListAgentEngineSessionsRequestParameters
-from .common import _ListAgentEngineTaskEventsRequestParameters
-from .common import _ListAgentEngineTasksRequestParameters
 from .common import _ListDatasetsRequestParameters
 from .common import _ListDatasetVersionsRequestParameters
 from .common import _ListEvaluationExperimentsParameters
@@ -156,6 +145,11 @@ from .common import _ListPublisherModelsRequestParameters
 from .common import _ListRagCorporaRequestParameters
 from .common import _ListRagFilesRequestParameters
 from .common import _ListRuntimeFeedbackEntriesRequestParameters
+from .common import _ListRuntimeRequestParameters
+from .common import _ListRuntimeRevisionsRequestParameters
+from .common import _ListRuntimeSandboxesRequestParameters
+from .common import _ListRuntimeSessionEventsRequestParameters
+from .common import _ListRuntimeSessionsRequestParameters
 from .common import _ListSandboxEnvironmentSnapshotsRequestParameters
 from .common import _ListSandboxEnvironmentTemplatesRequestParameters
 from .common import _ListSkillRevisionsRequestParameters
@@ -164,8 +158,8 @@ from .common import _OptimizeRequestParameters
 from .common import _OptimizeRequestParameters
 from .common import _PredictParameters
 from .common import _PurgeMemoriesRequestParameters
-from .common import _QueryAgentEngineRequestParameters
-from .common import _QueryAgentEngineRuntimeRevisionRequestParameters
+from .common import _QueryRuntimeRequestParameters
+from .common import _QueryRuntimeRevisionRequestParameters
 from .common import _RecommendSpecRequestParameters
 from .common import _RemoveExamplesParameters
 from .common import _RestoreVersionRequestParameters
@@ -174,14 +168,12 @@ from .common import _RetrieveMemoryProfilesRequestParameters
 from .common import _RetrieveRagContextsRequestParameters
 from .common import _RetrieveSkillsRequestParameters
 from .common import _RollbackMemoryRequestParameters
-from .common import _RunQueryJobAgentEngineConfig
-from .common import _RunQueryJobAgentEngineConfigDict
-from .common import _RunQueryJobAgentEngineConfigOrDict
-from .common import _RunQueryJobAgentEngineRequestParameters
+from .common import _RunQueryJobRuntimeConfig
+from .common import _RunQueryJobRuntimeConfigDict
+from .common import _RunQueryJobRuntimeConfigOrDict
+from .common import _RunQueryJobRuntimeRequestParameters
 from .common import _SearchExamplesParameters
 from .common import _UndeployModelRequestParameters
-from .common import _UpdateAgentEngineRequestParameters
-from .common import _UpdateAgentEngineSessionRequestParameters
 from .common import _UpdateDatasetParameters
 from .common import _UpdateEvaluationExperimentParameters
 from .common import _UpdateMemoryRequestParameters
@@ -190,50 +182,18 @@ from .common import _UpdateRagConfigRequestParameters
 from .common import _UpdateRagCorpusRequestParameters
 from .common import _UpdateRuntimeFeedbackContextRequestParameters
 from .common import _UpdateRuntimeFeedbackEntryRequestParameters
+from .common import _UpdateRuntimeRequestParameters
+from .common import _UpdateRuntimeSessionRequestParameters
 from .common import _UpdateSkillRequestParameters
 from .common import _UploadRagFileParameters
 from .common import _UpsertExamplesParameters
-from .common import A2aPart
-from .common import A2aPartDict
-from .common import A2aPartOrDict
-from .common import A2aTask
-from .common import A2aTaskArtifact
-from .common import A2aTaskArtifactDict
-from .common import A2aTaskArtifactOrDict
-from .common import A2aTaskDict
-from .common import A2aTaskMessage
-from .common import A2aTaskMessageDict
-from .common import A2aTaskMessageOrDict
-from .common import A2aTaskOrDict
-from .common import A2aTaskState
-from .common import A2aTaskStatus
-from .common import A2aTaskStatusDict
-from .common import A2aTaskStatusOrDict
 from .common import AcceleratorType
-from .common import AgentEngine
-from .common import AgentEngineConfig
-from .common import AgentEngineConfigDict
-from .common import AgentEngineConfigOrDict
-from .common import AgentEngineDict
-from .common import AgentEngineOperation
-from .common import AgentEngineOperationDict
-from .common import AgentEngineOperationOrDict
-from .common import AgentEngineOrDict
-from .common import AgentEngineRuntimeRevision
-from .common import AgentEngineRuntimeRevisionDict
-from .common import AgentEngineRuntimeRevisionOrDict
-from .common import AgentEngineSandboxOperation
-from .common import AgentEngineSandboxOperationDict
-from .common import AgentEngineSandboxOperationOrDict
-from .common import AgentEngineSandboxSnapshotOperation
-from .common import AgentEngineSandboxSnapshotOperationDict
-from .common import AgentEngineSandboxSnapshotOperationOrDict
-from .common import AgentEngineSessionOperation
-from .common import AgentEngineSessionOperationDict
-from .common import AgentEngineSessionOperationOrDict
 from .common import AgentRunConfig
 from .common import AgentRunConfigDict
 from .common import AgentRunConfigOrDict
+from .common import AgentRuntimeConfig
+from .common import AgentRuntimeConfigDict
+from .common import AgentRuntimeConfigOrDict
 from .common import AgentServerMode
 from .common import AggregatedMetricResult
 from .common import AggregatedMetricResultDict
@@ -241,18 +201,12 @@ from .common import AggregatedMetricResultOrDict
 from .common import AnalysisConfig
 from .common import AnalysisConfigDict
 from .common import AnalysisConfigOrDict
-from .common import AppendAgentEngineSessionEventConfig
-from .common import AppendAgentEngineSessionEventConfigDict
-from .common import AppendAgentEngineSessionEventConfigOrDict
-from .common import AppendAgentEngineSessionEventResponse
-from .common import AppendAgentEngineSessionEventResponseDict
-from .common import AppendAgentEngineSessionEventResponseOrDict
-from .common import AppendAgentEngineTaskEventConfig
-from .common import AppendAgentEngineTaskEventConfigDict
-from .common import AppendAgentEngineTaskEventConfigOrDict
-from .common import AppendAgentEngineTaskEventResponse
-from .common import AppendAgentEngineTaskEventResponseDict
-from .common import AppendAgentEngineTaskEventResponseOrDict
+from .common import AppendRuntimeSessionEventConfig
+from .common import AppendRuntimeSessionEventConfigDict
+from .common import AppendRuntimeSessionEventConfigOrDict
+from .common import AppendRuntimeSessionEventResponse
+from .common import AppendRuntimeSessionEventResponseDict
+from .common import AppendRuntimeSessionEventResponseOrDict
 from .common import ArrayOperator
 from .common import AskContextsConfig
 from .common import AskContextsConfigDict
@@ -314,26 +268,26 @@ from .common import BleuResultsOrDict
 from .common import BlurBaselineConfig
 from .common import BlurBaselineConfigDict
 from .common import BlurBaselineConfigOrDict
-from .common import CancelQueryJobAgentEngineConfig
-from .common import CancelQueryJobAgentEngineConfigDict
-from .common import CancelQueryJobAgentEngineConfigOrDict
 from .common import CancelQueryJobResult
 from .common import CancelQueryJobResultDict
 from .common import CancelQueryJobResultOrDict
+from .common import CancelQueryJobRuntimeConfig
+from .common import CancelQueryJobRuntimeConfigDict
+from .common import CancelQueryJobRuntimeConfigOrDict
 from .common import CandidateResponse
 from .common import CandidateResponseDict
 from .common import CandidateResponseOrDict
 from .common import CandidateResult
 from .common import CandidateResultDict
-from .common import CheckQueryJobAgentEngineConfig
-from .common import CheckQueryJobAgentEngineConfigDict
-from .common import CheckQueryJobAgentEngineConfigOrDict
 from .common import CheckQueryJobResponse
 from .common import CheckQueryJobResponseDict
 from .common import CheckQueryJobResponseOrDict
 from .common import CheckQueryJobResult
 from .common import CheckQueryJobResultDict
 from .common import CheckQueryJobResultOrDict
+from .common import CheckQueryJobRuntimeConfig
+from .common import CheckQueryJobRuntimeConfigDict
+from .common import CheckQueryJobRuntimeConfigOrDict
 from .common import Chunk
 from .common import ChunkDict
 from .common import ChunkOrDict
@@ -366,21 +320,6 @@ from .common import CorpusOperationOrDict
 from .common import CorpusStatus
 from .common import CorpusStatusDict
 from .common import CorpusStatusOrDict
-from .common import CreateAgentEngineConfig
-from .common import CreateAgentEngineConfigDict
-from .common import CreateAgentEngineConfigOrDict
-from .common import CreateAgentEngineSandboxConfig
-from .common import CreateAgentEngineSandboxConfigDict
-from .common import CreateAgentEngineSandboxConfigOrDict
-from .common import CreateAgentEngineSandboxSnapshotConfig
-from .common import CreateAgentEngineSandboxSnapshotConfigDict
-from .common import CreateAgentEngineSandboxSnapshotConfigOrDict
-from .common import CreateAgentEngineSessionConfig
-from .common import CreateAgentEngineSessionConfigDict
-from .common import CreateAgentEngineSessionConfigOrDict
-from .common import CreateAgentEngineTaskConfig
-from .common import CreateAgentEngineTaskConfigDict
-from .common import CreateAgentEngineTaskConfigOrDict
 from .common import CreateDatasetConfig
 from .common import CreateDatasetConfigDict
 from .common import CreateDatasetConfigOrDict
@@ -423,9 +362,21 @@ from .common import CreateRagCorpusConfigOrDict
 from .common import CreateRagCorpusOperation
 from .common import CreateRagCorpusOperationDict
 from .common import CreateRagCorpusOperationOrDict
+from .common import CreateRuntimeConfig
+from .common import CreateRuntimeConfigDict
+from .common import CreateRuntimeConfigOrDict
 from .common import CreateRuntimeFeedbackEntryConfig
 from .common import CreateRuntimeFeedbackEntryConfigDict
 from .common import CreateRuntimeFeedbackEntryConfigOrDict
+from .common import CreateRuntimeSandboxConfig
+from .common import CreateRuntimeSandboxConfigDict
+from .common import CreateRuntimeSandboxConfigOrDict
+from .common import CreateRuntimeSandboxSnapshotConfig
+from .common import CreateRuntimeSandboxSnapshotConfigDict
+from .common import CreateRuntimeSandboxSnapshotConfigOrDict
+from .common import CreateRuntimeSessionConfig
+from .common import CreateRuntimeSessionConfigDict
+from .common import CreateRuntimeSessionConfigOrDict
 from .common import CreateSandboxEnvironmentTemplateConfig
 from .common import CreateSandboxEnvironmentTemplateConfigDict
 from .common import CreateSandboxEnvironmentTemplateConfigOrDict
@@ -458,33 +409,6 @@ from .common import DedicatedResourcesScaleToZeroSpec
 from .common import DedicatedResourcesScaleToZeroSpecDict
 from .common import DedicatedResourcesScaleToZeroSpecOrDict
 from .common import DefaultContainerCategory
-from .common import DeleteAgentEngineConfig
-from .common import DeleteAgentEngineConfigDict
-from .common import DeleteAgentEngineConfigOrDict
-from .common import DeleteAgentEngineOperation
-from .common import DeleteAgentEngineOperationDict
-from .common import DeleteAgentEngineOperationOrDict
-from .common import DeleteAgentEngineRuntimeRevisionConfig
-from .common import DeleteAgentEngineRuntimeRevisionConfigDict
-from .common import DeleteAgentEngineRuntimeRevisionConfigOrDict
-from .common import DeleteAgentEngineRuntimeRevisionOperation
-from .common import DeleteAgentEngineRuntimeRevisionOperationDict
-from .common import DeleteAgentEngineRuntimeRevisionOperationOrDict
-from .common import DeleteAgentEngineSandboxConfig
-from .common import DeleteAgentEngineSandboxConfigDict
-from .common import DeleteAgentEngineSandboxConfigOrDict
-from .common import DeleteAgentEngineSandboxOperation
-from .common import DeleteAgentEngineSandboxOperationDict
-from .common import DeleteAgentEngineSandboxOperationOrDict
-from .common import DeleteAgentEngineSessionConfig
-from .common import DeleteAgentEngineSessionConfigDict
-from .common import DeleteAgentEngineSessionConfigOrDict
-from .common import DeleteAgentEngineSessionOperation
-from .common import DeleteAgentEngineSessionOperationDict
-from .common import DeleteAgentEngineSessionOperationOrDict
-from .common import DeleteAgentEngineTaskConfig
-from .common import DeleteAgentEngineTaskConfigDict
-from .common import DeleteAgentEngineTaskConfigOrDict
 from .common import DeleteEndpointConfig
 from .common import DeleteEndpointConfigDict
 from .common import DeleteEndpointConfigOrDict
@@ -548,12 +472,36 @@ from .common import DeleteRagFileConfigOrDict
 from .common import DeleteRagFileOperation
 from .common import DeleteRagFileOperationDict
 from .common import DeleteRagFileOperationOrDict
+from .common import DeleteRuntimeConfig
+from .common import DeleteRuntimeConfigDict
+from .common import DeleteRuntimeConfigOrDict
 from .common import DeleteRuntimeFeedbackEntryConfig
 from .common import DeleteRuntimeFeedbackEntryConfigDict
 from .common import DeleteRuntimeFeedbackEntryConfigOrDict
 from .common import DeleteRuntimeFeedbackEntryOperation
 from .common import DeleteRuntimeFeedbackEntryOperationDict
 from .common import DeleteRuntimeFeedbackEntryOperationOrDict
+from .common import DeleteRuntimeOperation
+from .common import DeleteRuntimeOperationDict
+from .common import DeleteRuntimeOperationOrDict
+from .common import DeleteRuntimeRevisionConfig
+from .common import DeleteRuntimeRevisionConfigDict
+from .common import DeleteRuntimeRevisionConfigOrDict
+from .common import DeleteRuntimeRevisionOperation
+from .common import DeleteRuntimeRevisionOperationDict
+from .common import DeleteRuntimeRevisionOperationOrDict
+from .common import DeleteRuntimeSandboxConfig
+from .common import DeleteRuntimeSandboxConfigDict
+from .common import DeleteRuntimeSandboxConfigOrDict
+from .common import DeleteRuntimeSandboxOperation
+from .common import DeleteRuntimeSandboxOperationDict
+from .common import DeleteRuntimeSandboxOperationOrDict
+from .common import DeleteRuntimeSessionConfig
+from .common import DeleteRuntimeSessionConfigDict
+from .common import DeleteRuntimeSessionConfigOrDict
+from .common import DeleteRuntimeSessionOperation
+from .common import DeleteRuntimeSessionOperationDict
+from .common import DeleteRuntimeSessionOperationOrDict
 from .common import DeleteSandboxEnvironmentSnapshotConfig
 from .common import DeleteSandboxEnvironmentSnapshotConfigDict
 from .common import DeleteSandboxEnvironmentSnapshotConfigOrDict
@@ -765,9 +713,9 @@ from .common import ExampleStoreOperation
 from .common import ExampleStoreOperationDict
 from .common import ExampleStoreOperationOrDict
 from .common import ExampleStoreOrDict
-from .common import ExecuteCodeAgentEngineSandboxConfig
-from .common import ExecuteCodeAgentEngineSandboxConfigDict
-from .common import ExecuteCodeAgentEngineSandboxConfigOrDict
+from .common import ExecuteCodeRuntimeSandboxConfig
+from .common import ExecuteCodeRuntimeSandboxConfigDict
+from .common import ExecuteCodeRuntimeSandboxConfigOrDict
 from .common import ExecuteSandboxEnvironmentResponse
 from .common import ExecuteSandboxEnvironmentResponseDict
 from .common import ExecuteSandboxEnvironmentResponseOrDict
@@ -904,33 +852,15 @@ from .common import GenerateUserScenariosConfigOrDict
 from .common import GenerateUserScenariosResponse
 from .common import GenerateUserScenariosResponseDict
 from .common import GenerateUserScenariosResponseOrDict
-from .common import GetAgentEngineConfig
-from .common import GetAgentEngineConfigDict
-from .common import GetAgentEngineConfigOrDict
-from .common import GetAgentEngineOperationConfig
-from .common import GetAgentEngineOperationConfigDict
-from .common import GetAgentEngineOperationConfigOrDict
-from .common import GetAgentEngineRuntimeRevisionConfig
-from .common import GetAgentEngineRuntimeRevisionConfigDict
-from .common import GetAgentEngineRuntimeRevisionConfigOrDict
-from .common import GetAgentEngineSandboxConfig
-from .common import GetAgentEngineSandboxConfigDict
-from .common import GetAgentEngineSandboxConfigOrDict
-from .common import GetAgentEngineSessionConfig
-from .common import GetAgentEngineSessionConfigDict
-from .common import GetAgentEngineSessionConfigOrDict
-from .common import GetAgentEngineTaskConfig
-from .common import GetAgentEngineTaskConfigDict
-from .common import GetAgentEngineTaskConfigOrDict
 from .common import GetCorpusOperationConfig
 from .common import GetCorpusOperationConfigDict
 from .common import GetCorpusOperationConfigOrDict
 from .common import GetDatasetOperationConfig
 from .common import GetDatasetOperationConfigDict
 from .common import GetDatasetOperationConfigOrDict
-from .common import GetDeleteAgentEngineRuntimeRevisionOperationConfig
-from .common import GetDeleteAgentEngineRuntimeRevisionOperationConfigDict
-from .common import GetDeleteAgentEngineRuntimeRevisionOperationConfigOrDict
+from .common import GetDeleteRuntimeRevisionOperationConfig
+from .common import GetDeleteRuntimeRevisionOperationConfigDict
+from .common import GetDeleteRuntimeRevisionOperationConfigOrDict
 from .common import GetDeployOperationConfig
 from .common import GetDeployOperationConfigDict
 from .common import GetDeployOperationConfigOrDict
@@ -1000,6 +930,9 @@ from .common import GetRagCorpusConfigOrDict
 from .common import GetRagFileConfig
 from .common import GetRagFileConfigDict
 from .common import GetRagFileConfigOrDict
+from .common import GetRuntimeConfig
+from .common import GetRuntimeConfigDict
+from .common import GetRuntimeConfigOrDict
 from .common import GetRuntimeFeedbackConfig
 from .common import GetRuntimeFeedbackConfigDict
 from .common import GetRuntimeFeedbackConfigOrDict
@@ -1012,6 +945,18 @@ from .common import GetRuntimeFeedbackContextOperationConfigOrDict
 from .common import GetRuntimeFeedbackEntryConfig
 from .common import GetRuntimeFeedbackEntryConfigDict
 from .common import GetRuntimeFeedbackEntryConfigOrDict
+from .common import GetRuntimeOperationConfig
+from .common import GetRuntimeOperationConfigDict
+from .common import GetRuntimeOperationConfigOrDict
+from .common import GetRuntimeRevisionConfig
+from .common import GetRuntimeRevisionConfigDict
+from .common import GetRuntimeRevisionConfigOrDict
+from .common import GetRuntimeSandboxConfig
+from .common import GetRuntimeSandboxConfigDict
+from .common import GetRuntimeSandboxConfigOrDict
+from .common import GetRuntimeSessionConfig
+from .common import GetRuntimeSessionConfigDict
+from .common import GetRuntimeSessionConfigOrDict
 from .common import GetSandboxEnvironmentSnapshotConfig
 from .common import GetSandboxEnvironmentSnapshotConfigDict
 from .common import GetSandboxEnvironmentSnapshotConfigOrDict
@@ -1099,39 +1044,6 @@ from .common import LargeModelReference
 from .common import LargeModelReferenceDict
 from .common import LargeModelReferenceOrDict
 from .common import LaunchStage
-from .common import ListAgentEngineConfig
-from .common import ListAgentEngineConfigDict
-from .common import ListAgentEngineConfigOrDict
-from .common import ListAgentEngineRuntimeRevisionsConfig
-from .common import ListAgentEngineRuntimeRevisionsConfigDict
-from .common import ListAgentEngineRuntimeRevisionsConfigOrDict
-from .common import ListAgentEngineSandboxesConfig
-from .common import ListAgentEngineSandboxesConfigDict
-from .common import ListAgentEngineSandboxesConfigOrDict
-from .common import ListAgentEngineSandboxesResponse
-from .common import ListAgentEngineSandboxesResponseDict
-from .common import ListAgentEngineSandboxesResponseOrDict
-from .common import ListAgentEngineSessionEventsConfig
-from .common import ListAgentEngineSessionEventsConfigDict
-from .common import ListAgentEngineSessionEventsConfigOrDict
-from .common import ListAgentEngineSessionEventsResponse
-from .common import ListAgentEngineSessionEventsResponseDict
-from .common import ListAgentEngineSessionEventsResponseOrDict
-from .common import ListAgentEngineSessionsConfig
-from .common import ListAgentEngineSessionsConfigDict
-from .common import ListAgentEngineSessionsConfigOrDict
-from .common import ListAgentEngineTaskEventsConfig
-from .common import ListAgentEngineTaskEventsConfigDict
-from .common import ListAgentEngineTaskEventsConfigOrDict
-from .common import ListAgentEngineTaskEventsResponse
-from .common import ListAgentEngineTaskEventsResponseDict
-from .common import ListAgentEngineTaskEventsResponseOrDict
-from .common import ListAgentEngineTasksConfig
-from .common import ListAgentEngineTasksConfigDict
-from .common import ListAgentEngineTasksConfigOrDict
-from .common import ListAgentEngineTasksResponse
-from .common import ListAgentEngineTasksResponseDict
-from .common import ListAgentEngineTasksResponseOrDict
 from .common import ListCustomModelDeployOptionsConfig
 from .common import ListCustomModelDeployOptionsConfigDict
 from .common import ListCustomModelDeployOptionsConfigOrDict
@@ -1222,12 +1134,33 @@ from .common import ListReasoningEnginesRuntimeRevisionsResponseOrDict
 from .common import ListReasoningEnginesSessionsResponse
 from .common import ListReasoningEnginesSessionsResponseDict
 from .common import ListReasoningEnginesSessionsResponseOrDict
+from .common import ListRuntimeConfig
+from .common import ListRuntimeConfigDict
+from .common import ListRuntimeConfigOrDict
 from .common import ListRuntimeFeedbackEntriesConfig
 from .common import ListRuntimeFeedbackEntriesConfigDict
 from .common import ListRuntimeFeedbackEntriesConfigOrDict
 from .common import ListRuntimeFeedbackEntriesResponse
 from .common import ListRuntimeFeedbackEntriesResponseDict
 from .common import ListRuntimeFeedbackEntriesResponseOrDict
+from .common import ListRuntimeRevisionsConfig
+from .common import ListRuntimeRevisionsConfigDict
+from .common import ListRuntimeRevisionsConfigOrDict
+from .common import ListRuntimeSandboxesConfig
+from .common import ListRuntimeSandboxesConfigDict
+from .common import ListRuntimeSandboxesConfigOrDict
+from .common import ListRuntimeSandboxesResponse
+from .common import ListRuntimeSandboxesResponseDict
+from .common import ListRuntimeSandboxesResponseOrDict
+from .common import ListRuntimeSessionEventsConfig
+from .common import ListRuntimeSessionEventsConfigDict
+from .common import ListRuntimeSessionEventsConfigOrDict
+from .common import ListRuntimeSessionEventsResponse
+from .common import ListRuntimeSessionEventsResponseDict
+from .common import ListRuntimeSessionEventsResponseOrDict
+from .common import ListRuntimeSessionsConfig
+from .common import ListRuntimeSessionsConfigDict
+from .common import ListRuntimeSessionsConfigOrDict
 from .common import ListSandboxEnvironmentSnapshotsConfig
 from .common import ListSandboxEnvironmentSnapshotsConfigDict
 from .common import ListSandboxEnvironmentSnapshotsConfigOrDict
@@ -1582,15 +1515,15 @@ from .common import PurgeMemoriesResponseOrDict
 from .common import PythonPackageSpec
 from .common import PythonPackageSpecDict
 from .common import PythonPackageSpecOrDict
-from .common import QueryAgentEngineConfig
-from .common import QueryAgentEngineConfigDict
-from .common import QueryAgentEngineConfigOrDict
-from .common import QueryAgentEngineRuntimeRevisionConfig
-from .common import QueryAgentEngineRuntimeRevisionConfigDict
-from .common import QueryAgentEngineRuntimeRevisionConfigOrDict
 from .common import QueryReasoningEngineResponse
 from .common import QueryReasoningEngineResponseDict
 from .common import QueryReasoningEngineResponseOrDict
+from .common import QueryRuntimeConfig
+from .common import QueryRuntimeConfigDict
+from .common import QueryRuntimeConfigOrDict
+from .common import QueryRuntimeRevisionConfig
+from .common import QueryRuntimeRevisionConfigDict
+from .common import QueryRuntimeRevisionConfigOrDict
 from .common import QuotaState
 from .common import RagContexts
 from .common import RagContextsContext
@@ -1895,7 +1828,6 @@ from .common import RetrieveSkillsConfigOrDict
 from .common import RetrieveSkillsResponse
 from .common import RetrieveSkillsResponseDict
 from .common import RetrieveSkillsResponseOrDict
-from .common import Role
 from .common import RollbackMemoryConfig
 from .common import RollbackMemoryConfigDict
 from .common import RollbackMemoryConfigOrDict
@@ -1943,18 +1875,36 @@ from .common import RubricGroupDict
 from .common import RubricGroupOrDict
 from .common import RubricVerdict
 from .common import RubricVerdictDict
-from .common import RunQueryJobAgentEngineConfig
-from .common import RunQueryJobAgentEngineConfigDict
-from .common import RunQueryJobAgentEngineConfigOrDict
 from .common import RunQueryJobResult
 from .common import RunQueryJobResultDict
 from .common import RunQueryJobResultOrDict
+from .common import RunQueryJobRuntimeConfig
+from .common import RunQueryJobRuntimeConfigDict
+from .common import RunQueryJobRuntimeConfigOrDict
+from .common import Runtime
+from .common import RuntimeDict
 from .common import RuntimeFeedbackContextOperation
 from .common import RuntimeFeedbackContextOperationDict
 from .common import RuntimeFeedbackContextOperationOrDict
 from .common import RuntimeFeedbackEntryOperation
 from .common import RuntimeFeedbackEntryOperationDict
 from .common import RuntimeFeedbackEntryOperationOrDict
+from .common import RuntimeOperation
+from .common import RuntimeOperationDict
+from .common import RuntimeOperationOrDict
+from .common import RuntimeOrDict
+from .common import RuntimeRevision
+from .common import RuntimeRevisionDict
+from .common import RuntimeRevisionOrDict
+from .common import RuntimeSandboxOperation
+from .common import RuntimeSandboxOperationDict
+from .common import RuntimeSandboxOperationOrDict
+from .common import RuntimeSandboxSnapshotOperation
+from .common import RuntimeSandboxSnapshotOperationDict
+from .common import RuntimeSandboxSnapshotOperationOrDict
+from .common import RuntimeSessionOperation
+from .common import RuntimeSessionOperationDict
+from .common import RuntimeSessionOperationOrDict
 from .common import SampledShapleyAttribution
 from .common import SampledShapleyAttributionDict
 from .common import SampledShapleyAttributionOrDict
@@ -2178,39 +2128,6 @@ from .common import StructuredMemorySchemaConfigOrDict
 from .common import SummaryMetric
 from .common import SummaryMetricDict
 from .common import SummaryMetricOrDict
-from .common import TaskArtifact
-from .common import TaskArtifactChange
-from .common import TaskArtifactChangeDict
-from .common import TaskArtifactChangeOrDict
-from .common import TaskArtifactDict
-from .common import TaskArtifactOrDict
-from .common import TaskEvent
-from .common import TaskEventData
-from .common import TaskEventDataDict
-from .common import TaskEventDataOrDict
-from .common import TaskEventDict
-from .common import TaskEventOrDict
-from .common import TaskMessage
-from .common import TaskMessageDict
-from .common import TaskMessageOrDict
-from .common import TaskMetadataChange
-from .common import TaskMetadataChangeDict
-from .common import TaskMetadataChangeOrDict
-from .common import TaskOutput
-from .common import TaskOutputChange
-from .common import TaskOutputChangeDict
-from .common import TaskOutputChangeOrDict
-from .common import TaskOutputDict
-from .common import TaskOutputOrDict
-from .common import TaskStateChange
-from .common import TaskStateChangeDict
-from .common import TaskStateChangeOrDict
-from .common import TaskStatusDetails
-from .common import TaskStatusDetailsChange
-from .common import TaskStatusDetailsChangeDict
-from .common import TaskStatusDetailsChangeOrDict
-from .common import TaskStatusDetailsDict
-from .common import TaskStatusDetailsOrDict
 from .common import ToolCallValidInput
 from .common import ToolCallValidInputDict
 from .common import ToolCallValidInputOrDict
@@ -2293,12 +2210,6 @@ from .common import UndeployModelOperationOrDict
 from .common import UnifiedMetric
 from .common import UnifiedMetricDict
 from .common import UnifiedMetricOrDict
-from .common import UpdateAgentEngineConfig
-from .common import UpdateAgentEngineConfigDict
-from .common import UpdateAgentEngineConfigOrDict
-from .common import UpdateAgentEngineSessionConfig
-from .common import UpdateAgentEngineSessionConfigDict
-from .common import UpdateAgentEngineSessionConfigOrDict
 from .common import UpdateEvaluationExperimentConfig
 from .common import UpdateEvaluationExperimentConfigDict
 from .common import UpdateEvaluationExperimentConfigOrDict
@@ -2320,12 +2231,18 @@ from .common import UpdateRagCorpusConfigOrDict
 from .common import UpdateRagCorpusOperation
 from .common import UpdateRagCorpusOperationDict
 from .common import UpdateRagCorpusOperationOrDict
+from .common import UpdateRuntimeConfig
+from .common import UpdateRuntimeConfigDict
+from .common import UpdateRuntimeConfigOrDict
 from .common import UpdateRuntimeFeedbackContextConfig
 from .common import UpdateRuntimeFeedbackContextConfigDict
 from .common import UpdateRuntimeFeedbackContextConfigOrDict
 from .common import UpdateRuntimeFeedbackEntryConfig
 from .common import UpdateRuntimeFeedbackEntryConfigDict
 from .common import UpdateRuntimeFeedbackEntryConfigOrDict
+from .common import UpdateRuntimeSessionConfig
+from .common import UpdateRuntimeSessionConfigDict
+from .common import UpdateRuntimeSessionConfigOrDict
 from .common import UpdateSkillConfig
 from .common import UpdateSkillConfigDict
 from .common import UpdateSkillConfigOrDict
@@ -2368,81 +2285,6 @@ from .common import XraiAttributionDict
 from .common import XraiAttributionOrDict
 
 __all__ = [
-    "DeleteAgentEngineTaskConfig",
-    "DeleteAgentEngineTaskConfigDict",
-    "DeleteAgentEngineTaskConfigOrDict",
-    "GetAgentEngineTaskConfig",
-    "GetAgentEngineTaskConfigDict",
-    "GetAgentEngineTaskConfigOrDict",
-    "TaskArtifact",
-    "TaskArtifactDict",
-    "TaskArtifactOrDict",
-    "TaskOutput",
-    "TaskOutputDict",
-    "TaskOutputOrDict",
-    "TaskMessage",
-    "TaskMessageDict",
-    "TaskMessageOrDict",
-    "TaskStatusDetails",
-    "TaskStatusDetailsDict",
-    "TaskStatusDetailsOrDict",
-    "A2aPart",
-    "A2aPartDict",
-    "A2aPartOrDict",
-    "A2aTaskArtifact",
-    "A2aTaskArtifactDict",
-    "A2aTaskArtifactOrDict",
-    "A2aTaskMessage",
-    "A2aTaskMessageDict",
-    "A2aTaskMessageOrDict",
-    "A2aTaskStatus",
-    "A2aTaskStatusDict",
-    "A2aTaskStatusOrDict",
-    "A2aTask",
-    "A2aTaskDict",
-    "A2aTaskOrDict",
-    "ListAgentEngineTasksConfig",
-    "ListAgentEngineTasksConfigDict",
-    "ListAgentEngineTasksConfigOrDict",
-    "ListAgentEngineTasksResponse",
-    "ListAgentEngineTasksResponseDict",
-    "ListAgentEngineTasksResponseOrDict",
-    "CreateAgentEngineTaskConfig",
-    "CreateAgentEngineTaskConfigDict",
-    "CreateAgentEngineTaskConfigOrDict",
-    "TaskMetadataChange",
-    "TaskMetadataChangeDict",
-    "TaskMetadataChangeOrDict",
-    "TaskArtifactChange",
-    "TaskArtifactChangeDict",
-    "TaskArtifactChangeOrDict",
-    "TaskOutputChange",
-    "TaskOutputChangeDict",
-    "TaskOutputChangeOrDict",
-    "TaskStateChange",
-    "TaskStateChangeDict",
-    "TaskStateChangeOrDict",
-    "TaskStatusDetailsChange",
-    "TaskStatusDetailsChangeDict",
-    "TaskStatusDetailsChangeOrDict",
-    "TaskEventData",
-    "TaskEventDataDict",
-    "TaskEventDataOrDict",
-    "TaskEvent",
-    "TaskEventDict",
-    "TaskEventOrDict",
-    "AppendAgentEngineTaskEventConfig",
-    "AppendAgentEngineTaskEventConfigDict",
-    "AppendAgentEngineTaskEventConfigOrDict",
-    "AppendAgentEngineTaskEventResponse",
-    "AppendAgentEngineTaskEventResponseDict",
-    "AppendAgentEngineTaskEventResponseOrDict",
-    "ListAgentEngineTaskEventsConfig",
-    "ListAgentEngineTaskEventsConfigDict",
-    "ListAgentEngineTaskEventsConfigOrDict",
-    "ListAgentEngineTaskEventsResponse",
-    "ListAgentEngineTaskEventsResponseDict",
-    "ListAgentEngineTaskEventsResponseOrDict",
     "CreateEvaluationExperimentConfig",
     "CreateEvaluationExperimentConfigDict",
     "CreateEvaluationExperimentConfigOrDict",
@@ -2890,21 +2732,21 @@ __all__ = [
     "VertexBaseConfig",
     "VertexBaseConfigDict",
     "VertexBaseConfigOrDict",
-    "CancelQueryJobAgentEngineConfig",
-    "CancelQueryJobAgentEngineConfigDict",
-    "CancelQueryJobAgentEngineConfigOrDict",
+    "CancelQueryJobRuntimeConfig",
+    "CancelQueryJobRuntimeConfigDict",
+    "CancelQueryJobRuntimeConfigOrDict",
     "CancelQueryJobResult",
     "CancelQueryJobResultDict",
     "CancelQueryJobResultOrDict",
-    "CheckQueryJobAgentEngineConfig",
-    "CheckQueryJobAgentEngineConfigDict",
-    "CheckQueryJobAgentEngineConfigOrDict",
+    "CheckQueryJobRuntimeConfig",
+    "CheckQueryJobRuntimeConfigDict",
+    "CheckQueryJobRuntimeConfigOrDict",
     "CheckQueryJobResult",
     "CheckQueryJobResultDict",
     "CheckQueryJobResultOrDict",
-    "_RunQueryJobAgentEngineConfig",
-    "_RunQueryJobAgentEngineConfigDict",
-    "_RunQueryJobAgentEngineConfigOrDict",
+    "_RunQueryJobRuntimeConfig",
+    "_RunQueryJobRuntimeConfigDict",
+    "_RunQueryJobRuntimeConfigOrDict",
     "MemoryBankCustomizationConfigGenerateMemoriesExampleConversationSourceEvent",
     "MemoryBankCustomizationConfigGenerateMemoriesExampleConversationSourceEventDict",
     "MemoryBankCustomizationConfigGenerateMemoriesExampleConversationSourceEventOrDict",
@@ -3040,39 +2882,63 @@ __all__ = [
     "ReasoningEngine",
     "ReasoningEngineDict",
     "ReasoningEngineOrDict",
-    "AgentEngineOperation",
-    "AgentEngineOperationDict",
-    "AgentEngineOperationOrDict",
-    "CreateAgentEngineConfig",
-    "CreateAgentEngineConfigDict",
-    "CreateAgentEngineConfigOrDict",
-    "DeleteAgentEngineConfig",
-    "DeleteAgentEngineConfigDict",
-    "DeleteAgentEngineConfigOrDict",
-    "DeleteAgentEngineOperation",
-    "DeleteAgentEngineOperationDict",
-    "DeleteAgentEngineOperationOrDict",
-    "GetAgentEngineConfig",
-    "GetAgentEngineConfigDict",
-    "GetAgentEngineConfigOrDict",
-    "ListAgentEngineConfig",
-    "ListAgentEngineConfigDict",
-    "ListAgentEngineConfigOrDict",
+    "RuntimeOperation",
+    "RuntimeOperationDict",
+    "RuntimeOperationOrDict",
+    "CreateRuntimeConfig",
+    "CreateRuntimeConfigDict",
+    "CreateRuntimeConfigOrDict",
+    "DeleteRuntimeConfig",
+    "DeleteRuntimeConfigDict",
+    "DeleteRuntimeConfigOrDict",
+    "DeleteRuntimeOperation",
+    "DeleteRuntimeOperationDict",
+    "DeleteRuntimeOperationOrDict",
+    "GetRuntimeConfig",
+    "GetRuntimeConfigDict",
+    "GetRuntimeConfigOrDict",
+    "ListRuntimeConfig",
+    "ListRuntimeConfigDict",
+    "ListRuntimeConfigOrDict",
     "ListReasoningEnginesResponse",
     "ListReasoningEnginesResponseDict",
     "ListReasoningEnginesResponseOrDict",
-    "GetAgentEngineOperationConfig",
-    "GetAgentEngineOperationConfigDict",
-    "GetAgentEngineOperationConfigOrDict",
-    "QueryAgentEngineConfig",
-    "QueryAgentEngineConfigDict",
-    "QueryAgentEngineConfigOrDict",
+    "GetRuntimeOperationConfig",
+    "GetRuntimeOperationConfigDict",
+    "GetRuntimeOperationConfigOrDict",
+    "QueryRuntimeConfig",
+    "QueryRuntimeConfigDict",
+    "QueryRuntimeConfigOrDict",
     "QueryReasoningEngineResponse",
     "QueryReasoningEngineResponseDict",
     "QueryReasoningEngineResponseOrDict",
-    "UpdateAgentEngineConfig",
-    "UpdateAgentEngineConfigDict",
-    "UpdateAgentEngineConfigOrDict",
+    "UpdateRuntimeConfig",
+    "UpdateRuntimeConfigDict",
+    "UpdateRuntimeConfigOrDict",
+    "GetRuntimeRevisionConfig",
+    "GetRuntimeRevisionConfigDict",
+    "GetRuntimeRevisionConfigOrDict",
+    "ReasoningEngineRuntimeRevision",
+    "ReasoningEngineRuntimeRevisionDict",
+    "ReasoningEngineRuntimeRevisionOrDict",
+    "ListRuntimeRevisionsConfig",
+    "ListRuntimeRevisionsConfigDict",
+    "ListRuntimeRevisionsConfigOrDict",
+    "ListReasoningEnginesRuntimeRevisionsResponse",
+    "ListReasoningEnginesRuntimeRevisionsResponseDict",
+    "ListReasoningEnginesRuntimeRevisionsResponseOrDict",
+    "DeleteRuntimeRevisionConfig",
+    "DeleteRuntimeRevisionConfigDict",
+    "DeleteRuntimeRevisionConfigOrDict",
+    "DeleteRuntimeRevisionOperation",
+    "DeleteRuntimeRevisionOperationDict",
+    "DeleteRuntimeRevisionOperationOrDict",
+    "GetDeleteRuntimeRevisionOperationConfig",
+    "GetDeleteRuntimeRevisionOperationConfigDict",
+    "GetDeleteRuntimeRevisionOperationConfigOrDict",
+    "QueryRuntimeRevisionConfig",
+    "QueryRuntimeRevisionConfigDict",
+    "QueryRuntimeRevisionConfigOrDict",
     "CreateMemoryBankConfig",
     "CreateMemoryBankConfigDict",
     "CreateMemoryBankConfigOrDict",
@@ -3505,30 +3371,6 @@ __all__ = [
     "UploadRagFileResponse",
     "UploadRagFileResponseDict",
     "UploadRagFileResponseOrDict",
-    "GetAgentEngineRuntimeRevisionConfig",
-    "GetAgentEngineRuntimeRevisionConfigDict",
-    "GetAgentEngineRuntimeRevisionConfigOrDict",
-    "ReasoningEngineRuntimeRevision",
-    "ReasoningEngineRuntimeRevisionDict",
-    "ReasoningEngineRuntimeRevisionOrDict",
-    "ListAgentEngineRuntimeRevisionsConfig",
-    "ListAgentEngineRuntimeRevisionsConfigDict",
-    "ListAgentEngineRuntimeRevisionsConfigOrDict",
-    "ListReasoningEnginesRuntimeRevisionsResponse",
-    "ListReasoningEnginesRuntimeRevisionsResponseDict",
-    "ListReasoningEnginesRuntimeRevisionsResponseOrDict",
-    "DeleteAgentEngineRuntimeRevisionConfig",
-    "DeleteAgentEngineRuntimeRevisionConfigDict",
-    "DeleteAgentEngineRuntimeRevisionConfigOrDict",
-    "DeleteAgentEngineRuntimeRevisionOperation",
-    "DeleteAgentEngineRuntimeRevisionOperationDict",
-    "DeleteAgentEngineRuntimeRevisionOperationOrDict",
-    "GetDeleteAgentEngineRuntimeRevisionOperationConfig",
-    "GetDeleteAgentEngineRuntimeRevisionOperationConfigDict",
-    "GetDeleteAgentEngineRuntimeRevisionOperationConfigOrDict",
-    "QueryAgentEngineRuntimeRevisionConfig",
-    "QueryAgentEngineRuntimeRevisionConfigDict",
-    "QueryAgentEngineRuntimeRevisionConfigOrDict",
     "SandboxEnvironmentSpecCodeExecutionEnvironment",
     "SandboxEnvironmentSpecCodeExecutionEnvironmentDict",
     "SandboxEnvironmentSpecCodeExecutionEnvironmentOrDict",
@@ -3541,45 +3383,45 @@ __all__ = [
     "SandboxEnvironmentSpec",
     "SandboxEnvironmentSpecDict",
     "SandboxEnvironmentSpecOrDict",
-    "CreateAgentEngineSandboxConfig",
-    "CreateAgentEngineSandboxConfigDict",
-    "CreateAgentEngineSandboxConfigOrDict",
+    "CreateRuntimeSandboxConfig",
+    "CreateRuntimeSandboxConfigDict",
+    "CreateRuntimeSandboxConfigOrDict",
     "SandboxEnvironmentConnectionInfo",
     "SandboxEnvironmentConnectionInfoDict",
     "SandboxEnvironmentConnectionInfoOrDict",
     "SandboxEnvironment",
     "SandboxEnvironmentDict",
     "SandboxEnvironmentOrDict",
-    "AgentEngineSandboxOperation",
-    "AgentEngineSandboxOperationDict",
-    "AgentEngineSandboxOperationOrDict",
-    "DeleteAgentEngineSandboxConfig",
-    "DeleteAgentEngineSandboxConfigDict",
-    "DeleteAgentEngineSandboxConfigOrDict",
-    "DeleteAgentEngineSandboxOperation",
-    "DeleteAgentEngineSandboxOperationDict",
-    "DeleteAgentEngineSandboxOperationOrDict",
+    "RuntimeSandboxOperation",
+    "RuntimeSandboxOperationDict",
+    "RuntimeSandboxOperationOrDict",
+    "DeleteRuntimeSandboxConfig",
+    "DeleteRuntimeSandboxConfigDict",
+    "DeleteRuntimeSandboxConfigOrDict",
+    "DeleteRuntimeSandboxOperation",
+    "DeleteRuntimeSandboxOperationDict",
+    "DeleteRuntimeSandboxOperationOrDict",
     "Metadata",
     "MetadataDict",
     "MetadataOrDict",
     "Chunk",
     "ChunkDict",
     "ChunkOrDict",
-    "ExecuteCodeAgentEngineSandboxConfig",
-    "ExecuteCodeAgentEngineSandboxConfigDict",
-    "ExecuteCodeAgentEngineSandboxConfigOrDict",
+    "ExecuteCodeRuntimeSandboxConfig",
+    "ExecuteCodeRuntimeSandboxConfigDict",
+    "ExecuteCodeRuntimeSandboxConfigOrDict",
     "ExecuteSandboxEnvironmentResponse",
     "ExecuteSandboxEnvironmentResponseDict",
     "ExecuteSandboxEnvironmentResponseOrDict",
-    "GetAgentEngineSandboxConfig",
-    "GetAgentEngineSandboxConfigDict",
-    "GetAgentEngineSandboxConfigOrDict",
-    "ListAgentEngineSandboxesConfig",
-    "ListAgentEngineSandboxesConfigDict",
-    "ListAgentEngineSandboxesConfigOrDict",
-    "ListAgentEngineSandboxesResponse",
-    "ListAgentEngineSandboxesResponseDict",
-    "ListAgentEngineSandboxesResponseOrDict",
+    "GetRuntimeSandboxConfig",
+    "GetRuntimeSandboxConfigDict",
+    "GetRuntimeSandboxConfigOrDict",
+    "ListRuntimeSandboxesConfig",
+    "ListRuntimeSandboxesConfigDict",
+    "ListRuntimeSandboxesConfigOrDict",
+    "ListRuntimeSandboxesResponse",
+    "ListRuntimeSandboxesResponseDict",
+    "ListRuntimeSandboxesResponseOrDict",
     "SandboxEnvironmentTemplateCustomContainerSpec",
     "SandboxEnvironmentTemplateCustomContainerSpecDict",
     "SandboxEnvironmentTemplateCustomContainerSpecOrDict",
@@ -3625,15 +3467,15 @@ __all__ = [
     "ListSandboxEnvironmentTemplatesResponse",
     "ListSandboxEnvironmentTemplatesResponseDict",
     "ListSandboxEnvironmentTemplatesResponseOrDict",
-    "CreateAgentEngineSandboxSnapshotConfig",
-    "CreateAgentEngineSandboxSnapshotConfigDict",
-    "CreateAgentEngineSandboxSnapshotConfigOrDict",
+    "CreateRuntimeSandboxSnapshotConfig",
+    "CreateRuntimeSandboxSnapshotConfigDict",
+    "CreateRuntimeSandboxSnapshotConfigOrDict",
     "SandboxEnvironmentSnapshot",
     "SandboxEnvironmentSnapshotDict",
     "SandboxEnvironmentSnapshotOrDict",
-    "AgentEngineSandboxSnapshotOperation",
-    "AgentEngineSandboxSnapshotOperationDict",
-    "AgentEngineSandboxSnapshotOperationOrDict",
+    "RuntimeSandboxSnapshotOperation",
+    "RuntimeSandboxSnapshotOperationDict",
+    "RuntimeSandboxSnapshotOperationOrDict",
     "DeleteSandboxEnvironmentSnapshotConfig",
     "DeleteSandboxEnvironmentSnapshotConfigDict",
     "DeleteSandboxEnvironmentSnapshotConfigOrDict",
@@ -3649,54 +3491,54 @@ __all__ = [
     "ListSandboxEnvironmentSnapshotsResponse",
     "ListSandboxEnvironmentSnapshotsResponseDict",
     "ListSandboxEnvironmentSnapshotsResponseOrDict",
-    "CreateAgentEngineSessionConfig",
-    "CreateAgentEngineSessionConfigDict",
-    "CreateAgentEngineSessionConfigOrDict",
+    "CreateRuntimeSessionConfig",
+    "CreateRuntimeSessionConfigDict",
+    "CreateRuntimeSessionConfigOrDict",
     "Session",
     "SessionDict",
     "SessionOrDict",
-    "AgentEngineSessionOperation",
-    "AgentEngineSessionOperationDict",
-    "AgentEngineSessionOperationOrDict",
-    "DeleteAgentEngineSessionConfig",
-    "DeleteAgentEngineSessionConfigDict",
-    "DeleteAgentEngineSessionConfigOrDict",
-    "DeleteAgentEngineSessionOperation",
-    "DeleteAgentEngineSessionOperationDict",
-    "DeleteAgentEngineSessionOperationOrDict",
-    "GetAgentEngineSessionConfig",
-    "GetAgentEngineSessionConfigDict",
-    "GetAgentEngineSessionConfigOrDict",
-    "ListAgentEngineSessionsConfig",
-    "ListAgentEngineSessionsConfigDict",
-    "ListAgentEngineSessionsConfigOrDict",
+    "RuntimeSessionOperation",
+    "RuntimeSessionOperationDict",
+    "RuntimeSessionOperationOrDict",
+    "DeleteRuntimeSessionConfig",
+    "DeleteRuntimeSessionConfigDict",
+    "DeleteRuntimeSessionConfigOrDict",
+    "DeleteRuntimeSessionOperation",
+    "DeleteRuntimeSessionOperationDict",
+    "DeleteRuntimeSessionOperationOrDict",
+    "GetRuntimeSessionConfig",
+    "GetRuntimeSessionConfigDict",
+    "GetRuntimeSessionConfigOrDict",
+    "ListRuntimeSessionsConfig",
+    "ListRuntimeSessionsConfigDict",
+    "ListRuntimeSessionsConfigOrDict",
     "ListReasoningEnginesSessionsResponse",
     "ListReasoningEnginesSessionsResponseDict",
     "ListReasoningEnginesSessionsResponseOrDict",
-    "UpdateAgentEngineSessionConfig",
-    "UpdateAgentEngineSessionConfigDict",
-    "UpdateAgentEngineSessionConfigOrDict",
+    "UpdateRuntimeSessionConfig",
+    "UpdateRuntimeSessionConfigDict",
+    "UpdateRuntimeSessionConfigOrDict",
     "EventActions",
     "EventActionsDict",
     "EventActionsOrDict",
     "EventMetadata",
     "EventMetadataDict",
     "EventMetadataOrDict",
-    "AppendAgentEngineSessionEventConfig",
-    "AppendAgentEngineSessionEventConfigDict",
-    "AppendAgentEngineSessionEventConfigOrDict",
-    "AppendAgentEngineSessionEventResponse",
-    "AppendAgentEngineSessionEventResponseDict",
-    "AppendAgentEngineSessionEventResponseOrDict",
-    "ListAgentEngineSessionEventsConfig",
-    "ListAgentEngineSessionEventsConfigDict",
-    "ListAgentEngineSessionEventsConfigOrDict",
+    "AppendRuntimeSessionEventConfig",
+    "AppendRuntimeSessionEventConfigDict",
+    "AppendRuntimeSessionEventConfigOrDict",
+    "AppendRuntimeSessionEventResponse",
+    "AppendRuntimeSessionEventResponseDict",
+    "AppendRuntimeSessionEventResponseOrDict",
+    "ListRuntimeSessionEventsConfig",
+    "ListRuntimeSessionEventsConfigDict",
+    "ListRuntimeSessionEventsConfigOrDict",
     "SessionEvent",
     "SessionEventDict",
     "SessionEventOrDict",
-    "ListAgentEngineSessionEventsResponse",
-    "ListAgentEngineSessionEventsResponseDict",
-    "ListAgentEngineSessionEventsResponseOrDict",
+    "ListRuntimeSessionEventsResponse",
+    "ListRuntimeSessionEventsResponseDict",
+    "ListRuntimeSessionEventsResponseOrDict",
     "GeminiExample",
     "GeminiExampleDict",
     "GeminiExampleOrDict",
@@ -4357,21 +4199,6 @@ __all__ = [
     "EvalRunInferenceConfig",
     "EvalRunInferenceConfigDict",
     "EvalRunInferenceConfigOrDict",
-    "AgentEngine",
-    "AgentEngineDict",
-    "AgentEngineOrDict",
-    "AgentEngineConfig",
-    "AgentEngineConfigDict",
-    "AgentEngineConfigOrDict",
-    "RunQueryJobAgentEngineConfig",
-    "RunQueryJobAgentEngineConfigDict",
-    "RunQueryJobAgentEngineConfigOrDict",
-    "RunQueryJobResult",
-    "RunQueryJobResultDict",
-    "RunQueryJobResultOrDict",
-    "CheckQueryJobResponse",
-    "CheckQueryJobResponseDict",
-    "CheckQueryJobResponseOrDict",
     "AssembleDataset",
     "AssembleDatasetDict",
     "AssembleDatasetOrDict",
@@ -4408,9 +4235,6 @@ __all__ = [
     "OptimizeJobConfig",
     "OptimizeJobConfigDict",
     "OptimizeJobConfigOrDict",
-    "AgentEngineRuntimeRevision",
-    "AgentEngineRuntimeRevisionDict",
-    "AgentEngineRuntimeRevisionOrDict",
     "ListDeployableModelsConfig",
     "ListDeployableModelsConfigDict",
     "ListDeployableModelsConfigOrDict",
@@ -4435,9 +4259,24 @@ __all__ = [
     "ListMemoryBanksResponse",
     "ListMemoryBanksResponseDict",
     "ListMemoryBanksResponseOrDict",
-    "A2aTaskState",
-    "Role",
-    "State",
+    "Runtime",
+    "RuntimeDict",
+    "RuntimeOrDict",
+    "AgentRuntimeConfig",
+    "AgentRuntimeConfigDict",
+    "AgentRuntimeConfigOrDict",
+    "RunQueryJobRuntimeConfig",
+    "RunQueryJobRuntimeConfigDict",
+    "RunQueryJobRuntimeConfigOrDict",
+    "RunQueryJobResult",
+    "RunQueryJobResultDict",
+    "RunQueryJobResultOrDict",
+    "CheckQueryJobResponse",
+    "CheckQueryJobResponseDict",
+    "CheckQueryJobResponseOrDict",
+    "RuntimeRevision",
+    "RuntimeRevisionDict",
+    "RuntimeRevisionOrDict",
     "Strategy",
     "AcceleratorType",
     "Type",
@@ -4445,6 +4284,7 @@ __all__ = [
     "ManagedTopicEnum",
     "IdentityType",
     "AgentServerMode",
+    "State",
     "MemoryType",
     "Operator",
     "RagFileType",
@@ -4510,12 +4350,6 @@ __all__ = [
     "MessageDict",
     "Importance",
     "ParsedResponseUnion",
-    "_DeleteAgentEngineTaskRequestParameters",
-    "_GetAgentEngineTaskRequestParameters",
-    "_ListAgentEngineTasksRequestParameters",
-    "_CreateAgentEngineTaskRequestParameters",
-    "_AppendAgentEngineTaskEventRequestParameters",
-    "_ListAgentEngineTaskEventsRequestParameters",
     "_CreateEvaluationExperimentParameters",
     "_CreateEvaluationItemParameters",
     "_CreateEvaluationMetricParameters",
@@ -4541,16 +4375,21 @@ __all__ = [
     "_OptimizeRequestParameters",
     "_CustomJobParameters",
     "_GetCustomJobParameters",
-    "_CancelQueryJobAgentEngineRequestParameters",
-    "_CheckQueryJobAgentEngineRequestParameters",
-    "_RunQueryJobAgentEngineRequestParameters",
-    "_CreateAgentEngineRequestParameters",
-    "_DeleteAgentEngineRequestParameters",
-    "_GetAgentEngineRequestParameters",
-    "_ListAgentEngineRequestParameters",
-    "_GetAgentEngineOperationParameters",
-    "_QueryAgentEngineRequestParameters",
-    "_UpdateAgentEngineRequestParameters",
+    "_CancelQueryJobRuntimeRequestParameters",
+    "_CheckQueryJobRuntimeRequestParameters",
+    "_RunQueryJobRuntimeRequestParameters",
+    "_CreateRuntimeRequestParameters",
+    "_DeleteRuntimeRequestParameters",
+    "_GetRuntimeRequestParameters",
+    "_ListRuntimeRequestParameters",
+    "_GetRuntimeOperationParameters",
+    "_QueryRuntimeRequestParameters",
+    "_UpdateRuntimeRequestParameters",
+    "_GetRuntimeRevisionRequestParameters",
+    "_ListRuntimeRevisionsRequestParameters",
+    "_DeleteRuntimeRevisionRequestParameters",
+    "_GetDeleteRuntimeRevisionOperationParameters",
+    "_QueryRuntimeRevisionRequestParameters",
     "_CreateMemoryBankRequestParameters",
     "_DeleteMemoryBankRequestParameters",
     "_GetMemoryBankRequestParameters",
@@ -4588,17 +4427,12 @@ __all__ = [
     "_ImportRagFilesRequestParameters",
     "_GetImportFilesOperationParameters",
     "_UploadRagFileParameters",
-    "_GetAgentEngineRuntimeRevisionRequestParameters",
-    "_ListAgentEngineRuntimeRevisionsRequestParameters",
-    "_DeleteAgentEngineRuntimeRevisionRequestParameters",
-    "_GetDeleteAgentEngineRuntimeRevisionOperationParameters",
-    "_QueryAgentEngineRuntimeRevisionRequestParameters",
-    "_CreateAgentEngineSandboxRequestParameters",
-    "_DeleteAgentEngineSandboxRequestParameters",
-    "_ExecuteCodeAgentEngineSandboxRequestParameters",
-    "_GetAgentEngineSandboxRequestParameters",
-    "_ListAgentEngineSandboxesRequestParameters",
-    "_GetAgentEngineSandboxOperationParameters",
+    "_CreateRuntimeSandboxRequestParameters",
+    "_DeleteRuntimeSandboxRequestParameters",
+    "_ExecuteCodeRuntimeSandboxRequestParameters",
+    "_GetRuntimeSandboxRequestParameters",
+    "_ListRuntimeSandboxesRequestParameters",
+    "_GetRuntimeSandboxOperationParameters",
     "_CreateSandboxEnvironmentTemplateRequestParameters",
     "_DeleteSandboxEnvironmentTemplateRequestParameters",
     "_GetSandboxEnvironmentTemplateRequestParameters",
@@ -4608,15 +4442,15 @@ __all__ = [
     "_DeleteSandboxEnvironmentSnapshotRequestParameters",
     "_GetSandboxEnvironmentSnapshotRequestParameters",
     "_ListSandboxEnvironmentSnapshotsRequestParameters",
-    "_GetAgentEngineSandboxSnapshotOperationParameters",
-    "_CreateAgentEngineSessionRequestParameters",
-    "_DeleteAgentEngineSessionRequestParameters",
-    "_GetAgentEngineSessionRequestParameters",
-    "_ListAgentEngineSessionsRequestParameters",
-    "_GetAgentEngineSessionOperationParameters",
-    "_UpdateAgentEngineSessionRequestParameters",
-    "_AppendAgentEngineSessionEventRequestParameters",
-    "_ListAgentEngineSessionEventsRequestParameters",
+    "_GetRuntimeSandboxSnapshotOperationParameters",
+    "_CreateRuntimeSessionRequestParameters",
+    "_DeleteRuntimeSessionRequestParameters",
+    "_GetRuntimeSessionRequestParameters",
+    "_ListRuntimeSessionsRequestParameters",
+    "_GetRuntimeSessionOperationParameters",
+    "_UpdateRuntimeSessionRequestParameters",
+    "_AppendRuntimeSessionEventRequestParameters",
+    "_ListRuntimeSessionEventsRequestParameters",
     "_AssembleDatasetParameters",
     "_AssessDatasetParameters",
     "_CreateMultimodalDatasetParameters",

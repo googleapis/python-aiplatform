@@ -95,7 +95,7 @@ class TestSandbox:
             body=b"{}", headers={}
         )
 
-        self.client.agent_engines.sandboxes.send_command(
+        self.client.sandboxes.send_command(
             http_method="GET",
             access_token="test_token",
             sandbox_environment=mock_sandbox,
@@ -131,7 +131,7 @@ class TestSandbox:
             body=b'{"endpoint": "test/endpoint"}', headers={}
         )
         ws_url, headers = (
-            self.client.agent_engines.sandboxes.generate_browser_ws_headers(
+            self.client.sandboxes.generate_browser_ws_headers(
                 sandbox_environment=mock_sandbox,
                 service_account_email=_TEST_SERVICE_ACCOUNT_EMAIL,
                 timeout=3600,
@@ -148,7 +148,7 @@ class TestSandbox:
         mock_operation = mock.Mock()
         mock_create.return_value = mock_operation
 
-        result = self.client.agent_engines.sandboxes.create(
+        result = self.client.sandboxes.create(
             name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
             spec={"shell_environment": {}},
             config={
@@ -176,7 +176,7 @@ class TestSandbox:
         mock_template_create.return_value = mock_template_operation
         mock_create.return_value = mock.Mock()
 
-        self.client.agent_engines.sandboxes.create(
+        self.client.sandboxes.create(
             name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
             spec={"shell_environment": {}},
             config={"wait_for_completion": False},
@@ -207,7 +207,7 @@ class TestSandbox:
         mock_create.return_value = mock.Mock()
 
         shell_environment = agentplatform_types.SandboxEnvironmentSpecShellEnvironment()
-        self.client.agent_engines.sandboxes.create(
+        self.client.sandboxes.create(
             name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
             spec=agentplatform_types.SandboxEnvironmentSpec(
                 shell_environment=shell_environment,
@@ -239,7 +239,7 @@ class TestSandbox:
         mock_template_create.return_value = mock_template_operation
         mock_create.return_value = mock.Mock()
 
-        self.client.agent_engines.sandboxes.create(
+        self.client.sandboxes.create(
             name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
             spec={"computer_use_environment": {}},
             config={"wait_for_completion": False},
@@ -267,7 +267,7 @@ class TestSandbox:
         mock_operation = mock.Mock()
         mock_create.return_value = mock_operation
 
-        result = self.client.agent_engines.sandboxes.create(
+        result = self.client.sandboxes.create(
             name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
             spec={"computer_use_environment": {}},
             config={
@@ -289,7 +289,7 @@ class TestSandbox:
     def test_create_without_spec_template_or_snapshot_raises(self, mock_create):
         for spec in (None, {}, agentplatform_types.SandboxEnvironmentSpec()):
             with pytest.raises(ValueError, match="must be provided"):
-                self.client.agent_engines.sandboxes.create(
+                self.client.sandboxes.create(
                     name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
                     spec=spec,
                 )

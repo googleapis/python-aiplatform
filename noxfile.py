@@ -438,7 +438,9 @@ def unit_agentplatform_a2a(session):
 
     constraints_path = str(CURRENT_DIRECTORY / "testing" / "constraints-a2a.txt")
     install_unittest_dependencies(session, "-c", constraints_path)
-    session.install("a2a-sdk", "-c", constraints_path)
+    # The `http-server` extra provides `starlette` and `sse-starlette`, which
+    # `a2a.server.routes` imports and the agent card route tests exercise.
+    session.install("a2a-sdk[http-server]", "-c", constraints_path)
 
     # Run py.test against the unit tests.
     session.run(
@@ -468,6 +470,9 @@ def unit_a2a(session):
     constraints_path = str(CURRENT_DIRECTORY / "testing" / "constraints-a2a.txt")
     install_unittest_dependencies(session, "-c", constraints_path)
     session.install("a2a-sdk", "-c", constraints_path)
+    # The `http-server` extra provides `starlette` and `sse-starlette`, which
+    # `a2a.server.routes` imports and the agent card route tests exercise.
+    session.install("a2a-sdk[http-server]", "-c", constraints_path)
 
     # Run py.test against the unit tests.
     session.run(

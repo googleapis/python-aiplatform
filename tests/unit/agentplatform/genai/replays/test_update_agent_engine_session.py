@@ -20,23 +20,23 @@ import pytest
 
 
 def test_update_session(client):
-  agent_engine = client.agent_engines.create()
+  runtime = client.runtimes.create()
   try:
-    assert isinstance(agent_engine, types.AgentEngine)
-    assert isinstance(agent_engine.api_resource, types.ReasoningEngine)
+    assert isinstance(runtime, types.Runtime)
+    assert isinstance(runtime.api_resource, types.ReasoningEngine)
 
-    session_operation = client.agent_engines.sessions.create(
-        name=agent_engine.api_resource.name,
+    session_operation = client.sessions.create(
+        name=runtime.api_resource.name,
         user_id="test-user-123",
-        config=types.CreateAgentEngineSessionConfig(
+        config=types.CreateRuntimeSessionConfig(
             display_name="initial_session",
         ),
     )
-    assert isinstance(session_operation, types.AgentEngineSessionOperation)
+    assert isinstance(session_operation, types.RuntimeSessionOperation)
 
-    updated_session = client.agent_engines.sessions.update(
+    updated_session = client.sessions.update(
         name=session_operation.response.name,
-        config=types.UpdateAgentEngineSessionConfig(
+        config=types.UpdateRuntimeSessionConfig(
             display_name="updated_session",
             user_id="test-user-123",
             labels={"env": "test", "tier": "dev"},
@@ -48,9 +48,9 @@ def test_update_session(client):
     assert updated_session.labels == {"env": "test", "tier": "dev"}
 
     # Second update: update with explicit update_mask
-    mask_updated_session = client.agent_engines.sessions.update(
+    mask_updated_session = client.sessions.update(
         name=session_operation.response.name,
-        config=types.UpdateAgentEngineSessionConfig(
+        config=types.UpdateRuntimeSessionConfig(
             display_name="session_with_mask",
             user_id="test-user-123",
             update_mask="displayName",
@@ -60,22 +60,22 @@ def test_update_session(client):
     assert mask_updated_session.display_name == "session_with_mask"
 
     # Third update: update with ttl (duration)
-    ttl_updated_session = client.agent_engines.sessions.update(
+    ttl_updated_session = client.sessions.update(
         name=session_operation.response.name,
-        config=types.UpdateAgentEngineSessionConfig(
+        config=types.UpdateRuntimeSessionConfig(
             user_id="test-user-123",
             ttl="86400s",
         ),
     )
     assert isinstance(ttl_updated_session, types.Session)
   finally:
-    client.agent_engines.delete(name=agent_engine.api_resource.name, force=True)
+    client.runtimes.delete(name=runtime.api_resource.name, force=True)
 
 
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
-    test_method="agent_engines.sessions.update",
+    test_method="sessions.update",
 )
 
 pytest_plugins = ("pytest_asyncio",)
@@ -83,23 +83,23 @@ pytest_plugins = ("pytest_asyncio",)
 
 @pytest.mark.asyncio
 async def test_update_session_async(client):
-  agent_engine = client.agent_engines.create()
+  runtime = client.runtimes.create()
   try:
-    assert isinstance(agent_engine, types.AgentEngine)
-    assert isinstance(agent_engine.api_resource, types.ReasoningEngine)
+    assert isinstance(runtime, types.Runtime)
+    assert isinstance(runtime.api_resource, types.ReasoningEngine)
 
-    session_operation = await client.aio.agent_engines.sessions.create(
-        name=agent_engine.api_resource.name,
+    session_operation = await client.aio.sessions.create(
+        name=runtime.api_resource.name,
         user_id="test-user-123",
-        config=types.CreateAgentEngineSessionConfig(
+        config=types.CreateRuntimeSessionConfig(
             display_name="initial_session",
         ),
     )
-    assert isinstance(session_operation, types.AgentEngineSessionOperation)
+    assert isinstance(session_operation, types.RuntimeSessionOperation)
 
-    updated_session = await client.aio.agent_engines.sessions.update(
+    updated_session = await client.aio.sessions.update(
         name=session_operation.response.name,
-        config=types.UpdateAgentEngineSessionConfig(
+        config=types.UpdateRuntimeSessionConfig(
             display_name="updated_session",
             user_id="test-user-123",
             labels={"env": "test", "tier": "dev"},
@@ -111,4 +111,4 @@ async def test_update_session_async(client):
     assert updated_session.user_id == "test-user-123"
     assert updated_session.labels == {"env": "test", "tier": "dev"}
   finally:
-    client.agent_engines.delete(name=agent_engine.api_resource.name, force=True)
+    client.runtimes.delete(name=runtime.api_resource.name, force=True)

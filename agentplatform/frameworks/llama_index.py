@@ -58,8 +58,6 @@ def _default_model_builder(
     model_kwargs: Optional[Mapping[str, Any]] = None,
 ) -> "FunctionCallingLLM":
     """Creates a default model builder for LlamaIndex."""
-    import agentplatform
-    from google.cloud.aiplatform import initializer
     from llama_index.llms import google_genai
 
     model_kwargs = model_kwargs or {}
@@ -68,9 +66,6 @@ def _default_model_builder(
         vertexai_config={"project": project, "location": location},
         **model_kwargs,
     )
-    current_project = initializer.global_config.project
-    current_location = initializer.global_config.location
-    agentplatform.init(project=current_project, location=current_location)
     return model
 
 
@@ -346,10 +341,6 @@ class LlamaIndexQueryPipelineAgent:
             enable_tracing (bool):
                 Optional. Whether to enable tracing. Defaults to False.
         """
-        from google.cloud.aiplatform import initializer
-
-        self._project = initializer.global_config.project
-        self._location = initializer.global_config.location
         self._model_name = model
         self._system_instruction = system_instruction
         self._prompt = prompt
@@ -383,17 +374,24 @@ class LlamaIndexQueryPipelineAgent:
         the ReasoningEngine service for deployment, as it initializes clients
         that can not be serialized.
         """
+        import os
+
+        project = os.environ.get("GOOGLE_CLOUD_PROJECT")
+        location = os.getenv("GOOGLE_CLOUD_AGENT_ENGINE_LOCATION") or os.getenv(
+            "GOOGLE_CLOUD_LOCATION"
+        )
+
         if self._enable_tracing:
-            from agentplatform._genai.agent_engines import (
-                _agent_engines_utils,
+            from agentplatform._genai import (
+                _runtimes_utils,
             )
 
             openinference_llama_index = (
-                _agent_engines_utils._import_openinference_llama_index_or_warn()
+                _runtimes_utils._import_openinference_llama_index_or_warn()
             )
-            opentelemetry = _agent_engines_utils._import_opentelemetry_or_warn()
+            opentelemetry = _runtimes_utils._import_opentelemetry_or_warn()
             opentelemetry_sdk_trace = (
-                _agent_engines_utils._import_opentelemetry_sdk_trace_or_warn()
+                _runtimes_utils._import_opentelemetry_sdk_trace_or_warn()
             )
             try:
                 import opentelemetry.exporter.otlp.proto.http.trace_exporter
@@ -423,7 +421,7 @@ class LlamaIndexQueryPipelineAgent:
             ):
                 credentials, _ = google.auth.default()
                 resource = opentelemetry.sdk.resources.Resource.create(
-                    attributes={"gcp.project_id": self._project},
+                    attributes={"gcp.project_id": project},
                 ).merge(opentelemetry.sdk.resources.OTELResourceDetector().detect())
                 span_exporter = _otlp_span_exporter_module.OTLPSpanExporter(
                     session=google.auth.transport.requests.AuthorizedSession(
@@ -463,9 +461,7 @@ class LlamaIndexQueryPipelineAgent:
                 # Avoids AttributeError:
                 # 'ProxyTracerProvider' and 'NoOpTracerProvider' objects has no
                 # attribute 'add_span_processor'.
-                if _agent_engines_utils.is_noop_or_proxy_tracer_provider(
-                    tracer_provider
-                ):
+                if _runtimes_utils.is_noop_or_proxy_tracer_provider(tracer_provider):
                     tracer_provider = opentelemetry_sdk_trace.TracerProvider(
                         resource=resource
                     )
@@ -500,8 +496,8 @@ class LlamaIndexQueryPipelineAgent:
         self._model = model_builder(
             model_name=self._model_name,
             model_kwargs=self._model_kwargs,
-            project=self._project,
-            location=self._location,
+            project=project,
+            location=location,
         )
 
         if self._retriever_builder:
@@ -564,8 +560,8 @@ class LlamaIndexQueryPipelineAgent:
         Returns:
             The output of querying the Agent with the given input and config.
         """
-        from agentplatform._genai.agent_engines import (
-            _agent_engines_utils,
+        from agentplatform._genai import (
+            _runtimes_utils,
         )
 
         if isinstance(input, str):
@@ -575,9 +571,9 @@ class LlamaIndexQueryPipelineAgent:
             self.set_up()
 
         if kwargs.get("batch"):
-            nest_asyncio = _agent_engines_utils._import_nest_asyncio_or_warn()
+            nest_asyncio = _runtimes_utils._import_nest_asyncio_or_warn()
             nest_asyncio.apply()
 
-        return _agent_engines_utils.to_json_serializable_llama_index_object(
+        return _runtimes_utils.to_json_serializable_llama_index_object(
             self._runnable.run(**input, **kwargs)
         )

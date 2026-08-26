@@ -13,14 +13,14 @@
 # limitations under the License.
 #
 import importlib
+import os
 from typing import Any, Dict, List, Optional
 from unittest import mock
 
 from google import auth
 import agentplatform
-from google.cloud.aiplatform import initializer
-from agentplatform import agent_engines
-from agentplatform._genai import _agent_engines_utils
+from agentplatform import frameworks
+from agentplatform._genai import _runtimes_utils
 import pytest
 
 from langchain_core import runnables
@@ -146,7 +146,7 @@ def otel_resource_detector_mock():
 @pytest.fixture
 def is_noop_or_proxy_tracer_provider_mock():
     with mock.patch.object(
-        _agent_engines_utils, "is_noop_or_proxy_tracer_provider"
+        _runtimes_utils, "is_noop_or_proxy_tracer_provider"
     ) as is_noop_or_proxy_tracer_provider_mock:
         is_noop_or_proxy_tracer_provider_mock.return_value = True
         yield is_noop_or_proxy_tracer_provider_mock
@@ -155,7 +155,7 @@ def is_noop_or_proxy_tracer_provider_mock():
 @pytest.fixture
 def langchain_instrumentor_mock():
     with mock.patch.object(
-        _agent_engines_utils,
+        _runtimes_utils,
         "_import_openinference_langchain_or_warn",
     ) as langchain_instrumentor_mock:
         yield langchain_instrumentor_mock
@@ -164,7 +164,7 @@ def langchain_instrumentor_mock():
 @pytest.fixture
 def langchain_instrumentor_none_mock():
     with mock.patch.object(
-        _agent_engines_utils,
+        _runtimes_utils,
         "_import_openinference_langchain_or_warn",
     ) as langchain_instrumentor_mock:
         langchain_instrumentor_mock.return_value = None
@@ -174,21 +174,21 @@ def langchain_instrumentor_none_mock():
 @pytest.mark.usefixtures("google_auth_mock")
 class TestLanggraphAgent:
     def setup_method(self):
-        importlib.reload(initializer)
         importlib.reload(agentplatform)
-        agentplatform.init(
-            project=_TEST_PROJECT,
-            location=_TEST_LOCATION,
-        )
+        os.environ["GOOGLE_CLOUD_PROJECT"] = _TEST_PROJECT
+        os.environ["GOOGLE_CLOUD_LOCATION"] = _TEST_LOCATION
 
     def teardown_method(self):
-        initializer.global_pool.shutdown(wait=True)
+        for key in [
+            "GOOGLE_CLOUD_PROJECT",
+            "GOOGLE_CLOUD_AGENT_ENGINE_LOCATION",
+            "GOOGLE_CLOUD_LOCATION",
+        ]:
+            os.environ.pop(key, None)
 
     def test_initialization(self):
-        agent = agent_engines.LanggraphAgent(model=_TEST_MODEL)
+        agent = frameworks.LanggraphAgent(model=_TEST_MODEL)
         assert agent._tmpl_attrs.get("model_name") == _TEST_MODEL
-        assert agent._tmpl_attrs.get("project") == _TEST_PROJECT
-        assert agent._tmpl_attrs.get("location") == _TEST_LOCATION
         assert agent._tmpl_attrs.get("runnable") is None
 
     def test_initialization_with_tools(self):
@@ -196,7 +196,7 @@ class TestLanggraphAgent:
             place_tool_query,
             StructuredTool.from_function(place_photo_query),
         ]
-        agent = agent_engines.LanggraphAgent(
+        agent = frameworks.LanggraphAgent(
             model=_TEST_MODEL,
             tools=tools,
             model_builder=lambda **kwargs: kwargs,
@@ -209,7 +209,7 @@ class TestLanggraphAgent:
         assert agent._tmpl_attrs.get("runnable") is not None
 
     def test_set_up(self):
-        agent = agent_engines.LanggraphAgent(
+        agent = frameworks.LanggraphAgent(
             model=_TEST_MODEL,
             model_builder=lambda **kwargs: kwargs,
             runnable_builder=lambda **kwargs: kwargs,
@@ -219,7 +219,7 @@ class TestLanggraphAgent:
         assert agent._tmpl_attrs.get("runnable") is not None
 
     def test_clone(self):
-        agent = agent_engines.LanggraphAgent(
+        agent = frameworks.LanggraphAgent(
             model=_TEST_MODEL,
             model_builder=lambda **kwargs: kwargs,
             runnable_builder=lambda **kwargs: kwargs,
@@ -233,7 +233,7 @@ class TestLanggraphAgent:
         assert agent_clone._tmpl_attrs.get("runnable") is not None
 
     def test_query(self, langchain_dump_mock):
-        agent = agent_engines.LanggraphAgent(model=_TEST_MODEL)
+        agent = frameworks.LanggraphAgent(model=_TEST_MODEL)
         agent._tmpl_attrs["runnable"] = mock.Mock()
         mocks = mock.Mock()
         mocks.attach_mock(mock=agent._tmpl_attrs.get("runnable"), attribute="invoke")
@@ -248,7 +248,7 @@ class TestLanggraphAgent:
         )
 
     def test_stream_query(self, langchain_dump_mock):
-        agent = agent_engines.LanggraphAgent(model=_TEST_MODEL)
+        agent = frameworks.LanggraphAgent(model=_TEST_MODEL)
         agent._tmpl_attrs["runnable"] = mock.Mock()
         agent._tmpl_attrs["runnable"].stream.return_value = []
         list(agent.stream_query(input="test stream query"))
@@ -268,7 +268,7 @@ class TestLanggraphAgent:
         simple_span_processor_mock,
         langchain_instrumentor_mock,
     ):
-        agent = agent_engines.LanggraphAgent(model=_TEST_MODEL, enable_tracing=True)
+        agent = frameworks.LanggraphAgent(model=_TEST_MODEL, enable_tracing=True)
         assert agent._tmpl_attrs.get("instrumentor") is None
         # TODO(b/384730642): Re-enable this test once the parent issue is fixed.
         # agent.set_up()
@@ -280,7 +280,7 @@ class TestLanggraphAgent:
 
     @pytest.mark.usefixtures("caplog")
     def test_enable_tracing_warning(self, caplog, langchain_instrumentor_none_mock):
-        agent = agent_engines.LanggraphAgent(model=_TEST_MODEL, enable_tracing=True)
+        agent = frameworks.LanggraphAgent(model=_TEST_MODEL, enable_tracing=True)
         assert agent._tmpl_attrs.get("instrumentor") is None
         # TODO(b/383923584): Re-enable this test once the parent issue is fixed.
         # agent.set_up()
@@ -296,7 +296,7 @@ class TestLanggraphAgent:
         is_noop_or_proxy_tracer_provider_mock,
         langchain_instrumentor_mock,
     ):
-        agent = agent_engines.LanggraphAgent(
+        agent = frameworks.LanggraphAgent(
             model=_TEST_MODEL,
             runnable_builder=lambda **kwargs: kwargs,
             enable_tracing=True,
@@ -333,14 +333,14 @@ class TestLanggraphAgent:
         )
 
     def test_get_state_history_empty(self):
-        agent = agent_engines.LanggraphAgent(model=_TEST_MODEL)
+        agent = frameworks.LanggraphAgent(model=_TEST_MODEL)
         agent._tmpl_attrs["runnable"] = mock.Mock()
         agent._tmpl_attrs["runnable"].get_state_history.return_value = []
         history = list(agent.get_state_history())
         assert history == []
 
     def test_get_state_history(self):
-        agent = agent_engines.LanggraphAgent(model=_TEST_MODEL)
+        agent = frameworks.LanggraphAgent(model=_TEST_MODEL)
         agent._tmpl_attrs["runnable"] = mock.Mock()
         agent._tmpl_attrs["runnable"].get_state_history.return_value = [
             mock.Mock(),
@@ -359,7 +359,7 @@ class TestLanggraphAgent:
         ]
 
     def test_get_state_history_with_config(self):
-        agent = agent_engines.LanggraphAgent(model=_TEST_MODEL)
+        agent = frameworks.LanggraphAgent(model=_TEST_MODEL)
         agent._tmpl_attrs["runnable"] = mock.Mock()
         agent._tmpl_attrs["runnable"].get_state_history.return_value = [
             mock.Mock(),
@@ -378,7 +378,7 @@ class TestLanggraphAgent:
         ]
 
     def test_get_state(self):
-        agent = agent_engines.LanggraphAgent(model=_TEST_MODEL)
+        agent = frameworks.LanggraphAgent(model=_TEST_MODEL)
         agent._tmpl_attrs["runnable"] = mock.Mock()
         agent._tmpl_attrs["runnable"].get_state.return_value = mock.Mock()
         agent._tmpl_attrs["runnable"].get_state.return_value._asdict.return_value = {
@@ -388,7 +388,7 @@ class TestLanggraphAgent:
         assert state == {"test_key": "test_value"}
 
     def test_get_state_with_config(self):
-        agent = agent_engines.LanggraphAgent(model=_TEST_MODEL)
+        agent = frameworks.LanggraphAgent(model=_TEST_MODEL)
         agent._tmpl_attrs["runnable"] = mock.Mock()
         agent._tmpl_attrs["runnable"].get_state.return_value = mock.Mock()
         agent._tmpl_attrs["runnable"].get_state.return_value._asdict.return_value = {
@@ -398,13 +398,13 @@ class TestLanggraphAgent:
         assert state == {"test_key": "test_value"}
 
     def test_update_state(self):
-        agent = agent_engines.LanggraphAgent(model=_TEST_MODEL)
+        agent = frameworks.LanggraphAgent(model=_TEST_MODEL)
         agent._tmpl_attrs["runnable"] = mock.Mock()
         agent.update_state()
         agent._tmpl_attrs["runnable"].update_state.assert_called_once()
 
     def test_update_state_with_config(self):
-        agent = agent_engines.LanggraphAgent(model=_TEST_MODEL)
+        agent = frameworks.LanggraphAgent(model=_TEST_MODEL)
         agent._tmpl_attrs["runnable"] = mock.Mock()
         agent.update_state(config=_TEST_CONFIG)
         agent._tmpl_attrs["runnable"].update_state.assert_called_once_with(
@@ -412,7 +412,7 @@ class TestLanggraphAgent:
         )
 
     def test_update_state_with_config_and_kwargs(self):
-        agent = agent_engines.LanggraphAgent(model=_TEST_MODEL)
+        agent = frameworks.LanggraphAgent(model=_TEST_MODEL)
         agent._tmpl_attrs["runnable"] = mock.Mock()
         agent.update_state(config=_TEST_CONFIG, test_key="test_value")
         agent._tmpl_attrs["runnable"].update_state.assert_called_once_with(
@@ -420,7 +420,7 @@ class TestLanggraphAgent:
         )
 
     def test_register_operations(self):
-        agent = agent_engines.LanggraphAgent(model=_TEST_MODEL)
+        agent = frameworks.LanggraphAgent(model=_TEST_MODEL)
         expected_operations = {
             "": ["query", "get_state", "update_state"],
             "stream": ["stream_query", "get_state_history"],
@@ -436,6 +436,6 @@ def _return_input_no_typing(input_):
 class TestConvertToolsOrRaiseErrors:
     def test_raise_untyped_input_args(self, agentplatform_init_mock):
         with pytest.raises(TypeError, match=r"has untyped input_arg"):
-            agent_engines.LanggraphAgent(
+            frameworks.LanggraphAgent(
                 model=_TEST_MODEL, tools=[_return_input_no_typing]
             )

@@ -19,9 +19,9 @@ from agentplatform._genai import types
 
 
 def test_private_update_session(client):
-    session = client.agent_engines.sessions._update(
+    session = client.sessions._update(
         name="reasoningEngines/2886612747586371584/sessions/3080649749292908544",
-        config=types.UpdateAgentEngineSessionConfig(
+        config=types.UpdateRuntimeSessionConfig(
             display_name="test-agent-engine-session-updated",
             user_id="test-user-id",
         ),
@@ -32,5 +32,5 @@ def test_private_update_session(client):
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
-    test_method="agent_engines.sessions._update",
+    test_method="sessions._update",
 )

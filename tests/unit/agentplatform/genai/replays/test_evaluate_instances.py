@@ -180,7 +180,7 @@ def test_run_inference_with_agent(client):
         agent="projects/977012026409/locations/us-central1/reasoningEngines/7188347537655332864",
         src=test_df,
     )
-    assert inference_result.candidate_name == "agent_engine_0"
+    assert inference_result.candidate_name == "runtime_0"
     assert inference_result.gcs_source is None
 
 
@@ -193,8 +193,7 @@ def test_evaluation_with_interaction(client):
             ),
             gemini_agent_config=types.GeminiAgentConfig(
                 gemini_agent=(
-                    "projects/977012026409/locations/global/agents/"
-                    "test-agent-eval"
+                    "projects/977012026409/locations/global/agents/test-agent-eval"
                 ),
             ),
         )
@@ -206,6 +205,7 @@ def test_evaluation_with_interaction(client):
         )
     )
     assert response is not None
+
 
 def test_evaluate_method_with_interaction(client):
     eval_case = types.EvalCase(

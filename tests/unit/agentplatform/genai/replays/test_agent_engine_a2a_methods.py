@@ -35,10 +35,10 @@ pytest_plugins = ("pytest_asyncio",)
 
 @pytest.mark.asyncio
 async def test_timeout_is_set(client):
-    agent_engine = client.agent_engines.get(
+    runtime = client.runtimes.get(
         name="projects/932854658080/locations/us-central1/reasoningEngines/857830725653626880",
     )
-    assert isinstance(agent_engine, types.AgentEngine)
+    assert isinstance(runtime, types.Runtime)
 
     message_data = {
         "messageId": "msg-123",
@@ -71,10 +71,10 @@ async def test_timeout_is_set(client):
         class FakeCredentials:
             token = "fake-token"
 
-        agent_engine.api_client._api_client._credentials = FakeCredentials()
+        runtime.api_client._api_client._credentials = FakeCredentials()
 
         try:
-            await agent_engine.on_message_send(**message_data)
+            await runtime.on_message_send(**message_data)
         except a2a_errors.A2AClientHTTPError as e:
             # Make sure that the authentication error was successfully
             # propagated, otherwise the test is not valid.
@@ -87,6 +87,6 @@ async def test_timeout_is_set(client):
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
-    test_method="agent_engines.get",
+    test_method="runtimes.get",
     http_options=_api_client.HttpOptions(timeout=99000),
 )
