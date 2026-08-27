@@ -1229,6 +1229,7 @@ from .common import ManagedTopicEnum
 from .common import MapInstance
 from .common import MapInstanceDict
 from .common import MapInstanceOrDict
+from .common import MediaProcessing
 from .common import MediaResolution
 from .common import Memory
 from .common import MemoryBank
@@ -4326,6 +4327,7 @@ __all__ = [
     "Modality",
     "DeploymentType",
     "ModelProvider",
+    "MediaProcessing",
     "Outcome",
     "FunctionResponseScheduling",
     "MediaResolution",
