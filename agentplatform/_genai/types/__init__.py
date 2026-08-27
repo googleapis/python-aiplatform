@@ -156,6 +156,7 @@ from .common import _ListSkillRevisionsRequestParameters
 from .common import _ListSkillsRequestParameters
 from .common import _OptimizeRequestParameters
 from .common import _OptimizeRequestParameters
+from .common import _PauseRuntimeSandboxRequestParameters
 from .common import _PredictParameters
 from .common import _PurgeMemoriesRequestParameters
 from .common import _QueryRuntimeRequestParameters
@@ -163,6 +164,7 @@ from .common import _QueryRuntimeRevisionRequestParameters
 from .common import _RecommendSpecRequestParameters
 from .common import _RemoveExamplesParameters
 from .common import _RestoreVersionRequestParameters
+from .common import _ResumeRuntimeSandboxRequestParameters
 from .common import _RetrieveMemoriesRequestParameters
 from .common import _RetrieveMemoryProfilesRequestParameters
 from .common import _RetrieveRagContextsRequestParameters
@@ -1378,6 +1380,9 @@ from .common import PairwiseMetricInstance
 from .common import PairwiseMetricInstanceDict
 from .common import PairwiseMetricInstanceOrDict
 from .common import ParsedResponseUnion
+from .common import PauseRuntimeSandboxConfig
+from .common import PauseRuntimeSandboxConfigDict
+from .common import PauseRuntimeSandboxConfigOrDict
 from .common import PointwiseMetricInput
 from .common import PointwiseMetricInputDict
 from .common import PointwiseMetricInputOrDict
@@ -1792,6 +1797,9 @@ from .common import RestoreVersionConfigOrDict
 from .common import RestoreVersionOperation
 from .common import RestoreVersionOperationDict
 from .common import RestoreVersionOperationOrDict
+from .common import ResumeRuntimeSandboxConfig
+from .common import ResumeRuntimeSandboxConfigDict
+from .common import ResumeRuntimeSandboxConfigOrDict
 from .common import RetrieveContextsConfig
 from .common import RetrieveContextsConfigDict
 from .common import RetrieveContextsConfigOrDict
@@ -3422,6 +3430,12 @@ __all__ = [
     "ListRuntimeSandboxesResponse",
     "ListRuntimeSandboxesResponseDict",
     "ListRuntimeSandboxesResponseOrDict",
+    "PauseRuntimeSandboxConfig",
+    "PauseRuntimeSandboxConfigDict",
+    "PauseRuntimeSandboxConfigOrDict",
+    "ResumeRuntimeSandboxConfig",
+    "ResumeRuntimeSandboxConfigDict",
+    "ResumeRuntimeSandboxConfigOrDict",
     "SandboxEnvironmentTemplateCustomContainerSpec",
     "SandboxEnvironmentTemplateCustomContainerSpecDict",
     "SandboxEnvironmentTemplateCustomContainerSpecOrDict",
@@ -4433,6 +4447,8 @@ __all__ = [
     "_GetRuntimeSandboxRequestParameters",
     "_ListRuntimeSandboxesRequestParameters",
     "_GetRuntimeSandboxOperationParameters",
+    "_PauseRuntimeSandboxRequestParameters",
+    "_ResumeRuntimeSandboxRequestParameters",
     "_CreateSandboxEnvironmentTemplateRequestParameters",
     "_DeleteSandboxEnvironmentTemplateRequestParameters",
     "_GetSandboxEnvironmentTemplateRequestParameters",

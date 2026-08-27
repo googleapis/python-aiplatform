@@ -176,6 +176,28 @@ def _ListRuntimeSandboxesRequestParameters_to_vertex(
     return to_object
 
 
+def _PauseRuntimeSandboxRequestParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["name"]) is not None:
+        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
+
+    return to_object
+
+
+def _ResumeRuntimeSandboxRequestParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["name"]) is not None:
+        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
+
+    return to_object
+
+
 class Sandboxes(_api_module.BaseModule):
 
     def _create(
@@ -641,6 +663,165 @@ class Sandboxes(_api_module.BaseModule):
         self._api_client._verify_response(return_value)
         return return_value
 
+    def _pause(
+        self,
+        *,
+        name: str,
+        config: Optional[types.PauseRuntimeSandboxConfigOrDict] = None,
+    ) -> types.RuntimeSandboxOperation:
+        """
+            Pauses a running Agent Runtime sandbox.
+
+        Pausing releases the sandbox's compute resources while preserving its disk state
+        and connection metadata. The sandbox transitions to STATE_PAUSED and can be
+        resumed later without losing session state or its connection identity.
+
+        """
+
+        parameter_model = types._PauseRuntimeSandboxRequestParameters(
+            name=name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
+        else:
+            request_dict = _PauseRuntimeSandboxRequestParameters_to_vertex(
+                parameter_model
+            )
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{name}/:pause".format_map(request_url_dict)
+            else:
+                path = "{name}/:pause"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = self._api_client.request("post", path, request_dict, http_options)
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.RuntimeSandboxOperation._from_response(
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    def _resume(
+        self,
+        *,
+        name: str,
+        config: Optional[types.ResumeRuntimeSandboxConfigOrDict] = None,
+    ) -> types.RuntimeSandboxOperation:
+        """
+            Resumes a paused Agent Runtime sandbox.
+
+        Resuming brings the sandbox's compute back online while preserving the
+        sandbox's identity, connection endpoint (including any Private Service Connect
+        service attachment), and filesystem state from the moment of pause. The
+        sandbox transitions from STATE_PAUSED back to STATE_RUNNING.
+
+        """
+
+        parameter_model = types._ResumeRuntimeSandboxRequestParameters(
+            name=name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
+        else:
+            request_dict = _ResumeRuntimeSandboxRequestParameters_to_vertex(
+                parameter_model
+            )
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{name}/:resume".format_map(request_url_dict)
+            else:
+                path = "{name}/:resume"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = self._api_client.request("post", path, request_dict, http_options)
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.RuntimeSandboxOperation._from_response(
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
     _templates = None
     _snapshots = None
 
@@ -814,6 +995,98 @@ class Sandboxes(_api_module.BaseModule):
             self._list(name=name, config=config),
             config,
         )
+
+    def pause(
+        self,
+        *,
+        name: str,
+        poll_interval_seconds: float = 0.1,
+        config: Optional[types.PauseRuntimeSandboxConfigOrDict] = None,
+    ) -> types.RuntimeSandboxOperation:
+        """Pauses a running Agent Runtime sandbox.
+
+        Pausing releases the sandbox's compute resources while preserving its disk
+        state and connection metadata. The sandbox transitions to STATE_PAUSED and
+        can be resumed later via ``resume()`` without losing session state or its
+        connection identity.
+
+        Args:
+            name (str):
+                Required. The name of the agent runtime sandbox to pause.
+                projects/{project}/locations/{location}/agentRuntimes/{resource_id}/sandboxEnvironments/{sandbox_id}
+            poll_interval_seconds (float):
+                Optional. The interval in seconds to poll for pause completion.
+            config (PauseRuntimeSandboxConfigOrDict):
+                Optional. The configuration for the pause request.
+
+        Returns:
+            RuntimeSandboxOperation: The operation for pausing the sandbox.
+        """
+        if config is None:
+            config = types.PauseRuntimeSandboxConfig()
+        elif isinstance(config, dict):
+            config = types.PauseRuntimeSandboxConfig.model_validate(config)
+
+        operation = self._pause(
+            name=name,
+            config=config,
+        )
+        if config.wait_for_completion:
+            if not operation.done:
+                operation = _runtimes_utils._await_operation(
+                    operation_name=operation.name,
+                    get_operation_fn=self._get_sandbox_operation,
+                    poll_interval_seconds=poll_interval_seconds,
+                )
+            if operation.response:
+                operation.response = self.get(name=operation.response.name)
+        return operation
+
+    def resume(
+        self,
+        *,
+        name: str,
+        poll_interval_seconds: float = 0.1,
+        config: Optional[types.ResumeRuntimeSandboxConfigOrDict] = None,
+    ) -> types.RuntimeSandboxOperation:
+        """Resumes a paused Agent Runtime sandbox.
+
+        Resuming brings the sandbox's compute back online while preserving the
+        sandbox's identity, connection endpoint (including any Private Service
+        Connect service attachment), and filesystem state from the moment of
+        pause. The sandbox transitions from STATE_PAUSED back to STATE_RUNNING.
+
+        Args:
+            name (str):
+                Required. The name of the paused agent runtime sandbox to resume.
+                projects/{project}/locations/{location}/agentRuntimes/{resource_id}/sandboxEnvironments/{sandbox_id}
+            poll_interval_seconds (float):
+                Optional. The interval in seconds to poll for resume completion.
+            config (ResumeRuntimeSandboxConfigOrDict):
+                Optional. The configuration for the resume request.
+
+        Returns:
+            RuntimeSandboxOperation: The operation for resuming the sandbox.
+        """
+        if config is None:
+            config = types.ResumeRuntimeSandboxConfig()
+        elif isinstance(config, dict):
+            config = types.ResumeRuntimeSandboxConfig.model_validate(config)
+
+        operation = self._resume(
+            name=name,
+            config=config,
+        )
+        if config.wait_for_completion:
+            if not operation.done:
+                operation = _runtimes_utils._await_operation(
+                    operation_name=operation.name,
+                    get_operation_fn=self._get_sandbox_operation,
+                    poll_interval_seconds=poll_interval_seconds,
+                )
+            if operation.response:
+                operation.response = self.get(name=operation.response.name)
+        return operation
 
     def execute_code(
         self,
@@ -1565,6 +1838,169 @@ class AsyncSandboxes(_api_module.BaseModule):
 
         response = await self._api_client.async_request(
             "get", path, request_dict, http_options
+        )
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.RuntimeSandboxOperation._from_response(
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    async def _pause(
+        self,
+        *,
+        name: str,
+        config: Optional[types.PauseRuntimeSandboxConfigOrDict] = None,
+    ) -> types.RuntimeSandboxOperation:
+        """
+            Pauses a running Agent Runtime sandbox.
+
+        Pausing releases the sandbox's compute resources while preserving its disk state
+        and connection metadata. The sandbox transitions to STATE_PAUSED and can be
+        resumed later without losing session state or its connection identity.
+
+        """
+
+        parameter_model = types._PauseRuntimeSandboxRequestParameters(
+            name=name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
+        else:
+            request_dict = _PauseRuntimeSandboxRequestParameters_to_vertex(
+                parameter_model
+            )
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{name}/:pause".format_map(request_url_dict)
+            else:
+                path = "{name}/:pause"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = await self._api_client.async_request(
+            "post", path, request_dict, http_options
+        )
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.RuntimeSandboxOperation._from_response(
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    async def _resume(
+        self,
+        *,
+        name: str,
+        config: Optional[types.ResumeRuntimeSandboxConfigOrDict] = None,
+    ) -> types.RuntimeSandboxOperation:
+        """
+            Resumes a paused Agent Runtime sandbox.
+
+        Resuming brings the sandbox's compute back online while preserving the
+        sandbox's identity, connection endpoint (including any Private Service Connect
+        service attachment), and filesystem state from the moment of pause. The
+        sandbox transitions from STATE_PAUSED back to STATE_RUNNING.
+
+        """
+
+        parameter_model = types._ResumeRuntimeSandboxRequestParameters(
+            name=name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
+        else:
+            request_dict = _ResumeRuntimeSandboxRequestParameters_to_vertex(
+                parameter_model
+            )
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{name}/:resume".format_map(request_url_dict)
+            else:
+                path = "{name}/:resume"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = await self._api_client.async_request(
+            "post", path, request_dict, http_options
         )
 
         response_dict = {} if not response.body else json.loads(response.body)

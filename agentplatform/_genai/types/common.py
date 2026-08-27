@@ -17269,6 +17269,112 @@ _GetRuntimeSandboxOperationParametersOrDict = Union[
 ]
 
 
+class PauseRuntimeSandboxConfig(_common.BaseModel):
+    """Config for pausing an Agent Runtime sandbox."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    wait_for_completion: Optional[bool] = Field(
+        default=True,
+        description="""Waits for the operation to complete before returning.""",
+    )
+
+
+class PauseRuntimeSandboxConfigDict(TypedDict, total=False):
+    """Config for pausing an Agent Runtime sandbox."""
+
+    http_options: Optional[genai_types.HttpOptions]
+    """Used to override HTTP request options."""
+
+    wait_for_completion: Optional[bool]
+    """Waits for the operation to complete before returning."""
+
+
+PauseRuntimeSandboxConfigOrDict = Union[
+    PauseRuntimeSandboxConfig, PauseRuntimeSandboxConfigDict
+]
+
+
+class _PauseRuntimeSandboxRequestParameters(_common.BaseModel):
+    """Parameters for pausing an Agent Runtime sandbox."""
+
+    name: Optional[str] = Field(
+        default=None, description="""Name of the agent runtime sandbox to pause."""
+    )
+    config: Optional[PauseRuntimeSandboxConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _PauseRuntimeSandboxRequestParametersDict(TypedDict, total=False):
+    """Parameters for pausing an Agent Runtime sandbox."""
+
+    name: Optional[str]
+    """Name of the agent runtime sandbox to pause."""
+
+    config: Optional[PauseRuntimeSandboxConfigDict]
+    """"""
+
+
+_PauseRuntimeSandboxRequestParametersOrDict = Union[
+    _PauseRuntimeSandboxRequestParameters, _PauseRuntimeSandboxRequestParametersDict
+]
+
+
+class ResumeRuntimeSandboxConfig(_common.BaseModel):
+    """Config for resuming an Agent Runtime sandbox."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    wait_for_completion: Optional[bool] = Field(
+        default=True,
+        description="""Waits for the operation to complete before returning.""",
+    )
+
+
+class ResumeRuntimeSandboxConfigDict(TypedDict, total=False):
+    """Config for resuming an Agent Runtime sandbox."""
+
+    http_options: Optional[genai_types.HttpOptions]
+    """Used to override HTTP request options."""
+
+    wait_for_completion: Optional[bool]
+    """Waits for the operation to complete before returning."""
+
+
+ResumeRuntimeSandboxConfigOrDict = Union[
+    ResumeRuntimeSandboxConfig, ResumeRuntimeSandboxConfigDict
+]
+
+
+class _ResumeRuntimeSandboxRequestParameters(_common.BaseModel):
+    """Parameters for resuming an Agent Runtime sandbox."""
+
+    name: Optional[str] = Field(
+        default=None, description="""Name of the agent runtime sandbox to resume."""
+    )
+    config: Optional[ResumeRuntimeSandboxConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _ResumeRuntimeSandboxRequestParametersDict(TypedDict, total=False):
+    """Parameters for resuming an Agent Runtime sandbox."""
+
+    name: Optional[str]
+    """Name of the agent runtime sandbox to resume."""
+
+    config: Optional[ResumeRuntimeSandboxConfigDict]
+    """"""
+
+
+_ResumeRuntimeSandboxRequestParametersOrDict = Union[
+    _ResumeRuntimeSandboxRequestParameters, _ResumeRuntimeSandboxRequestParametersDict
+]
+
+
 class SandboxEnvironmentTemplateCustomContainerSpec(_common.BaseModel):
     """Specification for deploying from a custom container image."""
 
