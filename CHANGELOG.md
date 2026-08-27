@@ -3,6 +3,17 @@
 ## [2.0.0](https://github.com/googleapis/python-aiplatform/compare/v1.165.1...v2.0.0) (2026-08-27)
 
 
+### ⚠ BREAKING CHANGES
+
+* **agentplatform:** `agent_engines` module renamed to `runtimes`.
+* **agentplatform:** `a2a tasks` module is removed.
+* **agentplatform:** `sessions` and `sandboxes` moved to top-level modules.
+* **agentplatform:** Removed global initializer dependency. Agent frameworks now read project and location from environment variables.
+* **agentplatform:** `runtime templates` import changed from `agentplatform.agent_engines.templates` to `agentplatform.frameworks`.
+* **agentplatform:** `evals.run_inference(agent=...)` now accepts `types.Runtime` instead of `types.AgentEngine`.
+* **agentplatform:** Migrate Memory Bank methods to `client.memory_banks` sub-module.
+
+
 ### Features
 
 * Add sandboxes.pause() and sandboxes.resume() methods to the Agent Engine sandbox SDK across Python, Java, and JS SDKs. ([9b92c88](https://github.com/googleapis/python-aiplatform/commit/9b92c881353f1d09549638ab998f86136bb08203))
@@ -22,11 +33,6 @@
 * Propagate the underlying API error from AdkApp's synchronous session methods and streaming agent runs ([91cc8ce](https://github.com/googleapis/python-aiplatform/commit/91cc8ce4f015771b5d8c43c8764ea9dc9abdb216))
 * Serve public A2A agent card at /a2a/card on Agent Runtime ([85cba30](https://github.com/googleapis/python-aiplatform/commit/85cba30078b1b2dd152b6a934675dabc8c9ec750))
 * Treat forwarded OAuth access tokens as ephemeral session state ([7e95ce6](https://github.com/googleapis/python-aiplatform/commit/7e95ce6046acea7f13b3a629f9b98558d20e3c20))
-
-
-### Miscellaneous Chores
-
-* Release 2.0.0 ([9aba7f0](https://github.com/googleapis/python-aiplatform/commit/9aba7f045e0fbd6b3a882a765788f9f5a6df2ddd))
 
 ## [1.165.1](https://github.com/googleapis/python-aiplatform/compare/v1.165.0...v1.165.1) (2026-08-19)
 
