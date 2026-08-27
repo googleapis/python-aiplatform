@@ -28,6 +28,15 @@ logging.basicConfig(stream=sys.stdout, level=logging.INFO, format="%(message)s")
 # both directions, and a literal one here fails its reversibility check.
 _PACKAGE = "agentplatform"
 
+# Subpackages that setuptools only ships if they are listed in the
+# `[tool.setuptools.packages.find] include` glob. Importing the top-level
+# package does not reach them, so a missing entry there stays invisible until a
+# user hits ModuleNotFoundError against the published wheel.
+_SUBMODULES = (
+    "frameworks",
+    "frameworks.a2a",
+)
+
 
 def main():
     logging.info("Importing %s...", _PACKAGE)
@@ -46,6 +55,16 @@ def main():
         logging.error("Failed to instantiate %s.Client: %s", _PACKAGE, e)
         sys.exit(1)
     logging.info("Successfully instantiated %s.Client.", _PACKAGE)
+
+    for submodule in _SUBMODULES:
+        name = f"{_PACKAGE}.{submodule}"
+        logging.info("Importing %s...", name)
+        try:
+            importlib.import_module(name)
+        except ImportError as e:
+            logging.error("Failed to import %s: %s", name, e)
+            sys.exit(1)
+        logging.info("Successfully imported %s.", name)
 
     logging.info("Verification passed.")
 
