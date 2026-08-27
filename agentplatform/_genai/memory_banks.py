@@ -63,9 +63,6 @@ def _CreateMemoryBankRequestParameters_to_vertex(
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
-    if getv(from_object, ["config"]) is not None:
-        _CreateMemoryBankConfig_to_vertex(getv(from_object, ["config"]), to_object)
-
     if getv(from_object, ["memory_bank_config"]) is not None:
         setv(
             to_object,
@@ -74,6 +71,9 @@ def _CreateMemoryBankRequestParameters_to_vertex(
                 getv(from_object, ["memory_bank_config"]), to_object
             ),
         )
+
+    if getv(from_object, ["config"]) is not None:
+        _CreateMemoryBankConfig_to_vertex(getv(from_object, ["config"]), to_object)
 
     return to_object
 
@@ -588,18 +588,18 @@ class MemoryBanks(_api_module.BaseModule):
     def _create(
         self,
         *,
-        config: Optional[types.CreateMemoryBankConfigOrDict] = None,
         memory_bank_config: Optional[
             types.ReasoningEngineContextSpecMemoryBankConfigOrDict
         ] = None,
+        config: Optional[types.CreateMemoryBankConfigOrDict] = None,
     ) -> types.MemoryBankOperation:
         """
         Creates a new Memory Bank.
         """
 
         parameter_model = types._CreateMemoryBankRequestParameters(
-            config=config,
             memory_bank_config=memory_bank_config,
+            config=config,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -1249,18 +1249,18 @@ class AsyncMemoryBanks(_api_module.BaseModule):
     async def _create(
         self,
         *,
-        config: Optional[types.CreateMemoryBankConfigOrDict] = None,
         memory_bank_config: Optional[
             types.ReasoningEngineContextSpecMemoryBankConfigOrDict
         ] = None,
+        config: Optional[types.CreateMemoryBankConfigOrDict] = None,
     ) -> types.MemoryBankOperation:
         """
         Creates a new Memory Bank.
         """
 
         parameter_model = types._CreateMemoryBankRequestParameters(
-            config=config,
             memory_bank_config=memory_bank_config,
+            config=config,
         )
 
         request_url_dict: Optional[dict[str, str]]

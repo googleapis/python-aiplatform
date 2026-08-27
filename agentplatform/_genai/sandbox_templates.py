@@ -73,13 +73,13 @@ def _CreateSandboxEnvironmentTemplateRequestParameters_to_vertex(
     if getv(from_object, ["name"]) is not None:
         setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
 
+    if getv(from_object, ["display_name"]) is not None:
+        setv(to_object, ["displayName"], getv(from_object, ["display_name"]))
+
     if getv(from_object, ["config"]) is not None:
         _CreateSandboxEnvironmentTemplateConfig_to_vertex(
             getv(from_object, ["config"]), to_object
         )
-
-    if getv(from_object, ["display_name"]) is not None:
-        setv(to_object, ["displayName"], getv(from_object, ["display_name"]))
 
     return to_object
 
@@ -160,8 +160,8 @@ class SandboxTemplates(_api_module.BaseModule):
         self,
         *,
         name: str,
-        config: Optional[types.CreateSandboxEnvironmentTemplateConfigOrDict] = None,
         display_name: str,
+        config: Optional[types.CreateSandboxEnvironmentTemplateConfigOrDict] = None,
     ) -> types.SandboxEnvironmentTemplateOperation:
         """
         Creates a new sandbox template in the Agent Runtime.
@@ -179,8 +179,8 @@ class SandboxTemplates(_api_module.BaseModule):
 
         parameter_model = types._CreateSandboxEnvironmentTemplateRequestParameters(
             name=name,
-            config=config,
             display_name=display_name,
+            config=config,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -675,8 +675,8 @@ class AsyncSandboxTemplates(_api_module.BaseModule):
         self,
         *,
         name: str,
-        config: Optional[types.CreateSandboxEnvironmentTemplateConfigOrDict] = None,
         display_name: str,
+        config: Optional[types.CreateSandboxEnvironmentTemplateConfigOrDict] = None,
     ) -> types.SandboxEnvironmentTemplateOperation:
         """
         Creates a new sandbox template in the Agent Runtime.
@@ -694,8 +694,8 @@ class AsyncSandboxTemplates(_api_module.BaseModule):
 
         parameter_model = types._CreateSandboxEnvironmentTemplateRequestParameters(
             name=name,
-            config=config,
             display_name=display_name,
+            config=config,
         )
 
         request_url_dict: Optional[dict[str, str]]

@@ -2352,9 +2352,6 @@ class _CreateEvaluationRunParameters(_common.BaseModel):
     inference_configs: Optional[dict[str, EvaluationRunInferenceConfig]] = Field(
         default=None, description=""""""
     )
-    config: Optional[CreateEvaluationRunConfig] = Field(
-        default=None, description=""""""
-    )
     analysis_configs: Optional[list[AnalysisConfig]] = Field(
         default=None, description=""""""
     )
@@ -2368,6 +2365,9 @@ class _CreateEvaluationRunParameters(_common.BaseModel):
         default=None,
         description="""Customer-managed encryption key spec for this EvaluationRun.
       If set, this EvaluationRun will be secured by this key.""",
+    )
+    config: Optional[CreateEvaluationRunConfig] = Field(
+        default=None, description=""""""
     )
 
 
@@ -2392,9 +2392,6 @@ class _CreateEvaluationRunParametersDict(TypedDict, total=False):
     inference_configs: Optional[dict[str, EvaluationRunInferenceConfigDict]]
     """"""
 
-    config: Optional[CreateEvaluationRunConfigDict]
-    """"""
-
     analysis_configs: Optional[list[AnalysisConfigDict]]
     """"""
 
@@ -2406,6 +2403,9 @@ class _CreateEvaluationRunParametersDict(TypedDict, total=False):
     encryption_spec: Optional[genai_types.EncryptionSpec]
     """Customer-managed encryption key spec for this EvaluationRun.
       If set, this EvaluationRun will be secured by this key."""
+
+    config: Optional[CreateEvaluationRunConfigDict]
+    """"""
 
 
 _CreateEvaluationRunParametersOrDict = Union[
@@ -3435,13 +3435,13 @@ class _CreateEvaluationSetParameters(_common.BaseModel):
 
     evaluation_items: Optional[list[str]] = Field(default=None, description="""""")
     display_name: Optional[str] = Field(default=None, description="""""")
-    config: Optional[CreateEvaluationSetConfig] = Field(
-        default=None, description=""""""
-    )
     encryption_spec: Optional[genai_types.EncryptionSpec] = Field(
         default=None,
         description="""Customer-managed encryption key spec for this EvaluationSet.
       If set, this EvaluationSet will be secured by this key.""",
+    )
+    config: Optional[CreateEvaluationSetConfig] = Field(
+        default=None, description=""""""
     )
 
 
@@ -3454,12 +3454,12 @@ class _CreateEvaluationSetParametersDict(TypedDict, total=False):
     display_name: Optional[str]
     """"""
 
-    config: Optional[CreateEvaluationSetConfigDict]
-    """"""
-
     encryption_spec: Optional[genai_types.EncryptionSpec]
     """Customer-managed encryption key spec for this EvaluationSet.
       If set, this EvaluationSet will be secured by this key."""
+
+    config: Optional[CreateEvaluationSetConfigDict]
+    """"""
 
 
 _CreateEvaluationSetParametersOrDict = Union[
@@ -5179,9 +5179,6 @@ class _GenerateUserScenariosParameters(_common.BaseModel):
     user_scenario_generation_config: Optional[
         evals_types.UserScenarioGenerationConfig
     ] = Field(default=None, description="""""")
-    config: Optional[GenerateUserScenariosConfig] = Field(
-        default=None, description=""""""
-    )
     allow_cross_region_model: Optional[bool] = Field(
         default=None,
         description="""Opt-in flag to authorize cross-region routing for LLM models.""",
@@ -5190,6 +5187,9 @@ class _GenerateUserScenariosParameters(_common.BaseModel):
         default=None,
         description="""If set, the server derives the agents map and root_agent_id
       from the referenced Gemini Agent server-side.""",
+    )
+    config: Optional[GenerateUserScenariosConfig] = Field(
+        default=None, description=""""""
     )
 
 
@@ -5208,15 +5208,15 @@ class _GenerateUserScenariosParametersDict(TypedDict, total=False):
     user_scenario_generation_config: Optional[evals_types.UserScenarioGenerationConfig]
     """"""
 
-    config: Optional[GenerateUserScenariosConfigDict]
-    """"""
-
     allow_cross_region_model: Optional[bool]
     """Opt-in flag to authorize cross-region routing for LLM models."""
 
     gemini_agent_config: Optional[GeminiAgentConfigDict]
     """If set, the server derives the agents map and root_agent_id
       from the referenced Gemini Agent server-side."""
+
+    config: Optional[GenerateUserScenariosConfigDict]
+    """"""
 
 
 _GenerateUserScenariosParametersOrDict = Union[
@@ -10444,19 +10444,19 @@ CreateMemoryBankConfigOrDict = Union[CreateMemoryBankConfig, CreateMemoryBankCon
 class _CreateMemoryBankRequestParameters(_common.BaseModel):
     """Parameters for creating memory banks."""
 
-    config: Optional[CreateMemoryBankConfig] = Field(default=None, description="""""")
     memory_bank_config: Optional[ReasoningEngineContextSpecMemoryBankConfig] = Field(
         default=None, description=""""""
     )
+    config: Optional[CreateMemoryBankConfig] = Field(default=None, description="""""")
 
 
 class _CreateMemoryBankRequestParametersDict(TypedDict, total=False):
     """Parameters for creating memory banks."""
 
-    config: Optional[CreateMemoryBankConfigDict]
+    memory_bank_config: Optional[ReasoningEngineContextSpecMemoryBankConfigDict]
     """"""
 
-    memory_bank_config: Optional[ReasoningEngineContextSpecMemoryBankConfigDict]
+    config: Optional[CreateMemoryBankConfigDict]
     """"""
 
 
@@ -14450,17 +14450,17 @@ GetRagCorpusConfigOrDict = Union[GetRagCorpusConfig, GetRagCorpusConfigDict]
 class _GetRagCorpusRequestParameters(_common.BaseModel):
     """Parameters for getting a RAG corpus."""
 
-    config: Optional[GetRagCorpusConfig] = Field(default=None, description="""""")
     name: Optional[str] = Field(default=None, description="""""")
+    config: Optional[GetRagCorpusConfig] = Field(default=None, description="""""")
 
 
 class _GetRagCorpusRequestParametersDict(TypedDict, total=False):
     """Parameters for getting a RAG corpus."""
 
-    config: Optional[GetRagCorpusConfigDict]
+    name: Optional[str]
     """"""
 
-    name: Optional[str]
+    config: Optional[GetRagCorpusConfigDict]
     """"""
 
 
@@ -14562,17 +14562,17 @@ GetRagFileConfigOrDict = Union[GetRagFileConfig, GetRagFileConfigDict]
 class _GetRagFileRequestParameters(_common.BaseModel):
     """Parameters for getting a RAG corpus."""
 
-    config: Optional[GetRagFileConfig] = Field(default=None, description="""""")
     name: Optional[str] = Field(default=None, description="""""")
+    config: Optional[GetRagFileConfig] = Field(default=None, description="""""")
 
 
 class _GetRagFileRequestParametersDict(TypedDict, total=False):
     """Parameters for getting a RAG corpus."""
 
-    config: Optional[GetRagFileConfigDict]
+    name: Optional[str]
     """"""
 
-    name: Optional[str]
+    config: Optional[GetRagFileConfigDict]
     """"""
 
 
@@ -15032,17 +15032,17 @@ ListRagFilesConfigOrDict = Union[ListRagFilesConfig, ListRagFilesConfigDict]
 class _ListRagFilesRequestParameters(_common.BaseModel):
     """Parameters for listing RagFile instances within a RagCorpus."""
 
-    config: Optional[ListRagFilesConfig] = Field(default=None, description="""""")
     name: Optional[str] = Field(default=None, description="""""")
+    config: Optional[ListRagFilesConfig] = Field(default=None, description="""""")
 
 
 class _ListRagFilesRequestParametersDict(TypedDict, total=False):
     """Parameters for listing RagFile instances within a RagCorpus."""
 
-    config: Optional[ListRagFilesConfigDict]
+    name: Optional[str]
     """"""
 
-    name: Optional[str]
+    config: Optional[ListRagFilesConfigDict]
     """"""
 
 
@@ -15333,21 +15333,21 @@ UpdateRagCorpusConfigOrDict = Union[UpdateRagCorpusConfig, UpdateRagCorpusConfig
 class _UpdateRagCorpusRequestParameters(_common.BaseModel):
     """Parameters for updating a RAG corpus."""
 
-    config: Optional[UpdateRagCorpusConfig] = Field(default=None, description="""""")
     name: Optional[str] = Field(default=None, description="""""")
     rag_corpus: Optional[RagCorpus] = Field(default=None, description="""""")
+    config: Optional[UpdateRagCorpusConfig] = Field(default=None, description="""""")
 
 
 class _UpdateRagCorpusRequestParametersDict(TypedDict, total=False):
     """Parameters for updating a RAG corpus."""
 
-    config: Optional[UpdateRagCorpusConfigDict]
-    """"""
-
     name: Optional[str]
     """"""
 
     rag_corpus: Optional[RagCorpusDict]
+    """"""
+
+    config: Optional[UpdateRagCorpusConfigDict]
     """"""
 
 
@@ -15419,17 +15419,17 @@ DeleteRagCorpusConfigOrDict = Union[DeleteRagCorpusConfig, DeleteRagCorpusConfig
 class _DeleteRagCorpusRequestParameters(_common.BaseModel):
     """Parameters for deleting a RAG corpus."""
 
-    config: Optional[DeleteRagCorpusConfig] = Field(default=None, description="""""")
     name: Optional[str] = Field(default=None, description="""""")
+    config: Optional[DeleteRagCorpusConfig] = Field(default=None, description="""""")
 
 
 class _DeleteRagCorpusRequestParametersDict(TypedDict, total=False):
     """Parameters for deleting a RAG corpus."""
 
-    config: Optional[DeleteRagCorpusConfigDict]
+    name: Optional[str]
     """"""
 
-    name: Optional[str]
+    config: Optional[DeleteRagCorpusConfigDict]
     """"""
 
 
@@ -15501,17 +15501,17 @@ DeleteRagFileConfigOrDict = Union[DeleteRagFileConfig, DeleteRagFileConfigDict]
 class _DeleteRagFileRequestParameters(_common.BaseModel):
     """Parameters for deleting a RAG File."""
 
-    config: Optional[DeleteRagFileConfig] = Field(default=None, description="""""")
     name: Optional[str] = Field(default=None, description="""""")
+    config: Optional[DeleteRagFileConfig] = Field(default=None, description="""""")
 
 
 class _DeleteRagFileRequestParametersDict(TypedDict, total=False):
     """Parameters for deleting a RAG File."""
 
-    config: Optional[DeleteRagFileConfigDict]
+    name: Optional[str]
     """"""
 
-    name: Optional[str]
+    config: Optional[DeleteRagFileConfigDict]
     """"""
 
 
@@ -17555,11 +17555,11 @@ class _CreateSandboxEnvironmentTemplateRequestParameters(_common.BaseModel):
         default=None,
         description="""Name of the agent runtime to create the template under.""",
     )
-    config: Optional[CreateSandboxEnvironmentTemplateConfig] = Field(
-        default=None, description=""""""
-    )
     display_name: Optional[str] = Field(
         default=None, description="""The display name of the sandbox template."""
+    )
+    config: Optional[CreateSandboxEnvironmentTemplateConfig] = Field(
+        default=None, description=""""""
     )
 
 
@@ -17569,11 +17569,11 @@ class _CreateSandboxEnvironmentTemplateRequestParametersDict(TypedDict, total=Fa
     name: Optional[str]
     """Name of the agent runtime to create the template under."""
 
-    config: Optional[CreateSandboxEnvironmentTemplateConfigDict]
-    """"""
-
     display_name: Optional[str]
     """The display name of the sandbox template."""
+
+    config: Optional[CreateSandboxEnvironmentTemplateConfigDict]
+    """"""
 
 
 _CreateSandboxEnvironmentTemplateRequestParametersOrDict = Union[
@@ -22666,13 +22666,13 @@ class _CreateSkillRequestParameters(_common.BaseModel):
     description: Optional[str] = Field(
         default=None, description="""Required. The description of the Skill."""
     )
-    config: Optional[CreateSkillConfig] = Field(default=None, description="""""")
     skill_id: Optional[str] = Field(
         default=None,
         description="""Required. The ID to use for the Skill, which will become the final
       component of the Skill's resource name.
       """,
     )
+    config: Optional[CreateSkillConfig] = Field(default=None, description="""""")
 
 
 class _CreateSkillRequestParametersDict(TypedDict, total=False):
@@ -22684,13 +22684,13 @@ class _CreateSkillRequestParametersDict(TypedDict, total=False):
     description: Optional[str]
     """Required. The description of the Skill."""
 
-    config: Optional[CreateSkillConfigDict]
-    """"""
-
     skill_id: Optional[str]
     """Required. The ID to use for the Skill, which will become the final
       component of the Skill's resource name.
       """
+
+    config: Optional[CreateSkillConfigDict]
+    """"""
 
 
 _CreateSkillRequestParametersOrDict = Union[

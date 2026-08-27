@@ -116,11 +116,11 @@ def _DeleteRagCorpusRequestParameters_to_vertex(
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
     if getv(from_object, ["name"]) is not None:
         setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
+
+    if getv(from_object, ["config"]) is not None:
+        setv(to_object, ["config"], getv(from_object, ["config"]))
 
     return to_object
 
@@ -130,11 +130,11 @@ def _DeleteRagFileRequestParameters_to_vertex(
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
     if getv(from_object, ["name"]) is not None:
         setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
+
+    if getv(from_object, ["config"]) is not None:
+        setv(to_object, ["config"], getv(from_object, ["config"]))
 
     return to_object
 
@@ -194,11 +194,11 @@ def _GetRagCorpusRequestParameters_to_vertex(
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
     if getv(from_object, ["name"]) is not None:
         setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
+
+    if getv(from_object, ["config"]) is not None:
+        setv(to_object, ["config"], getv(from_object, ["config"]))
 
     return to_object
 
@@ -208,11 +208,11 @@ def _GetRagFileRequestParameters_to_vertex(
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
     if getv(from_object, ["name"]) is not None:
         setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
+
+    if getv(from_object, ["config"]) is not None:
+        setv(to_object, ["config"], getv(from_object, ["config"]))
 
     return to_object
 
@@ -433,15 +433,15 @@ def _ListRagFilesRequestParameters_to_vertex(
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
+    if getv(from_object, ["name"]) is not None:
+        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
+
     if getv(from_object, ["config"]) is not None:
         setv(
             to_object,
             ["config"],
             _ListRagFilesConfig_to_vertex(getv(from_object, ["config"]), to_object),
         )
-
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
 
     return to_object
 
@@ -1543,9 +1543,6 @@ def _UpdateRagCorpusRequestParameters_to_vertex(
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
     if getv(from_object, ["name"]) is not None:
         setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
 
@@ -1555,6 +1552,9 @@ def _UpdateRagCorpusRequestParameters_to_vertex(
             ["_self"],
             _RagCorpus_to_vertex(getv(from_object, ["rag_corpus"]), to_object),
         )
+
+    if getv(from_object, ["config"]) is not None:
+        setv(to_object, ["config"], getv(from_object, ["config"]))
 
     return to_object
 
@@ -1868,7 +1868,7 @@ class Rag(_api_module.BaseModule):
         return return_value
 
     def get_corpus(
-        self, *, config: Optional[types.GetRagCorpusConfigOrDict] = None, name: str
+        self, *, name: str, config: Optional[types.GetRagCorpusConfigOrDict] = None
     ) -> types.RagCorpus:
         """
         Gets a RAG Corpus.
@@ -1883,8 +1883,8 @@ class Rag(_api_module.BaseModule):
         """
 
         parameter_model = types._GetRagCorpusRequestParameters(
-            config=config,
             name=name,
+            config=config,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -2026,7 +2026,7 @@ class Rag(_api_module.BaseModule):
         return return_value
 
     def get_file(
-        self, *, config: Optional[types.GetRagFileConfigOrDict] = None, name: str
+        self, *, name: str, config: Optional[types.GetRagFileConfigOrDict] = None
     ) -> types.RagFile:
         """
         Gets a RagFile.
@@ -2041,8 +2041,8 @@ class Rag(_api_module.BaseModule):
         """
 
         parameter_model = types._GetRagFileRequestParameters(
-            config=config,
             name=name,
+            config=config,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -2103,7 +2103,7 @@ class Rag(_api_module.BaseModule):
         return return_value
 
     def list_files(
-        self, *, config: Optional[types.ListRagFilesConfigOrDict] = None, name: str
+        self, *, name: str, config: Optional[types.ListRagFilesConfigOrDict] = None
     ) -> types.ListRagFilesResponse:
         """
         Lists RagFile instances within a RagCorpus.
@@ -2118,8 +2118,8 @@ class Rag(_api_module.BaseModule):
         """
 
         parameter_model = types._ListRagFilesRequestParameters(
-            config=config,
             name=name,
+            config=config,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -2260,18 +2260,18 @@ class Rag(_api_module.BaseModule):
     def _update_corpus(
         self,
         *,
-        config: Optional[types.UpdateRagCorpusConfigOrDict] = None,
         name: Optional[str] = None,
         rag_corpus: types.RagCorpusOrDict,
+        config: Optional[types.UpdateRagCorpusConfigOrDict] = None,
     ) -> types.UpdateRagCorpusOperation:
         """
         Updates an existing Rag Corpus.
         """
 
         parameter_model = types._UpdateRagCorpusRequestParameters(
-            config=config,
             name=name,
             rag_corpus=rag_corpus,
+            config=config,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -2334,16 +2334,16 @@ class Rag(_api_module.BaseModule):
     def _delete_corpus(
         self,
         *,
-        config: Optional[types.DeleteRagCorpusConfigOrDict] = None,
         name: Optional[str] = None,
+        config: Optional[types.DeleteRagCorpusConfigOrDict] = None,
     ) -> types.DeleteRagCorpusOperation:
         """
         Deletes a RAG Corpus.
         """
 
         parameter_model = types._DeleteRagCorpusRequestParameters(
-            config=config,
             name=name,
+            config=config,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -2404,15 +2404,15 @@ class Rag(_api_module.BaseModule):
         return return_value
 
     def _delete_file(
-        self, *, config: Optional[types.DeleteRagFileConfigOrDict] = None, name: str
+        self, *, name: str, config: Optional[types.DeleteRagFileConfigOrDict] = None
     ) -> types.DeleteRagFileOperation:
         """
         Deletes a RAG File.
         """
 
         parameter_model = types._DeleteRagFileRequestParameters(
-            config=config,
             name=name,
+            config=config,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -3516,7 +3516,7 @@ class AsyncRag(_api_module.BaseModule):
         return return_value
 
     async def get_corpus(
-        self, *, config: Optional[types.GetRagCorpusConfigOrDict] = None, name: str
+        self, *, name: str, config: Optional[types.GetRagCorpusConfigOrDict] = None
     ) -> types.RagCorpus:
         """
         Gets a RAG Corpus.
@@ -3531,8 +3531,8 @@ class AsyncRag(_api_module.BaseModule):
         """
 
         parameter_model = types._GetRagCorpusRequestParameters(
-            config=config,
             name=name,
+            config=config,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -3678,7 +3678,7 @@ class AsyncRag(_api_module.BaseModule):
         return return_value
 
     async def get_file(
-        self, *, config: Optional[types.GetRagFileConfigOrDict] = None, name: str
+        self, *, name: str, config: Optional[types.GetRagFileConfigOrDict] = None
     ) -> types.RagFile:
         """
         Gets a RagFile.
@@ -3693,8 +3693,8 @@ class AsyncRag(_api_module.BaseModule):
         """
 
         parameter_model = types._GetRagFileRequestParameters(
-            config=config,
             name=name,
+            config=config,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -3757,7 +3757,7 @@ class AsyncRag(_api_module.BaseModule):
         return return_value
 
     async def list_files(
-        self, *, config: Optional[types.ListRagFilesConfigOrDict] = None, name: str
+        self, *, name: str, config: Optional[types.ListRagFilesConfigOrDict] = None
     ) -> types.ListRagFilesResponse:
         """
         Lists RagFile instances within a RagCorpus.
@@ -3772,8 +3772,8 @@ class AsyncRag(_api_module.BaseModule):
         """
 
         parameter_model = types._ListRagFilesRequestParameters(
-            config=config,
             name=name,
+            config=config,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -3918,18 +3918,18 @@ class AsyncRag(_api_module.BaseModule):
     async def _update_corpus(
         self,
         *,
-        config: Optional[types.UpdateRagCorpusConfigOrDict] = None,
         name: Optional[str] = None,
         rag_corpus: types.RagCorpusOrDict,
+        config: Optional[types.UpdateRagCorpusConfigOrDict] = None,
     ) -> types.UpdateRagCorpusOperation:
         """
         Updates an existing Rag Corpus.
         """
 
         parameter_model = types._UpdateRagCorpusRequestParameters(
-            config=config,
             name=name,
             rag_corpus=rag_corpus,
+            config=config,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -3994,16 +3994,16 @@ class AsyncRag(_api_module.BaseModule):
     async def _delete_corpus(
         self,
         *,
-        config: Optional[types.DeleteRagCorpusConfigOrDict] = None,
         name: Optional[str] = None,
+        config: Optional[types.DeleteRagCorpusConfigOrDict] = None,
     ) -> types.DeleteRagCorpusOperation:
         """
         Deletes a RAG Corpus.
         """
 
         parameter_model = types._DeleteRagCorpusRequestParameters(
-            config=config,
             name=name,
+            config=config,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -4066,15 +4066,15 @@ class AsyncRag(_api_module.BaseModule):
         return return_value
 
     async def _delete_file(
-        self, *, config: Optional[types.DeleteRagFileConfigOrDict] = None, name: str
+        self, *, name: str, config: Optional[types.DeleteRagFileConfigOrDict] = None
     ) -> types.DeleteRagFileOperation:
         """
         Deletes a RAG File.
         """
 
         parameter_model = types._DeleteRagFileRequestParameters(
-            config=config,
             name=name,
+            config=config,
         )
 
         request_url_dict: Optional[dict[str, str]]

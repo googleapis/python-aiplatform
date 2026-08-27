@@ -153,9 +153,6 @@ def _CreateEvaluationRunParameters_to_vertex(
             },
         )
 
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
     if getv(from_object, ["analysis_configs"]) is not None:
         setv(
             to_object,
@@ -173,6 +170,9 @@ def _CreateEvaluationRunParameters_to_vertex(
     if getv(from_object, ["encryption_spec"]) is not None:
         setv(to_object, ["encryptionSpec"], getv(from_object, ["encryption_spec"]))
 
+    if getv(from_object, ["config"]) is not None:
+        setv(to_object, ["config"], getv(from_object, ["config"]))
+
     return to_object
 
 
@@ -187,11 +187,11 @@ def _CreateEvaluationSetParameters_to_vertex(
     if getv(from_object, ["display_name"]) is not None:
         setv(to_object, ["displayName"], getv(from_object, ["display_name"]))
 
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
     if getv(from_object, ["encryption_spec"]) is not None:
         setv(to_object, ["encryptionSpec"], getv(from_object, ["encryption_spec"]))
+
+    if getv(from_object, ["config"]) is not None:
+        setv(to_object, ["config"], getv(from_object, ["config"]))
 
     return to_object
 
@@ -788,9 +788,6 @@ def _GenerateUserScenariosParameters_to_vertex(
             ),
         )
 
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
     if getv(from_object, ["allow_cross_region_model"]) is not None:
         setv(
             to_object,
@@ -802,6 +799,9 @@ def _GenerateUserScenariosParameters_to_vertex(
         setv(
             to_object, ["geminiAgentConfig"], getv(from_object, ["gemini_agent_config"])
         )
+
+    if getv(from_object, ["config"]) is not None:
+        setv(to_object, ["config"], getv(from_object, ["config"]))
 
     return to_object
 
@@ -1515,10 +1515,10 @@ class Evals(_api_module.BaseModule):
         inference_configs: Optional[
             dict[str, types.EvaluationRunInferenceConfigOrDict]
         ] = None,
-        config: Optional[types.CreateEvaluationRunConfigOrDict] = None,
         analysis_configs: Optional[list[types.AnalysisConfigOrDict]] = None,
         evaluation_experiment: Optional[str] = None,
         encryption_spec: Optional[genai_types.EncryptionSpecOrDict] = None,
+        config: Optional[types.CreateEvaluationRunConfigOrDict] = None,
     ) -> types.EvaluationRun:
         """
         Creates an EvaluationRun.
@@ -1531,10 +1531,10 @@ class Evals(_api_module.BaseModule):
             evaluation_config=evaluation_config,
             labels=labels,
             inference_configs=inference_configs,
-            config=config,
             analysis_configs=analysis_configs,
             evaluation_experiment=evaluation_experiment,
             encryption_spec=encryption_spec,
+            config=config,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -1602,8 +1602,8 @@ class Evals(_api_module.BaseModule):
         *,
         evaluation_items: list[str],
         display_name: Optional[str] = None,
-        config: Optional[types.CreateEvaluationSetConfigOrDict] = None,
         encryption_spec: Optional[genai_types.EncryptionSpecOrDict] = None,
+        config: Optional[types.CreateEvaluationSetConfigOrDict] = None,
     ) -> types.EvaluationSet:
         """
         Creates an EvaluationSet.
@@ -1612,8 +1612,8 @@ class Evals(_api_module.BaseModule):
         parameter_model = types._CreateEvaluationSetParameters(
             evaluation_items=evaluation_items,
             display_name=display_name,
-            config=config,
             encryption_spec=encryption_spec,
+            config=config,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -2013,9 +2013,9 @@ class Evals(_api_module.BaseModule):
         user_scenario_generation_config: Optional[
             evals_types.UserScenarioGenerationConfigOrDict
         ] = None,
-        config: Optional[types.GenerateUserScenariosConfigOrDict] = None,
         allow_cross_region_model: Optional[bool] = None,
         gemini_agent_config: Optional[types.GeminiAgentConfigOrDict] = None,
+        config: Optional[types.GenerateUserScenariosConfigOrDict] = None,
     ) -> types.GenerateUserScenariosResponse:
         """
         Generates user scenarios for agent evaluation.
@@ -2026,9 +2026,9 @@ class Evals(_api_module.BaseModule):
             agents=agents,
             root_agent_id=root_agent_id,
             user_scenario_generation_config=user_scenario_generation_config,
-            config=config,
             allow_cross_region_model=allow_cross_region_model,
             gemini_agent_config=gemini_agent_config,
+            config=config,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -4514,10 +4514,10 @@ class AsyncEvals(_api_module.BaseModule):
         inference_configs: Optional[
             dict[str, types.EvaluationRunInferenceConfigOrDict]
         ] = None,
-        config: Optional[types.CreateEvaluationRunConfigOrDict] = None,
         analysis_configs: Optional[list[types.AnalysisConfigOrDict]] = None,
         evaluation_experiment: Optional[str] = None,
         encryption_spec: Optional[genai_types.EncryptionSpecOrDict] = None,
+        config: Optional[types.CreateEvaluationRunConfigOrDict] = None,
     ) -> types.EvaluationRun:
         """
         Creates an EvaluationRun.
@@ -4530,10 +4530,10 @@ class AsyncEvals(_api_module.BaseModule):
             evaluation_config=evaluation_config,
             labels=labels,
             inference_configs=inference_configs,
-            config=config,
             analysis_configs=analysis_configs,
             evaluation_experiment=evaluation_experiment,
             encryption_spec=encryption_spec,
+            config=config,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -4603,8 +4603,8 @@ class AsyncEvals(_api_module.BaseModule):
         *,
         evaluation_items: list[str],
         display_name: Optional[str] = None,
-        config: Optional[types.CreateEvaluationSetConfigOrDict] = None,
         encryption_spec: Optional[genai_types.EncryptionSpecOrDict] = None,
+        config: Optional[types.CreateEvaluationSetConfigOrDict] = None,
     ) -> types.EvaluationSet:
         """
         Creates an EvaluationSet.
@@ -4613,8 +4613,8 @@ class AsyncEvals(_api_module.BaseModule):
         parameter_model = types._CreateEvaluationSetParameters(
             evaluation_items=evaluation_items,
             display_name=display_name,
-            config=config,
             encryption_spec=encryption_spec,
+            config=config,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -5024,9 +5024,9 @@ class AsyncEvals(_api_module.BaseModule):
         user_scenario_generation_config: Optional[
             evals_types.UserScenarioGenerationConfigOrDict
         ] = None,
-        config: Optional[types.GenerateUserScenariosConfigOrDict] = None,
         allow_cross_region_model: Optional[bool] = None,
         gemini_agent_config: Optional[types.GeminiAgentConfigOrDict] = None,
+        config: Optional[types.GenerateUserScenariosConfigOrDict] = None,
     ) -> types.GenerateUserScenariosResponse:
         """
         Generates user scenarios for agent evaluation.
@@ -5037,9 +5037,9 @@ class AsyncEvals(_api_module.BaseModule):
             agents=agents,
             root_agent_id=root_agent_id,
             user_scenario_generation_config=user_scenario_generation_config,
-            config=config,
             allow_cross_region_model=allow_cross_region_model,
             gemini_agent_config=gemini_agent_config,
+            config=config,
         )
 
         request_url_dict: Optional[dict[str, str]]

@@ -70,11 +70,11 @@ def _CreateSkillRequestParameters_to_vertex(
     if getv(from_object, ["description"]) is not None:
         setv(to_object, ["description"], getv(from_object, ["description"]))
 
-    if getv(from_object, ["config"]) is not None:
-        _CreateSkillConfig_to_vertex(getv(from_object, ["config"]), to_object)
-
     if getv(from_object, ["skill_id"]) is not None:
         setv(to_object, ["_query", "skillId"], getv(from_object, ["skill_id"]))
+
+    if getv(from_object, ["config"]) is not None:
+        _CreateSkillConfig_to_vertex(getv(from_object, ["config"]), to_object)
 
     return to_object
 
@@ -367,8 +367,8 @@ class Skills(_api_module.BaseModule):
         *,
         display_name: str,
         description: str,
-        config: Optional[types.CreateSkillConfigOrDict] = None,
         skill_id: str,
+        config: Optional[types.CreateSkillConfigOrDict] = None,
     ) -> types.SkillOperation:
         """
         Creates a new Skill.
@@ -377,8 +377,8 @@ class Skills(_api_module.BaseModule):
         parameter_model = types._CreateSkillRequestParameters(
             display_name=display_name,
             description=description,
-            config=config,
             skill_id=skill_id,
+            config=config,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -1111,8 +1111,8 @@ class AsyncSkills(_api_module.BaseModule):
         *,
         display_name: str,
         description: str,
-        config: Optional[types.CreateSkillConfigOrDict] = None,
         skill_id: str,
+        config: Optional[types.CreateSkillConfigOrDict] = None,
     ) -> types.SkillOperation:
         """
         Creates a new Skill.
@@ -1121,8 +1121,8 @@ class AsyncSkills(_api_module.BaseModule):
         parameter_model = types._CreateSkillRequestParameters(
             display_name=display_name,
             description=description,
-            config=config,
             skill_id=skill_id,
+            config=config,
         )
 
         request_url_dict: Optional[dict[str, str]]
