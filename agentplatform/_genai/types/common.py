@@ -16711,6 +16711,10 @@ class SandboxEnvironmentConnectionInfo(_common.BaseModel):
         default=None,
         description="""Output only. The routing token for the SandboxEnvironment.""",
     )
+    service_attachment: Optional[str] = Field(
+        default=None,
+        description="""Output only. The name of the PSC-E service attachment created for private ingress to this SandboxEnvironment. Only populated when the template enables private ingress (see SandboxEnvironmentTemplate.ingress_control_config). VPC-SC customers use this to create a PSC endpoint in their VPC.""",
+    )
 
 
 class SandboxEnvironmentConnectionInfoDict(TypedDict, total=False):
@@ -16727,6 +16731,9 @@ class SandboxEnvironmentConnectionInfoDict(TypedDict, total=False):
 
     routing_token: Optional[str]
     """Output only. The routing token for the SandboxEnvironment."""
+
+    service_attachment: Optional[str]
+    """Output only. The name of the PSC-E service attachment created for private ingress to this SandboxEnvironment. Only populated when the template enables private ingress (see SandboxEnvironmentTemplate.ingress_control_config). VPC-SC customers use this to create a PSC endpoint in their VPC."""
 
 
 SandboxEnvironmentConnectionInfoOrDict = Union[
