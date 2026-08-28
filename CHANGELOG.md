@@ -3,9 +3,37 @@
 ## [2.0.1](https://github.com/googleapis/python-aiplatform/compare/v2.0.0...v2.0.1) (2026-08-28)
 
 
-### Miscellaneous Chores
 
-* Release 2.0.1 ([446e822](https://github.com/googleapis/python-aiplatform/commit/446e822d3343562f3d06e25ab7df55a4393bf132))
+### ⚠ BREAKING CHANGES
+
+* **agentplatform:** `agent_engines` module renamed to `runtimes`.
+* **agentplatform:** `a2a tasks` module is removed.
+* **agentplatform:** `sessions` and `sandboxes` moved to top-level modules.
+* **agentplatform:** Removed global initializer dependency. Agent frameworks now read project and location from environment variables.
+* **agentplatform:** `runtime templates` import changed from `agentplatform.agent_engines.templates` to `agentplatform.frameworks`.
+* **agentplatform:** `evals.run_inference(agent=...)` now accepts `types.Runtime` instead of `types.AgentEngine`.
+* **agentplatform:** Migrate Memory Bank methods to `client.memory_banks` sub-module.
+
+
+### Features
+
+* Add sandboxes.pause() and sandboxes.resume() methods to the Agent Engine sandbox SDK across Python, Java, and JS SDKs. ([9b92c88](https://github.com/googleapis/python-aiplatform/commit/9b92c881353f1d09549638ab998f86136bb08203))
+* Add Shell Sandbox environment support to the Agent Engine sandbox SDK ([8f87082](https://github.com/googleapis/python-aiplatform/commit/8f87082ae4aa0e4c116245b3c8a328e9a55ea6a0))
+* **agentplatform:** Support client.memory_banks.get ([6dfe678](https://github.com/googleapis/python-aiplatform/commit/6dfe67856cd03919113149dd26a1e067eb186523))
+* **agentplatform:** Support client.memory_banks.list ([6dfe678](https://github.com/googleapis/python-aiplatform/commit/6dfe67856cd03919113149dd26a1e067eb186523))
+* **agentplatform:** Support ExampleStores module for few-shot example management ([5248240](https://github.com/googleapis/python-aiplatform/commit/52482409f21fadbfa062b7d5c6c95e92309e8ac5))
+* **agentplatform:** Support Memory Bank configs. ([6dfe678](https://github.com/googleapis/python-aiplatform/commit/6dfe67856cd03919113149dd26a1e067eb186523))
+* Decouple agentplatform from google-cloud-aiplatform and package it as a standalone PyPI package `google-cloud-agentplatform`. ([e0e32c2](https://github.com/googleapis/python-aiplatform/commit/e0e32c2fd7e51bea0b85b3039561aec0e78ec29e))
+* Expose ingress_control_config field on SandboxEnvironmentTemplate across Python, Java, and JS SDKs. ([c08ed98](https://github.com/googleapis/python-aiplatform/commit/c08ed9851db8b36a217059c85ed377c7154eb685))
+* Expose service_attachment field on SandboxEnvironmentConnectionInfo across Python, Java, JS, and Go SDKs. ([b781b0e](https://github.com/googleapis/python-aiplatform/commit/b781b0e94bb2da22858d12d45d34e48b3dd3c68a))
+
+
+### Bug Fixes
+
+* Add identity_type and service_account support to Reasoning Engines and Agent Engines. ([a8536aa](https://github.com/googleapis/python-aiplatform/commit/a8536aa08eb300ac2d146110e926406cf45abaa6))
+* Propagate the underlying API error from AdkApp's synchronous session methods and streaming agent runs ([91cc8ce](https://github.com/googleapis/python-aiplatform/commit/91cc8ce4f015771b5d8c43c8764ea9dc9abdb216))
+* Serve public A2A agent card at /a2a/card on Agent Runtime ([85cba30](https://github.com/googleapis/python-aiplatform/commit/85cba30078b1b2dd152b6a934675dabc8c9ec750))
+* Treat forwarded OAuth access tokens as ephemeral session state ([7e95ce6](https://github.com/googleapis/python-aiplatform/commit/7e95ce6046acea7f13b3a629f9b98558d20e3c20))
 
 ## [2.0.0](https://github.com/googleapis/python-aiplatform/compare/v1.165.1...v2.0.0) (2026-08-27)
 
