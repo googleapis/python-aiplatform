@@ -38,7 +38,7 @@
 
 ## [2.0.0](https://github.com/googleapis/python-aiplatform/compare/v1.165.1...v2.0.0) (2026-08-27) - [YANKED]
 
-*Release yanked due to a PyPI registry conflict with a previously pulled version. All changes intended for 2.0.0 are included in the `2.0.1` release above.*
+*Release was yanked due to a PyPI registry conflict with a previously pulled version. All changes intended for 2.0.0 are included in the `2.0.1` release above.*
 
 ## [1.165.1](https://github.com/googleapis/python-aiplatform/compare/v1.165.0...v1.165.1) (2026-08-19)
 
