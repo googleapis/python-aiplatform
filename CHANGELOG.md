@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.1](https://github.com/googleapis/python-aiplatform/compare/v2.0.0...v2.0.1) (2026-08-28)
+
+
+### Miscellaneous Chores
+
+* Release 2.0.1 ([446e822](https://github.com/googleapis/python-aiplatform/commit/446e822d3343562f3d06e25ab7df55a4393bf132))
+
 ## [2.0.0](https://github.com/googleapis/python-aiplatform/compare/v1.165.1...v2.0.0) (2026-08-27)
 
 
