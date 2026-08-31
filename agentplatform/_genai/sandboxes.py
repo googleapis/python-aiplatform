@@ -1038,7 +1038,14 @@ class Sandboxes(_api_module.BaseModule):
                     get_operation_fn=self._get_sandbox_operation,
                     poll_interval_seconds=poll_interval_seconds,
                 )
-            if operation.response:
+            # Only refresh via get() when the LRO response carries a resource
+            # name. The pause LRO's response_type is declared as SandboxEnvironment
+            # in the proto but the backend may return an empty payload for some
+            # code paths, in which case operation.response.name is empty and a
+            # get() call would produce a 404 with an unsubstituted {name} in the
+            # request URL. Callers who want the post-pause state can call
+            # sandboxes.get(name=name) explicitly.
+            if operation.response and getattr(operation.response, "name", None):
                 operation.response = self.get(name=operation.response.name)
         return operation
 
@@ -1084,7 +1091,11 @@ class Sandboxes(_api_module.BaseModule):
                     get_operation_fn=self._get_sandbox_operation,
                     poll_interval_seconds=poll_interval_seconds,
                 )
-            if operation.response:
+            # Only refresh via get() when the LRO response carries a resource
+            # name. Symmetric guard with pause() above: protects against a backend
+            # response payload without a name field, which would otherwise produce
+            # a 404 with an unsubstituted {name} in the request URL.
+            if operation.response and getattr(operation.response, "name", None):
                 operation.response = self.get(name=operation.response.name)
         return operation
 
