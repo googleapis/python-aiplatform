@@ -16,6 +16,7 @@
 # pylint: disable=protected-access,bad-continuation
 
 import importlib
+import pydantic
 import pytest
 import warnings
 from unittest import mock
@@ -26,6 +27,7 @@ from agentplatform._genai import client as agentplatform_client
 from google.cloud.aiplatform import initializer as aiplatform_initializer
 import vertexai
 from vertexai._genai import client as vertexai_client
+from vertexai._genai import types as vertexai_types
 
 
 _TEST_PROJECT = "test-project"
@@ -122,3 +124,23 @@ class TestGenAiClient:
                 warnings.simplefilter("error", FutureWarning)
                 _ = vertexai.Client(project=_TEST_PROJECT, location=_TEST_LOCATION)
                 _ = vertexai.Client(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
+
+_AGENT_ENGINE_CONFIG_TYPES = [
+    vertexai_types.AgentEngineConfig,
+    vertexai_types.CreateAgentEngineConfig,
+    vertexai_types.UpdateAgentEngineConfig,
+]
+
+
+@pytest.mark.parametrize("config_type", _AGENT_ENGINE_CONFIG_TYPES)
+def test_vertexai_agent_framework_accepts_a2a(config_type):
+    # googleapis/python-aiplatform#7097: the backend and the SDK's own
+    # _SUPPORTED_AGENT_FRAMEWORKS both accept a2a, so these types must too.
+    assert config_type(agent_framework="a2a").agent_framework == "a2a"
+
+
+@pytest.mark.parametrize("config_type", _AGENT_ENGINE_CONFIG_TYPES)
+def test_vertexai_agent_framework_rejects_unknown(config_type):
+    with pytest.raises(pydantic.ValidationError):
+        config_type(agent_framework="not-a-framework")
