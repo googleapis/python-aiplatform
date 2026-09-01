@@ -1,5 +1,26 @@
 # Changelog
 
+## [2.1.0](https://github.com/googleapis/python-aiplatform/compare/v2.0.1...v2.1.0) (2026-09-01)
+
+
+### Features
+
+* Add execute_bash to the Agent Engine sandbox SDK. ([505bd42](https://github.com/googleapis/python-aiplatform/commit/505bd42f65a8730793c7592ffa61d3f5b80f04cf))
+* Allow setting `ingress_control_config` when creating a `SandboxEnvironmentTemplate` via the SDK (Python, Java, JS). ([2dccde8](https://github.com/googleapis/python-aiplatform/commit/2dccde8797ea3bb1137170f2f377e3f978209b1c))
+* Expose SandboxEnvironmentTemplateState as a standalone enum class in the Python, Java, and JS SDKs. ([a31d2ba](https://github.com/googleapis/python-aiplatform/commit/a31d2ba1887966e6f65624526095cdc941c4748d))
+* Expose STATE_PAUSED, STATE_PAUSING, and STATE_RESUMING values in the SandboxState enum for SandboxEnvironment across Python, Java, and JS SDKs. ([ec342d9](https://github.com/googleapis/python-aiplatform/commit/ec342d94ab1c9fd43f4cee5679b8e7d349a92396))
+
+
+### Bug Fixes
+
+* Guard the post-LRO refresh in sandboxes.pause() and sandboxes.resume() on the presence of a resource name in the LRO response. ([2c60077](https://github.com/googleapis/python-aiplatform/commit/2c60077ae9ca124e87dc53be1c759a81ab074923))
+* Preserve rrf_ranking_alpha=0.0 in MatchingEngineIndexEndpoint hybrid queries ([7e1c95a](https://github.com/googleapis/python-aiplatform/commit/7e1c95a7aec5ab2d122e454a467ab489cfb7baad))
+
+
+### Documentation
+
+* Update CHANGELOG.md to mark version 2.0.0 as yanked ([75f9361](https://github.com/googleapis/python-aiplatform/commit/75f9361e0038cbe80585b94cd052da63aafe4672))
+
 ## [2.0.1](https://github.com/googleapis/python-aiplatform/compare/v2.0.0...v2.0.1) (2026-08-28)
 
 
