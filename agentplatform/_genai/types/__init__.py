@@ -1968,6 +1968,7 @@ from .common import SandboxEnvironmentTemplateOrDict
 from .common import SandboxEnvironmentTemplateResourceRequirements
 from .common import SandboxEnvironmentTemplateResourceRequirementsDict
 from .common import SandboxEnvironmentTemplateResourceRequirementsOrDict
+from .common import SandboxEnvironmentTemplateState
 from .common import SandboxState
 from .common import SavedQuery
 from .common import SavedQueryDict
@@ -4309,6 +4310,7 @@ __all__ = [
     "Protocol",
     "DefaultContainerCategory",
     "PscAutomationState",
+    "SandboxEnvironmentTemplateState",
     "PostSnapshotAction",
     "Framework",
     "SkillSource",

@@ -359,6 +359,23 @@ class PscAutomationState(_common.CaseInSensitiveEnum):
     """The PSC service automation has failed."""
 
 
+class SandboxEnvironmentTemplateState(_common.CaseInSensitiveEnum):
+    """Output only. The state of the sandbox environment template."""
+
+    UNSPECIFIED = "UNSPECIFIED"
+    """The default value. This value is unused."""
+    PROVISIONING = "PROVISIONING"
+    """Runtime resources are being allocated for the sandbox environment."""
+    ACTIVE = "ACTIVE"
+    """Sandbox runtime is ready for serving."""
+    DEPROVISIONING = "DEPROVISIONING"
+    """Sandbox runtime is halted, performing tear down tasks."""
+    DELETED = "DELETED"
+    """Sandbox has terminated with underlying runtime failure."""
+    FAILED = "FAILED"
+    """Sandbox has failed to provision."""
+
+
 class PostSnapshotAction(_common.CaseInSensitiveEnum):
     """Input only. Action to take on the source SandboxEnvironment after the snapshot is taken. This field is only used in CreateSandboxEnvironmentSnapshotRequest and it is not stored in the resource."""
 
@@ -17838,16 +17855,7 @@ class SandboxEnvironmentTemplate(_common.BaseModel):
         default=None,
         description="""Identifier. The resource name of the SandboxEnvironmentTemplate. Format: `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/sandboxEnvironmentTemplates/{sandbox_environment_template}`""",
     )
-    state: Optional[
-        Literal[
-            "UNSPECIFIED",
-            "PROVISIONING",
-            "ACTIVE",
-            "DEPROVISIONING",
-            "DELETED",
-            "FAILED",
-        ]
-    ] = Field(
+    state: Optional[SandboxEnvironmentTemplateState] = Field(
         default=None,
         description="""Output only. The state of the sandbox environment template.""",
     )
@@ -17886,16 +17894,7 @@ class SandboxEnvironmentTemplateDict(TypedDict, total=False):
     name: Optional[str]
     """Identifier. The resource name of the SandboxEnvironmentTemplate. Format: `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/sandboxEnvironmentTemplates/{sandbox_environment_template}`"""
 
-    state: Optional[
-        Literal[
-            "UNSPECIFIED",
-            "PROVISIONING",
-            "ACTIVE",
-            "DEPROVISIONING",
-            "DELETED",
-            "FAILED",
-        ]
-    ]
+    state: Optional[SandboxEnvironmentTemplateState]
     """Output only. The state of the sandbox environment template."""
 
     update_time: Optional[datetime.datetime]
