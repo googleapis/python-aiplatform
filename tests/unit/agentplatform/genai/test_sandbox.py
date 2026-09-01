@@ -130,12 +130,10 @@ class TestSandbox:
         mock_http_client.request.return_value = genai_types.HttpResponse(
             body=b'{"endpoint": "test/endpoint"}', headers={}
         )
-        ws_url, headers = (
-            self.client.sandboxes.generate_browser_ws_headers(
-                sandbox_environment=mock_sandbox,
-                service_account_email=_TEST_SERVICE_ACCOUNT_EMAIL,
-                timeout=3600,
-            )
+        ws_url, headers = self.client.sandboxes.generate_browser_ws_headers(
+            sandbox_environment=mock_sandbox,
+            service_account_email=_TEST_SERVICE_ACCOUNT_EMAIL,
+            timeout=3600,
         )
         assert ws_url == "wss://test-us-central1.example.vertexai.goog/test/endpoint"
         assert (
@@ -297,6 +295,94 @@ class TestSandbox:
         mock_create.assert_not_called()
 
 
+@pytest.mark.usefixtures("google_auth_mock")
+class TestSandboxTemplates:
+    """Tests for sandbox_templates.SandboxTemplates.
+
+    Exercises the create-side wiring of fields on
+    `CreateSandboxEnvironmentTemplateConfig`, including
+    `ingress_control_config` (see cl/972355621), which is otherwise not
+    covered by the sandboxes.create tests above.
+    """
+
+    def setup_method(self):
+        importlib.reload(initializer)
+        importlib.reload(aiplatform)
+        importlib.reload(agentplatform)
+        self.client = agentplatform.Client(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            credentials=_TEST_CREDENTIALS,
+        )
+
+    def teardown_method(self):
+        initializer.global_pool.shutdown(wait=True)
+
+    def test_create_config_ingress_control_config_is_optional(self):
+        """Constructing without ingress_control_config must succeed."""
+        config = agentplatform_types.CreateSandboxEnvironmentTemplateConfig()
+        assert config.ingress_control_config is None
+
+    def test_create_config_accepts_ingress_control_config_object(self):
+        """The typed field accepts a PrivateServiceConnectConfig instance."""
+        psc = agentplatform_types.PrivateServiceConnectConfig(
+            enable_private_service_connect=True,
+            project_allowlist=["test-project"],
+        )
+        config = agentplatform_types.CreateSandboxEnvironmentTemplateConfig(
+            ingress_control_config=psc,
+        )
+        assert config.ingress_control_config is not None
+        assert config.ingress_control_config.enable_private_service_connect is True
+        assert config.ingress_control_config.project_allowlist == ["test-project"]
+
+    def test_create_config_accepts_ingress_control_config_dict(self):
+        """The typed field validates and coerces a dict input."""
+        config = (
+            agentplatform_types.CreateSandboxEnvironmentTemplateConfig.model_validate(
+                {
+                    "ingress_control_config": {
+                        "enable_private_service_connect": True,
+                        "project_allowlist": ["test-project"],
+                    },
+                }
+            )
+        )
+        assert isinstance(
+            config.ingress_control_config,
+            agentplatform_types.PrivateServiceConnectConfig,
+        )
+        assert config.ingress_control_config.enable_private_service_connect is True
+        assert config.ingress_control_config.project_allowlist == ["test-project"]
+
+    @mock.patch.object(sandbox_templates.SandboxTemplates, "_create")
+    def test_create_forwards_ingress_control_config(self, mock_create):
+        """templates.create(...) passes ingress_control_config through to _create."""
+        mock_create.return_value = mock.Mock()
+
+        config = agentplatform_types.CreateSandboxEnvironmentTemplateConfig(
+            ingress_control_config=agentplatform_types.PrivateServiceConnectConfig(
+                enable_private_service_connect=True,
+                project_allowlist=["test-project"],
+            ),
+            wait_for_completion=False,
+        )
+        self.client.sandboxes.templates.create(
+            name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+            display_name="test-template",
+            config=config,
+        )
+
+        mock_create.assert_called_once()
+        _, kwargs = mock_create.call_args
+        assert kwargs["name"] == _TEST_AGENT_ENGINE_RESOURCE_NAME
+        assert kwargs["display_name"] == "test-template"
+        ingress = kwargs["config"].ingress_control_config
+        assert ingress is not None
+        assert ingress.enable_private_service_connect is True
+        assert ingress.project_allowlist == ["test-project"]
+
+
 _MODULES = pytest.mark.parametrize(
     "module",
     [sandboxes, vertexai_sandboxes],
@@ -412,9 +498,7 @@ def test_generate_access_token_retries_transient_failures(module, status_code):
         [transient, transient, _ok_response()],
     )
 
-    with default_patch, session_patch, mock.patch.object(
-        module.time, "sleep"
-    ) as sleep:
+    with default_patch, session_patch, mock.patch.object(module.time, "sleep") as sleep:
         client_obj = module.Sandboxes(api_client_=mock.Mock())
         token = client_obj.generate_access_token(
             service_account_email=_TEST_SERVICE_ACCOUNT_EMAIL

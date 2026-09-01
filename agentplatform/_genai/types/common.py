@@ -17603,98 +17603,6 @@ SandboxEnvironmentTemplateEgressControlConfigOrDict = Union[
 ]
 
 
-class CreateSandboxEnvironmentTemplateConfig(_common.BaseModel):
-    """Config for creating a Sandbox Template."""
-
-    http_options: Optional[genai_types.HttpOptions] = Field(
-        default=None, description="""Used to override HTTP request options."""
-    )
-    wait_for_completion: Optional[bool] = Field(
-        default=True,
-        description="""Waits for the operation to complete before returning.""",
-    )
-    custom_container_environment: Optional[
-        SandboxEnvironmentTemplateCustomContainerEnvironment
-    ] = Field(
-        default=None,
-        description="""The custom container environment for the sandbox template.""",
-    )
-    default_container_environment: Optional[
-        SandboxEnvironmentTemplateDefaultContainerEnvironment
-    ] = Field(
-        default=None,
-        description="""The default container environment for the sandbox template.""",
-    )
-    egress_control_config: Optional[SandboxEnvironmentTemplateEgressControlConfig] = (
-        Field(
-            default=None,
-            description="""The egress control config for the sandbox template.""",
-        )
-    )
-
-
-class CreateSandboxEnvironmentTemplateConfigDict(TypedDict, total=False):
-    """Config for creating a Sandbox Template."""
-
-    http_options: Optional[genai_types.HttpOptions]
-    """Used to override HTTP request options."""
-
-    wait_for_completion: Optional[bool]
-    """Waits for the operation to complete before returning."""
-
-    custom_container_environment: Optional[
-        SandboxEnvironmentTemplateCustomContainerEnvironmentDict
-    ]
-    """The custom container environment for the sandbox template."""
-
-    default_container_environment: Optional[
-        SandboxEnvironmentTemplateDefaultContainerEnvironmentDict
-    ]
-    """The default container environment for the sandbox template."""
-
-    egress_control_config: Optional[SandboxEnvironmentTemplateEgressControlConfigDict]
-    """The egress control config for the sandbox template."""
-
-
-CreateSandboxEnvironmentTemplateConfigOrDict = Union[
-    CreateSandboxEnvironmentTemplateConfig, CreateSandboxEnvironmentTemplateConfigDict
-]
-
-
-class _CreateSandboxEnvironmentTemplateRequestParameters(_common.BaseModel):
-    """Parameters for creating Sandbox Environment Templates."""
-
-    name: Optional[str] = Field(
-        default=None,
-        description="""Name of the agent runtime to create the template under.""",
-    )
-    display_name: Optional[str] = Field(
-        default=None, description="""The display name of the sandbox template."""
-    )
-    config: Optional[CreateSandboxEnvironmentTemplateConfig] = Field(
-        default=None, description=""""""
-    )
-
-
-class _CreateSandboxEnvironmentTemplateRequestParametersDict(TypedDict, total=False):
-    """Parameters for creating Sandbox Environment Templates."""
-
-    name: Optional[str]
-    """Name of the agent runtime to create the template under."""
-
-    display_name: Optional[str]
-    """The display name of the sandbox template."""
-
-    config: Optional[CreateSandboxEnvironmentTemplateConfigDict]
-    """"""
-
-
-_CreateSandboxEnvironmentTemplateRequestParametersOrDict = Union[
-    _CreateSandboxEnvironmentTemplateRequestParameters,
-    _CreateSandboxEnvironmentTemplateRequestParametersDict,
-]
-
-
 class PSCAutomationConfig(_common.BaseModel):
     """PSC config that is used to automatically create PSC endpoints in the user projects."""
 
@@ -17795,6 +17703,105 @@ class PrivateServiceConnectConfigDict(TypedDict, total=False):
 
 PrivateServiceConnectConfigOrDict = Union[
     PrivateServiceConnectConfig, PrivateServiceConnectConfigDict
+]
+
+
+class CreateSandboxEnvironmentTemplateConfig(_common.BaseModel):
+    """Config for creating a Sandbox Template."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    wait_for_completion: Optional[bool] = Field(
+        default=True,
+        description="""Waits for the operation to complete before returning.""",
+    )
+    custom_container_environment: Optional[
+        SandboxEnvironmentTemplateCustomContainerEnvironment
+    ] = Field(
+        default=None,
+        description="""The custom container environment for the sandbox template.""",
+    )
+    default_container_environment: Optional[
+        SandboxEnvironmentTemplateDefaultContainerEnvironment
+    ] = Field(
+        default=None,
+        description="""The default container environment for the sandbox template.""",
+    )
+    egress_control_config: Optional[SandboxEnvironmentTemplateEgressControlConfig] = (
+        Field(
+            default=None,
+            description="""The egress control config for the sandbox template.""",
+        )
+    )
+    ingress_control_config: Optional[PrivateServiceConnectConfig] = Field(
+        default=None,
+        description="""The ingress control config for the sandbox template.""",
+    )
+
+
+class CreateSandboxEnvironmentTemplateConfigDict(TypedDict, total=False):
+    """Config for creating a Sandbox Template."""
+
+    http_options: Optional[genai_types.HttpOptions]
+    """Used to override HTTP request options."""
+
+    wait_for_completion: Optional[bool]
+    """Waits for the operation to complete before returning."""
+
+    custom_container_environment: Optional[
+        SandboxEnvironmentTemplateCustomContainerEnvironmentDict
+    ]
+    """The custom container environment for the sandbox template."""
+
+    default_container_environment: Optional[
+        SandboxEnvironmentTemplateDefaultContainerEnvironmentDict
+    ]
+    """The default container environment for the sandbox template."""
+
+    egress_control_config: Optional[SandboxEnvironmentTemplateEgressControlConfigDict]
+    """The egress control config for the sandbox template."""
+
+    ingress_control_config: Optional[PrivateServiceConnectConfigDict]
+    """The ingress control config for the sandbox template."""
+
+
+CreateSandboxEnvironmentTemplateConfigOrDict = Union[
+    CreateSandboxEnvironmentTemplateConfig, CreateSandboxEnvironmentTemplateConfigDict
+]
+
+
+class _CreateSandboxEnvironmentTemplateRequestParameters(_common.BaseModel):
+    """Parameters for creating Sandbox Environment Templates."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""Name of the agent runtime to create the template under.""",
+    )
+    display_name: Optional[str] = Field(
+        default=None, description="""The display name of the sandbox template."""
+    )
+    config: Optional[CreateSandboxEnvironmentTemplateConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _CreateSandboxEnvironmentTemplateRequestParametersDict(TypedDict, total=False):
+    """Parameters for creating Sandbox Environment Templates."""
+
+    name: Optional[str]
+    """Name of the agent runtime to create the template under."""
+
+    display_name: Optional[str]
+    """The display name of the sandbox template."""
+
+    config: Optional[CreateSandboxEnvironmentTemplateConfigDict]
+    """"""
+
+
+_CreateSandboxEnvironmentTemplateRequestParametersOrDict = Union[
+    _CreateSandboxEnvironmentTemplateRequestParameters,
+    _CreateSandboxEnvironmentTemplateRequestParametersDict,
 ]
 
 

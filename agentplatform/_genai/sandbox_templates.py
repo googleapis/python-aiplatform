@@ -62,6 +62,13 @@ def _CreateSandboxEnvironmentTemplateConfig_to_vertex(
             getv(from_object, ["egress_control_config"]),
         )
 
+    if getv(from_object, ["ingress_control_config"]) is not None:
+        setv(
+            parent_object,
+            ["ingressControlConfig"],
+            getv(from_object, ["ingress_control_config"]),
+        )
+
     return to_object
 
 
