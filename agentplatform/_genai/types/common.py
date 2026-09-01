@@ -322,6 +322,12 @@ class SandboxState(_common.CaseInSensitiveEnum):
     """Sandbox has terminated with underlying runtime failure."""
     STATE_DELETED = "STATE_DELETED"
     """Sandbox runtime has been deleted."""
+    STATE_PAUSED = "STATE_PAUSED"
+    """Sandbox runtime is paused."""
+    STATE_PAUSING = "STATE_PAUSING"
+    """Sandbox runtime is pausing."""
+    STATE_RESUMING = "STATE_RESUMING"
+    """Sandbox runtime is resuming."""
 
 
 class Protocol(_common.CaseInSensitiveEnum):
