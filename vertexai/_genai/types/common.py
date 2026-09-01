@@ -8885,13 +8885,21 @@ class CreateAgentEngineConfig(_common.BaseModel):
       """,
     )
     agent_framework: Optional[
-        Literal["google-adk", "langchain", "langgraph", "ag2", "llama-index", "custom"]
+        Literal[
+            "google-adk",
+            "langchain",
+            "langgraph",
+            "ag2",
+            "llama-index",
+            "custom",
+            "a2a",
+        ]
     ] = Field(
         default=None,
         description="""The agent framework to be used for the Agent Engine.
       The OSS agent framework used to develop the agent.
       Currently supported values: "google-adk", "langchain", "langgraph",
-      "ag2", "llama-index", "custom".
+      "ag2", "llama-index", "custom", "a2a".
       If not specified:
       - If `agent` is specified, the agent framework will be auto-detected.
       - If `source_packages` is specified, the agent framework will
@@ -9031,12 +9039,20 @@ class CreateAgentEngineConfigDict(TypedDict, total=False):
       """
 
     agent_framework: Optional[
-        Literal["google-adk", "langchain", "langgraph", "ag2", "llama-index", "custom"]
+        Literal[
+            "google-adk",
+            "langchain",
+            "langgraph",
+            "ag2",
+            "llama-index",
+            "custom",
+            "a2a",
+        ]
     ]
     """The agent framework to be used for the Agent Engine.
       The OSS agent framework used to develop the agent.
       Currently supported values: "google-adk", "langchain", "langgraph",
-      "ag2", "llama-index", "custom".
+      "ag2", "llama-index", "custom", "a2a".
       If not specified:
       - If `agent` is specified, the agent framework will be auto-detected.
       - If `source_packages` is specified, the agent framework will
@@ -9552,13 +9568,21 @@ class UpdateAgentEngineConfig(_common.BaseModel):
       """,
     )
     agent_framework: Optional[
-        Literal["google-adk", "langchain", "langgraph", "ag2", "llama-index", "custom"]
+        Literal[
+            "google-adk",
+            "langchain",
+            "langgraph",
+            "ag2",
+            "llama-index",
+            "custom",
+            "a2a",
+        ]
     ] = Field(
         default=None,
         description="""The agent framework to be used for the Agent Engine.
       The OSS agent framework used to develop the agent.
       Currently supported values: "google-adk", "langchain", "langgraph",
-      "ag2", "llama-index", "custom".
+      "ag2", "llama-index", "custom", "a2a".
       If not specified:
       - If `agent` is specified, the agent framework will be auto-detected.
       - If `source_packages` is specified, the agent framework will
@@ -9707,12 +9731,20 @@ class UpdateAgentEngineConfigDict(TypedDict, total=False):
       """
 
     agent_framework: Optional[
-        Literal["google-adk", "langchain", "langgraph", "ag2", "llama-index", "custom"]
+        Literal[
+            "google-adk",
+            "langchain",
+            "langgraph",
+            "ag2",
+            "llama-index",
+            "custom",
+            "a2a",
+        ]
     ]
     """The agent framework to be used for the Agent Engine.
       The OSS agent framework used to develop the agent.
       Currently supported values: "google-adk", "langchain", "langgraph",
-      "ag2", "llama-index", "custom".
+      "ag2", "llama-index", "custom", "a2a".
       If not specified:
       - If `agent` is specified, the agent framework will be auto-detected.
       - If `source_packages` is specified, the agent framework will
@@ -20352,13 +20384,21 @@ class AgentEngineConfig(_common.BaseModel):
       """,
     )
     agent_framework: Optional[
-        Literal["google-adk", "langchain", "langgraph", "ag2", "llama-index", "custom"]
+        Literal[
+            "google-adk",
+            "langchain",
+            "langgraph",
+            "ag2",
+            "llama-index",
+            "custom",
+            "a2a",
+        ]
     ] = Field(
         default=None,
         description="""The agent framework to be used for the Agent Engine.
       The OSS agent framework used to develop the agent.
       Currently supported values: "google-adk", "langchain", "langgraph",
-      "ag2", "llama-index", "custom".
+      "ag2", "llama-index", "custom", "a2a".
       If not specified:
       - If `agent` is specified, the agent framework will be auto-detected.
       - If `source_packages` is specified, the agent framework will
@@ -20548,12 +20588,20 @@ class AgentEngineConfigDict(TypedDict, total=False):
       """
 
     agent_framework: Optional[
-        Literal["google-adk", "langchain", "langgraph", "ag2", "llama-index", "custom"]
+        Literal[
+            "google-adk",
+            "langchain",
+            "langgraph",
+            "ag2",
+            "llama-index",
+            "custom",
+            "a2a",
+        ]
     ]
     """The agent framework to be used for the Agent Engine.
       The OSS agent framework used to develop the agent.
       Currently supported values: "google-adk", "langchain", "langgraph",
-      "ag2", "llama-index", "custom".
+      "ag2", "llama-index", "custom", "a2a".
       If not specified:
       - If `agent` is specified, the agent framework will be auto-detected.
       - If `source_packages` is specified, the agent framework will
