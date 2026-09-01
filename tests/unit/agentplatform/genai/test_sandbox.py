@@ -294,6 +294,129 @@ class TestSandbox:
 
         mock_create.assert_not_called()
 
+    @staticmethod
+    def _exec_response(payload):
+        """Builds the response the sandbox proxy returns for POST /exec."""
+        return agentplatform_types.ExecuteSandboxEnvironmentResponse(
+            outputs=[
+                agentplatform_types.Chunk(
+                    mime_type="application/json",
+                    data=json.dumps(payload).encode("utf-8"),
+                )
+            ]
+        )
+
+    @staticmethod
+    def _sent_chunks(mock_execute_code):
+        """Returns the uri, port and JSON body sent to the sandbox."""
+        _, kwargs = mock_execute_code.call_args
+        chunks = {chunk.mime_type: chunk.data for chunk in kwargs["inputs"]}
+        return (
+            chunks["application/x.sandbox-request-uri"],
+            chunks["application/x.sandbox-request-port"],
+            json.loads(chunks["application/json"]),
+        )
+
+    @mock.patch.object(sandboxes.Sandboxes, "_execute_code")
+    def test_execute_bash_runs_command_and_parses_result(self, mock_execute_code):
+        """A command is sent to /exec and its JSON result is returned."""
+        expected = {
+            "stdout": "hello\n",
+            "stderr": "",
+            "returncode": 0,
+            "duration_ms": 5,
+        }
+        mock_execute_code.return_value = self._exec_response(expected)
+
+        result = self.client.sandboxes.execute_bash(
+            name=_TEST_SANDBOX_RESOURCE_NAME,
+            command="echo hello",
+        )
+
+        assert result == expected
+        _, kwargs = mock_execute_code.call_args
+        assert kwargs["name"] == _TEST_SANDBOX_RESOURCE_NAME
+        uri, port, body = self._sent_chunks(mock_execute_code)
+        assert uri == b"/exec"
+        assert port == b"8080"
+        # cwd and timeout are left to the sandbox's own defaults when unset.
+        assert body == {"command": "echo hello"}
+
+    @mock.patch.object(sandboxes.Sandboxes, "_execute_code")
+    def test_execute_bash_forwards_cwd_and_timeout(self, mock_execute_code):
+        """cwd and timeout reach the container when the caller sets them."""
+        mock_execute_code.return_value = self._exec_response({"stdout": "/tmp\n"})
+
+        self.client.sandboxes.execute_bash(
+            name=_TEST_SANDBOX_RESOURCE_NAME,
+            command="pwd",
+            cwd="/tmp",
+            timeout=30,
+        )
+
+        _, _, body = self._sent_chunks(mock_execute_code)
+        assert body == {"command": "pwd", "cwd": "/tmp", "timeout": 30}
+
+    @mock.patch.object(sandboxes.Sandboxes, "_execute_code")
+    def test_execute_bash_uses_custom_port(self, mock_execute_code):
+        """A caller-supplied port overrides the shell server default."""
+        mock_execute_code.return_value = self._exec_response({"stdout": ""})
+
+        self.client.sandboxes.execute_bash(
+            name=_TEST_SANDBOX_RESOURCE_NAME,
+            command="true",
+            port="9222",
+        )
+
+        _, port, _ = self._sent_chunks(mock_execute_code)
+        assert port == b"9222"
+
+    @mock.patch.object(sandboxes.Sandboxes, "_execute_code")
+    def test_execute_bash_reports_failure_without_raising(self, mock_execute_code):
+        """A non-zero exit is returned on the result, not raised."""
+        expected = {
+            "stdout": "",
+            "stderr": "ls: cannot access '/nope': No such file or directory\n",
+            "returncode": 2,
+            "duration_ms": 4,
+        }
+        mock_execute_code.return_value = self._exec_response(expected)
+
+        result = self.client.sandboxes.execute_bash(
+            name=_TEST_SANDBOX_RESOURCE_NAME,
+            command="ls /nope",
+        )
+
+        assert result == expected
+
+    @mock.patch.object(sandboxes.Sandboxes, "_execute_code")
+    def test_execute_bash_forwards_config(self, mock_execute_code):
+        """The request config is passed through untouched."""
+        mock_execute_code.return_value = self._exec_response({"stdout": ""})
+        config = agentplatform_types.ExecuteCodeRuntimeSandboxConfig()
+
+        self.client.sandboxes.execute_bash(
+            name=_TEST_SANDBOX_RESOURCE_NAME,
+            command="true",
+            config=config,
+        )
+
+        _, kwargs = mock_execute_code.call_args
+        assert kwargs["config"] is config
+
+    @mock.patch.object(sandboxes.Sandboxes, "_execute_code")
+    def test_execute_bash_without_output_raises(self, mock_execute_code):
+        """An empty response is an error, not a silent success."""
+        mock_execute_code.return_value = (
+            agentplatform_types.ExecuteSandboxEnvironmentResponse(outputs=[])
+        )
+
+        with pytest.raises(ValueError, match="returned no output"):
+            self.client.sandboxes.execute_bash(
+                name=_TEST_SANDBOX_RESOURCE_NAME,
+                command="echo hello",
+            )
+
 
 @pytest.mark.usefixtures("google_auth_mock")
 class TestSandboxTemplates:
