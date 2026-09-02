@@ -15,8 +15,10 @@
 
 # pylint: disable=protected-access,bad-continuation
 
+import contextlib
 import importlib
 import pytest
+import sys
 import warnings
 from unittest import mock
 
@@ -30,6 +32,10 @@ from vertexai._genai import client as vertexai_client
 
 _TEST_PROJECT = "test-project"
 _TEST_LOCATION = "us-central1"
+
+_AGENTPLATFORM_GCS_UTILS = "agentplatform._genai._gcs_utils"
+_AGENTPLATFORM_RAG = "agentplatform._genai.rag"
+_VERTEXAI_GCS_UTILS = "vertexai._genai._gcs_utils"
 
 
 pytestmark = pytest.mark.usefixtures("google_auth_mock")
@@ -122,3 +128,63 @@ class TestGenAiClient:
                 warnings.simplefilter("error", FutureWarning)
                 _ = vertexai.Client(project=_TEST_PROJECT, location=_TEST_LOCATION)
                 _ = vertexai.Client(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
+
+@contextlib.contextmanager
+def _pandas_unavailable(reimported_modules=()):
+    """Makes `import pandas` fail, as it does when the extra is not installed.
+
+    Modules named in `reimported_modules` are evicted from the module cache and
+    from their parent package, so that their top-level code runs again while
+    pandas is unavailable. Evicting the parent package attribute matters because
+    `from . import <submodule>` reads it in preference to re-importing.
+    """
+    evicted = []
+    for name in reimported_modules:
+        parent_name, _, attribute = name.rpartition(".")
+        importlib.import_module(name)
+        parent = sys.modules[parent_name]
+        evicted.append((parent, attribute, getattr(parent, attribute)))
+    try:
+        with mock.patch.dict(sys.modules):
+            for name in list(sys.modules):
+                if name == "pandas" or name.startswith("pandas."):
+                    del sys.modules[name]
+            # A None entry makes the import machinery raise ModuleNotFoundError.
+            sys.modules["pandas"] = None
+            for name in reimported_modules:
+                del sys.modules[name]
+            for parent, attribute, _ in evicted:
+                delattr(parent, attribute)
+            yield
+    finally:
+        for parent, attribute, original in evicted:
+            setattr(parent, attribute, original)
+
+
+class TestPandasIsOptional:
+    """pandas is only a dependency of the [evaluation] extra."""
+
+    @pytest.mark.parametrize(
+        "module_name", [_AGENTPLATFORM_GCS_UTILS, _VERTEXAI_GCS_UTILS]
+    )
+    def test_gcs_utils_imports_without_pandas(self, module_name):
+        with _pandas_unavailable([module_name]):
+            importlib.import_module(module_name)
+
+    @pytest.mark.usefixtures("google_auth_mock")
+    def test_rag_does_not_require_pandas(self):
+        test_client = agentplatform.Client(
+            project=_TEST_PROJECT, location=_TEST_LOCATION
+        )
+        with _pandas_unavailable([_AGENTPLATFORM_RAG, _AGENTPLATFORM_GCS_UTILS]):
+            assert test_client.rag is not None
+
+    def test_read_gcs_file_to_dataframe_without_pandas_names_the_extra(self):
+        gcs_utils_module = importlib.import_module(_AGENTPLATFORM_GCS_UTILS)
+        with mock.patch.object(gcs_utils_module.storage, "Client", autospec=True):
+            gcs_utils = gcs_utils_module.GcsUtils(mock.MagicMock())
+
+        with _pandas_unavailable():
+            with pytest.raises(ImportError, match=r"\[evaluation\]"):
+                gcs_utils.read_gcs_file_to_dataframe("gs://bucket/data.csv", "csv")

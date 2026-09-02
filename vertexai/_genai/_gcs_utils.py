@@ -16,13 +16,15 @@
 import io
 import json
 import logging
-from typing import Any, Union
+from typing import Any, TYPE_CHECKING, Union
 
 from google.cloud import storage  # type: ignore[attr-defined]
 from google.cloud.aiplatform.utils.gcs_utils import blob_from_uri
 from google.genai._api_client import BaseApiClient
-import pandas as pd
 import uuid
+
+if TYPE_CHECKING:
+    import pandas as pd
 
 
 logger = logging.getLogger(__name__)
@@ -180,6 +182,14 @@ class GcsUtils:
         self, gcs_filepath: str, file_type: str
     ) -> "pd.DataFrame":
         """Reads a file from Google Cloud Storage into a Pandas DataFrame."""
+        try:
+            import pandas as pd  # pylint: disable=g-import-not-at-top
+        except ImportError as e:
+            raise ImportError(
+                "Reading a Cloud Storage file into a DataFrame requires 'pandas'. "
+                "Please install it using pip install "
+                "google-cloud-aiplatform[evaluation]"
+            ) from e
         file_contents = self.read_file_contents(gcs_filepath)
         if file_type == "csv":
             return pd.read_csv(io.StringIO(file_contents), encoding="utf-8")
