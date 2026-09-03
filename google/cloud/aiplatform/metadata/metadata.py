@@ -794,6 +794,12 @@ class _ExperimentTracker:
         experiment: Optional[str] = None,
         *,
         include_time_series: bool = True,
+        create_time_start_date: Optional[
+            Union[str, datetime.datetime, datetime.date]
+        ] = None,
+        create_time_end_date: Optional[
+            Union[str, datetime.datetime, datetime.date]
+        ] = None,
     ) -> "pd.DataFrame":  # noqa: F821
         """Returns a Pandas DataFrame of the parameters and metrics associated with one experiment.
 
@@ -831,6 +837,12 @@ class _ExperimentTracker:
                 series metrics are not needed or number of runs in Experiment is
                 large. For time series metrics consider querying a specific run
                 using get_time_series_data_frame.
+            create_time_start_date (Union[str, datetime.datetime, datetime.date]):
+                Optional. Start date to filter runs. Include runs created on or after
+                this date.
+            create_time_end_date (Union[str, datetime.datetime, datetime.date]):
+                Optional. End date to filter runs. Include runs created on or before
+                this date.
 
         Returns:
             Pandas Dataframe of Experiment with metrics and parameters.
@@ -845,7 +857,11 @@ class _ExperimentTracker:
         else:
             experiment = experiment_resources.Experiment(experiment)
 
-        return experiment.get_data_frame(include_time_series=include_time_series)
+        return experiment.get_data_frame(
+            include_time_series=include_time_series,
+            create_time_start_date=create_time_start_date,
+            create_time_end_date=create_time_end_date,
+        )
 
     def log(
         self,
