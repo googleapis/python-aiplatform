@@ -592,6 +592,7 @@ class TestAdkApp:
         # Define an async generator for run_async mock return value
         async def mock_run_async(*args, **kwargs):
             from google.adk.events import event
+
             yield event.Event(
                 **{
                     "author": "currency_exchange_agent",
@@ -870,7 +871,6 @@ class TestAdkApp:
             state=None,
             expire_time="2026-03-01T00:00:00Z",
         )
-
 
     @pytest.mark.asyncio
     async def test_async_get_session(self, get_project_id_mock: mock.Mock):
@@ -1879,3 +1879,247 @@ class TestAdkAppMtls:
             mock_exporter.call_args.kwargs["endpoint"]
             == adk_template._DEFAULT_TELEMETRY_ENDPOINT
         )
+
+
+@pytest.mark.usefixtures("google_auth_mock")
+class TestAdkTemplateLoggingDrift:
+    """The four ADK template copies must keep the same logging export code.
+
+    Only `vertexai/agent_engines/templates/adk.py` is exercised by
+    `TestAdkTemplateLoggingExport` below, so a copy that drifts would otherwise
+    regress silently.
+    """
+
+    _MODULES = (
+        "google.cloud.aiplatform.vertexai.agent_engines.templates.adk",
+        "google.cloud.aiplatform.vertexai.preview.reasoning_engines.templates.adk",
+        "google.cloud.aiplatform.agentplatform.frameworks.adk",
+        # `agentplatform.private` is not importable from this test target, so
+        # the fourth copy is not covered here.
+    )
+
+    @pytest.mark.parametrize("name", _MODULES[1:])
+    def test_logging_export_code_matches_the_tested_copy(self, name):
+        import importlib
+        import inspect
+
+        tested = importlib.import_module(self._MODULES[0])
+        other = importlib.import_module(name)
+        for symbol in (
+            "_gcp_batch_log_record_processor",
+            "_get_logs_api_endpoint",
+        ):
+            assert inspect.getsource(getattr(other, symbol)) == inspect.getsource(
+                getattr(tested, symbol)
+            ), f"{name}.{symbol} has drifted"
+
+
+class TestAdkTemplateLoggingExport:
+    """Covers _default_instrumentor_builder's logging branch.
+
+    Agent Engine logs now go straight to telemetry.googleapis.com rather than
+    through CloudLoggingExporter, so the MonitoredResource and log naming that
+    exporter used to produce have to be reproduced by the resource and record
+    attributes we send.
+    """
+
+    def _build(self, monkeypatch, **env):
+        """Runs the instrumentor builder and returns the installed provider."""
+        import opentelemetry._logs
+
+        for key in (
+            "OTEL_SEMCONV_STABILITY_OPT_IN",
+            "GOOGLE_CLOUD_AGENT_ENGINE_ID",
+            "GOOGLE_CLOUD_AGENT_ENGINE_LOCATION",
+            "GOOGLE_CLOUD_LOCATION",
+            "GCP_DEFAULT_LOG_NAME",
+        ):
+            monkeypatch.delenv(key, raising=False)
+        for key, value in env.items():
+            monkeypatch.setenv(key, value)
+
+        installed = {}
+        monkeypatch.setattr(
+            opentelemetry._logs,
+            "set_logger_provider",
+            lambda logger_provider: installed.update(provider=logger_provider),
+        )
+        with mock.patch(
+            "opentelemetry.exporter.otlp.proto.http._log_exporter.OTLPLogExporter"
+        ) as exporter, mock.patch.object(adk_template, "requests_auth"):
+            adk_template._default_instrumentor_builder(
+                _TEST_PROJECT, enable_logging=True
+            )
+        return installed["provider"], exporter
+
+    @pytest.mark.parametrize(
+        "semconv",
+        ["", "gen_ai_latest_experimental"],
+        ids=["stable_semconv", "experimental_semconv"],
+    )
+    def test_logs_go_to_telemetry_api(self, monkeypatch, semconv):
+        """One OTLP path serves both semconv modes.
+
+        The stdout branch experimental semconv used to need is gone with
+        CloudLoggingExporter.
+        """
+        _, exporter = self._build(monkeypatch, OTEL_SEMCONV_STABILITY_OPT_IN=semconv)
+
+        _, kwargs = exporter.call_args
+        assert kwargs["endpoint"] == "https://telemetry.googleapis.com/v1/logs"
+        assert kwargs["headers"]["User-Agent"].startswith("Vertex-Agent-Engine/")
+
+    @staticmethod
+    def _emit(provider, **log_record_kwargs):
+        """Runs a record through the provider's processor and returns it."""
+        from opentelemetry.sdk._logs import ReadWriteLogRecord
+        from opentelemetry.sdk._logs._internal import LogRecord
+
+        record = ReadWriteLogRecord(
+            log_record=LogRecord(**log_record_kwargs),
+            resource=provider.resource,
+        )
+        return TestAdkTemplateLoggingExport._emit_record(provider, record)
+
+    @staticmethod
+    def _emit_record(provider, record):
+        """Returns the record the processor forwards to the batching base."""
+        processor = provider._multi_log_record_processor._log_record_processors[0]
+        forwarded = []
+        with mock.patch.object(
+            type(processor).__mro__[1],
+            "on_emit",
+            lambda self, emitted: forwarded.append(emitted),
+        ):
+            processor.on_emit(record)
+        return forwarded[0]
+
+    def test_monitored_resource_matches_cloud_logging_exporter(self, monkeypatch):
+        """Entries must stay on aiplatform.googleapis.com/ReasoningEngine."""
+        provider, _ = self._build(
+            monkeypatch,
+            GOOGLE_CLOUD_AGENT_ENGINE_ID="1234567890",
+            GOOGLE_CLOUD_AGENT_ENGINE_LOCATION=_TEST_LOCATION,
+        )
+
+        attributes = self._emit(provider).resource.attributes
+        assert (
+            attributes["gcp.resource_type"]
+            == "aiplatform.googleapis.com/ReasoningEngine"
+        )
+        assert attributes["location"] == _TEST_LOCATION
+        assert attributes["reasoning_engine_id"] == "1234567890"
+        assert attributes["gcp.project_id"] == _TEST_PROJECT
+        # Must be a full resource name. A bare project id makes Cloud Logging
+        # build an invalid log name, and the export fails with HTTP 400.
+        assert attributes["resource_container"] == f"projects/{_TEST_PROJECT}"
+        # Traces and metrics must not see the type hint: the metrics pipeline
+        # reads the same key and would move Agent Engine off its resource.
+        assert "gcp.resource_type" not in provider.resource.attributes
+        provider.shutdown()
+
+    def test_monitored_resource_pins_without_a_location(self, monkeypatch):
+        """A missing location empties the label rather than dropping the pin.
+
+        Every log line from one deployment must land on the same
+        MonitoredResource, so the set of labels can't depend on which env vars
+        happen to be set.
+
+        Args:
+            monkeypatch: The pytest monkeypatch fixture.
+        """
+        provider, _ = self._build(
+            monkeypatch, GOOGLE_CLOUD_AGENT_ENGINE_ID="1234567890"
+        )
+
+        attributes = self._emit(provider).resource.attributes
+        assert (
+            attributes["gcp.resource_type"]
+            == "aiplatform.googleapis.com/ReasoningEngine"
+        )
+        assert not attributes["location"]
+        provider.shutdown()
+
+    def test_service_version_is_republished_as_a_label(self, monkeypatch):
+        """Resource attributes are dropped on MonitoredResource ingestion.
+
+        Args:
+            monkeypatch: The pytest monkeypatch fixture.
+        """
+        provider, _ = self._build(
+            monkeypatch,
+            GOOGLE_CLOUD_AGENT_ENGINE_ID="1234567890",
+            GOOGLE_CLOUD_AGENT_ENGINE_RUNTIME_REVISION_ID="42",
+        )
+
+        record = self._emit(provider)
+
+        assert record.log_record.attributes["service.version"] == "42"
+        provider.shutdown()
+
+    @pytest.mark.parametrize(
+        "log_record_kwargs, expected_attributes",
+        [
+            (
+                {},
+                {
+                    "gcp.log_name": (
+                        "aiplatform.googleapis.com/reasoning_engine_stdout"
+                    )
+                },
+            ),
+            (
+                {"event_name": "gen_ai.client.inference.operation.details"},
+                {
+                    "event.name": "gen_ai.client.inference.operation.details",
+                    "gcp.log_name": (
+                        "aiplatform.googleapis.com/reasoning_engine_stdout"
+                    ),
+                },
+            ),
+            (
+                {"attributes": {"gcp.log_name": "my-log"}},
+                {"gcp.log_name": "my-log"},
+            ),
+        ],
+        ids=["default_log_name", "event_name_as_label", "explicit_log_name"],
+    )
+    def test_log_naming_matches_cloud_logging_exporter(
+        self, monkeypatch, log_record_kwargs, expected_attributes
+    ):
+        """Log name and labels must not shift under customers' log filters."""
+        provider, _ = self._build(monkeypatch)
+
+        record = self._emit(provider, **log_record_kwargs)
+
+        assert dict(record.log_record.attributes or {}) == expected_attributes
+        # Cloud Logging names the log after `event_name` ahead of
+        # `gcp.log_name`, which would scatter one log per event type.
+        assert not record.log_record.event_name
+        provider.shutdown()
+
+    def test_the_record_handed_to_the_processor_is_not_mutated(self, monkeypatch):
+        """The provider hands the same record to every processor it has.
+
+        Args:
+            monkeypatch: The pytest monkeypatch fixture.
+        """
+        from opentelemetry.sdk._logs import ReadWriteLogRecord
+        from opentelemetry.sdk._logs._internal import LogRecord
+
+        provider, _ = self._build(
+            monkeypatch, GOOGLE_CLOUD_AGENT_ENGINE_ID="1234567890"
+        )
+        incoming = ReadWriteLogRecord(
+            log_record=LogRecord(event_name="gen_ai.choice", attributes={"a": "1"}),
+            resource=provider.resource,
+        )
+
+        emitted = self._emit_record(provider, incoming)
+
+        assert emitted is not incoming
+        assert incoming.log_record.event_name == "gen_ai.choice"
+        assert dict(incoming.log_record.attributes) == {"a": "1"}
+        assert "gcp.resource_type" not in incoming.resource.attributes
+        assert emitted.log_record.attributes["event.name"] == "gen_ai.choice"
+        provider.shutdown()
