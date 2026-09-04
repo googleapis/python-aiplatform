@@ -9753,7 +9753,7 @@ class TestCreateEvaluationSetFromDataFrame:
         call_args = mock_gcs_instance.upload_json_to_prefix.call_args
         uploaded_data = call_args.kwargs["data"]
 
-        candidate_responses = uploaded_data["candidate_responses"]
+        candidate_responses = uploaded_data["candidateResponses"]
         assert len(candidate_responses) == 1
         candidate_response = candidate_responses[0]
         assert candidate_response["candidate"] == "test-candidate"
@@ -9761,7 +9761,7 @@ class TestCreateEvaluationSetFromDataFrame:
 
         expected_events = [
             {"parts": [{"text": "thought 1"}]},
-            {"parts": [{"function_call": {"name": "foo"}}]},
+            {"parts": [{"functionCall": {"name": "foo"}}]},
         ]
         assert candidate_response["events"] == expected_events
 
@@ -9805,10 +9805,10 @@ class TestCreateEvaluationSetFromDataFrame:
         call_args = mock_gcs_instance.upload_json_to_prefix.call_args
         uploaded_data = call_args.kwargs["data"]
 
-        assert uploaded_data.get("candidate_responses") is None
-        assert uploaded_data["prompt"]["user_scenario"] == {
-            "starting_prompt": "test starting prompt",
-            "conversation_plan": "test conversation plan",
+        assert uploaded_data.get("candidateResponses") is None
+        assert uploaded_data["prompt"]["userScenario"] == {
+            "startingPrompt": "test starting prompt",
+            "conversationPlan": "test conversation plan",
         }
 
     @mock.patch.object(_evals_common, "evals")
@@ -9853,11 +9853,13 @@ class TestCreateEvaluationSetFromDataFrame:
         uploaded_data = call_args.kwargs["data"]
 
         assert uploaded_data["prompt"]["text"] == "test prompt"
-        candidate_responses = uploaded_data["candidate_responses"]
+        candidate_responses = uploaded_data["candidateResponses"]
         assert len(candidate_responses) == 1
         candidate_response = candidate_responses[0]
         assert candidate_response["candidate"] == "test-candidate"
-        assert candidate_response["agent_data"] == agent_data
+        assert candidate_response["agentData"] == {
+            "turns": [{"turnId": "turn1", "events": []}]
+        }
 
     @mock.patch.object(_evals_common, "evals")
     @mock.patch.object(_evals_common, "_gcs_utils")
@@ -9919,8 +9921,8 @@ class TestCreateEvaluationSetFromDataFrame:
         call_args = mock_gcs_instance.upload_json_to_prefix.call_args
         uploaded_data = call_args.kwargs["data"]
 
-        candidate_response = uploaded_data["candidate_responses"][0]
-        uploaded_agent_data = candidate_response["agent_data"]
+        candidate_response = uploaded_data["candidateResponses"][0]
+        uploaded_agent_data = candidate_response["agentData"]
         assert "agents" in uploaded_agent_data
         assert "my_agent" in uploaded_agent_data["agents"]
         assert (
@@ -9980,8 +9982,8 @@ class TestCreateEvaluationSetFromDataFrame:
         call_args = mock_gcs_instance.upload_json_to_prefix.call_args
         uploaded_data = call_args.kwargs["data"]
 
-        candidate_response = uploaded_data["candidate_responses"][0]
-        uploaded_agent_data = candidate_response["agent_data"]
+        candidate_response = uploaded_data["candidateResponses"][0]
+        uploaded_agent_data = candidate_response["agentData"]
         # Original agents map should be preserved, not overwritten
         assert "original_agent" in uploaded_agent_data["agents"]
         assert "different_agent" not in uploaded_agent_data["agents"]
@@ -10028,8 +10030,8 @@ class TestCreateEvaluationSetFromDataFrame:
         call_args = mock_gcs_instance.upload_json_to_prefix.call_args
         uploaded_data = call_args.kwargs["data"]
 
-        assert "prompt_template_data" in uploaded_data["prompt"]
-        ptd_values = uploaded_data["prompt"]["prompt_template_data"]["values"]
+        assert "promptTemplateData" in uploaded_data["prompt"]
+        ptd_values = uploaded_data["prompt"]["promptTemplateData"]["values"]
         assert "conversation_history" in ptd_values
 
     @mock.patch.object(_evals_common, "evals")
@@ -10074,9 +10076,57 @@ class TestCreateEvaluationSetFromDataFrame:
         call_args = mock_gcs_instance.upload_json_to_prefix.call_args
         uploaded_data = call_args.kwargs["data"]
 
-        assert "prompt_template_data" in uploaded_data["prompt"]
-        ptd_values = uploaded_data["prompt"]["prompt_template_data"]["values"]
+        assert "promptTemplateData" in uploaded_data["prompt"]
+        ptd_values = uploaded_data["prompt"]["promptTemplateData"]["values"]
         assert "conversation_history" in ptd_values
+
+    @mock.patch.object(_evals_common, "evals")
+    @mock.patch.object(_evals_common, "_gcs_utils")
+    def test_create_evaluation_set_writes_camel_case_keys(
+        self, mock_gcs_utils, mock_evals_module
+    ):
+        """Eval item JSON must use canonical camelCase keys so the Cloud Console dataset preview can render prompt/response columns."""
+        eval_df = pd.DataFrame(
+            [
+                {
+                    "prompt": "test prompt",
+                    "response": "test response",
+                    "reference": "golden response",
+                }
+            ]
+        )
+
+        mock_gcs_instance = mock_gcs_utils.GcsUtils.return_value
+        mock_gcs_instance.upload_json_to_prefix.return_value = (
+            "gs://bucket/path/request.json"
+        )
+
+        mock_evals_instance = mock_evals_module.Evals.return_value
+        mock_eval_item = mock.Mock()
+        mock_eval_item.name = "eval_item_1"
+        mock_evals_instance.create_evaluation_item.return_value = mock_eval_item
+        mock_evals_instance.create_evaluation_set.return_value = mock.Mock()
+
+        _evals_common._create_evaluation_set_from_dataframe(
+            api_client=self.mock_api_client,
+            gcs_dest_prefix="gs://bucket/prefix",
+            eval_df=eval_df,
+            candidate_name="test-candidate",
+        )
+
+        mock_gcs_instance.upload_json_to_prefix.assert_called_once()
+        uploaded_data = mock_gcs_instance.upload_json_to_prefix.call_args.kwargs["data"]
+
+        assert set(uploaded_data) == {
+            "prompt",
+            "goldenResponse",
+            "candidateResponses",
+        }
+        assert "golden_response" not in uploaded_data
+        assert "candidate_responses" not in uploaded_data
+        assert uploaded_data["prompt"]["text"] == "test prompt"
+        assert uploaded_data["goldenResponse"]["text"] == "golden response"
+        assert uploaded_data["candidateResponses"][0]["text"] == "test response"
 
 
 class TestResolveDataset:
@@ -10152,8 +10202,8 @@ class TestResolveDataset:
         call_args = mock_gcs_instance.upload_json_to_prefix.call_args
         uploaded_data = call_args.kwargs["data"]
 
-        assert "prompt_template_data" in uploaded_data["prompt"]
-        ptd_values = uploaded_data["prompt"]["prompt_template_data"]["values"]
+        assert "promptTemplateData" in uploaded_data["prompt"]
+        ptd_values = uploaded_data["prompt"]["promptTemplateData"]["values"]
         assert "conversation_history" in ptd_values
 
 

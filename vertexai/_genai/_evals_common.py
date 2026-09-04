@@ -15,7 +15,6 @@
 """Common utilities for evals."""
 
 import asyncio
-import base64
 import collections
 import concurrent.futures
 import contextlib
@@ -2884,32 +2883,6 @@ async def _convert_evaluation_run_results_async(
     return eval_result, eval_item_map
 
 
-def _object_to_dict(obj: Any) -> Union[dict[str, Any], Any]:
-    """Converts an object to a dictionary."""
-    if obj is None:
-        return obj
-    if isinstance(obj, (int, float, str, bool)):
-        return obj
-    if isinstance(obj, datetime.datetime):
-        return obj.isoformat()
-    if isinstance(obj, bytes):
-        return base64.b64encode(obj).decode("utf-8")
-    if isinstance(obj, (list, tuple)):
-        return [_object_to_dict(item) for item in obj]
-    if isinstance(obj, dict):
-        return {k: _object_to_dict(v) for k, v in obj.items()}
-
-    if not hasattr(obj, "__dict__"):
-        return obj  # Not an object with attributes, return as is (e.g., set)
-
-    result: dict[str, Any] = {}
-    for key, value in obj.__dict__.items():
-        if value is None:
-            continue
-        result[key] = _object_to_dict(value)
-    return result
-
-
 def _get_content(row: dict[str, Any], column: str) -> Optional[genai_types.Content]:
     if isinstance(row[column], str):
         return genai_types.Content(
@@ -3054,7 +3027,9 @@ def _create_evaluation_set_from_dataframe(
     eval_items = []
     for eval_item_request in eval_item_requests:
         gcs_uri = gcs_utils.upload_json_to_prefix(
-            data=_object_to_dict(eval_item_request),
+            data=eval_item_request.model_dump(
+                mode="json", by_alias=True, exclude_none=True
+            ),
             gcs_dest_prefix=gcs_dest_prefix,
             filename_prefix="request",
         )
