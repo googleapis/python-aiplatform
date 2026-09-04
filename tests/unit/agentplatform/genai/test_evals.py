@@ -2847,8 +2847,16 @@ class TestEvalsRunInference:
                 prompt_feedback=None,
             ),
         ]
+        def generate_content_side_effect(**kwargs):
+            contents = kwargs.get("contents")
+            if "req 1" in contents:
+                return mock_generate_content_responses[0]
+            elif "req 2" in contents:
+                return mock_generate_content_responses[1]
+            raise ValueError(f"Unexpected contents: {contents}")
+
         mock_models.return_value.generate_content.side_effect = (
-            mock_generate_content_responses
+            generate_content_side_effect
         )
 
         with tempfile.TemporaryDirectory() as local_dest_dir:
@@ -2935,8 +2943,16 @@ class TestEvalsRunInference:
                     prompt_feedback=None,
                 ),
             ]
+            def generate_content_side_effect(**kwargs):
+                contents = kwargs.get("contents")
+                if "prompt 1" in contents:
+                    return mock_generate_content_responses[0]
+                elif "prompt 2" in contents:
+                    return mock_generate_content_responses[1]
+                raise ValueError(f"Unexpected contents: {contents}")
+
             mock_models.return_value.generate_content.side_effect = (
-                mock_generate_content_responses
+                generate_content_side_effect
             )
 
             inference_result = self.client.evals.run_inference(
@@ -2974,7 +2990,6 @@ class TestEvalsRunInference:
             assert inference_result.candidate_name == "gemini-pro"
             assert inference_result.gcs_source is None
 
-    @pytest.mark.skip(reason="currently flakey")
     @mock.patch.object(_evals_common, "Models")
     def test_inference_from_local_csv_file(self, mock_models):
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -3008,8 +3023,16 @@ class TestEvalsRunInference:
                     prompt_feedback=None,
                 ),
             ]
+            def generate_content_side_effect(**kwargs):
+                contents = kwargs.get("contents")
+                if "prompt 1" in contents:
+                    return mock_generate_content_responses[0]
+                elif "prompt 2" in contents:
+                    return mock_generate_content_responses[1]
+                raise ValueError(f"Unexpected contents: {contents}")
+
             mock_models.return_value.generate_content.side_effect = (
-                mock_generate_content_responses
+                generate_content_side_effect
             )
 
             inference_result = self.client.evals.run_inference(
@@ -4190,10 +4213,17 @@ class TestEvalsRunInference:
             }
 
         mock_interactions = mock.Mock()
-        mock_interactions.create.side_effect = [
-            make_interaction("interaction-1", "p1", "response 1"),
-            make_interaction("interaction-2", "p2", "response 2"),
-        ]
+
+        def create_interaction_side_effect(*args, **kwargs):
+            req = kwargs if kwargs else args[0]
+            input_text = req.get("input")[0]["text"]
+            if input_text == "p1":
+                return make_interaction("interaction-1", "p1", "response 1")
+            elif input_text == "p2":
+                return make_interaction("interaction-2", "p2", "response 2")
+            raise ValueError(f"Unexpected input: {input_text}")
+
+        mock_interactions.create.side_effect = create_interaction_side_effect
         mock_get_interactions_client.return_value = mock_interactions
 
         inference_result = self.client.evals.run_inference(
@@ -4248,19 +4278,26 @@ class TestEvalsRunInference:
         )
 
         mock_interactions = mock.Mock()
-        mock_interactions.create.side_effect = [
-            RuntimeError("interaction failed"),
-            {
-                "id": "interaction-2",
-                "status": "completed",
-                "steps": [
-                    {
-                        "type": "model_output",
-                        "content": [{"type": "text", "text": "response 2"}],
-                    }
-                ],
-            },
-        ]
+
+        def create_interaction_side_effect(*args, **kwargs):
+            req = kwargs if kwargs else args[0]
+            input_text = req.get("input")[0]["text"]
+            if input_text == "p1":
+                raise RuntimeError("interaction failed")
+            elif input_text == "p2":
+                return {
+                    "id": "interaction-2",
+                    "status": "completed",
+                    "steps": [
+                        {
+                            "type": "model_output",
+                            "content": [{"type": "text", "text": "response 2"}],
+                        }
+                    ],
+                }
+            raise ValueError(f"Unexpected input: {input_text}")
+
+        mock_interactions.create.side_effect = create_interaction_side_effect
         mock_get_interactions_client.return_value = mock_interactions
 
         inference_result = self.client.evals.run_inference(
