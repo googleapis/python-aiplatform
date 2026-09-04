@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.1.1](https://github.com/googleapis/python-aiplatform/compare/v2.1.0...v2.1.1) (2026-09-04)
+
+
+### Bug Fixes
+
+* Import pandas lazily in the Gen AI SDK `_gcs_utils` module. ([7c94277](https://github.com/googleapis/python-aiplatform/commit/7c942774be1c8b149e6d2740dbcca3afc072092c)), refs [#5928](https://github.com/googleapis/python-aiplatform/issues/5928) [#7129](https://github.com/googleapis/python-aiplatform/issues/7129)
+
 ## [2.1.0](https://github.com/googleapis/python-aiplatform/compare/v2.0.1...v2.1.0) (2026-09-01)
 
 
