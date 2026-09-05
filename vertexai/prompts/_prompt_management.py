@@ -500,6 +500,22 @@ def _get_prompt_resource(prompt: Prompt, prompt_id: str) -> gca_dataset.Dataset:
     return dataset
 
 
+def _populate_latest_version_metadata(prompt: Prompt, prompt_id: str) -> None:
+    """Populates prompt version metadata for the latest prompt version."""
+    project = aiplatform_initializer.global_config.project
+    location = aiplatform_initializer.global_config.location
+    parent = f"projects/{project}/locations/{location}/datasets/{prompt_id}"
+    versions = prompt._dataset_client.list_dataset_versions(
+        parent=parent,
+        page_size=1,
+        order_by="create_time desc",
+    )
+    for version in versions:
+        prompt._version_id = version.name.split("/")[-1]
+        prompt._version_name = version.display_name
+        break
+
+
 def _get_prompt_resource_from_version(
     prompt: Prompt, prompt_id: str, version_id: str
 ) -> gca_dataset.Dataset:
@@ -580,12 +596,14 @@ def get(prompt_id: str, version_id: Optional[str] = None) -> Prompt:
         )
     else:
         dataset = _get_prompt_resource(prompt=prompt, prompt_id=prompt_id)
+        _populate_latest_version_metadata(prompt=prompt, prompt_id=prompt_id)
 
     # Remove etag to avoid error for repeated dataset updates
     dataset.etag = None
 
     prompt._dataset = dataset
-    prompt._version_id = version_id
+    if version_id:
+        prompt._version_id = version_id
 
     dataset_dict = _proto_to_dict(dataset)
 
