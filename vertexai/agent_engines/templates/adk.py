@@ -1215,10 +1215,15 @@ class AdkApp:
             raise ValueError(
                 "Only one of session_id and session_events should be specified."
             )
+        throwaway_session_id = None
         if not session_id:
             session = await self.async_create_session(user_id=user_id)
             session_id = session["id"]
             if session_events is not None:
+                throwaway_session_id = session_id
+
+        try:
+            if throwaway_session_id is not None:
                 # We allow for session_events to be an empty list.
                 from google.adk.events.event import Event
 
@@ -1231,28 +1236,38 @@ class AdkApp:
                         event=event,
                     )
 
-        run_config = _validate_run_config(run_config)
-        if run_config:
-            events_async = self._tmpl_attrs.get("runner").run_async(
-                user_id=user_id,
-                session_id=session_id,
-                new_message=content,
-                run_config=run_config,
-                **kwargs,
-            )
-        else:
-            events_async = self._tmpl_attrs.get("runner").run_async(
-                user_id=user_id,
-                session_id=session_id,
-                new_message=content,
-                **kwargs,
-            )
+            run_config = _validate_run_config(run_config)
+            if run_config:
+                events_async = self._tmpl_attrs.get("runner").run_async(
+                    user_id=user_id,
+                    session_id=session_id,
+                    new_message=content,
+                    run_config=run_config,
+                    **kwargs,
+                )
+            else:
+                events_async = self._tmpl_attrs.get("runner").run_async(
+                    user_id=user_id,
+                    session_id=session_id,
+                    new_message=content,
+                    **kwargs,
+                )
 
-        try:
             async for event in events_async:
                 # Yield the event data as a dictionary
                 yield _utils.dump_event_for_json(event)
         finally:
+            if throwaway_session_id is not None:
+                try:
+                    await self._tmpl_attrs.get("session_service").delete_session(
+                        app_name=self._app_name(),
+                        user_id=user_id,
+                        session_id=throwaway_session_id,
+                    )
+                except Exception as e:
+                    _warn(
+                        f"Failed to delete throwaway session {throwaway_session_id!r}: {e}"
+                    )
             # Avoid telemetry data loss having to do with CPU throttling on instance turndown
             _ = await _force_flush_otel(
                 tracing_enabled=self._tracing_enabled(),

@@ -544,6 +544,174 @@ class TestAdkApp:
         assert len(events) == 1
 
     @pytest.mark.asyncio
+    async def test_async_stream_query_with_session_events_deletes_throwaway_session(
+        self,
+        default_instrumentor_builder_mock: mock.Mock,
+        get_project_id_mock: mock.Mock,
+    ):
+        app = agent_engines.AdkApp(agent=_TEST_AGENT)
+        app.set_up()
+        app._tmpl_attrs["runner"] = _MockRunner()
+        session_service = app._tmpl_attrs.get("session_service")
+
+        before = await session_service.list_sessions(
+            app_name=app._app_name(), user_id=_TEST_USER_ID
+        )
+        assert len(before.sessions) == 0
+
+        events = []
+        async for event in app.async_stream_query(
+            user_id=_TEST_USER_ID,
+            message="test message",
+            session_events=[],
+        ):
+            events.append(event)
+        assert len(events) == 1
+
+        after = await session_service.list_sessions(
+            app_name=app._app_name(), user_id=_TEST_USER_ID
+        )
+        assert len(after.sessions) == 0
+
+    @pytest.mark.asyncio
+    async def test_async_stream_query_without_session_id_keeps_session(
+        self,
+        default_instrumentor_builder_mock: mock.Mock,
+        get_project_id_mock: mock.Mock,
+    ):
+        app = agent_engines.AdkApp(agent=_TEST_AGENT)
+        app.set_up()
+        app._tmpl_attrs["runner"] = _MockRunner()
+        session_service = app._tmpl_attrs.get("session_service")
+
+        events = []
+        async for event in app.async_stream_query(
+            user_id=_TEST_USER_ID,
+            message="test message",
+        ):
+            events.append(event)
+        assert len(events) == 1
+
+        after = await session_service.list_sessions(
+            app_name=app._app_name(), user_id=_TEST_USER_ID
+        )
+        assert len(after.sessions) == 1
+
+    @pytest.mark.asyncio
+    async def test_async_stream_query_with_explicit_session_id_never_deleted(
+        self,
+        default_instrumentor_builder_mock: mock.Mock,
+        get_project_id_mock: mock.Mock,
+    ):
+        app = agent_engines.AdkApp(agent=_TEST_AGENT)
+        app.set_up()
+        app._tmpl_attrs["runner"] = _MockRunner()
+        session_service = app._tmpl_attrs.get("session_service")
+        session = await app.async_create_session(user_id=_TEST_USER_ID)
+
+        with mock.patch.object(
+            session_service, "delete_session", wraps=session_service.delete_session
+        ) as delete_session_spy:
+            events = []
+            async for event in app.async_stream_query(
+                user_id=_TEST_USER_ID,
+                message="test message",
+                session_id=session["id"],
+            ):
+                events.append(event)
+            assert len(events) == 1
+            delete_session_spy.assert_not_called()
+
+        got = await session_service.get_session(
+            app_name=app._app_name(), user_id=_TEST_USER_ID, session_id=session["id"]
+        )
+        assert got is not None
+
+    @pytest.mark.asyncio
+    async def test_async_stream_query_deletes_throwaway_session_on_runner_error(
+        self,
+        default_instrumentor_builder_mock: mock.Mock,
+        get_project_id_mock: mock.Mock,
+    ):
+        class _FailingRunner:
+            async def run_async(self, *args, **kwargs):
+                from google.adk.events import event
+
+                yield event.Event(
+                    author="test_agent",
+                    content={"parts": [{"text": "partial"}], "role": "model"},
+                    id="e1",
+                    invocation_id="inv1",
+                )
+                raise RuntimeError("boom")
+
+        app = agent_engines.AdkApp(agent=_TEST_AGENT)
+        app.set_up()
+        app._tmpl_attrs["runner"] = _FailingRunner()
+        session_service = app._tmpl_attrs.get("session_service")
+
+        with pytest.raises(RuntimeError):
+            async for event in app.async_stream_query(
+                user_id=_TEST_USER_ID,
+                message="test message",
+                session_events=[],
+            ):
+                pass
+
+        after = await session_service.list_sessions(
+            app_name=app._app_name(), user_id=_TEST_USER_ID
+        )
+        assert len(after.sessions) == 0
+
+    @pytest.mark.asyncio
+    async def test_async_stream_query_deletes_throwaway_session_on_append_event_error(
+        self,
+        default_instrumentor_builder_mock: mock.Mock,
+        get_project_id_mock: mock.Mock,
+    ):
+        app = agent_engines.AdkApp(agent=_TEST_AGENT)
+        app.set_up()
+        app._tmpl_attrs["runner"] = _MockRunner()
+        session_service = app._tmpl_attrs.get("session_service")
+
+        with pytest.raises(Exception):
+            async for event in app.async_stream_query(
+                user_id=_TEST_USER_ID,
+                message="test message",
+                session_events=[{"not": "a valid event"}],
+            ):
+                pass
+
+        after = await session_service.list_sessions(
+            app_name=app._app_name(), user_id=_TEST_USER_ID
+        )
+        assert len(after.sessions) == 0
+
+    @pytest.mark.asyncio
+    async def test_async_stream_query_deletes_throwaway_session_on_early_close(
+        self,
+        default_instrumentor_builder_mock: mock.Mock,
+        get_project_id_mock: mock.Mock,
+    ):
+        app = agent_engines.AdkApp(agent=_TEST_AGENT)
+        app.set_up()
+        app._tmpl_attrs["runner"] = _MockRunner()
+        session_service = app._tmpl_attrs.get("session_service")
+
+        generator = app.async_stream_query(
+            user_id=_TEST_USER_ID,
+            message="test message",
+            session_events=[],
+        )
+        await generator.__anext__()
+        await generator.aclose()
+
+        after = await session_service.list_sessions(
+            app_name=app._app_name(), user_id=_TEST_USER_ID
+        )
+        assert len(after.sessions) == 0
+
+    @pytest.mark.asyncio
     async def test_streaming_agent_run_with_events(
         self,
         default_instrumentor_builder_mock: mock.Mock,
