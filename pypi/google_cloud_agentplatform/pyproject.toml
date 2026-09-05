@@ -74,7 +74,7 @@ llama_index = [
     "google-cloud-agentplatform[agent_engines]",
     "llama-index",
     "llama-index-llms-google-genai",
-    "openinference-instrumentation-llama-index >= 3.0, < 4.0",
+    "openinference-instrumentation-llama-index >=4.5, <4.6",
 ]
 evaluation = [
     "pandas >= 1.0.0",
@@ -83,7 +83,7 @@ evaluation = [
     # Lower bound: CVE-2026-35030 plus 4 follow-on advisories patched in
     # 1.83.7. Upper bound for stable interface only.
     "litellm >= 1.83.7, < 1.86.0; python_version < '3.14'",
-    "litellm >= 1.93.0, < 1.97.0; python_version >= '3.14'",
+    "litellm >=1.99.0, <1.100.0; python_version >= '3.14'",
     "google-cloud-storage >= 1.32.0, < 4.0.0",
 ]
 bigquery = [
