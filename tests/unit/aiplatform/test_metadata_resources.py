@@ -28,6 +28,7 @@ from google.cloud.aiplatform.compat.types import event as gca_event
 from google.cloud.aiplatform.metadata import artifact
 from google.cloud.aiplatform.metadata import context
 from google.cloud.aiplatform.metadata import execution
+from google.cloud.aiplatform.metadata import metadata_store
 from google.cloud.aiplatform.metadata import utils as metadata_utils
 from google.cloud.aiplatform_v1 import (
     MetadataServiceClient,
@@ -1004,6 +1005,77 @@ class TestExecution:
         )
         assert len(artifact_list) == 1
         assert artifact_list[0]._gca_resource == expected_artifact
+
+    def test_create_credentials_default_is_none(self):
+        """Verify the credentials parameter defaults to None, not a type object.
+
+        Regression test for https://github.com/googleapis/python-aiplatform/issues/6610.
+        The original code used ``credentials=Optional[...]`` (assignment) instead of
+        ``credentials: Optional[...] = None`` (annotation with default). The ``=`` form
+        makes the default the ``typing.Optional`` type object itself, which causes a
+        503 "Getting metadata from plugin failed with error: before_request" when the
+        gRPC auth stack tries to call ``.before_request()`` on it.
+        """
+        import inspect
+
+        sig = inspect.signature(execution.Execution.create)
+        default = sig.parameters["credentials"].default
+        assert default is None, (
+            f"Execution.create() credentials default should be None, got {default!r}. "
+            "Check that the annotation uses ':' (not '=') with a '= None' default."
+        )
+
+        sig_internal = inspect.signature(execution.Execution._create)
+        default_internal = sig_internal.parameters["credentials"].default
+        assert default_internal is None, (
+            f"Execution._create() credentials default should be None, got {default_internal!r}. "
+            "Check that the annotation uses ':' (not '=') with a '= None' default."
+        )
+
+    @pytest.mark.usefixtures("create_execution_mock", "get_execution_mock")
+    def test_create_calls_ensure_default_metadata_store_exists(
+        self, create_execution_mock
+    ):
+        """Verify Execution.create() initializes the default metadata store.
+
+        Regression test for https://github.com/googleapis/python-aiplatform/issues/6610.
+        Artifact.create() calls ensure_default_metadata_store_exists() before creating
+        the resource, but Execution.create() originally skipped this call, causing 503
+        credential plugin errors when no prior Artifact.create() or aiplatform.init()
+        had warmed up the metadata store.
+        """
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
+        with patch.object(
+            metadata_store._MetadataStore,
+            "ensure_default_metadata_store_exists",
+        ) as ensure_store_mock:
+            execution.Execution.create(
+                schema_title=_TEST_SCHEMA_TITLE,
+                display_name=_TEST_DISPLAY_NAME,
+                metadata_store_id="default",
+            )
+            ensure_store_mock.assert_called_once_with(
+                project=None, location=None, credentials=None
+            )
+
+    @pytest.mark.usefixtures("create_execution_mock", "get_execution_mock")
+    def test_create_skips_ensure_for_non_default_metadata_store(
+        self, create_execution_mock
+    ):
+        """Verify ensure_default_metadata_store_exists is not called for non-default stores."""
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
+        with patch.object(
+            metadata_store._MetadataStore,
+            "ensure_default_metadata_store_exists",
+        ) as ensure_store_mock:
+            execution.Execution.create(
+                schema_title=_TEST_SCHEMA_TITLE,
+                display_name=_TEST_DISPLAY_NAME,
+                metadata_store_id=_TEST_METADATA_STORE,
+            )
+            ensure_store_mock.assert_not_called()
 
 
 @pytest.mark.usefixtures("google_auth_mock")
