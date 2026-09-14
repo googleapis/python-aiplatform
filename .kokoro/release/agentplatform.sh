@@ -38,6 +38,9 @@ readonly SOURCE_TREE="agentplatform"
 
 function checkout_release_tag() {
   cd "${REPO_DIR}"
+  # The checkout is owned by a different uid than the build process, which git
+  # refuses to operate on until the path is marked safe.
+  git config --global --add safe.directory "${REPO_DIR}"
   if [[ -n "${_LOUHI_TAG_NAME:-}" ]]; then
     echo "Tag trigger detected; checking out ${_LOUHI_TAG_NAME}"
     git fetch --tags origin || true
