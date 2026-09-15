@@ -4870,6 +4870,61 @@ class TestRunAgentInternal:
         ]
 
     @mock.patch.object(_evals_common, "_run_agent")
+    def test_run_agent_internal_multi_turn_normalizes_raw_events(self, mock_run_agent):
+        mock_run_agent.return_value = [
+            [
+                {
+                    "id": "event-1",
+                    "author": "agent",
+                    "content": {"parts": [{"text": "hello"}]},
+                    "model_version": "gemini-2.5-flash",
+                    "timestamp": "2026-01-01T00:00:00Z",
+                },
+                {
+                    "invocation_id": "event-2",
+                    "author": "agent",
+                    "content": {"parts": [{"text": "bye"}]},
+                    "actions": {"state_delta": {}},
+                    "usage_metadata": {"total_token_count": 12},
+                },
+            ]
+        ]
+        prompt_dataset = pd.DataFrame({"prompt": ["p1"], "conversation_plan": ["plan"]})
+        mock_agent_engine = mock.Mock()
+        mock_api_client = mock.Mock()
+
+        result_df = _evals_common._run_agent_internal(
+            api_client=mock_api_client,
+            agent_engine=mock_agent_engine,
+            agent=None,
+            prompt_dataset=prompt_dataset,
+        )
+
+        agent_data = result_df["agent_data"][0]
+        assert agent_data["turns"] == [
+            {
+                "turn_index": 0,
+                "turn_id": "event-1",
+                "events": [
+                    {
+                        "author": "agent",
+                        "content": {"parts": [{"text": "hello"}]},
+                    }
+                ],
+            },
+            {
+                "turn_index": 1,
+                "turn_id": "event-2",
+                "events": [
+                    {
+                        "author": "agent",
+                        "content": {"parts": [{"text": "bye"}]},
+                    }
+                ],
+            },
+        ]
+
+    @mock.patch.object(_evals_common, "_run_agent")
     def test_run_agent_internal_multi_turn_with_agent(self, mock_run_agent):
         mock_run_agent.return_value = [
             [
@@ -7013,9 +7068,7 @@ class TestPrebuiltMetricLoaderGroundedness:
         assert lazy_metric._get_api_metric_spec_name() == "grounding_v1"
 
     def test_groundedness_logs_field_difference_warning(self, caplog):
-        loader_logger = (
-            "agentplatform._genai._evals_metric_loaders"
-        )
+        loader_logger = "agentplatform._genai._evals_metric_loaders"
         with caplog.at_level("WARNING", logger=loader_logger):
             _ = agentplatform_genai_types.RubricMetric.GROUNDEDNESS
         messages = [r.getMessage() for r in caplog.records if r.name == loader_logger]
