@@ -1730,11 +1730,18 @@ class AdkApp:
                 from google.cloud.aiplatform.utils import (
                     resource_manager_utils,
                 )
-                from google.api_core import exceptions
 
                 return resource_manager_utils.get_project_id(project)
-            # Fail open as temporary workaround for identity_type config parameter
-            except (exceptions.PermissionDenied, exceptions.Unauthenticated):
+            # This runs from set_up() on the Agent Engine cold-start path, so
+            # anything escaping here kills the uvicorn worker before it serves.
+            # The lookup is cosmetic -- every caller works with the project
+            # number -- so fail open on everything, which is what
+            # aiplatform.initializer already does for the identical call.
+            except Exception as e:  # pylint: disable=broad-exception-caught
+                _warn(
+                    "Failed to convert project number to project ID, proceeding"
+                    f" with the project number: {e}"
+                )
                 return project
 
         return project or None

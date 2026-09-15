@@ -28,6 +28,7 @@ from google.adk.events.event import Event
 from google.adk.events.event_actions import EventActions
 from google.adk.sessions.base_session_service import BaseSessionService
 from google.adk.sessions.in_memory_session_service import InMemorySessionService
+from google.api_core import exceptions as api_exceptions
 from google.api_core import operation as ga_operation
 from google.auth import credentials as auth_credentials
 from google.auth.transport import mtls
@@ -1194,6 +1195,37 @@ class TestAdkApp:
 
         assert app.project_id() is None
         get_project_id_mock.assert_not_called()
+
+    @pytest.mark.parametrize(
+        "error",
+        [
+            api_exceptions.PermissionDenied("denied"),
+            api_exceptions.Unauthenticated("unauthenticated"),
+            # b/561814776: gRPC UNKNOWN, seen when an Agent Gateway terminates
+            # the HTTP/2 stream to cloudresourcemanager.
+            api_exceptions.Unknown("Stream removed"),
+            api_exceptions.DeadlineExceeded("deadline exceeded"),
+            RuntimeError("something unexpected"),
+        ],
+    )
+    def test_project_id_fails_open_on_lookup_error(
+        self,
+        get_project_id_mock: mock.Mock,
+        error: Exception,
+    ):
+        """A failed lookup falls back to the project number instead of raising.
+
+        project_id() runs from set_up() on the cold-start path, so an escaping
+        exception kills the worker over a lookup nothing depends on.
+        """
+        app = agent_engines.AdkApp(agent=_TEST_AGENT)
+        app._tmpl_attrs["project"] = _TEST_PROJECT_NUMBER
+        # Discard the lookup that vertexai.init() made in setup_method.
+        get_project_id_mock.reset_mock()
+        get_project_id_mock.side_effect = error
+
+        assert app.project_id() == _TEST_PROJECT_NUMBER
+        get_project_id_mock.assert_called_once_with(_TEST_PROJECT_NUMBER)
 
     @pytest.mark.usefixtures("caplog")
     def test_enable_tracing(
