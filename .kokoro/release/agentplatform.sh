@@ -67,7 +67,14 @@ function build_package() {
   # Pinned: these run with credentials that can write to the staging repository,
   # so the release must not pick up whatever happens to be latest on PyPI that
   # day. Bump deliberately.
-  python3 -m pip install \
+  #
+  # --ignore-installed because the image carries distro Python packages that pip
+  # otherwise treats as already satisfying twine. That leaves the old /usr/lib
+  # requests-toolbelt in place beside a urllib3 2.x under /usr/local, and twine
+  # then fails on import reaching for urllib3.contrib.appengine, which 2.x
+  # removed. Installing the whole dependency set under /usr/local, which precedes
+  # /usr/lib on sys.path, keeps the two sets apart.
+  python3 -m pip install --ignore-installed \
     "build==1.6.0" \
     "twine==7.0.0" \
     "keyring==25.7.0" \
