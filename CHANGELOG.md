@@ -1,5 +1,27 @@
 # Changelog
 
+## [2.1.3](https://github.com/googleapis/python-aiplatform/compare/v2.1.0...v2.1.3) (2026-09-15)
+
+
+### Features
+
+* Add `psc_endpoint` parameter to `Sandboxes.send_command` and `Sandboxes.generate_browser_ws_headers` so VPC-SC sandboxes with `ingressControlConfig.enablePrivateServiceConnect=true` (which populate only `connection_info.service_attachment`, never `load_balancer_hostname` / `load_balancer_ip`) can route data-plane traffic through a customer-provisioned PSC endpoint. Existing non-VPC-SC callers are unaffected; the parameter defaults to `None` and the load-balancer branches remain the primary path. ([39971ae](https://github.com/googleapis/python-aiplatform/commit/39971ae242906c4f03833f53f7c7b2aadb772df4))
+* Add build configuration support to Vertex AI Reasoning Engine ([bea1abd](https://github.com/googleapis/python-aiplatform/commit/bea1abd141ff8fc62c5527e5c0e9eb864d382ae0))
+* Add enable_zero_data_retention to Tool.ParallelAiSearch ([bea1abd](https://github.com/googleapis/python-aiplatform/commit/bea1abd141ff8fc62c5527e5c0e9eb864d382ae0))
+* Add enable_zero_data_retention to Tool.ParallelAiSearch ([bea1abd](https://github.com/googleapis/python-aiplatform/commit/bea1abd141ff8fc62c5527e5c0e9eb864d382ae0))
+
+
+### Bug Fixes
+
+* Fail open on any error resolving the project ID in the ADK templates. ([30bf665](https://github.com/googleapis/python-aiplatform/commit/30bf665a51581f638275bcc630ffb6b49d517f32))
+* Fix Sandboxes.send_command failing to reach the sandbox data plane. ([2b28caf](https://github.com/googleapis/python-aiplatform/commit/2b28caf784749321d57afd6f43bad60fde42fa3c))
+* Import pandas lazily in the Gen AI SDK `_gcs_utils` module. ([7c94277](https://github.com/googleapis/python-aiplatform/commit/7c942774be1c8b149e6d2740dbcca3afc072092c)), refs [#5928](https://github.com/googleapis/python-aiplatform/issues/5928) [#7129](https://github.com/googleapis/python-aiplatform/issues/7129)
+
+
+### Miscellaneous Chores
+
+* Release 2.1.3 ([2c7a22d](https://github.com/googleapis/python-aiplatform/commit/2c7a22d929755ff8e07ba804b3cc2ae919fd2ef9))
+
 ## [2.1.0](https://github.com/googleapis/python-aiplatform/compare/v2.0.1...v2.1.0) (2026-09-01)
 
 
