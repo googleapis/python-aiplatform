@@ -17,7 +17,6 @@ import asyncio
 from collections.abc import Awaitable
 import enum
 import os
-import sys
 import threading
 from typing import (
     Any,
@@ -115,6 +114,19 @@ _DEFAULT_MTLS_TELEMETRY_ENDPOINT = "https://telemetry.mtls.googleapis.com/v1/tra
 # check runs on the agent server's critical startup path, so it must fail fast
 # rather than inherit AuthorizedSession's 120s default.
 _TELEMETRY_API_CHECK_TIMEOUT_SECONDS = 5.0
+
+_DEFAULT_TELEMETRY_LOGS_ENDPOINT = "https://telemetry.googleapis.com/v1/logs"
+_DEFAULT_MTLS_TELEMETRY_LOGS_ENDPOINT = (
+    "https://telemetry.mtls.googleapis.com/v1/logs"
+)
+
+_GCP_LOG_NAME = "gcp.log_name"
+_EVENT_NAME = "event.name"
+_GCP_RESOURCE_TYPE = "gcp.resource_type"
+_LOCATION = "location"
+_REASONING_ENGINE_ID = "reasoning_engine_id"
+_RESOURCE_CONTAINER = "resource_container"
+_SERVICE_VERSION = "service.version"
 
 
 class _MtlsEndpoint(enum.Enum):
@@ -340,23 +352,14 @@ def _default_instrumentor_builder(
         )
         MISSING_LOGGING_IMPORT_ERROR_MESSAGE = (
             "proceeding with logging disabled because not all packages (i.e."
-            " `google-cloud-logging`, `opentelemetry-sdk`,"
-            " `opentelemetry-exporter-gcp-logging`) for tracing have been installed"
+            " `opentelemetry-sdk`, `opentelemetry-exporter-otlp-proto-http`)"
+            " for logging have been installed"
         )
 
         if needed_for_tracing and enable_tracing:
             _warn(MISSING_TRACE_IMPORT_ERROR_MESSAGE)
         if needed_for_logging and enable_logging:
             _warn(MISSING_LOGGING_IMPORT_ERROR_MESSAGE)
-        return None
-
-    def _detect_cloud_resource_id(project_id: str) -> Optional[str]:
-        location = os.getenv("GOOGLE_CLOUD_AGENT_ENGINE_LOCATION", "") or os.getenv(
-            "GOOGLE_CLOUD_LOCATION", ""
-        )
-        agent_engine_id = os.getenv("GOOGLE_CLOUD_AGENT_ENGINE_ID")
-        if all(v is not None for v in (location, agent_engine_id)):
-            return f"//aiplatform.googleapis.com/projects/{project_id}/locations/{location}/reasoningEngines/{agent_engine_id}"
         return None
 
     try:
@@ -379,37 +382,13 @@ def _default_instrumentor_builder(
             "opentelemetry-sdk", needed_for_tracing=True, needed_for_logging=True
         )
 
-    import uuid
-
-    # Provide a set of resource attributes but allow to override them with env
-    # variables like OTEL_RESOURCE_ATTRIBUTES and OTEL_SERVICE_NAME.
-    cloud_resource_id = _detect_cloud_resource_id(project_id)
-    resource = opentelemetry.sdk.resources.Resource.create(
-        attributes={
-            "gcp.project_id": project_id,
-            "cloud.account.id": project_id,
-            "cloud.provider": "gcp",
-            "cloud.platform": "gcp.agent_engine",
-            "service.name": os.getenv("GOOGLE_CLOUD_AGENT_ENGINE_ID", ""),
-            "service.instance.id": f"{uuid.uuid4().hex}-{os.getpid()}",
-            "cloud.region": (
-                os.getenv("GOOGLE_CLOUD_AGENT_ENGINE_LOCATION", "")
-                or os.getenv("GOOGLE_CLOUD_LOCATION", "")
-            ),
-        }
-        | (
-            {"cloud.resource_id": cloud_resource_id}
-            if cloud_resource_id is not None
-            else {}
-        )
-    ).merge(opentelemetry.sdk.resources.OTELResourceDetector().detect())
+    resource = _create_otel_resource(project_id)
 
     if enable_tracing:
         try:
             import opentelemetry.exporter.otlp.proto.http.version
             import opentelemetry.exporter.otlp.proto.http.trace_exporter
             import google.auth.transport.requests
-            from google.cloud.aiplatform import version as aip_version
         except (ImportError, AttributeError):
             return _warn_missing_dependency(
                 "opentelemetry-exporter-otlp-proto-http", needed_for_tracing=True
@@ -418,12 +397,7 @@ def _default_instrumentor_builder(
         import google.auth
 
         credentials, _ = google.auth.default()
-        vertex_sdk_version = aip_version.__version__
-        otlp_http_version = opentelemetry.exporter.otlp.proto.http.version.__version__
-        user_agent = (
-            f"Vertex-Agent-Engine/{vertex_sdk_version}"
-            f" OTel-OTLP-Exporter-Python/{otlp_http_version}"
-        )
+        user_agent = _get_user_agent()
 
         session = requests_auth.AuthorizedSession(credentials=credentials)
 
@@ -483,54 +457,45 @@ def _default_instrumentor_builder(
 
     if enable_logging:
         try:
-            import opentelemetry.exporter.cloud_logging
+            import opentelemetry.exporter.otlp.proto.http._log_exporter
+            import google.auth.transport.requests
         except (ImportError, AttributeError):
             return _warn_missing_dependency(
-                "opentelemetry-exporter-gcp-logging", needed_for_logging=True
+                "opentelemetry-exporter-otlp-proto-http", needed_for_logging=True
             )
 
-        class _SimpleLogRecordProcessor(
-            opentelemetry.sdk._logs.export.SimpleLogRecordProcessor
-        ):
+        import google.auth
 
-            def force_flush(
-                self, timeout_millis: int = 30000
-            ) -> bool:  # pylint: disable=no-self-use
-                sys.stdout.flush()
-                sys.stderr.flush()
-                return True
+        credentials, _ = google.auth.default()
+        session = requests_auth.AuthorizedSession(credentials=credentials)
 
-        logger_provider = opentelemetry.sdk._logs.LoggerProvider(resource=resource)
-        # Use the legacy log processor when experimental semconv is enabled.
-        # Exporting JSON logs to stdout is bugged; Agent Engine fails to
-        # correctly parse the `gen_ai.client.inference.operation.details`
-        # messages.
-        # TODO: b/480102541 - Unify both branches once the regression is fixed.
-        if "gen_ai_latest_experimental" in os.getenv(
-            "OTEL_SEMCONV_STABILITY_OPT_IN", ""
-        ).split(","):
-            logger_provider.add_log_record_processor(
-                opentelemetry.sdk._logs.export.BatchLogRecordProcessor(
-                    opentelemetry.exporter.cloud_logging.CloudLoggingExporter(
-                        project_id=project_id,
-                        default_log_name=os.getenv(
-                            "GCP_DEFAULT_LOG_NAME", "adk-on-agent-engine"
-                        ),
-                    ),
-                )
+        if _use_client_cert_effective():
+            client_cert_source = (
+                mtls.default_client_cert_source()
+                if mtls.has_default_client_cert_source()
+                else None
             )
+            session.configure_mtls_channel()
+            endpoint = _get_logs_api_endpoint(client_cert_source)
         else:
-            logger_provider.add_log_record_processor(
-                _SimpleLogRecordProcessor(
-                    opentelemetry.exporter.cloud_logging.CloudLoggingExporter(
-                        project_id=project_id,
-                        default_log_name=os.getenv(
-                            "GCP_DEFAULT_LOG_NAME", "adk-on-agent-engine"
-                        ),
-                        structured_json_file=sys.stdout,
-                    ),
-                )
+            endpoint = _DEFAULT_TELEMETRY_LOGS_ENDPOINT
+
+        # One processor serves stable and experimental semconv. The stdout
+        # branch experimental records used to need is gone along with the
+        # Cloud Logging exporter.
+        logger_provider = opentelemetry.sdk._logs.LoggerProvider(
+            resource=_create_otel_resource(project_id)
+        )
+        logger_provider.add_log_record_processor(
+            _gcp_batch_log_record_processor(
+                opentelemetry.exporter.otlp.proto.http._log_exporter.OTLPLogExporter(
+                    session=session,
+                    endpoint=endpoint,
+                    headers={"User-Agent": _get_user_agent()},
+                ),
+                project_id,
             )
+        )
 
         opentelemetry._logs.set_logger_provider(logger_provider=logger_provider)
 
@@ -652,6 +617,181 @@ def _warn_if_telemetry_api_disabled():
         return
     if "Telemetry API has not been used in project" in r.text:
         _warn(_TELEMETRY_API_DISABLED_WARNING % (project, project))
+
+
+def _get_user_agent() -> str:
+    """Returns the User-Agent to send on OTLP exports."""
+    from google.cloud.aiplatform import version as aip_version
+
+    user_agent = f"Vertex-Agent-Engine/{aip_version.__version__}"
+    try:
+        import opentelemetry.exporter.otlp.proto.http.version
+
+        user_agent += (
+            " OTel-OTLP-Exporter-Python/"
+            f"{opentelemetry.exporter.otlp.proto.http.version.__version__}"
+        )
+    except (ImportError, AttributeError):
+        pass
+    return user_agent
+
+
+def _get_logs_api_endpoint(client_cert_source: bytes | None = None) -> str:
+    """Returns the logs endpoint matching _get_api_endpoint's mTLS decision.
+
+    Args:
+        client_cert_source (bytes | None): The client certificate source.
+
+    Returns:
+        str: The logs API endpoint to be used.
+    """
+    if _get_api_endpoint(client_cert_source) == _DEFAULT_MTLS_TELEMETRY_ENDPOINT:
+        return _DEFAULT_MTLS_TELEMETRY_LOGS_ENDPOINT
+    return _DEFAULT_TELEMETRY_LOGS_ENDPOINT
+
+
+def _create_otel_resource(project_id: str):
+    """Returns the OTel resource describing the Agent Engine deployment.
+
+    Args:
+        project_id: Project to which to send telemetry.
+
+    Returns:
+        The resource to set on the providers.
+    """
+    import os
+    import uuid
+
+    import opentelemetry.sdk.resources
+
+    location = os.getenv("GOOGLE_CLOUD_AGENT_ENGINE_LOCATION", "") or os.getenv(
+        "GOOGLE_CLOUD_LOCATION", ""
+    )
+    agent_engine_id = os.getenv("GOOGLE_CLOUD_AGENT_ENGINE_ID", "")
+    attributes = {
+        "gcp.project_id": project_id,
+        "cloud.account.id": project_id,
+        "cloud.provider": "gcp",
+        "cloud.platform": "gcp.agent_engine",
+        "service.name": agent_engine_id,
+        "service.instance.id": f"{uuid.uuid4().hex}-{os.getpid()}",
+        "cloud.region": location,
+    }
+    if location and agent_engine_id:
+        attributes["cloud.resource_id"] = (
+            f"//aiplatform.googleapis.com/projects/{project_id}"
+            f"/locations/{location}/reasoningEngines/{agent_engine_id}"
+        )
+
+    # Provide a set of resource attributes but allow to override them with env
+    # variables like OTEL_RESOURCE_ATTRIBUTES and OTEL_SERVICE_NAME.
+    return opentelemetry.sdk.resources.Resource.create(attributes=attributes).merge(
+        opentelemetry.sdk.resources.OTELResourceDetector().detect()
+    )
+
+
+def _gcp_batch_log_record_processor(exporter, project_id: str):
+    """Returns a batch processor that keeps log names and labels stable.
+
+    Args:
+        exporter: The OTLP log exporter to wrap.
+        project_id (str): Project to which to send telemetry.
+
+    Returns:
+        The configured log record processor.
+    """
+    import copy
+    import os
+
+    import opentelemetry.sdk._logs.export
+    import opentelemetry.sdk.resources
+
+    class GCPBatchLogRecordProcessor(
+        opentelemetry.sdk._logs.export.BatchLogRecordProcessor
+    ):
+        """Keeps Cloud Logging log names and labels stable."""
+
+        def __init__(
+            self,
+            exporter: opentelemetry.sdk._logs.export.LogRecordExporter,
+            project_id: str,
+        ):
+            super().__init__(exporter)
+            self._log_resource = self._agent_engine_log_resource(project_id)
+            self._default_log_name = os.getenv(
+                # OTel logs used to be written to stdout in Agent Engine.
+                # Let's keep the same log name for backward compatibility.
+                "GCP_DEFAULT_LOG_NAME",
+                "aiplatform.googleapis.com/reasoning_engine_stdout",
+            )
+            # Resource attributes are dropped once ingested as a
+            # MonitoredResource, so the version has to travel as a label to
+            # stay queryable.
+            self._service_version = os.getenv(
+                "GOOGLE_CLOUD_AGENT_ENGINE_RUNTIME_REVISION_ID", ""
+            )
+
+        @staticmethod
+        def _agent_engine_log_resource(project_id: str):
+            """Returns the MonitoredResource hints Cloud Logging needs.
+
+            These are logs-only: `gcp.resource_type` also steers metric
+            ingestion, so putting them on the resource traces and metrics
+            share would move Agent Engine metrics off their monitored
+            resource.
+
+            Args:
+                project_id (str): Project to which to send telemetry.
+
+            Returns:
+                The resource to merge onto every exported log record.
+            """
+            location = os.getenv(
+                "GOOGLE_CLOUD_AGENT_ENGINE_LOCATION", ""
+            ) or os.getenv("GOOGLE_CLOUD_LOCATION", "")
+            return opentelemetry.sdk.resources.Resource(
+                attributes={
+                    # Cloud Logging otherwise detects the resource as
+                    # `generic_task`.
+                    _GCP_RESOURCE_TYPE: "aiplatform.googleapis.com/ReasoningEngine",
+                    _LOCATION: location,
+                    _REASONING_ENGINE_ID: os.getenv(
+                        "GOOGLE_CLOUD_AGENT_ENGINE_ID", ""
+                    ),
+                    # Without `projects/`, telemetry.googleapis.com returns a 4xx.
+                    _RESOURCE_CONTAINER: f"projects/{project_id}",
+                }
+            )
+
+        def on_emit(
+            self, log_record: opentelemetry.sdk._logs.ReadWriteLogRecord
+        ) -> None:
+            # The provider hands the same record to every registered
+            # processor, so the rewrites below go on a copy of our own.
+            # Shallow is enough: nothing here mutates the body, the
+            # attributes or the resource in place.
+            emitted = copy.copy(log_record)
+            record = emitted.log_record = copy.copy(log_record.log_record)
+
+            attributes = dict(record.attributes or {})
+            if record.event_name:
+                attributes.setdefault(_EVENT_NAME, record.event_name)
+                # Cloud Logging derives the log name from `event_name` in
+                # preference to `gcp.log_name`, which would scatter records
+                # over one log per event type. The name survives as the
+                # `event.name` label set above.
+                record.event_name = None
+            attributes.setdefault(_GCP_LOG_NAME, self._default_log_name)
+            emitted.resource = (
+                log_record.resource
+                or opentelemetry.sdk.resources.Resource.get_empty()
+            ).merge(self._log_resource)
+            if self._service_version:
+                attributes.setdefault(_SERVICE_VERSION, self._service_version)
+            record.attributes = attributes
+            super().on_emit(emitted)
+
+    return GCPBatchLogRecordProcessor(exporter, project_id)
 
 
 def _get_api_endpoint(client_cert_source: bytes | None = None) -> str:
