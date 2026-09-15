@@ -1424,6 +1424,12 @@ class AdkApp:
         if not session:
             raise RuntimeError("Session initialization failed.")
 
+        if request.authorizations and getattr(session, "state", None) is not None:
+            for auth_id, auth in request.authorizations.items():
+                auth_obj = _Authorization(**auth)
+                session.state[f"temp:{auth_id}"] = auth_obj.access_token
+                session.state[auth_id] = auth_obj.access_token
+
         # Run the agent
         message_for_agent = types.Content(**request.message)
         # Propagate per-request user labels (e.g. billing/attribution) onto a
