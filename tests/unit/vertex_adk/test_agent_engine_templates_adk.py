@@ -28,6 +28,7 @@ from google.adk.events.event import Event
 from google.adk.events.event_actions import EventActions
 from google.adk.sessions.base_session_service import BaseSessionService
 from google.adk.sessions.in_memory_session_service import InMemorySessionService
+from google.adk.sessions.state import State
 from google.api_core import operation as ga_operation
 from google.auth import credentials as auth_credentials
 from google.auth.transport import mtls
@@ -714,10 +715,25 @@ class TestAdkApp:
             ),
         )
 
-        # Readable by the agent for the duration of the invocation ...
+        # Readable by the agent for the duration of the invocation under BOTH
+        # the bare key (backward compatibility for Citadel/Woolworths) and temp:
         assert session.state["temp:test_user_id1"] == "test_access_token"
+        assert session.state["test_user_id1"] == "test_access_token"
+        assert "test_user_id1" in session.state
         # ... but trimmed from the delta the session service writes out.
         assert not appended.actions.state_delta
+
+    @pytest.mark.asyncio
+    async def test_bare_key_resolves_from_temp_and_overrides_redacted_placeholder(self):
+        """Ensures bare auth_id lookups override server [REDACTED_SECRET:...] placeholders."""
+        state = State(
+            value={"test_user_id1": "[REDACTED_SECRET:oauth_access_token]"},
+            delta={"temp:test_user_id1": "ya29.fresh_live_token"},
+        )
+        assert "test_user_id1" in state
+        assert state["test_user_id1"] == "ya29.fresh_live_token"
+        assert state.get("test_user_id1") == "ya29.fresh_live_token"
+        assert state.to_dict()["test_user_id1"] == "ya29.fresh_live_token"
 
     @pytest.mark.asyncio
     async def test_streaming_agent_run_with_events_propagates_labels(
