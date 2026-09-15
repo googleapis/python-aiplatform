@@ -937,6 +937,7 @@ class Sandboxes(_api_module.BaseModule):
         query_params: Optional[dict[str, object]] = None,
         headers: Optional[dict[str, str]] = None,
         request_dict: Optional[dict[str, object]] = None,
+        psc_endpoint: Optional[str] = None,
     ) -> genai_types.HttpResponse:
         """Sends a command to the sandbox.
 
@@ -957,6 +958,16 @@ class Sandboxes(_api_module.BaseModule):
                 Optional. The headers to include in the command.
             request_dict (dict[str, object]):
                 Optional. The request body to include in the command.
+            psc_endpoint (str):
+                Optional. Host (RFC1918 IP or resolvable internal hostname) of the
+                customer-side PSC endpoint forwarding rule that targets
+                ``connection_info.service_attachment``. Needed for VPC-SC sandboxes
+                (``ingressControlConfig.enablePrivateServiceConnect=true``) where
+                ``connection_info.load_balancer_hostname`` and ``load_balancer_ip``
+                are both unset because ingress goes through PSC in the customer's
+                VPC rather than a Google-managed load balancer. When provided, it
+                is used as the data-plane host in place of the load balancer
+                address.
 
         Returns:
             genai_types.HttpResponse: The response from the sandbox.
@@ -966,12 +977,21 @@ class Sandboxes(_api_module.BaseModule):
         connection_info = sandbox_environment.connection_info
         if not connection_info:
             raise ValueError("Connection info is not available.")
-        if connection_info.load_balancer_hostname:
+        if psc_endpoint:
+            # VPC-SC path: caller has provisioned a PSC endpoint against
+            # connection_info.service_attachment and passes its host here.
+            endpoint = "https://" + psc_endpoint
+        elif connection_info.load_balancer_hostname:
             endpoint = "https://" + connection_info.load_balancer_hostname
         elif connection_info.load_balancer_ip:
             endpoint = "http://" + connection_info.load_balancer_ip
         else:
-            raise ValueError("Load balancer hostname or ip is not available.")
+            raise ValueError(
+                "No data-plane endpoint available. Non-VPC-SC sandboxes populate"
+                " connection_info.load_balancer_hostname; VPC-SC sandboxes require"
+                " the caller to pass psc_endpoint (the host of the forwarding"
+                " rule targeting connection_info.service_attachment)."
+            )
 
         routing_token = connection_info.routing_token
         if not routing_token:
@@ -1012,6 +1032,7 @@ class Sandboxes(_api_module.BaseModule):
         service_account_email: str,
         port: str = "8080",
         timeout: int = 3600,
+        psc_endpoint: Optional[str] = None,
     ) -> tuple[str, dict[str, str]]:
         """Generates the websocket upgrade headers for the browser.
 
@@ -1025,6 +1046,15 @@ class Sandboxes(_api_module.BaseModule):
                 Defaults to "8080". This should be one of the ports specified during template creation.
             timeout (int):
                 Optional. The timeout in seconds for the token. Defaults to 3600.
+            psc_endpoint (str):
+                Optional. Host (RFC1918 IP or resolvable internal hostname) of the
+                customer-side PSC endpoint forwarding rule that targets
+                ``connection_info.service_attachment``. Needed for VPC-SC
+                sandboxes; see ``send_command`` for details. When provided, it is
+                used as the websocket host in place of the load balancer address,
+                and is propagated to the internal ``send_command`` call that
+                fetches the CDP endpoint.
+
         Returns:
             tuple[str, dict[str, str]]: A tuple containing the websocket URL and
             the headers for websocket upgrade.
@@ -1033,12 +1063,19 @@ class Sandboxes(_api_module.BaseModule):
             raise ValueError("Connection info is not available.")
 
         connection_info = sandbox_environment.connection_info
-        if connection_info.load_balancer_hostname:
+        if psc_endpoint:
+            ws_base_url = "wss://" + psc_endpoint
+        elif connection_info.load_balancer_hostname:
             ws_base_url = "wss://" + connection_info.load_balancer_hostname
         elif connection_info.load_balancer_ip:
             ws_base_url = "ws://" + connection_info.load_balancer_ip
         else:
-            raise ValueError("Load balancer hostname or ip is not available.")
+            raise ValueError(
+                "No data-plane endpoint available. Non-VPC-SC sandboxes populate"
+                " connection_info.load_balancer_hostname; VPC-SC sandboxes require"
+                " the caller to pass psc_endpoint (the host of the forwarding"
+                " rule targeting connection_info.service_attachment)."
+            )
 
         http_access_token = self.generate_access_token(service_account_email, timeout)
         response = self.send_command(
@@ -1047,6 +1084,7 @@ class Sandboxes(_api_module.BaseModule):
             sandbox_environment=sandbox_environment,
             port=port,
             path="/cdp_ws_endpoint",
+            psc_endpoint=psc_endpoint,
         )
         if not response:
             raise ValueError("Failed to get the websocket endpoint.")

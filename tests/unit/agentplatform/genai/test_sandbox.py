@@ -164,6 +164,106 @@ class TestSandbox:
             == "v1.stream, test_token, test_routing_token, 9222"
         )
 
+    @mock.patch.object(sandboxes.requests, "request")
+    def test_send_command_vpcsc_uses_psc_endpoint(self, mock_request):
+        mock_sandbox = mock.Mock()
+        mock_sandbox.connection_info.load_balancer_hostname = None
+        mock_sandbox.connection_info.load_balancer_ip = None
+        mock_sandbox.connection_info.routing_token = "test_routing_token"
+        mock_response = mock.Mock()
+        mock_response.text = "{}"
+        mock_response.headers = {}
+        mock_request.return_value = mock_response
+
+        self.client.sandboxes.send_command(
+            http_method="GET",
+            access_token="test_token",
+            sandbox_environment=mock_sandbox,
+            port="9000",
+            path="test/path",
+            psc_endpoint="10.0.0.10",
+        )
+
+        args, kwargs = mock_request.call_args
+        assert args[0] == "GET"
+        assert args[1] == "https://10.0.0.10/test/path"
+        assert kwargs["headers"]["Authorization"] == "Bearer test_token"
+        assert kwargs["headers"]["X-Sandbox-Routing-Token"] == "test_routing_token"
+        # X-Sandbox-Port must flow through even on the VPC-SC path; the
+        # reverse proxy behind the customer's PSC endpoint uses it to route
+        # to the correct sandbox container port.
+        assert kwargs["headers"]["X-Sandbox-Port"] == "9000"
+
+    @mock.patch.object(sandboxes.requests, "request")
+    def test_send_command_vpcsc_accepts_hostname_as_psc_endpoint(self, mock_request):
+        """psc_endpoint accepts a resolvable hostname, not only an IP."""
+        mock_sandbox = mock.Mock()
+        mock_sandbox.connection_info.load_balancer_hostname = None
+        mock_sandbox.connection_info.load_balancer_ip = None
+        mock_sandbox.connection_info.routing_token = "test_routing_token"
+        mock_response = mock.Mock()
+        mock_response.text = "{}"
+        mock_response.headers = {}
+        mock_request.return_value = mock_response
+
+        self.client.sandboxes.send_command(
+            http_method="GET",
+            access_token="test_token",
+            sandbox_environment=mock_sandbox,
+            path="test/path",
+            psc_endpoint="psc-endpoint.internal.example.com",
+        )
+
+        args, _ = mock_request.call_args
+        assert args[1] == "https://psc-endpoint.internal.example.com/test/path"
+
+    def test_send_command_raises_when_no_endpoint_available(self):
+        mock_sandbox = mock.Mock()
+        mock_sandbox.connection_info.load_balancer_hostname = None
+        mock_sandbox.connection_info.load_balancer_ip = None
+        mock_sandbox.connection_info.routing_token = "test_routing_token"
+
+        with pytest.raises(ValueError, match="psc_endpoint"):
+            self.client.sandboxes.send_command(
+                http_method="GET",
+                access_token="test_token",
+                sandbox_environment=mock_sandbox,
+                path="test/path",
+            )
+
+    @mock.patch.object(sandboxes.Sandboxes, "generate_access_token")
+    @mock.patch.object(sandboxes.requests, "request")
+    def test_generate_browser_ws_headers_vpcsc_uses_psc_endpoint(
+        self, mock_request, mock_generate_access_token
+    ):
+        mock_generate_access_token.return_value = "test_token"
+
+        mock_sandbox = mock.Mock()
+        mock_sandbox.connection_info.load_balancer_hostname = None
+        mock_sandbox.connection_info.load_balancer_ip = None
+        mock_sandbox.connection_info.routing_token = "test_routing_token"
+        mock_response = mock.Mock()
+        mock_response.text = '{"endpoint": "test/endpoint"}'
+        mock_response.headers = {}
+        mock_request.return_value = mock_response
+
+        ws_url, headers = self.client.sandboxes.generate_browser_ws_headers(
+            sandbox_environment=mock_sandbox,
+            service_account_email=_TEST_SERVICE_ACCOUNT_EMAIL,
+            timeout=3600,
+            psc_endpoint="10.0.0.10",
+        )
+        assert ws_url == "wss://10.0.0.10/test/endpoint"
+        assert (
+            headers["Sec-WebSocket-Protocol"]
+            == "v1.stream, test_token, test_routing_token, 9222"
+        )
+        # The delegated send_command call that fetches the CDP endpoint must
+        # also target the PSC endpoint host, not the (empty) load balancer.
+        req_args, req_kwargs = mock_request.call_args
+        assert req_args[1] == "https://10.0.0.10/cdp_ws_endpoint"
+        assert req_kwargs["headers"]["X-Sandbox-Routing-Token"] == "test_routing_token"
+
     @mock.patch.object(sandboxes.Sandboxes, "_create")
     def test_create_with_shell_environment_and_existing_template(self, mock_create):
         mock_operation = mock.Mock()
