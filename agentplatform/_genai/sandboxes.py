@@ -1405,7 +1405,14 @@ class Sandboxes(_api_module.BaseModule):
         if psc_endpoint:
             # VPC-SC path: caller has provisioned a PSC endpoint against
             # connection_info.service_attachment and passes its host here.
-            endpoint = "https://" + psc_endpoint
+            # The forwarding rule targets the router's Service Attachment
+            # directly, and the router pod serves plain HTTP on `port` (the
+            # router NetworkPolicy allows ingress only on that TCP port).
+            # Unlike the non-VPC-SC load_balancer_hostname case, no
+            # Google-managed L7 LB terminates TLS or translates ports in
+            # front, so the URL must be http://host:port, not https://host
+            # on the default 443.
+            endpoint = f"http://{psc_endpoint}:{port}"
         elif connection_info.load_balancer_hostname:
             endpoint = "https://" + connection_info.load_balancer_hostname
         elif connection_info.load_balancer_ip:
@@ -1489,7 +1496,11 @@ class Sandboxes(_api_module.BaseModule):
 
         connection_info = sandbox_environment.connection_info
         if psc_endpoint:
-            ws_base_url = "wss://" + psc_endpoint
+            # See send_command's psc_endpoint branch for the rationale: the
+            # PSC forwarding rule targets the router's Service Attachment
+            # directly (no L7 LB in front), so this must be plain ws:// with
+            # the explicit port, not wss:// on the default 443.
+            ws_base_url = f"ws://{psc_endpoint}:{port}"
         elif connection_info.load_balancer_hostname:
             ws_base_url = "wss://" + connection_info.load_balancer_hostname
         elif connection_info.load_balancer_ip:

@@ -186,7 +186,11 @@ class TestSandbox:
 
         args, kwargs = mock_request.call_args
         assert args[0] == "GET"
-        assert args[1] == "https://10.0.0.10/test/path"
+        # PSC-E ingress goes to the router pod directly (no Google-managed L7
+        # LB in front), and the router serves plain HTTP on the sandbox port.
+        # The URL must therefore be http://host:port, not https://host on the
+        # default 443.
+        assert args[1] == "http://10.0.0.10:9000/test/path"
         assert kwargs["headers"]["Authorization"] == "Bearer test_token"
         assert kwargs["headers"]["X-Sandbox-Routing-Token"] == "test_routing_token"
         # X-Sandbox-Port must flow through even on the VPC-SC path; the
@@ -215,7 +219,11 @@ class TestSandbox:
         )
 
         args, _ = mock_request.call_args
-        assert args[1] == "https://psc-endpoint.internal.example.com/test/path"
+        # Default port "8080" is baked into the URL; scheme is plain http.
+        assert (
+            args[1]
+            == "http://psc-endpoint.internal.example.com:8080/test/path"
+        )
 
     def test_send_command_raises_when_no_endpoint_available(self):
         mock_sandbox = mock.Mock()
@@ -253,7 +261,9 @@ class TestSandbox:
             timeout=3600,
             psc_endpoint="10.0.0.10",
         )
-        assert ws_url == "wss://10.0.0.10/test/endpoint"
+        # Plain ws:// with the explicit port for the same reason send_command
+        # uses http://host:port on this branch — see that method's docstring.
+        assert ws_url == "ws://10.0.0.10:8080/test/endpoint"
         assert (
             headers["Sec-WebSocket-Protocol"]
             == "v1.stream, test_token, test_routing_token, 9222"
@@ -261,7 +271,7 @@ class TestSandbox:
         # The delegated send_command call that fetches the CDP endpoint must
         # also target the PSC endpoint host, not the (empty) load balancer.
         req_args, req_kwargs = mock_request.call_args
-        assert req_args[1] == "https://10.0.0.10/cdp_ws_endpoint"
+        assert req_args[1] == "http://10.0.0.10:8080/cdp_ws_endpoint"
         assert req_kwargs["headers"]["X-Sandbox-Routing-Token"] == "test_routing_token"
 
     @mock.patch.object(sandboxes.Sandboxes, "_create")
