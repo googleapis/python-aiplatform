@@ -15,7 +15,6 @@
 """The vertexai module."""
 
 import importlib
-import sys
 
 from google.cloud.aiplatform import version as aiplatform_version
 
@@ -24,7 +23,6 @@ __version__ = aiplatform_version.__version__
 from google.cloud.aiplatform import init
 
 _genai_client = None
-_genai_types = None
 
 
 def __getattr__(name):  # type: ignore[no-untyped-def]
@@ -45,12 +43,10 @@ def __getattr__(name):  # type: ignore[no-untyped-def]
         return getattr(_genai_client, name)
 
     if name == "types":
-        global _genai_types
-        if _genai_types is None:
-            _genai_types = importlib.import_module("._genai.types", __name__)
-        if "vertexai.types" not in sys.modules:
-            sys.modules["vertexai.types"] = _genai_types
-        return _genai_types
+        # `types` is a real submodule that resolves against
+        # `agentplatform.types`, so importing it also binds it as an attribute
+        # here and this runs only once.
+        return importlib.import_module(".types", __name__)
 
     raise AttributeError(f"module '{__name__}' has no attribute '{name}'")
 
