@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import asyncio
 import cloudpickle
 import difflib
 import importlib
@@ -20,6 +21,7 @@ import pytest
 import sys
 import tarfile
 import tempfile
+import time
 from typing import Any, AsyncIterable, Dict, Iterable, List, Optional
 from unittest import mock
 
@@ -845,6 +847,37 @@ def stream_query_agent_engine_mock():
         side_effect=lambda *args, **kwargs: mock_streamer(),
     ) as stream_query_agent_engine_mock:
         yield stream_query_agent_engine_mock
+
+
+class _AsyncChunkIterator:
+    """Yields response chunks asynchronously to simulate grpc.aio streams."""
+
+    def __init__(self, chunks):
+        self._chunks = iter(chunks)
+
+    def __aiter__(self):
+        return self
+
+    async def __anext__(self):
+        try:
+            return next(self._chunks)
+        except StopIteration:
+            raise StopAsyncIteration
+
+
+@pytest.fixture(scope="function")
+def async_stream_query_agent_engine_mock():
+    # Simulates the GAPIC async client contract of returning an awaitable that
+    # resolves to an async iterator.
+    async def mock_streamer(*args, **kwargs):
+        return _AsyncChunkIterator(_TEST_AGENT_ENGINE_STREAM_QUERY_RESPONSE)
+
+    with mock.patch.object(
+        reasoning_engine_execution_service.ReasoningEngineExecutionServiceAsyncClient,
+        "stream_query_reasoning_engine",
+        side_effect=mock_streamer,
+    ) as async_stream_query_agent_engine_mock:
+        yield async_stream_query_agent_engine_mock
 
 
 @pytest.fixture(scope="function")
@@ -2835,7 +2868,7 @@ class TestAgentEngine:
         test_engine,
         test_class_method_docs,
         test_class_methods_spec,
-        stream_query_agent_engine_mock,
+        async_stream_query_agent_engine_mock,
     ):
         with mock.patch.object(
             base.VertexAiResourceNoun,
@@ -2857,7 +2890,7 @@ class TestAgentEngine:
 
             assert len(results) == 2  # Matches the length of mocked response
 
-            stream_query_agent_engine_mock.assert_called_with(
+            async_stream_query_agent_engine_mock.assert_called_with(
                 request=types.StreamQueryReasoningEngineRequest(
                     name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
                     input={"input": _TEST_QUERY_PROMPT},
@@ -2894,7 +2927,7 @@ class TestAgentEngine:
         test_class_methods,
         test_class_methods_spec,
         update_agent_engine_mock,
-        stream_query_agent_engine_mock,
+        async_stream_query_agent_engine_mock,
     ):
         with mock.patch.object(
             base.VertexAiResourceNoun,
@@ -2908,6 +2941,7 @@ class TestAgentEngine:
             test_agent_engine = agent_engines.create(MethodToBeUnregisteredEngine())
             assert hasattr(test_agent_engine, _TEST_METHOD_TO_BE_UNREGISTERED_NAME)
 
+        async_client_before_update = test_agent_engine.execution_async_client
         with mock.patch.object(
             base.VertexAiResourceNoun,
             "_get_gca_resource",
@@ -2920,6 +2954,10 @@ class TestAgentEngine:
             )
             test_agent_engine.update(agent_engine=test_engine)
 
+        # Ensures update() reinitializes the async client used for streaming queries.
+        assert (
+            test_agent_engine.execution_async_client is not async_client_before_update
+        )
         assert not hasattr(test_agent_engine, _TEST_METHOD_TO_BE_UNREGISTERED_NAME)
         for method_name in test_class_methods:
             invoked_method = getattr(test_agent_engine, method_name)
@@ -2929,7 +2967,7 @@ class TestAgentEngine:
 
             assert len(results) == 2  # Matches the length of mocked response
 
-            stream_query_agent_engine_mock.assert_called_with(
+            async_stream_query_agent_engine_mock.assert_called_with(
                 request=types.StreamQueryReasoningEngineRequest(
                     name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
                     input={"input": _TEST_QUERY_PROMPT},
@@ -2965,7 +3003,7 @@ class TestAgentEngine:
         test_engine,
         test_class_methods,
         test_class_methods_spec,
-        stream_query_agent_engine_mock,
+        async_stream_query_agent_engine_mock,
     ):
         with mock.patch.object(
             base.VertexAiResourceNoun,
@@ -2987,13 +3025,81 @@ class TestAgentEngine:
 
             assert len(results) == 2  # Matches the length of mocked response
 
-            stream_query_agent_engine_mock.assert_called_with(
+            async_stream_query_agent_engine_mock.assert_called_with(
                 request=types.StreamQueryReasoningEngineRequest(
                     name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
                     input={"input": _TEST_QUERY_PROMPT},
                     class_method=method_name,
                 )
             )
+
+    @pytest.mark.asyncio
+    async def test_async_stream_query_keeps_event_loop_responsive(self):
+        num_chunks = 5
+        chunk_delay_s = 0.02
+        watchdog_tick_s = 0.001
+
+        class _SlowAsyncStream:
+            """Yields chunks with non-blocking delays to simulate a grpc.aio stream."""
+
+            def __init__(self):
+                self._remaining = num_chunks
+
+            def __aiter__(self):
+                return self
+
+            async def __anext__(self):
+                if self._remaining == 0:
+                    raise StopAsyncIteration
+                self._remaining -= 1
+                await asyncio.sleep(chunk_delay_s)
+                return _TEST_AGENT_ENGINE_STREAM_QUERY_RESPONSE[0]
+
+        async def mock_async_streamer(*args, **kwargs):
+            return _SlowAsyncStream()
+
+        def mock_blocking_sync_streamer(*args, **kwargs):
+            """Simulates a blocking sync client that blocks the thread during stream iteration."""
+            for _ in range(num_chunks):
+                time.sleep(chunk_delay_s)
+                yield _TEST_AGENT_ENGINE_STREAM_QUERY_RESPONSE[0]
+
+        test_agent_engine = mock.MagicMock()
+        test_agent_engine.resource_name = _TEST_AGENT_ENGINE_RESOURCE_NAME
+        test_agent_engine.execution_async_client.stream_query_reasoning_engine = (
+            mock_async_streamer
+        )
+        test_agent_engine.execution_api_client.stream_query_reasoning_engine = (
+            mock_blocking_sync_streamer
+        )
+
+        ticks = 0
+        stream_finished = asyncio.Event()
+
+        async def watchdog():
+            nonlocal ticks
+            while not stream_finished.is_set():
+                await asyncio.sleep(watchdog_tick_s)
+                ticks += 1
+
+        watchdog_task = asyncio.create_task(watchdog())
+        invoked_method = _agent_engines._wrap_async_stream_query_operation(
+            method_name=_TEST_DEFAULT_ASYNC_STREAM_METHOD_NAME
+        )
+        results = [
+            chunk
+            async for chunk in invoked_method(
+                test_agent_engine, input=_TEST_QUERY_PROMPT
+            )
+        ]
+        stream_finished.set()
+        await watchdog_task
+
+        assert len(results) == num_chunks
+        # A blocking client starves the watchdog task by never yielding to the
+        # event loop. The threshold uses a loose lower bound to tolerate CI
+        # scheduling delays while verifying loop responsiveness.
+        assert ticks > num_chunks * 2
 
     # pytest does not allow absl.testing.parameterized.named_parameters.
     @pytest.mark.parametrize(
