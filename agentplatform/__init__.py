@@ -54,17 +54,8 @@ def __getattr__(name):  # type: ignore[no-untyped-def]
         global _genai_types
         if _genai_types is None:
             _genai_types = importlib.import_module("._genai.types", __name__)
-        # `types` is an alias for `._genai.types` rather than a real submodule,
-        # so register it to keep
-        # `from agentplatform.types import TypeName`
-        # working without a prior attribute access. Spell it the google3 way:
-        # Copybara rewrites that prefix in both directions, and the external
-        # spelling fails its reversibility check. This key was `vertexai.types`,
-        # which both misnamed this package's own alias and shadowed the real
-        # `vertexai.types` module.
-        types_module_name = f"{__name__}.types"
-        if types_module_name not in sys.modules:
-            sys.modules[types_module_name] = _genai_types
+        if "vertexai.types" not in sys.modules:
+            sys.modules["vertexai.types"] = _genai_types
         return _genai_types
 
     raise AttributeError(f"module '{__name__}' has no attribute '{name}'")
