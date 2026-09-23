@@ -1,5 +1,20 @@
 # Changelog
 
+## [2.2.0](https://github.com/googleapis/python-aiplatform/compare/v2.1.3...v2.2.0) (2026-09-22)
+
+
+### Features
+
+* Update discovery doc ([6ad6fe8](https://github.com/googleapis/python-aiplatform/commit/6ad6fe8829c437b37012f2d0ff4f8a1ad2f95bac))
+
+
+### Bug Fixes
+
+* Allow unknown union variants when validating gaos responses in evals ([a9c4e6e](https://github.com/googleapis/python-aiplatform/commit/a9c4e6ee29111a57ae5fdb637da923b928280a2d))
+* Resolve vertexai.types against agentplatform.types ([5af2f8e](https://github.com/googleapis/python-aiplatform/commit/5af2f8e70784252a1ec50d59ce8805a01170acfe))
+* Resolve vertexai.types against agentplatform.types ([36a47bd](https://github.com/googleapis/python-aiplatform/commit/36a47bd6f43194333a6291af0b06b46ed8960d35))
+* Resolve vertexai.types against agentplatform.types ([75ecb3b](https://github.com/googleapis/python-aiplatform/commit/75ecb3b5c6cb610c8fec5c72c698996c0919e962))
+
 ## [2.1.3](https://github.com/googleapis/python-aiplatform/compare/v2.1.0...v2.1.3) (2026-09-15)
 
 
