@@ -846,12 +846,16 @@ class AdkApp:
         """Returns a clone of the ADK application."""
         import copy
 
-        return AdkApp(
+        return self.__class__(
             agent=copy.deepcopy(self._tmpl_attrs.get("agent")),
+            plugins=copy.deepcopy(self._tmpl_attrs.get("plugins")),
             enable_tracing=self._tmpl_attrs.get("enable_tracing"),
             session_service_builder=self._tmpl_attrs.get("session_service_builder"),
             artifact_service_builder=self._tmpl_attrs.get("artifact_service_builder"),
             memory_service_builder=self._tmpl_attrs.get("memory_service_builder"),
+            credential_service_builder=self._tmpl_attrs.get(
+                "credential_service_builder"
+            ),
             env_vars=self._tmpl_attrs.get("env_vars"),
         )
 

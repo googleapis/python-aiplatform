@@ -418,6 +418,31 @@ class TestAdkApp:
         app_clone.set_up()
         assert app_clone._tmpl_attrs.get("runner") is not None
 
+    def test_clone_preserves_subclass(self):
+        class CustomAdkApp(reasoning_engines.AdkApp):
+            pass
+
+        app = CustomAdkApp(
+            agent=Agent(name=_TEST_AGENT_NAME, model=_TEST_MODEL),
+        )
+        assert isinstance(app.clone(), CustomAdkApp)
+
+    def test_clone_preserves_plugins_and_credential_service_builder(self):
+        def credential_service_builder():
+            return None
+
+        app = reasoning_engines.AdkApp(
+            agent=Agent(name=_TEST_AGENT_NAME, model=_TEST_MODEL),
+            plugins=["test_plugin"],
+            credential_service_builder=credential_service_builder,
+        )
+        app_clone = app.clone()
+        assert app_clone._tmpl_attrs.get("plugins") == ["test_plugin"]
+        assert (
+            app_clone._tmpl_attrs.get("credential_service_builder")
+            is credential_service_builder
+        )
+
     def test_register_operations(self):
         app = reasoning_engines.AdkApp(
             agent=Agent(name=_TEST_AGENT_NAME, model=_TEST_MODEL),
