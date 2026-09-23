@@ -237,8 +237,8 @@ class State(_common.CaseInSensitiveEnum):
     """The unspecified state."""
     ACTIVE = "ACTIVE"
     """Is deployed and ready to be used."""
-    DEPRECATED = "DEPRECATED"
-    """Is deprecated, may not be used, only preserved for historical purposes."""
+    ARCHIVED = "ARCHIVED"
+    """Is archived and can no longer receive traffic, only preserved for historical purposes."""
 
 
 class MemoryType(_common.CaseInSensitiveEnum):
@@ -8906,6 +8906,56 @@ ReasoningEngineTrafficConfigOrDict = Union[
 ]
 
 
+class ReasoningEngineRevisionGarbageCollectionStrategyKeepNLatest(_common.BaseModel):
+    """Keeps only the latest N Runtime Revisions active."""
+
+    max_revisions: Optional[int] = Field(
+        default=None,
+        description="""Required. Specifies the maximum number of Runtime Revisions to keep active. If an update to Reasoning Engine would result in exceeding this number of active Runtime Revisions, a new Runtime Revision will be created, while the oldest Runtime Revision will be automatically deleted, providing it's not configured to serve traffic via `traffic_config`. If the oldest Runtime Revision is configured to serve traffic, the update will fail validation. No changes will be made to the Reasoning Engine, existing Runtime Revisions, and no new Runtime Revision will be created.""",
+    )
+
+
+class ReasoningEngineRevisionGarbageCollectionStrategyKeepNLatestDict(
+    TypedDict, total=False
+):
+    """Keeps only the latest N Runtime Revisions active."""
+
+    max_revisions: Optional[int]
+    """Required. Specifies the maximum number of Runtime Revisions to keep active. If an update to Reasoning Engine would result in exceeding this number of active Runtime Revisions, a new Runtime Revision will be created, while the oldest Runtime Revision will be automatically deleted, providing it's not configured to serve traffic via `traffic_config`. If the oldest Runtime Revision is configured to serve traffic, the update will fail validation. No changes will be made to the Reasoning Engine, existing Runtime Revisions, and no new Runtime Revision will be created."""
+
+
+ReasoningEngineRevisionGarbageCollectionStrategyKeepNLatestOrDict = Union[
+    ReasoningEngineRevisionGarbageCollectionStrategyKeepNLatest,
+    ReasoningEngineRevisionGarbageCollectionStrategyKeepNLatestDict,
+]
+
+
+class ReasoningEngineRevisionGarbageCollectionStrategy(_common.BaseModel):
+    """Configures garbage collection of Runtime Revisions."""
+
+    keep_n_latest: Optional[
+        ReasoningEngineRevisionGarbageCollectionStrategyKeepNLatest
+    ] = Field(
+        default=None,
+        description="""Optional. Keeps only the latest N Runtime Revisions active.""",
+    )
+
+
+class ReasoningEngineRevisionGarbageCollectionStrategyDict(TypedDict, total=False):
+    """Configures garbage collection of Runtime Revisions."""
+
+    keep_n_latest: Optional[
+        ReasoningEngineRevisionGarbageCollectionStrategyKeepNLatestDict
+    ]
+    """Optional. Keeps only the latest N Runtime Revisions active."""
+
+
+ReasoningEngineRevisionGarbageCollectionStrategyOrDict = Union[
+    ReasoningEngineRevisionGarbageCollectionStrategy,
+    ReasoningEngineRevisionGarbageCollectionStrategyDict,
+]
+
+
 class ReasoningEngine(_common.BaseModel):
     """An agent runtime."""
 
@@ -8951,6 +9001,12 @@ class ReasoningEngine(_common.BaseModel):
         default=None,
         description="""Optional. Traffic distribution configuration for the Reasoning Engine.""",
     )
+    revision_garbage_collection_strategy: Optional[
+        ReasoningEngineRevisionGarbageCollectionStrategy
+    ] = Field(
+        default=None,
+        description="""Optional. Configures garbage collection of Runtime Revisions.""",
+    )
 
 
 class ReasoningEngineDict(TypedDict, total=False):
@@ -8988,6 +9044,11 @@ class ReasoningEngineDict(TypedDict, total=False):
 
     traffic_config: Optional[ReasoningEngineTrafficConfigDict]
     """Optional. Traffic distribution configuration for the Reasoning Engine."""
+
+    revision_garbage_collection_strategy: Optional[
+        ReasoningEngineRevisionGarbageCollectionStrategyDict
+    ]
+    """Optional. Configures garbage collection of Runtime Revisions."""
 
 
 ReasoningEngineOrDict = Union[ReasoningEngine, ReasoningEngineDict]

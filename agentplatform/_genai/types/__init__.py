@@ -1682,6 +1682,12 @@ from .common import ReasoningEngineContextSpecMemoryBankConfigTtlConfigOrDict
 from .common import ReasoningEngineContextSpecOrDict
 from .common import ReasoningEngineDict
 from .common import ReasoningEngineOrDict
+from .common import ReasoningEngineRevisionGarbageCollectionStrategy
+from .common import ReasoningEngineRevisionGarbageCollectionStrategyDict
+from .common import ReasoningEngineRevisionGarbageCollectionStrategyKeepNLatest
+from .common import ReasoningEngineRevisionGarbageCollectionStrategyKeepNLatestDict
+from .common import ReasoningEngineRevisionGarbageCollectionStrategyKeepNLatestOrDict
+from .common import ReasoningEngineRevisionGarbageCollectionStrategyOrDict
 from .common import ReasoningEngineRuntimeRevision
 from .common import ReasoningEngineRuntimeRevisionDict
 from .common import ReasoningEngineRuntimeRevisionOrDict
@@ -2888,6 +2894,12 @@ __all__ = [
     "ReasoningEngineTrafficConfig",
     "ReasoningEngineTrafficConfigDict",
     "ReasoningEngineTrafficConfigOrDict",
+    "ReasoningEngineRevisionGarbageCollectionStrategyKeepNLatest",
+    "ReasoningEngineRevisionGarbageCollectionStrategyKeepNLatestDict",
+    "ReasoningEngineRevisionGarbageCollectionStrategyKeepNLatestOrDict",
+    "ReasoningEngineRevisionGarbageCollectionStrategy",
+    "ReasoningEngineRevisionGarbageCollectionStrategyDict",
+    "ReasoningEngineRevisionGarbageCollectionStrategyOrDict",
     "ReasoningEngine",
     "ReasoningEngineDict",
     "ReasoningEngineOrDict",

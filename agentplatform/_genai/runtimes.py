@@ -484,6 +484,13 @@ def _ReasoningEngine_from_vertex(
     if getv(from_object, ["trafficConfig"]) is not None:
         setv(to_object, ["traffic_config"], getv(from_object, ["trafficConfig"]))
 
+    if getv(from_object, ["revisionGarbageCollectionStrategy"]) is not None:
+        setv(
+            to_object,
+            ["revision_garbage_collection_strategy"],
+            getv(from_object, ["revisionGarbageCollectionStrategy"]),
+        )
+
     return to_object
 
 
