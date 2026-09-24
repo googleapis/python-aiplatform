@@ -11412,6 +11412,9 @@ class MemoryConfig(_common.BaseModel):
         default=None,
         description="""Optional. The user defined ID to use for memory, which will become the final component of the memory resource name. If not provided, Vertex AI will generate a value for this ID. This value may be up to 63 characters, and valid characters are `[a-z0-9-]`. The first character must be a letter, and the last character must be a letter or number.""",
     )
+    context: Optional[str] = Field(
+        default=None, description="""Optional. Represents the context of the memory."""
+    )
 
 
 class MemoryConfigDict(TypedDict, total=False):
@@ -11454,6 +11457,9 @@ class MemoryConfigDict(TypedDict, total=False):
 
     memory_id: Optional[str]
     """Optional. The user defined ID to use for memory, which will become the final component of the memory resource name. If not provided, Vertex AI will generate a value for this ID. This value may be up to 63 characters, and valid characters are `[a-z0-9-]`. The first character must be a letter, and the last character must be a letter or number."""
+
+    context: Optional[str]
+    """Optional. Represents the context of the memory."""
 
 
 MemoryConfigOrDict = Union[MemoryConfig, MemoryConfigDict]
@@ -12979,6 +12985,9 @@ class UpdateMemoryConfig(_common.BaseModel):
         default=None,
         description="""Optional. The user defined ID to use for memory, which will become the final component of the memory resource name. If not provided, Vertex AI will generate a value for this ID. This value may be up to 63 characters, and valid characters are `[a-z0-9-]`. The first character must be a letter, and the last character must be a letter or number.""",
     )
+    context: Optional[str] = Field(
+        default=None, description="""Optional. Represents the context of the memory."""
+    )
     update_mask: Optional[str] = Field(
         default=None,
         description="""The update mask to apply. For the `FieldMask` definition, see
@@ -13026,6 +13035,9 @@ class UpdateMemoryConfigDict(TypedDict, total=False):
 
     memory_id: Optional[str]
     """Optional. The user defined ID to use for memory, which will become the final component of the memory resource name. If not provided, Vertex AI will generate a value for this ID. This value may be up to 63 characters, and valid characters are `[a-z0-9-]`. The first character must be a letter, and the last character must be a letter or number."""
+
+    context: Optional[str]
+    """Optional. Represents the context of the memory."""
 
     update_mask: Optional[str]
     """The update mask to apply. For the `FieldMask` definition, see
