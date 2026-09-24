@@ -290,6 +290,9 @@ def _MemoryConfig_to_vertex(
     if getv(from_object, ["memory_id"]) is not None:
         setv(parent_object, ["_query", "memoryId"], getv(from_object, ["memory_id"]))
 
+    if getv(from_object, ["context"]) is not None:
+        setv(parent_object, ["context"], getv(from_object, ["context"]))
+
     return to_object
 
 
@@ -447,6 +450,9 @@ def _UpdateMemoryConfig_to_vertex(
 
     if getv(from_object, ["memory_id"]) is not None:
         setv(parent_object, ["_query", "memoryId"], getv(from_object, ["memory_id"]))
+
+    if getv(from_object, ["context"]) is not None:
+        setv(parent_object, ["context"], getv(from_object, ["context"]))
 
     if getv(from_object, ["update_mask"]) is not None:
         setv(
