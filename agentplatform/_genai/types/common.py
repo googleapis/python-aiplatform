@@ -659,6 +659,19 @@ class ArrayOperator(_common.CaseInSensitiveEnum):
     """The metadata array field in the example must contain all of the values."""
 
 
+class ServingProfileScope(_common.CaseInSensitiveEnum):
+    """The specific API this ServingProfile applies to."""
+
+    SERVING_PROFILE_SCOPE_UNSPECIFIED = "SERVING_PROFILE_SCOPE_UNSPECIFIED"
+    """Unspecified scope."""
+    GEMINI_LIVE = "GEMINI_LIVE"
+    """Scope for Gemini Live."""
+    INTERACTIONS_API = "INTERACTIONS_API"
+    """Scope for Interactions API."""
+    RESPONSE_API = "RESPONSE_API"
+    """Scope for Response API."""
+
+
 class EvaluationExperimentMergeStrategy(_common.CaseInSensitiveEnum):
     """Merge strategy for the evaluation experiment."""
 
@@ -29494,6 +29507,488 @@ class _GetExampleStoreOperationParametersDict(TypedDict, total=False):
 
 _GetExampleStoreOperationParametersOrDict = Union[
     _GetExampleStoreOperationParameters, _GetExampleStoreOperationParametersDict
+]
+
+
+class GetServingProfileConfig(_common.BaseModel):
+    """Config for getting a serving profile."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class GetServingProfileConfigDict(TypedDict, total=False):
+    """Config for getting a serving profile."""
+
+    http_options: Optional[genai_types.HttpOptions]
+    """Used to override HTTP request options."""
+
+
+GetServingProfileConfigOrDict = Union[
+    GetServingProfileConfig, GetServingProfileConfigDict
+]
+
+
+class _GetServingProfileRequestParameters(_common.BaseModel):
+    """Parameters for GetServingProfileRequest."""
+
+    name: Optional[str] = Field(
+        default=None, description="""The resource name of the ServingProfile."""
+    )
+    config: Optional[GetServingProfileConfig] = Field(default=None, description="""""")
+
+
+class _GetServingProfileRequestParametersDict(TypedDict, total=False):
+    """Parameters for GetServingProfileRequest."""
+
+    name: Optional[str]
+    """The resource name of the ServingProfile."""
+
+    config: Optional[GetServingProfileConfigDict]
+    """"""
+
+
+_GetServingProfileRequestParametersOrDict = Union[
+    _GetServingProfileRequestParameters, _GetServingProfileRequestParametersDict
+]
+
+
+class ServingProfileCmekConfig(_common.BaseModel):
+    """Configuration for Customer-Managed Encryption Keys (CMEK)."""
+
+    encryption_spec: Optional[genai_types.EncryptionSpec] = Field(
+        default=None,
+        description="""Required. The customer-managed encryption key spec for the Serving Profile.""",
+    )
+
+
+class ServingProfileCmekConfigDict(TypedDict, total=False):
+    """Configuration for Customer-Managed Encryption Keys (CMEK)."""
+
+    encryption_spec: Optional[genai_types.EncryptionSpecDict]
+    """Required. The customer-managed encryption key spec for the Serving Profile."""
+
+
+ServingProfileCmekConfigOrDict = Union[
+    ServingProfileCmekConfig, ServingProfileCmekConfigDict
+]
+
+
+class ServingProfile(_common.BaseModel):
+    """Represents a ServingProfile resource."""
+
+    scope: Optional[ServingProfileScope] = Field(
+        default=None,
+        description="""Required. The specific API this ServingProfile applies to.""",
+    )
+    cmek_config: Optional[ServingProfileCmekConfig] = Field(
+        default=None, description="""CMEK configuration for the ServingProfile."""
+    )
+    create_time: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Output only. Timestamp when the ServingProfile was created.""",
+    )
+    description: Optional[str] = Field(
+        default=None, description="""Optional. The description of the ServingProfile."""
+    )
+    display_name: Optional[str] = Field(
+        default=None,
+        description="""Required. The display name of the ServingProfile. The name can be up to 128 characters long and can consist of any UTF-8 characters.""",
+    )
+    name: Optional[str] = Field(
+        default=None,
+        description="""Identifier. The resource name of the ServingProfile.""",
+    )
+    update_time: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Output only. Timestamp when the ServingProfile was last updated.""",
+    )
+
+
+class ServingProfileDict(TypedDict, total=False):
+    """Represents a ServingProfile resource."""
+
+    scope: Optional[ServingProfileScope]
+    """Required. The specific API this ServingProfile applies to."""
+
+    cmek_config: Optional[ServingProfileCmekConfigDict]
+    """CMEK configuration for the ServingProfile."""
+
+    create_time: Optional[datetime.datetime]
+    """Output only. Timestamp when the ServingProfile was created."""
+
+    description: Optional[str]
+    """Optional. The description of the ServingProfile."""
+
+    display_name: Optional[str]
+    """Required. The display name of the ServingProfile. The name can be up to 128 characters long and can consist of any UTF-8 characters."""
+
+    name: Optional[str]
+    """Identifier. The resource name of the ServingProfile."""
+
+    update_time: Optional[datetime.datetime]
+    """Output only. Timestamp when the ServingProfile was last updated."""
+
+
+ServingProfileOrDict = Union[ServingProfile, ServingProfileDict]
+
+
+class CreateServingProfileConfig(_common.BaseModel):
+    """Config for creating a serving profile."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    wait_for_completion: Optional[bool] = Field(
+        default=True,
+        description="""Whether to wait for the creation LRO to complete.""",
+    )
+    description: Optional[str] = Field(
+        default=None, description="""Optional. The description."""
+    )
+
+
+class CreateServingProfileConfigDict(TypedDict, total=False):
+    """Config for creating a serving profile."""
+
+    http_options: Optional[genai_types.HttpOptions]
+    """Used to override HTTP request options."""
+
+    wait_for_completion: Optional[bool]
+    """Whether to wait for the creation LRO to complete."""
+
+    description: Optional[str]
+    """Optional. The description."""
+
+
+CreateServingProfileConfigOrDict = Union[
+    CreateServingProfileConfig, CreateServingProfileConfigDict
+]
+
+
+class _CreateServingProfileRequestParameters(_common.BaseModel):
+    """Parameters for creating a serving profile."""
+
+    serving_profile_id: Optional[str] = Field(
+        default=None, description="""Required. The ID to use for the ServingProfile."""
+    )
+    display_name: Optional[str] = Field(
+        default=None,
+        description="""Required. The display name of the ServingProfile.""",
+    )
+    scope: Optional[ServingProfileScope] = Field(
+        default=None,
+        description="""Required. The specific API this ServingProfile applies to.""",
+    )
+    cmek_config: Optional[ServingProfileCmekConfig] = Field(
+        default=None, description="""Required. CMEK configuration."""
+    )
+    config: Optional[CreateServingProfileConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _CreateServingProfileRequestParametersDict(TypedDict, total=False):
+    """Parameters for creating a serving profile."""
+
+    serving_profile_id: Optional[str]
+    """Required. The ID to use for the ServingProfile."""
+
+    display_name: Optional[str]
+    """Required. The display name of the ServingProfile."""
+
+    scope: Optional[ServingProfileScope]
+    """Required. The specific API this ServingProfile applies to."""
+
+    cmek_config: Optional[ServingProfileCmekConfigDict]
+    """Required. CMEK configuration."""
+
+    config: Optional[CreateServingProfileConfigDict]
+    """"""
+
+
+_CreateServingProfileRequestParametersOrDict = Union[
+    _CreateServingProfileRequestParameters, _CreateServingProfileRequestParametersDict
+]
+
+
+class ServingProfileOperation(_common.BaseModel):
+    """Operation that has a serving profile as a response."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`.""",
+    )
+    metadata: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any.""",
+    )
+    done: Optional[bool] = Field(
+        default=None,
+        description="""If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available.""",
+    )
+    error: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""The error result of the operation in case of failure or cancellation.""",
+    )
+    response: Optional[ServingProfile] = Field(
+        default=None, description="""The created ServingProfile."""
+    )
+
+
+class ServingProfileOperationDict(TypedDict, total=False):
+    """Operation that has a serving profile as a response."""
+
+    name: Optional[str]
+    """The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`."""
+
+    metadata: Optional[dict[str, Any]]
+    """Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any."""
+
+    done: Optional[bool]
+    """If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available."""
+
+    error: Optional[dict[str, Any]]
+    """The error result of the operation in case of failure or cancellation."""
+
+    response: Optional[ServingProfileDict]
+    """The created ServingProfile."""
+
+
+ServingProfileOperationOrDict = Union[
+    ServingProfileOperation, ServingProfileOperationDict
+]
+
+
+class UpdateServingProfileConfig(_common.BaseModel):
+    """Config for updating a serving profile."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    display_name: Optional[str] = Field(default=None, description="""""")
+    description: Optional[str] = Field(default=None, description="""""")
+    update_mask: Optional[str] = Field(
+        default=None,
+        description="""Update mask. If not provided, it will be inferred based on the other fields provided to the update method. If provided, only the fields that are specified in the update mask will be updated.""",
+    )
+
+
+class UpdateServingProfileConfigDict(TypedDict, total=False):
+    """Config for updating a serving profile."""
+
+    http_options: Optional[genai_types.HttpOptions]
+    """Used to override HTTP request options."""
+
+    display_name: Optional[str]
+    """"""
+
+    description: Optional[str]
+    """"""
+
+    update_mask: Optional[str]
+    """Update mask. If not provided, it will be inferred based on the other fields provided to the update method. If provided, only the fields that are specified in the update mask will be updated."""
+
+
+UpdateServingProfileConfigOrDict = Union[
+    UpdateServingProfileConfig, UpdateServingProfileConfigDict
+]
+
+
+class _UpdateServingProfileRequestParameters(_common.BaseModel):
+    """Parameters for updating a serving profile."""
+
+    name: Optional[str] = Field(
+        default=None, description="""Required. The resource name."""
+    )
+    config: Optional[UpdateServingProfileConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _UpdateServingProfileRequestParametersDict(TypedDict, total=False):
+    """Parameters for updating a serving profile."""
+
+    name: Optional[str]
+    """Required. The resource name."""
+
+    config: Optional[UpdateServingProfileConfigDict]
+    """"""
+
+
+_UpdateServingProfileRequestParametersOrDict = Union[
+    _UpdateServingProfileRequestParameters, _UpdateServingProfileRequestParametersDict
+]
+
+
+class ListServingProfilesConfig(_common.BaseModel):
+    """Config for listing ServingProfiles."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    page_size: Optional[int] = Field(default=None, description="""""")
+    page_token: Optional[str] = Field(default=None, description="""""")
+
+
+class ListServingProfilesConfigDict(TypedDict, total=False):
+    """Config for listing ServingProfiles."""
+
+    http_options: Optional[genai_types.HttpOptions]
+    """Used to override HTTP request options."""
+
+    page_size: Optional[int]
+    """"""
+
+    page_token: Optional[str]
+    """"""
+
+
+ListServingProfilesConfigOrDict = Union[
+    ListServingProfilesConfig, ListServingProfilesConfigDict
+]
+
+
+class _ListServingProfilesRequestParameters(_common.BaseModel):
+    """Parameters for listing ServingProfiles."""
+
+    config: Optional[ListServingProfilesConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _ListServingProfilesRequestParametersDict(TypedDict, total=False):
+    """Parameters for listing ServingProfiles."""
+
+    config: Optional[ListServingProfilesConfigDict]
+    """"""
+
+
+_ListServingProfilesRequestParametersOrDict = Union[
+    _ListServingProfilesRequestParameters, _ListServingProfilesRequestParametersDict
+]
+
+
+class ListServingProfilesResponse(_common.BaseModel):
+    """Response for listing ServingProfiles."""
+
+    sdk_http_response: Optional[genai_types.HttpResponse] = Field(
+        default=None, description="""Used to retain the full HTTP response."""
+    )
+    next_page_token: Optional[str] = Field(default=None, description="""""")
+    serving_profiles: Optional[list[ServingProfile]] = Field(
+        default=None, description="""List of ServingProfiles."""
+    )
+
+
+class ListServingProfilesResponseDict(TypedDict, total=False):
+    """Response for listing ServingProfiles."""
+
+    sdk_http_response: Optional[genai_types.HttpResponse]
+    """Used to retain the full HTTP response."""
+
+    next_page_token: Optional[str]
+    """"""
+
+    serving_profiles: Optional[list[ServingProfileDict]]
+    """List of ServingProfiles."""
+
+
+ListServingProfilesResponseOrDict = Union[
+    ListServingProfilesResponse, ListServingProfilesResponseDict
+]
+
+
+class DeleteServingProfileConfig(_common.BaseModel):
+    """Config for deleting a serving profile."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class DeleteServingProfileConfigDict(TypedDict, total=False):
+    """Config for deleting a serving profile."""
+
+    http_options: Optional[genai_types.HttpOptions]
+    """Used to override HTTP request options."""
+
+
+DeleteServingProfileConfigOrDict = Union[
+    DeleteServingProfileConfig, DeleteServingProfileConfigDict
+]
+
+
+class _DeleteServingProfileRequestParameters(_common.BaseModel):
+    """Parameters for deleting a serving profile."""
+
+    name: Optional[str] = Field(
+        default=None, description="""Required. The resource name."""
+    )
+    config: Optional[DeleteServingProfileConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _DeleteServingProfileRequestParametersDict(TypedDict, total=False):
+    """Parameters for deleting a serving profile."""
+
+    name: Optional[str]
+    """Required. The resource name."""
+
+    config: Optional[DeleteServingProfileConfigDict]
+    """"""
+
+
+_DeleteServingProfileRequestParametersOrDict = Union[
+    _DeleteServingProfileRequestParameters, _DeleteServingProfileRequestParametersDict
+]
+
+
+class GetServingProfileOperationConfig(_common.BaseModel):
+    """Config for getting a serving profile operation."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class GetServingProfileOperationConfigDict(TypedDict, total=False):
+    """Config for getting a serving profile operation."""
+
+    http_options: Optional[genai_types.HttpOptions]
+    """Used to override HTTP request options."""
+
+
+GetServingProfileOperationConfigOrDict = Union[
+    GetServingProfileOperationConfig, GetServingProfileOperationConfigDict
+]
+
+
+class _GetServingProfileOperationParameters(_common.BaseModel):
+    """Parameters for getting a serving profile operation."""
+
+    operation_name: Optional[str] = Field(
+        default=None, description="""The operation name."""
+    )
+    config: Optional[GetServingProfileOperationConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _GetServingProfileOperationParametersDict(TypedDict, total=False):
+    """Parameters for getting a serving profile operation."""
+
+    operation_name: Optional[str]
+    """The operation name."""
+
+    config: Optional[GetServingProfileOperationConfigDict]
+    """"""
+
+
+_GetServingProfileOperationParametersOrDict = Union[
+    _GetServingProfileOperationParameters, _GetServingProfileOperationParametersDict
 ]
 
 

@@ -46,6 +46,7 @@ from .common import _CreateRuntimeSandboxRequestParameters
 from .common import _CreateRuntimeSessionRequestParameters
 from .common import _CreateSandboxEnvironmentSnapshotRequestParameters
 from .common import _CreateSandboxEnvironmentTemplateRequestParameters
+from .common import _CreateServingProfileRequestParameters
 from .common import _CreateSkillRequestParameters
 from .common import _CustomJobParameters
 from .common import _CustomJobParameters
@@ -68,6 +69,7 @@ from .common import _DeleteRuntimeSandboxRequestParameters
 from .common import _DeleteRuntimeSessionRequestParameters
 from .common import _DeleteSandboxEnvironmentSnapshotRequestParameters
 from .common import _DeleteSandboxEnvironmentTemplateRequestParameters
+from .common import _DeleteServingProfileRequestParameters
 from .common import _DeleteSkillRequestParameters
 from .common import _DeployRequestParameters
 from .common import _EvaluateInstancesRequestParameters
@@ -126,6 +128,8 @@ from .common import _GetRuntimeSessionRequestParameters
 from .common import _GetSandboxEnvironmentSnapshotRequestParameters
 from .common import _GetSandboxEnvironmentTemplateOperationParameters
 from .common import _GetSandboxEnvironmentTemplateRequestParameters
+from .common import _GetServingProfileOperationParameters
+from .common import _GetServingProfileRequestParameters
 from .common import _GetSkillOperationParameters
 from .common import _GetSkillRequestParameters
 from .common import _GetSkillRevisionRequestParameters
@@ -152,6 +156,7 @@ from .common import _ListRuntimeSessionEventsRequestParameters
 from .common import _ListRuntimeSessionsRequestParameters
 from .common import _ListSandboxEnvironmentSnapshotsRequestParameters
 from .common import _ListSandboxEnvironmentTemplatesRequestParameters
+from .common import _ListServingProfilesRequestParameters
 from .common import _ListSkillRevisionsRequestParameters
 from .common import _ListSkillsRequestParameters
 from .common import _OptimizeRequestParameters
@@ -186,6 +191,7 @@ from .common import _UpdateRuntimeFeedbackContextRequestParameters
 from .common import _UpdateRuntimeFeedbackEntryRequestParameters
 from .common import _UpdateRuntimeRequestParameters
 from .common import _UpdateRuntimeSessionRequestParameters
+from .common import _UpdateServingProfileRequestParameters
 from .common import _UpdateSkillRequestParameters
 from .common import _UploadRagFileParameters
 from .common import _UpsertExamplesParameters
@@ -382,6 +388,9 @@ from .common import CreateRuntimeSessionConfigOrDict
 from .common import CreateSandboxEnvironmentTemplateConfig
 from .common import CreateSandboxEnvironmentTemplateConfigDict
 from .common import CreateSandboxEnvironmentTemplateConfigOrDict
+from .common import CreateServingProfileConfig
+from .common import CreateServingProfileConfigDict
+from .common import CreateServingProfileConfigOrDict
 from .common import CreateSkillConfig
 from .common import CreateSkillConfigDict
 from .common import CreateSkillConfigOrDict
@@ -516,6 +525,9 @@ from .common import DeleteSandboxEnvironmentTemplateConfigOrDict
 from .common import DeleteSandboxEnvironmentTemplateOperation
 from .common import DeleteSandboxEnvironmentTemplateOperationDict
 from .common import DeleteSandboxEnvironmentTemplateOperationOrDict
+from .common import DeleteServingProfileConfig
+from .common import DeleteServingProfileConfigDict
+from .common import DeleteServingProfileConfigOrDict
 from .common import DeleteSkillConfig
 from .common import DeleteSkillConfigDict
 from .common import DeleteSkillConfigOrDict
@@ -965,6 +977,12 @@ from .common import GetSandboxEnvironmentSnapshotConfigOrDict
 from .common import GetSandboxEnvironmentTemplateConfig
 from .common import GetSandboxEnvironmentTemplateConfigDict
 from .common import GetSandboxEnvironmentTemplateConfigOrDict
+from .common import GetServingProfileConfig
+from .common import GetServingProfileConfigDict
+from .common import GetServingProfileConfigOrDict
+from .common import GetServingProfileOperationConfig
+from .common import GetServingProfileOperationConfigDict
+from .common import GetServingProfileOperationConfigOrDict
 from .common import GetSkillConfig
 from .common import GetSkillConfigDict
 from .common import GetSkillConfigOrDict
@@ -1175,6 +1193,12 @@ from .common import ListSandboxEnvironmentTemplatesConfigOrDict
 from .common import ListSandboxEnvironmentTemplatesResponse
 from .common import ListSandboxEnvironmentTemplatesResponseDict
 from .common import ListSandboxEnvironmentTemplatesResponseOrDict
+from .common import ListServingProfilesConfig
+from .common import ListServingProfilesConfigDict
+from .common import ListServingProfilesConfigOrDict
+from .common import ListServingProfilesResponse
+from .common import ListServingProfilesResponseDict
+from .common import ListServingProfilesResponseOrDict
 from .common import ListSkillRevisionsConfig
 from .common import ListSkillRevisionsConfigDict
 from .common import ListSkillRevisionsConfigOrDict
@@ -2069,6 +2093,16 @@ from .common import SecretEnvVarOrDict
 from .common import SecretRef
 from .common import SecretRefDict
 from .common import SecretRefOrDict
+from .common import ServingProfile
+from .common import ServingProfileCmekConfig
+from .common import ServingProfileCmekConfigDict
+from .common import ServingProfileCmekConfigOrDict
+from .common import ServingProfileDict
+from .common import ServingProfileOperation
+from .common import ServingProfileOperationDict
+from .common import ServingProfileOperationOrDict
+from .common import ServingProfileOrDict
+from .common import ServingProfileScope
 from .common import Session
 from .common import SessionDict
 from .common import SessionEvent
@@ -2258,6 +2292,9 @@ from .common import UpdateRuntimeFeedbackEntryConfigOrDict
 from .common import UpdateRuntimeSessionConfig
 from .common import UpdateRuntimeSessionConfigDict
 from .common import UpdateRuntimeSessionConfigOrDict
+from .common import UpdateServingProfileConfig
+from .common import UpdateServingProfileConfigDict
+from .common import UpdateServingProfileConfigOrDict
 from .common import UpdateSkillConfig
 from .common import UpdateSkillConfigDict
 from .common import UpdateSkillConfigOrDict
@@ -4196,6 +4233,36 @@ __all__ = [
     "GetExampleStoreOperationConfig",
     "GetExampleStoreOperationConfigDict",
     "GetExampleStoreOperationConfigOrDict",
+    "GetServingProfileConfig",
+    "GetServingProfileConfigDict",
+    "GetServingProfileConfigOrDict",
+    "ServingProfileCmekConfig",
+    "ServingProfileCmekConfigDict",
+    "ServingProfileCmekConfigOrDict",
+    "ServingProfile",
+    "ServingProfileDict",
+    "ServingProfileOrDict",
+    "CreateServingProfileConfig",
+    "CreateServingProfileConfigDict",
+    "CreateServingProfileConfigOrDict",
+    "ServingProfileOperation",
+    "ServingProfileOperationDict",
+    "ServingProfileOperationOrDict",
+    "UpdateServingProfileConfig",
+    "UpdateServingProfileConfigDict",
+    "UpdateServingProfileConfigOrDict",
+    "ListServingProfilesConfig",
+    "ListServingProfilesConfigDict",
+    "ListServingProfilesConfigOrDict",
+    "ListServingProfilesResponse",
+    "ListServingProfilesResponseDict",
+    "ListServingProfilesResponseOrDict",
+    "DeleteServingProfileConfig",
+    "DeleteServingProfileConfigDict",
+    "DeleteServingProfileConfigOrDict",
+    "GetServingProfileOperationConfig",
+    "GetServingProfileOperationConfigDict",
+    "GetServingProfileOperationConfigOrDict",
     "PromptOptimizerConfig",
     "PromptOptimizerConfigDict",
     "PromptOptimizerConfigOrDict",
@@ -4344,6 +4411,7 @@ __all__ = [
     "FunctionResponseScheduling",
     "MediaResolution",
     "ArrayOperator",
+    "ServingProfileScope",
     "EvaluationExperimentMergeStrategy",
     "EvaluationItemType",
     "SamplingMethod",
@@ -4542,6 +4610,12 @@ __all__ = [
     "_FetchExamplesParameters",
     "_RemoveExamplesParameters",
     "_GetExampleStoreOperationParameters",
+    "_GetServingProfileRequestParameters",
+    "_CreateServingProfileRequestParameters",
+    "_UpdateServingProfileRequestParameters",
+    "_ListServingProfilesRequestParameters",
+    "_DeleteServingProfileRequestParameters",
+    "_GetServingProfileOperationParameters",
     "evals",
     "agent_engines",
     "prompts",

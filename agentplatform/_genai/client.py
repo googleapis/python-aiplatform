@@ -62,6 +62,10 @@ if TYPE_CHECKING:
     from agentplatform._genai import (
         memory_banks as memory_banks_module,
     )
+    from agentplatform._genai import (
+        serving_profiles as serving_profiles_module,
+    )
+
 
 _GENAI_MODULES_TELEMETRY_HEADER = "vertex-genai-modules"
 
@@ -112,6 +116,7 @@ class AsyncClient:
         self._sessions: Optional[ModuleType] = None
         self._sandboxes: Optional[ModuleType] = None
         self._memory_banks: Optional[ModuleType] = None
+        self._serving_profiles: Optional[ModuleType] = None
 
     @property
     @_common.experimental_warning(
@@ -287,6 +292,17 @@ class AsyncClient:
             self._memory_banks = importlib.import_module(".memory_banks", __package__)
         return self._memory_banks.AsyncMemoryBanks(self._api_client)  # type: ignore[no-any-return]
 
+    @property
+    def serving_profiles(
+        self,
+    ) -> "serving_profiles_module.AsyncServingProfiles":
+        if self._serving_profiles is None:
+            self._serving_profiles = importlib.import_module(
+                ".serving_profiles",
+                __package__,
+            )
+        return self._serving_profiles.AsyncServingProfiles(self._api_client)  # type: ignore[no-any-return]
+
     async def aclose(self) -> None:
         """Closes the async client explicitly.
 
@@ -399,6 +415,7 @@ class Client:
         self._sessions: Optional[ModuleType] = None
         self._sandboxes: Optional[ModuleType] = None
         self._memory_banks: Optional[ModuleType] = None
+        self._serving_profiles: Optional[ModuleType] = None
 
     @property
     def evals(self) -> "evals_module.Evals":
@@ -598,3 +615,12 @@ class Client:
         if self._memory_banks is None:
             self._memory_banks = importlib.import_module(".memory_banks", __package__)
         return self._memory_banks.MemoryBanks(self._api_client)  # type: ignore[no-any-return]
+
+    @property
+    def serving_profiles(self) -> "serving_profiles_module.ServingProfiles":
+        if self._serving_profiles is None:
+            self._serving_profiles = importlib.import_module(
+                ".serving_profiles",
+                __package__,
+            )
+        return self._serving_profiles.ServingProfiles(self._api_client)  # type: ignore[no-any-return]
