@@ -1,5 +1,19 @@
 # Changelog
 
+## [2.3.0](https://github.com/googleapis/python-aiplatform/compare/v2.2.0...v2.3.0) (2026-09-25)
+
+
+### Features
+
+* Add serving profiles support to agentplatform genai sdk ([6da2b9b](https://github.com/googleapis/python-aiplatform/commit/6da2b9b5352798893cc009ca83a1578f91994a51))
+* Include labels for LiveClientSetup ([6b29d01](https://github.com/googleapis/python-aiplatform/commit/6b29d01332c0a8030aa4c263e0b25cfb6f1da440))
+
+
+### Bug Fixes
+
+* Keep AdkApp subclass, plugins and credential_service_builder in clone() ([cfb44c4](https://github.com/googleapis/python-aiplatform/commit/cfb44c45e341e3f0da98af3b73ab809c97405fbb))
+* Make async_stream_query non-blocking by using the async execution client ([d62114d](https://github.com/googleapis/python-aiplatform/commit/d62114df682f0b7dafc4108f852edd2ccc709686))
+
 ## [2.2.0](https://github.com/googleapis/python-aiplatform/compare/v2.1.3...v2.2.0) (2026-09-22)
 
 
