@@ -37,6 +37,8 @@ from google.cloud.location import locations_pb2  # type: ignore
 from google.api_core import retry_async as retries
 from google.api_core import rest_helpers
 from google.api_core import rest_streaming_async  # type: ignore
+from google.cloud.aiplatform_v1beta1._compat import transcode_request
+
 import google.protobuf
 
 from google.protobuf import json_format
@@ -1117,21 +1119,18 @@ class AsyncExampleStoreServiceRestTransport(_BaseExampleStoreServiceRestTranspor
             http_options = (
                 _BaseExampleStoreServiceRestTransport._BaseCreateExampleStore._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_create_example_store(
                 request, metadata
             )
-            transcoded_request = _BaseExampleStoreServiceRestTransport._BaseCreateExampleStore._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseExampleStoreServiceRestTransport._BaseCreateExampleStore._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseExampleStoreServiceRestTransport._BaseCreateExampleStore._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseExampleStoreServiceRestTransport._BaseCreateExampleStore,
+                    "_BaseCreateExampleStore__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -1280,17 +1279,18 @@ class AsyncExampleStoreServiceRestTransport(_BaseExampleStoreServiceRestTranspor
             http_options = (
                 _BaseExampleStoreServiceRestTransport._BaseDeleteExampleStore._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_delete_example_store(
                 request, metadata
             )
-            transcoded_request = _BaseExampleStoreServiceRestTransport._BaseDeleteExampleStore._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseExampleStoreServiceRestTransport._BaseDeleteExampleStore._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseExampleStoreServiceRestTransport._BaseDeleteExampleStore,
+                    "_BaseDeleteExampleStore__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -1438,21 +1438,18 @@ class AsyncExampleStoreServiceRestTransport(_BaseExampleStoreServiceRestTranspor
             http_options = (
                 _BaseExampleStoreServiceRestTransport._BaseFetchExamples._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_fetch_examples(
                 request, metadata
             )
-            transcoded_request = _BaseExampleStoreServiceRestTransport._BaseFetchExamples._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseExampleStoreServiceRestTransport._BaseFetchExamples._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseExampleStoreServiceRestTransport._BaseFetchExamples._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseExampleStoreServiceRestTransport._BaseFetchExamples,
+                    "_BaseFetchExamples__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -1602,17 +1599,18 @@ class AsyncExampleStoreServiceRestTransport(_BaseExampleStoreServiceRestTranspor
             http_options = (
                 _BaseExampleStoreServiceRestTransport._BaseGetExampleStore._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_get_example_store(
                 request, metadata
             )
-            transcoded_request = _BaseExampleStoreServiceRestTransport._BaseGetExampleStore._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseExampleStoreServiceRestTransport._BaseGetExampleStore._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseExampleStoreServiceRestTransport._BaseGetExampleStore,
+                    "_BaseGetExampleStore__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -1759,17 +1757,18 @@ class AsyncExampleStoreServiceRestTransport(_BaseExampleStoreServiceRestTranspor
             http_options = (
                 _BaseExampleStoreServiceRestTransport._BaseListExampleStores._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_list_example_stores(
                 request, metadata
             )
-            transcoded_request = _BaseExampleStoreServiceRestTransport._BaseListExampleStores._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseExampleStoreServiceRestTransport._BaseListExampleStores._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseExampleStoreServiceRestTransport._BaseListExampleStores,
+                    "_BaseListExampleStores__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -1921,21 +1920,18 @@ class AsyncExampleStoreServiceRestTransport(_BaseExampleStoreServiceRestTranspor
             http_options = (
                 _BaseExampleStoreServiceRestTransport._BaseRemoveExamples._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_remove_examples(
                 request, metadata
             )
-            transcoded_request = _BaseExampleStoreServiceRestTransport._BaseRemoveExamples._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseExampleStoreServiceRestTransport._BaseRemoveExamples._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseExampleStoreServiceRestTransport._BaseRemoveExamples._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseExampleStoreServiceRestTransport._BaseRemoveExamples,
+                    "_BaseRemoveExamples__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -2086,21 +2082,18 @@ class AsyncExampleStoreServiceRestTransport(_BaseExampleStoreServiceRestTranspor
             http_options = (
                 _BaseExampleStoreServiceRestTransport._BaseSearchExamples._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_search_examples(
                 request, metadata
             )
-            transcoded_request = _BaseExampleStoreServiceRestTransport._BaseSearchExamples._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseExampleStoreServiceRestTransport._BaseSearchExamples._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseExampleStoreServiceRestTransport._BaseSearchExamples._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseExampleStoreServiceRestTransport._BaseSearchExamples,
+                    "_BaseSearchExamples__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -2252,21 +2245,18 @@ class AsyncExampleStoreServiceRestTransport(_BaseExampleStoreServiceRestTranspor
             http_options = (
                 _BaseExampleStoreServiceRestTransport._BaseUpdateExampleStore._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_update_example_store(
                 request, metadata
             )
-            transcoded_request = _BaseExampleStoreServiceRestTransport._BaseUpdateExampleStore._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseExampleStoreServiceRestTransport._BaseUpdateExampleStore._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseExampleStoreServiceRestTransport._BaseUpdateExampleStore._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseExampleStoreServiceRestTransport._BaseUpdateExampleStore,
+                    "_BaseUpdateExampleStore__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -2415,21 +2405,18 @@ class AsyncExampleStoreServiceRestTransport(_BaseExampleStoreServiceRestTranspor
             http_options = (
                 _BaseExampleStoreServiceRestTransport._BaseUpsertExamples._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_upsert_examples(
                 request, metadata
             )
-            transcoded_request = _BaseExampleStoreServiceRestTransport._BaseUpsertExamples._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseExampleStoreServiceRestTransport._BaseUpsertExamples._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseExampleStoreServiceRestTransport._BaseUpsertExamples._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseExampleStoreServiceRestTransport._BaseUpsertExamples,
+                    "_BaseUpsertExamples__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -4881,17 +4868,18 @@ class AsyncExampleStoreServiceRestTransport(_BaseExampleStoreServiceRestTranspor
             http_options = (
                 _BaseExampleStoreServiceRestTransport._BaseGetLocation._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_get_location(
                 request, metadata
             )
-            transcoded_request = _BaseExampleStoreServiceRestTransport._BaseGetLocation._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseExampleStoreServiceRestTransport._BaseGetLocation._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseExampleStoreServiceRestTransport._BaseGetLocation,
+                    "_BaseGetLocation__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -5033,17 +5021,18 @@ class AsyncExampleStoreServiceRestTransport(_BaseExampleStoreServiceRestTranspor
             http_options = (
                 _BaseExampleStoreServiceRestTransport._BaseListLocations._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_list_locations(
                 request, metadata
             )
-            transcoded_request = _BaseExampleStoreServiceRestTransport._BaseListLocations._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseExampleStoreServiceRestTransport._BaseListLocations._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseExampleStoreServiceRestTransport._BaseListLocations,
+                    "_BaseListLocations__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -5184,21 +5173,18 @@ class AsyncExampleStoreServiceRestTransport(_BaseExampleStoreServiceRestTranspor
             http_options = (
                 _BaseExampleStoreServiceRestTransport._BaseGetIamPolicy._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_get_iam_policy(
                 request, metadata
             )
-            transcoded_request = _BaseExampleStoreServiceRestTransport._BaseGetIamPolicy._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseExampleStoreServiceRestTransport._BaseGetIamPolicy._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseExampleStoreServiceRestTransport._BaseGetIamPolicy._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseExampleStoreServiceRestTransport._BaseGetIamPolicy,
+                    "_BaseGetIamPolicy__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -5342,21 +5328,18 @@ class AsyncExampleStoreServiceRestTransport(_BaseExampleStoreServiceRestTranspor
             http_options = (
                 _BaseExampleStoreServiceRestTransport._BaseSetIamPolicy._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_set_iam_policy(
                 request, metadata
             )
-            transcoded_request = _BaseExampleStoreServiceRestTransport._BaseSetIamPolicy._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseExampleStoreServiceRestTransport._BaseSetIamPolicy._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseExampleStoreServiceRestTransport._BaseSetIamPolicy._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseExampleStoreServiceRestTransport._BaseSetIamPolicy,
+                    "_BaseSetIamPolicy__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -5500,21 +5483,18 @@ class AsyncExampleStoreServiceRestTransport(_BaseExampleStoreServiceRestTranspor
             http_options = (
                 _BaseExampleStoreServiceRestTransport._BaseTestIamPermissions._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_test_iam_permissions(
                 request, metadata
             )
-            transcoded_request = _BaseExampleStoreServiceRestTransport._BaseTestIamPermissions._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseExampleStoreServiceRestTransport._BaseTestIamPermissions._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseExampleStoreServiceRestTransport._BaseTestIamPermissions._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseExampleStoreServiceRestTransport._BaseTestIamPermissions,
+                    "_BaseTestIamPermissions__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -5652,17 +5632,18 @@ class AsyncExampleStoreServiceRestTransport(_BaseExampleStoreServiceRestTranspor
             http_options = (
                 _BaseExampleStoreServiceRestTransport._BaseCancelOperation._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_cancel_operation(
                 request, metadata
             )
-            transcoded_request = _BaseExampleStoreServiceRestTransport._BaseCancelOperation._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseExampleStoreServiceRestTransport._BaseCancelOperation._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseExampleStoreServiceRestTransport._BaseCancelOperation,
+                    "_BaseCancelOperation__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -5774,17 +5755,18 @@ class AsyncExampleStoreServiceRestTransport(_BaseExampleStoreServiceRestTranspor
             http_options = (
                 _BaseExampleStoreServiceRestTransport._BaseDeleteOperation._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_delete_operation(
                 request, metadata
             )
-            transcoded_request = _BaseExampleStoreServiceRestTransport._BaseDeleteOperation._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseExampleStoreServiceRestTransport._BaseDeleteOperation._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseExampleStoreServiceRestTransport._BaseDeleteOperation,
+                    "_BaseDeleteOperation__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -5899,17 +5881,18 @@ class AsyncExampleStoreServiceRestTransport(_BaseExampleStoreServiceRestTranspor
             http_options = (
                 _BaseExampleStoreServiceRestTransport._BaseGetOperation._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_get_operation(
                 request, metadata
             )
-            transcoded_request = _BaseExampleStoreServiceRestTransport._BaseGetOperation._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseExampleStoreServiceRestTransport._BaseGetOperation._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseExampleStoreServiceRestTransport._BaseGetOperation,
+                    "_BaseGetOperation__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -6051,17 +6034,18 @@ class AsyncExampleStoreServiceRestTransport(_BaseExampleStoreServiceRestTranspor
             http_options = (
                 _BaseExampleStoreServiceRestTransport._BaseListOperations._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_list_operations(
                 request, metadata
             )
-            transcoded_request = _BaseExampleStoreServiceRestTransport._BaseListOperations._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseExampleStoreServiceRestTransport._BaseListOperations._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseExampleStoreServiceRestTransport._BaseListOperations,
+                    "_BaseListOperations__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -6201,17 +6185,18 @@ class AsyncExampleStoreServiceRestTransport(_BaseExampleStoreServiceRestTranspor
             http_options = (
                 _BaseExampleStoreServiceRestTransport._BaseWaitOperation._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_wait_operation(
                 request, metadata
             )
-            transcoded_request = _BaseExampleStoreServiceRestTransport._BaseWaitOperation._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseExampleStoreServiceRestTransport._BaseWaitOperation._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseExampleStoreServiceRestTransport._BaseWaitOperation,
+                    "_BaseWaitOperation__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(

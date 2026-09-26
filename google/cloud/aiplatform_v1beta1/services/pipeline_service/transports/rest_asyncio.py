@@ -37,6 +37,8 @@ from google.cloud.location import locations_pb2  # type: ignore
 from google.api_core import retry_async as retries
 from google.api_core import rest_helpers
 from google.api_core import rest_streaming_async  # type: ignore
+from google.cloud.aiplatform_v1beta1._compat import transcode_request
+
 import google.protobuf
 
 from google.protobuf import json_format
@@ -1231,21 +1233,18 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             http_options = (
                 _BasePipelineServiceRestTransport._BaseBatchCancelPipelineJobs._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_batch_cancel_pipeline_jobs(
                 request, metadata
             )
-            transcoded_request = _BasePipelineServiceRestTransport._BaseBatchCancelPipelineJobs._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BasePipelineServiceRestTransport._BaseBatchCancelPipelineJobs._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BasePipelineServiceRestTransport._BaseBatchCancelPipelineJobs._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BasePipelineServiceRestTransport._BaseBatchCancelPipelineJobs,
+                    "_BaseBatchCancelPipelineJobs__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -1398,21 +1397,18 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             http_options = (
                 _BasePipelineServiceRestTransport._BaseBatchDeletePipelineJobs._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_batch_delete_pipeline_jobs(
                 request, metadata
             )
-            transcoded_request = _BasePipelineServiceRestTransport._BaseBatchDeletePipelineJobs._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BasePipelineServiceRestTransport._BaseBatchDeletePipelineJobs._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BasePipelineServiceRestTransport._BaseBatchDeletePipelineJobs._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BasePipelineServiceRestTransport._BaseBatchDeletePipelineJobs,
+                    "_BaseBatchDeletePipelineJobs__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -1557,21 +1553,18 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             http_options = (
                 _BasePipelineServiceRestTransport._BaseCancelPipelineJob._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_cancel_pipeline_job(
                 request, metadata
             )
-            transcoded_request = _BasePipelineServiceRestTransport._BaseCancelPipelineJob._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BasePipelineServiceRestTransport._BaseCancelPipelineJob._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BasePipelineServiceRestTransport._BaseCancelPipelineJob._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BasePipelineServiceRestTransport._BaseCancelPipelineJob,
+                    "_BaseCancelPipelineJob__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -1680,21 +1673,18 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             http_options = (
                 _BasePipelineServiceRestTransport._BaseCancelTrainingPipeline._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_cancel_training_pipeline(
                 request, metadata
             )
-            transcoded_request = _BasePipelineServiceRestTransport._BaseCancelTrainingPipeline._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BasePipelineServiceRestTransport._BaseCancelTrainingPipeline._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BasePipelineServiceRestTransport._BaseCancelTrainingPipeline._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BasePipelineServiceRestTransport._BaseCancelTrainingPipeline,
+                    "_BaseCancelTrainingPipeline__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -1809,21 +1799,18 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             http_options = (
                 _BasePipelineServiceRestTransport._BaseCreatePipelineJob._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_create_pipeline_job(
                 request, metadata
             )
-            transcoded_request = _BasePipelineServiceRestTransport._BaseCreatePipelineJob._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BasePipelineServiceRestTransport._BaseCreatePipelineJob._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BasePipelineServiceRestTransport._BaseCreatePipelineJob._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BasePipelineServiceRestTransport._BaseCreatePipelineJob,
+                    "_BaseCreatePipelineJob__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -1976,21 +1963,18 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             http_options = (
                 _BasePipelineServiceRestTransport._BaseCreateTrainingPipeline._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_create_training_pipeline(
                 request, metadata
             )
-            transcoded_request = _BasePipelineServiceRestTransport._BaseCreateTrainingPipeline._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BasePipelineServiceRestTransport._BaseCreateTrainingPipeline._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BasePipelineServiceRestTransport._BaseCreateTrainingPipeline._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BasePipelineServiceRestTransport._BaseCreateTrainingPipeline,
+                    "_BaseCreateTrainingPipeline__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -2143,17 +2127,18 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             http_options = (
                 _BasePipelineServiceRestTransport._BaseDeletePipelineJob._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_delete_pipeline_job(
                 request, metadata
             )
-            transcoded_request = _BasePipelineServiceRestTransport._BaseDeletePipelineJob._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BasePipelineServiceRestTransport._BaseDeletePipelineJob._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BasePipelineServiceRestTransport._BaseDeletePipelineJob,
+                    "_BaseDeletePipelineJob__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -2301,17 +2286,18 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             http_options = (
                 _BasePipelineServiceRestTransport._BaseDeleteTrainingPipeline._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_delete_training_pipeline(
                 request, metadata
             )
-            transcoded_request = _BasePipelineServiceRestTransport._BaseDeleteTrainingPipeline._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BasePipelineServiceRestTransport._BaseDeleteTrainingPipeline._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BasePipelineServiceRestTransport._BaseDeleteTrainingPipeline,
+                    "_BaseDeleteTrainingPipeline__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -2460,17 +2446,18 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             http_options = (
                 _BasePipelineServiceRestTransport._BaseGetPipelineJob._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_get_pipeline_job(
                 request, metadata
             )
-            transcoded_request = _BasePipelineServiceRestTransport._BaseGetPipelineJob._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BasePipelineServiceRestTransport._BaseGetPipelineJob._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BasePipelineServiceRestTransport._BaseGetPipelineJob,
+                    "_BaseGetPipelineJob__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -2623,17 +2610,18 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             http_options = (
                 _BasePipelineServiceRestTransport._BaseGetTrainingPipeline._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_get_training_pipeline(
                 request, metadata
             )
-            transcoded_request = _BasePipelineServiceRestTransport._BaseGetTrainingPipeline._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BasePipelineServiceRestTransport._BaseGetTrainingPipeline._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BasePipelineServiceRestTransport._BaseGetTrainingPipeline,
+                    "_BaseGetTrainingPipeline__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -2782,17 +2770,18 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             http_options = (
                 _BasePipelineServiceRestTransport._BaseListPipelineJobs._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_list_pipeline_jobs(
                 request, metadata
             )
-            transcoded_request = _BasePipelineServiceRestTransport._BaseListPipelineJobs._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BasePipelineServiceRestTransport._BaseListPipelineJobs._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BasePipelineServiceRestTransport._BaseListPipelineJobs,
+                    "_BaseListPipelineJobs__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -2943,17 +2932,18 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             http_options = (
                 _BasePipelineServiceRestTransport._BaseListTrainingPipelines._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_list_training_pipelines(
                 request, metadata
             )
-            transcoded_request = _BasePipelineServiceRestTransport._BaseListTrainingPipelines._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BasePipelineServiceRestTransport._BaseListTrainingPipelines._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BasePipelineServiceRestTransport._BaseListTrainingPipelines,
+                    "_BaseListTrainingPipelines__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -5422,17 +5412,18 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             http_options = (
                 _BasePipelineServiceRestTransport._BaseGetLocation._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_get_location(
                 request, metadata
             )
-            transcoded_request = _BasePipelineServiceRestTransport._BaseGetLocation._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BasePipelineServiceRestTransport._BaseGetLocation._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BasePipelineServiceRestTransport._BaseGetLocation,
+                    "_BaseGetLocation__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -5574,17 +5565,18 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             http_options = (
                 _BasePipelineServiceRestTransport._BaseListLocations._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_list_locations(
                 request, metadata
             )
-            transcoded_request = _BasePipelineServiceRestTransport._BaseListLocations._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BasePipelineServiceRestTransport._BaseListLocations._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BasePipelineServiceRestTransport._BaseListLocations,
+                    "_BaseListLocations__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -5727,21 +5719,18 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             http_options = (
                 _BasePipelineServiceRestTransport._BaseGetIamPolicy._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_get_iam_policy(
                 request, metadata
             )
-            transcoded_request = _BasePipelineServiceRestTransport._BaseGetIamPolicy._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BasePipelineServiceRestTransport._BaseGetIamPolicy._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BasePipelineServiceRestTransport._BaseGetIamPolicy._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BasePipelineServiceRestTransport._BaseGetIamPolicy,
+                    "_BaseGetIamPolicy__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -5885,21 +5874,18 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             http_options = (
                 _BasePipelineServiceRestTransport._BaseSetIamPolicy._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_set_iam_policy(
                 request, metadata
             )
-            transcoded_request = _BasePipelineServiceRestTransport._BaseSetIamPolicy._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BasePipelineServiceRestTransport._BaseSetIamPolicy._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BasePipelineServiceRestTransport._BaseSetIamPolicy._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BasePipelineServiceRestTransport._BaseSetIamPolicy,
+                    "_BaseSetIamPolicy__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -6043,21 +6029,18 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             http_options = (
                 _BasePipelineServiceRestTransport._BaseTestIamPermissions._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_test_iam_permissions(
                 request, metadata
             )
-            transcoded_request = _BasePipelineServiceRestTransport._BaseTestIamPermissions._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BasePipelineServiceRestTransport._BaseTestIamPermissions._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BasePipelineServiceRestTransport._BaseTestIamPermissions._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BasePipelineServiceRestTransport._BaseTestIamPermissions,
+                    "_BaseTestIamPermissions__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -6195,17 +6178,18 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             http_options = (
                 _BasePipelineServiceRestTransport._BaseCancelOperation._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_cancel_operation(
                 request, metadata
             )
-            transcoded_request = _BasePipelineServiceRestTransport._BaseCancelOperation._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BasePipelineServiceRestTransport._BaseCancelOperation._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BasePipelineServiceRestTransport._BaseCancelOperation,
+                    "_BaseCancelOperation__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -6319,17 +6303,18 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             http_options = (
                 _BasePipelineServiceRestTransport._BaseDeleteOperation._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_delete_operation(
                 request, metadata
             )
-            transcoded_request = _BasePipelineServiceRestTransport._BaseDeleteOperation._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BasePipelineServiceRestTransport._BaseDeleteOperation._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BasePipelineServiceRestTransport._BaseDeleteOperation,
+                    "_BaseDeleteOperation__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -6446,17 +6431,18 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             http_options = (
                 _BasePipelineServiceRestTransport._BaseGetOperation._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_get_operation(
                 request, metadata
             )
-            transcoded_request = _BasePipelineServiceRestTransport._BaseGetOperation._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BasePipelineServiceRestTransport._BaseGetOperation._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BasePipelineServiceRestTransport._BaseGetOperation,
+                    "_BaseGetOperation__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -6598,17 +6584,18 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             http_options = (
                 _BasePipelineServiceRestTransport._BaseListOperations._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_list_operations(
                 request, metadata
             )
-            transcoded_request = _BasePipelineServiceRestTransport._BaseListOperations._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BasePipelineServiceRestTransport._BaseListOperations._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BasePipelineServiceRestTransport._BaseListOperations,
+                    "_BaseListOperations__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -6750,17 +6737,18 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             http_options = (
                 _BasePipelineServiceRestTransport._BaseWaitOperation._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_wait_operation(
                 request, metadata
             )
-            transcoded_request = _BasePipelineServiceRestTransport._BaseWaitOperation._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BasePipelineServiceRestTransport._BaseWaitOperation._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BasePipelineServiceRestTransport._BaseWaitOperation,
+                    "_BaseWaitOperation__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
