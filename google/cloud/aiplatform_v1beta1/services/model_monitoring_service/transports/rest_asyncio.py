@@ -37,6 +37,8 @@ from google.cloud.location import locations_pb2  # type: ignore
 from google.api_core import retry_async as retries
 from google.api_core import rest_helpers
 from google.api_core import rest_streaming_async  # type: ignore
+from google.cloud.aiplatform_v1beta1._compat import transcode_request
+
 import google.protobuf
 
 from google.protobuf import json_format
@@ -1251,21 +1253,18 @@ class AsyncModelMonitoringServiceRestTransport(
             http_options = (
                 _BaseModelMonitoringServiceRestTransport._BaseCreateModelMonitor._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_create_model_monitor(
                 request, metadata
             )
-            transcoded_request = _BaseModelMonitoringServiceRestTransport._BaseCreateModelMonitor._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseModelMonitoringServiceRestTransport._BaseCreateModelMonitor._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseModelMonitoringServiceRestTransport._BaseCreateModelMonitor._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseModelMonitoringServiceRestTransport._BaseCreateModelMonitor,
+                    "_BaseCreateModelMonitor__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -1418,21 +1417,18 @@ class AsyncModelMonitoringServiceRestTransport(
             http_options = (
                 _BaseModelMonitoringServiceRestTransport._BaseCreateModelMonitoringJob._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_create_model_monitoring_job(
                 request, metadata
             )
-            transcoded_request = _BaseModelMonitoringServiceRestTransport._BaseCreateModelMonitoringJob._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseModelMonitoringServiceRestTransport._BaseCreateModelMonitoringJob._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseModelMonitoringServiceRestTransport._BaseCreateModelMonitoringJob._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseModelMonitoringServiceRestTransport._BaseCreateModelMonitoringJob,
+                    "_BaseCreateModelMonitoringJob__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -1585,17 +1581,18 @@ class AsyncModelMonitoringServiceRestTransport(
             http_options = (
                 _BaseModelMonitoringServiceRestTransport._BaseDeleteModelMonitor._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_delete_model_monitor(
                 request, metadata
             )
-            transcoded_request = _BaseModelMonitoringServiceRestTransport._BaseDeleteModelMonitor._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseModelMonitoringServiceRestTransport._BaseDeleteModelMonitor._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseModelMonitoringServiceRestTransport._BaseDeleteModelMonitor,
+                    "_BaseDeleteModelMonitor__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -1746,17 +1743,18 @@ class AsyncModelMonitoringServiceRestTransport(
             http_options = (
                 _BaseModelMonitoringServiceRestTransport._BaseDeleteModelMonitoringJob._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_delete_model_monitoring_job(
                 request, metadata
             )
-            transcoded_request = _BaseModelMonitoringServiceRestTransport._BaseDeleteModelMonitoringJob._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseModelMonitoringServiceRestTransport._BaseDeleteModelMonitoringJob._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseModelMonitoringServiceRestTransport._BaseDeleteModelMonitoringJob,
+                    "_BaseDeleteModelMonitoringJob__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -1910,17 +1908,18 @@ class AsyncModelMonitoringServiceRestTransport(
             http_options = (
                 _BaseModelMonitoringServiceRestTransport._BaseGetModelMonitor._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_get_model_monitor(
                 request, metadata
             )
-            transcoded_request = _BaseModelMonitoringServiceRestTransport._BaseGetModelMonitor._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseModelMonitoringServiceRestTransport._BaseGetModelMonitor._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseModelMonitoringServiceRestTransport._BaseGetModelMonitor,
+                    "_BaseGetModelMonitor__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -2070,17 +2069,18 @@ class AsyncModelMonitoringServiceRestTransport(
             http_options = (
                 _BaseModelMonitoringServiceRestTransport._BaseGetModelMonitoringJob._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_get_model_monitoring_job(
                 request, metadata
             )
-            transcoded_request = _BaseModelMonitoringServiceRestTransport._BaseGetModelMonitoringJob._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseModelMonitoringServiceRestTransport._BaseGetModelMonitoringJob._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseModelMonitoringServiceRestTransport._BaseGetModelMonitoringJob,
+                    "_BaseGetModelMonitoringJob__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -2234,17 +2234,18 @@ class AsyncModelMonitoringServiceRestTransport(
             http_options = (
                 _BaseModelMonitoringServiceRestTransport._BaseListModelMonitoringJobs._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_list_model_monitoring_jobs(
                 request, metadata
             )
-            transcoded_request = _BaseModelMonitoringServiceRestTransport._BaseListModelMonitoringJobs._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseModelMonitoringServiceRestTransport._BaseListModelMonitoringJobs._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseModelMonitoringServiceRestTransport._BaseListModelMonitoringJobs,
+                    "_BaseListModelMonitoringJobs__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -2395,17 +2396,18 @@ class AsyncModelMonitoringServiceRestTransport(
             http_options = (
                 _BaseModelMonitoringServiceRestTransport._BaseListModelMonitors._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_list_model_monitors(
                 request, metadata
             )
-            transcoded_request = _BaseModelMonitoringServiceRestTransport._BaseListModelMonitors._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseModelMonitoringServiceRestTransport._BaseListModelMonitors._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseModelMonitoringServiceRestTransport._BaseListModelMonitors,
+                    "_BaseListModelMonitors__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -2560,23 +2562,20 @@ class AsyncModelMonitoringServiceRestTransport(
             http_options = (
                 _BaseModelMonitoringServiceRestTransport._BaseSearchModelMonitoringAlerts._get_http_options()
             )
-
             request, metadata = (
                 await self._interceptor.pre_search_model_monitoring_alerts(
                     request, metadata
                 )
             )
-            transcoded_request = _BaseModelMonitoringServiceRestTransport._BaseSearchModelMonitoringAlerts._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseModelMonitoringServiceRestTransport._BaseSearchModelMonitoringAlerts._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseModelMonitoringServiceRestTransport._BaseSearchModelMonitoringAlerts._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseModelMonitoringServiceRestTransport._BaseSearchModelMonitoringAlerts,
+                    "_BaseSearchModelMonitoringAlerts__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -2734,23 +2733,20 @@ class AsyncModelMonitoringServiceRestTransport(
             http_options = (
                 _BaseModelMonitoringServiceRestTransport._BaseSearchModelMonitoringStats._get_http_options()
             )
-
             request, metadata = (
                 await self._interceptor.pre_search_model_monitoring_stats(
                     request, metadata
                 )
             )
-            transcoded_request = _BaseModelMonitoringServiceRestTransport._BaseSearchModelMonitoringStats._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseModelMonitoringServiceRestTransport._BaseSearchModelMonitoringStats._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseModelMonitoringServiceRestTransport._BaseSearchModelMonitoringStats._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseModelMonitoringServiceRestTransport._BaseSearchModelMonitoringStats,
+                    "_BaseSearchModelMonitoringStats__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -2906,21 +2902,18 @@ class AsyncModelMonitoringServiceRestTransport(
             http_options = (
                 _BaseModelMonitoringServiceRestTransport._BaseUpdateModelMonitor._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_update_model_monitor(
                 request, metadata
             )
-            transcoded_request = _BaseModelMonitoringServiceRestTransport._BaseUpdateModelMonitor._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseModelMonitoringServiceRestTransport._BaseUpdateModelMonitor._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseModelMonitoringServiceRestTransport._BaseUpdateModelMonitor._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseModelMonitoringServiceRestTransport._BaseUpdateModelMonitor,
+                    "_BaseUpdateModelMonitor__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -5388,17 +5381,18 @@ class AsyncModelMonitoringServiceRestTransport(
             http_options = (
                 _BaseModelMonitoringServiceRestTransport._BaseGetLocation._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_get_location(
                 request, metadata
             )
-            transcoded_request = _BaseModelMonitoringServiceRestTransport._BaseGetLocation._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseModelMonitoringServiceRestTransport._BaseGetLocation._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseModelMonitoringServiceRestTransport._BaseGetLocation,
+                    "_BaseGetLocation__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -5538,17 +5532,18 @@ class AsyncModelMonitoringServiceRestTransport(
             http_options = (
                 _BaseModelMonitoringServiceRestTransport._BaseListLocations._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_list_locations(
                 request, metadata
             )
-            transcoded_request = _BaseModelMonitoringServiceRestTransport._BaseListLocations._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseModelMonitoringServiceRestTransport._BaseListLocations._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseModelMonitoringServiceRestTransport._BaseListLocations,
+                    "_BaseListLocations__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -5689,21 +5684,18 @@ class AsyncModelMonitoringServiceRestTransport(
             http_options = (
                 _BaseModelMonitoringServiceRestTransport._BaseGetIamPolicy._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_get_iam_policy(
                 request, metadata
             )
-            transcoded_request = _BaseModelMonitoringServiceRestTransport._BaseGetIamPolicy._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseModelMonitoringServiceRestTransport._BaseGetIamPolicy._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseModelMonitoringServiceRestTransport._BaseGetIamPolicy._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseModelMonitoringServiceRestTransport._BaseGetIamPolicy,
+                    "_BaseGetIamPolicy__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -5845,21 +5837,18 @@ class AsyncModelMonitoringServiceRestTransport(
             http_options = (
                 _BaseModelMonitoringServiceRestTransport._BaseSetIamPolicy._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_set_iam_policy(
                 request, metadata
             )
-            transcoded_request = _BaseModelMonitoringServiceRestTransport._BaseSetIamPolicy._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseModelMonitoringServiceRestTransport._BaseSetIamPolicy._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseModelMonitoringServiceRestTransport._BaseSetIamPolicy._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseModelMonitoringServiceRestTransport._BaseSetIamPolicy,
+                    "_BaseSetIamPolicy__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -6001,21 +5990,18 @@ class AsyncModelMonitoringServiceRestTransport(
             http_options = (
                 _BaseModelMonitoringServiceRestTransport._BaseTestIamPermissions._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_test_iam_permissions(
                 request, metadata
             )
-            transcoded_request = _BaseModelMonitoringServiceRestTransport._BaseTestIamPermissions._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseModelMonitoringServiceRestTransport._BaseTestIamPermissions._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseModelMonitoringServiceRestTransport._BaseTestIamPermissions._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseModelMonitoringServiceRestTransport._BaseTestIamPermissions,
+                    "_BaseTestIamPermissions__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -6153,17 +6139,18 @@ class AsyncModelMonitoringServiceRestTransport(
             http_options = (
                 _BaseModelMonitoringServiceRestTransport._BaseCancelOperation._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_cancel_operation(
                 request, metadata
             )
-            transcoded_request = _BaseModelMonitoringServiceRestTransport._BaseCancelOperation._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseModelMonitoringServiceRestTransport._BaseCancelOperation._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseModelMonitoringServiceRestTransport._BaseCancelOperation,
+                    "_BaseCancelOperation__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -6275,17 +6262,18 @@ class AsyncModelMonitoringServiceRestTransport(
             http_options = (
                 _BaseModelMonitoringServiceRestTransport._BaseDeleteOperation._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_delete_operation(
                 request, metadata
             )
-            transcoded_request = _BaseModelMonitoringServiceRestTransport._BaseDeleteOperation._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseModelMonitoringServiceRestTransport._BaseDeleteOperation._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseModelMonitoringServiceRestTransport._BaseDeleteOperation,
+                    "_BaseDeleteOperation__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -6400,17 +6388,18 @@ class AsyncModelMonitoringServiceRestTransport(
             http_options = (
                 _BaseModelMonitoringServiceRestTransport._BaseGetOperation._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_get_operation(
                 request, metadata
             )
-            transcoded_request = _BaseModelMonitoringServiceRestTransport._BaseGetOperation._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseModelMonitoringServiceRestTransport._BaseGetOperation._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseModelMonitoringServiceRestTransport._BaseGetOperation,
+                    "_BaseGetOperation__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -6550,17 +6539,18 @@ class AsyncModelMonitoringServiceRestTransport(
             http_options = (
                 _BaseModelMonitoringServiceRestTransport._BaseListOperations._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_list_operations(
                 request, metadata
             )
-            transcoded_request = _BaseModelMonitoringServiceRestTransport._BaseListOperations._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseModelMonitoringServiceRestTransport._BaseListOperations._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseModelMonitoringServiceRestTransport._BaseListOperations,
+                    "_BaseListOperations__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -6700,17 +6690,18 @@ class AsyncModelMonitoringServiceRestTransport(
             http_options = (
                 _BaseModelMonitoringServiceRestTransport._BaseWaitOperation._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_wait_operation(
                 request, metadata
             )
-            transcoded_request = _BaseModelMonitoringServiceRestTransport._BaseWaitOperation._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseModelMonitoringServiceRestTransport._BaseWaitOperation._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseModelMonitoringServiceRestTransport._BaseWaitOperation,
+                    "_BaseWaitOperation__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(

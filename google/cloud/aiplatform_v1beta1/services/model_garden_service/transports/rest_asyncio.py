@@ -37,6 +37,8 @@ from google.cloud.location import locations_pb2  # type: ignore
 from google.api_core import retry_async as retries
 from google.api_core import rest_helpers
 from google.api_core import rest_streaming_async  # type: ignore
+from google.cloud.aiplatform_v1beta1._compat import transcode_request
+
 import google.protobuf
 
 from google.protobuf import json_format
@@ -986,21 +988,18 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
             http_options = (
                 _BaseModelGardenServiceRestTransport._BaseAcceptPublisherModelEula._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_accept_publisher_model_eula(
                 request, metadata
             )
-            transcoded_request = _BaseModelGardenServiceRestTransport._BaseAcceptPublisherModelEula._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseModelGardenServiceRestTransport._BaseAcceptPublisherModelEula._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseModelGardenServiceRestTransport._BaseAcceptPublisherModelEula._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseModelGardenServiceRestTransport._BaseAcceptPublisherModelEula,
+                    "_BaseAcceptPublisherModelEula__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -1158,23 +1157,20 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
             http_options = (
                 _BaseModelGardenServiceRestTransport._BaseCheckPublisherModelEulaAcceptance._get_http_options()
             )
-
             request, metadata = (
                 await self._interceptor.pre_check_publisher_model_eula_acceptance(
                     request, metadata
                 )
             )
-            transcoded_request = _BaseModelGardenServiceRestTransport._BaseCheckPublisherModelEulaAcceptance._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseModelGardenServiceRestTransport._BaseCheckPublisherModelEulaAcceptance._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseModelGardenServiceRestTransport._BaseCheckPublisherModelEulaAcceptance._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseModelGardenServiceRestTransport._BaseCheckPublisherModelEulaAcceptance,
+                    "_BaseCheckPublisherModelEulaAcceptance__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -1332,23 +1328,16 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
             http_options = (
                 _BaseModelGardenServiceRestTransport._BaseDeploy._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_deploy(request, metadata)
-            transcoded_request = _BaseModelGardenServiceRestTransport._BaseDeploy._get_transcoded_request(
-                http_options, request
-            )
-
-            body = (
-                _BaseModelGardenServiceRestTransport._BaseDeploy._get_request_body_json(
-                    transcoded_request
-                )
-            )
-
-            # Jsonify the query params
-            query_params = (
-                _BaseModelGardenServiceRestTransport._BaseDeploy._get_query_params_json(
-                    transcoded_request
-                )
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseModelGardenServiceRestTransport._BaseDeploy,
+                    "_BaseDeploy__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -1498,21 +1487,18 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
             http_options = (
                 _BaseModelGardenServiceRestTransport._BaseDeployPublisherModel._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_deploy_publisher_model(
                 request, metadata
             )
-            transcoded_request = _BaseModelGardenServiceRestTransport._BaseDeployPublisherModel._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseModelGardenServiceRestTransport._BaseDeployPublisherModel._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseModelGardenServiceRestTransport._BaseDeployPublisherModel._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseModelGardenServiceRestTransport._BaseDeployPublisherModel,
+                    "_BaseDeployPublisherModel__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -1662,21 +1648,18 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
             http_options = (
                 _BaseModelGardenServiceRestTransport._BaseExportPublisherModel._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_export_publisher_model(
                 request, metadata
             )
-            transcoded_request = _BaseModelGardenServiceRestTransport._BaseExportPublisherModel._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseModelGardenServiceRestTransport._BaseExportPublisherModel._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseModelGardenServiceRestTransport._BaseExportPublisherModel._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseModelGardenServiceRestTransport._BaseExportPublisherModel,
+                    "_BaseExportPublisherModel__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -1822,17 +1805,18 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
             http_options = (
                 _BaseModelGardenServiceRestTransport._BaseGetPublisherModel._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_get_publisher_model(
                 request, metadata
             )
-            transcoded_request = _BaseModelGardenServiceRestTransport._BaseGetPublisherModel._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseModelGardenServiceRestTransport._BaseGetPublisherModel._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseModelGardenServiceRestTransport._BaseGetPublisherModel,
+                    "_BaseGetPublisherModel__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -1979,17 +1963,18 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
             http_options = (
                 _BaseModelGardenServiceRestTransport._BaseListPublisherModels._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_list_publisher_models(
                 request, metadata
             )
-            transcoded_request = _BaseModelGardenServiceRestTransport._BaseListPublisherModels._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseModelGardenServiceRestTransport._BaseListPublisherModels._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseModelGardenServiceRestTransport._BaseListPublisherModels,
+                    "_BaseListPublisherModels__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -4422,17 +4407,18 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
             http_options = (
                 _BaseModelGardenServiceRestTransport._BaseGetLocation._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_get_location(
                 request, metadata
             )
-            transcoded_request = _BaseModelGardenServiceRestTransport._BaseGetLocation._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseModelGardenServiceRestTransport._BaseGetLocation._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseModelGardenServiceRestTransport._BaseGetLocation,
+                    "_BaseGetLocation__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -4574,17 +4560,18 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
             http_options = (
                 _BaseModelGardenServiceRestTransport._BaseListLocations._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_list_locations(
                 request, metadata
             )
-            transcoded_request = _BaseModelGardenServiceRestTransport._BaseListLocations._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseModelGardenServiceRestTransport._BaseListLocations._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseModelGardenServiceRestTransport._BaseListLocations,
+                    "_BaseListLocations__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -4727,21 +4714,18 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
             http_options = (
                 _BaseModelGardenServiceRestTransport._BaseGetIamPolicy._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_get_iam_policy(
                 request, metadata
             )
-            transcoded_request = _BaseModelGardenServiceRestTransport._BaseGetIamPolicy._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseModelGardenServiceRestTransport._BaseGetIamPolicy._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseModelGardenServiceRestTransport._BaseGetIamPolicy._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseModelGardenServiceRestTransport._BaseGetIamPolicy,
+                    "_BaseGetIamPolicy__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -4885,21 +4869,18 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
             http_options = (
                 _BaseModelGardenServiceRestTransport._BaseSetIamPolicy._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_set_iam_policy(
                 request, metadata
             )
-            transcoded_request = _BaseModelGardenServiceRestTransport._BaseSetIamPolicy._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseModelGardenServiceRestTransport._BaseSetIamPolicy._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseModelGardenServiceRestTransport._BaseSetIamPolicy._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseModelGardenServiceRestTransport._BaseSetIamPolicy,
+                    "_BaseSetIamPolicy__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -5043,21 +5024,18 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
             http_options = (
                 _BaseModelGardenServiceRestTransport._BaseTestIamPermissions._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_test_iam_permissions(
                 request, metadata
             )
-            transcoded_request = _BaseModelGardenServiceRestTransport._BaseTestIamPermissions._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseModelGardenServiceRestTransport._BaseTestIamPermissions._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseModelGardenServiceRestTransport._BaseTestIamPermissions._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseModelGardenServiceRestTransport._BaseTestIamPermissions,
+                    "_BaseTestIamPermissions__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -5195,17 +5173,18 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
             http_options = (
                 _BaseModelGardenServiceRestTransport._BaseCancelOperation._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_cancel_operation(
                 request, metadata
             )
-            transcoded_request = _BaseModelGardenServiceRestTransport._BaseCancelOperation._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseModelGardenServiceRestTransport._BaseCancelOperation._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseModelGardenServiceRestTransport._BaseCancelOperation,
+                    "_BaseCancelOperation__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -5317,17 +5296,18 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
             http_options = (
                 _BaseModelGardenServiceRestTransport._BaseDeleteOperation._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_delete_operation(
                 request, metadata
             )
-            transcoded_request = _BaseModelGardenServiceRestTransport._BaseDeleteOperation._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseModelGardenServiceRestTransport._BaseDeleteOperation._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseModelGardenServiceRestTransport._BaseDeleteOperation,
+                    "_BaseDeleteOperation__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -5442,17 +5422,18 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
             http_options = (
                 _BaseModelGardenServiceRestTransport._BaseGetOperation._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_get_operation(
                 request, metadata
             )
-            transcoded_request = _BaseModelGardenServiceRestTransport._BaseGetOperation._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseModelGardenServiceRestTransport._BaseGetOperation._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseModelGardenServiceRestTransport._BaseGetOperation,
+                    "_BaseGetOperation__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -5594,17 +5575,18 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
             http_options = (
                 _BaseModelGardenServiceRestTransport._BaseListOperations._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_list_operations(
                 request, metadata
             )
-            transcoded_request = _BaseModelGardenServiceRestTransport._BaseListOperations._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseModelGardenServiceRestTransport._BaseListOperations._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseModelGardenServiceRestTransport._BaseListOperations,
+                    "_BaseListOperations__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -5744,17 +5726,18 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
             http_options = (
                 _BaseModelGardenServiceRestTransport._BaseWaitOperation._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_wait_operation(
                 request, metadata
             )
-            transcoded_request = _BaseModelGardenServiceRestTransport._BaseWaitOperation._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseModelGardenServiceRestTransport._BaseWaitOperation._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseModelGardenServiceRestTransport._BaseWaitOperation,
+                    "_BaseWaitOperation__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
