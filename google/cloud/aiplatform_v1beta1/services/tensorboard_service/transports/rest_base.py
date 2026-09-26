@@ -110,14 +110,6 @@ class _BaseTensorboardServiceRestTransport(TensorboardServiceTransport):
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
-
         @staticmethod
         def _get_http_options():
             http_options: List[Dict[str, str]] = [
@@ -129,53 +121,11 @@ class _BaseTensorboardServiceRestTransport(TensorboardServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = tensorboard_service.BatchCreateTensorboardRunsRequest.pb(
-                request
-            )
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_request_body_json(transcoded_request):
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
-            )
-            return body
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseTensorboardServiceRestTransport._BaseBatchCreateTensorboardRuns._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseBatchCreateTensorboardTimeSeries:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -188,40 +138,6 @@ class _BaseTensorboardServiceRestTransport(TensorboardServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = tensorboard_service.BatchCreateTensorboardTimeSeriesRequest.pb(
-                request
-            )
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_request_body_json(transcoded_request):
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
-            )
-            return body
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseTensorboardServiceRestTransport._BaseBatchCreateTensorboardTimeSeries._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseBatchReadTensorboardTimeSeriesData:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
@@ -229,14 +145,6 @@ class _BaseTensorboardServiceRestTransport(TensorboardServiceTransport):
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {
             "timeSeries": "",
         }
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -248,46 +156,11 @@ class _BaseTensorboardServiceRestTransport(TensorboardServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = (
-                tensorboard_service.BatchReadTensorboardTimeSeriesDataRequest.pb(
-                    request
-                )
-            )
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseTensorboardServiceRestTransport._BaseBatchReadTensorboardTimeSeriesData._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseCreateTensorboard:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -300,38 +173,6 @@ class _BaseTensorboardServiceRestTransport(TensorboardServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = tensorboard_service.CreateTensorboardRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_request_body_json(transcoded_request):
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
-            )
-            return body
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseTensorboardServiceRestTransport._BaseCreateTensorboard._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseCreateTensorboardExperiment:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
@@ -339,14 +180,6 @@ class _BaseTensorboardServiceRestTransport(TensorboardServiceTransport):
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {
             "tensorboardExperimentId": "",
         }
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -359,40 +192,6 @@ class _BaseTensorboardServiceRestTransport(TensorboardServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = tensorboard_service.CreateTensorboardExperimentRequest.pb(
-                request
-            )
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_request_body_json(transcoded_request):
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
-            )
-            return body
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseTensorboardServiceRestTransport._BaseCreateTensorboardExperiment._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseCreateTensorboardRun:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
@@ -400,14 +199,6 @@ class _BaseTensorboardServiceRestTransport(TensorboardServiceTransport):
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {
             "tensorboardRunId": "",
         }
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -420,51 +211,11 @@ class _BaseTensorboardServiceRestTransport(TensorboardServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = tensorboard_service.CreateTensorboardRunRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_request_body_json(transcoded_request):
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
-            )
-            return body
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseTensorboardServiceRestTransport._BaseCreateTensorboardRun._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseCreateTensorboardTimeSeries:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -477,53 +228,11 @@ class _BaseTensorboardServiceRestTransport(TensorboardServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = tensorboard_service.CreateTensorboardTimeSeriesRequest.pb(
-                request
-            )
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_request_body_json(transcoded_request):
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
-            )
-            return body
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseTensorboardServiceRestTransport._BaseCreateTensorboardTimeSeries._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseDeleteTensorboard:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -535,42 +244,11 @@ class _BaseTensorboardServiceRestTransport(TensorboardServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = tensorboard_service.DeleteTensorboardRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseTensorboardServiceRestTransport._BaseDeleteTensorboard._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseDeleteTensorboardExperiment:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -582,44 +260,11 @@ class _BaseTensorboardServiceRestTransport(TensorboardServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = tensorboard_service.DeleteTensorboardExperimentRequest.pb(
-                request
-            )
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseTensorboardServiceRestTransport._BaseDeleteTensorboardExperiment._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseDeleteTensorboardRun:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -631,42 +276,11 @@ class _BaseTensorboardServiceRestTransport(TensorboardServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = tensorboard_service.DeleteTensorboardRunRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseTensorboardServiceRestTransport._BaseDeleteTensorboardRun._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseDeleteTensorboardTimeSeries:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -678,44 +292,11 @@ class _BaseTensorboardServiceRestTransport(TensorboardServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = tensorboard_service.DeleteTensorboardTimeSeriesRequest.pb(
-                request
-            )
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseTensorboardServiceRestTransport._BaseDeleteTensorboardTimeSeries._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseExportTensorboardTimeSeriesData:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -728,53 +309,11 @@ class _BaseTensorboardServiceRestTransport(TensorboardServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = tensorboard_service.ExportTensorboardTimeSeriesDataRequest.pb(
-                request
-            )
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_request_body_json(transcoded_request):
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
-            )
-            return body
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseTensorboardServiceRestTransport._BaseExportTensorboardTimeSeriesData._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseGetTensorboard:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -786,42 +325,11 @@ class _BaseTensorboardServiceRestTransport(TensorboardServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = tensorboard_service.GetTensorboardRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseTensorboardServiceRestTransport._BaseGetTensorboard._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseGetTensorboardExperiment:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -833,42 +341,11 @@ class _BaseTensorboardServiceRestTransport(TensorboardServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = tensorboard_service.GetTensorboardExperimentRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseTensorboardServiceRestTransport._BaseGetTensorboardExperiment._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseGetTensorboardRun:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -880,42 +357,11 @@ class _BaseTensorboardServiceRestTransport(TensorboardServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = tensorboard_service.GetTensorboardRunRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseTensorboardServiceRestTransport._BaseGetTensorboardRun._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseGetTensorboardTimeSeries:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -927,42 +373,11 @@ class _BaseTensorboardServiceRestTransport(TensorboardServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = tensorboard_service.GetTensorboardTimeSeriesRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseTensorboardServiceRestTransport._BaseGetTensorboardTimeSeries._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseListTensorboardExperiments:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -974,44 +389,11 @@ class _BaseTensorboardServiceRestTransport(TensorboardServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = tensorboard_service.ListTensorboardExperimentsRequest.pb(
-                request
-            )
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseTensorboardServiceRestTransport._BaseListTensorboardExperiments._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseListTensorboardRuns:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -1023,42 +405,11 @@ class _BaseTensorboardServiceRestTransport(TensorboardServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = tensorboard_service.ListTensorboardRunsRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseTensorboardServiceRestTransport._BaseListTensorboardRuns._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseListTensorboards:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -1070,42 +421,11 @@ class _BaseTensorboardServiceRestTransport(TensorboardServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = tensorboard_service.ListTensorboardsRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseTensorboardServiceRestTransport._BaseListTensorboards._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseListTensorboardTimeSeries:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -1117,44 +437,11 @@ class _BaseTensorboardServiceRestTransport(TensorboardServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = tensorboard_service.ListTensorboardTimeSeriesRequest.pb(
-                request
-            )
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseTensorboardServiceRestTransport._BaseListTensorboardTimeSeries._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseReadTensorboardBlobData:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -1166,42 +453,11 @@ class _BaseTensorboardServiceRestTransport(TensorboardServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = tensorboard_service.ReadTensorboardBlobDataRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseTensorboardServiceRestTransport._BaseReadTensorboardBlobData._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseReadTensorboardSize:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -1213,42 +469,11 @@ class _BaseTensorboardServiceRestTransport(TensorboardServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = tensorboard_service.ReadTensorboardSizeRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseTensorboardServiceRestTransport._BaseReadTensorboardSize._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseReadTensorboardTimeSeriesData:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -1260,44 +485,11 @@ class _BaseTensorboardServiceRestTransport(TensorboardServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = tensorboard_service.ReadTensorboardTimeSeriesDataRequest.pb(
-                request
-            )
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseTensorboardServiceRestTransport._BaseReadTensorboardTimeSeriesData._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseReadTensorboardUsage:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -1309,29 +501,6 @@ class _BaseTensorboardServiceRestTransport(TensorboardServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = tensorboard_service.ReadTensorboardUsageRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseTensorboardServiceRestTransport._BaseReadTensorboardUsage._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseUpdateTensorboard:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
@@ -1339,14 +508,6 @@ class _BaseTensorboardServiceRestTransport(TensorboardServiceTransport):
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {
             "updateMask": {},
         }
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -1359,38 +520,6 @@ class _BaseTensorboardServiceRestTransport(TensorboardServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = tensorboard_service.UpdateTensorboardRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_request_body_json(transcoded_request):
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
-            )
-            return body
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseTensorboardServiceRestTransport._BaseUpdateTensorboard._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseUpdateTensorboardExperiment:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
@@ -1398,14 +527,6 @@ class _BaseTensorboardServiceRestTransport(TensorboardServiceTransport):
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {
             "updateMask": {},
         }
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -1418,40 +539,6 @@ class _BaseTensorboardServiceRestTransport(TensorboardServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = tensorboard_service.UpdateTensorboardExperimentRequest.pb(
-                request
-            )
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_request_body_json(transcoded_request):
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
-            )
-            return body
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseTensorboardServiceRestTransport._BaseUpdateTensorboardExperiment._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseUpdateTensorboardRun:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
@@ -1459,14 +546,6 @@ class _BaseTensorboardServiceRestTransport(TensorboardServiceTransport):
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {
             "updateMask": {},
         }
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -1479,38 +558,6 @@ class _BaseTensorboardServiceRestTransport(TensorboardServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = tensorboard_service.UpdateTensorboardRunRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_request_body_json(transcoded_request):
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
-            )
-            return body
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseTensorboardServiceRestTransport._BaseUpdateTensorboardRun._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseUpdateTensorboardTimeSeries:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
@@ -1518,14 +565,6 @@ class _BaseTensorboardServiceRestTransport(TensorboardServiceTransport):
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {
             "updateMask": {},
         }
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -1538,53 +577,11 @@ class _BaseTensorboardServiceRestTransport(TensorboardServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = tensorboard_service.UpdateTensorboardTimeSeriesRequest.pb(
-                request
-            )
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_request_body_json(transcoded_request):
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
-            )
-            return body
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseTensorboardServiceRestTransport._BaseUpdateTensorboardTimeSeries._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseWriteTensorboardExperimentData:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -1597,53 +594,11 @@ class _BaseTensorboardServiceRestTransport(TensorboardServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = tensorboard_service.WriteTensorboardExperimentDataRequest.pb(
-                request
-            )
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_request_body_json(transcoded_request):
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
-            )
-            return body
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseTensorboardServiceRestTransport._BaseWriteTensorboardExperimentData._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseWriteTensorboardRunData:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -1655,38 +610,6 @@ class _BaseTensorboardServiceRestTransport(TensorboardServiceTransport):
                 },
             ]
             return http_options
-
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = tensorboard_service.WriteTensorboardRunDataRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_request_body_json(transcoded_request):
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
-            )
-            return body
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseTensorboardServiceRestTransport._BaseWriteTensorboardRunData._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
 
     class _BaseGetLocation:
         def __hash__(self):  # pragma: NO COVER
@@ -1706,17 +629,6 @@ class _BaseTensorboardServiceRestTransport(TensorboardServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
-            return query_params
-
     class _BaseListLocations:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
@@ -1734,17 +646,6 @@ class _BaseTensorboardServiceRestTransport(TensorboardServiceTransport):
                 },
             ]
             return http_options
-
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
-            return query_params
 
     class _BaseGetIamPolicy:
         def __hash__(self):  # pragma: NO COVER
@@ -1828,22 +729,6 @@ class _BaseTensorboardServiceRestTransport(TensorboardServiceTransport):
                 },
             ]
             return http_options
-
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-            return transcoded_request
-
-        @staticmethod
-        def _get_request_body_json(transcoded_request):
-            body = json.dumps(transcoded_request["body"])
-            return body
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
-            return query_params
 
     class _BaseSetIamPolicy:
         def __hash__(self):  # pragma: NO COVER
@@ -1935,22 +820,6 @@ class _BaseTensorboardServiceRestTransport(TensorboardServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-            return transcoded_request
-
-        @staticmethod
-        def _get_request_body_json(transcoded_request):
-            body = json.dumps(transcoded_request["body"])
-            return body
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
-            return query_params
-
     class _BaseTestIamPermissions:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
@@ -2025,22 +894,6 @@ class _BaseTensorboardServiceRestTransport(TensorboardServiceTransport):
                 },
             ]
             return http_options
-
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-            return transcoded_request
-
-        @staticmethod
-        def _get_request_body_json(transcoded_request):
-            body = json.dumps(transcoded_request["body"])
-            return body
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
-            return query_params
 
     class _BaseCancelOperation:
         def __hash__(self):  # pragma: NO COVER
@@ -2451,17 +1304,6 @@ class _BaseTensorboardServiceRestTransport(TensorboardServiceTransport):
                 },
             ]
             return http_options
-
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
-            return query_params
 
     class _BaseDeleteOperation:
         def __hash__(self):  # pragma: NO COVER
@@ -2916,17 +1758,6 @@ class _BaseTensorboardServiceRestTransport(TensorboardServiceTransport):
                 },
             ]
             return http_options
-
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
-            return query_params
 
     class _BaseGetOperation:
         def __hash__(self):  # pragma: NO COVER
@@ -3390,17 +2221,6 @@ class _BaseTensorboardServiceRestTransport(TensorboardServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
-            return query_params
-
     class _BaseListOperations:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
@@ -3859,17 +2679,6 @@ class _BaseTensorboardServiceRestTransport(TensorboardServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
-            return query_params
-
     class _BaseWaitOperation:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
@@ -4323,17 +3132,6 @@ class _BaseTensorboardServiceRestTransport(TensorboardServiceTransport):
                 },
             ]
             return http_options
-
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
-            return query_params
 
 
 __all__ = ("_BaseTensorboardServiceRestTransport",)

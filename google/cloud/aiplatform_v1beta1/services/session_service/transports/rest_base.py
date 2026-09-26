@@ -101,14 +101,6 @@ class _BaseSessionServiceRestTransport(SessionServiceTransport):
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
-
         @staticmethod
         def _get_http_options():
             http_options: List[Dict[str, str]] = [
@@ -125,51 +117,11 @@ class _BaseSessionServiceRestTransport(SessionServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = session_service.AppendEventRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_request_body_json(transcoded_request):
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
-            )
-            return body
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseSessionServiceRestTransport._BaseAppendEvent._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseCreateSession:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -187,51 +139,11 @@ class _BaseSessionServiceRestTransport(SessionServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = session_service.CreateSessionRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_request_body_json(transcoded_request):
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
-            )
-            return body
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseSessionServiceRestTransport._BaseCreateSession._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseDeleteSession:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -246,29 +158,6 @@ class _BaseSessionServiceRestTransport(SessionServiceTransport):
                 },
             ]
             return http_options
-
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = session_service.DeleteSessionRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseSessionServiceRestTransport._BaseDeleteSession._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
 
     class _BaseGetSession:
         def __hash__(self):  # pragma: NO COVER
@@ -276,14 +165,6 @@ class _BaseSessionServiceRestTransport(SessionServiceTransport):
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
-
         @staticmethod
         def _get_http_options():
             http_options: List[Dict[str, str]] = [
@@ -298,42 +179,11 @@ class _BaseSessionServiceRestTransport(SessionServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = session_service.GetSessionRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseSessionServiceRestTransport._BaseGetSession._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseListEvents:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -349,42 +199,11 @@ class _BaseSessionServiceRestTransport(SessionServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = session_service.ListEventsRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseSessionServiceRestTransport._BaseListEvents._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseListSessions:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -400,42 +219,11 @@ class _BaseSessionServiceRestTransport(SessionServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = session_service.ListSessionsRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseSessionServiceRestTransport._BaseListSessions._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseUpdateSession:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -452,38 +240,6 @@ class _BaseSessionServiceRestTransport(SessionServiceTransport):
                 },
             ]
             return http_options
-
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = session_service.UpdateSessionRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_request_body_json(transcoded_request):
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
-            )
-            return body
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseSessionServiceRestTransport._BaseUpdateSession._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
 
     class _BaseGetLocation:
         def __hash__(self):  # pragma: NO COVER
@@ -503,17 +259,6 @@ class _BaseSessionServiceRestTransport(SessionServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
-            return query_params
-
     class _BaseListLocations:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
@@ -531,17 +276,6 @@ class _BaseSessionServiceRestTransport(SessionServiceTransport):
                 },
             ]
             return http_options
-
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
-            return query_params
 
     class _BaseGetIamPolicy:
         def __hash__(self):  # pragma: NO COVER
@@ -625,22 +359,6 @@ class _BaseSessionServiceRestTransport(SessionServiceTransport):
                 },
             ]
             return http_options
-
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-            return transcoded_request
-
-        @staticmethod
-        def _get_request_body_json(transcoded_request):
-            body = json.dumps(transcoded_request["body"])
-            return body
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
-            return query_params
 
     class _BaseSetIamPolicy:
         def __hash__(self):  # pragma: NO COVER
@@ -732,22 +450,6 @@ class _BaseSessionServiceRestTransport(SessionServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-            return transcoded_request
-
-        @staticmethod
-        def _get_request_body_json(transcoded_request):
-            body = json.dumps(transcoded_request["body"])
-            return body
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
-            return query_params
-
     class _BaseTestIamPermissions:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
@@ -822,22 +524,6 @@ class _BaseSessionServiceRestTransport(SessionServiceTransport):
                 },
             ]
             return http_options
-
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-            return transcoded_request
-
-        @staticmethod
-        def _get_request_body_json(transcoded_request):
-            body = json.dumps(transcoded_request["body"])
-            return body
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
-            return query_params
 
     class _BaseCancelOperation:
         def __hash__(self):  # pragma: NO COVER
@@ -1248,17 +934,6 @@ class _BaseSessionServiceRestTransport(SessionServiceTransport):
                 },
             ]
             return http_options
-
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
-            return query_params
 
     class _BaseDeleteOperation:
         def __hash__(self):  # pragma: NO COVER
@@ -1713,17 +1388,6 @@ class _BaseSessionServiceRestTransport(SessionServiceTransport):
                 },
             ]
             return http_options
-
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
-            return query_params
 
     class _BaseGetOperation:
         def __hash__(self):  # pragma: NO COVER
@@ -2187,17 +1851,6 @@ class _BaseSessionServiceRestTransport(SessionServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
-            return query_params
-
     class _BaseListOperations:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
@@ -2656,17 +2309,6 @@ class _BaseSessionServiceRestTransport(SessionServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
-            return query_params
-
     class _BaseWaitOperation:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
@@ -3120,17 +2762,6 @@ class _BaseSessionServiceRestTransport(SessionServiceTransport):
                 },
             ]
             return http_options
-
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
-            return query_params
 
 
 __all__ = ("_BaseSessionServiceRestTransport",)
