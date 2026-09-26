@@ -325,7 +325,7 @@ setuptools.setup(
         "google-auth >= 2.47.0, <3.0.0",
         "certifi >= 2023.7.22",
         "proto-plus >= 1.22.3, <2.0.0",
-        "protobuf>=3.20.2,<7.0.0,!=4.21.0,!=4.21.1,!=4.21.2,!=4.21.3,!=4.21.4,!=4.21.5",
+        "protobuf>=3.20.2,<8.0.0,!=4.21.0,!=4.21.1,!=4.21.2,!=4.21.3,!=4.21.4,!=4.21.5",
         "packaging >= 14.3",
         "google-cloud-storage >= 1.32.0, < 4.0.0; python_version<'3.13'",
         "google-cloud-storage >= 3.10.0, < 4.0.0; python_version>='3.13'",
