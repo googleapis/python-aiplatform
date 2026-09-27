@@ -1995,6 +1995,9 @@ from .common import SandboxEnvironmentTemplateOperation
 from .common import SandboxEnvironmentTemplateOperationDict
 from .common import SandboxEnvironmentTemplateOperationOrDict
 from .common import SandboxEnvironmentTemplateOrDict
+from .common import SandboxEnvironmentTemplatePersistentDiskConfig
+from .common import SandboxEnvironmentTemplatePersistentDiskConfigDict
+from .common import SandboxEnvironmentTemplatePersistentDiskConfigOrDict
 from .common import SandboxEnvironmentTemplateResourceRequirements
 from .common import SandboxEnvironmentTemplateResourceRequirementsDict
 from .common import SandboxEnvironmentTemplateResourceRequirementsOrDict
@@ -3516,6 +3519,9 @@ __all__ = [
     "CreateSandboxEnvironmentTemplateConfig",
     "CreateSandboxEnvironmentTemplateConfigDict",
     "CreateSandboxEnvironmentTemplateConfigOrDict",
+    "SandboxEnvironmentTemplatePersistentDiskConfig",
+    "SandboxEnvironmentTemplatePersistentDiskConfigDict",
+    "SandboxEnvironmentTemplatePersistentDiskConfigOrDict",
     "SandboxEnvironmentTemplate",
     "SandboxEnvironmentTemplateDict",
     "SandboxEnvironmentTemplateOrDict",

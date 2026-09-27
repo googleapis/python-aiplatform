@@ -1722,7 +1722,7 @@ class CustomCodeExecutionSpec(_common.BaseModel):
     )
     code_execution_region: Optional[str] = Field(
         default=None,
-        description="""Optional. The region to use for code execution. If set, the Code Execution Sandbox will be invoked in the specified region regardless of the request's originating region. Must be a region where the Code Execution Sandbox is available. Supported regions: northamerica-northeast1, southamerica-east1, us-central1, us-east1, us-east4, us-west1, us-west4, europe-central2, europe-north1, europe-southwest1, europe-west1, europe-west2, europe-west3, europe-west4, europe-west6, europe-west8, europe-west9, me-west1, asia-east1, asia-east2, asia-northeast1, asia-northeast3, asia-south1, asia-south2, asia-southeast1, australia-southeast2. If unset, the request's originating region is used; requests from regions where the sandbox is unavailable will fail with UNIMPLEMENTED.""",
+        description="""Optional. The region to use for code execution. If set, the Code Execution Sandbox will be invoked in the specified region regardless of the request's originating region. Must be a region where the Code Execution Sandbox is available. For the current list of [supported regions](https://cloud.google.com/vertex-ai/generative-ai/docs/agent-engine/locations). If unset, the request's originating region is used; requests from regions where the sandbox is unavailable will fail with UNIMPLEMENTED.""",
     )
 
 
@@ -1744,7 +1744,7 @@ class CustomCodeExecutionSpecDict(TypedDict, total=False):
   are available to the function as instance[field_name]."""
 
     code_execution_region: Optional[str]
-    """Optional. The region to use for code execution. If set, the Code Execution Sandbox will be invoked in the specified region regardless of the request's originating region. Must be a region where the Code Execution Sandbox is available. Supported regions: northamerica-northeast1, southamerica-east1, us-central1, us-east1, us-east4, us-west1, us-west4, europe-central2, europe-north1, europe-southwest1, europe-west1, europe-west2, europe-west3, europe-west4, europe-west6, europe-west8, europe-west9, me-west1, asia-east1, asia-east2, asia-northeast1, asia-northeast3, asia-south1, asia-south2, asia-southeast1, australia-southeast2. If unset, the request's originating region is used; requests from regions where the sandbox is unavailable will fail with UNIMPLEMENTED."""
+    """Optional. The region to use for code execution. If set, the Code Execution Sandbox will be invoked in the specified region regardless of the request's originating region. Must be a region where the Code Execution Sandbox is available. For the current list of [supported regions](https://cloud.google.com/vertex-ai/generative-ai/docs/agent-engine/locations). If unset, the request's originating region is used; requests from regions where the sandbox is unavailable will fail with UNIMPLEMENTED."""
 
 
 CustomCodeExecutionSpecOrDict = Union[
@@ -17925,6 +17925,35 @@ _CreateSandboxEnvironmentTemplateRequestParametersOrDict = Union[
 ]
 
 
+class SandboxEnvironmentTemplatePersistentDiskConfig(_common.BaseModel):
+    """Configuration for attaching a persistent disk (PD) to each SandboxEnvironment created from this template. A persistent disk provides durable, per-sandbox block storage whose contents survive across the sandbox lifecycle events that this service supports (e.g. pause/resume), unlike ephemeral local storage which is lost when the underlying runtime is torn down."""
+
+    enabled: Optional[bool] = Field(
+        default=None,
+        description="""Optional. Whether a persistent disk is attached to sandboxes created from this template. Defaults to `false`. This flag lets a template carry (and preserve) disk configuration while keeping the disk detached, so it can be toggled on later without re-specifying the rest of the config. When `false`, the remaining fields in this message are ignored.""",
+    )
+    size_gb: Optional[int] = Field(
+        default=None,
+        description="""Optional. The size of the persistent disk in GB. Must be non-negative. When `enabled` is `true`, a positive value is required; when unset or zero while enabled, the service applies a default size. Ignored when `enabled` is `false`.""",
+    )
+
+
+class SandboxEnvironmentTemplatePersistentDiskConfigDict(TypedDict, total=False):
+    """Configuration for attaching a persistent disk (PD) to each SandboxEnvironment created from this template. A persistent disk provides durable, per-sandbox block storage whose contents survive across the sandbox lifecycle events that this service supports (e.g. pause/resume), unlike ephemeral local storage which is lost when the underlying runtime is torn down."""
+
+    enabled: Optional[bool]
+    """Optional. Whether a persistent disk is attached to sandboxes created from this template. Defaults to `false`. This flag lets a template carry (and preserve) disk configuration while keeping the disk detached, so it can be toggled on later without re-specifying the rest of the config. When `false`, the remaining fields in this message are ignored."""
+
+    size_gb: Optional[int]
+    """Optional. The size of the persistent disk in GB. Must be non-negative. When `enabled` is `true`, a positive value is required; when unset or zero while enabled, the service applies a default size. Ignored when `enabled` is `false`."""
+
+
+SandboxEnvironmentTemplatePersistentDiskConfigOrDict = Union[
+    SandboxEnvironmentTemplatePersistentDiskConfig,
+    SandboxEnvironmentTemplatePersistentDiskConfigDict,
+]
+
+
 class SandboxEnvironmentTemplate(_common.BaseModel):
     """A sandbox environment template."""
 
@@ -17974,6 +18003,12 @@ class SandboxEnvironmentTemplate(_common.BaseModel):
         default=None,
         description="""Optional. Immutable. Whether to provision the SandboxEnvironmentTemplate via the GKE TD pool.""",
     )
+    persistent_disk_config: Optional[SandboxEnvironmentTemplatePersistentDiskConfig] = (
+        Field(
+            default=None,
+            description="""Optional. Configuration for attaching a persistent disk (PD) to each SandboxEnvironment created from this template. When unset (or when `enabled` is `false`), sandboxes created from this template are not backed by a persistent disk and rely on ephemeral storage only. See PersistentDiskConfig for details.""",
+        )
+    )
 
 
 class SandboxEnvironmentTemplateDict(TypedDict, total=False):
@@ -18012,6 +18047,9 @@ class SandboxEnvironmentTemplateDict(TypedDict, total=False):
 
     use_gke_td: Optional[bool]
     """Optional. Immutable. Whether to provision the SandboxEnvironmentTemplate via the GKE TD pool."""
+
+    persistent_disk_config: Optional[SandboxEnvironmentTemplatePersistentDiskConfigDict]
+    """Optional. Configuration for attaching a persistent disk (PD) to each SandboxEnvironment created from this template. When unset (or when `enabled` is `false`), sandboxes created from this template are not backed by a persistent disk and rely on ephemeral storage only. See PersistentDiskConfig for details."""
 
 
 SandboxEnvironmentTemplateOrDict = Union[
