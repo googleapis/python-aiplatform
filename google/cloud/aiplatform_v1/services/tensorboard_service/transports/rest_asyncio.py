@@ -37,6 +37,8 @@ from google.cloud.location import locations_pb2  # type: ignore
 from google.api_core import retry_async as retries
 from google.api_core import rest_helpers
 from google.api_core import rest_streaming_async  # type: ignore
+from google.cloud.aiplatform_v1._compat import transcode_request
+
 import google.protobuf
 
 from google.protobuf import json_format
@@ -2480,23 +2482,20 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             http_options = (
                 _BaseTensorboardServiceRestTransport._BaseBatchCreateTensorboardRuns._get_http_options()
             )
-
             request, metadata = (
                 await self._interceptor.pre_batch_create_tensorboard_runs(
                     request, metadata
                 )
             )
-            transcoded_request = _BaseTensorboardServiceRestTransport._BaseBatchCreateTensorboardRuns._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseTensorboardServiceRestTransport._BaseBatchCreateTensorboardRuns._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseTensorboardServiceRestTransport._BaseBatchCreateTensorboardRuns._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseTensorboardServiceRestTransport._BaseBatchCreateTensorboardRuns,
+                    "_BaseBatchCreateTensorboardRuns__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -2654,23 +2653,20 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             http_options = (
                 _BaseTensorboardServiceRestTransport._BaseBatchCreateTensorboardTimeSeries._get_http_options()
             )
-
             request, metadata = (
                 await self._interceptor.pre_batch_create_tensorboard_time_series(
                     request, metadata
                 )
             )
-            transcoded_request = _BaseTensorboardServiceRestTransport._BaseBatchCreateTensorboardTimeSeries._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseTensorboardServiceRestTransport._BaseBatchCreateTensorboardTimeSeries._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseTensorboardServiceRestTransport._BaseBatchCreateTensorboardTimeSeries._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseTensorboardServiceRestTransport._BaseBatchCreateTensorboardTimeSeries,
+                    "_BaseBatchCreateTensorboardTimeSeries__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -2829,19 +2825,20 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             http_options = (
                 _BaseTensorboardServiceRestTransport._BaseBatchReadTensorboardTimeSeriesData._get_http_options()
             )
-
             request, metadata = (
                 await self._interceptor.pre_batch_read_tensorboard_time_series_data(
                     request, metadata
                 )
             )
-            transcoded_request = _BaseTensorboardServiceRestTransport._BaseBatchReadTensorboardTimeSeriesData._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseTensorboardServiceRestTransport._BaseBatchReadTensorboardTimeSeriesData._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseTensorboardServiceRestTransport._BaseBatchReadTensorboardTimeSeriesData,
+                    "_BaseBatchReadTensorboardTimeSeriesData__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -2998,21 +2995,18 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             http_options = (
                 _BaseTensorboardServiceRestTransport._BaseCreateTensorboard._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_create_tensorboard(
                 request, metadata
             )
-            transcoded_request = _BaseTensorboardServiceRestTransport._BaseCreateTensorboard._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseTensorboardServiceRestTransport._BaseCreateTensorboard._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseTensorboardServiceRestTransport._BaseCreateTensorboard._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseTensorboardServiceRestTransport._BaseCreateTensorboard,
+                    "_BaseCreateTensorboard__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -3166,23 +3160,20 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             http_options = (
                 _BaseTensorboardServiceRestTransport._BaseCreateTensorboardExperiment._get_http_options()
             )
-
             request, metadata = (
                 await self._interceptor.pre_create_tensorboard_experiment(
                     request, metadata
                 )
             )
-            transcoded_request = _BaseTensorboardServiceRestTransport._BaseCreateTensorboardExperiment._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseTensorboardServiceRestTransport._BaseCreateTensorboardExperiment._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseTensorboardServiceRestTransport._BaseCreateTensorboardExperiment._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseTensorboardServiceRestTransport._BaseCreateTensorboardExperiment,
+                    "_BaseCreateTensorboardExperiment__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -3339,21 +3330,18 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             http_options = (
                 _BaseTensorboardServiceRestTransport._BaseCreateTensorboardRun._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_create_tensorboard_run(
                 request, metadata
             )
-            transcoded_request = _BaseTensorboardServiceRestTransport._BaseCreateTensorboardRun._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseTensorboardServiceRestTransport._BaseCreateTensorboardRun._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseTensorboardServiceRestTransport._BaseCreateTensorboardRun._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseTensorboardServiceRestTransport._BaseCreateTensorboardRun,
+                    "_BaseCreateTensorboardRun__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -3507,23 +3495,20 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             http_options = (
                 _BaseTensorboardServiceRestTransport._BaseCreateTensorboardTimeSeries._get_http_options()
             )
-
             request, metadata = (
                 await self._interceptor.pre_create_tensorboard_time_series(
                     request, metadata
                 )
             )
-            transcoded_request = _BaseTensorboardServiceRestTransport._BaseCreateTensorboardTimeSeries._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseTensorboardServiceRestTransport._BaseCreateTensorboardTimeSeries._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseTensorboardServiceRestTransport._BaseCreateTensorboardTimeSeries._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseTensorboardServiceRestTransport._BaseCreateTensorboardTimeSeries,
+                    "_BaseCreateTensorboardTimeSeries__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -3678,17 +3663,18 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             http_options = (
                 _BaseTensorboardServiceRestTransport._BaseDeleteTensorboard._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_delete_tensorboard(
                 request, metadata
             )
-            transcoded_request = _BaseTensorboardServiceRestTransport._BaseDeleteTensorboard._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseTensorboardServiceRestTransport._BaseDeleteTensorboard._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseTensorboardServiceRestTransport._BaseDeleteTensorboard,
+                    "_BaseDeleteTensorboard__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -3839,19 +3825,20 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             http_options = (
                 _BaseTensorboardServiceRestTransport._BaseDeleteTensorboardExperiment._get_http_options()
             )
-
             request, metadata = (
                 await self._interceptor.pre_delete_tensorboard_experiment(
                     request, metadata
                 )
             )
-            transcoded_request = _BaseTensorboardServiceRestTransport._BaseDeleteTensorboardExperiment._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseTensorboardServiceRestTransport._BaseDeleteTensorboardExperiment._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseTensorboardServiceRestTransport._BaseDeleteTensorboardExperiment,
+                    "_BaseDeleteTensorboardExperiment__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -4001,17 +3988,18 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             http_options = (
                 _BaseTensorboardServiceRestTransport._BaseDeleteTensorboardRun._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_delete_tensorboard_run(
                 request, metadata
             )
-            transcoded_request = _BaseTensorboardServiceRestTransport._BaseDeleteTensorboardRun._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseTensorboardServiceRestTransport._BaseDeleteTensorboardRun._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseTensorboardServiceRestTransport._BaseDeleteTensorboardRun,
+                    "_BaseDeleteTensorboardRun__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -4162,19 +4150,20 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             http_options = (
                 _BaseTensorboardServiceRestTransport._BaseDeleteTensorboardTimeSeries._get_http_options()
             )
-
             request, metadata = (
                 await self._interceptor.pre_delete_tensorboard_time_series(
                     request, metadata
                 )
             )
-            transcoded_request = _BaseTensorboardServiceRestTransport._BaseDeleteTensorboardTimeSeries._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseTensorboardServiceRestTransport._BaseDeleteTensorboardTimeSeries._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseTensorboardServiceRestTransport._BaseDeleteTensorboardTimeSeries,
+                    "_BaseDeleteTensorboardTimeSeries__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -4327,23 +4316,20 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             http_options = (
                 _BaseTensorboardServiceRestTransport._BaseExportTensorboardTimeSeriesData._get_http_options()
             )
-
             request, metadata = (
                 await self._interceptor.pre_export_tensorboard_time_series_data(
                     request, metadata
                 )
             )
-            transcoded_request = _BaseTensorboardServiceRestTransport._BaseExportTensorboardTimeSeriesData._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseTensorboardServiceRestTransport._BaseExportTensorboardTimeSeriesData._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseTensorboardServiceRestTransport._BaseExportTensorboardTimeSeriesData._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseTensorboardServiceRestTransport._BaseExportTensorboardTimeSeriesData,
+                    "_BaseExportTensorboardTimeSeriesData__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -4503,17 +4489,18 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             http_options = (
                 _BaseTensorboardServiceRestTransport._BaseGetTensorboard._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_get_tensorboard(
                 request, metadata
             )
-            transcoded_request = _BaseTensorboardServiceRestTransport._BaseGetTensorboard._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseTensorboardServiceRestTransport._BaseGetTensorboard._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseTensorboardServiceRestTransport._BaseGetTensorboard,
+                    "_BaseGetTensorboard__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -4663,17 +4650,18 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             http_options = (
                 _BaseTensorboardServiceRestTransport._BaseGetTensorboardExperiment._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_get_tensorboard_experiment(
                 request, metadata
             )
-            transcoded_request = _BaseTensorboardServiceRestTransport._BaseGetTensorboardExperiment._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseTensorboardServiceRestTransport._BaseGetTensorboardExperiment._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseTensorboardServiceRestTransport._BaseGetTensorboardExperiment,
+                    "_BaseGetTensorboardExperiment__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -4826,17 +4814,18 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             http_options = (
                 _BaseTensorboardServiceRestTransport._BaseGetTensorboardRun._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_get_tensorboard_run(
                 request, metadata
             )
-            transcoded_request = _BaseTensorboardServiceRestTransport._BaseGetTensorboardRun._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseTensorboardServiceRestTransport._BaseGetTensorboardRun._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseTensorboardServiceRestTransport._BaseGetTensorboardRun,
+                    "_BaseGetTensorboardRun__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -4984,17 +4973,18 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             http_options = (
                 _BaseTensorboardServiceRestTransport._BaseGetTensorboardTimeSeries._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_get_tensorboard_time_series(
                 request, metadata
             )
-            transcoded_request = _BaseTensorboardServiceRestTransport._BaseGetTensorboardTimeSeries._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseTensorboardServiceRestTransport._BaseGetTensorboardTimeSeries._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseTensorboardServiceRestTransport._BaseGetTensorboardTimeSeries,
+                    "_BaseGetTensorboardTimeSeries__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -5148,19 +5138,20 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             http_options = (
                 _BaseTensorboardServiceRestTransport._BaseListTensorboardExperiments._get_http_options()
             )
-
             request, metadata = (
                 await self._interceptor.pre_list_tensorboard_experiments(
                     request, metadata
                 )
             )
-            transcoded_request = _BaseTensorboardServiceRestTransport._BaseListTensorboardExperiments._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseTensorboardServiceRestTransport._BaseListTensorboardExperiments._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseTensorboardServiceRestTransport._BaseListTensorboardExperiments,
+                    "_BaseListTensorboardExperiments__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -5313,17 +5304,18 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             http_options = (
                 _BaseTensorboardServiceRestTransport._BaseListTensorboardRuns._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_list_tensorboard_runs(
                 request, metadata
             )
-            transcoded_request = _BaseTensorboardServiceRestTransport._BaseListTensorboardRuns._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseTensorboardServiceRestTransport._BaseListTensorboardRuns._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseTensorboardServiceRestTransport._BaseListTensorboardRuns,
+                    "_BaseListTensorboardRuns__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -5474,17 +5466,18 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             http_options = (
                 _BaseTensorboardServiceRestTransport._BaseListTensorboards._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_list_tensorboards(
                 request, metadata
             )
-            transcoded_request = _BaseTensorboardServiceRestTransport._BaseListTensorboards._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseTensorboardServiceRestTransport._BaseListTensorboards._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseTensorboardServiceRestTransport._BaseListTensorboards,
+                    "_BaseListTensorboards__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -5636,19 +5629,20 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             http_options = (
                 _BaseTensorboardServiceRestTransport._BaseListTensorboardTimeSeries._get_http_options()
             )
-
             request, metadata = (
                 await self._interceptor.pre_list_tensorboard_time_series(
                     request, metadata
                 )
             )
-            transcoded_request = _BaseTensorboardServiceRestTransport._BaseListTensorboardTimeSeries._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseTensorboardServiceRestTransport._BaseListTensorboardTimeSeries._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseTensorboardServiceRestTransport._BaseListTensorboardTimeSeries,
+                    "_BaseListTensorboardTimeSeries__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -5802,17 +5796,18 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             http_options = (
                 _BaseTensorboardServiceRestTransport._BaseReadTensorboardBlobData._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_read_tensorboard_blob_data(
                 request, metadata
             )
-            transcoded_request = _BaseTensorboardServiceRestTransport._BaseReadTensorboardBlobData._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseTensorboardServiceRestTransport._BaseReadTensorboardBlobData._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseTensorboardServiceRestTransport._BaseReadTensorboardBlobData,
+                    "_BaseReadTensorboardBlobData__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -5955,17 +5950,18 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             http_options = (
                 _BaseTensorboardServiceRestTransport._BaseReadTensorboardSize._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_read_tensorboard_size(
                 request, metadata
             )
-            transcoded_request = _BaseTensorboardServiceRestTransport._BaseReadTensorboardSize._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseTensorboardServiceRestTransport._BaseReadTensorboardSize._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseTensorboardServiceRestTransport._BaseReadTensorboardSize,
+                    "_BaseReadTensorboardSize__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -6119,19 +6115,20 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             http_options = (
                 _BaseTensorboardServiceRestTransport._BaseReadTensorboardTimeSeriesData._get_http_options()
             )
-
             request, metadata = (
                 await self._interceptor.pre_read_tensorboard_time_series_data(
                     request, metadata
                 )
             )
-            transcoded_request = _BaseTensorboardServiceRestTransport._BaseReadTensorboardTimeSeriesData._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseTensorboardServiceRestTransport._BaseReadTensorboardTimeSeriesData._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseTensorboardServiceRestTransport._BaseReadTensorboardTimeSeriesData,
+                    "_BaseReadTensorboardTimeSeriesData__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -6282,17 +6279,18 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             http_options = (
                 _BaseTensorboardServiceRestTransport._BaseReadTensorboardUsage._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_read_tensorboard_usage(
                 request, metadata
             )
-            transcoded_request = _BaseTensorboardServiceRestTransport._BaseReadTensorboardUsage._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseTensorboardServiceRestTransport._BaseReadTensorboardUsage._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseTensorboardServiceRestTransport._BaseReadTensorboardUsage,
+                    "_BaseReadTensorboardUsage__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -6445,21 +6443,18 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             http_options = (
                 _BaseTensorboardServiceRestTransport._BaseUpdateTensorboard._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_update_tensorboard(
                 request, metadata
             )
-            transcoded_request = _BaseTensorboardServiceRestTransport._BaseUpdateTensorboard._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseTensorboardServiceRestTransport._BaseUpdateTensorboard._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseTensorboardServiceRestTransport._BaseUpdateTensorboard._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseTensorboardServiceRestTransport._BaseUpdateTensorboard,
+                    "_BaseUpdateTensorboard__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -6613,23 +6608,20 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             http_options = (
                 _BaseTensorboardServiceRestTransport._BaseUpdateTensorboardExperiment._get_http_options()
             )
-
             request, metadata = (
                 await self._interceptor.pre_update_tensorboard_experiment(
                     request, metadata
                 )
             )
-            transcoded_request = _BaseTensorboardServiceRestTransport._BaseUpdateTensorboardExperiment._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseTensorboardServiceRestTransport._BaseUpdateTensorboardExperiment._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseTensorboardServiceRestTransport._BaseUpdateTensorboardExperiment._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseTensorboardServiceRestTransport._BaseUpdateTensorboardExperiment,
+                    "_BaseUpdateTensorboardExperiment__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -6786,21 +6778,18 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             http_options = (
                 _BaseTensorboardServiceRestTransport._BaseUpdateTensorboardRun._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_update_tensorboard_run(
                 request, metadata
             )
-            transcoded_request = _BaseTensorboardServiceRestTransport._BaseUpdateTensorboardRun._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseTensorboardServiceRestTransport._BaseUpdateTensorboardRun._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseTensorboardServiceRestTransport._BaseUpdateTensorboardRun._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseTensorboardServiceRestTransport._BaseUpdateTensorboardRun,
+                    "_BaseUpdateTensorboardRun__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -6954,23 +6943,20 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             http_options = (
                 _BaseTensorboardServiceRestTransport._BaseUpdateTensorboardTimeSeries._get_http_options()
             )
-
             request, metadata = (
                 await self._interceptor.pre_update_tensorboard_time_series(
                     request, metadata
                 )
             )
-            transcoded_request = _BaseTensorboardServiceRestTransport._BaseUpdateTensorboardTimeSeries._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseTensorboardServiceRestTransport._BaseUpdateTensorboardTimeSeries._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseTensorboardServiceRestTransport._BaseUpdateTensorboardTimeSeries._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseTensorboardServiceRestTransport._BaseUpdateTensorboardTimeSeries,
+                    "_BaseUpdateTensorboardTimeSeries__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -7128,23 +7114,20 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             http_options = (
                 _BaseTensorboardServiceRestTransport._BaseWriteTensorboardExperimentData._get_http_options()
             )
-
             request, metadata = (
                 await self._interceptor.pre_write_tensorboard_experiment_data(
                     request, metadata
                 )
             )
-            transcoded_request = _BaseTensorboardServiceRestTransport._BaseWriteTensorboardExperimentData._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseTensorboardServiceRestTransport._BaseWriteTensorboardExperimentData._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseTensorboardServiceRestTransport._BaseWriteTensorboardExperimentData._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseTensorboardServiceRestTransport._BaseWriteTensorboardExperimentData,
+                    "_BaseWriteTensorboardExperimentData__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -7300,21 +7283,18 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             http_options = (
                 _BaseTensorboardServiceRestTransport._BaseWriteTensorboardRunData._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_write_tensorboard_run_data(
                 request, metadata
             )
-            transcoded_request = _BaseTensorboardServiceRestTransport._BaseWriteTensorboardRunData._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseTensorboardServiceRestTransport._BaseWriteTensorboardRunData._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseTensorboardServiceRestTransport._BaseWriteTensorboardRunData._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseTensorboardServiceRestTransport._BaseWriteTensorboardRunData,
+                    "_BaseWriteTensorboardRunData__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -9723,17 +9703,18 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             http_options = (
                 _BaseTensorboardServiceRestTransport._BaseGetLocation._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_get_location(
                 request, metadata
             )
-            transcoded_request = _BaseTensorboardServiceRestTransport._BaseGetLocation._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseTensorboardServiceRestTransport._BaseGetLocation._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseTensorboardServiceRestTransport._BaseGetLocation,
+                    "_BaseGetLocation__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -9875,17 +9856,18 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             http_options = (
                 _BaseTensorboardServiceRestTransport._BaseListLocations._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_list_locations(
                 request, metadata
             )
-            transcoded_request = _BaseTensorboardServiceRestTransport._BaseListLocations._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseTensorboardServiceRestTransport._BaseListLocations._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseTensorboardServiceRestTransport._BaseListLocations,
+                    "_BaseListLocations__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -10027,17 +10009,18 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             http_options = (
                 _BaseTensorboardServiceRestTransport._BaseGetIamPolicy._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_get_iam_policy(
                 request, metadata
             )
-            transcoded_request = _BaseTensorboardServiceRestTransport._BaseGetIamPolicy._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseTensorboardServiceRestTransport._BaseGetIamPolicy._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseTensorboardServiceRestTransport._BaseGetIamPolicy,
+                    "_BaseGetIamPolicy__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -10180,21 +10163,18 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             http_options = (
                 _BaseTensorboardServiceRestTransport._BaseSetIamPolicy._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_set_iam_policy(
                 request, metadata
             )
-            transcoded_request = _BaseTensorboardServiceRestTransport._BaseSetIamPolicy._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseTensorboardServiceRestTransport._BaseSetIamPolicy._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseTensorboardServiceRestTransport._BaseSetIamPolicy._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseTensorboardServiceRestTransport._BaseSetIamPolicy,
+                    "_BaseSetIamPolicy__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -10337,17 +10317,18 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             http_options = (
                 _BaseTensorboardServiceRestTransport._BaseTestIamPermissions._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_test_iam_permissions(
                 request, metadata
             )
-            transcoded_request = _BaseTensorboardServiceRestTransport._BaseTestIamPermissions._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseTensorboardServiceRestTransport._BaseTestIamPermissions._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseTensorboardServiceRestTransport._BaseTestIamPermissions,
+                    "_BaseTestIamPermissions__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -10484,17 +10465,18 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             http_options = (
                 _BaseTensorboardServiceRestTransport._BaseCancelOperation._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_cancel_operation(
                 request, metadata
             )
-            transcoded_request = _BaseTensorboardServiceRestTransport._BaseCancelOperation._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseTensorboardServiceRestTransport._BaseCancelOperation._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseTensorboardServiceRestTransport._BaseCancelOperation,
+                    "_BaseCancelOperation__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -10606,17 +10588,18 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             http_options = (
                 _BaseTensorboardServiceRestTransport._BaseDeleteOperation._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_delete_operation(
                 request, metadata
             )
-            transcoded_request = _BaseTensorboardServiceRestTransport._BaseDeleteOperation._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseTensorboardServiceRestTransport._BaseDeleteOperation._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseTensorboardServiceRestTransport._BaseDeleteOperation,
+                    "_BaseDeleteOperation__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -10731,17 +10714,18 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             http_options = (
                 _BaseTensorboardServiceRestTransport._BaseGetOperation._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_get_operation(
                 request, metadata
             )
-            transcoded_request = _BaseTensorboardServiceRestTransport._BaseGetOperation._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseTensorboardServiceRestTransport._BaseGetOperation._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseTensorboardServiceRestTransport._BaseGetOperation,
+                    "_BaseGetOperation__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -10883,17 +10867,18 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             http_options = (
                 _BaseTensorboardServiceRestTransport._BaseListOperations._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_list_operations(
                 request, metadata
             )
-            transcoded_request = _BaseTensorboardServiceRestTransport._BaseListOperations._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseTensorboardServiceRestTransport._BaseListOperations._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseTensorboardServiceRestTransport._BaseListOperations,
+                    "_BaseListOperations__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -11033,17 +11018,18 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             http_options = (
                 _BaseTensorboardServiceRestTransport._BaseWaitOperation._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_wait_operation(
                 request, metadata
             )
-            transcoded_request = _BaseTensorboardServiceRestTransport._BaseWaitOperation._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseTensorboardServiceRestTransport._BaseWaitOperation._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseTensorboardServiceRestTransport._BaseWaitOperation,
+                    "_BaseWaitOperation__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(

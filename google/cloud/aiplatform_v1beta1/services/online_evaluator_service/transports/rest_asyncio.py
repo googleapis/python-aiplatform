@@ -37,6 +37,8 @@ from google.cloud.location import locations_pb2  # type: ignore
 from google.api_core import retry_async as retries
 from google.api_core import rest_helpers
 from google.api_core import rest_streaming_async  # type: ignore
+from google.cloud.aiplatform_v1beta1._compat import transcode_request
+
 import google.protobuf
 
 from google.protobuf import json_format
@@ -988,21 +990,18 @@ class AsyncOnlineEvaluatorServiceRestTransport(
             http_options = (
                 _BaseOnlineEvaluatorServiceRestTransport._BaseActivateOnlineEvaluator._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_activate_online_evaluator(
                 request, metadata
             )
-            transcoded_request = _BaseOnlineEvaluatorServiceRestTransport._BaseActivateOnlineEvaluator._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseOnlineEvaluatorServiceRestTransport._BaseActivateOnlineEvaluator._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseOnlineEvaluatorServiceRestTransport._BaseActivateOnlineEvaluator._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseOnlineEvaluatorServiceRestTransport._BaseActivateOnlineEvaluator,
+                    "_BaseActivateOnlineEvaluator__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -1156,21 +1155,18 @@ class AsyncOnlineEvaluatorServiceRestTransport(
             http_options = (
                 _BaseOnlineEvaluatorServiceRestTransport._BaseCreateOnlineEvaluator._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_create_online_evaluator(
                 request, metadata
             )
-            transcoded_request = _BaseOnlineEvaluatorServiceRestTransport._BaseCreateOnlineEvaluator._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseOnlineEvaluatorServiceRestTransport._BaseCreateOnlineEvaluator._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseOnlineEvaluatorServiceRestTransport._BaseCreateOnlineEvaluator._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseOnlineEvaluatorServiceRestTransport._BaseCreateOnlineEvaluator,
+                    "_BaseCreateOnlineEvaluator__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -1323,17 +1319,18 @@ class AsyncOnlineEvaluatorServiceRestTransport(
             http_options = (
                 _BaseOnlineEvaluatorServiceRestTransport._BaseDeleteOnlineEvaluator._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_delete_online_evaluator(
                 request, metadata
             )
-            transcoded_request = _BaseOnlineEvaluatorServiceRestTransport._BaseDeleteOnlineEvaluator._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseOnlineEvaluatorServiceRestTransport._BaseDeleteOnlineEvaluator._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseOnlineEvaluatorServiceRestTransport._BaseDeleteOnlineEvaluator,
+                    "_BaseDeleteOnlineEvaluator__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -1482,17 +1479,18 @@ class AsyncOnlineEvaluatorServiceRestTransport(
             http_options = (
                 _BaseOnlineEvaluatorServiceRestTransport._BaseGetOnlineEvaluator._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_get_online_evaluator(
                 request, metadata
             )
-            transcoded_request = _BaseOnlineEvaluatorServiceRestTransport._BaseGetOnlineEvaluator._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseOnlineEvaluatorServiceRestTransport._BaseGetOnlineEvaluator._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseOnlineEvaluatorServiceRestTransport._BaseGetOnlineEvaluator,
+                    "_BaseGetOnlineEvaluator__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -1641,17 +1639,18 @@ class AsyncOnlineEvaluatorServiceRestTransport(
             http_options = (
                 _BaseOnlineEvaluatorServiceRestTransport._BaseListOnlineEvaluators._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_list_online_evaluators(
                 request, metadata
             )
-            transcoded_request = _BaseOnlineEvaluatorServiceRestTransport._BaseListOnlineEvaluators._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseOnlineEvaluatorServiceRestTransport._BaseListOnlineEvaluators._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseOnlineEvaluatorServiceRestTransport._BaseListOnlineEvaluators,
+                    "_BaseListOnlineEvaluators__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -1806,21 +1805,18 @@ class AsyncOnlineEvaluatorServiceRestTransport(
             http_options = (
                 _BaseOnlineEvaluatorServiceRestTransport._BaseSuspendOnlineEvaluator._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_suspend_online_evaluator(
                 request, metadata
             )
-            transcoded_request = _BaseOnlineEvaluatorServiceRestTransport._BaseSuspendOnlineEvaluator._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseOnlineEvaluatorServiceRestTransport._BaseSuspendOnlineEvaluator._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseOnlineEvaluatorServiceRestTransport._BaseSuspendOnlineEvaluator._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseOnlineEvaluatorServiceRestTransport._BaseSuspendOnlineEvaluator,
+                    "_BaseSuspendOnlineEvaluator__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -1974,21 +1970,18 @@ class AsyncOnlineEvaluatorServiceRestTransport(
             http_options = (
                 _BaseOnlineEvaluatorServiceRestTransport._BaseUpdateOnlineEvaluator._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_update_online_evaluator(
                 request, metadata
             )
-            transcoded_request = _BaseOnlineEvaluatorServiceRestTransport._BaseUpdateOnlineEvaluator._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseOnlineEvaluatorServiceRestTransport._BaseUpdateOnlineEvaluator._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseOnlineEvaluatorServiceRestTransport._BaseUpdateOnlineEvaluator._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseOnlineEvaluatorServiceRestTransport._BaseUpdateOnlineEvaluator,
+                    "_BaseUpdateOnlineEvaluator__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -4426,17 +4419,18 @@ class AsyncOnlineEvaluatorServiceRestTransport(
             http_options = (
                 _BaseOnlineEvaluatorServiceRestTransport._BaseGetLocation._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_get_location(
                 request, metadata
             )
-            transcoded_request = _BaseOnlineEvaluatorServiceRestTransport._BaseGetLocation._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseOnlineEvaluatorServiceRestTransport._BaseGetLocation._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseOnlineEvaluatorServiceRestTransport._BaseGetLocation,
+                    "_BaseGetLocation__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -4576,17 +4570,18 @@ class AsyncOnlineEvaluatorServiceRestTransport(
             http_options = (
                 _BaseOnlineEvaluatorServiceRestTransport._BaseListLocations._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_list_locations(
                 request, metadata
             )
-            transcoded_request = _BaseOnlineEvaluatorServiceRestTransport._BaseListLocations._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseOnlineEvaluatorServiceRestTransport._BaseListLocations._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseOnlineEvaluatorServiceRestTransport._BaseListLocations,
+                    "_BaseListLocations__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -4727,21 +4722,18 @@ class AsyncOnlineEvaluatorServiceRestTransport(
             http_options = (
                 _BaseOnlineEvaluatorServiceRestTransport._BaseGetIamPolicy._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_get_iam_policy(
                 request, metadata
             )
-            transcoded_request = _BaseOnlineEvaluatorServiceRestTransport._BaseGetIamPolicy._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseOnlineEvaluatorServiceRestTransport._BaseGetIamPolicy._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseOnlineEvaluatorServiceRestTransport._BaseGetIamPolicy._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseOnlineEvaluatorServiceRestTransport._BaseGetIamPolicy,
+                    "_BaseGetIamPolicy__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -4883,21 +4875,18 @@ class AsyncOnlineEvaluatorServiceRestTransport(
             http_options = (
                 _BaseOnlineEvaluatorServiceRestTransport._BaseSetIamPolicy._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_set_iam_policy(
                 request, metadata
             )
-            transcoded_request = _BaseOnlineEvaluatorServiceRestTransport._BaseSetIamPolicy._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseOnlineEvaluatorServiceRestTransport._BaseSetIamPolicy._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseOnlineEvaluatorServiceRestTransport._BaseSetIamPolicy._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseOnlineEvaluatorServiceRestTransport._BaseSetIamPolicy,
+                    "_BaseSetIamPolicy__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -5039,21 +5028,18 @@ class AsyncOnlineEvaluatorServiceRestTransport(
             http_options = (
                 _BaseOnlineEvaluatorServiceRestTransport._BaseTestIamPermissions._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_test_iam_permissions(
                 request, metadata
             )
-            transcoded_request = _BaseOnlineEvaluatorServiceRestTransport._BaseTestIamPermissions._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseOnlineEvaluatorServiceRestTransport._BaseTestIamPermissions._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseOnlineEvaluatorServiceRestTransport._BaseTestIamPermissions._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseOnlineEvaluatorServiceRestTransport._BaseTestIamPermissions,
+                    "_BaseTestIamPermissions__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -5191,17 +5177,18 @@ class AsyncOnlineEvaluatorServiceRestTransport(
             http_options = (
                 _BaseOnlineEvaluatorServiceRestTransport._BaseCancelOperation._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_cancel_operation(
                 request, metadata
             )
-            transcoded_request = _BaseOnlineEvaluatorServiceRestTransport._BaseCancelOperation._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseOnlineEvaluatorServiceRestTransport._BaseCancelOperation._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseOnlineEvaluatorServiceRestTransport._BaseCancelOperation,
+                    "_BaseCancelOperation__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -5313,17 +5300,18 @@ class AsyncOnlineEvaluatorServiceRestTransport(
             http_options = (
                 _BaseOnlineEvaluatorServiceRestTransport._BaseDeleteOperation._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_delete_operation(
                 request, metadata
             )
-            transcoded_request = _BaseOnlineEvaluatorServiceRestTransport._BaseDeleteOperation._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseOnlineEvaluatorServiceRestTransport._BaseDeleteOperation._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseOnlineEvaluatorServiceRestTransport._BaseDeleteOperation,
+                    "_BaseDeleteOperation__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -5438,17 +5426,18 @@ class AsyncOnlineEvaluatorServiceRestTransport(
             http_options = (
                 _BaseOnlineEvaluatorServiceRestTransport._BaseGetOperation._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_get_operation(
                 request, metadata
             )
-            transcoded_request = _BaseOnlineEvaluatorServiceRestTransport._BaseGetOperation._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseOnlineEvaluatorServiceRestTransport._BaseGetOperation._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseOnlineEvaluatorServiceRestTransport._BaseGetOperation,
+                    "_BaseGetOperation__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -5588,17 +5577,18 @@ class AsyncOnlineEvaluatorServiceRestTransport(
             http_options = (
                 _BaseOnlineEvaluatorServiceRestTransport._BaseListOperations._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_list_operations(
                 request, metadata
             )
-            transcoded_request = _BaseOnlineEvaluatorServiceRestTransport._BaseListOperations._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseOnlineEvaluatorServiceRestTransport._BaseListOperations._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseOnlineEvaluatorServiceRestTransport._BaseListOperations,
+                    "_BaseListOperations__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -5738,17 +5728,18 @@ class AsyncOnlineEvaluatorServiceRestTransport(
             http_options = (
                 _BaseOnlineEvaluatorServiceRestTransport._BaseWaitOperation._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_wait_operation(
                 request, metadata
             )
-            transcoded_request = _BaseOnlineEvaluatorServiceRestTransport._BaseWaitOperation._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseOnlineEvaluatorServiceRestTransport._BaseWaitOperation._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseOnlineEvaluatorServiceRestTransport._BaseWaitOperation,
+                    "_BaseWaitOperation__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(

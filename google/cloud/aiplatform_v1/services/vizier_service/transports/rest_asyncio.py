@@ -37,6 +37,8 @@ from google.cloud.location import locations_pb2  # type: ignore
 from google.api_core import retry_async as retries
 from google.api_core import rest_helpers
 from google.api_core import rest_streaming_async  # type: ignore
+from google.cloud.aiplatform_v1._compat import transcode_request
+
 import google.protobuf
 
 from google.protobuf import json_format
@@ -1366,21 +1368,18 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             http_options = (
                 _BaseVizierServiceRestTransport._BaseAddTrialMeasurement._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_add_trial_measurement(
                 request, metadata
             )
-            transcoded_request = _BaseVizierServiceRestTransport._BaseAddTrialMeasurement._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseVizierServiceRestTransport._BaseAddTrialMeasurement._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseVizierServiceRestTransport._BaseAddTrialMeasurement._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseVizierServiceRestTransport._BaseAddTrialMeasurement,
+                    "_BaseAddTrialMeasurement__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -1531,23 +1530,20 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             http_options = (
                 _BaseVizierServiceRestTransport._BaseCheckTrialEarlyStoppingState._get_http_options()
             )
-
             request, metadata = (
                 await self._interceptor.pre_check_trial_early_stopping_state(
                     request, metadata
                 )
             )
-            transcoded_request = _BaseVizierServiceRestTransport._BaseCheckTrialEarlyStoppingState._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseVizierServiceRestTransport._BaseCheckTrialEarlyStoppingState._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseVizierServiceRestTransport._BaseCheckTrialEarlyStoppingState._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseVizierServiceRestTransport._BaseCheckTrialEarlyStoppingState,
+                    "_BaseCheckTrialEarlyStoppingState__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -1700,21 +1696,18 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             http_options = (
                 _BaseVizierServiceRestTransport._BaseCompleteTrial._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_complete_trial(
                 request, metadata
             )
-            transcoded_request = _BaseVizierServiceRestTransport._BaseCompleteTrial._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseVizierServiceRestTransport._BaseCompleteTrial._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseVizierServiceRestTransport._BaseCompleteTrial._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseVizierServiceRestTransport._BaseCompleteTrial,
+                    "_BaseCompleteTrial__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -1862,25 +1855,18 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             http_options = (
                 _BaseVizierServiceRestTransport._BaseCreateStudy._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_create_study(
                 request, metadata
             )
-            transcoded_request = _BaseVizierServiceRestTransport._BaseCreateStudy._get_transcoded_request(
-                http_options, request
-            )
-
-            body = (
-                _BaseVizierServiceRestTransport._BaseCreateStudy._get_request_body_json(
-                    transcoded_request
-                )
-            )
-
-            # Jsonify the query params
-            query_params = (
-                _BaseVizierServiceRestTransport._BaseCreateStudy._get_query_params_json(
-                    transcoded_request
-                )
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseVizierServiceRestTransport._BaseCreateStudy,
+                    "_BaseCreateStudy__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -2031,25 +2017,18 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             http_options = (
                 _BaseVizierServiceRestTransport._BaseCreateTrial._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_create_trial(
                 request, metadata
             )
-            transcoded_request = _BaseVizierServiceRestTransport._BaseCreateTrial._get_transcoded_request(
-                http_options, request
-            )
-
-            body = (
-                _BaseVizierServiceRestTransport._BaseCreateTrial._get_request_body_json(
-                    transcoded_request
-                )
-            )
-
-            # Jsonify the query params
-            query_params = (
-                _BaseVizierServiceRestTransport._BaseCreateTrial._get_query_params_json(
-                    transcoded_request
-                )
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseVizierServiceRestTransport._BaseCreateTrial,
+                    "_BaseCreateTrial__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -2190,19 +2169,18 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             http_options = (
                 _BaseVizierServiceRestTransport._BaseDeleteStudy._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_delete_study(
                 request, metadata
             )
-            transcoded_request = _BaseVizierServiceRestTransport._BaseDeleteStudy._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = (
-                _BaseVizierServiceRestTransport._BaseDeleteStudy._get_query_params_json(
-                    transcoded_request
-                )
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseVizierServiceRestTransport._BaseDeleteStudy,
+                    "_BaseDeleteStudy__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -2308,19 +2286,18 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             http_options = (
                 _BaseVizierServiceRestTransport._BaseDeleteTrial._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_delete_trial(
                 request, metadata
             )
-            transcoded_request = _BaseVizierServiceRestTransport._BaseDeleteTrial._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = (
-                _BaseVizierServiceRestTransport._BaseDeleteTrial._get_query_params_json(
-                    transcoded_request
-                )
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseVizierServiceRestTransport._BaseDeleteTrial,
+                    "_BaseDeleteTrial__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -2430,19 +2407,16 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             http_options = (
                 _BaseVizierServiceRestTransport._BaseGetStudy._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_get_study(request, metadata)
-            transcoded_request = (
-                _BaseVizierServiceRestTransport._BaseGetStudy._get_transcoded_request(
-                    http_options, request
-                )
-            )
-
-            # Jsonify the query params
-            query_params = (
-                _BaseVizierServiceRestTransport._BaseGetStudy._get_query_params_json(
-                    transcoded_request
-                )
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseVizierServiceRestTransport._BaseGetStudy,
+                    "_BaseGetStudy__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -2591,19 +2565,16 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             http_options = (
                 _BaseVizierServiceRestTransport._BaseGetTrial._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_get_trial(request, metadata)
-            transcoded_request = (
-                _BaseVizierServiceRestTransport._BaseGetTrial._get_transcoded_request(
-                    http_options, request
-                )
-            )
-
-            # Jsonify the query params
-            query_params = (
-                _BaseVizierServiceRestTransport._BaseGetTrial._get_query_params_json(
-                    transcoded_request
-                )
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseVizierServiceRestTransport._BaseGetTrial,
+                    "_BaseGetTrial__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -2751,21 +2722,18 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             http_options = (
                 _BaseVizierServiceRestTransport._BaseListOptimalTrials._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_list_optimal_trials(
                 request, metadata
             )
-            transcoded_request = _BaseVizierServiceRestTransport._BaseListOptimalTrials._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseVizierServiceRestTransport._BaseListOptimalTrials._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseVizierServiceRestTransport._BaseListOptimalTrials._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseVizierServiceRestTransport._BaseListOptimalTrials,
+                    "_BaseListOptimalTrials__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -2916,19 +2884,18 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             http_options = (
                 _BaseVizierServiceRestTransport._BaseListStudies._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_list_studies(
                 request, metadata
             )
-            transcoded_request = _BaseVizierServiceRestTransport._BaseListStudies._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = (
-                _BaseVizierServiceRestTransport._BaseListStudies._get_query_params_json(
-                    transcoded_request
-                )
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseVizierServiceRestTransport._BaseListStudies,
+                    "_BaseListStudies__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -3076,21 +3043,18 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             http_options = (
                 _BaseVizierServiceRestTransport._BaseListTrials._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_list_trials(
                 request, metadata
             )
-            transcoded_request = (
-                _BaseVizierServiceRestTransport._BaseListTrials._get_transcoded_request(
-                    http_options, request
-                )
-            )
-
-            # Jsonify the query params
-            query_params = (
-                _BaseVizierServiceRestTransport._BaseListTrials._get_query_params_json(
-                    transcoded_request
-                )
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseVizierServiceRestTransport._BaseListTrials,
+                    "_BaseListTrials__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -3237,25 +3201,18 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             http_options = (
                 _BaseVizierServiceRestTransport._BaseLookupStudy._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_lookup_study(
                 request, metadata
             )
-            transcoded_request = _BaseVizierServiceRestTransport._BaseLookupStudy._get_transcoded_request(
-                http_options, request
-            )
-
-            body = (
-                _BaseVizierServiceRestTransport._BaseLookupStudy._get_request_body_json(
-                    transcoded_request
-                )
-            )
-
-            # Jsonify the query params
-            query_params = (
-                _BaseVizierServiceRestTransport._BaseLookupStudy._get_query_params_json(
-                    transcoded_request
-                )
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseVizierServiceRestTransport._BaseLookupStudy,
+                    "_BaseLookupStudy__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -3406,27 +3363,18 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             http_options = (
                 _BaseVizierServiceRestTransport._BaseStopTrial._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_stop_trial(
                 request, metadata
             )
-            transcoded_request = (
-                _BaseVizierServiceRestTransport._BaseStopTrial._get_transcoded_request(
-                    http_options, request
-                )
-            )
-
-            body = (
-                _BaseVizierServiceRestTransport._BaseStopTrial._get_request_body_json(
-                    transcoded_request
-                )
-            )
-
-            # Jsonify the query params
-            query_params = (
-                _BaseVizierServiceRestTransport._BaseStopTrial._get_query_params_json(
-                    transcoded_request
-                )
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseVizierServiceRestTransport._BaseStopTrial,
+                    "_BaseStopTrial__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -3575,21 +3523,18 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             http_options = (
                 _BaseVizierServiceRestTransport._BaseSuggestTrials._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_suggest_trials(
                 request, metadata
             )
-            transcoded_request = _BaseVizierServiceRestTransport._BaseSuggestTrials._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseVizierServiceRestTransport._BaseSuggestTrials._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseVizierServiceRestTransport._BaseSuggestTrials._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseVizierServiceRestTransport._BaseSuggestTrials,
+                    "_BaseSuggestTrials__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -5824,19 +5769,18 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             http_options = (
                 _BaseVizierServiceRestTransport._BaseGetLocation._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_get_location(
                 request, metadata
             )
-            transcoded_request = _BaseVizierServiceRestTransport._BaseGetLocation._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = (
-                _BaseVizierServiceRestTransport._BaseGetLocation._get_query_params_json(
-                    transcoded_request
-                )
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseVizierServiceRestTransport._BaseGetLocation,
+                    "_BaseGetLocation__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -5975,17 +5919,18 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             http_options = (
                 _BaseVizierServiceRestTransport._BaseListLocations._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_list_locations(
                 request, metadata
             )
-            transcoded_request = _BaseVizierServiceRestTransport._BaseListLocations._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseVizierServiceRestTransport._BaseListLocations._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseVizierServiceRestTransport._BaseListLocations,
+                    "_BaseListLocations__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -6126,17 +6071,18 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             http_options = (
                 _BaseVizierServiceRestTransport._BaseGetIamPolicy._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_get_iam_policy(
                 request, metadata
             )
-            transcoded_request = _BaseVizierServiceRestTransport._BaseGetIamPolicy._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseVizierServiceRestTransport._BaseGetIamPolicy._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseVizierServiceRestTransport._BaseGetIamPolicy,
+                    "_BaseGetIamPolicy__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -6278,21 +6224,18 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             http_options = (
                 _BaseVizierServiceRestTransport._BaseSetIamPolicy._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_set_iam_policy(
                 request, metadata
             )
-            transcoded_request = _BaseVizierServiceRestTransport._BaseSetIamPolicy._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseVizierServiceRestTransport._BaseSetIamPolicy._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseVizierServiceRestTransport._BaseSetIamPolicy._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseVizierServiceRestTransport._BaseSetIamPolicy,
+                    "_BaseSetIamPolicy__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -6435,17 +6378,18 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             http_options = (
                 _BaseVizierServiceRestTransport._BaseTestIamPermissions._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_test_iam_permissions(
                 request, metadata
             )
-            transcoded_request = _BaseVizierServiceRestTransport._BaseTestIamPermissions._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseVizierServiceRestTransport._BaseTestIamPermissions._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseVizierServiceRestTransport._BaseTestIamPermissions,
+                    "_BaseTestIamPermissions__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -6583,17 +6527,18 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             http_options = (
                 _BaseVizierServiceRestTransport._BaseCancelOperation._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_cancel_operation(
                 request, metadata
             )
-            transcoded_request = _BaseVizierServiceRestTransport._BaseCancelOperation._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseVizierServiceRestTransport._BaseCancelOperation._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseVizierServiceRestTransport._BaseCancelOperation,
+                    "_BaseCancelOperation__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -6706,17 +6651,18 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             http_options = (
                 _BaseVizierServiceRestTransport._BaseDeleteOperation._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_delete_operation(
                 request, metadata
             )
-            transcoded_request = _BaseVizierServiceRestTransport._BaseDeleteOperation._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseVizierServiceRestTransport._BaseDeleteOperation._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseVizierServiceRestTransport._BaseDeleteOperation,
+                    "_BaseDeleteOperation__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -6832,17 +6778,18 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             http_options = (
                 _BaseVizierServiceRestTransport._BaseGetOperation._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_get_operation(
                 request, metadata
             )
-            transcoded_request = _BaseVizierServiceRestTransport._BaseGetOperation._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseVizierServiceRestTransport._BaseGetOperation._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseVizierServiceRestTransport._BaseGetOperation,
+                    "_BaseGetOperation__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -6983,17 +6930,18 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             http_options = (
                 _BaseVizierServiceRestTransport._BaseListOperations._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_list_operations(
                 request, metadata
             )
-            transcoded_request = _BaseVizierServiceRestTransport._BaseListOperations._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseVizierServiceRestTransport._BaseListOperations._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseVizierServiceRestTransport._BaseListOperations,
+                    "_BaseListOperations__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -7134,17 +7082,18 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             http_options = (
                 _BaseVizierServiceRestTransport._BaseWaitOperation._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_wait_operation(
                 request, metadata
             )
-            transcoded_request = _BaseVizierServiceRestTransport._BaseWaitOperation._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseVizierServiceRestTransport._BaseWaitOperation._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseVizierServiceRestTransport._BaseWaitOperation,
+                    "_BaseWaitOperation__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(

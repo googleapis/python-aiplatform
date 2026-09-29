@@ -37,6 +37,8 @@ from google.cloud.location import locations_pb2  # type: ignore
 from google.api_core import retry_async as retries
 from google.api_core import rest_helpers
 from google.api_core import rest_streaming_async  # type: ignore
+from google.cloud.aiplatform_v1._compat import transcode_request
+
 import google.protobuf
 
 from google.protobuf import json_format
@@ -1379,21 +1381,18 @@ class AsyncFeatureOnlineStoreAdminServiceRestTransport(
             http_options = (
                 _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseCreateFeatureOnlineStore._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_create_feature_online_store(
                 request, metadata
             )
-            transcoded_request = _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseCreateFeatureOnlineStore._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseCreateFeatureOnlineStore._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseCreateFeatureOnlineStore._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseCreateFeatureOnlineStore,
+                    "_BaseCreateFeatureOnlineStore__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -1547,21 +1546,18 @@ class AsyncFeatureOnlineStoreAdminServiceRestTransport(
             http_options = (
                 _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseCreateFeatureView._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_create_feature_view(
                 request, metadata
             )
-            transcoded_request = _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseCreateFeatureView._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseCreateFeatureView._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseCreateFeatureView._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseCreateFeatureView,
+                    "_BaseCreateFeatureView__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -1713,17 +1709,18 @@ class AsyncFeatureOnlineStoreAdminServiceRestTransport(
             http_options = (
                 _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseDeleteFeatureOnlineStore._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_delete_feature_online_store(
                 request, metadata
             )
-            transcoded_request = _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseDeleteFeatureOnlineStore._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseDeleteFeatureOnlineStore._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseDeleteFeatureOnlineStore,
+                    "_BaseDeleteFeatureOnlineStore__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -1875,17 +1872,18 @@ class AsyncFeatureOnlineStoreAdminServiceRestTransport(
             http_options = (
                 _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseDeleteFeatureView._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_delete_feature_view(
                 request, metadata
             )
-            transcoded_request = _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseDeleteFeatureView._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseDeleteFeatureView._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseDeleteFeatureView,
+                    "_BaseDeleteFeatureView__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -2037,17 +2035,18 @@ class AsyncFeatureOnlineStoreAdminServiceRestTransport(
             http_options = (
                 _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseGetFeatureOnlineStore._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_get_feature_online_store(
                 request, metadata
             )
-            transcoded_request = _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseGetFeatureOnlineStore._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseGetFeatureOnlineStore._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseGetFeatureOnlineStore,
+                    "_BaseGetFeatureOnlineStore__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -2201,17 +2200,18 @@ class AsyncFeatureOnlineStoreAdminServiceRestTransport(
             http_options = (
                 _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseGetFeatureView._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_get_feature_view(
                 request, metadata
             )
-            transcoded_request = _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseGetFeatureView._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseGetFeatureView._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseGetFeatureView,
+                    "_BaseGetFeatureView__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -2362,17 +2362,18 @@ class AsyncFeatureOnlineStoreAdminServiceRestTransport(
             http_options = (
                 _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseGetFeatureViewSync._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_get_feature_view_sync(
                 request, metadata
             )
-            transcoded_request = _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseGetFeatureViewSync._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseGetFeatureViewSync._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseGetFeatureViewSync,
+                    "_BaseGetFeatureViewSync__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -2524,17 +2525,18 @@ class AsyncFeatureOnlineStoreAdminServiceRestTransport(
             http_options = (
                 _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseListFeatureOnlineStores._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_list_feature_online_stores(
                 request, metadata
             )
-            transcoded_request = _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseListFeatureOnlineStores._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseListFeatureOnlineStores._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseListFeatureOnlineStores,
+                    "_BaseListFeatureOnlineStores__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -2691,17 +2693,18 @@ class AsyncFeatureOnlineStoreAdminServiceRestTransport(
             http_options = (
                 _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseListFeatureViews._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_list_feature_views(
                 request, metadata
             )
-            transcoded_request = _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseListFeatureViews._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseListFeatureViews._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseListFeatureViews,
+                    "_BaseListFeatureViews__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -2854,17 +2857,18 @@ class AsyncFeatureOnlineStoreAdminServiceRestTransport(
             http_options = (
                 _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseListFeatureViewSyncs._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_list_feature_view_syncs(
                 request, metadata
             )
-            transcoded_request = _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseListFeatureViewSyncs._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseListFeatureViewSyncs._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseListFeatureViewSyncs,
+                    "_BaseListFeatureViewSyncs__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -3020,21 +3024,18 @@ class AsyncFeatureOnlineStoreAdminServiceRestTransport(
             http_options = (
                 _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseSyncFeatureView._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_sync_feature_view(
                 request, metadata
             )
-            transcoded_request = _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseSyncFeatureView._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseSyncFeatureView._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseSyncFeatureView._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseSyncFeatureView,
+                    "_BaseSyncFeatureView__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -3191,21 +3192,18 @@ class AsyncFeatureOnlineStoreAdminServiceRestTransport(
             http_options = (
                 _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseUpdateFeatureOnlineStore._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_update_feature_online_store(
                 request, metadata
             )
-            transcoded_request = _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseUpdateFeatureOnlineStore._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseUpdateFeatureOnlineStore._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseUpdateFeatureOnlineStore._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseUpdateFeatureOnlineStore,
+                    "_BaseUpdateFeatureOnlineStore__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -3359,21 +3357,18 @@ class AsyncFeatureOnlineStoreAdminServiceRestTransport(
             http_options = (
                 _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseUpdateFeatureView._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_update_feature_view(
                 request, metadata
             )
-            transcoded_request = _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseUpdateFeatureView._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseUpdateFeatureView._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseUpdateFeatureView._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseUpdateFeatureView,
+                    "_BaseUpdateFeatureView__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -5631,17 +5626,18 @@ class AsyncFeatureOnlineStoreAdminServiceRestTransport(
             http_options = (
                 _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseGetLocation._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_get_location(
                 request, metadata
             )
-            transcoded_request = _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseGetLocation._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseGetLocation._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseGetLocation,
+                    "_BaseGetLocation__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -5783,17 +5779,18 @@ class AsyncFeatureOnlineStoreAdminServiceRestTransport(
             http_options = (
                 _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseListLocations._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_list_locations(
                 request, metadata
             )
-            transcoded_request = _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseListLocations._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseListLocations._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseListLocations,
+                    "_BaseListLocations__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -5933,17 +5930,18 @@ class AsyncFeatureOnlineStoreAdminServiceRestTransport(
             http_options = (
                 _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseGetIamPolicy._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_get_iam_policy(
                 request, metadata
             )
-            transcoded_request = _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseGetIamPolicy._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseGetIamPolicy._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseGetIamPolicy,
+                    "_BaseGetIamPolicy__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -6084,21 +6082,18 @@ class AsyncFeatureOnlineStoreAdminServiceRestTransport(
             http_options = (
                 _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseSetIamPolicy._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_set_iam_policy(
                 request, metadata
             )
-            transcoded_request = _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseSetIamPolicy._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseSetIamPolicy._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseSetIamPolicy._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseSetIamPolicy,
+                    "_BaseSetIamPolicy__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -6241,17 +6236,18 @@ class AsyncFeatureOnlineStoreAdminServiceRestTransport(
             http_options = (
                 _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseTestIamPermissions._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_test_iam_permissions(
                 request, metadata
             )
-            transcoded_request = _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseTestIamPermissions._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseTestIamPermissions._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseTestIamPermissions,
+                    "_BaseTestIamPermissions__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -6390,17 +6386,18 @@ class AsyncFeatureOnlineStoreAdminServiceRestTransport(
             http_options = (
                 _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseCancelOperation._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_cancel_operation(
                 request, metadata
             )
-            transcoded_request = _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseCancelOperation._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseCancelOperation._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseCancelOperation,
+                    "_BaseCancelOperation__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -6514,17 +6511,18 @@ class AsyncFeatureOnlineStoreAdminServiceRestTransport(
             http_options = (
                 _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseDeleteOperation._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_delete_operation(
                 request, metadata
             )
-            transcoded_request = _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseDeleteOperation._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseDeleteOperation._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseDeleteOperation,
+                    "_BaseDeleteOperation__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -6639,17 +6637,18 @@ class AsyncFeatureOnlineStoreAdminServiceRestTransport(
             http_options = (
                 _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseGetOperation._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_get_operation(
                 request, metadata
             )
-            transcoded_request = _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseGetOperation._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseGetOperation._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseGetOperation,
+                    "_BaseGetOperation__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -6791,17 +6790,18 @@ class AsyncFeatureOnlineStoreAdminServiceRestTransport(
             http_options = (
                 _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseListOperations._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_list_operations(
                 request, metadata
             )
-            transcoded_request = _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseListOperations._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseListOperations._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseListOperations,
+                    "_BaseListOperations__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -6943,17 +6943,18 @@ class AsyncFeatureOnlineStoreAdminServiceRestTransport(
             http_options = (
                 _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseWaitOperation._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_wait_operation(
                 request, metadata
             )
-            transcoded_request = _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseWaitOperation._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseWaitOperation._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseWaitOperation,
+                    "_BaseWaitOperation__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(

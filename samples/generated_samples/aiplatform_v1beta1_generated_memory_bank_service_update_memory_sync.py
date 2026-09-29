@@ -39,11 +39,7 @@ def sample_update_memory():
     client = aiplatform_v1beta1.MemoryBankServiceClient()
 
     # Initialize request argument(s)
-    memory = aiplatform_v1beta1.Memory()
-    memory.fact = "fact_value"
-
     request = aiplatform_v1beta1.UpdateMemoryRequest(
-        memory=memory,
     )
 
     # Make the request
