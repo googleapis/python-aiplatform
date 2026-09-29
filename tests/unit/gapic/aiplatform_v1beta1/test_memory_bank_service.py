@@ -1192,6 +1192,9 @@ def test_get_memory(request_type, transport: str = 'grpc'):
             display_name='display_name_value',
             description='description_value',
             fact='fact_value',
+            memory_type=memory_bank.MemoryType.NATURAL_LANGUAGE_COLLECTION,
+            context='context_value',
+            disable_memory_revisions=True,
         )
         response = client.get_memory(request)
 
@@ -1207,6 +1210,8 @@ def test_get_memory(request_type, transport: str = 'grpc'):
     assert response.display_name == 'display_name_value'
     assert response.description == 'description_value'
     assert response.fact == 'fact_value'
+    assert response.memory_type == memory_bank.MemoryType.NATURAL_LANGUAGE_COLLECTION
+    assert response.context == 'context_value'
 
 
 def test_get_memory_non_empty_request_with_auto_populated_field():
@@ -1328,6 +1333,8 @@ async def test_get_memory_async(request_type, transport: str = 'grpc_asyncio'):
             display_name='display_name_value',
             description='description_value',
             fact='fact_value',
+            memory_type=memory_bank.MemoryType.NATURAL_LANGUAGE_COLLECTION,
+            context='context_value',
         ))
         response = await client.get_memory(request)
 
@@ -1343,6 +1350,8 @@ async def test_get_memory_async(request_type, transport: str = 'grpc_asyncio'):
     assert response.display_name == 'display_name_value'
     assert response.description == 'description_value'
     assert response.fact == 'fact_value'
+    assert response.memory_type == memory_bank.MemoryType.NATURAL_LANGUAGE_COLLECTION
+    assert response.context == 'context_value'
 
 def test_get_memory_field_headers():
     client = MemoryBankServiceClient(
@@ -4795,6 +4804,8 @@ async def test_get_memory_empty_call_grpc_asyncio():
             display_name='display_name_value',
             description='description_value',
             fact='fact_value',
+            memory_type=memory_bank.MemoryType.NATURAL_LANGUAGE_COLLECTION,
+            context='context_value',
         ))
         await client.get_memory(request=None)
 
@@ -4976,7 +4987,7 @@ def test_create_memory_rest_call_success(request_type):
 
     # send a request that will satisfy transcoding
     request_init = {'parent': 'projects/sample1/locations/sample2/reasoningEngines/sample3'}
-    request_init["memory"] = {'expire_time': {'seconds': 751, 'nanos': 543}, 'ttl': {'seconds': 751, 'nanos': 543}, 'name': 'name_value', 'display_name': 'display_name_value', 'description': 'description_value', 'create_time': {}, 'update_time': {}, 'fact': 'fact_value', 'scope': {}}
+    request_init["memory"] = {'expire_time': {'seconds': 751, 'nanos': 543}, 'ttl': {'seconds': 751, 'nanos': 543}, 'revision_expire_time': {}, 'revision_ttl': {}, 'disable_memory_revisions': True, 'name': 'name_value', 'display_name': 'display_name_value', 'description': 'description_value', 'create_time': {}, 'update_time': {}, 'fact': 'fact_value', 'scope': {}, 'topics': [{'custom_memory_topic_label': 'custom_memory_topic_label_value', 'managed_memory_topic': 1}], 'revision_labels': {}, 'metadata': {}, 'memory_type': 1, 'structured_content': {'data': {'fields': {}}, 'schema_id': 'schema_id_value'}, 'context': 'context_value'}
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
     # See https://github.com/googleapis/gapic-generator-python/issues/1748
@@ -5151,6 +5162,9 @@ def test_get_memory_rest_call_success(request_type):
               display_name='display_name_value',
               description='description_value',
               fact='fact_value',
+              memory_type=memory_bank.MemoryType.NATURAL_LANGUAGE_COLLECTION,
+              context='context_value',
+            disable_memory_revisions=True,
         )
 
         # Wrap the value into a proper Response obj
@@ -5171,6 +5185,8 @@ def test_get_memory_rest_call_success(request_type):
     assert response.display_name == 'display_name_value'
     assert response.description == 'description_value'
     assert response.fact == 'fact_value'
+    assert response.memory_type == memory_bank.MemoryType.NATURAL_LANGUAGE_COLLECTION
+    assert response.context == 'context_value'
 
 
 @pytest.mark.parametrize("null_interceptor", [True, False])
@@ -5253,7 +5269,7 @@ def test_update_memory_rest_call_success(request_type):
 
     # send a request that will satisfy transcoding
     request_init = {'memory': {'name': 'projects/sample1/locations/sample2/reasoningEngines/sample3/memories/sample4'}}
-    request_init["memory"] = {'expire_time': {'seconds': 751, 'nanos': 543}, 'ttl': {'seconds': 751, 'nanos': 543}, 'name': 'projects/sample1/locations/sample2/reasoningEngines/sample3/memories/sample4', 'display_name': 'display_name_value', 'description': 'description_value', 'create_time': {}, 'update_time': {}, 'fact': 'fact_value', 'scope': {}}
+    request_init["memory"] = {'expire_time': {'seconds': 751, 'nanos': 543}, 'ttl': {'seconds': 751, 'nanos': 543}, 'revision_expire_time': {}, 'revision_ttl': {}, 'disable_memory_revisions': True, 'name': 'projects/sample1/locations/sample2/reasoningEngines/sample3/memories/sample4', 'display_name': 'display_name_value', 'description': 'description_value', 'create_time': {}, 'update_time': {}, 'fact': 'fact_value', 'scope': {}, 'topics': [{'custom_memory_topic_label': 'custom_memory_topic_label_value', 'managed_memory_topic': 1}], 'revision_labels': {}, 'metadata': {}, 'memory_type': 1, 'structured_content': {'data': {'fields': {}}, 'schema_id': 'schema_id_value'}, 'context': 'context_value'}
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
     # See https://github.com/googleapis/gapic-generator-python/issues/1748
@@ -6548,7 +6564,7 @@ async def test_create_memory_rest_asyncio_call_success(request_type):
 
     # send a request that will satisfy transcoding
     request_init = {'parent': 'projects/sample1/locations/sample2/reasoningEngines/sample3'}
-    request_init["memory"] = {'expire_time': {'seconds': 751, 'nanos': 543}, 'ttl': {'seconds': 751, 'nanos': 543}, 'name': 'name_value', 'display_name': 'display_name_value', 'description': 'description_value', 'create_time': {}, 'update_time': {}, 'fact': 'fact_value', 'scope': {}}
+    request_init["memory"] = {'expire_time': {'seconds': 751, 'nanos': 543}, 'ttl': {'seconds': 751, 'nanos': 543}, 'revision_expire_time': {}, 'revision_ttl': {}, 'disable_memory_revisions': True, 'name': 'name_value', 'display_name': 'display_name_value', 'description': 'description_value', 'create_time': {}, 'update_time': {}, 'fact': 'fact_value', 'scope': {}, 'topics': [{'custom_memory_topic_label': 'custom_memory_topic_label_value', 'managed_memory_topic': 1}], 'revision_labels': {}, 'metadata': {}, 'memory_type': 1, 'structured_content': {'data': {'fields': {}}, 'schema_id': 'schema_id_value'}, 'context': 'context_value'}
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
     # See https://github.com/googleapis/gapic-generator-python/issues/1748
@@ -6730,6 +6746,9 @@ async def test_get_memory_rest_asyncio_call_success(request_type):
               display_name='display_name_value',
               description='description_value',
               fact='fact_value',
+              memory_type=memory_bank.MemoryType.NATURAL_LANGUAGE_COLLECTION,
+              context='context_value',
+            disable_memory_revisions=True,
         )
 
         # Wrap the value into a proper Response obj
@@ -6750,6 +6769,8 @@ async def test_get_memory_rest_asyncio_call_success(request_type):
     assert response.display_name == 'display_name_value'
     assert response.description == 'description_value'
     assert response.fact == 'fact_value'
+    assert response.memory_type == memory_bank.MemoryType.NATURAL_LANGUAGE_COLLECTION
+    assert response.context == 'context_value'
 
 
 @pytest.mark.asyncio
@@ -6839,7 +6860,7 @@ async def test_update_memory_rest_asyncio_call_success(request_type):
 
     # send a request that will satisfy transcoding
     request_init = {'memory': {'name': 'projects/sample1/locations/sample2/reasoningEngines/sample3/memories/sample4'}}
-    request_init["memory"] = {'expire_time': {'seconds': 751, 'nanos': 543}, 'ttl': {'seconds': 751, 'nanos': 543}, 'name': 'projects/sample1/locations/sample2/reasoningEngines/sample3/memories/sample4', 'display_name': 'display_name_value', 'description': 'description_value', 'create_time': {}, 'update_time': {}, 'fact': 'fact_value', 'scope': {}}
+    request_init["memory"] = {'expire_time': {'seconds': 751, 'nanos': 543}, 'ttl': {'seconds': 751, 'nanos': 543}, 'revision_expire_time': {}, 'revision_ttl': {}, 'disable_memory_revisions': True, 'name': 'projects/sample1/locations/sample2/reasoningEngines/sample3/memories/sample4', 'display_name': 'display_name_value', 'description': 'description_value', 'create_time': {}, 'update_time': {}, 'fact': 'fact_value', 'scope': {}, 'topics': [{'custom_memory_topic_label': 'custom_memory_topic_label_value', 'managed_memory_topic': 1}], 'revision_labels': {}, 'metadata': {}, 'memory_type': 1, 'structured_content': {'data': {'fields': {}}, 'schema_id': 'schema_id_value'}, 'context': 'context_value'}
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
     # See https://github.com/googleapis/gapic-generator-python/issues/1748

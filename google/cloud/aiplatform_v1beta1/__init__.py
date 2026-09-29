@@ -981,7 +981,18 @@ from .types.match_service import FindNeighborsRequest
 from .types.match_service import FindNeighborsResponse
 from .types.match_service import ReadIndexDatapointsRequest
 from .types.match_service import ReadIndexDatapointsResponse
+from .types.memory_bank import IntermediateExtractedMemory
 from .types.memory_bank import Memory
+from .types.memory_bank import MemoryBankCustomizationConfig
+from .types.memory_bank import MemoryConjunctionFilter
+from .types.memory_bank import MemoryFilter
+from .types.memory_bank import MemoryGenerationTriggerConfig
+from .types.memory_bank import MemoryMetadataValue
+from .types.memory_bank import MemoryProfile
+from .types.memory_bank import MemoryRevision
+from .types.memory_bank import MemoryTopicId
+from .types.memory_bank import StructuredMemoryConfig
+from .types.memory_bank import MemoryType
 from .types.memory_bank_service import CreateMemoryOperationMetadata
 from .types.memory_bank_service import CreateMemoryRequest
 from .types.memory_bank_service import DeleteMemoryOperationMetadata
@@ -2243,6 +2254,7 @@ __all__ = (
     "InputDataConfig",
     "Int64Array",
     "IntegratedGradientsAttribution",
+    "IntermediateExtractedMemory",
     "JiraSource",
     "JobServiceClient",
     "JobState",
@@ -2392,7 +2404,16 @@ __all__ = (
     "MatchServiceClient",
     "Measurement",
     "Memory",
+    "MemoryBankCustomizationConfig",
     "MemoryBankServiceClient",
+    "MemoryConjunctionFilter",
+    "MemoryFilter",
+    "MemoryGenerationTriggerConfig",
+    "MemoryMetadataValue",
+    "MemoryProfile",
+    "MemoryRevision",
+    "MemoryTopicId",
+    "MemoryType",
     "MergeVersionAliasesRequest",
     "MetadataList",
     "MetadataSchema",
@@ -2741,6 +2762,7 @@ __all__ = (
     "StringArray",
     "StructFieldValue",
     "StructValue",
+    "StructuredMemoryConfig",
     "Study",
     "StudySpec",
     "StudyTimeConstraint",
