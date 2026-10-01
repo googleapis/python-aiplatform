@@ -1209,6 +1209,8 @@ class AdkApp:
             session_events (Optional[List[Dict[str, Any]]]):
                 Optional. The session events to use for the query. This will be
                 used to initialize the session if `session_id` is not provided.
+                That session exists only for this query and is deleted once the
+                stream ends.
             run_config (Optional[Dict[str, Any]]):
                 Optional. The run config to use for the query. If you want to
                 pass in a `run_config` pydantic object, you can pass in a dict
@@ -1244,10 +1246,15 @@ class AdkApp:
             raise ValueError(
                 "Only one of session_id and session_events should be specified."
             )
+        scratch_session_id = None
         if not session_id:
             session = await self.async_create_session(user_id=user_id)
             session_id = session["id"]
             if session_events is not None:
+                scratch_session_id = session_id
+
+        try:
+            if scratch_session_id:
                 # We allow for session_events to be an empty list.
                 from google.adk.events.event import Event
 
@@ -1255,7 +1262,7 @@ class AdkApp:
                 session_obj = await session_service.get_session(
                     app_name=self._app_name(),
                     user_id=user_id,
-                    session_id=session_id,
+                    session_id=scratch_session_id,
                 )
                 for event in session_events:
                     if not isinstance(event, Event):
@@ -1265,28 +1272,38 @@ class AdkApp:
                         event=event,
                     )
 
-        run_config = _validate_run_config(run_config)
-        if run_config:
-            events_async = self._tmpl_attrs.get("runner").run_async(
-                user_id=user_id,
-                session_id=session_id,
-                new_message=content,
-                run_config=run_config,
-                **kwargs,
-            )
-        else:
-            events_async = self._tmpl_attrs.get("runner").run_async(
-                user_id=user_id,
-                session_id=session_id,
-                new_message=content,
-                **kwargs,
-            )
+            run_config = _validate_run_config(run_config)
+            if run_config:
+                events_async = self._tmpl_attrs.get("runner").run_async(
+                    user_id=user_id,
+                    session_id=session_id,
+                    new_message=content,
+                    run_config=run_config,
+                    **kwargs,
+                )
+            else:
+                events_async = self._tmpl_attrs.get("runner").run_async(
+                    user_id=user_id,
+                    session_id=session_id,
+                    new_message=content,
+                    **kwargs,
+                )
 
-        try:
             async for event in events_async:
                 # Yield the event data as a dictionary
                 yield _runtimes_utils.dump_event_for_json(event)
         finally:
+            # The caller never sees the id of a session created for
+            # session_events, so nothing else can delete it.
+            if scratch_session_id:
+                try:
+                    await self._tmpl_attrs.get("session_service").delete_session(
+                        app_name=self._app_name(),
+                        user_id=user_id,
+                        session_id=scratch_session_id,
+                    )
+                except Exception as e:  # pylint: disable=broad-exception-caught
+                    _warn(f"Failed to delete scratch session {scratch_session_id}: {e}")
             # Avoid telemetry data loss having to do with CPU throttling on instance turndown
             _ = await _force_flush_otel(
                 tracing_enabled=self._tracing_enabled(),

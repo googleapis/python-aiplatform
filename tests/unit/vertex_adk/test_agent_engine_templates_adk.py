@@ -70,6 +70,83 @@ _TEST_MODEL = "gemini-2.0-flash"
 _TEST_USER_ID = "test_user_id"
 _TEST_AGENT_NAME = "test_agent"
 _TEST_AGENT = Agent(name=_TEST_AGENT_NAME, model=_TEST_MODEL)
+_TEST_SESSION_EVENTS = [
+    {
+        "author": "user",
+        "content": {
+            "parts": [
+                {
+                    "text": "What is the exchange rate from US dollars to "
+                    "Swedish krona on 2025-09-25?"
+                }
+            ],
+            "role": "user",
+        },
+        "id": "8967297909049524224",
+        "invocationId": "e-308f65d7-a99f-41e3-b80d-40feb5f1b065",
+        "timestamp": 1765832134.629513,
+    },
+    {
+        "author": "currency_exchange_agent",
+        "content": {
+            "parts": [
+                {
+                    "functionCall": {
+                        "args": {
+                            "currency_date": "2025-09-25",
+                            "currency_from": "USD",
+                            "currency_to": "SEK",
+                        },
+                        "id": "adk-136738ad-9e57-4cfb-8e23-b0f3e50a37d7",
+                        "name": "get_exchange_rate",
+                    }
+                }
+            ],
+            "role": "model",
+        },
+        "id": "3155402589927899136",
+        "invocationId": "e-308f65d7-a99f-41e3-b80d-40feb5f1b065",
+        "timestamp": 1765832134.723713,
+    },
+    {
+        "author": "currency_exchange_agent",
+        "content": {
+            "parts": [
+                {
+                    "functionResponse": {
+                        "id": "adk-136738ad-9e57-4cfb-8e23-b0f3e50a37d7",
+                        "name": "get_exchange_rate",
+                        "response": {
+                            "amount": 1,
+                            "base": "USD",
+                            "date": "2025-09-25",
+                            "rates": {"SEK": 9.4118},
+                        },
+                    }
+                }
+            ],
+            "role": "user",
+        },
+        "id": "1678221912150376448",
+        "invocationId": "e-308f65d7-a99f-41e3-b80d-40feb5f1b065",
+        "timestamp": 1765832135.764961,
+    },
+    {
+        "author": "currency_exchange_agent",
+        "content": {
+            "parts": [
+                {
+                    "text": "The exchange rate from US dollars to Swedish "
+                    "krona on 2025-09-25 is 1 USD to 9.4118 SEK."
+                }
+            ],
+            "role": "model",
+        },
+        "id": "2470855446567583744",
+        "invocationId": "e-308f65d7-a99f-41e3-b80d-40feb5f1b065",
+        "timestamp": 1765832135.853299,
+    },
+]
 _TEST_SESSION = {
     "id": "ca18c25a-644b-4e13-9b24-78c150ec3eb9",
     "app_name": "default_app_name",
@@ -317,6 +394,23 @@ class _MockRunner:
         )
 
 
+class _SessionReadingRunner:
+    """Records which events the session holds when the run starts."""
+
+    def __init__(self, session_service, app_name):
+        self._session_service = session_service
+        self._app_name = app_name
+        self.seen_event_ids = None
+
+    async def run_async(self, *, user_id, session_id, **kwargs):
+        session = await self._session_service.get_session(
+            app_name=self._app_name, user_id=user_id, session_id=session_id
+        )
+        self.seen_event_ids = [event.id for event in session.events]
+        async for event in _MockRunner().run_async():
+            yield event
+
+
 @pytest.mark.usefixtures("google_auth_mock")
 class TestAdkApp:
     def test_adk_version(self):
@@ -435,6 +529,116 @@ class TestAdkApp:
         ):
             events.append(event)
         assert len(events) == 1
+
+    @pytest.mark.asyncio
+    async def test_async_stream_query_replays_session_events_then_deletes_session(
+        self,
+        default_instrumentor_builder_mock: mock.Mock,
+        get_project_id_mock: mock.Mock,
+    ):
+        app = agent_engines.AdkApp(agent=_TEST_AGENT)
+        app.set_up()
+        runner = _SessionReadingRunner(
+            app._tmpl_attrs["session_service"], app._app_name()
+        )
+        app._tmpl_attrs["runner"] = runner
+        events = [
+            event
+            async for event in app.async_stream_query(
+                user_id=_TEST_USER_ID,
+                session_events=_TEST_SESSION_EVENTS,
+                message="on the day after that?",
+            )
+        ]
+        assert len(events) == 1
+        assert runner.seen_event_ids == [e["id"] for e in _TEST_SESSION_EVENTS]
+        assert not app.list_sessions(user_id=_TEST_USER_ID).sessions
+
+    @pytest.mark.asyncio
+    async def test_async_stream_query_deletes_session_when_replay_fails(
+        self,
+        default_instrumentor_builder_mock: mock.Mock,
+        get_project_id_mock: mock.Mock,
+    ):
+        app = agent_engines.AdkApp(agent=_TEST_AGENT)
+        app.set_up()
+        app._tmpl_attrs["runner"] = _MockRunner()
+        with pytest.raises(ValueError):
+            async for _ in app.async_stream_query(
+                user_id=_TEST_USER_ID,
+                session_events=[123],
+                message="test message",
+            ):
+                pass
+        assert not app.list_sessions(user_id=_TEST_USER_ID).sessions
+
+    @pytest.mark.asyncio
+    async def test_async_stream_query_keeps_session_without_session_events(
+        self,
+        default_instrumentor_builder_mock: mock.Mock,
+        get_project_id_mock: mock.Mock,
+    ):
+        app = agent_engines.AdkApp(agent=_TEST_AGENT)
+        app.set_up()
+        app._tmpl_attrs["runner"] = _MockRunner()
+        async for _ in app.async_stream_query(
+            user_id=_TEST_USER_ID,
+            message="test message",
+        ):
+            pass
+        assert len(app.list_sessions(user_id=_TEST_USER_ID).sessions) == 1
+
+    @pytest.mark.asyncio
+    async def test_async_stream_query_warns_when_session_delete_fails(
+        self,
+        default_instrumentor_builder_mock: mock.Mock,
+        get_project_id_mock: mock.Mock,
+    ):
+        app = agent_engines.AdkApp(agent=_TEST_AGENT)
+        app.set_up()
+        app._tmpl_attrs["runner"] = _MockRunner()
+        with mock.patch.object(
+            app._tmpl_attrs["session_service"],
+            "delete_session",
+            side_effect=RuntimeError("delete failed"),
+        ), mock.patch.object(adk_template, "_warn") as warn_mock:
+            events = [
+                event
+                async for event in app.async_stream_query(
+                    user_id=_TEST_USER_ID,
+                    session_events=[],
+                    message="test message",
+                )
+            ]
+        assert len(events) == 1
+        warn_mock.assert_called_once()
+
+    @pytest.mark.asyncio
+    async def test_async_stream_query_passes_run_config(
+        self,
+        default_instrumentor_builder_mock: mock.Mock,
+        get_project_id_mock: mock.Mock,
+    ):
+        app = agent_engines.AdkApp(agent=_TEST_AGENT)
+        app.set_up()
+        runner_kwargs = {}
+
+        async def run_async(**kwargs):
+            runner_kwargs.update(kwargs)
+            async for event in _MockRunner().run_async():
+                yield event
+
+        app._tmpl_attrs["runner"] = mock.Mock(run_async=run_async)
+        events = [
+            event
+            async for event in app.async_stream_query(
+                user_id=_TEST_USER_ID,
+                message="test message",
+                run_config={"max_llm_calls": 5},
+            )
+        ]
+        assert len(events) == 1
+        assert runner_kwargs["run_config"].max_llm_calls == 5
 
     def test_set_up_runner_auto_create_session_enabled(
         self,

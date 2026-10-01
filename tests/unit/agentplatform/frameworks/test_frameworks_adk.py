@@ -612,7 +612,7 @@ class TestAdkApp:
             events.append(event)
         assert app._tmpl_attrs.get("session_service") is not None
         sessions = app.list_sessions(user_id=_TEST_USER_ID)
-        assert len(sessions.sessions) == 1
+        assert not sessions.sessions
 
     @pytest.mark.asyncio
     async def test_async_stream_query_with_session_events(
@@ -633,7 +633,66 @@ class TestAdkApp:
             events.append(event)
         assert app._tmpl_attrs.get("session_service") is not None
         sessions = app.list_sessions(user_id=_TEST_USER_ID)
-        assert len(sessions.sessions) == 1
+        assert not sessions.sessions
+
+    @pytest.mark.asyncio
+    async def test_async_stream_query_deletes_session_when_replay_fails(
+        self,
+        default_instrumentor_builder_mock: mock.Mock,
+        get_project_id_mock: mock.Mock,
+    ):
+        app = adk_template.AdkApp(agent=Agent(name=_TEST_AGENT_NAME, model=_TEST_MODEL))
+        app.set_up()
+        app._tmpl_attrs["runner"] = _MockRunner()
+        with pytest.raises(ValueError):
+            async for _ in app.async_stream_query(
+                user_id=_TEST_USER_ID,
+                session_events=[123],
+                message="test message",
+            ):
+                pass
+        assert not app.list_sessions(user_id=_TEST_USER_ID).sessions
+
+    @pytest.mark.asyncio
+    async def test_async_stream_query_keeps_session_without_session_events(
+        self,
+        default_instrumentor_builder_mock: mock.Mock,
+        get_project_id_mock: mock.Mock,
+    ):
+        app = adk_template.AdkApp(agent=Agent(name=_TEST_AGENT_NAME, model=_TEST_MODEL))
+        app.set_up()
+        app._tmpl_attrs["runner"] = _MockRunner()
+        async for _ in app.async_stream_query(
+            user_id=_TEST_USER_ID,
+            message="test message",
+        ):
+            pass
+        assert len(app.list_sessions(user_id=_TEST_USER_ID).sessions) == 1
+
+    @pytest.mark.asyncio
+    async def test_async_stream_query_warns_when_session_delete_fails(
+        self,
+        default_instrumentor_builder_mock: mock.Mock,
+        get_project_id_mock: mock.Mock,
+    ):
+        app = adk_template.AdkApp(agent=Agent(name=_TEST_AGENT_NAME, model=_TEST_MODEL))
+        app.set_up()
+        app._tmpl_attrs["runner"] = _MockRunner()
+        with mock.patch.object(
+            app._tmpl_attrs["session_service"],
+            "delete_session",
+            side_effect=RuntimeError("delete failed"),
+        ), mock.patch.object(adk_template, "_warn") as warn_mock:
+            events = [
+                event
+                async for event in app.async_stream_query(
+                    user_id=_TEST_USER_ID,
+                    session_events=[],
+                    message="test message",
+                )
+            ]
+        assert len(events) == 1
+        warn_mock.assert_called_once()
 
     @pytest.mark.asyncio
     @mock.patch.dict(
