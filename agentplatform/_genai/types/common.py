@@ -1385,6 +1385,12 @@ class Metric(_common.BaseModel):
         default=None,
         description="""Optional. A Python function string used to parse the raw output of the LLM judge model. The function must be named `parse_results` and accept a list of model response strings. It should return a dictionary with `score` (float) and `explanation` (str) keys.""",
     )
+    judge_model_step_configs: Optional[dict[str, genai_types.AutoraterConfig]] = Field(
+        default=None,
+        description="""Per-step judge overrides for a predefined metric, keyed by step:
+      "intent_extraction", "rubric_generation" or "rubric_validation". Steps
+      without an entry keep their default judge.""",
+    )
 
     # Allow extra fields to support metric-specific config fields.
     model_config = ConfigDict(extra="allow")
@@ -1619,6 +1625,11 @@ class MetricDict(TypedDict, total=False):
 
     result_parsing_function: Optional[str]
     """Optional. A Python function string used to parse the raw output of the LLM judge model. The function must be named `parse_results` and accept a list of model response strings. It should return a dictionary with `score` (float) and `explanation` (str) keys."""
+
+    judge_model_step_configs: Optional[dict[str, genai_types.AutoraterConfig]]
+    """Per-step judge overrides for a predefined metric, keyed by step:
+      "intent_extraction", "rubric_generation" or "rubric_validation". Steps
+      without an entry keep their default judge."""
 
 
 MetricOrDict = Union[Metric, MetricDict]
@@ -2070,7 +2081,7 @@ class EvaluationRunConfig(_common.BaseModel):
     )
     autorater_config: Optional[genai_types.AutoraterConfig] = Field(
         default=None,
-        description="""The autorater config for the evaluation run. Not applicable for predefined metrics (PredefinedMetricSpec); the server uses its own model configuration for predefined metrics and this field is ignored.""",
+        description="""The autorater config for the evaluation run. Predefined metrics use it for every judge step without a `step_autorater_configs` override; multi-turn metrics ignore it.""",
     )
     prompt_template: Optional[EvaluationRunPromptTemplate] = Field(
         default=None, description="""The prompt template used for inference."""
@@ -2100,7 +2111,7 @@ class EvaluationRunConfigDict(TypedDict, total=False):
     """The output config for the evaluation run."""
 
     autorater_config: Optional[genai_types.AutoraterConfig]
-    """The autorater config for the evaluation run. Not applicable for predefined metrics (PredefinedMetricSpec); the server uses its own model configuration for predefined metrics and this field is ignored."""
+    """The autorater config for the evaluation run. Predefined metrics use it for every judge step without a `step_autorater_configs` override; multi-turn metrics ignore it."""
 
     prompt_template: Optional[EvaluationRunPromptTemplateDict]
     """The prompt template used for inference."""
@@ -4702,7 +4713,7 @@ class _EvaluateInstancesRequestParameters(_common.BaseModel):
     )
     autorater_config: Optional[genai_types.AutoraterConfig] = Field(
         default=None,
-        description="""Autorater config used for evaluation. Not applicable for predefined metrics (PredefinedMetricSpec); the server uses its own model configuration for predefined metrics and this field is ignored.""",
+        description="""Autorater config used for evaluation. Predefined metrics use it for every judge step without a `step_autorater_configs` override; multi-turn metrics ignore it.""",
     )
     metrics: Optional[list[Metric]] = Field(
         default=None,
@@ -4715,6 +4726,12 @@ class _EvaluateInstancesRequestParameters(_common.BaseModel):
     )
     metric_sources: Optional[list[MetricSource]] = Field(
         default=None, description="""The metrics used for evaluation."""
+    )
+    allow_cross_region_model: Optional[bool] = Field(
+        default=None,
+        description="""Allows judge models to be served from other regions. Required
+      when a judge model's fully-qualified resource name uses a different
+      region than the request.""",
     )
     config: Optional[EvaluateInstancesConfig] = Field(default=None, description="""""")
 
@@ -4753,7 +4770,7 @@ class _EvaluateInstancesRequestParametersDict(TypedDict, total=False):
     """"""
 
     autorater_config: Optional[genai_types.AutoraterConfig]
-    """Autorater config used for evaluation. Not applicable for predefined metrics (PredefinedMetricSpec); the server uses its own model configuration for predefined metrics and this field is ignored."""
+    """Autorater config used for evaluation. Predefined metrics use it for every judge step without a `step_autorater_configs` override; multi-turn metrics ignore it."""
 
     metrics: Optional[list[MetricDict]]
     """The metrics used for evaluation.
@@ -4765,6 +4782,11 @@ class _EvaluateInstancesRequestParametersDict(TypedDict, total=False):
 
     metric_sources: Optional[list[MetricSourceDict]]
     """The metrics used for evaluation."""
+
+    allow_cross_region_model: Optional[bool]
+    """Allows judge models to be served from other regions. Required
+      when a judge model's fully-qualified resource name uses a different
+      region than the request."""
 
     config: Optional[EvaluateInstancesConfigDict]
     """"""
@@ -30100,6 +30122,13 @@ class EvaluateMethodConfig(_common.BaseModel):
       evaluation service. Defaults to 10. Increase this value if your
       project has a higher EvaluateInstances API quota.""",
     )
+    allow_cross_region_model: Optional[bool] = Field(
+        default=None,
+        description="""Allows judge models to be served from other regions. When set,
+      the service may route judge requests to another region if the model is
+      unavailable in the request's region. Required when a judge model's
+      fully-qualified resource name uses a different region.""",
+    )
 
 
 class EvaluateMethodConfigDict(TypedDict, total=False):
@@ -30120,6 +30149,12 @@ class EvaluateMethodConfigDict(TypedDict, total=False):
     """The rate limit (queries per second) for calls to the
       evaluation service. Defaults to 10. Increase this value if your
       project has a higher EvaluateInstances API quota."""
+
+    allow_cross_region_model: Optional[bool]
+    """Allows judge models to be served from other regions. When set,
+      the service may route judge requests to another region if the model is
+      unavailable in the request's region. Required when a judge model's
+      fully-qualified resource name uses a different region."""
 
 
 EvaluateMethodConfigOrDict = Union[EvaluateMethodConfig, EvaluateMethodConfigDict]

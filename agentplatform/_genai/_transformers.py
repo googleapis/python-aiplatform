@@ -64,10 +64,14 @@ def t_metrics(
         elif (
             metric_name and metric_name in _evals_constant.SUPPORTED_PREDEFINED_METRICS
         ):
-            metric_payload_item["predefined_metric_spec"] = {
+            predefined_spec: dict[str, Any] = {
                 "metric_spec_name": metric_name,
                 "metric_spec_parameters": metric.metric_spec_parameters,
             }
+            step_configs = getv(metric, ["judge_model_step_configs"])
+            if step_configs:
+                predefined_spec["step_autorater_configs"] = step_configs
+            metric_payload_item["predefined_metric_spec"] = predefined_spec
         # Custom Code Execution Metric
         elif (
             hasattr(metric, "remote_custom_function") and metric.remote_custom_function

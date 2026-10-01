@@ -215,8 +215,11 @@ class LazyLoadedPrebuiltMetric:
         if self._resolved_metric:
             return self._resolved_metric
 
+        # The shared cache is keyed by name and version only, so a metric with
+        # overrides (such as judge_model_step_configs) must bypass it.
+        use_cache = not self.metric_kwargs
         cache_key = f"{self.name}@{self.version or 'default'}"
-        if cache_key in LazyLoadedPrebuiltMetric._cache:
+        if use_cache and cache_key in LazyLoadedPrebuiltMetric._cache:
             self._resolved_metric = LazyLoadedPrebuiltMetric._cache[cache_key]
             logger.debug("Metric '%s' found in cache.", cache_key)
             return self._resolved_metric
@@ -225,7 +228,8 @@ class LazyLoadedPrebuiltMetric:
         api_metric = self._resolve_api_predefined()
         if api_metric:
             self._resolved_metric = api_metric
-            LazyLoadedPrebuiltMetric._cache[cache_key] = self._resolved_metric
+            if use_cache:
+                LazyLoadedPrebuiltMetric._cache[cache_key] = self._resolved_metric
             return self._resolved_metric
 
         # Fallback to GCS loading for custom LLM-based Prebuilt Metrics
@@ -234,8 +238,9 @@ class LazyLoadedPrebuiltMetric:
         )
         try:
             gcs_metric = self._fetch_and_parse(api_client)
-            final_cache_key = f"{self.name}@{self.version}"
-            LazyLoadedPrebuiltMetric._cache[final_cache_key] = gcs_metric
+            if use_cache:
+                final_cache_key = f"{self.name}@{self.version}"
+                LazyLoadedPrebuiltMetric._cache[final_cache_key] = gcs_metric
             self._resolved_metric = gcs_metric
             return self._resolved_metric
         except Exception as e:

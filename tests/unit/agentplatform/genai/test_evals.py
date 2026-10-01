@@ -48,6 +48,7 @@ from google.genai import client
 from google.genai import errors as genai_errors
 from google.genai import types as genai_types
 import pandas as pd
+import pydantic
 import pytest
 
 _TEST_PROJECT = "test-project"
@@ -10719,6 +10720,253 @@ class TestAllowCrossRegionModel:
             request_body.get("evaluationConfig", {}).get("allowCrossRegionModel")
             is True
         )
+
+
+class TestJudgeModelStepConfigs:
+    """Tests for per-step judges and cross-region routing in evaluate()."""
+
+    _STEP_CONFIGS = {
+        "rubric_validation": genai_types.AutoraterConfig(
+            autorater_model="claude-sonnet-4-5"
+        )
+    }
+    _EVAL_CASE = agentplatform_genai_types.EvalCase(
+        prompt=genai_types.Content(parts=[genai_types.Part(text="Hello")]),
+        responses=[
+            agentplatform_genai_types.ResponseCandidate(
+                response=genai_types.Content(parts=[genai_types.Part(text="Hi")])
+            )
+        ],
+    )
+    _HANDLER_METRICS = [
+        agentplatform_genai_types.Metric(name="final_response_quality_v1"),
+        agentplatform_genai_types.LLMMetric(
+            name="tone", prompt_template="Rate the tone of {response}."
+        ),
+        agentplatform_genai_types.Metric(
+            name="registered_metric",
+            metric_resource_name=(
+                "projects/123/locations/us-central1/evaluationMetrics/456"
+            ),
+        ),
+    ]
+    _HANDLER_IDS = ["predefined", "llm", "registered"]
+
+    def setup_method(self):
+        _evals_metric_loaders.LazyLoadedPrebuiltMetric._cache.clear()
+
+    def teardown_method(self):
+        _evals_metric_loaders.LazyLoadedPrebuiltMetric._cache.clear()
+
+    @staticmethod
+    def _mock_api_client():
+        api_client = mock.MagicMock()
+        api_client.vertexai = True
+        api_client.request.return_value.body = json.dumps(
+            {"metricResults": [{"score": 1.0}]}
+        )
+        return api_client
+
+    def test_t_metrics_sends_step_autorater_configs(self):
+        metric = agentplatform_genai_types.Metric(
+            name="final_response_quality_v1",
+            judge_model_step_configs=self._STEP_CONFIGS,
+        )
+
+        payload = _transformers.t_metrics([metric])[0]
+
+        assert (
+            payload["predefined_metric_spec"]["step_autorater_configs"]
+            == self._STEP_CONFIGS
+        )
+
+    def test_t_metrics_omits_step_autorater_configs_by_default(self):
+        metric = agentplatform_genai_types.Metric(name="final_response_quality_v1")
+
+        payload = _transformers.t_metrics([metric])[0]
+
+        assert "step_autorater_configs" not in payload["predefined_metric_spec"]
+
+    def test_predefined_handler_sends_step_configs_and_cross_region_flag(self):
+        api_client = self._mock_api_client()
+        metric = agentplatform_genai_types.Metric(
+            name="final_response_quality_v1",
+            judge_model_step_configs=self._STEP_CONFIGS,
+        )
+        handler = _evals_metric_handlers.get_handler_for_metric(
+            evals.Evals(api_client_=api_client),
+            metric,
+            allow_cross_region_model=True,
+        )
+
+        result = handler.get_metric_result(self._EVAL_CASE, response_index=0)
+
+        assert result.score == 1.0
+        request_body = api_client.request.call_args[0][2]
+        assert request_body["allowCrossRegionModel"] is True
+        assert request_body["metrics"][0]["predefined_metric_spec"][
+            "step_autorater_configs"
+        ] == {"rubric_validation": {"autorater_model": "claude-sonnet-4-5"}}
+
+    @pytest.mark.parametrize("metric", _HANDLER_METRICS, ids=_HANDLER_IDS)
+    def test_handlers_send_cross_region_flag(self, metric):
+        api_client = self._mock_api_client()
+        handler = _evals_metric_handlers.get_handler_for_metric(
+            evals.Evals(api_client_=api_client),
+            metric,
+            allow_cross_region_model=True,
+        )
+
+        result = handler.get_metric_result(self._EVAL_CASE, response_index=0)
+
+        assert result.score == 1.0
+        assert api_client.request.call_args[0][2]["allowCrossRegionModel"] is True
+
+    @pytest.mark.parametrize("metric", _HANDLER_METRICS, ids=_HANDLER_IDS)
+    def test_handlers_omit_cross_region_flag_by_default(self, metric):
+        api_client = self._mock_api_client()
+        handler = _evals_metric_handlers.get_handler_for_metric(
+            evals.Evals(api_client_=api_client), metric
+        )
+
+        result = handler.get_metric_result(self._EVAL_CASE, response_index=0)
+
+        assert result.score == 1.0
+        assert "allowCrossRegionModel" not in api_client.request.call_args[0][2]
+
+    @pytest.mark.usefixtures("mock_eval_dependencies")
+    def test_execute_evaluation_passes_cross_region_flag(self, mock_api_client_fixture):
+        with mock.patch.object(
+            _evals_metric_handlers,
+            "compute_metrics_and_aggregate",
+            side_effect=RuntimeError("stop"),
+        ) as mock_compute:
+            with pytest.raises(RuntimeError):
+                _evals_common._execute_evaluation(
+                    api_client=mock_api_client_fixture,
+                    dataset=agentplatform_genai_types.EvaluationDataset(
+                        eval_dataset_df=pd.DataFrame(
+                            [{"prompt": "p1", "response": "r1"}]
+                        )
+                    ),
+                    metrics=[agentplatform_genai_types.Metric(name="exact_match")],
+                    allow_cross_region_model=True,
+                )
+
+        assert mock_compute.call_args.kwargs["allow_cross_region_model"] is True
+
+    def test_compute_metrics_passes_cross_region_flag_to_handlers(self):
+        run_config = _evals_metric_handlers.EvaluationRunConfig(
+            evals_module=evals.Evals(api_client_=mock.MagicMock()),
+            dataset=agentplatform_genai_types.EvaluationDataset(eval_cases=[]),
+            metrics=[
+                agentplatform_genai_types.Metric(name="final_response_quality_v1")
+            ],
+            num_response_candidates=1,
+        )
+
+        with mock.patch.object(
+            _evals_metric_handlers,
+            "get_handler_for_metric",
+            side_effect=RuntimeError("stop"),
+        ) as mock_get_handler:
+            with pytest.raises(RuntimeError):
+                _evals_metric_handlers.compute_metrics_and_aggregate(
+                    run_config, allow_cross_region_model=True
+                )
+
+        assert mock_get_handler.call_args.kwargs["allow_cross_region_model"] is True
+
+    @mock.patch.object(_evals_common, "_execute_evaluation")
+    def test_evaluate_passes_allow_cross_region_model(self, mock_execute_evaluation):
+        evals.Evals(api_client_=mock.MagicMock()).evaluate(
+            dataset=agentplatform_genai_types.EvaluationDataset(
+                eval_dataset_df=pd.DataFrame([{"prompt": "p1", "response": "r1"}])
+            ),
+            metrics=[
+                agentplatform_genai_types.Metric(name="final_response_quality_v1")
+            ],
+            config={"allow_cross_region_model": True},
+        )
+
+        _, kwargs = mock_execute_evaluation.call_args
+        assert kwargs["allow_cross_region_model"] is True
+
+    @mock.patch.object(_evals_metric_handlers.logger, "warning")
+    def test_judge_model_warning_only_for_multi_turn_metrics(self, mock_warning):
+        module = evals.Evals(api_client_=mock.MagicMock())
+
+        _evals_metric_handlers.PredefinedMetricHandler(
+            module=module,
+            metric=agentplatform_genai_types.Metric(
+                name="final_response_quality_v1", judge_model="gemini-2.5-pro"
+            ),
+        )
+        mock_warning.assert_not_called()
+
+        _evals_metric_handlers.PredefinedMetricHandler(
+            module=module,
+            metric=agentplatform_genai_types.Metric(
+                name="multi_turn_task_success_v1", judge_model="gemini-2.5-pro"
+            ),
+        )
+        mock_warning.assert_called_once()
+
+    def test_resolve_evaluation_run_metrics_sends_metric_spec_parameters(self):
+        metric = _evals_metric_loaders.RubricMetric.FINAL_RESPONSE_QUALITY(
+            metric_spec_parameters={"guidelines": "Be concise."}
+        )
+
+        resolved = _evals_common._resolve_evaluation_run_metrics(
+            [metric], api_client=mock.MagicMock()
+        )
+
+        predefined_spec = resolved[0].metric_config.predefined_metric_spec
+        assert predefined_spec.metric_spec_name == "final_response_quality_v1"
+        assert predefined_spec.metric_spec_parameters == {"guidelines": "Be concise."}
+
+    @pytest.mark.parametrize(
+        "metric",
+        [
+            _evals_metric_loaders.RubricMetric.FINAL_RESPONSE_QUALITY(
+                judge_model_step_configs=_STEP_CONFIGS
+            ),
+            agentplatform_genai_types.Metric(
+                name="final_response_quality_v1",
+                judge_model_step_configs=_STEP_CONFIGS,
+            ),
+        ],
+        ids=["rubric_metric", "metric"],
+    )
+    def test_resolve_evaluation_run_metrics_step_configs(self, metric):
+        # google-genai gets the field once it is public in the discovery doc.
+        if "step_autorater_configs" in genai_types.PredefinedMetricSpec.model_fields:
+            resolved = _evals_common._resolve_evaluation_run_metrics(
+                [metric], api_client=mock.MagicMock()
+            )
+            predefined_spec = resolved[0].metric_config.predefined_metric_spec
+            assert predefined_spec.step_autorater_configs == self._STEP_CONFIGS
+        else:
+            with pytest.raises(
+                pydantic.ValidationError, match="step_autorater_configs"
+            ):
+                _evals_common._resolve_evaluation_run_metrics(
+                    [metric], api_client=mock.MagicMock()
+                )
+
+    def test_rubric_metric_overrides_bypass_shared_cache(self):
+        api_client = mock.MagicMock()
+        rubric_metric = _evals_metric_loaders.RubricMetric
+
+        default_metric = rubric_metric.FINAL_RESPONSE_QUALITY.resolve(api_client)
+        overridden_metric = rubric_metric.FINAL_RESPONSE_QUALITY(
+            judge_model_step_configs=self._STEP_CONFIGS
+        ).resolve(api_client)
+        default_again = rubric_metric.FINAL_RESPONSE_QUALITY.resolve(api_client)
+
+        assert default_metric.judge_model_step_configs is None
+        assert overridden_metric.judge_model_step_configs == self._STEP_CONFIGS
+        assert default_again.judge_model_step_configs is None
 
 
 _TEST_INTERACTION = (

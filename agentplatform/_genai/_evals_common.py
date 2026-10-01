@@ -2886,6 +2886,21 @@ def _resolve_dataset_inputs(
     return processed_eval_dataset, num_response_candidates
 
 
+def _prebuilt_evaluation_run_metric(
+    resolved_metric: types.Metric,
+) -> types.EvaluationRunMetric:
+    """Builds the evaluation run metric for a resolved RubricMetric."""
+    if resolved_metric.name in _evals_constant.SUPPORTED_PREDEFINED_METRICS:
+        metric_config = t.t_metrics([resolved_metric])[0]
+    else:
+        metric_config = {
+            "predefined_metric_spec": {"metric_spec_name": resolved_metric.name}
+        }
+    return types.EvaluationRunMetric(
+        metric=resolved_metric.name, metric_config=metric_config
+    )
+
+
 def _resolve_evaluation_run_metrics(
     metrics: Union[list[types.EvaluationRunMetric], list[types.Metric]], api_client: Any
 ) -> list[types.EvaluationRunMetric]:
@@ -2903,14 +2918,7 @@ def _resolve_evaluation_run_metrics(
                 resolved_metric = metric_instance.resolve(api_client=api_client)
                 if resolved_metric.name:
                     resolved_metrics_list.append(
-                        types.EvaluationRunMetric(
-                            metric=resolved_metric.name,
-                            metric_config=types.UnifiedMetric(
-                                predefined_metric_spec=genai_types.PredefinedMetricSpec(
-                                    metric_spec_name=resolved_metric.name,
-                                )
-                            ),
-                        )
+                        _prebuilt_evaluation_run_metric(resolved_metric)
                     )
             except Exception as e:
                 logger.error(
@@ -2944,14 +2952,7 @@ def _resolve_evaluation_run_metrics(
                     )
                     if resolved_metric.name:
                         resolved_metrics_list.append(
-                            types.EvaluationRunMetric(
-                                metric=resolved_metric.name,
-                                metric_config=types.UnifiedMetric(
-                                    predefined_metric_spec=genai_types.PredefinedMetricSpec(
-                                        metric_spec_name=resolved_metric.name,
-                                    )
-                                ),
-                            )
+                            _prebuilt_evaluation_run_metric(resolved_metric)
                         )
                 else:
                     raise TypeError(
@@ -3020,6 +3021,7 @@ def _execute_evaluation(  # type: ignore[no-untyped-def]
     dest: Optional[str] = None,
     location: Optional[str] = None,
     evaluation_service_qps: Optional[float] = None,
+    allow_cross_region_model: Optional[bool] = None,
     **kwargs,
 ) -> types.EvaluationResult:
     """Evaluates a dataset using the provided metrics.
@@ -3035,6 +3037,8 @@ def _execute_evaluation(  # type: ignore[no-untyped-def]
         evaluation_service_qps: The rate limit (queries per second) for calls
           to the evaluation service. Defaults to 10. Increase this value if
           your project has a higher EvaluateInstances API quota.
+        allow_cross_region_model: Opt-in flag to authorize cross-region
+          routing for judge models.
         **kwargs: Extra arguments to pass to evaluation, such as `agent_info`.
 
     Returns:
@@ -3117,6 +3121,7 @@ def _execute_evaluation(  # type: ignore[no-untyped-def]
     evaluation_result = _evals_metric_handlers.compute_metrics_and_aggregate(
         evaluation_run_config,
         evaluation_service_qps=evaluation_service_qps,
+        allow_cross_region_model=allow_cross_region_model,
     )
     t2 = time.perf_counter()
     logger.info("Evaluation took: %f seconds", t2 - t1)

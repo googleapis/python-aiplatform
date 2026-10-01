@@ -16,7 +16,42 @@
 
 from tests.unit.agentplatform.genai.replays import pytest_helper
 from agentplatform import types
+from google.genai import types as genai_types
 import pandas as pd
+
+# Per-step judge tests are recorded against staging, whose API config already
+# has the final step_autorater_configs shape.
+_STAGING_BASE_URL = "https://us-central1-staging-aiplatform.sandbox.googleapis.com/"
+
+
+def _haiku_dataset() -> types.EvaluationDataset:
+    return types.EvaluationDataset(
+        eval_dataset_df=pd.DataFrame(
+            {
+                "prompt": ["Write a haiku about the ocean. Use exactly three lines."],
+                "response": [
+                    "Waves fold into foam\nsalt wind carries gull voices\nthe"
+                    " tide keeps its time"
+                ],
+            }
+        ),
+        candidate_name="gemini-2.5-flash",
+    )
+
+
+def _assert_metric_succeeded(
+    evaluation_result: types.EvaluationResult, metric_name: str
+) -> None:
+    assert isinstance(evaluation_result, types.EvaluationResult)
+    summary = evaluation_result.summary_metrics[0]
+    assert summary.metric_name == metric_name
+    assert summary.num_cases_error == 0
+    candidate_result = evaluation_result.eval_case_results[
+        0
+    ].response_candidate_results[0]
+    metric_result = candidate_result.metric_results[metric_name]
+    assert metric_result.error_message is None
+    assert metric_result.rubric_verdicts
 
 
 def test_evaluation_result(client):
@@ -137,6 +172,54 @@ def test_predefined_metric_with_judge_model_ignores_autorater_config(client):
     assert isinstance(evaluation_result, types.EvaluationResult)
     assert evaluation_result.summary_metrics is not None
     assert evaluation_result.summary_metrics[0].metric_name == "safety_v1"
+
+
+def test_predefined_metric_with_judge_model_step_configs(client):
+    """Tests that evaluate() sends per-step judges for a predefined metric."""
+    client._api_client._http_options.base_url = _STAGING_BASE_URL
+    model_prefix = (
+        f"projects/{client._api_client.project}/locations/"
+        f"{client._api_client.location}/publishers/google/models"
+    )
+    metric = types.RubricMetric.INSTRUCTION_FOLLOWING(
+        judge_model_step_configs={
+            "rubric_generation": genai_types.AutoraterConfig(
+                autorater_model=f"{model_prefix}/gemini-2.5-pro"
+            ),
+            "rubric_validation": genai_types.AutoraterConfig(
+                autorater_model=f"{model_prefix}/gemini-2.5-flash"
+            ),
+        }
+    )
+
+    evaluation_result = client.evals.evaluate(
+        dataset=_haiku_dataset(), metrics=[metric]
+    )
+
+    _assert_metric_succeeded(evaluation_result, "instruction_following_v1")
+
+
+def test_partner_step_judge_with_allow_cross_region_model(client):
+    """Tests a partner step judge served from another region."""
+    client._api_client._http_options.base_url = _STAGING_BASE_URL
+    metric = types.RubricMetric.INSTRUCTION_FOLLOWING(
+        judge_model_step_configs={
+            "rubric_validation": genai_types.AutoraterConfig(
+                autorater_model=(
+                    f"projects/{client._api_client.project}/locations/us-east5"
+                    "/publishers/anthropic/models/claude-sonnet-4-5"
+                )
+            ),
+        }
+    )
+
+    evaluation_result = client.evals.evaluate(
+        dataset=_haiku_dataset(),
+        metrics=[metric],
+        config={"allow_cross_region_model": True},
+    )
+
+    _assert_metric_succeeded(evaluation_result, "instruction_following_v1")
 
 
 def test_multi_turn_predefined_metric(client):

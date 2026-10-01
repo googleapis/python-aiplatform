@@ -392,6 +392,13 @@ def _EvaluateInstancesRequestParameters_to_vertex(
             ],
         )
 
+    if getv(from_object, ["allow_cross_region_model"]) is not None:
+        setv(
+            to_object,
+            ["allowCrossRegionModel"],
+            getv(from_object, ["allow_cross_region_model"]),
+        )
+
     if getv(from_object, ["config"]) is not None:
         setv(to_object, ["config"], getv(from_object, ["config"]))
 
@@ -1935,6 +1942,7 @@ class Evals(_api_module.BaseModule):
         metrics: Optional[list[types.MetricOrDict]] = None,
         instance: Optional[types.EvaluationInstanceOrDict] = None,
         metric_sources: Optional[list[types.MetricSourceOrDict]] = None,
+        allow_cross_region_model: Optional[bool] = None,
         config: Optional[types.EvaluateInstancesConfigOrDict] = None,
     ) -> types.EvaluateInstancesResponse:
         """
@@ -1956,6 +1964,7 @@ class Evals(_api_module.BaseModule):
             metrics=metrics,
             instance=instance,
             metric_sources=metric_sources,
+            allow_cross_region_model=allow_cross_region_model,
             config=config,
         )
 
@@ -3171,6 +3180,8 @@ class Evals(_api_module.BaseModule):
             - evaluation_service_qps: The rate limit (queries per second) for
               calls to the evaluation service. Defaults to 10. Increase this
               value if your project has a higher EvaluateInstances API quota.
+            - allow_cross_region_model: Opt-in flag to authorize cross-region
+              routing for judge models.
           **kwargs: Extra arguments to pass to evaluation, such as `agent_info`.
 
         Returns:
@@ -3214,6 +3225,7 @@ class Evals(_api_module.BaseModule):
             dest=config.dest,
             location=location,
             evaluation_service_qps=getattr(config, "evaluation_service_qps", None),
+            allow_cross_region_model=getattr(config, "allow_cross_region_model", None),
             **kwargs,
         )
 
@@ -4944,6 +4956,7 @@ class AsyncEvals(_api_module.BaseModule):
         metrics: Optional[list[types.MetricOrDict]] = None,
         instance: Optional[types.EvaluationInstanceOrDict] = None,
         metric_sources: Optional[list[types.MetricSourceOrDict]] = None,
+        allow_cross_region_model: Optional[bool] = None,
         config: Optional[types.EvaluateInstancesConfigOrDict] = None,
     ) -> types.EvaluateInstancesResponse:
         """
@@ -4965,6 +4978,7 @@ class AsyncEvals(_api_module.BaseModule):
             metrics=metrics,
             instance=instance,
             metric_sources=metric_sources,
+            allow_cross_region_model=allow_cross_region_model,
             config=config,
         )
 
