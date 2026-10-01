@@ -7260,7 +7260,7 @@ class TestBuildEvaluationInstance:
                 )
             ),
             custom_context="Custom context value.",
-            extra_field_not_in_template="This should be excluded.",
+            extra_field_not_in_template="Sent even though the template omits it.",
             eval_case_id="case-123",
         )
 
@@ -7286,7 +7286,94 @@ class TestBuildEvaluationInstance:
             .text
             == "Custom context value."
         )
-        assert "extra_field_not_in_template" not in instance.other_data.map_instance
+        assert (
+            instance.other_data.map_instance["extra_field_not_in_template"]
+            .contents.contents[0]
+            .parts[0]
+            .text
+            == "Sent even though the template omits it."
+        )
+
+    def _custom_field_case(self, **fields):
+        return agentplatform_genai_types.EvalCase(
+            prompt=genai_types.Content(parts=[genai_types.Part(text="p")]),
+            responses=[
+                agentplatform_genai_types.ResponseCandidate(
+                    response=genai_types.Content(parts=[genai_types.Part(text="r")])
+                )
+            ],
+            **fields,
+        )
+
+    @staticmethod
+    def _other_data_texts(instance):
+        if not instance.other_data:
+            return {}
+        return {
+            key: value.text or value.contents.contents[0].parts[0].text
+            for key, value in instance.other_data.map_instance.items()
+        }
+
+    def test_build_evaluation_instance_sends_custom_fields_without_template(self):
+        eval_case = self._custom_field_case(
+            golden_schema="CREATE TABLE t", missing_value=float("nan")
+        )
+        instance = _evals_metric_handlers._build_evaluation_instance(
+            eval_case, eval_case.responses[0].response
+        )
+        assert self._other_data_texts(instance) == {"golden_schema": "CREATE TABLE t"}
+
+    def test_build_evaluation_instance_excludes_unreferenced_schema_fields(self):
+        """Tests that schema fields are sent only when a template references them."""
+        eval_case = self._custom_field_case(
+            system_instruction=genai_types.Content(
+                parts=[genai_types.Part(text="sys")]
+            ),
+            intermediate_events=[
+                agentplatform_genai_types.evals.Event(
+                    content=genai_types.Content(parts=[genai_types.Part(text="e")])
+                )
+            ],
+            agent_info=agentplatform_genai_types.evals.AgentInfo(name="agent"),
+            rubric_groups={},
+            golden_schema="CREATE TABLE t",
+        )
+        instance = _evals_metric_handlers._build_evaluation_instance(
+            eval_case, eval_case.responses[0].response, prompt_template="{prompt}"
+        )
+        assert self._other_data_texts(instance) == {"golden_schema": "CREATE TABLE t"}
+
+    def test_build_evaluation_instance_template_paths(self):
+        """Tests dotted custom-field paths and schema-field template variables."""
+        eval_case = self._custom_field_case(
+            user_scenario=agentplatform_genai_types.evals.UserScenario(
+                starting_prompt="start", conversation_plan="plan"
+            ),
+            metadata={"user_id": "u1"},
+        )
+        instance = _evals_metric_handlers._build_evaluation_instance(
+            eval_case,
+            eval_case.responses[0].response,
+            prompt_template="{metadata.user_id} {user_scenario}",
+        )
+        other_data = self._other_data_texts(instance)
+        assert other_data["metadata"] == '{"user_id": "u1"}'
+        assert "start" in other_data["user_scenario"]
+
+    def test_custom_code_execution_metric_sends_custom_fields(self):
+        metric = agentplatform_genai_types.Metric(
+            name="code_metric",
+            remote_custom_function="def evaluate(instance):\n  return 1.0",
+        )
+        handler = _evals_metric_handlers.CustomCodeExecutionMetricHandler(
+            module=self.mock_evals_module, metric=metric
+        )
+        payload = handler._build_request_payload(
+            self._custom_field_case(golden_schema="CREATE TABLE t"), 0
+        )
+        assert self._other_data_texts(payload["instance"]) == {
+            "golden_schema": "CREATE TABLE t"
+        }
 
     def test_build_evaluation_instance_various_field_types(self):
         metric = agentplatform_genai_types.LLMMetric(
