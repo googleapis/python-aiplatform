@@ -242,7 +242,7 @@ class State(_common.CaseInSensitiveEnum):
 
 
 class MemoryType(_common.CaseInSensitiveEnum):
-    """The type of the memory."""
+    """Represents the type of the memory. If not set, the `NATURAL_LANGUAGE_COLLECTION` type is used. If `STRUCTURED_COLLECTION` or `STRUCTURED_PROFILE` is used, then `structured_data` must be provided."""
 
     MEMORY_TYPE_UNSPECIFIED = "MEMORY_TYPE_UNSPECIFIED"
     """Represents an unspecified memory type. This value should not be used."""
@@ -489,14 +489,14 @@ class QuotaState(_common.CaseInSensitiveEnum):
 
 
 class FeedbackType(_common.CaseInSensitiveEnum):
-    """The type of the feedback."""
+    """The coarse-grained type of feedback provided by the user. Must be set to a value other than `FEEDBACK_TYPE_UNSPECIFIED`."""
 
     FEEDBACK_TYPE_UNSPECIFIED = "FEEDBACK_TYPE_UNSPECIFIED"
-    """Default value."""
+    """This is the default value meaning the type has not been set."""
     THUMBS_UP = "THUMBS_UP"
-    """Indicates positive feedback (e.g., a "thumbs up")."""
+    """Indicates positive feedback."""
     THUMBS_DOWN = "THUMBS_DOWN"
-    """Indicates a thumbs down feedback (e.g., a "thumbs down")."""
+    """Indicates negative feedback."""
 
 
 class Encoding(_common.CaseInSensitiveEnum):
