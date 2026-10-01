@@ -17,6 +17,7 @@
 from tests.unit.agentplatform.genai.replays import pytest_helper
 from agentplatform import types
 from agentplatform._genai import _evals_common
+from agentplatform._genai import _gcs_utils
 from google.genai import types as genai_types
 import pandas as pd
 import pytest
@@ -351,6 +352,65 @@ def test_create_eval_run_with_metric_resource_name(
     )
     assert isinstance(evaluation_run, types.EvaluationRun)
     assert evaluation_run.evaluation_config.metrics[0].metric == "my_custom_metric"
+
+
+# Recorded against staging in ucaip-e2e-test, whose bucket the staging service
+# agent can read; staging runs the extra_context backend changes.
+@mock.patch.object(
+    _evals_common, "_local_timestamp", return_value="1/1/2026, 12:00:00 AM"
+)
+@mock.patch("uuid.uuid4")
+def test_create_eval_run_with_extra_context(
+    mock_uuid4, unused_mock_local_timestamp, client
+):
+    """Tests that custom dataframe columns are sent as extra_context."""
+    mock_uuid4.return_value = uuid.UUID("5f0e8a2c-6a1b-4c3d-9e7f-1a2b3c4d5e6f")
+    client._api_client._http_options.api_version = "v1beta1"
+    client._api_client._http_options.base_url = (
+        "https://us-central1-staging-aiplatform.sandbox.googleapis.com/"
+    )
+    schema_metric = types.EvaluationRunMetric(
+        metric="schema_check",
+        metric_config=types.UnifiedMetric(
+            llm_based_metric_spec=genai_types.LLMBasedMetricSpec(
+                metric_prompt_template=(
+                    "Schema: {golden_schema}\nResponse: {response}\nScore 1 if the"
+                    " response only uses tables defined in the schema, else 0."
+                    ' Reply with a JSON object with keys "score" and'
+                    ' "explanation".'
+                )
+            )
+        ),
+    )
+    with mock.patch.object(
+        _gcs_utils.GcsUtils,
+        "upload_json_to_prefix",
+        autospec=True,
+        side_effect=_gcs_utils.GcsUtils.upload_json_to_prefix,
+    ) as mock_upload:
+        evaluation_run = client.evals.create_evaluation_run(
+            dataset=types.EvaluationDataset(
+                eval_dataset_df=pd.DataFrame(
+                    {
+                        "prompt": ["List the ids of all users."],
+                        "response": ["SELECT id FROM users"],
+                        "golden_schema": ["CREATE TABLE users (id INT, name STRING)"],
+                    }
+                )
+            ),
+            metrics=[schema_metric],
+            dest="gs://eval-task-e2e-test/sdk_extra_context",
+        )
+    uploaded_request = mock_upload.call_args.kwargs["data"]
+    assert uploaded_request["extraContext"] == {
+        "golden_schema": {
+            "parts": [{"text": "CREATE TABLE users (id INT, name STRING)"}]
+        }
+    }
+    assert isinstance(evaluation_run, types.EvaluationRun)
+    assert evaluation_run.state == types.EvaluationRunState.PENDING
+    assert evaluation_run.error is None
+    assert evaluation_run.evaluation_config.metrics[0].metric == "schema_check"
 
 
 # Dataframe tests fail in replay mode because of UUID generation mismatch.

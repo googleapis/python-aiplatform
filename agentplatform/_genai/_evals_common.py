@@ -4114,6 +4114,40 @@ def _get_content(row: dict[str, Any], column: str) -> Optional[genai_types.Conte
         )
 
 
+# Columns mapped to EvaluationItemRequest fields; all others go to extra_context.
+_EVALUATION_SET_STANDARD_COLUMNS = _evals_constant.COMMON_DATASET_COLUMNS | {
+    _evals_constant.RESPONSE,
+    "interaction",
+    "gemini_agent",
+}
+
+
+def _is_missing(value: Any) -> bool:
+    return value is None or (pd.api.types.is_scalar(value) and pd.isna(value))
+
+
+def _to_extra_context_content(value: Any) -> Optional[genai_types.Content]:
+    if isinstance(value, str):
+        return genai_types.Content(parts=[genai_types.Part(text=value)])
+    if isinstance(value, genai_types.Content):
+        return value
+    parts = []
+    for content in _evals_metric_handlers._value_to_content_list(value):
+        parts.extend(content.parts or [])
+    return genai_types.Content(parts=parts) if parts else None
+
+
+def _get_extra_context(row: "pd.Series") -> Optional[dict[str, genai_types.Content]]:
+    extra_context = {}
+    for column, value in row.items():
+        if column in _EVALUATION_SET_STANDARD_COLUMNS or _is_missing(value):
+            continue
+        content = _to_extra_context_content(value)
+        if content:
+            extra_context[str(column)] = content
+    return extra_context or None
+
+
 def _create_evaluation_set_from_dataframe(
     api_client: BaseApiClient,
     gcs_dest_prefix: str,
@@ -4236,6 +4270,7 @@ def _create_evaluation_set_from_dataframe(
                 candidate_responses=(
                     candidate_responses if candidate_responses else None
                 ),
+                extra_context=_get_extra_context(row),
             )
         )
     logger.info("Writing evaluation item requests to GCS.")
