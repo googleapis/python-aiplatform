@@ -35,6 +35,7 @@ from typing import (
 )
 from google.genai import _common
 from google.genai import types as genai_types
+import pydantic
 from pydantic import (
     ConfigDict,
     Field,
@@ -3129,6 +3130,32 @@ class EvaluationDataset(_common.BaseModel):
                     " google-cloud-aiplatform[evaluation]`."
                 )
         return data
+
+    @field_validator("eval_dataset_df", mode="before")
+    @classmethod
+    def _eval_dataset_df_from_records(cls, value: Any) -> Any:
+        if pd is not None and isinstance(value, list):
+            return pd.DataFrame(value)
+        return value
+
+    @pydantic.field_serializer("eval_dataset_df", when_used="json")
+    def _eval_dataset_df_to_records(self, value: Any) -> Any:
+        if pd is None or not isinstance(value, pd.DataFrame):
+            return value
+        import numpy as np
+
+        def to_serializable(item: Any) -> Any:
+            if isinstance(item, dict):
+                return {key: to_serializable(val) for key, val in item.items()}
+            if isinstance(item, (list, tuple, np.ndarray, pd.Series)):
+                return [to_serializable(val) for val in item]
+            if isinstance(item, np.datetime64):
+                item = pd.Timestamp(item)
+            elif isinstance(item, np.generic):
+                return item.item()
+            return None if item is pd.NaT or item is pd.NA else item
+
+        return to_serializable(value.to_dict(orient="records"))
 
     @classmethod
     def load_from_observability_eval_cases(

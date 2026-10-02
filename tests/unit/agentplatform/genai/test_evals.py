@@ -44,11 +44,18 @@ from agentplatform._genai import (
     types as agentplatform_genai_types,
 )
 from agentplatform._genai.types import common as common_types
+from vertexai._genai import (
+    _evals_visualization as vertexai_evals_visualization,
+)
+from vertexai._genai import evals as vertexai_evals
+from vertexai._genai import types as vertexai_genai_types
 from google.genai import client
 from google.genai import errors as genai_errors
 from google.genai import types as genai_types
+import numpy as np
 import pandas as pd
 import pydantic
+import pydantic_core
 import pytest
 
 _TEST_PROJECT = "test-project"
@@ -2270,6 +2277,48 @@ class TestEvals:
         assert kwargs["agent_info"] == agent_info
 
 
+class TestRubricVerdict:
+
+    @pytest.mark.parametrize(
+        "evals_module", [evals, vertexai_evals], ids=["agent_platform", "vertexai"]
+    )
+    def test_evaluate_instances_missing_verdict_is_false(self, evals_module):
+        api_client = mock.MagicMock()
+        api_client.vertexai = True
+        api_client.request.return_value.body = json.dumps(
+            {
+                "metricResults": [
+                    {
+                        "score": 0.5,
+                        "rubricVerdicts": [
+                            {
+                                "evaluatedRubric": {
+                                    "content": {
+                                        "property": {"description": "In English."}
+                                    }
+                                },
+                                "verdict": True,
+                            },
+                            {
+                                "evaluatedRubric": {
+                                    "content": {
+                                        "property": {"description": "One sentence."}
+                                    }
+                                },
+                                "reasoning": "The response has two sentences.",
+                            },
+                        ],
+                    }
+                ]
+            }
+        )
+
+        response = evals_module.Evals(api_client_=api_client)._evaluate_instances()
+
+        verdicts = response.metric_results[0].rubric_verdicts
+        assert [verdict.verdict for verdict in verdicts] == [True, False]
+
+
 class TestEvalsVisualization:
     # fmt: off
     @mock.patch(
@@ -2406,6 +2455,31 @@ class TestEvalsVisualization:
 
         del sys.modules["IPython"]
         del sys.modules["IPython.display"]
+
+    @pytest.mark.parametrize(
+        "visualization_module",
+        [_evals_visualization, vertexai_evals_visualization],
+        ids=["agent_platform", "vertexai"],
+    )
+    @mock.patch.dict(sys.modules, {"IPython": mock.MagicMock()})
+    def test_display_evaluation_result_logs_serialization_error(
+        self, visualization_module
+    ):
+        eval_result = mock.Mock()
+        eval_result.model_dump.side_effect = pydantic_core.PydanticSerializationError(
+            "bad value"
+        )
+
+        with (
+            mock.patch.object(
+                visualization_module, "_is_ipython_env", return_value=True
+            ),
+            mock.patch.object(visualization_module, "logger") as mock_logger,
+        ):
+            visualization_module.display_evaluation_result(eval_result)
+
+        mock_logger.error.assert_called_once()
+        assert "Serialization Error" in mock_logger.error.call_args[0][0]
 
 
 class TestEvalsRunInference:
@@ -9441,6 +9515,78 @@ _ADK_EVAL_SET = {
 
 class TestEvaluationDataset:
     """Contains set of tests for the EvaluationDataset class methods."""
+
+    @pytest.mark.parametrize(
+        "types_module",
+        [agentplatform_genai_types, vertexai_genai_types],
+        ids=["agent_platform", "vertexai"],
+    )
+    def test_evaluation_dataset_json_with_arrays_missing_values_and_models(
+        self, types_module
+    ):
+        df = pd.DataFrame(
+            {
+                "tool_names": [
+                    np.array(["search", "book"]),
+                    np.array([], dtype=object),
+                ],
+                "created_at": pd.to_datetime(["2026-10-02T10:00:00Z", None]),
+                "metadata": [{"turn": np.int64(3)}, None],
+                "score": [0.1 + 0.2, float("nan")],
+                "response": [
+                    genai_types.Content(parts=[genai_types.Part(text="r1")]),
+                    None,
+                ],
+            }
+        )
+
+        records = json.loads(
+            types_module.EvaluationDataset(eval_dataset_df=df).model_dump_json(
+                exclude_none=True
+            )
+        )["eval_dataset_df"]
+
+        assert records == [
+            {
+                "tool_names": ["search", "book"],
+                "created_at": "2026-10-02T10:00:00Z",
+                "metadata": {"turn": 3},
+                "score": 0.30000000000000004,
+                "response": {"parts": [{"text": "r1"}]},
+            },
+            {
+                "tool_names": [],
+                "created_at": None,
+                "metadata": None,
+                "score": None,
+                "response": None,
+            },
+        ]
+
+    @pytest.mark.parametrize(
+        "types_module",
+        [agentplatform_genai_types, vertexai_genai_types],
+        ids=["agent_platform", "vertexai"],
+    )
+    def test_evaluation_result_with_dataframe_json_round_trip(self, types_module):
+        df = pd.DataFrame([{"prompt": "p1", "response": "r1"}])
+        result = types_module.EvaluationResult(
+            evaluation_dataset=[types_module.EvaluationDataset(eval_dataset_df=df)]
+        )
+
+        result_json = result.model_dump_json()
+        restored = types_module.EvaluationResult.model_validate_json(result_json)
+
+        assert json.loads(result_json)["evaluation_dataset"][0]["eval_dataset_df"] == [
+            {"prompt": "p1", "response": "r1"}
+        ]
+        pd.testing.assert_frame_equal(
+            restored.evaluation_dataset[0].eval_dataset_df, df
+        )
+        assert isinstance(
+            result.model_dump()["evaluation_dataset"][0]["eval_dataset_df"],
+            pd.DataFrame,
+        )
 
     def test_load_from_adk_eval_set_file(self, tmp_path):
         path = tmp_path / "home_automation.evalset.json"

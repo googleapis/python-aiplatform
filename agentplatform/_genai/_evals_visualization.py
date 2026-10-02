@@ -23,7 +23,7 @@ import textwrap
 from typing import Any, Optional
 
 import pandas as pd
-from pydantic import errors
+import pydantic_core
 
 from . import _evals_common
 from . import types
@@ -1466,7 +1466,7 @@ def display_evaluation_result(
         result_dump = eval_result_obj.model_dump(
             mode="json", exclude_none=True, exclude={"evaluation_dataset"}
         )
-    except errors.PydanticSerializationError as e:
+    except pydantic_core.PydanticSerializationError as e:
         logger.error(
             "Serialization Error: %s\nCould not display the evaluation "
             "result due to a data serialization issue. Please check the "
