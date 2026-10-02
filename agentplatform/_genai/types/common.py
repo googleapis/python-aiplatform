@@ -3182,6 +3182,60 @@ class EvaluationDataset(_common.BaseModel):
 
         return EvaluationDataset(eval_dataset_df=eval_dataset_df)
 
+    @classmethod
+    def load_from_adk_eval_set(
+        cls, eval_set: Union[str, "os.PathLike[str]", dict[str, Any]]
+    ) -> "EvaluationDataset":
+        """Loads an ADK eval set (`.evalset.json`) into an EvaluationDataset.
+
+        Each ADK eval case becomes an EvalCase with `eval_case_id` set to its
+        `eval_id`. For a static conversation, the last invocation's user content
+        becomes `prompt` and its final response becomes `reference`. Earlier
+        invocations, including their tool calls, become `conversation_history`.
+        A conversation scenario becomes `user_scenario`. Rubrics on the case and
+        on the last invocation go into `rubric_groups`, keyed by rubric type
+        ("adk_rubrics" when unset).
+
+        Some ADK data is kept as EvalCase extra fields: `reference_trajectory`
+        holds the tool calls of the last invocation, `session_inputs` holds the
+        session input, and custom ADK eval case fields keep their names. Other ADK
+        fields, such as `final_session_state` and the scenario's `user_persona`,
+        are not carried over. Steps that convert eval cases to a DataFrame, such
+        as `run_inference`, drop the extra fields, `rubric_groups` and
+        `eval_case_id`. google-adk does not need to be installed.
+
+        Example:
+            import agentplatform
+            from agentplatform import types
+
+            client = agentplatform.Client(
+                project="my-project", location="us-central1"
+            )
+            dataset = types.EvaluationDataset.load_from_adk_eval_set(
+                "my_agent/my_eval_set.evalset.json"
+            )
+            dataset_with_responses = client.evals.run_inference(
+                src=dataset, agent=my_agent
+            )
+            result = client.evals.evaluate(
+                dataset=dataset_with_responses,
+                metrics=[types.RubricMetric.FINAL_RESPONSE_MATCH],
+            )
+
+        Args:
+            eval_set: The path to an ADK `.evalset.json` file, or the eval set as
+              a parsed JSON dict.
+
+        Returns:
+            An EvaluationDataset with one EvalCase per ADK eval case.
+        """
+        from .. import _evals_data_converters  # pylint: disable=g-import-not-at-top
+
+        if not isinstance(eval_set, dict):
+            with open(eval_set, "r", encoding="utf-8") as f:
+                eval_set = json.load(f)
+        return _evals_data_converters.AdkEvalSetConverter().convert(eval_set)
+
     def show(self) -> None:
         """Shows the evaluation dataset."""
         from .. import _evals_visualization

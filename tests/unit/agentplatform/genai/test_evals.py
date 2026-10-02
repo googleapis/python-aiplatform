@@ -9296,8 +9296,406 @@ class TestEvalsRunEvaluation:
         assert summary_metric.num_cases_error == 1
 
 
+_ADK_EVAL_SET = {
+    "eval_set_id": "home_automation",
+    "name": "Home automation",
+    "eval_cases": [
+        {
+            "eval_id": "turn_off_device",
+            "conversation": [
+                {
+                    "invocation_id": "inv-1",
+                    "user_content": {
+                        "parts": [{"text": "Turn off device_2."}],
+                        "role": "user",
+                    },
+                    "final_response": {"parts": [{"text": "device_2 is now off."}]},
+                    "intermediate_data": {
+                        "tool_uses": [
+                            {
+                                "name": "set_device_info",
+                                "args": {"device_id": "device_2", "status": "OFF"},
+                            }
+                        ],
+                        "intermediate_responses": [],
+                    },
+                }
+            ],
+            "session_input": {
+                "app_name": "home_automation_agent",
+                "user_id": "user",
+                "state": {"home": {"rooms": 3}},
+            },
+            "rubrics": [
+                {
+                    "rubric_id": "confirms_action",
+                    "rubric_content": {
+                        "text_property": "The response confirms the device is off."
+                    },
+                    "type": "FINAL_RESPONSE_QUALITY",
+                }
+            ],
+            "tags": ["smoke"],
+        },
+        {
+            "eval_id": "list_then_turn_off",
+            "conversation": [
+                {
+                    "invocation_id": "inv-2a",
+                    "user_content": {
+                        "parts": [{"text": "Which devices are on?"}],
+                        "role": "user",
+                    },
+                    "final_response": {
+                        "parts": [{"text": "device_1 is on."}],
+                        "role": "model",
+                    },
+                    "intermediate_data": {
+                        "invocation_events": [
+                            {
+                                "author": "home_agent",
+                                "content": {
+                                    "parts": [
+                                        {
+                                            "function_call": {
+                                                "name": "list_devices",
+                                                "args": {"status": "ON"},
+                                            }
+                                        }
+                                    ],
+                                    "role": "model",
+                                },
+                            },
+                            {
+                                "author": "home_agent",
+                                "content": {
+                                    "parts": [
+                                        {
+                                            "function_response": {
+                                                "name": "list_devices",
+                                                "response": {"devices": ["device_1"]},
+                                            }
+                                        }
+                                    ],
+                                    "role": "user",
+                                },
+                            },
+                        ]
+                    },
+                    "creation_timestamp": 1700000000.0,
+                },
+                {
+                    "invocation_id": "inv-2b",
+                    "user_content": {
+                        "parts": [{"text": "Turn it off."}],
+                        "role": "user",
+                    },
+                    "final_response": {
+                        "parts": [{"text": "device_1 is now off."}],
+                        "role": "model",
+                    },
+                    "intermediate_data": {
+                        "invocation_events": [
+                            {
+                                "author": "home_agent",
+                                "content": {
+                                    "parts": [
+                                        {
+                                            "function_call": {
+                                                "name": "set_device_info",
+                                                "args": {
+                                                    "device_id": "device_1",
+                                                    "status": "OFF",
+                                                },
+                                            }
+                                        }
+                                    ],
+                                    "role": "model",
+                                },
+                            }
+                        ]
+                    },
+                    "rubrics": [
+                        {
+                            "rubric_id": "polite",
+                            "rubric_content": {
+                                "text_property": "The response is polite."
+                            },
+                        }
+                    ],
+                },
+            ],
+        },
+        {
+            "evalId": "comfortable_bedroom",
+            "conversationScenario": {
+                "startingPrompt": "I want my bedroom to be comfortable.",
+                "conversationPlan": "Ask for 21 degrees once the agent asks.",
+                "userPersona": "NOVICE",
+            },
+            "sessionInput": {"appName": "home_automation_agent", "userId": "user"},
+        },
+    ],
+}
+
+
 class TestEvaluationDataset:
     """Contains set of tests for the EvaluationDataset class methods."""
+
+    def test_load_from_adk_eval_set_file(self, tmp_path):
+        path = tmp_path / "home_automation.evalset.json"
+        path.write_text(json.dumps(_ADK_EVAL_SET))
+
+        dataset = agentplatform_genai_types.EvaluationDataset.load_from_adk_eval_set(
+            path
+        )
+
+        assert [case.eval_case_id for case in dataset.eval_cases] == [
+            "turn_off_device",
+            "list_then_turn_off",
+            "comfortable_bedroom",
+        ]
+
+    def test_load_from_adk_eval_set_single_turn_with_tool_uses(self):
+        case = agentplatform_genai_types.EvaluationDataset.load_from_adk_eval_set(
+            _ADK_EVAL_SET
+        ).eval_cases[0]
+
+        assert case.prompt == genai_types.Content(
+            parts=[genai_types.Part(text="Turn off device_2.")], role="user"
+        )
+        assert case.reference.response == genai_types.Content(
+            parts=[genai_types.Part(text="device_2 is now off.")], role="model"
+        )
+        assert case.conversation_history is None
+        assert case.reference_trajectory == [
+            genai_types.Content(
+                role="model",
+                parts=[
+                    genai_types.Part(
+                        function_call=genai_types.FunctionCall(
+                            name="set_device_info",
+                            args={"device_id": "device_2", "status": "OFF"},
+                        )
+                    )
+                ],
+            )
+        ]
+        assert case.session_inputs == {
+            "app_name": "home_automation_agent",
+            "user_id": "user",
+            "state": {"home": {"rooms": 3}},
+        }
+        assert case.rubric_groups == {
+            "FINAL_RESPONSE_QUALITY": agentplatform_genai_types.RubricGroup(
+                rubrics=[
+                    agentplatform_genai_types.evals.Rubric(
+                        rubric_id="confirms_action",
+                        type="FINAL_RESPONSE_QUALITY",
+                        content=agentplatform_genai_types.evals.RubricContent(
+                            property=agentplatform_genai_types.evals.RubricContentProperty(
+                                description="The response confirms the device is off."
+                            )
+                        ),
+                    )
+                ]
+            )
+        }
+        assert case.tags == ["smoke"]
+
+    def test_load_from_adk_eval_set_multi_turn(self):
+        case = agentplatform_genai_types.EvaluationDataset.load_from_adk_eval_set(
+            _ADK_EVAL_SET
+        ).eval_cases[1]
+
+        assert case.prompt.parts[0].text == "Turn it off."
+        assert [
+            (message.turn_id, message.author, message.content.role)
+            for message in case.conversation_history
+        ] == [
+            ("inv-2a", "user", "user"),
+            ("inv-2a", "home_agent", "model"),
+            ("inv-2a", "home_agent", "user"),
+            ("inv-2a", None, "model"),
+        ]
+        history = case.conversation_history
+        assert history[0].content.parts[0].text == "Which devices are on?"
+        assert history[0].creation_timestamp.timestamp() == 1700000000.0
+        assert history[1].content.parts[0].function_call.name == "list_devices"
+        assert history[2].content.parts[0].function_response.response == {
+            "devices": ["device_1"]
+        }
+        assert history[3].content.parts[0].text == "device_1 is on."
+        assert case.reference.response.parts[0].text == "device_1 is now off."
+        assert [
+            content.parts[0].function_call.name for content in case.reference_trajectory
+        ] == ["set_device_info"]
+        assert case.rubric_groups["adk_rubrics"].rubrics[0].rubric_id == "polite"
+
+    def test_load_from_adk_eval_set_conversation_scenario_camel_case(self):
+        case = agentplatform_genai_types.EvaluationDataset.load_from_adk_eval_set(
+            _ADK_EVAL_SET
+        ).eval_cases[2]
+
+        assert case.eval_case_id == "comfortable_bedroom"
+        assert case.prompt is None
+        assert case.user_scenario == agentplatform_genai_types.evals.UserScenario(
+            starting_prompt="I want my bedroom to be comfortable.",
+            conversation_plan="Ask for 21 degrees once the agent asks.",
+        )
+        assert case.session_inputs == {
+            "app_name": "home_automation_agent",
+            "user_id": "user",
+        }
+
+    def test_load_from_adk_eval_set_decodes_base64_inline_data(self):
+        eval_set = {
+            "eval_set_id": "images",
+            "eval_cases": [
+                {
+                    "eval_id": "image",
+                    "conversation": [
+                        {
+                            "user_content": {
+                                "parts": [
+                                    {
+                                        "inline_data": {
+                                            "mime_type": "image/png",
+                                            "data": base64.b64encode(
+                                                b"\x89PNG"
+                                            ).decode(),
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    ],
+                }
+            ],
+        }
+
+        case = agentplatform_genai_types.EvaluationDataset.load_from_adk_eval_set(
+            eval_set
+        ).eval_cases[0]
+
+        assert case.prompt.role == "user"
+        assert case.prompt.parts[0].inline_data.data == b"\x89PNG"
+        assert case.reference is None
+
+    def test_load_from_adk_eval_set_camel_case_intermediate_data(self, caplog):
+        eval_set = {
+            "eval_set_id": "camel",
+            "eval_cases": [
+                {
+                    "evalId": "camel_case",
+                    "conversation": [
+                        {
+                            "invocationId": "first",
+                            "userContent": {"parts": [{"text": "Look it up."}]},
+                            "finalResponse": {"parts": [{"text": "It is 42."}]},
+                            "intermediateData": {
+                                "toolUses": [{"name": "lookup", "args": {"q": "x"}}],
+                                "toolResponses": [
+                                    {"name": "lookup", "response": {"answer": 42}}
+                                ],
+                                "intermediateResponses": [
+                                    ["helper_agent", [{"text": "Looking."}]]
+                                ],
+                            },
+                        },
+                        {"userContent": {"parts": [{"text": "Thanks."}]}},
+                    ],
+                    "evalCaseId": "override",
+                    "userScenario": {"startingPrompt": "Hi"},
+                    "category": "lookup",
+                }
+            ],
+        }
+
+        with caplog.at_level("WARNING", logger=_evals_data_converters.logger.name):
+            case = agentplatform_genai_types.EvaluationDataset.load_from_adk_eval_set(
+                eval_set
+            ).eval_cases[0]
+
+        assert case.eval_case_id == "camel_case"
+        assert case.user_scenario is None
+        assert case.category == "lookup"
+        assert "'evalCaseId'" in caplog.text
+        assert "'userScenario'" in caplog.text
+        assert case.prompt.parts[0].text == "Thanks."
+        assert [
+            (message.turn_id, message.author, message.content.role)
+            for message in case.conversation_history
+        ] == [
+            ("first", "user", "user"),
+            ("first", None, "model"),
+            ("first", None, "user"),
+            ("first", "helper_agent", "model"),
+            ("first", None, "model"),
+        ]
+        history = case.conversation_history
+        assert history[1].content.parts[0].function_call.args == {"q": "x"}
+        assert history[2].content.parts[0].function_response.response == {"answer": 42}
+        assert history[3].content.parts[0].text == "Looking."
+        assert history[4].content.parts[0].text == "It is 42."
+        assert case.reference is None
+        assert "reference_trajectory" not in case.model_extra
+
+    @pytest.mark.parametrize(
+        "eval_set, error",
+        [
+            ({"eval_set_id": "no_cases"}, "'eval_cases' list"),
+            (
+                {"eval_cases": [{"eval_id": "neither"}]},
+                "'neither'.*Exactly one of conversation and conversation_scenario",
+            ),
+            (
+                {"eval_cases": [{"eval_id": "bad_turn", "conversation": ["Hi"]}]},
+                "'bad_turn'.*Expected a JSON object",
+            ),
+            (
+                {
+                    "eval_cases": [
+                        {
+                            "eval_id": "both",
+                            "conversation": [],
+                            "conversation_scenario": {"starting_prompt": "Hi"},
+                        }
+                    ]
+                },
+                "'both'.*Exactly one of conversation and conversation_scenario",
+            ),
+            (
+                {"eval_cases": [{"eval_id": "empty", "conversation": []}]},
+                "at least one invocation",
+            ),
+            (
+                {
+                    "eval_cases": [
+                        {
+                            "eval_id": "no_user_content",
+                            "conversation": [
+                                {"final_response": {"parts": [{"text": "Hi"}]}}
+                            ],
+                        }
+                    ]
+                },
+                "user_content",
+            ),
+        ],
+    )
+    def test_load_from_adk_eval_set_invalid(self, eval_set, error):
+        with pytest.raises(ValueError, match=error):
+            agentplatform_genai_types.EvaluationDataset.load_from_adk_eval_set(eval_set)
+
+    def test_load_from_adk_eval_set_legacy_list_format(self, tmp_path):
+        path = tmp_path / "legacy.evalset.json"
+        path.write_text(json.dumps([{"name": "legacy", "data": []}]))
+
+        with pytest.raises(ValueError, match="legacy list format"):
+            agentplatform_genai_types.EvaluationDataset.load_from_adk_eval_set(
+                str(path)
+            )
 
     @mock.patch.object(_gcs_utils, "GcsUtils")
     def test_load_from_observability_eval_cases(self, mock_gcs_utils):
@@ -10206,6 +10604,96 @@ class TestResolveDataset:
         assert "promptTemplateData" in uploaded_data["prompt"]
         ptd_values = uploaded_data["prompt"]["promptTemplateData"]["values"]
         assert "conversation_history" in ptd_values
+
+    @pytest.mark.parametrize(
+        "eval_id, expected_request",
+        [
+            (
+                "turn_off_device",
+                {
+                    "prompt": {"text": "Turn off device_2."},
+                    "goldenResponse": {"text": "device_2 is now off."},
+                },
+            ),
+            (
+                "comfortable_bedroom",
+                {
+                    "prompt": {
+                        "userScenario": {
+                            "startingPrompt": "I want my bedroom to be comfortable.",
+                            "conversationPlan": "Ask for 21 degrees once the agent asks.",
+                        }
+                    }
+                },
+            ),
+        ],
+    )
+    @mock.patch.object(_evals_common, "evals")
+    @mock.patch.object(_evals_common, "_gcs_utils")
+    def test_resolve_dataset_from_adk_eval_set(
+        self, mock_gcs_utils, mock_evals_module, eval_id, expected_request
+    ):
+        mock_gcs_instance = mock_gcs_utils.GcsUtils.return_value
+        mock_gcs_instance.upload_json_to_prefix.return_value = (
+            "gs://bucket/path/request.json"
+        )
+        mock_evals_instance = mock_evals_module.Evals.return_value
+        mock_evals_instance.create_evaluation_item.return_value.name = "eval_item_1"
+        mock_evals_instance.create_evaluation_set.return_value.name = "eval_set_1"
+        loaded = agentplatform_genai_types.EvaluationDataset.load_from_adk_eval_set(
+            _ADK_EVAL_SET
+        )
+        dataset = agentplatform_genai_types.EvaluationDataset(
+            eval_cases=[
+                case for case in loaded.eval_cases if case.eval_case_id == eval_id
+            ]
+        )
+
+        result = _evals_common._resolve_dataset(
+            api_client=self.mock_api_client,
+            dataset=dataset,
+            dest="gs://bucket/prefix",
+        )
+
+        assert result.evaluation_set == "eval_set_1"
+        mock_evals_instance.create_evaluation_set.assert_called_once_with(
+            evaluation_items=["eval_item_1"]
+        )
+        uploaded_data = mock_gcs_instance.upload_json_to_prefix.call_args.kwargs["data"]
+        assert uploaded_data == expected_request
+
+    @mock.patch.object(_evals_common, "evals")
+    @mock.patch.object(_evals_common, "_gcs_utils")
+    def test_resolve_dataset_from_adk_eval_set_multi_turn(
+        self, mock_gcs_utils, mock_evals_module
+    ):
+        mock_gcs_instance = mock_gcs_utils.GcsUtils.return_value
+        mock_gcs_instance.upload_json_to_prefix.return_value = (
+            "gs://bucket/path/request.json"
+        )
+        mock_evals_instance = mock_evals_module.Evals.return_value
+        mock_evals_instance.create_evaluation_item.return_value.name = "eval_item_1"
+        mock_evals_instance.create_evaluation_set.return_value.name = "eval_set_1"
+        loaded = agentplatform_genai_types.EvaluationDataset.load_from_adk_eval_set(
+            _ADK_EVAL_SET
+        )
+        dataset = agentplatform_genai_types.EvaluationDataset(
+            eval_cases=[loaded.eval_cases[1]]
+        )
+
+        _evals_common._resolve_dataset(
+            api_client=self.mock_api_client,
+            dataset=dataset,
+            dest="gs://bucket/prefix",
+        )
+
+        uploaded_data = mock_gcs_instance.upload_json_to_prefix.call_args.kwargs["data"]
+        values = uploaded_data["prompt"]["promptTemplateData"]["values"]
+        assert values["prompt"]["parts"] == [{"text": "Turn it off."}]
+        history_text = values["conversation_history"]["parts"][0]["text"]
+        assert history_text.startswith("user: Which devices are on?")
+        assert history_text.endswith("model: device_1 is on.")
+        assert uploaded_data["goldenResponse"] == {"text": "device_1 is now off."}
 
 
 class TestResolveDatasetWithInteractions:
