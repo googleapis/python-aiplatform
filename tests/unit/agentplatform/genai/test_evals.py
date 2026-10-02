@@ -45,6 +45,7 @@ from agentplatform._genai import (
     types as agentplatform_genai_types,
 )
 from agentplatform._genai.types import common as common_types
+from vertexai._genai import evals as vertexai_evals
 from google.genai import client
 from google.genai import errors as genai_errors
 from google.genai import types as genai_types
@@ -2309,6 +2310,49 @@ class TestEvals:
         _, kwargs = mock_execute_evaluation.call_args
         assert "agent_info" in kwargs
         assert kwargs["agent_info"] == agent_info
+
+
+class TestRubricVerdict:
+    """Unit tests for parsing RubricVerdict from API responses."""
+
+    @pytest.mark.parametrize(
+        "evals_module", [evals, vertexai_evals], ids=["agent_platform", "vertexai"]
+    )
+    def test_evaluate_instances_missing_verdict_is_false(self, evals_module):
+        api_client = mock.MagicMock()
+        api_client.vertexai = True
+        api_client.request.return_value.body = json.dumps(
+            {
+                "metricResults": [
+                    {
+                        "score": 0.5,
+                        "rubricVerdicts": [
+                            {
+                                "evaluatedRubric": {
+                                    "content": {
+                                        "property": {"description": "In English."}
+                                    }
+                                },
+                                "verdict": True,
+                            },
+                            {
+                                "evaluatedRubric": {
+                                    "content": {
+                                        "property": {"description": "One sentence."}
+                                    }
+                                },
+                                "reasoning": "The response has two sentences.",
+                            },
+                        ],
+                    }
+                ]
+            }
+        )
+
+        response = evals_module.Evals(api_client_=api_client)._evaluate_instances()
+
+        verdicts = response.metric_results[0].rubric_verdicts
+        assert [verdict.verdict for verdict in verdicts] == [True, False]
 
 
 class TestEvalsVisualization:

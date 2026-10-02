@@ -948,7 +948,7 @@ class RubricVerdict(_common.BaseModel):
       generated.""",
     )
     verdict: Optional[bool] = Field(
-        default=None,
+        default=False,
         description="""Required. Outcome of the evaluation against the rubric, represented as a
       boolean. `true` indicates a "Pass", `false` indicates a "Fail".""",
     )
