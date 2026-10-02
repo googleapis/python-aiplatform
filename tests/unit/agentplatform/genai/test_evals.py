@@ -44,6 +44,12 @@ from agentplatform._genai import (
     types as agentplatform_genai_types,
 )
 from agentplatform._genai.types import common as common_types
+import vertexai
+from vertexai._genai import (
+    _evals_metric_handlers as vertexai_evals_metric_handlers,
+)
+from vertexai._genai import types as vertexai_genai_types
+from google.genai import _api_client as genai_api_client
 from google.genai import client
 from google.genai import errors as genai_errors
 from google.genai import types as genai_types
@@ -6798,6 +6804,7 @@ class TestBuildEvaluationInstance:
             == "Custom context value."
         )
         assert "extra_field_not_in_template" not in instance.other_data.map_instance
+        assert instance.agent_data is None
 
     def test_build_evaluation_instance_various_field_types(self):
         metric = agentplatform_genai_types.LLMMetric(
@@ -7862,6 +7869,14 @@ class TestMergeResponseDatasets:
         mock_logger.warning.assert_not_called()
 
 
+_HANDLER_SURFACES = [
+    pytest.param(
+        _evals_metric_handlers, agentplatform_genai_types, id="agent_platform"
+    ),
+    pytest.param(vertexai_evals_metric_handlers, vertexai_genai_types, id="vertex_ai"),
+]
+
+
 @pytest.mark.usefixtures("google_auth_mock")
 class TestPredefinedMetricHandler:
     """Unit tests for the PredefinedMetricHandler class."""
@@ -8062,6 +8077,27 @@ class TestPredefinedMetricHandler:
 
         assert agent_data.agents is None
 
+    @pytest.mark.parametrize("handlers_module, types_module", _HANDLER_SURFACES)
+    def test_eval_case_to_agent_data_plain_row_returns_none(
+        self, handlers_module, types_module
+    ):
+        eval_case = types_module.EvalCase(
+            prompt=genai_types.Content(parts=[genai_types.Part(text="Hello")]),
+            responses=[
+                types_module.ResponseCandidate(
+                    response=genai_types.Content(parts=[genai_types.Part(text="Hi")])
+                )
+            ],
+        )
+
+        agent_data = handlers_module._eval_case_to_agent_data(
+            eval_case,
+            eval_case.prompt,
+            eval_case.responses[0].response,
+        )
+
+        assert agent_data is None
+
     @mock.patch.object(_evals_metric_handlers.logger, "warning")
     def test_tool_use_quality_metric_no_tool_call_logs_warning(
         self, mock_warning, mock_api_client_fixture
@@ -8137,6 +8173,114 @@ class TestPredefinedMetricHandler:
         )
         handler._build_request_payload(eval_case, response_index=0)
         mock_warning.assert_not_called()
+
+
+@pytest.mark.usefixtures("google_auth_mock")
+class TestPlainRowAgentData:
+    """Unit tests for sending agent data only for rows with agent fields."""
+
+    @pytest.mark.parametrize("handlers_module, types_module", _HANDLER_SURFACES)
+    @pytest.mark.parametrize(
+        "handler_name, metric_factory",
+        [
+            pytest.param(
+                "PredefinedMetricHandler",
+                lambda types_module: types_module.Metric(name="general_quality_v1"),
+                id="predefined",
+            ),
+            pytest.param(
+                "LLMMetricHandler",
+                lambda types_module: types_module.LLMMetric(
+                    name="quality", prompt_template="{prompt} {response}"
+                ),
+                id="llm",
+            ),
+        ],
+    )
+    def test_agent_data_only_for_agent_rows(
+        self, handlers_module, types_module, handler_name, metric_factory
+    ):
+        mock_module = mock.Mock()
+        mock_module._evaluate_instances.return_value = (
+            types_module.EvaluateInstancesResponse(
+                metric_results=[types_module.MetricResult(score=1.0)]
+            )
+        )
+        handler = getattr(handlers_module, handler_name)(
+            module=mock_module, metric=metric_factory(types_module)
+        )
+        prompt = genai_types.Content(parts=[genai_types.Part(text="Hello")])
+        responses = [
+            types_module.ResponseCandidate(
+                response=genai_types.Content(parts=[genai_types.Part(text="Hi")])
+            )
+        ]
+        plain_case = types_module.EvalCase(prompt=prompt, responses=responses)
+        agent_case = types_module.EvalCase(
+            prompt=prompt,
+            responses=responses,
+            intermediate_events=[
+                types_module.evals.Event(
+                    event_id="event1",
+                    content=genai_types.Content(parts=[genai_types.Part(text="step")]),
+                )
+            ],
+        )
+
+        handler.get_metric_result(plain_case, 0)
+        handler.get_metric_result(agent_case, 0)
+
+        plain_call, agent_call = mock_module._evaluate_instances.call_args_list
+        assert plain_call.kwargs["instance"].agent_data is None
+        agent_events = agent_call.kwargs["instance"].agent_data.turns[0].events
+        assert [event.content.parts[0].text for event in agent_events] == [
+            "Hello",
+            "step",
+            "Hi",
+        ]
+
+    @pytest.mark.parametrize(
+        "client_module, types_module",
+        [
+            pytest.param(agentplatform, agentplatform_genai_types, id="agent_platform"),
+            pytest.param(vertexai, vertexai_genai_types, id="vertex_ai"),
+        ],
+    )
+    def test_evaluate_v1_plain_row_omits_agent_eval_data(
+        self, client_module, types_module
+    ):
+        client = client_module.Client(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            http_options=genai_types.HttpOptions(api_version="v1"),
+        )
+        metric_response = genai_api_client.HttpResponse(
+            headers={},
+            response_stream=[json.dumps({"metricResults": [{"score": 1.0}]})],
+        )
+
+        with mock.patch.object(
+            genai_api_client.BaseApiClient,
+            "_request",
+            autospec=True,
+            return_value=metric_response,
+        ) as mock_request:
+            result = client.evals.evaluate(
+                dataset=pd.DataFrame([{"prompt": "Hello", "response": "Hi"}]),
+                metrics=[
+                    types_module.Metric(name="general_quality_v1"),
+                    types_module.LLMMetric(
+                        name="quality", prompt_template="{prompt} {response}"
+                    ),
+                ],
+            )
+
+        assert [s.num_cases_error for s in result.summary_metrics] == [0, 0]
+        assert mock_request.call_count == 2
+        for call in mock_request.call_args_list:
+            http_request = call.args[1]
+            assert "/v1/projects/" in http_request.url
+            assert "agent_eval_data" not in http_request.data["instance"]
 
 
 @pytest.mark.usefixtures("google_auth_mock")

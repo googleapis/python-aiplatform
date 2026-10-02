@@ -625,17 +625,14 @@ def _eval_case_to_agent_data(
     """Converts an EvalCase object to a single turn AgentData object.
 
     If `eval_case.agent_data` is provided, it is returned directly, and
-    `prompt_content` and `response_content` are ignored.
+    `prompt_content` and `response_content` are ignored. Returns None when the
+    case has no `agent_info` or `intermediate_events`, so plain prompt and
+    response rows send no agent data (the field is not available in the v1 API).
     """
     if getattr(eval_case, "agent_data", None):
         return eval_case.agent_data
 
-    if (
-        not eval_case.agent_info
-        and not eval_case.intermediate_events
-        and not prompt_content
-        and not response_content
-    ):
+    if not eval_case.agent_info and not eval_case.intermediate_events:
         return None
 
     agents_map = eval_case.agent_info.agents if eval_case.agent_info else None
