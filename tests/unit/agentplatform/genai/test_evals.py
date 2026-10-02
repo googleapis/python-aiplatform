@@ -18,6 +18,7 @@ import builtins
 import asyncio
 import enum
 import importlib
+import io
 import json
 import os
 import re
@@ -44,6 +45,9 @@ from agentplatform._genai import (
     types as agentplatform_genai_types,
 )
 from agentplatform._genai.types import common as common_types
+from vertexai._genai import (
+    _evals_data_converters as vertexai_evals_data_converters,
+)
 from google.genai import client
 from google.genai import errors as genai_errors
 from google.genai import types as genai_types
@@ -5594,6 +5598,25 @@ class TestGeminiEvalDataConverter:
         )
 
 
+_CONVERTER_MODULES = pytest.mark.parametrize(
+    "converters",
+    [_evals_data_converters, vertexai_evals_data_converters],
+    ids=["agent_platform", "vertexai"],
+)
+_GEMINI_HISTORY = [
+    {"role": "user", "parts": [{"text": "My code word is BLUE."}]},
+    {"role": "model", "parts": [{"text": "Noted."}]},
+]
+_OPENAI_HISTORY = [
+    {"role": "user", "content": "My code word is BLUE."},
+    {"role": "assistant", "content": "Noted."},
+]
+
+
+def _csv_round_trip(row: dict[str, object]) -> pd.DataFrame:
+    return pd.read_csv(io.StringIO(pd.DataFrame([row]).to_csv(index=False)))
+
+
 class TestFlattenEvalDataConverter:
     """Unit tests for the _FlattenEvalDataConverter class."""
 
@@ -5814,6 +5837,162 @@ class TestFlattenEvalDataConverter:
             eval_case.intermediate_events[0].content.parts[0].text
             == "intermediate event"
         )
+
+    @_CONVERTER_MODULES
+    @pytest.mark.parametrize("column", ["conversation_history", "history"])
+    def test_convert_json_string_history_from_csv(self, converters, column):
+        raw_data_df = _csv_round_trip(
+            {
+                "prompt": "Code word?",
+                "response": "BLUE",
+                column: json.dumps(_GEMINI_HISTORY),
+            }
+        )
+
+        result_dataset = converters._FlattenEvalDataConverter().convert(
+            raw_data_df.to_dict(orient="records")
+        )
+
+        assert [
+            message.content
+            for message in result_dataset.eval_cases[0].conversation_history
+        ] == [genai_types.Content.model_validate(turn) for turn in _GEMINI_HISTORY]
+
+    @_CONVERTER_MODULES
+    @pytest.mark.parametrize(
+        "column,value,expected_warning",
+        [
+            (
+                "history",
+                "[not json",
+                "Could not decode JSON string in 'history' column for case eval_case_0",
+            ),
+            (
+                "history",
+                json.dumps(_GEMINI_HISTORY[0]),
+                "Invalid type in 'history' column for case eval_case_0. Expected",
+            ),
+            (
+                "history",
+                [{"role": "user", "text": "Hi"}],
+                "Item at index 0 in 'history' column for case eval_case_0 is a dict",
+            ),
+            (
+                "conversation_history",
+                [42],
+                "'conversation_history' column for case eval_case_0 at index 0.",
+            ),
+        ],
+        ids=["invalid_json", "json_object", "invalid_dict_item", "invalid_item_type"],
+    )
+    def test_convert_invalid_history_logs_warning(
+        self, converters, column, value, expected_warning, caplog
+    ):
+        raw_data = [{"prompt": "Hello", "response": "Hi", column: value}]
+
+        with caplog.at_level("WARNING", logger=converters.logger.name):
+            result_dataset = converters._FlattenEvalDataConverter().convert(raw_data)
+
+        assert not result_dataset.eval_cases[0].conversation_history
+        assert expected_warning in caplog.text
+
+    @_CONVERTER_MODULES
+    @pytest.mark.parametrize(
+        "history",
+        [_OPENAI_HISTORY, json.dumps(_OPENAI_HISTORY)],
+        ids=["dicts", "json_string"],
+    )
+    def test_convert_openai_style_history(self, converters, history, caplog):
+        raw_data = [
+            {
+                "prompt": "Code word?",
+                "response": "BLUE",
+                "conversation_history": history,
+            }
+        ]
+
+        with caplog.at_level("WARNING", logger=converters.logger.name):
+            result_dataset = converters._FlattenEvalDataConverter().convert(raw_data)
+
+        _, openai_history, _, _ = converters._OpenAIDataConverter()._parse_messages(
+            _OPENAI_HISTORY + [{"role": "user", "content": "Code word?"}]
+        )
+        assert result_dataset.eval_cases[0].conversation_history == openai_history
+        assert [message.content for message in openai_history] == [
+            genai_types.Content(
+                parts=[genai_types.Part(text="My code word is BLUE.")], role="user"
+            ),
+            genai_types.Content(
+                parts=[genai_types.Part(text="Noted.")], role="assistant"
+            ),
+        ]
+        assert not caplog.records
+
+    @_CONVERTER_MODULES
+    def test_convert_message_history_items(self, converters):
+        history = [
+            converters.types.evals.Message(
+                turn_id=f"turn-{turn_id}",
+                content=genai_types.Content.model_validate(turn),
+                author=turn["role"],
+            )
+            for turn_id, turn in enumerate(_GEMINI_HISTORY)
+        ]
+
+        result_dataset = converters._FlattenEvalDataConverter().convert(
+            [{"prompt": "Code word?", "response": "BLUE", "history": history}]
+        )
+
+        assert result_dataset.eval_cases[0].conversation_history == history
+
+    @_CONVERTER_MODULES
+    @pytest.mark.parametrize("value", [None, " "], ids=["nan", "blank"])
+    def test_convert_empty_csv_history_cell(self, converters, value, caplog):
+        raw_data_df = _csv_round_trip(
+            {"prompt": "Hello", "response": "Hi", "conversation_history": value}
+        )
+
+        with caplog.at_level("WARNING", logger=converters.logger.name):
+            result_dataset = converters._FlattenEvalDataConverter().convert(
+                raw_data_df.to_dict(orient="records")
+            )
+
+        assert result_dataset.eval_cases[0].conversation_history is None
+        assert not caplog.records
+
+    @pytest.mark.usefixtures("mock_eval_dependencies")
+    def test_evaluate_sends_csv_history_to_multi_turn_metric(
+        self, mock_api_client_fixture
+    ):
+        dataset_df = _csv_round_trip(
+            {
+                "prompt": "Code word?",
+                "response": "BLUE",
+                "conversation_history": json.dumps(_GEMINI_HISTORY),
+            }
+        )
+
+        with mock.patch.object(
+            evals.Evals, "_evaluate_instances"
+        ) as mock_evaluate_instances:
+            mock_evaluate_instances.return_value = (
+                agentplatform_genai_types.EvaluateInstancesResponse(
+                    metric_results=[agentplatform_genai_types.MetricResult(score=1.0)]
+                )
+            )
+            evals.Evals(api_client_=mock_api_client_fixture).evaluate(
+                dataset=dataset_df,
+                metrics=[
+                    agentplatform_genai_types.Metric(
+                        name="multi_turn_general_quality_v1"
+                    )
+                ],
+            )
+
+        instance = mock_evaluate_instances.call_args.kwargs["instance"]
+        assert [
+            content.parts[0].text for content in instance.prompt.contents.contents
+        ] == ["My code word is BLUE.", "Noted.", "Code word?"]
 
 
 class TestOpenAIDataConverter:

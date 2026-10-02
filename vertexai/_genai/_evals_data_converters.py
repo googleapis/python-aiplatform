@@ -18,6 +18,7 @@ import copy
 import datetime
 import json
 import logging
+import math
 from typing import Any, Optional, TypeVar, Union
 
 from google.genai import _common
@@ -54,6 +55,20 @@ def _create_placeholder_response_candidate(
     """Creates a ResponseCandidate with placeholder text."""
     return types.ResponseCandidate(
         response=genai_types.Content(parts=[genai_types.Part(text=text)])
+    )
+
+
+def _openai_message_to_eval_message(
+    turn_id: int, message: dict[str, Any]
+) -> types.evals.Message:
+    """Converts an OpenAI chat message into a conversation history message."""
+    role = message.get("role", "user")
+    return types.evals.Message(
+        turn_id=str(turn_id),
+        content=genai_types.Content(
+            parts=[genai_types.Part(text=message.get("content", ""))], role=role
+        ),
+        author=role,
     )
 
 
@@ -199,9 +214,11 @@ class _FlattenEvalDataConverter(_evals_utils.EvalDataConverter):
             if not prompt_data:
                 prompt_data = item.pop("source", None)
 
-            conversation_history_data = item.pop("conversation_history", None)
+            history_column = "conversation_history"
+            conversation_history_data = item.pop(history_column, None)
             if conversation_history_data is None:
-                conversation_history_data = item.pop("history", None)
+                history_column = "history"
+                conversation_history_data = item.pop(history_column, None)
             response_data = item.pop("response", None)
             reference_data = item.pop("reference", None)
             system_instruction_data = item.pop("instruction", None)
@@ -230,16 +247,42 @@ class _FlattenEvalDataConverter(_evals_utils.EvalDataConverter):
                     "Invalid prompt type for case %s: %s" % (i, type(prompt_data))
                 )
 
+            if isinstance(conversation_history_data, str):
+                try:
+                    conversation_history_data = (
+                        json.loads(conversation_history_data)
+                        if conversation_history_data.strip()
+                        else None
+                    )
+                except json.JSONDecodeError as e:
+                    logger.warning(
+                        "Could not decode JSON string in '%s' column for case %s:"
+                        " %s. Skipping conversation history.",
+                        history_column,
+                        eval_case_id,
+                        e,
+                    )
+                    conversation_history_data = None
             conversation_history: Optional[list[types.evals.Message]] = None
             if isinstance(conversation_history_data, list):
                 conversation_history = []
                 for turn_id, content in enumerate(conversation_history_data):
-                    if isinstance(content, genai_types.Content):
+                    if isinstance(content, types.evals.Message):
+                        conversation_history.append(content)
+                    elif isinstance(content, genai_types.Content):
                         conversation_history.append(
                             types.evals.Message(
                                 turn_id=str(turn_id),
                                 content=content,
                             )
+                        )
+                    elif (
+                        isinstance(content, dict)
+                        and isinstance(content.get("content"), str)
+                        and "parts" not in content
+                    ):
+                        conversation_history.append(
+                            _openai_message_to_eval_message(turn_id, content)
                         )
                     elif isinstance(content, dict):
                         try:
@@ -254,22 +297,36 @@ class _FlattenEvalDataConverter(_evals_utils.EvalDataConverter):
                             )
                         except ValidationError as e:
                             logger.warning(
-                                "Item at index %s in 'history' column for case "
-                                " %s is a dict but could not be validated as"
+                                "Item at index %s in '%s' column for case %s is a"
+                                " dict but could not be validated as"
                                 " genai_types.Content: %s",
                                 turn_id,
+                                history_column,
                                 eval_case_id,
                                 e,
                             )
                     else:
                         logger.warning(
-                            "Invalid type in 'history' column for case %s at index %s. "
-                            "Expected genai_types.Content or dict, but got %s. "
-                            "Skipping this history item.",
+                            "Invalid type in '%s' column for case %s at index %s."
+                            " Expected genai_types.Content, types.evals.Message or"
+                            " dict, but got %s. Skipping this history item.",
+                            history_column,
                             eval_case_id,
                             turn_id,
                             type(content),
                         )
+            elif conversation_history_data is not None and not (
+                isinstance(conversation_history_data, float)
+                and math.isnan(conversation_history_data)
+            ):
+                logger.warning(
+                    "Invalid type in '%s' column for case %s. Expected a list or a"
+                    " JSON string of a list, but got %s. Skipping conversation"
+                    " history.",
+                    history_column,
+                    eval_case_id,
+                    type(conversation_history_data),
+                )
 
             responses: Optional[list[types.ResponseCandidate]] = None
             if isinstance(response_data, dict):
@@ -492,17 +549,7 @@ class _OpenAIDataConverter(_evals_utils.EvalDataConverter):
             messages = messages[1:]
 
         for turn_id, msg in enumerate(messages):
-            role = msg.get("role", "user")
-            content = msg.get("content", "")
-            conversation_history.append(
-                types.evals.Message(
-                    turn_id=str(turn_id),
-                    content=genai_types.Content(
-                        parts=[genai_types.Part(text=content)], role=role
-                    ),
-                    author=role,
-                )
-            )
+            conversation_history.append(_openai_message_to_eval_message(turn_id, msg))
 
         if conversation_history:
             last_message = conversation_history.pop()
