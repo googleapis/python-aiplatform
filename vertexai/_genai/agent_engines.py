@@ -2008,6 +2008,7 @@ class AgentEngines(_api_module.BaseModule):
             build_config=config.build_config,
         )
         operation = self._create(config=api_config)
+        logger.info(f"Create Agent Engine backing LRO: {operation.name}")
         reasoning_engine_id = _agent_engines_utils._get_reasoning_engine_id(
             operation_name=operation.name
         )
@@ -2038,7 +2039,9 @@ class AgentEngines(_api_module.BaseModule):
                 f"agent_engine=client.agent_engines.get(name='{agent_engine.api_resource.name}')"
             )
         elif operation.error:
-            raise RuntimeError(f"Failed to create Agent Engine: {operation.error}")
+            raise RuntimeError(
+                f"Operation {operation.name} failed to create Agent Engine: {operation.error}"
+            )
         else:
             logger.warning("The operation returned an empty response.")
         if not self._is_lightweight_creation(agent, config):
@@ -2820,6 +2823,7 @@ class AgentEngines(_api_module.BaseModule):
             build_config=config.build_config,
         )
         operation = self._update(name=name, config=api_config)
+        logger.info(f"Update Agent Engine backing LRO: {operation.name}")
         reasoning_engine_id = _agent_engines_utils._get_reasoning_engine_id(
             resource_name=name
         )
@@ -2844,7 +2848,9 @@ class AgentEngines(_api_module.BaseModule):
                 f"agent_engine=client.agent_engines.get(name='{agent_engine.api_resource.name}')"
             )
         elif operation.error:
-            raise RuntimeError(f"Failed to update Agent Engine: {operation.error}")
+            raise RuntimeError(
+                f"Operation {operation.name} failed to update Agent Engine: {operation.error}"
+            )
         if agent_engine.api_resource.spec:
             self._register_api_methods(agent_engine=agent_engine)
         return agent_engine  # type: ignore[no-any-return]
