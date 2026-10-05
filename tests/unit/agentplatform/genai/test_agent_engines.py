@@ -578,6 +578,7 @@ _TEST_AGENT_ENGINE_KEEP_ALIVE_PROBE = {
     },
     "max_seconds": 60,
 }
+_TEST_AGENT_CARD = {"name": "test-agent", "defaultInputModes": ["text"]}
 _TEST_AGENT_ENGINE_SPEC = _genai_types.ReasoningEngineSpecDict(
     agent_framework=_TEST_AGENT_ENGINE_FRAMEWORK,
     class_methods=[_TEST_AGENT_ENGINE_CLASS_METHOD_1],
@@ -1434,6 +1435,18 @@ class TestRuntimeHelpers:
         )
         assert "keep_alive_probe" not in config["spec"].get("deployment_spec", {})
 
+    def test_create_runtime_config_with_container_spec_and_agent_card(self):
+        container_spec = {"image_uri": "gcr.io/test-project/test-image"}
+        config = self.client.runtimes._create_config(
+            mode="create",
+            container_spec=container_spec,
+            class_methods=_TEST_AGENT_ENGINE_CLASS_METHODS,
+            agent_card=_TEST_AGENT_CARD,
+        )
+        assert config["spec"]["container_spec"] == container_spec
+        assert config["spec"]["agent_card"] == _TEST_AGENT_CARD
+        assert "update_mask" not in config
+
     def test_create_runtime_config_with_container_spec_and_keep_alive_probe(
         self,
     ):
@@ -1643,6 +1656,32 @@ class TestRuntimeHelpers:
 
         assert "agent_card" not in config["spec"]
         assert "spec.agent_card" not in config["update_mask"].split(",")
+
+    @pytest.mark.parametrize("agent_card", [_TEST_AGENT_CARD, {}])
+    def test_update_runtime_config_with_only_agent_card(self, agent_card):
+        config = self.client.runtimes._create_config(
+            mode="update",
+            agent_card=agent_card,
+        )
+        assert config["spec"] == {"agent_card": agent_card}
+        assert config["update_mask"] == "spec.agent_card"
+
+    @mock.patch.object(_runtimes_utils, "_prepare")
+    def test_update_runtime_config_agent_card_overrides_agent(self, mock_prepare):
+        from google.protobuf import struct_pb2
+
+        agent_object_card = struct_pb2.Struct()
+        agent_object_card["version"] = "1.0.0"
+        config_card = {"name": "test-agent", "version": "2.0.0"}
+        config = self.client.runtimes._create_config(
+            mode="update",
+            agent=CapitalizeEngineWithAgentCard(agent_card=agent_object_card),
+            staging_bucket=_TEST_STAGING_BUCKET,
+            requirements=_TEST_AGENT_ENGINE_REQUIREMENTS,
+            agent_card=config_card,
+        )
+        assert config["spec"]["agent_card"] == config_card
+        assert config["update_mask"].split(",").count("spec.agent_card") == 1
 
     @mock.patch.object(_runtimes_utils, "_prepare")
     def test_update_runtime_clear_service_account(self, mock_prepare):
@@ -2394,6 +2433,7 @@ class TestRuntime:
                 container_spec=None,
                 keep_alive_probe=None,
                 build_config=None,
+                agent_card=None,
             )
             request_mock.assert_called_with(
                 "post",
@@ -2501,6 +2541,7 @@ class TestRuntime:
                 container_spec=None,
                 keep_alive_probe=None,
                 build_config=None,
+                agent_card=None,
             )
             request_mock.assert_called_with(
                 "post",
@@ -2607,6 +2648,7 @@ class TestRuntime:
                 container_spec=None,
                 keep_alive_probe=None,
                 build_config=None,
+                agent_card=None,
             )
             request_mock.assert_called_with(
                 "post",
@@ -2782,6 +2824,7 @@ class TestRuntime:
                 container_spec=None,
                 keep_alive_probe=None,
                 build_config=None,
+                agent_card=None,
             )
             request_mock.assert_called_with(
                 "post",
@@ -2883,6 +2926,7 @@ class TestRuntime:
                 container_spec=None,
                 keep_alive_probe=None,
                 build_config=None,
+                agent_card=None,
             )
             request_mock.assert_called_with(
                 "post",
@@ -3242,6 +3286,35 @@ class TestRuntime:
                     "_url": {"name": _TEST_AGENT_ENGINE_RESOURCE_NAME},
                     "description": _TEST_AGENT_ENGINE_DESCRIPTION,
                     "_query": {"updateMask": "description"},
+                },
+                None,
+            )
+
+    @mock.patch.object(_runtimes_utils, "_await_operation")
+    def test_update_runtime_agent_card(self, mock_await_operation):
+        mock_await_operation.return_value = _genai_types.RuntimeOperation(
+            response=_genai_types.ReasoningEngine(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                spec=_TEST_AGENT_ENGINE_SPEC,
+            )
+        )
+        with mock.patch.object(
+            self.client.runtimes._api_client, "request"
+        ) as request_mock:
+            request_mock.return_value = genai_types.HttpResponse(body="")
+            self.client.runtimes.update(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                config=_genai_types.AgentRuntimeConfig(
+                    agent_card=_TEST_AGENT_CARD,
+                ),
+            )
+            request_mock.assert_called_with(
+                "patch",
+                f"{_TEST_AGENT_ENGINE_RESOURCE_NAME}?updateMask=spec.agent_card",
+                {
+                    "_url": {"name": _TEST_AGENT_ENGINE_RESOURCE_NAME},
+                    "spec": {"agent_card": _TEST_AGENT_CARD},
+                    "_query": {"updateMask": "spec.agent_card"},
                 },
                 None,
             )
