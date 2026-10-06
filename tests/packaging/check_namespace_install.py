@@ -19,7 +19,6 @@ from pathlib import Path
 import subprocess
 import sys
 import tempfile
-import venv
 import zipfile
 
 
@@ -64,7 +63,7 @@ def check(provider_wheel, directory, install_order):
     assert len(editable_wheels) == 1, editable_wheels
     editable_wheel = editable_wheels[0]
     environment = directory / "environment"
-    venv.EnvBuilder(with_pip=True).create(environment)
+    run([sys.executable, "-I", "-B", "-m", "venv", str(environment)])
     python = environment / (
         "Scripts/python.exe" if sys.platform == "win32" else "bin/python"
     )
