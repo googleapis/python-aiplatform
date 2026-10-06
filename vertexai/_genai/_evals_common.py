@@ -236,9 +236,8 @@ def _build_generate_content_config(
     for key in [
         "system_instruction",
         "tools",
-        "tools_config",
+        "tool_config",
         "safety_settings",
-        "labels",
     ]:
         if key in request_dict:
             merged_config_dict[key] = request_dict[key]

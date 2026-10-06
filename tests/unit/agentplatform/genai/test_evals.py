@@ -3265,6 +3265,49 @@ class TestEvalsRunInference:
 
     @mock.patch.object(_evals_common, "Models")
     @mock.patch.object(_evals_utils, "EvalDatasetLoader")
+    def test_inference_with_row_level_tool_config(
+        self, mock_eval_dataset_loader, mock_models
+    ):
+        mock_df = pd.DataFrame(
+            {
+                "request": [
+                    {
+                        "contents": [
+                            {"parts": [{"text": "test prompt"}], "role": "user"}
+                        ],
+                        "tool_config": {"function_calling_config": {"mode": "NONE"}},
+                    }
+                ]
+            }
+        )
+        mock_eval_dataset_loader.return_value.load.return_value = mock_df.to_dict(
+            orient="records"
+        )
+        mock_models.return_value.generate_content.return_value = (
+            genai_types.GenerateContentResponse(
+                candidates=[
+                    genai_types.Candidate(
+                        content=genai_types.Content(
+                            parts=[genai_types.Part(text="test response")]
+                        ),
+                        finish_reason=genai_types.FinishReason.STOP,
+                    )
+                ],
+                prompt_feedback=None,
+            )
+        )
+
+        self.client.evals.run_inference(model="gemini-pro", src=mock_df)
+
+        config = mock_models.return_value.generate_content.call_args[1]["config"]
+        assert config.tool_config == genai_types.ToolConfig(
+            function_calling_config=genai_types.FunctionCallingConfig(
+                mode=genai_types.FunctionCallingConfigMode.NONE
+            )
+        )
+
+    @mock.patch.object(_evals_common, "Models")
+    @mock.patch.object(_evals_utils, "EvalDatasetLoader")
     def test_inference_with_multimodal_content(
         self, mock_eval_dataset_loader, mock_models
     ):
