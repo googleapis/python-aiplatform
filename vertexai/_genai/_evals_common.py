@@ -2512,7 +2512,10 @@ def _convert_gcs_to_evaluation_item_result(
         return types.EvaluationItemResult(**eval_item_data)
     except Exception as e:
         logger.error(
-            "Failed to load evaluation result from GCS: %s. Error: %s", gcs_uri, e
+            "Failed to load evaluation result from GCS: %s. Error: %s",
+            gcs_uri,
+            e,
+            exc_info=True,
         )
     return types.EvaluationItemResult()
 
@@ -2529,7 +2532,10 @@ def _convert_gcs_to_evaluation_item_request(
         return types.EvaluationItemRequest(**eval_item_data)
     except Exception as e:
         logger.error(
-            "Failed to load evaluation request from GCS: %s. Error: %s", gcs_uri, e
+            "Failed to load evaluation request from GCS: %s. Error: %s",
+            gcs_uri,
+            e,
+            exc_info=True,
         )
     return types.EvaluationItemRequest()
 
@@ -2703,16 +2709,16 @@ def _get_eval_cases_eval_dfs_from_eval_items(
           item.
         - eval_dfs: A list of EvaluationDatasets, one for each candidate.
     """
-    dataset_rows = []
+    dataset_rows: list[dict[str, Any]] = []
     eval_case_results = []
-    for index, eval_item in enumerate(eval_items):
+    for eval_item in eval_items:
         if (
             eval_item
             and eval_item.evaluation_response
             and eval_item.evaluation_response.request
         ):
             eval_case_results.append(
-                _get_eval_case_result_from_eval_item(index, eval_item)
+                _get_eval_case_result_from_eval_item(len(dataset_rows), eval_item)
             )
             dataset_rows.append(
                 _convert_request_to_dataset_row(eval_item.evaluation_response.request)
