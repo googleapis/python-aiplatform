@@ -135,6 +135,23 @@ def main():
     parser.add_argument("provider_wheel", type=Path)
     arguments = parser.parse_args()
     provider_wheel = arguments.provider_wheel.resolve(strict=True)
+    if not provider_wheel.name.endswith("-py3-none-any.whl"):
+        raise ValueError(
+            f"Wheel filename does not declare Python 3: {provider_wheel.name}"
+        )
+    with zipfile.ZipFile(provider_wheel) as archive:
+        wheel_metadata = [
+            name for name in archive.namelist() if name.endswith(".dist-info/WHEEL")
+        ]
+        if len(wheel_metadata) != 1:
+            raise ValueError(f"Expected one WHEEL metadata member: {wheel_metadata}")
+        tags = [
+            line.removeprefix("Tag: ")
+            for line in archive.read(wheel_metadata[0]).decode().splitlines()
+            if line.startswith("Tag: ")
+        ]
+        if tags != ["py3-none-any"]:
+            raise ValueError(f"Wheel metadata does not declare only Python 3: {tags}")
     results = []
     with tempfile.TemporaryDirectory(prefix="namespace-install-") as temporary:
         for index, order in enumerate(

@@ -143,6 +143,10 @@ if has_generator_updates:
         ],
     )  # the microgenerator has a good coveragerc file
 
+    # This package requires Python 3.10 or later. Generated configuration
+    # must not advertise Python 2 compatibility.
+    s.replace("setup.cfg", r"^universal[ \t]*=[ \t]*1[ \t]*$", "universal = 0")
+
     python.py_samples(skip_readmes=True)
 
     python.configure_previous_major_version_branches()
