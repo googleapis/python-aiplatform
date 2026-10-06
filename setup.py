@@ -310,7 +310,6 @@ setuptools.setup(
             "tb-gcp-uploader=google.cloud.aiplatform.tensorboard.uploader_main:run_main"
         ],
     },
-    namespace_packages=("google", "google.cloud"),
     author="Google LLC",
     author_email="googleapis-packages@google.com",
     license="Apache 2.0",
