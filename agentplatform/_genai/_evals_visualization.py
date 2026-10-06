@@ -232,6 +232,9 @@ def _extract_dataset_rows(dataset: types.EvaluationDataset) -> list[dict[str, An
     return processed_rows
 
 
+extract_dataset_rows = _extract_dataset_rows
+
+
 def get_evaluation_html(eval_result_json: str) -> str:
     """Returns a self-contained HTML for single evaluation visualization."""
     payload_b64 = _encode_to_base64(eval_result_json)
