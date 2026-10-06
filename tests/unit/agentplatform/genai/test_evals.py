@@ -844,6 +844,36 @@ class TestLossAnalysis:
         assert payload_b64 in html
         assert "DOMPurify" in html
 
+    def test_extract_dataset_rows(self):
+        dataset = common_types.EvaluationDataset(
+            eval_cases=[
+                common_types.EvalCase(
+                    prompt=genai_types.Content(
+                        parts=[genai_types.Part(text="What is 2+2?")]
+                    ),
+                    responses=[
+                        common_types.ResponseCandidate(
+                            response=genai_types.Content(
+                                parts=[genai_types.Part(text="4")]
+                            )
+                        )
+                    ],
+                    reference=common_types.ResponseCandidate(
+                        response=genai_types.Content(
+                            parts=[genai_types.Part(text="Four")]
+                        )
+                    ),
+                )
+            ]
+        )
+
+        rows = _evals_visualization.extract_dataset_rows(dataset)
+
+        assert len(rows) == 1
+        assert rows[0]["prompt_display_text"] == "What is 2+2?"
+        assert rows[0]["response_display_text"] == "4"
+        assert rows[0]["reference"] == "Four"
+
     def test_display_loss_clusters_response_no_ipython(self):
         """Tests graceful fallback when not in IPython."""
         from agentplatform._genai import _evals_visualization
