@@ -3070,7 +3070,7 @@ class Evals(_api_module.BaseModule):
                 events are replayed as session history for local ADK agents.
           model: Optional type is experimental and may change in future versions.
                 The model to use for inference, optional for agent evaluations.
-              - For Google Gemini models, provide the model name string (e.g., "gemini-2.5-flash").
+              - For Google Gemini models, provide the model name string (e.g., "gemini-flash-latest").
               - For third-party models via LiteLLM, use the format "provider/model_name"
                 (e.g., "openai/gpt-4o"). Ensure the necessary API key (e.g., OPENAI_API_KEY)
                 is set as an environment variable.
@@ -3342,7 +3342,7 @@ class Evals(_api_module.BaseModule):
               with the content.
             generator_model_config: Optional. Configuration for the model used
               in custom rubric generation. Only used if `prompt_template` is provided.
-              e.g., {"autorater_model": "gemini-2.5-flash"}.
+              e.g., {"autorater_model": "gemini-flash-latest"}.
             rubric_content_type: Optional. The type of rubric content to be
               generated. Only used if `prompt_template` is provided.
             rubric_type_ontology: Optional. A pre-defined list of allowed types
@@ -3619,12 +3619,12 @@ class Evals(_api_module.BaseModule):
                If provided, `agent_info` must be None. If omitted and `agent_info` is provided,
                this will be automatically constructed using `agent_info` and `user_simulator_config`.
                The `model` field of an inference config accepts a short Gemini model
-               name (e.g. `gemini-2.5-flash`), which is automatically expanded to a
+               name (e.g. `gemini-flash-latest`), which is automatically expanded to a
                fully-qualified resource name using the client's project and location,
                or an already fully-qualified publisher-model or endpoint resource
                name.
                Example:
-               {"candidate-1": types.EvaluationRunInferenceConfig(model="gemini-2.5-flash")}
+               {"candidate-1": types.EvaluationRunInferenceConfig(model="gemini-flash-latest")}
            labels: The labels to apply to the evaluation run.
            loss_analysis_metrics: This field is experimental and may change in future
                versions. Optional list of metrics to run loss analysis on. The
@@ -6261,12 +6261,12 @@ class AsyncEvals(_api_module.BaseModule):
               If provided, `agent_info` must be None. If omitted and `agent_info` is provided,
               this will be automatically constructed using `agent_info` and `user_simulator_config`.
               The `model` field of an inference config accepts a short Gemini model
-              name (e.g. `gemini-2.5-flash`), which is automatically expanded to a
+              name (e.g. `gemini-flash-latest`), which is automatically expanded to a
               fully-qualified resource name using the client's project and location,
               or an already fully-qualified publisher-model or endpoint resource
               name.
               Example:
-              {"candidate-1": types.EvaluationRunInferenceConfig(model="gemini-2.5-flash")}
+              {"candidate-1": types.EvaluationRunInferenceConfig(model="gemini-flash-latest")}
           red_teaming_config: This field is experimental and may change in future
               versions. Optional configuration for automated Agent Red Teaming
               analysis. Specifies attack categories and vulnerable tools to

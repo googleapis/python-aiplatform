@@ -2238,7 +2238,7 @@ class EvaluationRunInferenceConfig(_common.BaseModel):
     )
     model: Optional[str] = Field(
         default=None,
-        description="""The model to use for inference. Accepts a short Gemini model name (e.g. `gemini-2.5-flash`), which is automatically expanded to a fully-qualified resource name using the client's project and location, or an already fully-qualified publisher-model or endpoint resource name (e.g. `projects/{project}/locations/{location}/publishers/google/models/gemini-2.5-flash`).""",
+        description="""The model to use for inference. Accepts a short Gemini model name (e.g. `gemini-flash-latest`), which is automatically expanded to a fully-qualified resource name using the client's project and location, or an already fully-qualified publisher-model or endpoint resource name (e.g. `projects/{project}/locations/{location}/publishers/google/models/gemini-flash-latest`).""",
     )
     prompt_template: Optional[EvaluationRunPromptTemplate] = Field(
         default=None, description="""The prompt template used for inference."""
@@ -2260,7 +2260,7 @@ class EvaluationRunInferenceConfigDict(TypedDict, total=False):
     """The agent config."""
 
     model: Optional[str]
-    """The model to use for inference. Accepts a short Gemini model name (e.g. `gemini-2.5-flash`), which is automatically expanded to a fully-qualified resource name using the client's project and location, or an already fully-qualified publisher-model or endpoint resource name (e.g. `projects/{project}/locations/{location}/publishers/google/models/gemini-2.5-flash`)."""
+    """The model to use for inference. Accepts a short Gemini model name (e.g. `gemini-flash-latest`), which is automatically expanded to a fully-qualified resource name using the client's project and location, or an already fully-qualified publisher-model or endpoint resource name (e.g. `projects/{project}/locations/{location}/publishers/google/models/gemini-flash-latest`)."""
 
     prompt_template: Optional[EvaluationRunPromptTemplateDict]
     """The prompt template used for inference."""
@@ -31000,7 +31000,7 @@ class Prompt(_common.BaseModel):
 
         my_prompt = types.Prompt(
             prompt_data=types.PromptData(
-                model="gemini-2.0-flash-001",
+                model="gemini-flash-latest",
                 contents=[
                     genai_types.Content(
                         parts=[
