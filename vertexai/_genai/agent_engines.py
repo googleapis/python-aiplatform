@@ -2039,8 +2039,12 @@ class AgentEngines(_api_module.BaseModule):
                 f"agent_engine=client.agent_engines.get(name='{agent_engine.api_resource.name}')"
             )
         elif operation.error:
-            raise RuntimeError(
-                f"Operation {operation.name} failed to create Agent Engine: {operation.error}"
+            _agent_engines_utils._raise_for_operation_error(
+                operation=operation,
+                message=(
+                    f"Operation {operation.name} failed to create Agent Engine:"
+                    f" {operation.error}"
+                ),
             )
         else:
             logger.warning("The operation returned an empty response.")
@@ -2848,8 +2852,12 @@ class AgentEngines(_api_module.BaseModule):
                 f"agent_engine=client.agent_engines.get(name='{agent_engine.api_resource.name}')"
             )
         elif operation.error:
-            raise RuntimeError(
-                f"Operation {operation.name} failed to update Agent Engine: {operation.error}"
+            _agent_engines_utils._raise_for_operation_error(
+                operation=operation,
+                message=(
+                    f"Operation {operation.name} failed to update Agent Engine:"
+                    f" {operation.error}"
+                ),
             )
         if agent_engine.api_resource.spec:
             self._register_api_methods(agent_engine=agent_engine)

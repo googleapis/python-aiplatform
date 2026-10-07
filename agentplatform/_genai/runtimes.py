@@ -1944,8 +1944,12 @@ class Runtimes(_api_module.BaseModule):
                 f"runtime=client.runtimes.get(name='{runtime.api_resource.name}')"
             )
         elif operation.error:
-            raise RuntimeError(
-                f"Operation {operation.name} failed to create Agent Runtime: {operation.error}"
+            _runtimes_utils._raise_for_operation_error(
+                operation=operation,
+                message=(
+                    f"Operation {operation.name} failed to create Agent Runtime:"
+                    f" {operation.error}"
+                ),
             )
         else:
             logger.warning("The operation returned an empty response.")
@@ -2747,8 +2751,12 @@ class Runtimes(_api_module.BaseModule):
                 f"runtime=client.runtimes.get(name='{runtime.api_resource.name}')"
             )
         elif operation.error:
-            raise RuntimeError(
-                f"Operation {operation.name} failed to update Agent Runtime: {operation.error}"
+            _runtimes_utils._raise_for_operation_error(
+                operation=operation,
+                message=(
+                    f"Operation {operation.name} failed to update Agent Runtime:"
+                    f" {operation.error}"
+                ),
             )
         if runtime.api_resource.spec:
             self._register_api_methods(runtime=runtime)

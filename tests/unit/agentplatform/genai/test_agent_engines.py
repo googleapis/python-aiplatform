@@ -36,6 +36,7 @@ from agentplatform._genai import _runtimes_utils
 from agentplatform._genai import runtimes
 from agentplatform._genai import types as _genai_types
 from google.genai import client as genai_client
+from google.genai import errors as genai_errors
 from google.genai import types as genai_types
 from google.api import httpbody_pb2
 import pytest
@@ -4154,7 +4155,7 @@ class TestRuntimeErrors:
             self.client.runtimes._api_client, "request"
         ) as request_mock:
             request_mock.return_value = genai_types.HttpResponse(body="")
-            with pytest.raises(RuntimeError) as excinfo:
+            with pytest.raises(genai_errors.APIError) as excinfo:
                 self.client.runtimes.create(
                     agent=self.test_agent,
                     config=_genai_types.AgentRuntimeConfig(
@@ -4167,7 +4168,14 @@ class TestRuntimeErrors:
                         env_vars=_TEST_AGENT_ENGINE_ENV_VARS_INPUT,
                     ),
                 )
-            assert "failed to create Agent Runtime" in str(excinfo.value)
+            assert excinfo.value.code == _TEST_AGENT_ENGINE_ERROR["code"]
+            assert excinfo.value.message == _TEST_AGENT_ENGINE_ERROR["message"]
+            assert excinfo.value.details == _TEST_AGENT_ENGINE_ERROR
+            if sys.version_info >= (3, 11):
+                assert any(
+                    "failed to create Agent Runtime" in note
+                    for note in excinfo.value.__notes__
+                )
 
     @mock.patch.object(_runtimes_utils, "_await_operation")
     def test_update_runtime_description(self, mock_await_operation):
@@ -4178,14 +4186,21 @@ class TestRuntimeErrors:
             self.client.runtimes._api_client, "request"
         ) as request_mock:
             request_mock.return_value = genai_types.HttpResponse(body="")
-            with pytest.raises(RuntimeError) as excinfo:
+            with pytest.raises(genai_errors.APIError) as excinfo:
                 self.client.runtimes.update(
                     name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
                     config=_genai_types.AgentRuntimeConfig(
                         description=_TEST_AGENT_ENGINE_DESCRIPTION,
                     ),
                 )
-            assert "failed to update Agent Runtime" in str(excinfo.value)
+            assert excinfo.value.code == _TEST_AGENT_ENGINE_ERROR["code"]
+            assert excinfo.value.message == _TEST_AGENT_ENGINE_ERROR["message"]
+            assert excinfo.value.details == _TEST_AGENT_ENGINE_ERROR
+            if sys.version_info >= (3, 11):
+                assert any(
+                    "failed to update Agent Runtime" in note
+                    for note in excinfo.value.__notes__
+                )
 
     @pytest.mark.parametrize(
         "test_case_name, test_operation_schemas, want_log_output",

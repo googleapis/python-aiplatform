@@ -51,6 +51,7 @@ import httpx
 import proto
 
 from google.api_core import exceptions
+from google.genai import errors as google_genai_errors
 from google.genai import types as google_genai_types
 from google.protobuf import struct_pb2
 from google.protobuf import json_format
@@ -548,6 +549,23 @@ def _await_operation(
         operation = get_operation_fn(operation_name=operation.name)
 
     return operation
+
+
+def _raise_for_operation_error(
+    *,
+    operation: Any,
+    message: str,
+) -> None:
+    """Raises an APIError for a failed operation with a context note."""
+    try:
+        google_genai_errors.APIError.raise_error(
+            operation.error.get("code"), operation.error, None
+        )
+    except google_genai_errors.APIError as e:
+        # TODO(yifany): Drop guard once Python 3.10 support is removed.
+        if sys.version_info >= (3, 11):
+            e.add_note(message)
+        raise
 
 
 def _compare_requirements(
