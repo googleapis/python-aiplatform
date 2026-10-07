@@ -6032,6 +6032,20 @@ class TestOpenAIDataConverter:
         result_dataset = self.converter.convert(raw_data)
         assert len(result_dataset.eval_cases) == 0
 
+    @pytest.mark.parametrize(
+        "message,role,text",
+        [({"role": "assistant", "content": "Hi"}, "assistant", "Hi"), ({}, "user", "")],
+        ids=["role_and_content", "defaults"],
+    )
+    def test_openai_message_to_eval_message(self, message, role, text):
+        assert _evals_data_converters._openai_message_to_eval_message(
+            1, message
+        ) == agentplatform_genai_types.evals.Message(
+            turn_id="1",
+            content=genai_types.Content(parts=[genai_types.Part(text=text)], role=role),
+            author=role,
+        )
+
 
 class TestObservabilityDataConverter:
     """Unit tests for the ObservabilityDataConverter class."""

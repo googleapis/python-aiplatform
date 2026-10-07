@@ -57,6 +57,20 @@ def _create_placeholder_response_candidate(
     )
 
 
+def _openai_message_to_eval_message(
+    turn_id: int, message: dict[str, Any]
+) -> types.evals.Message:
+    """Converts an OpenAI chat message into a conversation history message."""
+    role = message.get("role", "user")
+    return types.evals.Message(
+        turn_id=str(turn_id),
+        content=genai_types.Content(
+            parts=[genai_types.Part(text=message.get("content", ""))], role=role
+        ),
+        author=role,
+    )
+
+
 class _GeminiEvalDataConverter(_evals_utils.EvalDataConverter):
     """Converter for dataset in the Gemini format."""
 
@@ -492,17 +506,7 @@ class _OpenAIDataConverter(_evals_utils.EvalDataConverter):
             messages = messages[1:]
 
         for turn_id, msg in enumerate(messages):
-            role = msg.get("role", "user")
-            content = msg.get("content", "")
-            conversation_history.append(
-                types.evals.Message(
-                    turn_id=str(turn_id),
-                    content=genai_types.Content(
-                        parts=[genai_types.Part(text=content)], role=role
-                    ),
-                    author=role,
-                )
-            )
+            conversation_history.append(_openai_message_to_eval_message(turn_id, msg))
 
         if conversation_history:
             last_message = conversation_history.pop()
