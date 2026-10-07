@@ -6950,6 +6950,28 @@ class TestBuildEvaluationInstance:
             == "System instructions here."
         )
 
+    @pytest.mark.parametrize(
+        "context",
+        [["Passage one.", "Passage two."], {"source": "doc-1", "text": "Passage."}],
+    )
+    def test_build_evaluation_instance_list_and_dict_context(self, context):
+        eval_case = agentplatform_genai_types.EvalCase(
+            prompt=genai_types.Content(parts=[genai_types.Part(text="Hello")]),
+            responses=[
+                agentplatform_genai_types.ResponseCandidate(
+                    response=genai_types.Content(parts=[genai_types.Part(text="Hi")])
+                )
+            ],
+            context=context,
+        )
+
+        instance = _evals_metric_handlers._build_evaluation_instance(
+            eval_case, eval_case.responses[0].response
+        )
+
+        context_data = instance.other_data.map_instance["context"]
+        assert context_data.contents.contents[0].parts[0].text == json.dumps(context)
+
 
 class TestMetric:
     """Unit tests for the Metric class."""

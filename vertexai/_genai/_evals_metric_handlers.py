@@ -684,6 +684,12 @@ def _build_evaluation_instance(
             other_data_map["context"] = types.evals.InstanceData(text=eval_case.context)
         elif isinstance(eval_case.context, genai_types.Content):
             other_data_map["context"] = _content_to_instance_data(eval_case.context)
+        else:
+            other_data_map["context"] = types.evals.InstanceData(
+                contents=types.evals.InstanceDataContents(
+                    contents=_value_to_content_list(eval_case.context)
+                )
+            )
 
     # 3. Extract custom variables from LLMMetric templates
     if prompt_template:
