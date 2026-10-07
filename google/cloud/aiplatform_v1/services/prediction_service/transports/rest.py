@@ -23,6 +23,7 @@ from google.api_core import retry as retries
 from google.api_core import rest_helpers
 from google.api_core import rest_streaming
 from google.api_core import gapic_v1
+from google.cloud.aiplatform_v1._compat import transcode_request
 import google.protobuf
 
 from google.protobuf import json_format
@@ -1074,19 +1075,16 @@ class PredictionServiceRestTransport(_BasePredictionServiceRestTransport):
             http_options = (
                 _BasePredictionServiceRestTransport._BaseDirectPredict._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_direct_predict(request, metadata)
-            transcoded_request = _BasePredictionServiceRestTransport._BaseDirectPredict._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BasePredictionServiceRestTransport._BaseDirectPredict._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BasePredictionServiceRestTransport._BaseDirectPredict._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BasePredictionServiceRestTransport._BaseDirectPredict,
+                    "_BaseDirectPredict__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -1231,21 +1229,18 @@ class PredictionServiceRestTransport(_BasePredictionServiceRestTransport):
             http_options = (
                 _BasePredictionServiceRestTransport._BaseDirectRawPredict._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_direct_raw_predict(
                 request, metadata
             )
-            transcoded_request = _BasePredictionServiceRestTransport._BaseDirectRawPredict._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BasePredictionServiceRestTransport._BaseDirectRawPredict._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BasePredictionServiceRestTransport._BaseDirectRawPredict._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BasePredictionServiceRestTransport._BaseDirectRawPredict,
+                    "_BaseDirectRawPredict__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -1389,19 +1384,16 @@ class PredictionServiceRestTransport(_BasePredictionServiceRestTransport):
             http_options = (
                 _BasePredictionServiceRestTransport._BaseEmbedContent._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_embed_content(request, metadata)
-            transcoded_request = _BasePredictionServiceRestTransport._BaseEmbedContent._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BasePredictionServiceRestTransport._BaseEmbedContent._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BasePredictionServiceRestTransport._BaseEmbedContent._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BasePredictionServiceRestTransport._BaseEmbedContent,
+                    "_BaseEmbedContent__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -1545,23 +1537,16 @@ class PredictionServiceRestTransport(_BasePredictionServiceRestTransport):
             http_options = (
                 _BasePredictionServiceRestTransport._BaseExplain._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_explain(request, metadata)
-            transcoded_request = _BasePredictionServiceRestTransport._BaseExplain._get_transcoded_request(
-                http_options, request
-            )
-
-            body = (
-                _BasePredictionServiceRestTransport._BaseExplain._get_request_body_json(
-                    transcoded_request
-                )
-            )
-
-            # Jsonify the query params
-            query_params = (
-                _BasePredictionServiceRestTransport._BaseExplain._get_query_params_json(
-                    transcoded_request
-                )
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BasePredictionServiceRestTransport._BaseExplain,
+                    "_BaseExplain__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -1705,21 +1690,18 @@ class PredictionServiceRestTransport(_BasePredictionServiceRestTransport):
             http_options = (
                 _BasePredictionServiceRestTransport._BaseGenerateContent._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_generate_content(
                 request, metadata
             )
-            transcoded_request = _BasePredictionServiceRestTransport._BaseGenerateContent._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BasePredictionServiceRestTransport._BaseGenerateContent._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BasePredictionServiceRestTransport._BaseGenerateContent._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BasePredictionServiceRestTransport._BaseGenerateContent,
+                    "_BaseGenerateContent__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -1863,23 +1845,16 @@ class PredictionServiceRestTransport(_BasePredictionServiceRestTransport):
             http_options = (
                 _BasePredictionServiceRestTransport._BasePredict._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_predict(request, metadata)
-            transcoded_request = _BasePredictionServiceRestTransport._BasePredict._get_transcoded_request(
-                http_options, request
-            )
-
-            body = (
-                _BasePredictionServiceRestTransport._BasePredict._get_request_body_json(
-                    transcoded_request
-                )
-            )
-
-            # Jsonify the query params
-            query_params = (
-                _BasePredictionServiceRestTransport._BasePredict._get_query_params_json(
-                    transcoded_request
-                )
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BasePredictionServiceRestTransport._BasePredict,
+                    "_BasePredict__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -2070,19 +2045,16 @@ class PredictionServiceRestTransport(_BasePredictionServiceRestTransport):
             http_options = (
                 _BasePredictionServiceRestTransport._BaseRawPredict._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_raw_predict(request, metadata)
-            transcoded_request = _BasePredictionServiceRestTransport._BaseRawPredict._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BasePredictionServiceRestTransport._BaseRawPredict._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BasePredictionServiceRestTransport._BaseRawPredict._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BasePredictionServiceRestTransport._BaseRawPredict,
+                    "_BaseRawPredict__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -2231,21 +2203,18 @@ class PredictionServiceRestTransport(_BasePredictionServiceRestTransport):
             http_options = (
                 _BasePredictionServiceRestTransport._BaseServerStreamingPredict._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_server_streaming_predict(
                 request, metadata
             )
-            transcoded_request = _BasePredictionServiceRestTransport._BaseServerStreamingPredict._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BasePredictionServiceRestTransport._BaseServerStreamingPredict._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BasePredictionServiceRestTransport._BaseServerStreamingPredict._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BasePredictionServiceRestTransport._BaseServerStreamingPredict,
+                    "_BaseServerStreamingPredict__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -2422,21 +2391,18 @@ class PredictionServiceRestTransport(_BasePredictionServiceRestTransport):
             http_options = (
                 _BasePredictionServiceRestTransport._BaseStreamGenerateContent._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_stream_generate_content(
                 request, metadata
             )
-            transcoded_request = _BasePredictionServiceRestTransport._BaseStreamGenerateContent._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BasePredictionServiceRestTransport._BaseStreamGenerateContent._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BasePredictionServiceRestTransport._BaseStreamGenerateContent._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BasePredictionServiceRestTransport._BaseStreamGenerateContent,
+                    "_BaseStreamGenerateContent__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -2661,21 +2627,18 @@ class PredictionServiceRestTransport(_BasePredictionServiceRestTransport):
             http_options = (
                 _BasePredictionServiceRestTransport._BaseStreamRawPredict._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_stream_raw_predict(
                 request, metadata
             )
-            transcoded_request = _BasePredictionServiceRestTransport._BaseStreamRawPredict._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BasePredictionServiceRestTransport._BaseStreamRawPredict._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BasePredictionServiceRestTransport._BaseStreamRawPredict._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BasePredictionServiceRestTransport._BaseStreamRawPredict,
+                    "_BaseStreamRawPredict__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -2954,15 +2917,16 @@ class PredictionServiceRestTransport(_BasePredictionServiceRestTransport):
             http_options = (
                 _BasePredictionServiceRestTransport._BaseGetLocation._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_get_location(request, metadata)
-            transcoded_request = _BasePredictionServiceRestTransport._BaseGetLocation._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BasePredictionServiceRestTransport._BaseGetLocation._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BasePredictionServiceRestTransport._BaseGetLocation,
+                    "_BaseGetLocation__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -3096,15 +3060,16 @@ class PredictionServiceRestTransport(_BasePredictionServiceRestTransport):
             http_options = (
                 _BasePredictionServiceRestTransport._BaseListLocations._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_list_locations(request, metadata)
-            transcoded_request = _BasePredictionServiceRestTransport._BaseListLocations._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BasePredictionServiceRestTransport._BaseListLocations._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BasePredictionServiceRestTransport._BaseListLocations,
+                    "_BaseListLocations__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -3237,15 +3202,16 @@ class PredictionServiceRestTransport(_BasePredictionServiceRestTransport):
             http_options = (
                 _BasePredictionServiceRestTransport._BaseGetIamPolicy._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_get_iam_policy(request, metadata)
-            transcoded_request = _BasePredictionServiceRestTransport._BaseGetIamPolicy._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BasePredictionServiceRestTransport._BaseGetIamPolicy._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BasePredictionServiceRestTransport._BaseGetIamPolicy,
+                    "_BaseGetIamPolicy__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -3379,19 +3345,16 @@ class PredictionServiceRestTransport(_BasePredictionServiceRestTransport):
             http_options = (
                 _BasePredictionServiceRestTransport._BaseSetIamPolicy._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_set_iam_policy(request, metadata)
-            transcoded_request = _BasePredictionServiceRestTransport._BaseSetIamPolicy._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BasePredictionServiceRestTransport._BaseSetIamPolicy._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BasePredictionServiceRestTransport._BaseSetIamPolicy._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BasePredictionServiceRestTransport._BaseSetIamPolicy,
+                    "_BaseSetIamPolicy__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -3526,17 +3489,18 @@ class PredictionServiceRestTransport(_BasePredictionServiceRestTransport):
             http_options = (
                 _BasePredictionServiceRestTransport._BaseTestIamPermissions._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_test_iam_permissions(
                 request, metadata
             )
-            transcoded_request = _BasePredictionServiceRestTransport._BaseTestIamPermissions._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BasePredictionServiceRestTransport._BaseTestIamPermissions._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BasePredictionServiceRestTransport._BaseTestIamPermissions,
+                    "_BaseTestIamPermissions__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -3667,17 +3631,18 @@ class PredictionServiceRestTransport(_BasePredictionServiceRestTransport):
             http_options = (
                 _BasePredictionServiceRestTransport._BaseCancelOperation._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_cancel_operation(
                 request, metadata
             )
-            transcoded_request = _BasePredictionServiceRestTransport._BaseCancelOperation._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BasePredictionServiceRestTransport._BaseCancelOperation._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BasePredictionServiceRestTransport._BaseCancelOperation,
+                    "_BaseCancelOperation__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -3783,17 +3748,18 @@ class PredictionServiceRestTransport(_BasePredictionServiceRestTransport):
             http_options = (
                 _BasePredictionServiceRestTransport._BaseDeleteOperation._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_delete_operation(
                 request, metadata
             )
-            transcoded_request = _BasePredictionServiceRestTransport._BaseDeleteOperation._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BasePredictionServiceRestTransport._BaseDeleteOperation._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BasePredictionServiceRestTransport._BaseDeleteOperation,
+                    "_BaseDeleteOperation__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -3901,15 +3867,16 @@ class PredictionServiceRestTransport(_BasePredictionServiceRestTransport):
             http_options = (
                 _BasePredictionServiceRestTransport._BaseGetOperation._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_get_operation(request, metadata)
-            transcoded_request = _BasePredictionServiceRestTransport._BaseGetOperation._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BasePredictionServiceRestTransport._BaseGetOperation._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BasePredictionServiceRestTransport._BaseGetOperation,
+                    "_BaseGetOperation__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -4043,15 +4010,16 @@ class PredictionServiceRestTransport(_BasePredictionServiceRestTransport):
             http_options = (
                 _BasePredictionServiceRestTransport._BaseListOperations._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_list_operations(request, metadata)
-            transcoded_request = _BasePredictionServiceRestTransport._BaseListOperations._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BasePredictionServiceRestTransport._BaseListOperations._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BasePredictionServiceRestTransport._BaseListOperations,
+                    "_BaseListOperations__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -4185,15 +4153,16 @@ class PredictionServiceRestTransport(_BasePredictionServiceRestTransport):
             http_options = (
                 _BasePredictionServiceRestTransport._BaseWaitOperation._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_wait_operation(request, metadata)
-            transcoded_request = _BasePredictionServiceRestTransport._BaseWaitOperation._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BasePredictionServiceRestTransport._BaseWaitOperation._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BasePredictionServiceRestTransport._BaseWaitOperation,
+                    "_BaseWaitOperation__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(

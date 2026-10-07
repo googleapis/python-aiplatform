@@ -25,13 +25,15 @@ from .rest import OnlineEvaluatorServiceRestInterceptor
 ASYNC_REST_CLASSES: Tuple[str, ...]
 try:
     from .rest_asyncio import AsyncOnlineEvaluatorServiceRestTransport
-    from .rest_asyncio import AsyncOnlineEvaluatorServiceRestInterceptor
+    from .rest_asyncio import (
+        AsyncOnlineEvaluatorServiceRestInterceptor,
+    )  # pragma: NO COVER
 
     ASYNC_REST_CLASSES = (
         "AsyncOnlineEvaluatorServiceRestTransport",
         "AsyncOnlineEvaluatorServiceRestInterceptor",
-    )
-    HAS_REST_ASYNC = True
+    )  # pragma: NO COVER
+    HAS_REST_ASYNC = True  # pragma: NO COVER
 except ImportError:  # pragma: NO COVER
     ASYNC_REST_CLASSES = ()
     HAS_REST_ASYNC = False

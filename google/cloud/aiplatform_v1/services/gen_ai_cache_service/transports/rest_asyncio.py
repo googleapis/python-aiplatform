@@ -26,6 +26,7 @@ except ImportError as e:  # pragma: NO COVER
         "`rest_asyncio` transport requires the library to be installed with the `async_rest` extra. Install the library with the `async_rest` extra using `pip install google-cloud-aiplatform[async_rest]`"
     ) from e
 
+from google.auth import credentials as ga_credentials  # type: ignore
 from google.auth.aio import credentials as ga_credentials_async  # type: ignore
 
 from google.api_core import exceptions as core_exceptions
@@ -36,6 +37,8 @@ from google.cloud.location import locations_pb2  # type: ignore
 from google.api_core import retry_async as retries
 from google.api_core import rest_helpers
 from google.api_core import rest_streaming_async  # type: ignore
+from google.cloud.aiplatform_v1._compat import transcode_request
+
 import google.protobuf
 
 from google.protobuf import json_format
@@ -631,7 +634,9 @@ class AsyncGenAiCacheServiceRestTransport(_BaseGenAiCacheServiceRestTransport):
         self,
         *,
         host: str = "aiplatform.googleapis.com",
-        credentials: Optional[ga_credentials_async.Credentials] = None,
+        credentials: Optional[
+            Union[ga_credentials.Credentials, ga_credentials_async.Credentials]
+        ] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
         url_scheme: str = "https",
         interceptor: Optional[AsyncGenAiCacheServiceRestInterceptor] = None,
@@ -641,7 +646,7 @@ class AsyncGenAiCacheServiceRestTransport(_BaseGenAiCacheServiceRestTransport):
         Args:
             host (Optional[str]):
                  The hostname to connect to (default: 'aiplatform.googleapis.com').
-            credentials (Optional[google.auth.aio.credentials.Credentials]): The
+            credentials (Optional[Union[google.auth.credentials.Credentials, google.auth.aio.credentials.Credentials]]): The
                 authorization credentials to attach to requests. These
                 credentials identify the application to the service; if none
                 are specified, the client will attempt to ascertain the
@@ -820,21 +825,18 @@ class AsyncGenAiCacheServiceRestTransport(_BaseGenAiCacheServiceRestTransport):
             http_options = (
                 _BaseGenAiCacheServiceRestTransport._BaseCreateCachedContent._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_create_cached_content(
                 request, metadata
             )
-            transcoded_request = _BaseGenAiCacheServiceRestTransport._BaseCreateCachedContent._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseGenAiCacheServiceRestTransport._BaseCreateCachedContent._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseGenAiCacheServiceRestTransport._BaseCreateCachedContent._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseGenAiCacheServiceRestTransport._BaseCreateCachedContent,
+                    "_BaseCreateCachedContent__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -978,17 +980,18 @@ class AsyncGenAiCacheServiceRestTransport(_BaseGenAiCacheServiceRestTransport):
             http_options = (
                 _BaseGenAiCacheServiceRestTransport._BaseDeleteCachedContent._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_delete_cached_content(
                 request, metadata
             )
-            transcoded_request = _BaseGenAiCacheServiceRestTransport._BaseDeleteCachedContent._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseGenAiCacheServiceRestTransport._BaseDeleteCachedContent._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseGenAiCacheServiceRestTransport._BaseDeleteCachedContent,
+                    "_BaseDeleteCachedContent__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -1102,17 +1105,18 @@ class AsyncGenAiCacheServiceRestTransport(_BaseGenAiCacheServiceRestTransport):
             http_options = (
                 _BaseGenAiCacheServiceRestTransport._BaseGetCachedContent._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_get_cached_content(
                 request, metadata
             )
-            transcoded_request = _BaseGenAiCacheServiceRestTransport._BaseGetCachedContent._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseGenAiCacheServiceRestTransport._BaseGetCachedContent._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseGenAiCacheServiceRestTransport._BaseGetCachedContent,
+                    "_BaseGetCachedContent__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -1258,17 +1262,18 @@ class AsyncGenAiCacheServiceRestTransport(_BaseGenAiCacheServiceRestTransport):
             http_options = (
                 _BaseGenAiCacheServiceRestTransport._BaseListCachedContents._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_list_cached_contents(
                 request, metadata
             )
-            transcoded_request = _BaseGenAiCacheServiceRestTransport._BaseListCachedContents._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseGenAiCacheServiceRestTransport._BaseListCachedContents._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseGenAiCacheServiceRestTransport._BaseListCachedContents,
+                    "_BaseListCachedContents__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -1422,21 +1427,18 @@ class AsyncGenAiCacheServiceRestTransport(_BaseGenAiCacheServiceRestTransport):
             http_options = (
                 _BaseGenAiCacheServiceRestTransport._BaseUpdateCachedContent._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_update_cached_content(
                 request, metadata
             )
-            transcoded_request = _BaseGenAiCacheServiceRestTransport._BaseUpdateCachedContent._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseGenAiCacheServiceRestTransport._BaseUpdateCachedContent._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseGenAiCacheServiceRestTransport._BaseUpdateCachedContent._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseGenAiCacheServiceRestTransport._BaseUpdateCachedContent,
+                    "_BaseUpdateCachedContent__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -1627,17 +1629,18 @@ class AsyncGenAiCacheServiceRestTransport(_BaseGenAiCacheServiceRestTransport):
             http_options = (
                 _BaseGenAiCacheServiceRestTransport._BaseGetLocation._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_get_location(
                 request, metadata
             )
-            transcoded_request = _BaseGenAiCacheServiceRestTransport._BaseGetLocation._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseGenAiCacheServiceRestTransport._BaseGetLocation._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseGenAiCacheServiceRestTransport._BaseGetLocation,
+                    "_BaseGetLocation__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -1779,17 +1782,18 @@ class AsyncGenAiCacheServiceRestTransport(_BaseGenAiCacheServiceRestTransport):
             http_options = (
                 _BaseGenAiCacheServiceRestTransport._BaseListLocations._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_list_locations(
                 request, metadata
             )
-            transcoded_request = _BaseGenAiCacheServiceRestTransport._BaseListLocations._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseGenAiCacheServiceRestTransport._BaseListLocations._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseGenAiCacheServiceRestTransport._BaseListLocations,
+                    "_BaseListLocations__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -1931,17 +1935,18 @@ class AsyncGenAiCacheServiceRestTransport(_BaseGenAiCacheServiceRestTransport):
             http_options = (
                 _BaseGenAiCacheServiceRestTransport._BaseGetIamPolicy._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_get_iam_policy(
                 request, metadata
             )
-            transcoded_request = _BaseGenAiCacheServiceRestTransport._BaseGetIamPolicy._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseGenAiCacheServiceRestTransport._BaseGetIamPolicy._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseGenAiCacheServiceRestTransport._BaseGetIamPolicy,
+                    "_BaseGetIamPolicy__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -2084,21 +2089,18 @@ class AsyncGenAiCacheServiceRestTransport(_BaseGenAiCacheServiceRestTransport):
             http_options = (
                 _BaseGenAiCacheServiceRestTransport._BaseSetIamPolicy._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_set_iam_policy(
                 request, metadata
             )
-            transcoded_request = _BaseGenAiCacheServiceRestTransport._BaseSetIamPolicy._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseGenAiCacheServiceRestTransport._BaseSetIamPolicy._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseGenAiCacheServiceRestTransport._BaseSetIamPolicy._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseGenAiCacheServiceRestTransport._BaseSetIamPolicy,
+                    "_BaseSetIamPolicy__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -2241,17 +2243,18 @@ class AsyncGenAiCacheServiceRestTransport(_BaseGenAiCacheServiceRestTransport):
             http_options = (
                 _BaseGenAiCacheServiceRestTransport._BaseTestIamPermissions._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_test_iam_permissions(
                 request, metadata
             )
-            transcoded_request = _BaseGenAiCacheServiceRestTransport._BaseTestIamPermissions._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseGenAiCacheServiceRestTransport._BaseTestIamPermissions._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseGenAiCacheServiceRestTransport._BaseTestIamPermissions,
+                    "_BaseTestIamPermissions__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -2388,17 +2391,18 @@ class AsyncGenAiCacheServiceRestTransport(_BaseGenAiCacheServiceRestTransport):
             http_options = (
                 _BaseGenAiCacheServiceRestTransport._BaseCancelOperation._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_cancel_operation(
                 request, metadata
             )
-            transcoded_request = _BaseGenAiCacheServiceRestTransport._BaseCancelOperation._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseGenAiCacheServiceRestTransport._BaseCancelOperation._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseGenAiCacheServiceRestTransport._BaseCancelOperation,
+                    "_BaseCancelOperation__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -2510,17 +2514,18 @@ class AsyncGenAiCacheServiceRestTransport(_BaseGenAiCacheServiceRestTransport):
             http_options = (
                 _BaseGenAiCacheServiceRestTransport._BaseDeleteOperation._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_delete_operation(
                 request, metadata
             )
-            transcoded_request = _BaseGenAiCacheServiceRestTransport._BaseDeleteOperation._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseGenAiCacheServiceRestTransport._BaseDeleteOperation._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseGenAiCacheServiceRestTransport._BaseDeleteOperation,
+                    "_BaseDeleteOperation__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -2635,17 +2640,18 @@ class AsyncGenAiCacheServiceRestTransport(_BaseGenAiCacheServiceRestTransport):
             http_options = (
                 _BaseGenAiCacheServiceRestTransport._BaseGetOperation._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_get_operation(
                 request, metadata
             )
-            transcoded_request = _BaseGenAiCacheServiceRestTransport._BaseGetOperation._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseGenAiCacheServiceRestTransport._BaseGetOperation._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseGenAiCacheServiceRestTransport._BaseGetOperation,
+                    "_BaseGetOperation__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -2787,17 +2793,18 @@ class AsyncGenAiCacheServiceRestTransport(_BaseGenAiCacheServiceRestTransport):
             http_options = (
                 _BaseGenAiCacheServiceRestTransport._BaseListOperations._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_list_operations(
                 request, metadata
             )
-            transcoded_request = _BaseGenAiCacheServiceRestTransport._BaseListOperations._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseGenAiCacheServiceRestTransport._BaseListOperations._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseGenAiCacheServiceRestTransport._BaseListOperations,
+                    "_BaseListOperations__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -2939,17 +2946,18 @@ class AsyncGenAiCacheServiceRestTransport(_BaseGenAiCacheServiceRestTransport):
             http_options = (
                 _BaseGenAiCacheServiceRestTransport._BaseWaitOperation._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_wait_operation(
                 request, metadata
             )
-            transcoded_request = _BaseGenAiCacheServiceRestTransport._BaseWaitOperation._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseGenAiCacheServiceRestTransport._BaseWaitOperation._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseGenAiCacheServiceRestTransport._BaseWaitOperation,
+                    "_BaseWaitOperation__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(

@@ -26,6 +26,7 @@ except ImportError as e:  # pragma: NO COVER
         "`rest_asyncio` transport requires the library to be installed with the `async_rest` extra. Install the library with the `async_rest` extra using `pip install google-cloud-aiplatform[async_rest]`"
     ) from e
 
+from google.auth import credentials as ga_credentials  # type: ignore
 from google.auth.aio import credentials as ga_credentials_async  # type: ignore
 
 from google.api_core import exceptions as core_exceptions
@@ -37,6 +38,8 @@ from google.cloud.location import locations_pb2  # type: ignore
 from google.api_core import retry_async as retries
 from google.api_core import rest_helpers
 from google.api_core import rest_streaming_async  # type: ignore
+from google.cloud.aiplatform_v1._compat import transcode_request
+
 import google.protobuf
 
 from google.protobuf import json_format
@@ -1467,7 +1470,9 @@ class AsyncDatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
         self,
         *,
         host: str = "aiplatform.googleapis.com",
-        credentials: Optional[ga_credentials_async.Credentials] = None,
+        credentials: Optional[
+            Union[ga_credentials.Credentials, ga_credentials_async.Credentials]
+        ] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
         url_scheme: str = "https",
         interceptor: Optional[AsyncDatasetServiceRestInterceptor] = None,
@@ -1477,7 +1482,7 @@ class AsyncDatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
         Args:
             host (Optional[str]):
                  The hostname to connect to (default: 'aiplatform.googleapis.com').
-            credentials (Optional[google.auth.aio.credentials.Credentials]): The
+            credentials (Optional[Union[google.auth.credentials.Credentials, google.auth.aio.credentials.Credentials]]): The
                 authorization credentials to attach to requests. These
                 credentials identify the application to the service; if none
                 are specified, the client will attempt to ascertain the
@@ -1728,21 +1733,18 @@ class AsyncDatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             http_options = (
                 _BaseDatasetServiceRestTransport._BaseCreateDataset._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_create_dataset(
                 request, metadata
             )
-            transcoded_request = _BaseDatasetServiceRestTransport._BaseCreateDataset._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseDatasetServiceRestTransport._BaseCreateDataset._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseDatasetServiceRestTransport._BaseCreateDataset._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseDatasetServiceRestTransport._BaseCreateDataset,
+                    "_BaseCreateDataset__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -1894,21 +1896,18 @@ class AsyncDatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             http_options = (
                 _BaseDatasetServiceRestTransport._BaseCreateDatasetVersion._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_create_dataset_version(
                 request, metadata
             )
-            transcoded_request = _BaseDatasetServiceRestTransport._BaseCreateDatasetVersion._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseDatasetServiceRestTransport._BaseCreateDatasetVersion._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseDatasetServiceRestTransport._BaseCreateDatasetVersion._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseDatasetServiceRestTransport._BaseCreateDatasetVersion,
+                    "_BaseCreateDatasetVersion__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -2056,17 +2055,18 @@ class AsyncDatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             http_options = (
                 _BaseDatasetServiceRestTransport._BaseDeleteDataset._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_delete_dataset(
                 request, metadata
             )
-            transcoded_request = _BaseDatasetServiceRestTransport._BaseDeleteDataset._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseDatasetServiceRestTransport._BaseDeleteDataset._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseDatasetServiceRestTransport._BaseDeleteDataset,
+                    "_BaseDeleteDataset__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -2216,17 +2216,18 @@ class AsyncDatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             http_options = (
                 _BaseDatasetServiceRestTransport._BaseDeleteDatasetVersion._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_delete_dataset_version(
                 request, metadata
             )
-            transcoded_request = _BaseDatasetServiceRestTransport._BaseDeleteDatasetVersion._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseDatasetServiceRestTransport._BaseDeleteDatasetVersion._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseDatasetServiceRestTransport._BaseDeleteDatasetVersion,
+                    "_BaseDeleteDatasetVersion__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -2374,17 +2375,18 @@ class AsyncDatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             http_options = (
                 _BaseDatasetServiceRestTransport._BaseDeleteSavedQuery._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_delete_saved_query(
                 request, metadata
             )
-            transcoded_request = _BaseDatasetServiceRestTransport._BaseDeleteSavedQuery._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseDatasetServiceRestTransport._BaseDeleteSavedQuery._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseDatasetServiceRestTransport._BaseDeleteSavedQuery,
+                    "_BaseDeleteSavedQuery__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -2534,25 +2536,18 @@ class AsyncDatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             http_options = (
                 _BaseDatasetServiceRestTransport._BaseExportData._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_export_data(
                 request, metadata
             )
-            transcoded_request = _BaseDatasetServiceRestTransport._BaseExportData._get_transcoded_request(
-                http_options, request
-            )
-
-            body = (
-                _BaseDatasetServiceRestTransport._BaseExportData._get_request_body_json(
-                    transcoded_request
-                )
-            )
-
-            # Jsonify the query params
-            query_params = (
-                _BaseDatasetServiceRestTransport._BaseExportData._get_query_params_json(
-                    transcoded_request
-                )
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseDatasetServiceRestTransport._BaseExportData,
+                    "_BaseExportData__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -2700,17 +2695,18 @@ class AsyncDatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             http_options = (
                 _BaseDatasetServiceRestTransport._BaseGetAnnotationSpec._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_get_annotation_spec(
                 request, metadata
             )
-            transcoded_request = _BaseDatasetServiceRestTransport._BaseGetAnnotationSpec._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseDatasetServiceRestTransport._BaseGetAnnotationSpec._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseDatasetServiceRestTransport._BaseGetAnnotationSpec,
+                    "_BaseGetAnnotationSpec__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -2858,19 +2854,18 @@ class AsyncDatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             http_options = (
                 _BaseDatasetServiceRestTransport._BaseGetDataset._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_get_dataset(
                 request, metadata
             )
-            transcoded_request = _BaseDatasetServiceRestTransport._BaseGetDataset._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = (
-                _BaseDatasetServiceRestTransport._BaseGetDataset._get_query_params_json(
-                    transcoded_request
-                )
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseDatasetServiceRestTransport._BaseGetDataset,
+                    "_BaseGetDataset__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -3015,17 +3010,18 @@ class AsyncDatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             http_options = (
                 _BaseDatasetServiceRestTransport._BaseGetDatasetVersion._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_get_dataset_version(
                 request, metadata
             )
-            transcoded_request = _BaseDatasetServiceRestTransport._BaseGetDatasetVersion._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseDatasetServiceRestTransport._BaseGetDatasetVersion._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseDatasetServiceRestTransport._BaseGetDatasetVersion,
+                    "_BaseGetDatasetVersion__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -3175,25 +3171,18 @@ class AsyncDatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             http_options = (
                 _BaseDatasetServiceRestTransport._BaseImportData._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_import_data(
                 request, metadata
             )
-            transcoded_request = _BaseDatasetServiceRestTransport._BaseImportData._get_transcoded_request(
-                http_options, request
-            )
-
-            body = (
-                _BaseDatasetServiceRestTransport._BaseImportData._get_request_body_json(
-                    transcoded_request
-                )
-            )
-
-            # Jsonify the query params
-            query_params = (
-                _BaseDatasetServiceRestTransport._BaseImportData._get_query_params_json(
-                    transcoded_request
-                )
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseDatasetServiceRestTransport._BaseImportData,
+                    "_BaseImportData__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -3341,17 +3330,18 @@ class AsyncDatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             http_options = (
                 _BaseDatasetServiceRestTransport._BaseListAnnotations._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_list_annotations(
                 request, metadata
             )
-            transcoded_request = _BaseDatasetServiceRestTransport._BaseListAnnotations._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseDatasetServiceRestTransport._BaseListAnnotations._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseDatasetServiceRestTransport._BaseListAnnotations,
+                    "_BaseListAnnotations__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -3501,17 +3491,18 @@ class AsyncDatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             http_options = (
                 _BaseDatasetServiceRestTransport._BaseListDataItems._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_list_data_items(
                 request, metadata
             )
-            transcoded_request = _BaseDatasetServiceRestTransport._BaseListDataItems._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseDatasetServiceRestTransport._BaseListDataItems._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseDatasetServiceRestTransport._BaseListDataItems,
+                    "_BaseListDataItems__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -3661,17 +3652,18 @@ class AsyncDatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             http_options = (
                 _BaseDatasetServiceRestTransport._BaseListDatasets._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_list_datasets(
                 request, metadata
             )
-            transcoded_request = _BaseDatasetServiceRestTransport._BaseListDatasets._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseDatasetServiceRestTransport._BaseListDatasets._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseDatasetServiceRestTransport._BaseListDatasets,
+                    "_BaseListDatasets__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -3822,17 +3814,18 @@ class AsyncDatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             http_options = (
                 _BaseDatasetServiceRestTransport._BaseListDatasetVersions._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_list_dataset_versions(
                 request, metadata
             )
-            transcoded_request = _BaseDatasetServiceRestTransport._BaseListDatasetVersions._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseDatasetServiceRestTransport._BaseListDatasetVersions._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseDatasetServiceRestTransport._BaseListDatasetVersions,
+                    "_BaseListDatasetVersions__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -3981,17 +3974,18 @@ class AsyncDatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             http_options = (
                 _BaseDatasetServiceRestTransport._BaseListSavedQueries._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_list_saved_queries(
                 request, metadata
             )
-            transcoded_request = _BaseDatasetServiceRestTransport._BaseListSavedQueries._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseDatasetServiceRestTransport._BaseListSavedQueries._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseDatasetServiceRestTransport._BaseListSavedQueries,
+                    "_BaseListSavedQueries__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -4143,17 +4137,18 @@ class AsyncDatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             http_options = (
                 _BaseDatasetServiceRestTransport._BaseRestoreDatasetVersion._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_restore_dataset_version(
                 request, metadata
             )
-            transcoded_request = _BaseDatasetServiceRestTransport._BaseRestoreDatasetVersion._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseDatasetServiceRestTransport._BaseRestoreDatasetVersion._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseDatasetServiceRestTransport._BaseRestoreDatasetVersion,
+                    "_BaseRestoreDatasetVersion__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -4302,17 +4297,18 @@ class AsyncDatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             http_options = (
                 _BaseDatasetServiceRestTransport._BaseSearchDataItems._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_search_data_items(
                 request, metadata
             )
-            transcoded_request = _BaseDatasetServiceRestTransport._BaseSearchDataItems._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseDatasetServiceRestTransport._BaseSearchDataItems._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseDatasetServiceRestTransport._BaseSearchDataItems,
+                    "_BaseSearchDataItems__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -4463,21 +4459,18 @@ class AsyncDatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             http_options = (
                 _BaseDatasetServiceRestTransport._BaseUpdateDataset._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_update_dataset(
                 request, metadata
             )
-            transcoded_request = _BaseDatasetServiceRestTransport._BaseUpdateDataset._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseDatasetServiceRestTransport._BaseUpdateDataset._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseDatasetServiceRestTransport._BaseUpdateDataset._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseDatasetServiceRestTransport._BaseUpdateDataset,
+                    "_BaseUpdateDataset__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -4626,21 +4619,18 @@ class AsyncDatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             http_options = (
                 _BaseDatasetServiceRestTransport._BaseUpdateDatasetVersion._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_update_dataset_version(
                 request, metadata
             )
-            transcoded_request = _BaseDatasetServiceRestTransport._BaseUpdateDatasetVersion._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseDatasetServiceRestTransport._BaseUpdateDatasetVersion._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseDatasetServiceRestTransport._BaseUpdateDatasetVersion._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseDatasetServiceRestTransport._BaseUpdateDatasetVersion,
+                    "_BaseUpdateDatasetVersion__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -6925,17 +6915,18 @@ class AsyncDatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             http_options = (
                 _BaseDatasetServiceRestTransport._BaseGetLocation._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_get_location(
                 request, metadata
             )
-            transcoded_request = _BaseDatasetServiceRestTransport._BaseGetLocation._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseDatasetServiceRestTransport._BaseGetLocation._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseDatasetServiceRestTransport._BaseGetLocation,
+                    "_BaseGetLocation__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -7076,17 +7067,18 @@ class AsyncDatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             http_options = (
                 _BaseDatasetServiceRestTransport._BaseListLocations._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_list_locations(
                 request, metadata
             )
-            transcoded_request = _BaseDatasetServiceRestTransport._BaseListLocations._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseDatasetServiceRestTransport._BaseListLocations._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseDatasetServiceRestTransport._BaseListLocations,
+                    "_BaseListLocations__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -7227,17 +7219,18 @@ class AsyncDatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             http_options = (
                 _BaseDatasetServiceRestTransport._BaseGetIamPolicy._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_get_iam_policy(
                 request, metadata
             )
-            transcoded_request = _BaseDatasetServiceRestTransport._BaseGetIamPolicy._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseDatasetServiceRestTransport._BaseGetIamPolicy._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseDatasetServiceRestTransport._BaseGetIamPolicy,
+                    "_BaseGetIamPolicy__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -7379,21 +7372,18 @@ class AsyncDatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             http_options = (
                 _BaseDatasetServiceRestTransport._BaseSetIamPolicy._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_set_iam_policy(
                 request, metadata
             )
-            transcoded_request = _BaseDatasetServiceRestTransport._BaseSetIamPolicy._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseDatasetServiceRestTransport._BaseSetIamPolicy._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseDatasetServiceRestTransport._BaseSetIamPolicy._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseDatasetServiceRestTransport._BaseSetIamPolicy,
+                    "_BaseSetIamPolicy__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -7536,17 +7526,18 @@ class AsyncDatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             http_options = (
                 _BaseDatasetServiceRestTransport._BaseTestIamPermissions._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_test_iam_permissions(
                 request, metadata
             )
-            transcoded_request = _BaseDatasetServiceRestTransport._BaseTestIamPermissions._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseDatasetServiceRestTransport._BaseTestIamPermissions._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseDatasetServiceRestTransport._BaseTestIamPermissions,
+                    "_BaseTestIamPermissions__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -7683,17 +7674,18 @@ class AsyncDatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             http_options = (
                 _BaseDatasetServiceRestTransport._BaseCancelOperation._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_cancel_operation(
                 request, metadata
             )
-            transcoded_request = _BaseDatasetServiceRestTransport._BaseCancelOperation._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseDatasetServiceRestTransport._BaseCancelOperation._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseDatasetServiceRestTransport._BaseCancelOperation,
+                    "_BaseCancelOperation__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -7807,17 +7799,18 @@ class AsyncDatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             http_options = (
                 _BaseDatasetServiceRestTransport._BaseDeleteOperation._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_delete_operation(
                 request, metadata
             )
-            transcoded_request = _BaseDatasetServiceRestTransport._BaseDeleteOperation._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseDatasetServiceRestTransport._BaseDeleteOperation._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseDatasetServiceRestTransport._BaseDeleteOperation,
+                    "_BaseDeleteOperation__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -7933,17 +7926,18 @@ class AsyncDatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             http_options = (
                 _BaseDatasetServiceRestTransport._BaseGetOperation._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_get_operation(
                 request, metadata
             )
-            transcoded_request = _BaseDatasetServiceRestTransport._BaseGetOperation._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseDatasetServiceRestTransport._BaseGetOperation._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseDatasetServiceRestTransport._BaseGetOperation,
+                    "_BaseGetOperation__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -8085,17 +8079,18 @@ class AsyncDatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             http_options = (
                 _BaseDatasetServiceRestTransport._BaseListOperations._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_list_operations(
                 request, metadata
             )
-            transcoded_request = _BaseDatasetServiceRestTransport._BaseListOperations._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseDatasetServiceRestTransport._BaseListOperations._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseDatasetServiceRestTransport._BaseListOperations,
+                    "_BaseListOperations__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -8236,17 +8231,18 @@ class AsyncDatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             http_options = (
                 _BaseDatasetServiceRestTransport._BaseWaitOperation._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_wait_operation(
                 request, metadata
             )
-            transcoded_request = _BaseDatasetServiceRestTransport._BaseWaitOperation._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseDatasetServiceRestTransport._BaseWaitOperation._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseDatasetServiceRestTransport._BaseWaitOperation,
+                    "_BaseWaitOperation__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
