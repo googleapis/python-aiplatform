@@ -39,19 +39,6 @@ from . import types
 
 logger = logging.getLogger(__name__)
 _MAX_RETRIES = 5
-# HTTP status codes that are safe to retry with backoff.
-_RETRYABLE_STATUS_CODES = frozenset(
-    {
-        408,  # RequestTimeout (DEADLINE_EXCEEDED)
-        409,  # Conflict / Aborted (ABORTED)
-        429,  # TooManyRequests / ResourceExhausted (RESOURCE_EXHAUSTED)
-        499,  # Client Closed Request (CANCELLED)
-        500,  # InternalServerError (INTERNAL)
-        502,  # BadGateway
-        503,  # ServiceUnavailable (UNAVAILABLE)
-        504,  # GatewayTimeout (DEADLINE_EXCEEDED)
-    }
-)
 
 R = TypeVar("R")
 T = TypeVar("T", types.Metric, types.MetricSource, types.LLMMetric)
@@ -64,7 +51,7 @@ def _call_with_retry(
     """Calls ``fn()`` with exponential backoff + jitter on retryable errors.
 
     Retries up to ``_MAX_RETRIES`` times on errors whose HTTP status code is
-    in ``_RETRYABLE_STATUS_CODES`` (Aborted, DeadlineExceeded,
+    in ``_evals_constant.RETRYABLE_STATUS_CODES`` (Aborted, DeadlineExceeded,
     ResourceExhausted, ServiceUnavailable, Cancelled). Non-retryable errors
     are re-raised immediately. If all retries are exhausted the last
     exception is re-raised so the caller can decide how to handle it.
@@ -84,7 +71,7 @@ def _call_with_retry(
         try:
             return fn()
         except genai_errors.APIError as e:
-            if e.code in _RETRYABLE_STATUS_CODES:
+            if e.code in _evals_constant.RETRYABLE_STATUS_CODES:
                 backoff = 2**attempt + random.uniform(0, 1)
                 logger.warning(
                     "Retryable error (code=%s) on attempt %d/%d for metric"
