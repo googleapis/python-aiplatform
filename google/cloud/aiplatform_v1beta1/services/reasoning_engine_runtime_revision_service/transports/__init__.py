@@ -25,13 +25,15 @@ from .rest import ReasoningEngineRuntimeRevisionServiceRestInterceptor
 ASYNC_REST_CLASSES: Tuple[str, ...]
 try:
     from .rest_asyncio import AsyncReasoningEngineRuntimeRevisionServiceRestTransport
-    from .rest_asyncio import AsyncReasoningEngineRuntimeRevisionServiceRestInterceptor
+    from .rest_asyncio import (
+        AsyncReasoningEngineRuntimeRevisionServiceRestInterceptor,
+    )  # pragma: NO COVER
 
     ASYNC_REST_CLASSES = (
         "AsyncReasoningEngineRuntimeRevisionServiceRestTransport",
         "AsyncReasoningEngineRuntimeRevisionServiceRestInterceptor",
-    )
-    HAS_REST_ASYNC = True
+    )  # pragma: NO COVER
+    HAS_REST_ASYNC = True  # pragma: NO COVER
 except ImportError:  # pragma: NO COVER
     ASYNC_REST_CLASSES = ()
     HAS_REST_ASYNC = False

@@ -23,6 +23,7 @@ from google.api_core import retry as retries
 from google.api_core import rest_helpers
 from google.api_core import rest_streaming
 from google.api_core import gapic_v1
+from google.cloud.aiplatform_v1beta1._compat import transcode_request
 import google.protobuf
 
 from google.protobuf import json_format
@@ -3114,19 +3115,16 @@ class MemoryBankServiceRestTransport(_BaseMemoryBankServiceRestTransport):
             http_options = (
                 _BaseMemoryBankServiceRestTransport._BaseCreateMemory._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_create_memory(request, metadata)
-            transcoded_request = _BaseMemoryBankServiceRestTransport._BaseCreateMemory._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseMemoryBankServiceRestTransport._BaseCreateMemory._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseMemoryBankServiceRestTransport._BaseCreateMemory._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseMemoryBankServiceRestTransport._BaseCreateMemory,
+                    "_BaseCreateMemory__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -3266,15 +3264,16 @@ class MemoryBankServiceRestTransport(_BaseMemoryBankServiceRestTransport):
             http_options = (
                 _BaseMemoryBankServiceRestTransport._BaseDeleteMemory._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_delete_memory(request, metadata)
-            transcoded_request = _BaseMemoryBankServiceRestTransport._BaseDeleteMemory._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseMemoryBankServiceRestTransport._BaseDeleteMemory._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseMemoryBankServiceRestTransport._BaseDeleteMemory,
+                    "_BaseDeleteMemory__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -3415,21 +3414,18 @@ class MemoryBankServiceRestTransport(_BaseMemoryBankServiceRestTransport):
             http_options = (
                 _BaseMemoryBankServiceRestTransport._BaseGenerateMemories._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_generate_memories(
                 request, metadata
             )
-            transcoded_request = _BaseMemoryBankServiceRestTransport._BaseGenerateMemories._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseMemoryBankServiceRestTransport._BaseGenerateMemories._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseMemoryBankServiceRestTransport._BaseGenerateMemories._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseMemoryBankServiceRestTransport._BaseGenerateMemories,
+                    "_BaseGenerateMemories__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -3566,15 +3562,16 @@ class MemoryBankServiceRestTransport(_BaseMemoryBankServiceRestTransport):
             http_options = (
                 _BaseMemoryBankServiceRestTransport._BaseGetMemory._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_get_memory(request, metadata)
-            transcoded_request = _BaseMemoryBankServiceRestTransport._BaseGetMemory._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseMemoryBankServiceRestTransport._BaseGetMemory._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseMemoryBankServiceRestTransport._BaseGetMemory,
+                    "_BaseGetMemory__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -3714,15 +3711,16 @@ class MemoryBankServiceRestTransport(_BaseMemoryBankServiceRestTransport):
             http_options = (
                 _BaseMemoryBankServiceRestTransport._BaseListMemories._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_list_memories(request, metadata)
-            transcoded_request = _BaseMemoryBankServiceRestTransport._BaseListMemories._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseMemoryBankServiceRestTransport._BaseListMemories._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseMemoryBankServiceRestTransport._BaseListMemories,
+                    "_BaseListMemories__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -3866,21 +3864,18 @@ class MemoryBankServiceRestTransport(_BaseMemoryBankServiceRestTransport):
             http_options = (
                 _BaseMemoryBankServiceRestTransport._BaseRetrieveMemories._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_retrieve_memories(
                 request, metadata
             )
-            transcoded_request = _BaseMemoryBankServiceRestTransport._BaseRetrieveMemories._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseMemoryBankServiceRestTransport._BaseRetrieveMemories._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseMemoryBankServiceRestTransport._BaseRetrieveMemories._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseMemoryBankServiceRestTransport._BaseRetrieveMemories,
+                    "_BaseRetrieveMemories__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -4025,19 +4020,16 @@ class MemoryBankServiceRestTransport(_BaseMemoryBankServiceRestTransport):
             http_options = (
                 _BaseMemoryBankServiceRestTransport._BaseUpdateMemory._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_update_memory(request, metadata)
-            transcoded_request = _BaseMemoryBankServiceRestTransport._BaseUpdateMemory._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseMemoryBankServiceRestTransport._BaseUpdateMemory._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseMemoryBankServiceRestTransport._BaseUpdateMemory._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseMemoryBankServiceRestTransport._BaseUpdateMemory,
+                    "_BaseUpdateMemory__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -4240,15 +4232,16 @@ class MemoryBankServiceRestTransport(_BaseMemoryBankServiceRestTransport):
             http_options = (
                 _BaseMemoryBankServiceRestTransport._BaseGetLocation._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_get_location(request, metadata)
-            transcoded_request = _BaseMemoryBankServiceRestTransport._BaseGetLocation._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseMemoryBankServiceRestTransport._BaseGetLocation._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseMemoryBankServiceRestTransport._BaseGetLocation,
+                    "_BaseGetLocation__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -4382,15 +4375,16 @@ class MemoryBankServiceRestTransport(_BaseMemoryBankServiceRestTransport):
             http_options = (
                 _BaseMemoryBankServiceRestTransport._BaseListLocations._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_list_locations(request, metadata)
-            transcoded_request = _BaseMemoryBankServiceRestTransport._BaseListLocations._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseMemoryBankServiceRestTransport._BaseListLocations._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseMemoryBankServiceRestTransport._BaseListLocations,
+                    "_BaseListLocations__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -4524,19 +4518,16 @@ class MemoryBankServiceRestTransport(_BaseMemoryBankServiceRestTransport):
             http_options = (
                 _BaseMemoryBankServiceRestTransport._BaseGetIamPolicy._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_get_iam_policy(request, metadata)
-            transcoded_request = _BaseMemoryBankServiceRestTransport._BaseGetIamPolicy._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseMemoryBankServiceRestTransport._BaseGetIamPolicy._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseMemoryBankServiceRestTransport._BaseGetIamPolicy._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseMemoryBankServiceRestTransport._BaseGetIamPolicy,
+                    "_BaseGetIamPolicy__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -4671,19 +4662,16 @@ class MemoryBankServiceRestTransport(_BaseMemoryBankServiceRestTransport):
             http_options = (
                 _BaseMemoryBankServiceRestTransport._BaseSetIamPolicy._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_set_iam_policy(request, metadata)
-            transcoded_request = _BaseMemoryBankServiceRestTransport._BaseSetIamPolicy._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseMemoryBankServiceRestTransport._BaseSetIamPolicy._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseMemoryBankServiceRestTransport._BaseSetIamPolicy._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseMemoryBankServiceRestTransport._BaseSetIamPolicy,
+                    "_BaseSetIamPolicy__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -4819,21 +4807,18 @@ class MemoryBankServiceRestTransport(_BaseMemoryBankServiceRestTransport):
             http_options = (
                 _BaseMemoryBankServiceRestTransport._BaseTestIamPermissions._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_test_iam_permissions(
                 request, metadata
             )
-            transcoded_request = _BaseMemoryBankServiceRestTransport._BaseTestIamPermissions._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseMemoryBankServiceRestTransport._BaseTestIamPermissions._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseMemoryBankServiceRestTransport._BaseTestIamPermissions._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseMemoryBankServiceRestTransport._BaseTestIamPermissions,
+                    "_BaseTestIamPermissions__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -4965,17 +4950,18 @@ class MemoryBankServiceRestTransport(_BaseMemoryBankServiceRestTransport):
             http_options = (
                 _BaseMemoryBankServiceRestTransport._BaseCancelOperation._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_cancel_operation(
                 request, metadata
             )
-            transcoded_request = _BaseMemoryBankServiceRestTransport._BaseCancelOperation._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseMemoryBankServiceRestTransport._BaseCancelOperation._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseMemoryBankServiceRestTransport._BaseCancelOperation,
+                    "_BaseCancelOperation__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -5081,17 +5067,18 @@ class MemoryBankServiceRestTransport(_BaseMemoryBankServiceRestTransport):
             http_options = (
                 _BaseMemoryBankServiceRestTransport._BaseDeleteOperation._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_delete_operation(
                 request, metadata
             )
-            transcoded_request = _BaseMemoryBankServiceRestTransport._BaseDeleteOperation._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseMemoryBankServiceRestTransport._BaseDeleteOperation._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseMemoryBankServiceRestTransport._BaseDeleteOperation,
+                    "_BaseDeleteOperation__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -5199,15 +5186,16 @@ class MemoryBankServiceRestTransport(_BaseMemoryBankServiceRestTransport):
             http_options = (
                 _BaseMemoryBankServiceRestTransport._BaseGetOperation._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_get_operation(request, metadata)
-            transcoded_request = _BaseMemoryBankServiceRestTransport._BaseGetOperation._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseMemoryBankServiceRestTransport._BaseGetOperation._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseMemoryBankServiceRestTransport._BaseGetOperation,
+                    "_BaseGetOperation__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -5341,15 +5329,16 @@ class MemoryBankServiceRestTransport(_BaseMemoryBankServiceRestTransport):
             http_options = (
                 _BaseMemoryBankServiceRestTransport._BaseListOperations._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_list_operations(request, metadata)
-            transcoded_request = _BaseMemoryBankServiceRestTransport._BaseListOperations._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseMemoryBankServiceRestTransport._BaseListOperations._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseMemoryBankServiceRestTransport._BaseListOperations,
+                    "_BaseListOperations__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -5483,15 +5472,16 @@ class MemoryBankServiceRestTransport(_BaseMemoryBankServiceRestTransport):
             http_options = (
                 _BaseMemoryBankServiceRestTransport._BaseWaitOperation._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_wait_operation(request, metadata)
-            transcoded_request = _BaseMemoryBankServiceRestTransport._BaseWaitOperation._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseMemoryBankServiceRestTransport._BaseWaitOperation._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseMemoryBankServiceRestTransport._BaseWaitOperation,
+                    "_BaseWaitOperation__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(

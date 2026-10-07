@@ -25,13 +25,13 @@ from .rest import TensorboardServiceRestInterceptor
 ASYNC_REST_CLASSES: Tuple[str, ...]
 try:
     from .rest_asyncio import AsyncTensorboardServiceRestTransport
-    from .rest_asyncio import AsyncTensorboardServiceRestInterceptor
+    from .rest_asyncio import AsyncTensorboardServiceRestInterceptor  # pragma: NO COVER
 
     ASYNC_REST_CLASSES = (
         "AsyncTensorboardServiceRestTransport",
         "AsyncTensorboardServiceRestInterceptor",
-    )
-    HAS_REST_ASYNC = True
+    )  # pragma: NO COVER
+    HAS_REST_ASYNC = True  # pragma: NO COVER
 except ImportError:  # pragma: NO COVER
     ASYNC_REST_CLASSES = ()
     HAS_REST_ASYNC = False

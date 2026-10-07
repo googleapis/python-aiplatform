@@ -23,6 +23,7 @@ from google.api_core import retry as retries
 from google.api_core import rest_helpers
 from google.api_core import rest_streaming
 from google.api_core import gapic_v1
+from google.cloud.aiplatform_v1beta1._compat import transcode_request
 import google.protobuf
 
 from google.protobuf import json_format
@@ -2962,21 +2963,18 @@ class GenAiTuningServiceRestTransport(_BaseGenAiTuningServiceRestTransport):
             http_options = (
                 _BaseGenAiTuningServiceRestTransport._BaseCancelTuningJob._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_cancel_tuning_job(
                 request, metadata
             )
-            transcoded_request = _BaseGenAiTuningServiceRestTransport._BaseCancelTuningJob._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseGenAiTuningServiceRestTransport._BaseCancelTuningJob._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseGenAiTuningServiceRestTransport._BaseCancelTuningJob._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseGenAiTuningServiceRestTransport._BaseCancelTuningJob,
+                    "_BaseCancelTuningJob__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -3085,21 +3083,18 @@ class GenAiTuningServiceRestTransport(_BaseGenAiTuningServiceRestTransport):
             http_options = (
                 _BaseGenAiTuningServiceRestTransport._BaseCreateTuningJob._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_create_tuning_job(
                 request, metadata
             )
-            transcoded_request = _BaseGenAiTuningServiceRestTransport._BaseCreateTuningJob._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseGenAiTuningServiceRestTransport._BaseCreateTuningJob._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseGenAiTuningServiceRestTransport._BaseCreateTuningJob._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseGenAiTuningServiceRestTransport._BaseCreateTuningJob,
+                    "_BaseCreateTuningJob__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -3241,15 +3236,16 @@ class GenAiTuningServiceRestTransport(_BaseGenAiTuningServiceRestTransport):
             http_options = (
                 _BaseGenAiTuningServiceRestTransport._BaseGetTuningJob._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_get_tuning_job(request, metadata)
-            transcoded_request = _BaseGenAiTuningServiceRestTransport._BaseGetTuningJob._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseGenAiTuningServiceRestTransport._BaseGetTuningJob._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseGenAiTuningServiceRestTransport._BaseGetTuningJob,
+                    "_BaseGetTuningJob__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -3390,17 +3386,18 @@ class GenAiTuningServiceRestTransport(_BaseGenAiTuningServiceRestTransport):
             http_options = (
                 _BaseGenAiTuningServiceRestTransport._BaseListTuningJobs._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_list_tuning_jobs(
                 request, metadata
             )
-            transcoded_request = _BaseGenAiTuningServiceRestTransport._BaseListTuningJobs._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseGenAiTuningServiceRestTransport._BaseListTuningJobs._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseGenAiTuningServiceRestTransport._BaseListTuningJobs,
+                    "_BaseListTuningJobs__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -3545,21 +3542,18 @@ class GenAiTuningServiceRestTransport(_BaseGenAiTuningServiceRestTransport):
             http_options = (
                 _BaseGenAiTuningServiceRestTransport._BaseRebaseTunedModel._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_rebase_tuned_model(
                 request, metadata
             )
-            transcoded_request = _BaseGenAiTuningServiceRestTransport._BaseRebaseTunedModel._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseGenAiTuningServiceRestTransport._BaseRebaseTunedModel._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseGenAiTuningServiceRestTransport._BaseRebaseTunedModel._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseGenAiTuningServiceRestTransport._BaseRebaseTunedModel,
+                    "_BaseRebaseTunedModel__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -3746,15 +3740,16 @@ class GenAiTuningServiceRestTransport(_BaseGenAiTuningServiceRestTransport):
             http_options = (
                 _BaseGenAiTuningServiceRestTransport._BaseGetLocation._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_get_location(request, metadata)
-            transcoded_request = _BaseGenAiTuningServiceRestTransport._BaseGetLocation._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseGenAiTuningServiceRestTransport._BaseGetLocation._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseGenAiTuningServiceRestTransport._BaseGetLocation,
+                    "_BaseGetLocation__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -3888,15 +3883,16 @@ class GenAiTuningServiceRestTransport(_BaseGenAiTuningServiceRestTransport):
             http_options = (
                 _BaseGenAiTuningServiceRestTransport._BaseListLocations._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_list_locations(request, metadata)
-            transcoded_request = _BaseGenAiTuningServiceRestTransport._BaseListLocations._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseGenAiTuningServiceRestTransport._BaseListLocations._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseGenAiTuningServiceRestTransport._BaseListLocations,
+                    "_BaseListLocations__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -4031,19 +4027,16 @@ class GenAiTuningServiceRestTransport(_BaseGenAiTuningServiceRestTransport):
             http_options = (
                 _BaseGenAiTuningServiceRestTransport._BaseGetIamPolicy._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_get_iam_policy(request, metadata)
-            transcoded_request = _BaseGenAiTuningServiceRestTransport._BaseGetIamPolicy._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseGenAiTuningServiceRestTransport._BaseGetIamPolicy._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseGenAiTuningServiceRestTransport._BaseGetIamPolicy._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseGenAiTuningServiceRestTransport._BaseGetIamPolicy,
+                    "_BaseGetIamPolicy__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -4179,19 +4172,16 @@ class GenAiTuningServiceRestTransport(_BaseGenAiTuningServiceRestTransport):
             http_options = (
                 _BaseGenAiTuningServiceRestTransport._BaseSetIamPolicy._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_set_iam_policy(request, metadata)
-            transcoded_request = _BaseGenAiTuningServiceRestTransport._BaseSetIamPolicy._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseGenAiTuningServiceRestTransport._BaseSetIamPolicy._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseGenAiTuningServiceRestTransport._BaseSetIamPolicy._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseGenAiTuningServiceRestTransport._BaseSetIamPolicy,
+                    "_BaseSetIamPolicy__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -4327,21 +4317,18 @@ class GenAiTuningServiceRestTransport(_BaseGenAiTuningServiceRestTransport):
             http_options = (
                 _BaseGenAiTuningServiceRestTransport._BaseTestIamPermissions._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_test_iam_permissions(
                 request, metadata
             )
-            transcoded_request = _BaseGenAiTuningServiceRestTransport._BaseTestIamPermissions._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseGenAiTuningServiceRestTransport._BaseTestIamPermissions._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseGenAiTuningServiceRestTransport._BaseTestIamPermissions._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseGenAiTuningServiceRestTransport._BaseTestIamPermissions,
+                    "_BaseTestIamPermissions__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -4475,17 +4462,18 @@ class GenAiTuningServiceRestTransport(_BaseGenAiTuningServiceRestTransport):
             http_options = (
                 _BaseGenAiTuningServiceRestTransport._BaseCancelOperation._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_cancel_operation(
                 request, metadata
             )
-            transcoded_request = _BaseGenAiTuningServiceRestTransport._BaseCancelOperation._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseGenAiTuningServiceRestTransport._BaseCancelOperation._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseGenAiTuningServiceRestTransport._BaseCancelOperation,
+                    "_BaseCancelOperation__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -4591,17 +4579,18 @@ class GenAiTuningServiceRestTransport(_BaseGenAiTuningServiceRestTransport):
             http_options = (
                 _BaseGenAiTuningServiceRestTransport._BaseDeleteOperation._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_delete_operation(
                 request, metadata
             )
-            transcoded_request = _BaseGenAiTuningServiceRestTransport._BaseDeleteOperation._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseGenAiTuningServiceRestTransport._BaseDeleteOperation._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseGenAiTuningServiceRestTransport._BaseDeleteOperation,
+                    "_BaseDeleteOperation__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -4710,15 +4699,16 @@ class GenAiTuningServiceRestTransport(_BaseGenAiTuningServiceRestTransport):
             http_options = (
                 _BaseGenAiTuningServiceRestTransport._BaseGetOperation._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_get_operation(request, metadata)
-            transcoded_request = _BaseGenAiTuningServiceRestTransport._BaseGetOperation._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseGenAiTuningServiceRestTransport._BaseGetOperation._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseGenAiTuningServiceRestTransport._BaseGetOperation,
+                    "_BaseGetOperation__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -4852,15 +4842,16 @@ class GenAiTuningServiceRestTransport(_BaseGenAiTuningServiceRestTransport):
             http_options = (
                 _BaseGenAiTuningServiceRestTransport._BaseListOperations._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_list_operations(request, metadata)
-            transcoded_request = _BaseGenAiTuningServiceRestTransport._BaseListOperations._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseGenAiTuningServiceRestTransport._BaseListOperations._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseGenAiTuningServiceRestTransport._BaseListOperations,
+                    "_BaseListOperations__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -4994,15 +4985,16 @@ class GenAiTuningServiceRestTransport(_BaseGenAiTuningServiceRestTransport):
             http_options = (
                 _BaseGenAiTuningServiceRestTransport._BaseWaitOperation._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_wait_operation(request, metadata)
-            transcoded_request = _BaseGenAiTuningServiceRestTransport._BaseWaitOperation._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseGenAiTuningServiceRestTransport._BaseWaitOperation._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseGenAiTuningServiceRestTransport._BaseWaitOperation,
+                    "_BaseWaitOperation__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(

@@ -23,6 +23,7 @@ from google.api_core import retry as retries
 from google.api_core import rest_helpers
 from google.api_core import rest_streaming
 from google.api_core import gapic_v1
+from google.cloud.aiplatform_v1beta1._compat import transcode_request
 import google.protobuf
 
 from google.protobuf import json_format
@@ -2907,19 +2908,20 @@ class ReasoningEngineRuntimeRevisionServiceRestTransport(
             http_options = (
                 _BaseReasoningEngineRuntimeRevisionServiceRestTransport._BaseDeleteReasoningEngineRuntimeRevision._get_http_options()
             )
-
             request, metadata = (
                 self._interceptor.pre_delete_reasoning_engine_runtime_revision(
                     request, metadata
                 )
             )
-            transcoded_request = _BaseReasoningEngineRuntimeRevisionServiceRestTransport._BaseDeleteReasoningEngineRuntimeRevision._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseReasoningEngineRuntimeRevisionServiceRestTransport._BaseDeleteReasoningEngineRuntimeRevision._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseReasoningEngineRuntimeRevisionServiceRestTransport._BaseDeleteReasoningEngineRuntimeRevision,
+                    "_BaseDeleteReasoningEngineRuntimeRevision__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -3065,19 +3067,20 @@ class ReasoningEngineRuntimeRevisionServiceRestTransport(
             http_options = (
                 _BaseReasoningEngineRuntimeRevisionServiceRestTransport._BaseGetReasoningEngineRuntimeRevision._get_http_options()
             )
-
             request, metadata = (
                 self._interceptor.pre_get_reasoning_engine_runtime_revision(
                     request, metadata
                 )
             )
-            transcoded_request = _BaseReasoningEngineRuntimeRevisionServiceRestTransport._BaseGetReasoningEngineRuntimeRevision._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseReasoningEngineRuntimeRevisionServiceRestTransport._BaseGetReasoningEngineRuntimeRevision._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseReasoningEngineRuntimeRevisionServiceRestTransport._BaseGetReasoningEngineRuntimeRevision,
+                    "_BaseGetReasoningEngineRuntimeRevision__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -3231,19 +3234,20 @@ class ReasoningEngineRuntimeRevisionServiceRestTransport(
             http_options = (
                 _BaseReasoningEngineRuntimeRevisionServiceRestTransport._BaseListReasoningEngineRuntimeRevisions._get_http_options()
             )
-
             request, metadata = (
                 self._interceptor.pre_list_reasoning_engine_runtime_revisions(
                     request, metadata
                 )
             )
-            transcoded_request = _BaseReasoningEngineRuntimeRevisionServiceRestTransport._BaseListReasoningEngineRuntimeRevisions._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseReasoningEngineRuntimeRevisionServiceRestTransport._BaseListReasoningEngineRuntimeRevisions._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseReasoningEngineRuntimeRevisionServiceRestTransport._BaseListReasoningEngineRuntimeRevisions,
+                    "_BaseListReasoningEngineRuntimeRevisions__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -3433,15 +3437,16 @@ class ReasoningEngineRuntimeRevisionServiceRestTransport(
             http_options = (
                 _BaseReasoningEngineRuntimeRevisionServiceRestTransport._BaseGetLocation._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_get_location(request, metadata)
-            transcoded_request = _BaseReasoningEngineRuntimeRevisionServiceRestTransport._BaseGetLocation._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseReasoningEngineRuntimeRevisionServiceRestTransport._BaseGetLocation._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseReasoningEngineRuntimeRevisionServiceRestTransport._BaseGetLocation,
+                    "_BaseGetLocation__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -3577,15 +3582,16 @@ class ReasoningEngineRuntimeRevisionServiceRestTransport(
             http_options = (
                 _BaseReasoningEngineRuntimeRevisionServiceRestTransport._BaseListLocations._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_list_locations(request, metadata)
-            transcoded_request = _BaseReasoningEngineRuntimeRevisionServiceRestTransport._BaseListLocations._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseReasoningEngineRuntimeRevisionServiceRestTransport._BaseListLocations._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseReasoningEngineRuntimeRevisionServiceRestTransport._BaseListLocations,
+                    "_BaseListLocations__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -3722,19 +3728,16 @@ class ReasoningEngineRuntimeRevisionServiceRestTransport(
             http_options = (
                 _BaseReasoningEngineRuntimeRevisionServiceRestTransport._BaseGetIamPolicy._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_get_iam_policy(request, metadata)
-            transcoded_request = _BaseReasoningEngineRuntimeRevisionServiceRestTransport._BaseGetIamPolicy._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseReasoningEngineRuntimeRevisionServiceRestTransport._BaseGetIamPolicy._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseReasoningEngineRuntimeRevisionServiceRestTransport._BaseGetIamPolicy._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseReasoningEngineRuntimeRevisionServiceRestTransport._BaseGetIamPolicy,
+                    "_BaseGetIamPolicy__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -3872,19 +3875,16 @@ class ReasoningEngineRuntimeRevisionServiceRestTransport(
             http_options = (
                 _BaseReasoningEngineRuntimeRevisionServiceRestTransport._BaseSetIamPolicy._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_set_iam_policy(request, metadata)
-            transcoded_request = _BaseReasoningEngineRuntimeRevisionServiceRestTransport._BaseSetIamPolicy._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseReasoningEngineRuntimeRevisionServiceRestTransport._BaseSetIamPolicy._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseReasoningEngineRuntimeRevisionServiceRestTransport._BaseSetIamPolicy._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseReasoningEngineRuntimeRevisionServiceRestTransport._BaseSetIamPolicy,
+                    "_BaseSetIamPolicy__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -4022,21 +4022,18 @@ class ReasoningEngineRuntimeRevisionServiceRestTransport(
             http_options = (
                 _BaseReasoningEngineRuntimeRevisionServiceRestTransport._BaseTestIamPermissions._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_test_iam_permissions(
                 request, metadata
             )
-            transcoded_request = _BaseReasoningEngineRuntimeRevisionServiceRestTransport._BaseTestIamPermissions._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseReasoningEngineRuntimeRevisionServiceRestTransport._BaseTestIamPermissions._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseReasoningEngineRuntimeRevisionServiceRestTransport._BaseTestIamPermissions._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseReasoningEngineRuntimeRevisionServiceRestTransport._BaseTestIamPermissions,
+                    "_BaseTestIamPermissions__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -4170,17 +4167,18 @@ class ReasoningEngineRuntimeRevisionServiceRestTransport(
             http_options = (
                 _BaseReasoningEngineRuntimeRevisionServiceRestTransport._BaseCancelOperation._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_cancel_operation(
                 request, metadata
             )
-            transcoded_request = _BaseReasoningEngineRuntimeRevisionServiceRestTransport._BaseCancelOperation._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseReasoningEngineRuntimeRevisionServiceRestTransport._BaseCancelOperation._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseReasoningEngineRuntimeRevisionServiceRestTransport._BaseCancelOperation,
+                    "_BaseCancelOperation__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -4288,17 +4286,18 @@ class ReasoningEngineRuntimeRevisionServiceRestTransport(
             http_options = (
                 _BaseReasoningEngineRuntimeRevisionServiceRestTransport._BaseDeleteOperation._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_delete_operation(
                 request, metadata
             )
-            transcoded_request = _BaseReasoningEngineRuntimeRevisionServiceRestTransport._BaseDeleteOperation._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseReasoningEngineRuntimeRevisionServiceRestTransport._BaseDeleteOperation._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseReasoningEngineRuntimeRevisionServiceRestTransport._BaseDeleteOperation,
+                    "_BaseDeleteOperation__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -4409,15 +4408,16 @@ class ReasoningEngineRuntimeRevisionServiceRestTransport(
             http_options = (
                 _BaseReasoningEngineRuntimeRevisionServiceRestTransport._BaseGetOperation._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_get_operation(request, metadata)
-            transcoded_request = _BaseReasoningEngineRuntimeRevisionServiceRestTransport._BaseGetOperation._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseReasoningEngineRuntimeRevisionServiceRestTransport._BaseGetOperation._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseReasoningEngineRuntimeRevisionServiceRestTransport._BaseGetOperation,
+                    "_BaseGetOperation__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -4553,15 +4553,16 @@ class ReasoningEngineRuntimeRevisionServiceRestTransport(
             http_options = (
                 _BaseReasoningEngineRuntimeRevisionServiceRestTransport._BaseListOperations._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_list_operations(request, metadata)
-            transcoded_request = _BaseReasoningEngineRuntimeRevisionServiceRestTransport._BaseListOperations._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseReasoningEngineRuntimeRevisionServiceRestTransport._BaseListOperations._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseReasoningEngineRuntimeRevisionServiceRestTransport._BaseListOperations,
+                    "_BaseListOperations__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -4697,15 +4698,16 @@ class ReasoningEngineRuntimeRevisionServiceRestTransport(
             http_options = (
                 _BaseReasoningEngineRuntimeRevisionServiceRestTransport._BaseWaitOperation._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_wait_operation(request, metadata)
-            transcoded_request = _BaseReasoningEngineRuntimeRevisionServiceRestTransport._BaseWaitOperation._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseReasoningEngineRuntimeRevisionServiceRestTransport._BaseWaitOperation._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseReasoningEngineRuntimeRevisionServiceRestTransport._BaseWaitOperation,
+                    "_BaseWaitOperation__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(

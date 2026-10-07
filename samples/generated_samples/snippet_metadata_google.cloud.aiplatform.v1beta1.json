@@ -8,7 +8,7 @@
     ],
     "language": "PYTHON",
     "name": "google-cloud-aiplatform",
-    "version": "2.4.0"
+    "version": "0.0.0"
   },
   "snippets": [
     {
@@ -29804,12 +29804,12 @@
       "regionTag": "aiplatform_v1beta1_generated_MemoryBankService_CreateMemory_async",
       "segments": [
         {
-          "end": 59,
+          "end": 55,
           "start": 27,
           "type": "FULL"
         },
         {
-          "end": 59,
+          "end": 55,
           "start": 27,
           "type": "SHORT"
         },
@@ -29819,18 +29819,18 @@
           "type": "CLIENT_INITIALIZATION"
         },
         {
-          "end": 49,
+          "end": 45,
           "start": 41,
           "type": "REQUEST_INITIALIZATION"
         },
         {
-          "end": 56,
-          "start": 50,
+          "end": 52,
+          "start": 46,
           "type": "REQUEST_EXECUTION"
         },
         {
-          "end": 60,
-          "start": 57,
+          "end": 56,
+          "start": 53,
           "type": "RESPONSE_HANDLING"
         }
       ],
@@ -29892,12 +29892,12 @@
       "regionTag": "aiplatform_v1beta1_generated_MemoryBankService_CreateMemory_sync",
       "segments": [
         {
-          "end": 59,
+          "end": 55,
           "start": 27,
           "type": "FULL"
         },
         {
-          "end": 59,
+          "end": 55,
           "start": 27,
           "type": "SHORT"
         },
@@ -29907,18 +29907,18 @@
           "type": "CLIENT_INITIALIZATION"
         },
         {
-          "end": 49,
+          "end": 45,
           "start": 41,
           "type": "REQUEST_INITIALIZATION"
         },
         {
-          "end": 56,
-          "start": 50,
+          "end": 52,
+          "start": 46,
           "type": "REQUEST_EXECUTION"
         },
         {
-          "end": 60,
-          "start": 57,
+          "end": 56,
+          "start": 53,
           "type": "RESPONSE_HANDLING"
         }
       ],
@@ -30782,12 +30782,12 @@
       "regionTag": "aiplatform_v1beta1_generated_MemoryBankService_UpdateMemory_async",
       "segments": [
         {
-          "end": 58,
+          "end": 54,
           "start": 27,
           "type": "FULL"
         },
         {
-          "end": 58,
+          "end": 54,
           "start": 27,
           "type": "SHORT"
         },
@@ -30797,18 +30797,18 @@
           "type": "CLIENT_INITIALIZATION"
         },
         {
-          "end": 48,
+          "end": 44,
           "start": 41,
           "type": "REQUEST_INITIALIZATION"
         },
         {
-          "end": 55,
-          "start": 49,
+          "end": 51,
+          "start": 45,
           "type": "REQUEST_EXECUTION"
         },
         {
-          "end": 59,
-          "start": 56,
+          "end": 55,
+          "start": 52,
           "type": "RESPONSE_HANDLING"
         }
       ],
@@ -30866,12 +30866,12 @@
       "regionTag": "aiplatform_v1beta1_generated_MemoryBankService_UpdateMemory_sync",
       "segments": [
         {
-          "end": 58,
+          "end": 54,
           "start": 27,
           "type": "FULL"
         },
         {
-          "end": 58,
+          "end": 54,
           "start": 27,
           "type": "SHORT"
         },
@@ -30881,18 +30881,18 @@
           "type": "CLIENT_INITIALIZATION"
         },
         {
-          "end": 48,
+          "end": 44,
           "start": 41,
           "type": "REQUEST_INITIALIZATION"
         },
         {
-          "end": 55,
-          "start": 49,
+          "end": 51,
+          "start": 45,
           "type": "REQUEST_EXECUTION"
         },
         {
-          "end": 59,
-          "start": 56,
+          "end": 55,
+          "start": 52,
           "type": "RESPONSE_HANDLING"
         }
       ],
