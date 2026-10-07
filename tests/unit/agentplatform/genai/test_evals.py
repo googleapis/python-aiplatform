@@ -45,11 +45,15 @@ from agentplatform._genai import (
     types as agentplatform_genai_types,
 )
 from agentplatform._genai.types import common as common_types
+from vertexai._genai import (
+    _evals_visualization as vertexai_evals_visualization,
+)
 from google.genai import client
 from google.genai import errors as genai_errors
 from google.genai import types as genai_types
 import pandas as pd
 import pydantic
+import pydantic_core
 import pytest
 
 _TEST_PROJECT = "test-project"
@@ -824,10 +828,6 @@ class TestLossAnalysis:
         assert "DOMPurify" in html
 
     def test_get_comparison_html_shows_na_for_missing_summary_scores(self):
-        from vertexai._genai import (
-            _evals_visualization as vertexai_evals_visualization,
-        )
-
         for viz in (_evals_visualization, vertexai_evals_visualization):
             html = viz.get_comparison_html("{}")
             assert "m.mean_score != null ? m.mean_score.toFixed(4) : 'N/A'" in html
@@ -2447,6 +2447,31 @@ class TestEvalsVisualization:
 
         del sys.modules["IPython"]
         del sys.modules["IPython.display"]
+
+    @pytest.mark.parametrize(
+        "visualization_module",
+        [_evals_visualization, vertexai_evals_visualization],
+        ids=["agent_platform", "vertexai"],
+    )
+    @mock.patch.dict(sys.modules, {"IPython": mock.MagicMock()})
+    def test_display_evaluation_result_logs_serialization_error(
+        self, visualization_module
+    ):
+        eval_result = mock.Mock()
+        eval_result.model_dump.side_effect = pydantic_core.PydanticSerializationError(
+            "bad value"
+        )
+
+        with (
+            mock.patch.object(
+                visualization_module, "_is_ipython_env", return_value=True
+            ),
+            mock.patch.object(visualization_module, "logger") as mock_logger,
+        ):
+            visualization_module.display_evaluation_result(eval_result)
+
+        mock_logger.error.assert_called_once()
+        assert "Serialization Error" in mock_logger.error.call_args[0][0]
 
 
 class TestEvalsRunInference:
