@@ -37,6 +37,11 @@ from google.genai._gaos.types.interactions import functioncallstep
 from google.genai._gaos.types.interactions import functionresultstep
 from google.genai._gaos.types.interactions import modeloutputstep
 from google.genai._gaos.types.interactions import userinputstep
+
+try:
+    from google.genai._gaos.utils.serializers import ALLOW_UNKNOWN_UNION_VARIANTS
+except (ImportError, AttributeError):
+    ALLOW_UNKNOWN_UNION_VARIANTS = "speakeasy_allow_unknown_union_variants"
 from google.genai.models import Models
 import pandas as pd
 from tqdm import tqdm
@@ -775,7 +780,16 @@ def _interaction_dict_to_agent_data(
     Returns:
         An AgentData object with one or more ConversationTurns.
     """
-    typed_interaction = interaction_types.Interaction.model_validate(interaction)
+    # A server response, so unknown step types must degrade rather than raise.
+    # `Step` is an open discriminated union: parse_open_union only falls back to
+    # the Unknown variant when the validation context carries
+    # ALLOW_UNKNOWN_UNION_VARIANTS, and raises without it so that a
+    # user-constructed request payload surfaces its mistakes locally. This
+    # payload comes off the Interactions API, so it is on the tolerant side of
+    # that line. _interaction_steps_to_events already drops steps it cannot map.
+    typed_interaction = interaction_types.Interaction.model_validate(
+        interaction, context={ALLOW_UNKNOWN_UNION_VARIANTS: True}
+    )
     all_events = _interaction_steps_to_events(typed_interaction.steps or [])
 
     # Group events into turns. Each UserInputStep starts a new turn.
@@ -1689,8 +1703,12 @@ def _resolve_interactions_to_eval_cases(
                 break
             interaction_dict = json.loads(response.body)
             try:
+                # Also a server response -- see _interaction_dict_to_agent_data.
+                # Without the context a single step type this client does not
+                # know about raised, and the except below turned that into a
+                # `break`, silently truncating the interaction history.
                 typed_interaction = interaction_types.Interaction.model_validate(
-                    interaction_dict
+                    interaction_dict, context={ALLOW_UNKNOWN_UNION_VARIANTS: True}
                 )
             except Exception as e:
                 logger.warning("Failed to validate interaction model: %s", e)
@@ -2636,7 +2654,7 @@ def _execute_inference(
             "Gemini Agent inference completed in %.2f seconds.",
             end_time - start_time,
         )
-        return types.EvaluationDataset(
+        evaluation_dataset = types.EvaluationDataset(
             eval_dataset_df=results_df,
             candidate_name=gemini_agent.split("/")[-1],
         )
@@ -2741,7 +2759,12 @@ def _execute_inference(
                 results_df.to_json(full_dest_path, orient="records", lines=True)
                 logger.info("Results saved locally to: %s", full_dest_path)
         except Exception as e:  # pylint: disable=broad-exception-caught
-            logger.error("Failed to save results to %s. Error: %s", full_dest_path, e)
+            logger.error(
+                "Failed to save results to %s. Error: %s",
+                full_dest_path,
+                e,
+                exc_info=True,
+            )
 
     return evaluation_dataset
 
@@ -2868,6 +2891,21 @@ def _resolve_dataset_inputs(
     return processed_eval_dataset, num_response_candidates
 
 
+def _prebuilt_evaluation_run_metric(
+    resolved_metric: types.Metric,
+) -> types.EvaluationRunMetric:
+    """Builds the evaluation run metric for a resolved RubricMetric."""
+    if resolved_metric.name in _evals_constant.SUPPORTED_PREDEFINED_METRICS:
+        metric_config = t.t_metrics([resolved_metric])[0]
+    else:
+        metric_config = {
+            "predefined_metric_spec": {"metric_spec_name": resolved_metric.name}
+        }
+    return types.EvaluationRunMetric(
+        metric=resolved_metric.name, metric_config=metric_config
+    )
+
+
 def _resolve_evaluation_run_metrics(
     metrics: Union[list[types.EvaluationRunMetric], list[types.Metric]], api_client: Any
 ) -> list[types.EvaluationRunMetric]:
@@ -2885,14 +2923,7 @@ def _resolve_evaluation_run_metrics(
                 resolved_metric = metric_instance.resolve(api_client=api_client)
                 if resolved_metric.name:
                     resolved_metrics_list.append(
-                        types.EvaluationRunMetric(
-                            metric=resolved_metric.name,
-                            metric_config=types.UnifiedMetric(
-                                predefined_metric_spec=genai_types.PredefinedMetricSpec(
-                                    metric_spec_name=resolved_metric.name,
-                                )
-                            ),
-                        )
+                        _prebuilt_evaluation_run_metric(resolved_metric)
                     )
             except Exception as e:
                 logger.error(
@@ -2926,14 +2957,7 @@ def _resolve_evaluation_run_metrics(
                     )
                     if resolved_metric.name:
                         resolved_metrics_list.append(
-                            types.EvaluationRunMetric(
-                                metric=resolved_metric.name,
-                                metric_config=types.UnifiedMetric(
-                                    predefined_metric_spec=genai_types.PredefinedMetricSpec(
-                                        metric_spec_name=resolved_metric.name,
-                                    )
-                                ),
-                            )
+                            _prebuilt_evaluation_run_metric(resolved_metric)
                         )
                 else:
                     raise TypeError(
@@ -3002,6 +3026,7 @@ def _execute_evaluation(  # type: ignore[no-untyped-def]
     dest: Optional[str] = None,
     location: Optional[str] = None,
     evaluation_service_qps: Optional[float] = None,
+    allow_cross_region_model: Optional[bool] = None,
     **kwargs,
 ) -> types.EvaluationResult:
     """Evaluates a dataset using the provided metrics.
@@ -3017,6 +3042,8 @@ def _execute_evaluation(  # type: ignore[no-untyped-def]
         evaluation_service_qps: The rate limit (queries per second) for calls
           to the evaluation service. Defaults to 10. Increase this value if
           your project has a higher EvaluateInstances API quota.
+        allow_cross_region_model: Opt-in flag to authorize cross-region
+          routing for judge models.
         **kwargs: Extra arguments to pass to evaluation, such as `agent_info`.
 
     Returns:
@@ -3099,6 +3126,7 @@ def _execute_evaluation(  # type: ignore[no-untyped-def]
     evaluation_result = _evals_metric_handlers.compute_metrics_and_aggregate(
         evaluation_run_config,
         evaluation_service_qps=evaluation_service_qps,
+        allow_cross_region_model=allow_cross_region_model,
     )
     t2 = time.perf_counter()
     logger.info("Evaluation took: %f seconds", t2 - t1)

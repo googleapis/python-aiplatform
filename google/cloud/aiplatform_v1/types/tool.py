@@ -203,6 +203,14 @@ class Tool(proto.Message):
                 See
                 https://docs.parallel.ai/search/search-quickstart
                 for more details.
+            enable_zero_data_retention (bool):
+                Optional. Instructs Vertex Grounding to use
+                Parallel's Zero Data Retention Marketplace
+                product. If this value is "false" or omitted,
+                the Parallel Web Search for Grounding standard
+                subscription will be used. If this value is
+                "true", the Parallel Web Search for Grounding -
+                ZDR subscription will be used.
             custom_configs (google.protobuf.struct_pb2.Struct):
                 Optional. Custom configs for ParallelAiSearch. This field
                 can be used to pass any parameter from the Parallel.ai
@@ -220,6 +228,10 @@ class Tool(proto.Message):
         api_key: str = proto.Field(
             proto.STRING,
             number=1,
+        )
+        enable_zero_data_retention: bool = proto.Field(
+            proto.BOOL,
+            number=4,
         )
         custom_configs: struct_pb2.Struct = proto.Field(
             proto.MESSAGE,

@@ -48,6 +48,7 @@ from google.genai import client
 from google.genai import errors as genai_errors
 from google.genai import types as genai_types
 import pandas as pd
+import pydantic
 import pytest
 
 _TEST_PROJECT = "test-project"
@@ -842,6 +843,36 @@ class TestLossAnalysis:
         payload_b64 = base64.b64encode(payload_json.encode("utf-8")).decode("ascii")
         assert payload_b64 in html
         assert "DOMPurify" in html
+
+    def test_extract_dataset_rows(self):
+        dataset = common_types.EvaluationDataset(
+            eval_cases=[
+                common_types.EvalCase(
+                    prompt=genai_types.Content(
+                        parts=[genai_types.Part(text="What is 2+2?")]
+                    ),
+                    responses=[
+                        common_types.ResponseCandidate(
+                            response=genai_types.Content(
+                                parts=[genai_types.Part(text="4")]
+                            )
+                        )
+                    ],
+                    reference=common_types.ResponseCandidate(
+                        response=genai_types.Content(
+                            parts=[genai_types.Part(text="Four")]
+                        )
+                    ),
+                )
+            ]
+        )
+
+        rows = _evals_visualization.extract_dataset_rows(dataset)
+
+        assert len(rows) == 1
+        assert rows[0]["prompt_display_text"] == "What is 2+2?"
+        assert rows[0]["response_display_text"] == "4"
+        assert rows[0]["reference"] == "Four"
 
     def test_display_loss_clusters_response_no_ipython(self):
         """Tests graceful fallback when not in IPython."""
@@ -4276,6 +4307,54 @@ class TestEvalsRunInference:
         assert result_df["interaction_id"].iloc[1] == "interaction-2"
         assert result_df["agent_data"].tolist()[0] == {}
         assert mock_interactions.create.call_count == 2
+
+    @mock.patch.object(_evals_common, "_fetch_agent_config_dict")
+    @mock.patch.object(_evals_common, "_get_interactions_client")
+    @mock.patch.object(_evals_utils, "EvalDatasetLoader")
+    def test_run_inference_gemini_agent_saves_to_dest(
+        self,
+        mock_eval_dataset_loader,
+        mock_get_interactions_client,
+        mock_fetch_agent_config,
+    ):
+        mock_fetch_agent_config.return_value = (
+            agentplatform_genai_types.evals.AgentConfig(agent_id="test-agent")
+        )
+        mock_df = pd.DataFrame({"prompt": ["p1"]})
+        mock_eval_dataset_loader.return_value.load.return_value = mock_df.to_dict(
+            orient="records"
+        )
+        mock_interactions = mock.Mock()
+        mock_interactions.create.return_value = {
+            "id": "interaction-1",
+            "status": "completed",
+            "steps": [
+                {
+                    "type": "model_output",
+                    "content": [{"type": "text", "text": "response 1"}],
+                }
+            ],
+        }
+        mock_get_interactions_client.return_value = mock_interactions
+
+        with tempfile.TemporaryDirectory() as local_dest_dir:
+            inference_result = self.client.evals.run_inference(
+                src=mock_df,
+                agent=_TEST_GEMINI_AGENT,
+                config=agentplatform_genai_types.EvalRunInferenceConfig(
+                    dest=local_dest_dir
+                ),
+            )
+
+            saved_file_path = os.path.join(local_dest_dir, "agent_run_results.jsonl")
+            with open(saved_file_path, "r") as f:
+                saved_records = [json.loads(line) for line in f]
+
+        assert saved_records == inference_result.eval_dataset_df.to_dict(
+            orient="records"
+        )
+        assert saved_records[0]["interaction_id"] == "interaction-1"
+        assert inference_result.candidate_name == "test-agent"
 
     @mock.patch.object(_evals_common, "_get_interactions_client")
     @mock.patch.object(_evals_utils, "EvalDatasetLoader")
@@ -9295,8 +9374,406 @@ class TestEvalsRunEvaluation:
         assert summary_metric.num_cases_error == 1
 
 
+_ADK_EVAL_SET = {
+    "eval_set_id": "home_automation",
+    "name": "Home automation",
+    "eval_cases": [
+        {
+            "eval_id": "turn_off_device",
+            "conversation": [
+                {
+                    "invocation_id": "inv-1",
+                    "user_content": {
+                        "parts": [{"text": "Turn off device_2."}],
+                        "role": "user",
+                    },
+                    "final_response": {"parts": [{"text": "device_2 is now off."}]},
+                    "intermediate_data": {
+                        "tool_uses": [
+                            {
+                                "name": "set_device_info",
+                                "args": {"device_id": "device_2", "status": "OFF"},
+                            }
+                        ],
+                        "intermediate_responses": [],
+                    },
+                }
+            ],
+            "session_input": {
+                "app_name": "home_automation_agent",
+                "user_id": "user",
+                "state": {"home": {"rooms": 3}},
+            },
+            "rubrics": [
+                {
+                    "rubric_id": "confirms_action",
+                    "rubric_content": {
+                        "text_property": "The response confirms the device is off."
+                    },
+                    "type": "FINAL_RESPONSE_QUALITY",
+                }
+            ],
+            "tags": ["smoke"],
+        },
+        {
+            "eval_id": "list_then_turn_off",
+            "conversation": [
+                {
+                    "invocation_id": "inv-2a",
+                    "user_content": {
+                        "parts": [{"text": "Which devices are on?"}],
+                        "role": "user",
+                    },
+                    "final_response": {
+                        "parts": [{"text": "device_1 is on."}],
+                        "role": "model",
+                    },
+                    "intermediate_data": {
+                        "invocation_events": [
+                            {
+                                "author": "home_agent",
+                                "content": {
+                                    "parts": [
+                                        {
+                                            "function_call": {
+                                                "name": "list_devices",
+                                                "args": {"status": "ON"},
+                                            }
+                                        }
+                                    ],
+                                    "role": "model",
+                                },
+                            },
+                            {
+                                "author": "home_agent",
+                                "content": {
+                                    "parts": [
+                                        {
+                                            "function_response": {
+                                                "name": "list_devices",
+                                                "response": {"devices": ["device_1"]},
+                                            }
+                                        }
+                                    ],
+                                    "role": "user",
+                                },
+                            },
+                        ]
+                    },
+                    "creation_timestamp": 1700000000.0,
+                },
+                {
+                    "invocation_id": "inv-2b",
+                    "user_content": {
+                        "parts": [{"text": "Turn it off."}],
+                        "role": "user",
+                    },
+                    "final_response": {
+                        "parts": [{"text": "device_1 is now off."}],
+                        "role": "model",
+                    },
+                    "intermediate_data": {
+                        "invocation_events": [
+                            {
+                                "author": "home_agent",
+                                "content": {
+                                    "parts": [
+                                        {
+                                            "function_call": {
+                                                "name": "set_device_info",
+                                                "args": {
+                                                    "device_id": "device_1",
+                                                    "status": "OFF",
+                                                },
+                                            }
+                                        }
+                                    ],
+                                    "role": "model",
+                                },
+                            }
+                        ]
+                    },
+                    "rubrics": [
+                        {
+                            "rubric_id": "polite",
+                            "rubric_content": {
+                                "text_property": "The response is polite."
+                            },
+                        }
+                    ],
+                },
+            ],
+        },
+        {
+            "evalId": "comfortable_bedroom",
+            "conversationScenario": {
+                "startingPrompt": "I want my bedroom to be comfortable.",
+                "conversationPlan": "Ask for 21 degrees once the agent asks.",
+                "userPersona": "NOVICE",
+            },
+            "sessionInput": {"appName": "home_automation_agent", "userId": "user"},
+        },
+    ],
+}
+
+
 class TestEvaluationDataset:
     """Contains set of tests for the EvaluationDataset class methods."""
+
+    def test_load_from_adk_eval_set_file(self, tmp_path):
+        path = tmp_path / "home_automation.evalset.json"
+        path.write_text(json.dumps(_ADK_EVAL_SET))
+
+        dataset = agentplatform_genai_types.EvaluationDataset.load_from_adk_eval_set(
+            path
+        )
+
+        assert [case.eval_case_id for case in dataset.eval_cases] == [
+            "turn_off_device",
+            "list_then_turn_off",
+            "comfortable_bedroom",
+        ]
+
+    def test_load_from_adk_eval_set_single_turn_with_tool_uses(self):
+        case = agentplatform_genai_types.EvaluationDataset.load_from_adk_eval_set(
+            _ADK_EVAL_SET
+        ).eval_cases[0]
+
+        assert case.prompt == genai_types.Content(
+            parts=[genai_types.Part(text="Turn off device_2.")], role="user"
+        )
+        assert case.reference.response == genai_types.Content(
+            parts=[genai_types.Part(text="device_2 is now off.")], role="model"
+        )
+        assert case.conversation_history is None
+        assert case.reference_trajectory == [
+            genai_types.Content(
+                role="model",
+                parts=[
+                    genai_types.Part(
+                        function_call=genai_types.FunctionCall(
+                            name="set_device_info",
+                            args={"device_id": "device_2", "status": "OFF"},
+                        )
+                    )
+                ],
+            )
+        ]
+        assert case.session_inputs == {
+            "app_name": "home_automation_agent",
+            "user_id": "user",
+            "state": {"home": {"rooms": 3}},
+        }
+        assert case.rubric_groups == {
+            "FINAL_RESPONSE_QUALITY": agentplatform_genai_types.RubricGroup(
+                rubrics=[
+                    agentplatform_genai_types.evals.Rubric(
+                        rubric_id="confirms_action",
+                        type="FINAL_RESPONSE_QUALITY",
+                        content=agentplatform_genai_types.evals.RubricContent(
+                            property=agentplatform_genai_types.evals.RubricContentProperty(
+                                description="The response confirms the device is off."
+                            )
+                        ),
+                    )
+                ]
+            )
+        }
+        assert case.tags == ["smoke"]
+
+    def test_load_from_adk_eval_set_multi_turn(self):
+        case = agentplatform_genai_types.EvaluationDataset.load_from_adk_eval_set(
+            _ADK_EVAL_SET
+        ).eval_cases[1]
+
+        assert case.prompt.parts[0].text == "Turn it off."
+        assert [
+            (message.turn_id, message.author, message.content.role)
+            for message in case.conversation_history
+        ] == [
+            ("inv-2a", "user", "user"),
+            ("inv-2a", "home_agent", "model"),
+            ("inv-2a", "home_agent", "user"),
+            ("inv-2a", None, "model"),
+        ]
+        history = case.conversation_history
+        assert history[0].content.parts[0].text == "Which devices are on?"
+        assert history[0].creation_timestamp.timestamp() == 1700000000.0
+        assert history[1].content.parts[0].function_call.name == "list_devices"
+        assert history[2].content.parts[0].function_response.response == {
+            "devices": ["device_1"]
+        }
+        assert history[3].content.parts[0].text == "device_1 is on."
+        assert case.reference.response.parts[0].text == "device_1 is now off."
+        assert [
+            content.parts[0].function_call.name for content in case.reference_trajectory
+        ] == ["set_device_info"]
+        assert case.rubric_groups["adk_rubrics"].rubrics[0].rubric_id == "polite"
+
+    def test_load_from_adk_eval_set_conversation_scenario_camel_case(self):
+        case = agentplatform_genai_types.EvaluationDataset.load_from_adk_eval_set(
+            _ADK_EVAL_SET
+        ).eval_cases[2]
+
+        assert case.eval_case_id == "comfortable_bedroom"
+        assert case.prompt is None
+        assert case.user_scenario == agentplatform_genai_types.evals.UserScenario(
+            starting_prompt="I want my bedroom to be comfortable.",
+            conversation_plan="Ask for 21 degrees once the agent asks.",
+        )
+        assert case.session_inputs == {
+            "app_name": "home_automation_agent",
+            "user_id": "user",
+        }
+
+    def test_load_from_adk_eval_set_decodes_base64_inline_data(self):
+        eval_set = {
+            "eval_set_id": "images",
+            "eval_cases": [
+                {
+                    "eval_id": "image",
+                    "conversation": [
+                        {
+                            "user_content": {
+                                "parts": [
+                                    {
+                                        "inline_data": {
+                                            "mime_type": "image/png",
+                                            "data": base64.b64encode(
+                                                b"\x89PNG"
+                                            ).decode(),
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    ],
+                }
+            ],
+        }
+
+        case = agentplatform_genai_types.EvaluationDataset.load_from_adk_eval_set(
+            eval_set
+        ).eval_cases[0]
+
+        assert case.prompt.role == "user"
+        assert case.prompt.parts[0].inline_data.data == b"\x89PNG"
+        assert case.reference is None
+
+    def test_load_from_adk_eval_set_camel_case_intermediate_data(self, caplog):
+        eval_set = {
+            "eval_set_id": "camel",
+            "eval_cases": [
+                {
+                    "evalId": "camel_case",
+                    "conversation": [
+                        {
+                            "invocationId": "first",
+                            "userContent": {"parts": [{"text": "Look it up."}]},
+                            "finalResponse": {"parts": [{"text": "It is 42."}]},
+                            "intermediateData": {
+                                "toolUses": [{"name": "lookup", "args": {"q": "x"}}],
+                                "toolResponses": [
+                                    {"name": "lookup", "response": {"answer": 42}}
+                                ],
+                                "intermediateResponses": [
+                                    ["helper_agent", [{"text": "Looking."}]]
+                                ],
+                            },
+                        },
+                        {"userContent": {"parts": [{"text": "Thanks."}]}},
+                    ],
+                    "evalCaseId": "override",
+                    "userScenario": {"startingPrompt": "Hi"},
+                    "category": "lookup",
+                }
+            ],
+        }
+
+        with caplog.at_level("WARNING", logger=_evals_data_converters.logger.name):
+            case = agentplatform_genai_types.EvaluationDataset.load_from_adk_eval_set(
+                eval_set
+            ).eval_cases[0]
+
+        assert case.eval_case_id == "camel_case"
+        assert case.user_scenario is None
+        assert case.category == "lookup"
+        assert "'evalCaseId'" in caplog.text
+        assert "'userScenario'" in caplog.text
+        assert case.prompt.parts[0].text == "Thanks."
+        assert [
+            (message.turn_id, message.author, message.content.role)
+            for message in case.conversation_history
+        ] == [
+            ("first", "user", "user"),
+            ("first", None, "model"),
+            ("first", None, "user"),
+            ("first", "helper_agent", "model"),
+            ("first", None, "model"),
+        ]
+        history = case.conversation_history
+        assert history[1].content.parts[0].function_call.args == {"q": "x"}
+        assert history[2].content.parts[0].function_response.response == {"answer": 42}
+        assert history[3].content.parts[0].text == "Looking."
+        assert history[4].content.parts[0].text == "It is 42."
+        assert case.reference is None
+        assert "reference_trajectory" not in case.model_extra
+
+    @pytest.mark.parametrize(
+        "eval_set, error",
+        [
+            ({"eval_set_id": "no_cases"}, "'eval_cases' list"),
+            (
+                {"eval_cases": [{"eval_id": "neither"}]},
+                "'neither'.*Exactly one of conversation and conversation_scenario",
+            ),
+            (
+                {"eval_cases": [{"eval_id": "bad_turn", "conversation": ["Hi"]}]},
+                "'bad_turn'.*Expected a JSON object",
+            ),
+            (
+                {
+                    "eval_cases": [
+                        {
+                            "eval_id": "both",
+                            "conversation": [],
+                            "conversation_scenario": {"starting_prompt": "Hi"},
+                        }
+                    ]
+                },
+                "'both'.*Exactly one of conversation and conversation_scenario",
+            ),
+            (
+                {"eval_cases": [{"eval_id": "empty", "conversation": []}]},
+                "at least one invocation",
+            ),
+            (
+                {
+                    "eval_cases": [
+                        {
+                            "eval_id": "no_user_content",
+                            "conversation": [
+                                {"final_response": {"parts": [{"text": "Hi"}]}}
+                            ],
+                        }
+                    ]
+                },
+                "user_content",
+            ),
+        ],
+    )
+    def test_load_from_adk_eval_set_invalid(self, eval_set, error):
+        with pytest.raises(ValueError, match=error):
+            agentplatform_genai_types.EvaluationDataset.load_from_adk_eval_set(eval_set)
+
+    def test_load_from_adk_eval_set_legacy_list_format(self, tmp_path):
+        path = tmp_path / "legacy.evalset.json"
+        path.write_text(json.dumps([{"name": "legacy", "data": []}]))
+
+        with pytest.raises(ValueError, match="legacy list format"):
+            agentplatform_genai_types.EvaluationDataset.load_from_adk_eval_set(
+                str(path)
+            )
 
     @mock.patch.object(_gcs_utils, "GcsUtils")
     def test_load_from_observability_eval_cases(self, mock_gcs_utils):
@@ -10206,6 +10683,96 @@ class TestResolveDataset:
         ptd_values = uploaded_data["prompt"]["promptTemplateData"]["values"]
         assert "conversation_history" in ptd_values
 
+    @pytest.mark.parametrize(
+        "eval_id, expected_request",
+        [
+            (
+                "turn_off_device",
+                {
+                    "prompt": {"text": "Turn off device_2."},
+                    "goldenResponse": {"text": "device_2 is now off."},
+                },
+            ),
+            (
+                "comfortable_bedroom",
+                {
+                    "prompt": {
+                        "userScenario": {
+                            "startingPrompt": "I want my bedroom to be comfortable.",
+                            "conversationPlan": "Ask for 21 degrees once the agent asks.",
+                        }
+                    }
+                },
+            ),
+        ],
+    )
+    @mock.patch.object(_evals_common, "evals")
+    @mock.patch.object(_evals_common, "_gcs_utils")
+    def test_resolve_dataset_from_adk_eval_set(
+        self, mock_gcs_utils, mock_evals_module, eval_id, expected_request
+    ):
+        mock_gcs_instance = mock_gcs_utils.GcsUtils.return_value
+        mock_gcs_instance.upload_json_to_prefix.return_value = (
+            "gs://bucket/path/request.json"
+        )
+        mock_evals_instance = mock_evals_module.Evals.return_value
+        mock_evals_instance.create_evaluation_item.return_value.name = "eval_item_1"
+        mock_evals_instance.create_evaluation_set.return_value.name = "eval_set_1"
+        loaded = agentplatform_genai_types.EvaluationDataset.load_from_adk_eval_set(
+            _ADK_EVAL_SET
+        )
+        dataset = agentplatform_genai_types.EvaluationDataset(
+            eval_cases=[
+                case for case in loaded.eval_cases if case.eval_case_id == eval_id
+            ]
+        )
+
+        result = _evals_common._resolve_dataset(
+            api_client=self.mock_api_client,
+            dataset=dataset,
+            dest="gs://bucket/prefix",
+        )
+
+        assert result.evaluation_set == "eval_set_1"
+        mock_evals_instance.create_evaluation_set.assert_called_once_with(
+            evaluation_items=["eval_item_1"]
+        )
+        uploaded_data = mock_gcs_instance.upload_json_to_prefix.call_args.kwargs["data"]
+        assert uploaded_data == expected_request
+
+    @mock.patch.object(_evals_common, "evals")
+    @mock.patch.object(_evals_common, "_gcs_utils")
+    def test_resolve_dataset_from_adk_eval_set_multi_turn(
+        self, mock_gcs_utils, mock_evals_module
+    ):
+        mock_gcs_instance = mock_gcs_utils.GcsUtils.return_value
+        mock_gcs_instance.upload_json_to_prefix.return_value = (
+            "gs://bucket/path/request.json"
+        )
+        mock_evals_instance = mock_evals_module.Evals.return_value
+        mock_evals_instance.create_evaluation_item.return_value.name = "eval_item_1"
+        mock_evals_instance.create_evaluation_set.return_value.name = "eval_set_1"
+        loaded = agentplatform_genai_types.EvaluationDataset.load_from_adk_eval_set(
+            _ADK_EVAL_SET
+        )
+        dataset = agentplatform_genai_types.EvaluationDataset(
+            eval_cases=[loaded.eval_cases[1]]
+        )
+
+        _evals_common._resolve_dataset(
+            api_client=self.mock_api_client,
+            dataset=dataset,
+            dest="gs://bucket/prefix",
+        )
+
+        uploaded_data = mock_gcs_instance.upload_json_to_prefix.call_args.kwargs["data"]
+        values = uploaded_data["prompt"]["promptTemplateData"]["values"]
+        assert values["prompt"]["parts"] == [{"text": "Turn it off."}]
+        history_text = values["conversation_history"]["parts"][0]["text"]
+        assert history_text.startswith("user: Which devices are on?")
+        assert history_text.endswith("model: device_1 is on.")
+        assert uploaded_data["goldenResponse"] == {"text": "device_1 is now off."}
+
 
 class TestResolveDatasetWithInteractions:
     """Tests for resolving interactions_data_source in _resolve_dataset."""
@@ -10719,6 +11286,253 @@ class TestAllowCrossRegionModel:
             request_body.get("evaluationConfig", {}).get("allowCrossRegionModel")
             is True
         )
+
+
+class TestJudgeModelStepConfigs:
+    """Tests for per-step judges and cross-region routing in evaluate()."""
+
+    _STEP_CONFIGS = {
+        "rubric_validation": genai_types.AutoraterConfig(
+            autorater_model="claude-sonnet-4-5"
+        )
+    }
+    _EVAL_CASE = agentplatform_genai_types.EvalCase(
+        prompt=genai_types.Content(parts=[genai_types.Part(text="Hello")]),
+        responses=[
+            agentplatform_genai_types.ResponseCandidate(
+                response=genai_types.Content(parts=[genai_types.Part(text="Hi")])
+            )
+        ],
+    )
+    _HANDLER_METRICS = [
+        agentplatform_genai_types.Metric(name="final_response_quality_v1"),
+        agentplatform_genai_types.LLMMetric(
+            name="tone", prompt_template="Rate the tone of {response}."
+        ),
+        agentplatform_genai_types.Metric(
+            name="registered_metric",
+            metric_resource_name=(
+                "projects/123/locations/us-central1/evaluationMetrics/456"
+            ),
+        ),
+    ]
+    _HANDLER_IDS = ["predefined", "llm", "registered"]
+
+    def setup_method(self):
+        _evals_metric_loaders.LazyLoadedPrebuiltMetric._cache.clear()
+
+    def teardown_method(self):
+        _evals_metric_loaders.LazyLoadedPrebuiltMetric._cache.clear()
+
+    @staticmethod
+    def _mock_api_client():
+        api_client = mock.MagicMock()
+        api_client.vertexai = True
+        api_client.request.return_value.body = json.dumps(
+            {"metricResults": [{"score": 1.0}]}
+        )
+        return api_client
+
+    def test_t_metrics_sends_step_autorater_configs(self):
+        metric = agentplatform_genai_types.Metric(
+            name="final_response_quality_v1",
+            judge_model_step_configs=self._STEP_CONFIGS,
+        )
+
+        payload = _transformers.t_metrics([metric])[0]
+
+        assert (
+            payload["predefined_metric_spec"]["step_autorater_configs"]
+            == self._STEP_CONFIGS
+        )
+
+    def test_t_metrics_omits_step_autorater_configs_by_default(self):
+        metric = agentplatform_genai_types.Metric(name="final_response_quality_v1")
+
+        payload = _transformers.t_metrics([metric])[0]
+
+        assert "step_autorater_configs" not in payload["predefined_metric_spec"]
+
+    def test_predefined_handler_sends_step_configs_and_cross_region_flag(self):
+        api_client = self._mock_api_client()
+        metric = agentplatform_genai_types.Metric(
+            name="final_response_quality_v1",
+            judge_model_step_configs=self._STEP_CONFIGS,
+        )
+        handler = _evals_metric_handlers.get_handler_for_metric(
+            evals.Evals(api_client_=api_client),
+            metric,
+            allow_cross_region_model=True,
+        )
+
+        result = handler.get_metric_result(self._EVAL_CASE, response_index=0)
+
+        assert result.score == 1.0
+        request_body = api_client.request.call_args[0][2]
+        assert request_body["allowCrossRegionModel"] is True
+        assert request_body["metrics"][0]["predefined_metric_spec"][
+            "step_autorater_configs"
+        ] == {"rubric_validation": {"autorater_model": "claude-sonnet-4-5"}}
+
+    @pytest.mark.parametrize("metric", _HANDLER_METRICS, ids=_HANDLER_IDS)
+    def test_handlers_send_cross_region_flag(self, metric):
+        api_client = self._mock_api_client()
+        handler = _evals_metric_handlers.get_handler_for_metric(
+            evals.Evals(api_client_=api_client),
+            metric,
+            allow_cross_region_model=True,
+        )
+
+        result = handler.get_metric_result(self._EVAL_CASE, response_index=0)
+
+        assert result.score == 1.0
+        assert api_client.request.call_args[0][2]["allowCrossRegionModel"] is True
+
+    @pytest.mark.parametrize("metric", _HANDLER_METRICS, ids=_HANDLER_IDS)
+    def test_handlers_omit_cross_region_flag_by_default(self, metric):
+        api_client = self._mock_api_client()
+        handler = _evals_metric_handlers.get_handler_for_metric(
+            evals.Evals(api_client_=api_client), metric
+        )
+
+        result = handler.get_metric_result(self._EVAL_CASE, response_index=0)
+
+        assert result.score == 1.0
+        assert "allowCrossRegionModel" not in api_client.request.call_args[0][2]
+
+    @pytest.mark.usefixtures("mock_eval_dependencies")
+    def test_execute_evaluation_passes_cross_region_flag(self, mock_api_client_fixture):
+        with mock.patch.object(
+            _evals_metric_handlers,
+            "compute_metrics_and_aggregate",
+            side_effect=RuntimeError("stop"),
+        ) as mock_compute:
+            with pytest.raises(RuntimeError):
+                _evals_common._execute_evaluation(
+                    api_client=mock_api_client_fixture,
+                    dataset=agentplatform_genai_types.EvaluationDataset(
+                        eval_dataset_df=pd.DataFrame(
+                            [{"prompt": "p1", "response": "r1"}]
+                        )
+                    ),
+                    metrics=[agentplatform_genai_types.Metric(name="exact_match")],
+                    allow_cross_region_model=True,
+                )
+
+        assert mock_compute.call_args.kwargs["allow_cross_region_model"] is True
+
+    def test_compute_metrics_passes_cross_region_flag_to_handlers(self):
+        run_config = _evals_metric_handlers.EvaluationRunConfig(
+            evals_module=evals.Evals(api_client_=mock.MagicMock()),
+            dataset=agentplatform_genai_types.EvaluationDataset(eval_cases=[]),
+            metrics=[
+                agentplatform_genai_types.Metric(name="final_response_quality_v1")
+            ],
+            num_response_candidates=1,
+        )
+
+        with mock.patch.object(
+            _evals_metric_handlers,
+            "get_handler_for_metric",
+            side_effect=RuntimeError("stop"),
+        ) as mock_get_handler:
+            with pytest.raises(RuntimeError):
+                _evals_metric_handlers.compute_metrics_and_aggregate(
+                    run_config, allow_cross_region_model=True
+                )
+
+        assert mock_get_handler.call_args.kwargs["allow_cross_region_model"] is True
+
+    @mock.patch.object(_evals_common, "_execute_evaluation")
+    def test_evaluate_passes_allow_cross_region_model(self, mock_execute_evaluation):
+        evals.Evals(api_client_=mock.MagicMock()).evaluate(
+            dataset=agentplatform_genai_types.EvaluationDataset(
+                eval_dataset_df=pd.DataFrame([{"prompt": "p1", "response": "r1"}])
+            ),
+            metrics=[
+                agentplatform_genai_types.Metric(name="final_response_quality_v1")
+            ],
+            config={"allow_cross_region_model": True},
+        )
+
+        _, kwargs = mock_execute_evaluation.call_args
+        assert kwargs["allow_cross_region_model"] is True
+
+    @mock.patch.object(_evals_metric_handlers.logger, "warning")
+    def test_judge_model_warning_only_for_multi_turn_metrics(self, mock_warning):
+        module = evals.Evals(api_client_=mock.MagicMock())
+
+        _evals_metric_handlers.PredefinedMetricHandler(
+            module=module,
+            metric=agentplatform_genai_types.Metric(
+                name="final_response_quality_v1", judge_model="gemini-2.5-pro"
+            ),
+        )
+        mock_warning.assert_not_called()
+
+        _evals_metric_handlers.PredefinedMetricHandler(
+            module=module,
+            metric=agentplatform_genai_types.Metric(
+                name="multi_turn_task_success_v1", judge_model="gemini-2.5-pro"
+            ),
+        )
+        mock_warning.assert_called_once()
+
+    def test_resolve_evaluation_run_metrics_sends_metric_spec_parameters(self):
+        metric = _evals_metric_loaders.RubricMetric.FINAL_RESPONSE_QUALITY(
+            metric_spec_parameters={"guidelines": "Be concise."}
+        )
+
+        resolved = _evals_common._resolve_evaluation_run_metrics(
+            [metric], api_client=mock.MagicMock()
+        )
+
+        predefined_spec = resolved[0].metric_config.predefined_metric_spec
+        assert predefined_spec.metric_spec_name == "final_response_quality_v1"
+        assert predefined_spec.metric_spec_parameters == {"guidelines": "Be concise."}
+
+    @pytest.mark.parametrize(
+        "metric",
+        [
+            _evals_metric_loaders.RubricMetric.FINAL_RESPONSE_QUALITY(
+                judge_model_step_configs=_STEP_CONFIGS
+            ),
+            agentplatform_genai_types.Metric(
+                name="final_response_quality_v1",
+                judge_model_step_configs=_STEP_CONFIGS,
+            ),
+        ],
+        ids=["rubric_metric", "metric"],
+    )
+    def test_resolve_evaluation_run_metrics_step_configs(self, metric):
+        # google-genai gets the field once it is public in the discovery doc.
+        if "step_autorater_configs" in genai_types.PredefinedMetricSpec.model_fields:
+            resolved = _evals_common._resolve_evaluation_run_metrics(
+                [metric], api_client=mock.MagicMock()
+            )
+            predefined_spec = resolved[0].metric_config.predefined_metric_spec
+            assert predefined_spec.step_autorater_configs == self._STEP_CONFIGS
+        else:
+            with pytest.raises(
+                pydantic.ValidationError, match="step_autorater_configs"
+            ):
+                _evals_common._resolve_evaluation_run_metrics(
+                    [metric], api_client=mock.MagicMock()
+                )
+
+    def test_rubric_metric_overrides_bypass_shared_cache(self):
+        api_client = mock.MagicMock()
+        rubric_metric = _evals_metric_loaders.RubricMetric
+
+        default_metric = rubric_metric.FINAL_RESPONSE_QUALITY.resolve(api_client)
+        overridden_metric = rubric_metric.FINAL_RESPONSE_QUALITY(
+            judge_model_step_configs=self._STEP_CONFIGS
+        ).resolve(api_client)
+        default_again = rubric_metric.FINAL_RESPONSE_QUALITY.resolve(api_client)
+
+        assert default_metric.judge_model_step_configs is None
+        assert overridden_metric.judge_model_step_configs == self._STEP_CONFIGS
+        assert default_again.judge_model_step_configs is None
 
 
 _TEST_INTERACTION = (

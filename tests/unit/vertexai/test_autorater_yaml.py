@@ -160,6 +160,14 @@ class TestAutoraterYaml:
         vertexai.init(
             project=_TEST_PROJECT,
             location=_TEST_LOCATION,
+            # Set explicitly rather than inherited. `init` leaves an already
+            # configured credential in place, and test_extensions installs a
+            # `Mock(spec=AnonymousCredentials)` globally that it never resets;
+            # `_upload_string_to_gcs` then hands `global_config.credentials`
+            # to `storage.Client`, which rejects the Mock's `universe_domain`.
+            # Whether that leak reaches this module depends on how
+            # `--dist=loadscope` happens to assign modules to xdist workers.
+            credentials=auth_credentials.AnonymousCredentials(),
         )
 
     def teardown_method(self):

@@ -288,6 +288,7 @@ class MetricHandler(abc.ABC, Generic[T]):
     def __init__(self, module: "evals.Evals", metric: T):
         self.module = module
         self.metric: T = metric
+        self.allow_cross_region_model: Optional[bool] = None
 
     @property
     @abc.abstractmethod
@@ -761,6 +762,7 @@ class LLMMetricHandler(MetricHandler[types.LLMMetric]):
                 lambda: self.module._evaluate_instances(
                     metrics=[self.metric],
                     instance=instance,
+                    allow_cross_region_model=self.allow_cross_region_model,
                 ),
                 self.metric_name,
             )
@@ -981,7 +983,7 @@ class PredefinedMetricHandler(MetricHandler[types.Metric]):
             raise ValueError(
                 f"Metric '{self.metric.name}' is not a supported predefined metric."
             )
-        if (
+        if self.metric.name.startswith("multi_turn") and (
             self.metric.judge_model
             or self.metric.judge_model_generation_config
             or self.metric.judge_model_sampling_count
@@ -989,7 +991,8 @@ class PredefinedMetricHandler(MetricHandler[types.Metric]):
             logger.warning(
                 "Autorater config settings (judge_model, "
                 "judge_model_generation_config, judge_model_sampling_count) "
-                "are ignored for predefined metric '%s'.",
+                "are ignored for multi-turn metric '%s'. Use "
+                "judge_model_step_configs to set its judges.",
                 self.metric.name,
             )
 
@@ -1071,6 +1074,7 @@ class PredefinedMetricHandler(MetricHandler[types.Metric]):
                     metrics=[self.metric],
                     instance=payload.get("instance"),
                     autorater_config=payload.get("autorater_config"),
+                    allow_cross_region_model=self.allow_cross_region_model,
                 ),
                 metric_name,
             )
@@ -1318,6 +1322,7 @@ class RegisteredMetricHandler(MetricHandler[types.Metric]):
                     metric_sources=[metric_source],
                     instance=payload.get("instance"),
                     autorater_config=payload.get("autorater_config"),
+                    allow_cross_region_model=self.allow_cross_region_model,
                 ),
                 metric_name,
             )
@@ -1404,12 +1409,16 @@ MetricHandlerType = TypeVar(
 
 
 def get_handler_for_metric(
-    module: "evals.Evals", metric: types.Metric
+    module: "evals.Evals",
+    metric: types.Metric,
+    allow_cross_region_model: Optional[bool] = None,
 ) -> Union[MetricHandlerType, Any]:
     """Returns a metric handler for the given metric."""
     for condition, handler_class in _METRIC_HANDLER_MAPPING:
         if condition(metric):  # type: ignore[no-untyped-call]
-            return handler_class(module=module, metric=metric)
+            handler = handler_class(module=module, metric=metric)
+            handler.allow_cross_region_model = allow_cross_region_model
+            return handler
     raise ValueError(f"Unsupported metric: {metric.name}")
 
 
@@ -1548,6 +1557,7 @@ def _rate_limited_get_metric_result(
 def compute_metrics_and_aggregate(
     evaluation_run_config: EvaluationRunConfig,
     evaluation_service_qps: Optional[float] = None,
+    allow_cross_region_model: Optional[bool] = None,
 ) -> types.EvaluationResult:
     """Computes metrics and aggregates them for a given evaluation run config.
 
@@ -1556,6 +1566,8 @@ def compute_metrics_and_aggregate(
         evaluation_service_qps: Optional QPS limit for the evaluation service.
             Defaults to _DEFAULT_EVAL_SERVICE_QPS (10). Users with higher
             quotas can increase this value.
+        allow_cross_region_model: Opt-in flag to authorize cross-region
+            routing for judge models.
     """
     metric_handlers = []
     all_futures = []
@@ -1574,7 +1586,11 @@ def compute_metrics_and_aggregate(
 
     for eval_metric in evaluation_run_config.metrics:
         metric_handlers.append(
-            get_handler_for_metric(evaluation_run_config.evals_module, eval_metric)
+            get_handler_for_metric(
+                evaluation_run_config.evals_module,
+                eval_metric,
+                allow_cross_region_model=allow_cross_region_model,
+            )
         )
 
     eval_case_count = len(evaluation_run_config.dataset.eval_cases)

@@ -846,12 +846,16 @@ class AdkApp:
         """Returns a clone of the ADK application."""
         import copy
 
-        return AdkApp(
+        return self.__class__(
             agent=copy.deepcopy(self._tmpl_attrs.get("agent")),
+            plugins=copy.deepcopy(self._tmpl_attrs.get("plugins")),
             enable_tracing=self._tmpl_attrs.get("enable_tracing"),
             session_service_builder=self._tmpl_attrs.get("session_service_builder"),
             artifact_service_builder=self._tmpl_attrs.get("artifact_service_builder"),
             memory_service_builder=self._tmpl_attrs.get("memory_service_builder"),
+            credential_service_builder=self._tmpl_attrs.get(
+                "credential_service_builder"
+            ),
             env_vars=self._tmpl_attrs.get("env_vars"),
         )
 
@@ -1730,11 +1734,18 @@ class AdkApp:
                 from google.cloud.aiplatform.utils import (
                     resource_manager_utils,
                 )
-                from google.api_core import exceptions
 
                 return resource_manager_utils.get_project_id(project)
-            # Fail open as temporary workaround for identity_type config parameter
-            except (exceptions.PermissionDenied, exceptions.Unauthenticated):
+            # This runs from set_up() on the Agent Engine cold-start path, so
+            # anything escaping here kills the uvicorn worker before it serves.
+            # The lookup is cosmetic -- every caller works with the project
+            # number -- so fail open on everything, which is what
+            # aiplatform.initializer already does for the identical call.
+            except Exception as e:  # pylint: disable=broad-exception-caught
+                _warn(
+                    "Failed to convert project number to project ID, proceeding"
+                    f" with the project number: {e}"
+                )
                 return project
 
         return project or None

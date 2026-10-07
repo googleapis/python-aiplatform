@@ -4167,7 +4167,7 @@ class TestRuntimeErrors:
                         env_vars=_TEST_AGENT_ENGINE_ENV_VARS_INPUT,
                     ),
                 )
-                assert "Failed to create agent engine" in str(excinfo.value)
+            assert "failed to create Agent Runtime" in str(excinfo.value)
 
     @mock.patch.object(_runtimes_utils, "_await_operation")
     def test_update_runtime_description(self, mock_await_operation):
@@ -4185,7 +4185,7 @@ class TestRuntimeErrors:
                         description=_TEST_AGENT_ENGINE_DESCRIPTION,
                     ),
                 )
-                assert "Failed to update agent engine" in str(excinfo.value)
+            assert "failed to update Agent Runtime" in str(excinfo.value)
 
     @pytest.mark.parametrize(
         "test_case_name, test_operation_schemas, want_log_output",

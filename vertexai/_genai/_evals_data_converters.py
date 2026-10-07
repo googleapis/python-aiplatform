@@ -15,15 +15,18 @@
 """Dataset converters for evals."""
 
 import copy
+import datetime
 import json
 import logging
-from typing import Any, Optional, Union
+from typing import Any, Optional, TypeVar, Union
 
 from google.genai import _common
 from google.genai import types as genai_types
+from pydantic import alias_generators
 from pydantic import ValidationError
 from typing_extensions import override
 
+from . import _evals_constant
 from . import _evals_utils
 from . import _observability_data_converter
 from . import types
@@ -602,6 +605,308 @@ class _OpenAIDataConverter(_evals_utils.EvalDataConverter):
             )
             eval_cases.append(eval_case)
 
+        return types.EvaluationDataset(eval_cases=eval_cases)
+
+
+_ADK_EVAL_CASE_FIELDS = frozenset(
+    {
+        "eval_id",
+        "conversation",
+        "conversation_scenario",
+        "session_input",
+        "creation_timestamp",
+        "rubrics",
+        "final_session_state",
+    }
+)
+_ADK_EVAL_CASE_KEYS = _ADK_EVAL_CASE_FIELDS | {
+    alias_generators.to_camel(field) for field in _ADK_EVAL_CASE_FIELDS
+}
+_ADK_SESSION_INPUT_FIELDS = ("app_name", "user_id", "state")
+_ADK_DEFAULT_RUBRIC_GROUP = "adk_rubrics"
+_REFERENCE_TRAJECTORY = "reference_trajectory"
+
+_GenaiModel = TypeVar("_GenaiModel", bound=_common.BaseModel)
+
+
+def _get_adk_field(data: dict[str, Any], name: str) -> Any:
+    """Returns an ADK eval set field, which ADK accepts in snake or camel case."""
+    if not isinstance(data, dict):
+        raise TypeError(f"Expected a JSON object for '{name}', got {type(data)}.")
+    if name in data:
+        return data[name]
+    return data.get(alias_generators.to_camel(name))
+
+
+def _validate_adk_genai(model: type[_GenaiModel], data: Any) -> _GenaiModel:
+    """Validates ADK eval set JSON as a genai type.
+
+    Validating in JSON mode decodes base64 bytes fields, such as inline data and
+    thought signatures, the same way ADK does when it reads an eval set file.
+
+    Args:
+        model: The genai type to validate as.
+        data: The parsed JSON value from the eval set.
+
+    Returns:
+        The validated genai object.
+    """
+    return model.model_validate_json(json.dumps(data))
+
+
+def _adk_content(data: dict[str, Any], default_role: str) -> genai_types.Content:
+    """Validates an ADK Content, filling in the role when the file omits it."""
+    content = _validate_adk_genai(genai_types.Content, data)
+    if not content.role:
+        content.role = default_role
+    return content
+
+
+def _adk_user_content(invocation: dict[str, Any]) -> genai_types.Content:
+    """Returns the user content of an ADK invocation."""
+    user_content = _get_adk_field(invocation, "user_content")
+    if user_content is None:
+        raise ValueError("Every invocation must have user_content.")
+    return _adk_content(user_content, "user")
+
+
+def _adk_intermediate_events(
+    intermediate_data: Optional[dict[str, Any]],
+) -> list[tuple[Optional[str], genai_types.Content]]:
+    """Returns (author, content) pairs from ADK IntermediateData or InvocationEvents."""
+    if not intermediate_data:
+        return []
+    invocation_events = _get_adk_field(intermediate_data, "invocation_events")
+    if invocation_events is not None:
+        return [
+            (
+                _get_adk_field(event, "author"),
+                _validate_adk_genai(
+                    genai_types.Content, _get_adk_field(event, "content")
+                ),
+            )
+            for event in invocation_events
+            if _get_adk_field(event, "content")
+        ]
+
+    events: list[tuple[Optional[str], genai_types.Content]] = []
+    tool_uses = _get_adk_field(intermediate_data, "tool_uses")
+    if tool_uses:
+        events.append(
+            (
+                None,
+                genai_types.Content(
+                    role="model",
+                    parts=[
+                        genai_types.Part(
+                            function_call=_validate_adk_genai(
+                                genai_types.FunctionCall, tool_use
+                            )
+                        )
+                        for tool_use in tool_uses
+                    ],
+                ),
+            )
+        )
+    tool_responses = _get_adk_field(intermediate_data, "tool_responses")
+    if tool_responses:
+        events.append(
+            (
+                None,
+                genai_types.Content(
+                    role="user",
+                    parts=[
+                        genai_types.Part(
+                            function_response=_validate_adk_genai(
+                                genai_types.FunctionResponse, tool_response
+                            )
+                        )
+                        for tool_response in tool_responses
+                    ],
+                ),
+            )
+        )
+    for author, parts in (
+        _get_adk_field(intermediate_data, "intermediate_responses") or []
+    ):
+        events.append(
+            (
+                author,
+                genai_types.Content(
+                    role="model",
+                    parts=[
+                        _validate_adk_genai(genai_types.Part, part) for part in parts
+                    ],
+                ),
+            )
+        )
+    return events
+
+
+class AdkEvalSetConverter(_evals_utils.EvalDataConverter):
+    """Converter for ADK eval sets (the `.evalset.json` format).
+
+    Reads the eval set JSON directly, so google-adk does not need to be
+    installed.
+    """
+
+    def _invocation_to_messages(
+        self, invocation: dict[str, Any], turn_index: int
+    ) -> list[types.evals.Message]:
+        """Converts an earlier ADK invocation into conversation history messages."""
+        turn_id = _get_adk_field(invocation, "invocation_id") or str(turn_index)
+        timestamp = _get_adk_field(invocation, "creation_timestamp")
+        messages = [
+            types.evals.Message(
+                turn_id=turn_id,
+                author="user",
+                content=_adk_user_content(invocation),
+                creation_timestamp=(
+                    datetime.datetime.fromtimestamp(timestamp, tz=datetime.timezone.utc)
+                    if timestamp
+                    else None
+                ),
+            )
+        ]
+        messages.extend(
+            types.evals.Message(turn_id=turn_id, author=author, content=content)
+            for author, content in _adk_intermediate_events(
+                _get_adk_field(invocation, "intermediate_data")
+            )
+        )
+        final_response = _get_adk_field(invocation, "final_response")
+        if final_response:
+            messages.append(
+                types.evals.Message(
+                    turn_id=turn_id, content=_adk_content(final_response, "model")
+                )
+            )
+        return messages
+
+    def _convert_rubrics(
+        self, rubrics: list[dict[str, Any]]
+    ) -> dict[str, types.RubricGroup]:
+        """Groups ADK rubrics by their type, which ADK uses to select rubrics."""
+        groups: dict[str, list[types.evals.Rubric]] = {}
+        for rubric in rubrics:
+            rubric_type = _get_adk_field(rubric, "type")
+            rubric_content = _get_adk_field(rubric, "rubric_content") or {}
+            groups.setdefault(rubric_type or _ADK_DEFAULT_RUBRIC_GROUP, []).append(
+                types.evals.Rubric(
+                    rubric_id=_get_adk_field(rubric, "rubric_id"),
+                    type=rubric_type,
+                    content=types.evals.RubricContent(
+                        property=types.evals.RubricContentProperty(
+                            description=_get_adk_field(rubric_content, "text_property")
+                        )
+                    ),
+                )
+            )
+        return {
+            name: types.RubricGroup(rubrics=group) for name, group in groups.items()
+        }
+
+    def _convert_eval_case(self, case: dict[str, Any]) -> types.EvalCase:
+        """Converts one ADK EvalCase into an EvalCase."""
+        if not isinstance(case, dict):
+            raise TypeError(f"Expected an ADK EvalCase object, got {type(case)}.")
+        conversation = _get_adk_field(case, "conversation")
+        scenario = _get_adk_field(case, "conversation_scenario")
+        if (conversation is None) == (scenario is None):
+            raise ValueError(
+                "Exactly one of conversation and conversation_scenario must be set."
+            )
+
+        fields: dict[str, Any] = {"eval_case_id": _get_adk_field(case, "eval_id")}
+        rubrics = list(_get_adk_field(case, "rubrics") or [])
+        if scenario is not None:
+            fields["user_scenario"] = types.evals.UserScenario(
+                starting_prompt=_get_adk_field(scenario, "starting_prompt"),
+                conversation_plan=_get_adk_field(scenario, "conversation_plan"),
+            )
+        else:
+            if not conversation:
+                raise ValueError("conversation must have at least one invocation.")
+            *earlier_invocations, last_invocation = conversation
+            fields["prompt"] = _adk_user_content(last_invocation)
+            history = []
+            for turn_index, invocation in enumerate(earlier_invocations):
+                history.extend(self._invocation_to_messages(invocation, turn_index))
+            if history:
+                fields["conversation_history"] = history
+            final_response = _get_adk_field(last_invocation, "final_response")
+            if final_response:
+                fields["reference"] = types.ResponseCandidate(
+                    response=_adk_content(final_response, "model")
+                )
+            reference_trajectory: list[genai_types.Content] = []
+            for _, content in _adk_intermediate_events(
+                _get_adk_field(last_invocation, "intermediate_data")
+            ):
+                reference_trajectory.extend(
+                    genai_types.Content(
+                        role="model",
+                        parts=[genai_types.Part(function_call=part.function_call)],
+                    )
+                    for part in content.parts or []
+                    if part.function_call
+                )
+            if reference_trajectory:
+                fields[_REFERENCE_TRAJECTORY] = reference_trajectory
+            rubrics.extend(_get_adk_field(last_invocation, "rubrics") or [])
+
+        if rubrics:
+            fields["rubric_groups"] = self._convert_rubrics(rubrics)
+        session_input = _get_adk_field(case, "session_input")
+        if session_input:
+            fields[_evals_constant.SESSION_INPUT] = {
+                name: value
+                for name in _ADK_SESSION_INPUT_FIELDS
+                if (value := _get_adk_field(session_input, name)) is not None
+            }
+
+        reserved_keys = set(fields)
+        for field_name in types.EvalCase.model_fields:
+            reserved_keys.update((field_name, alias_generators.to_camel(field_name)))
+        for key, value in case.items():
+            if key in _ADK_EVAL_CASE_KEYS:
+                continue
+            if key in reserved_keys:
+                logger.warning(
+                    "Skipping ADK eval case field '%s' because it conflicts with"
+                    " an EvalCase field.",
+                    key,
+                )
+                continue
+            fields[key] = value
+        return types.EvalCase(**fields)
+
+    @override
+    def convert(self, raw_data: dict[str, Any]) -> types.EvaluationDataset:
+        """Converts a parsed ADK EvalSet into an EvaluationDataset."""
+        if not isinstance(raw_data, dict):
+            raise ValueError(
+                "Expected an ADK EvalSet JSON object, got"
+                f" {type(raw_data)}. For the legacy list format, load the"
+                " file with google.adk.evaluation.local_eval_sets_manager"
+                ".load_eval_set_from_file() and pass"
+                " eval_set.model_dump(mode='json') instead."
+            )
+        adk_eval_cases = _get_adk_field(raw_data, "eval_cases")
+        if not isinstance(adk_eval_cases, list):
+            raise ValueError("Expected an ADK EvalSet with an 'eval_cases' list.")
+
+        eval_cases = []
+        for i, case in enumerate(adk_eval_cases):
+            try:
+                eval_cases.append(self._convert_eval_case(case))
+            except (TypeError, ValueError) as e:
+                case_id = (
+                    _get_adk_field(case, "eval_id") if isinstance(case, dict) else None
+                )
+                raise ValueError(
+                    f"Failed to convert ADK eval case '{case_id or i}': {e}"
+                ) from e
         return types.EvaluationDataset(eval_cases=eval_cases)
 
 

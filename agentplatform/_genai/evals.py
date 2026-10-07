@@ -215,6 +215,13 @@ def _CustomCodeExecutionSpec_from_vertex(
             getv(from_object, ["evaluation_function"]),
         )
 
+    if getv(from_object, ["codeExecutionRegion"]) is not None:
+        setv(
+            to_object,
+            ["code_execution_region"],
+            getv(from_object, ["codeExecutionRegion"]),
+        )
+
     return to_object
 
 
@@ -235,6 +242,13 @@ def _CustomCodeExecutionSpec_to_vertex(
             to_object,
             ["evaluation_function"],
             getv(from_object, ["remote_custom_function"]),
+        )
+
+    if getv(from_object, ["code_execution_region"]) is not None:
+        setv(
+            to_object,
+            ["codeExecutionRegion"],
+            getv(from_object, ["code_execution_region"]),
         )
 
     return to_object
@@ -376,6 +390,13 @@ def _EvaluateInstancesRequestParameters_to_vertex(
                 item
                 for item in t.t_metric_sources(getv(from_object, ["metric_sources"]))
             ],
+        )
+
+    if getv(from_object, ["allow_cross_region_model"]) is not None:
+        setv(
+            to_object,
+            ["allowCrossRegionModel"],
+            getv(from_object, ["allow_cross_region_model"]),
         )
 
     if getv(from_object, ["config"]) is not None:
@@ -1921,6 +1942,7 @@ class Evals(_api_module.BaseModule):
         metrics: Optional[list[types.MetricOrDict]] = None,
         instance: Optional[types.EvaluationInstanceOrDict] = None,
         metric_sources: Optional[list[types.MetricSourceOrDict]] = None,
+        allow_cross_region_model: Optional[bool] = None,
         config: Optional[types.EvaluateInstancesConfigOrDict] = None,
     ) -> types.EvaluateInstancesResponse:
         """
@@ -1942,6 +1964,7 @@ class Evals(_api_module.BaseModule):
             metrics=metrics,
             instance=instance,
             metric_sources=metric_sources,
+            allow_cross_region_model=allow_cross_region_model,
             config=config,
         )
 
@@ -3047,7 +3070,7 @@ class Evals(_api_module.BaseModule):
                 events are replayed as session history for local ADK agents.
           model: Optional type is experimental and may change in future versions.
                 The model to use for inference, optional for agent evaluations.
-              - For Google Gemini models, provide the model name string (e.g., "gemini-2.5-flash").
+              - For Google Gemini models, provide the model name string (e.g., "gemini-flash-latest").
               - For third-party models via LiteLLM, use the format "provider/model_name"
                 (e.g., "openai/gpt-4o"). Ensure the necessary API key (e.g., OPENAI_API_KEY)
                 is set as an environment variable.
@@ -3157,6 +3180,8 @@ class Evals(_api_module.BaseModule):
             - evaluation_service_qps: The rate limit (queries per second) for
               calls to the evaluation service. Defaults to 10. Increase this
               value if your project has a higher EvaluateInstances API quota.
+            - allow_cross_region_model: Opt-in flag to authorize cross-region
+              routing for judge models.
           **kwargs: Extra arguments to pass to evaluation, such as `agent_info`.
 
         Returns:
@@ -3200,6 +3225,7 @@ class Evals(_api_module.BaseModule):
             dest=config.dest,
             location=location,
             evaluation_service_qps=getattr(config, "evaluation_service_qps", None),
+            allow_cross_region_model=getattr(config, "allow_cross_region_model", None),
             **kwargs,
         )
 
@@ -3316,7 +3342,7 @@ class Evals(_api_module.BaseModule):
               with the content.
             generator_model_config: Optional. Configuration for the model used
               in custom rubric generation. Only used if `prompt_template` is provided.
-              e.g., {"autorater_model": "gemini-2.5-flash"}.
+              e.g., {"autorater_model": "gemini-flash-latest"}.
             rubric_content_type: Optional. The type of rubric content to be
               generated. Only used if `prompt_template` is provided.
             rubric_type_ontology: Optional. A pre-defined list of allowed types
@@ -3593,12 +3619,12 @@ class Evals(_api_module.BaseModule):
                If provided, `agent_info` must be None. If omitted and `agent_info` is provided,
                this will be automatically constructed using `agent_info` and `user_simulator_config`.
                The `model` field of an inference config accepts a short Gemini model
-               name (e.g. `gemini-2.5-flash`), which is automatically expanded to a
+               name (e.g. `gemini-flash-latest`), which is automatically expanded to a
                fully-qualified resource name using the client's project and location,
                or an already fully-qualified publisher-model or endpoint resource
                name.
                Example:
-               {"candidate-1": types.EvaluationRunInferenceConfig(model="gemini-2.5-flash")}
+               {"candidate-1": types.EvaluationRunInferenceConfig(model="gemini-flash-latest")}
            labels: The labels to apply to the evaluation run.
            loss_analysis_metrics: This field is experimental and may change in future
                versions. Optional list of metrics to run loss analysis on. The
@@ -4930,6 +4956,7 @@ class AsyncEvals(_api_module.BaseModule):
         metrics: Optional[list[types.MetricOrDict]] = None,
         instance: Optional[types.EvaluationInstanceOrDict] = None,
         metric_sources: Optional[list[types.MetricSourceOrDict]] = None,
+        allow_cross_region_model: Optional[bool] = None,
         config: Optional[types.EvaluateInstancesConfigOrDict] = None,
     ) -> types.EvaluateInstancesResponse:
         """
@@ -4951,6 +4978,7 @@ class AsyncEvals(_api_module.BaseModule):
             metrics=metrics,
             instance=instance,
             metric_sources=metric_sources,
+            allow_cross_region_model=allow_cross_region_model,
             config=config,
         )
 
@@ -6233,12 +6261,12 @@ class AsyncEvals(_api_module.BaseModule):
               If provided, `agent_info` must be None. If omitted and `agent_info` is provided,
               this will be automatically constructed using `agent_info` and `user_simulator_config`.
               The `model` field of an inference config accepts a short Gemini model
-              name (e.g. `gemini-2.5-flash`), which is automatically expanded to a
+              name (e.g. `gemini-flash-latest`), which is automatically expanded to a
               fully-qualified resource name using the client's project and location,
               or an already fully-qualified publisher-model or endpoint resource
               name.
               Example:
-              {"candidate-1": types.EvaluationRunInferenceConfig(model="gemini-2.5-flash")}
+              {"candidate-1": types.EvaluationRunInferenceConfig(model="gemini-flash-latest")}
           red_teaming_config: This field is experimental and may change in future
               versions. Optional configuration for automated Agent Red Teaming
               analysis. Specifies attack categories and vulnerable tools to

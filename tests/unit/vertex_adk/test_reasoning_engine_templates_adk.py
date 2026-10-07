@@ -23,6 +23,7 @@ from unittest import mock
 from typing import Optional
 
 from google import auth
+from google.api_core import exceptions as api_exceptions
 import vertexai
 from google.cloud.aiplatform import initializer
 from vertexai.agent_engines import _utils
@@ -416,6 +417,31 @@ class TestAdkApp:
         assert app_clone._tmpl_attrs.get("runner") is None
         app_clone.set_up()
         assert app_clone._tmpl_attrs.get("runner") is not None
+
+    def test_clone_preserves_subclass(self):
+        class CustomAdkApp(reasoning_engines.AdkApp):
+            pass
+
+        app = CustomAdkApp(
+            agent=Agent(name=_TEST_AGENT_NAME, model=_TEST_MODEL),
+        )
+        assert isinstance(app.clone(), CustomAdkApp)
+
+    def test_clone_preserves_plugins_and_credential_service_builder(self):
+        def credential_service_builder():
+            return None
+
+        app = reasoning_engines.AdkApp(
+            agent=Agent(name=_TEST_AGENT_NAME, model=_TEST_MODEL),
+            plugins=["test_plugin"],
+            credential_service_builder=credential_service_builder,
+        )
+        app_clone = app.clone()
+        assert app_clone._tmpl_attrs.get("plugins") == ["test_plugin"]
+        assert (
+            app_clone._tmpl_attrs.get("credential_service_builder")
+            is credential_service_builder
+        )
 
     def test_register_operations(self):
         app = reasoning_engines.AdkApp(
@@ -1151,6 +1177,37 @@ class TestAdkApp:
 
         assert app.project_id() is None
         get_project_id_mock.assert_not_called()
+
+    @pytest.mark.parametrize(
+        "error",
+        [
+            api_exceptions.PermissionDenied("denied"),
+            api_exceptions.Unauthenticated("unauthenticated"),
+            # b/561814776: gRPC UNKNOWN, seen when an Agent Gateway terminates
+            # the HTTP/2 stream to cloudresourcemanager.
+            api_exceptions.Unknown("Stream removed"),
+            api_exceptions.DeadlineExceeded("deadline exceeded"),
+            RuntimeError("something unexpected"),
+        ],
+    )
+    def test_project_id_fails_open_on_lookup_error(
+        self,
+        get_project_id_mock: mock.Mock,
+        error: Exception,
+    ):
+        """A failed lookup falls back to the project number instead of raising.
+
+        project_id() runs from set_up() on the cold-start path, so an escaping
+        exception kills the worker over a lookup nothing depends on.
+        """
+        app = reasoning_engines.AdkApp(agent=_TEST_AGENT)
+        app._tmpl_attrs["project"] = _TEST_PROJECT_NUMBER
+        # Discard the lookup that vertexai.init() made in setup_method.
+        get_project_id_mock.reset_mock()
+        get_project_id_mock.side_effect = error
+
+        assert app.project_id() == _TEST_PROJECT_NUMBER
+        get_project_id_mock.assert_called_once_with(_TEST_PROJECT_NUMBER)
 
     @mock.patch.dict(os.environ)
     def test_span_content_capture_disabled_by_default(self):

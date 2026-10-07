@@ -237,8 +237,8 @@ class State(_common.CaseInSensitiveEnum):
     """The unspecified state."""
     ACTIVE = "ACTIVE"
     """Is deployed and ready to be used."""
-    DEPRECATED = "DEPRECATED"
-    """Is deprecated, may not be used, only preserved for historical purposes."""
+    ARCHIVED = "ARCHIVED"
+    """Is archived and can no longer receive traffic, only preserved for historical purposes."""
 
 
 class MemoryType(_common.CaseInSensitiveEnum):
@@ -328,6 +328,8 @@ class SandboxState(_common.CaseInSensitiveEnum):
     """Sandbox runtime is pausing."""
     STATE_RESUMING = "STATE_RESUMING"
     """Sandbox runtime is resuming."""
+    STATE_STOPPING = "STATE_STOPPING"
+    """Sandbox runtime is stopping."""
 
 
 class Protocol(_common.CaseInSensitiveEnum):
@@ -655,6 +657,19 @@ class ArrayOperator(_common.CaseInSensitiveEnum):
     """The metadata array field in the example must contain at least one of the values."""
     CONTAINS_ALL = "CONTAINS_ALL"
     """The metadata array field in the example must contain all of the values."""
+
+
+class ServingProfileScope(_common.CaseInSensitiveEnum):
+    """The specific API this ServingProfile applies to."""
+
+    SERVING_PROFILE_SCOPE_UNSPECIFIED = "SERVING_PROFILE_SCOPE_UNSPECIFIED"
+    """Unspecified scope."""
+    GEMINI_LIVE = "GEMINI_LIVE"
+    """Scope for Gemini Live."""
+    INTERACTIONS_API = "INTERACTIONS_API"
+    """Scope for Interactions API."""
+    RESPONSE_API = "RESPONSE_API"
+    """Scope for Response API."""
 
 
 class EvaluationExperimentMergeStrategy(_common.CaseInSensitiveEnum):
@@ -1370,6 +1385,12 @@ class Metric(_common.BaseModel):
         default=None,
         description="""Optional. A Python function string used to parse the raw output of the LLM judge model. The function must be named `parse_results` and accept a list of model response strings. It should return a dictionary with `score` (float) and `explanation` (str) keys.""",
     )
+    judge_model_step_configs: Optional[dict[str, genai_types.AutoraterConfig]] = Field(
+        default=None,
+        description="""Per-step judge overrides for a predefined metric, keyed by step:
+      "intent_extraction", "rubric_generation" or "rubric_validation". Steps
+      without an entry keep their default judge.""",
+    )
 
     # Allow extra fields to support metric-specific config fields.
     model_config = ConfigDict(extra="allow")
@@ -1605,6 +1626,11 @@ class MetricDict(TypedDict, total=False):
     result_parsing_function: Optional[str]
     """Optional. A Python function string used to parse the raw output of the LLM judge model. The function must be named `parse_results` and accept a list of model response strings. It should return a dictionary with `score` (float) and `explanation` (str) keys."""
 
+    judge_model_step_configs: Optional[dict[str, genai_types.AutoraterConfig]]
+    """Per-step judge overrides for a predefined metric, keyed by step:
+      "intent_extraction", "rubric_generation" or "rubric_validation". Steps
+      without an entry keep their default judge."""
+
 
 MetricOrDict = Union[Metric, MetricDict]
 
@@ -1705,6 +1731,10 @@ class CustomCodeExecutionSpec(_common.BaseModel):
   Instance is the evaluation instance, any fields populated in the instance
   are available to the function as instance[field_name].""",
     )
+    code_execution_region: Optional[str] = Field(
+        default=None,
+        description="""Optional. The region to use for code execution. If set, the Code Execution Sandbox will be invoked in the specified region regardless of the request's originating region. Must be a region where the Code Execution Sandbox is available. For the current list of [supported regions](https://cloud.google.com/vertex-ai/generative-ai/docs/agent-engine/locations). If unset, the request's originating region is used; requests from regions where the sandbox is unavailable will fail with UNIMPLEMENTED.""",
+    )
 
 
 class CustomCodeExecutionSpecDict(TypedDict, total=False):
@@ -1723,6 +1753,9 @@ class CustomCodeExecutionSpecDict(TypedDict, total=False):
   Please include this function signature in the code snippet.
   Instance is the evaluation instance, any fields populated in the instance
   are available to the function as instance[field_name]."""
+
+    code_execution_region: Optional[str]
+    """Optional. The region to use for code execution. If set, the Code Execution Sandbox will be invoked in the specified region regardless of the request's originating region. Must be a region where the Code Execution Sandbox is available. For the current list of [supported regions](https://cloud.google.com/vertex-ai/generative-ai/docs/agent-engine/locations). If unset, the request's originating region is used; requests from regions where the sandbox is unavailable will fail with UNIMPLEMENTED."""
 
 
 CustomCodeExecutionSpecOrDict = Union[
@@ -2048,7 +2081,7 @@ class EvaluationRunConfig(_common.BaseModel):
     )
     autorater_config: Optional[genai_types.AutoraterConfig] = Field(
         default=None,
-        description="""The autorater config for the evaluation run. Not applicable for predefined metrics (PredefinedMetricSpec); the server uses its own model configuration for predefined metrics and this field is ignored.""",
+        description="""The autorater config for the evaluation run. Predefined metrics use it for every judge step without a `step_autorater_configs` override; multi-turn metrics ignore it.""",
     )
     prompt_template: Optional[EvaluationRunPromptTemplate] = Field(
         default=None, description="""The prompt template used for inference."""
@@ -2078,7 +2111,7 @@ class EvaluationRunConfigDict(TypedDict, total=False):
     """The output config for the evaluation run."""
 
     autorater_config: Optional[genai_types.AutoraterConfig]
-    """The autorater config for the evaluation run. Not applicable for predefined metrics (PredefinedMetricSpec); the server uses its own model configuration for predefined metrics and this field is ignored."""
+    """The autorater config for the evaluation run. Predefined metrics use it for every judge step without a `step_autorater_configs` override; multi-turn metrics ignore it."""
 
     prompt_template: Optional[EvaluationRunPromptTemplateDict]
     """The prompt template used for inference."""
@@ -2205,7 +2238,7 @@ class EvaluationRunInferenceConfig(_common.BaseModel):
     )
     model: Optional[str] = Field(
         default=None,
-        description="""The model to use for inference. Accepts a short Gemini model name (e.g. `gemini-2.5-flash`), which is automatically expanded to a fully-qualified resource name using the client's project and location, or an already fully-qualified publisher-model or endpoint resource name (e.g. `projects/{project}/locations/{location}/publishers/google/models/gemini-2.5-flash`).""",
+        description="""The model to use for inference. Accepts a short Gemini model name (e.g. `gemini-flash-latest`), which is automatically expanded to a fully-qualified resource name using the client's project and location, or an already fully-qualified publisher-model or endpoint resource name (e.g. `projects/{project}/locations/{location}/publishers/google/models/gemini-flash-latest`).""",
     )
     prompt_template: Optional[EvaluationRunPromptTemplate] = Field(
         default=None, description="""The prompt template used for inference."""
@@ -2227,7 +2260,7 @@ class EvaluationRunInferenceConfigDict(TypedDict, total=False):
     """The agent config."""
 
     model: Optional[str]
-    """The model to use for inference. Accepts a short Gemini model name (e.g. `gemini-2.5-flash`), which is automatically expanded to a fully-qualified resource name using the client's project and location, or an already fully-qualified publisher-model or endpoint resource name (e.g. `projects/{project}/locations/{location}/publishers/google/models/gemini-2.5-flash`)."""
+    """The model to use for inference. Accepts a short Gemini model name (e.g. `gemini-flash-latest`), which is automatically expanded to a fully-qualified resource name using the client's project and location, or an already fully-qualified publisher-model or endpoint resource name (e.g. `projects/{project}/locations/{location}/publishers/google/models/gemini-flash-latest`)."""
 
     prompt_template: Optional[EvaluationRunPromptTemplateDict]
     """The prompt template used for inference."""
@@ -3148,6 +3181,60 @@ class EvaluationDataset(_common.BaseModel):
             raise ImportError("Pandas DataFrame library is required.") from e
 
         return EvaluationDataset(eval_dataset_df=eval_dataset_df)
+
+    @classmethod
+    def load_from_adk_eval_set(
+        cls, eval_set: Union[str, "os.PathLike[str]", dict[str, Any]]
+    ) -> "EvaluationDataset":
+        """Loads an ADK eval set (`.evalset.json`) into an EvaluationDataset.
+
+        Each ADK eval case becomes an EvalCase with `eval_case_id` set to its
+        `eval_id`. For a static conversation, the last invocation's user content
+        becomes `prompt` and its final response becomes `reference`. Earlier
+        invocations, including their tool calls, become `conversation_history`.
+        A conversation scenario becomes `user_scenario`. Rubrics on the case and
+        on the last invocation go into `rubric_groups`, keyed by rubric type
+        ("adk_rubrics" when unset).
+
+        Some ADK data is kept as EvalCase extra fields: `reference_trajectory`
+        holds the tool calls of the last invocation, `session_inputs` holds the
+        session input, and custom ADK eval case fields keep their names. Other ADK
+        fields, such as `final_session_state` and the scenario's `user_persona`,
+        are not carried over. Steps that convert eval cases to a DataFrame, such
+        as `run_inference`, drop the extra fields, `rubric_groups` and
+        `eval_case_id`. google-adk does not need to be installed.
+
+        Example:
+            import agentplatform
+            from agentplatform import types
+
+            client = agentplatform.Client(
+                project="my-project", location="us-central1"
+            )
+            dataset = types.EvaluationDataset.load_from_adk_eval_set(
+                "my_agent/my_eval_set.evalset.json"
+            )
+            dataset_with_responses = client.evals.run_inference(
+                src=dataset, agent=my_agent
+            )
+            result = client.evals.evaluate(
+                dataset=dataset_with_responses,
+                metrics=[types.RubricMetric.FINAL_RESPONSE_MATCH],
+            )
+
+        Args:
+            eval_set: The path to an ADK `.evalset.json` file, or the eval set as
+              a parsed JSON dict.
+
+        Returns:
+            An EvaluationDataset with one EvalCase per ADK eval case.
+        """
+        from .. import _evals_data_converters  # pylint: disable=g-import-not-at-top
+
+        if not isinstance(eval_set, dict):
+            with open(eval_set, "r", encoding="utf-8") as f:
+                eval_set = json.load(f)
+        return _evals_data_converters.AdkEvalSetConverter().convert(eval_set)
 
     def show(self) -> None:
         """Shows the evaluation dataset."""
@@ -4680,7 +4767,7 @@ class _EvaluateInstancesRequestParameters(_common.BaseModel):
     )
     autorater_config: Optional[genai_types.AutoraterConfig] = Field(
         default=None,
-        description="""Autorater config used for evaluation. Not applicable for predefined metrics (PredefinedMetricSpec); the server uses its own model configuration for predefined metrics and this field is ignored.""",
+        description="""Autorater config used for evaluation. Predefined metrics use it for every judge step without a `step_autorater_configs` override; multi-turn metrics ignore it.""",
     )
     metrics: Optional[list[Metric]] = Field(
         default=None,
@@ -4693,6 +4780,12 @@ class _EvaluateInstancesRequestParameters(_common.BaseModel):
     )
     metric_sources: Optional[list[MetricSource]] = Field(
         default=None, description="""The metrics used for evaluation."""
+    )
+    allow_cross_region_model: Optional[bool] = Field(
+        default=None,
+        description="""Allows judge models to be served from other regions. Required
+      when a judge model's fully-qualified resource name uses a different
+      region than the request.""",
     )
     config: Optional[EvaluateInstancesConfig] = Field(default=None, description="""""")
 
@@ -4731,7 +4824,7 @@ class _EvaluateInstancesRequestParametersDict(TypedDict, total=False):
     """"""
 
     autorater_config: Optional[genai_types.AutoraterConfig]
-    """Autorater config used for evaluation. Not applicable for predefined metrics (PredefinedMetricSpec); the server uses its own model configuration for predefined metrics and this field is ignored."""
+    """Autorater config used for evaluation. Predefined metrics use it for every judge step without a `step_autorater_configs` override; multi-turn metrics ignore it."""
 
     metrics: Optional[list[MetricDict]]
     """The metrics used for evaluation.
@@ -4743,6 +4836,11 @@ class _EvaluateInstancesRequestParametersDict(TypedDict, total=False):
 
     metric_sources: Optional[list[MetricSourceDict]]
     """The metrics used for evaluation."""
+
+    allow_cross_region_model: Optional[bool]
+    """Allows judge models to be served from other regions. Required
+      when a judge model's fully-qualified resource name uses a different
+      region than the request."""
 
     config: Optional[EvaluateInstancesConfigDict]
     """"""
@@ -6665,7 +6763,7 @@ class ReservationAffinity(_common.BaseModel):
     )
     values: Optional[list[str]] = Field(
         default=None,
-        description="""Optional. Corresponds to the label values of a reservation resource. This must be the full resource name of the reservation or reservation block.""",
+        description="""Optional. Corresponds to the label values of a reservation resource. This must be the resource name of the reservation, reservation block, or reservation sub- block.""",
     )
 
 
@@ -6679,7 +6777,7 @@ class ReservationAffinityDict(TypedDict, total=False):
     """Required. Specifies the reservation affinity type."""
 
     values: Optional[list[str]]
-    """Optional. Corresponds to the label values of a reservation resource. This must be the full resource name of the reservation or reservation block."""
+    """Optional. Corresponds to the label values of a reservation resource. This must be the resource name of the reservation, reservation block, or reservation sub- block."""
 
 
 ReservationAffinityOrDict = Union[ReservationAffinity, ReservationAffinityDict]
@@ -8897,6 +8995,56 @@ ReasoningEngineTrafficConfigOrDict = Union[
 ]
 
 
+class ReasoningEngineRevisionGarbageCollectionStrategyKeepNLatest(_common.BaseModel):
+    """Keeps only the latest N Runtime Revisions active."""
+
+    max_revisions: Optional[int] = Field(
+        default=None,
+        description="""Required. Specifies the maximum number of Runtime Revisions to keep active. If an update to Reasoning Engine would result in exceeding this number of active Runtime Revisions, a new Runtime Revision will be created, while the oldest Runtime Revision will be automatically deleted, providing it's not configured to serve traffic via `traffic_config`. If the oldest Runtime Revision is configured to serve traffic, the update will fail validation. No changes will be made to the Reasoning Engine, existing Runtime Revisions, and no new Runtime Revision will be created.""",
+    )
+
+
+class ReasoningEngineRevisionGarbageCollectionStrategyKeepNLatestDict(
+    TypedDict, total=False
+):
+    """Keeps only the latest N Runtime Revisions active."""
+
+    max_revisions: Optional[int]
+    """Required. Specifies the maximum number of Runtime Revisions to keep active. If an update to Reasoning Engine would result in exceeding this number of active Runtime Revisions, a new Runtime Revision will be created, while the oldest Runtime Revision will be automatically deleted, providing it's not configured to serve traffic via `traffic_config`. If the oldest Runtime Revision is configured to serve traffic, the update will fail validation. No changes will be made to the Reasoning Engine, existing Runtime Revisions, and no new Runtime Revision will be created."""
+
+
+ReasoningEngineRevisionGarbageCollectionStrategyKeepNLatestOrDict = Union[
+    ReasoningEngineRevisionGarbageCollectionStrategyKeepNLatest,
+    ReasoningEngineRevisionGarbageCollectionStrategyKeepNLatestDict,
+]
+
+
+class ReasoningEngineRevisionGarbageCollectionStrategy(_common.BaseModel):
+    """Configures garbage collection of Runtime Revisions."""
+
+    keep_n_latest: Optional[
+        ReasoningEngineRevisionGarbageCollectionStrategyKeepNLatest
+    ] = Field(
+        default=None,
+        description="""Optional. Keeps only the latest N Runtime Revisions active.""",
+    )
+
+
+class ReasoningEngineRevisionGarbageCollectionStrategyDict(TypedDict, total=False):
+    """Configures garbage collection of Runtime Revisions."""
+
+    keep_n_latest: Optional[
+        ReasoningEngineRevisionGarbageCollectionStrategyKeepNLatestDict
+    ]
+    """Optional. Keeps only the latest N Runtime Revisions active."""
+
+
+ReasoningEngineRevisionGarbageCollectionStrategyOrDict = Union[
+    ReasoningEngineRevisionGarbageCollectionStrategy,
+    ReasoningEngineRevisionGarbageCollectionStrategyDict,
+]
+
+
 class ReasoningEngine(_common.BaseModel):
     """An agent runtime."""
 
@@ -8942,6 +9090,12 @@ class ReasoningEngine(_common.BaseModel):
         default=None,
         description="""Optional. Traffic distribution configuration for the Reasoning Engine.""",
     )
+    revision_garbage_collection_strategy: Optional[
+        ReasoningEngineRevisionGarbageCollectionStrategy
+    ] = Field(
+        default=None,
+        description="""Optional. Configures garbage collection of Runtime Revisions.""",
+    )
 
 
 class ReasoningEngineDict(TypedDict, total=False):
@@ -8979,6 +9133,11 @@ class ReasoningEngineDict(TypedDict, total=False):
 
     traffic_config: Optional[ReasoningEngineTrafficConfigDict]
     """Optional. Traffic distribution configuration for the Reasoning Engine."""
+
+    revision_garbage_collection_strategy: Optional[
+        ReasoningEngineRevisionGarbageCollectionStrategyDict
+    ]
+    """Optional. Configures garbage collection of Runtime Revisions."""
 
 
 ReasoningEngineOrDict = Union[ReasoningEngine, ReasoningEngineDict]
@@ -11538,6 +11697,9 @@ class Memory(_common.BaseModel):
         default=None,
         description="""Optional. Represents the structured content of the memory.""",
     )
+    context: Optional[str] = Field(
+        default=None, description="""Optional. Represents the context of the memory."""
+    )
 
 
 class MemoryDict(TypedDict, total=False):
@@ -11593,6 +11755,9 @@ class MemoryDict(TypedDict, total=False):
 
     structured_content: Optional[MemoryStructuredContentDict]
     """Optional. Represents the structured content of the memory."""
+
+    context: Optional[str]
+    """Optional. Represents the context of the memory."""
 
 
 MemoryOrDict = Union[Memory, MemoryDict]
@@ -13281,6 +13446,10 @@ class MemoryRevision(_common.BaseModel):
         default=None,
         description="""Output only. Represents the structured value of the memory at the time of revision creation.""",
     )
+    context: Optional[str] = Field(
+        default=None,
+        description="""Output only. Represents the context of the Memory Revision. The context may include context from both the historical revisions and the extracted content.""",
+    )
 
 
 class MemoryRevisionDict(TypedDict, total=False):
@@ -13306,6 +13475,9 @@ class MemoryRevisionDict(TypedDict, total=False):
 
     structured_data: Optional[dict[str, Any]]
     """Output only. Represents the structured value of the memory at the time of revision creation."""
+
+    context: Optional[str]
+    """Output only. Represents the context of the Memory Revision. The context may include context from both the historical revisions and the extracted content."""
 
 
 MemoryRevisionOrDict = Union[MemoryRevision, MemoryRevisionDict]
@@ -16564,13 +16736,13 @@ SandboxEnvironmentSpecComputerUseEnvironmentOrDict = Union[
 
 
 class SandboxEnvironmentSpecShellEnvironment(_common.BaseModel):
-    """The shell environment with customized settings."""
+    """The shell environment."""
 
     pass
 
 
 class SandboxEnvironmentSpecShellEnvironmentDict(TypedDict, total=False):
-    """The shell environment with customized settings."""
+    """The shell environment."""
 
     pass
 
@@ -16590,7 +16762,12 @@ class SandboxEnvironmentSpec(_common.BaseModel):
         Field(default=None, description="""Optional. The computer use environment.""")
     )
     shell_environment: Optional[SandboxEnvironmentSpecShellEnvironment] = Field(
-        default=None, description="""Optional. The shell environment."""
+        default=None,
+        description="""Optional. The shell environment for executing shell commands and scripts.""",
+    )
+    use_gke_td: Optional[bool] = Field(
+        default=None,
+        description="""Optional. Immutable. Whether to provision the SandboxEnvironment via the GKE TD pool. Immutable.""",
     )
 
 
@@ -16606,7 +16783,10 @@ class SandboxEnvironmentSpecDict(TypedDict, total=False):
     """Optional. The computer use environment."""
 
     shell_environment: Optional[SandboxEnvironmentSpecShellEnvironmentDict]
-    """Optional. The shell environment."""
+    """Optional. The shell environment for executing shell commands and scripts."""
+
+    use_gke_td: Optional[bool]
+    """Optional. Immutable. Whether to provision the SandboxEnvironment via the GKE TD pool. Immutable."""
 
 
 SandboxEnvironmentSpecOrDict = Union[SandboxEnvironmentSpec, SandboxEnvironmentSpecDict]
@@ -17551,11 +17731,11 @@ class SandboxEnvironmentTemplateEgressControlConfigDnsPeeringConfig(_common.Base
     )
     target_network: Optional[str] = Field(
         default=None,
-        description="""Required. The VPC network name in the target_project where the DNS zone specified by 'domain' is visible.""",
+        description="""Required. The VPC network name in the target_project where the DNS zone specified by `domain` is visible.""",
     )
     target_project: Optional[str] = Field(
         default=None,
-        description="""Required. The project ID hosting the Cloud DNS managed zone that contains the 'domain'. The Vertex AI Service Agent requires the dns.peer role on this project.""",
+        description="""Required. The project ID hosting the Cloud DNS managed zone that contains the `domain`. The Vertex AI Service Agent requires the dns.peer role on this project.""",
     )
 
 
@@ -17568,10 +17748,10 @@ class SandboxEnvironmentTemplateEgressControlConfigDnsPeeringConfigDict(
     """Required. The DNS name suffix of the zone being peered to, e.g., "my-internal-domain.corp.". Must end with a dot."""
 
     target_network: Optional[str]
-    """Required. The VPC network name in the target_project where the DNS zone specified by 'domain' is visible."""
+    """Required. The VPC network name in the target_project where the DNS zone specified by `domain` is visible."""
 
     target_project: Optional[str]
-    """Required. The project ID hosting the Cloud DNS managed zone that contains the 'domain'. The Vertex AI Service Agent requires the dns.peer role on this project."""
+    """Required. The project ID hosting the Cloud DNS managed zone that contains the `domain`. The Vertex AI Service Agent requires the dns.peer role on this project."""
 
 
 SandboxEnvironmentTemplateEgressControlConfigDnsPeeringConfigOrDict = Union[
@@ -17586,10 +17766,6 @@ class SandboxEnvironmentTemplateEgressControlConfig(_common.BaseModel):
     internet_access: Optional[bool] = Field(
         default=None, description="""Optional. Whether to allow internet access."""
     )
-    customer_vpc_network: Optional[str] = Field(
-        default=None,
-        description="""Optional. The customer VPC network that sandbox egress is routed into.""",
-    )
     dns_peering_configs: Optional[
         list[SandboxEnvironmentTemplateEgressControlConfigDnsPeeringConfig]
     ] = Field(
@@ -17598,7 +17774,7 @@ class SandboxEnvironmentTemplateEgressControlConfig(_common.BaseModel):
     )
     network_attachment: Optional[str] = Field(
         default=None,
-        description="""Optional. The name of the customer VPC NetworkAttachment used to draw a PSC interface IP into the customer VPC for sandbox egress.""",
+        description="""Optional. The name of the customer VPC `NetworkAttachment` used to draw a PSC interface IP into the customer VPC for sandbox egress.""",
     )
 
 
@@ -17608,16 +17784,13 @@ class SandboxEnvironmentTemplateEgressControlConfigDict(TypedDict, total=False):
     internet_access: Optional[bool]
     """Optional. Whether to allow internet access."""
 
-    customer_vpc_network: Optional[str]
-    """Optional. The customer VPC network that sandbox egress is routed into."""
-
     dns_peering_configs: Optional[
         list[SandboxEnvironmentTemplateEgressControlConfigDnsPeeringConfigDict]
     ]
     """Optional. DNS peering configurations that allow sandbox egress to resolve customer-internal domains via the customer VPC."""
 
     network_attachment: Optional[str]
-    """Optional. The name of the customer VPC NetworkAttachment used to draw a PSC interface IP into the customer VPC for sandbox egress."""
+    """Optional. The name of the customer VPC `NetworkAttachment` used to draw a PSC interface IP into the customer VPC for sandbox egress."""
 
 
 SandboxEnvironmentTemplateEgressControlConfigOrDict = Union[
@@ -17828,6 +18001,42 @@ _CreateSandboxEnvironmentTemplateRequestParametersOrDict = Union[
 ]
 
 
+class SandboxEnvironmentTemplatePersistentDiskConfig(_common.BaseModel):
+    """Configuration for attaching a persistent disk (PD) to each SandboxEnvironment created from this template. A persistent disk provides durable, per-sandbox block storage whose contents survive across the sandbox lifecycle events that this service supports (e.g. pause/resume), unlike ephemeral local storage which is lost when the underlying runtime is torn down."""
+
+    enabled: Optional[bool] = Field(
+        default=None,
+        description="""Optional. Whether a persistent disk is attached to sandboxes created from this template. Defaults to `false`. This flag lets a template carry (and preserve) disk configuration while keeping the disk detached, so it can be toggled on later without re-specifying the rest of the config. When `false`, the remaining fields in this message are ignored.""",
+    )
+    mount_path: Optional[str] = Field(
+        default=None,
+        description="""Optional. The absolute path inside the sandbox container at which the persistent disk is mounted. Defaults to `/workspace` when unset. Ignored when `enabled` is `false`. Only writes beneath this path land on the disk. Writes elsewhere go to the container's writable layer, which counts against the container's ephemeral storage and is lost when the sandbox's runtime is torn down, so this should be the directory the workload actually writes to. Paths that would shadow the container's system directories (for example `/etc`, `/proc`, or `/usr` itself) are rejected.""",
+    )
+    size_gb: Optional[int] = Field(
+        default=None,
+        description="""Optional. The size of the persistent disk in GB. Must be non-negative. When `enabled` is `true`, a positive value is required; when unset or zero while enabled, the service applies a default size. Ignored when `enabled` is `false`.""",
+    )
+
+
+class SandboxEnvironmentTemplatePersistentDiskConfigDict(TypedDict, total=False):
+    """Configuration for attaching a persistent disk (PD) to each SandboxEnvironment created from this template. A persistent disk provides durable, per-sandbox block storage whose contents survive across the sandbox lifecycle events that this service supports (e.g. pause/resume), unlike ephemeral local storage which is lost when the underlying runtime is torn down."""
+
+    enabled: Optional[bool]
+    """Optional. Whether a persistent disk is attached to sandboxes created from this template. Defaults to `false`. This flag lets a template carry (and preserve) disk configuration while keeping the disk detached, so it can be toggled on later without re-specifying the rest of the config. When `false`, the remaining fields in this message are ignored."""
+
+    mount_path: Optional[str]
+    """Optional. The absolute path inside the sandbox container at which the persistent disk is mounted. Defaults to `/workspace` when unset. Ignored when `enabled` is `false`. Only writes beneath this path land on the disk. Writes elsewhere go to the container's writable layer, which counts against the container's ephemeral storage and is lost when the sandbox's runtime is torn down, so this should be the directory the workload actually writes to. Paths that would shadow the container's system directories (for example `/etc`, `/proc`, or `/usr` itself) are rejected."""
+
+    size_gb: Optional[int]
+    """Optional. The size of the persistent disk in GB. Must be non-negative. When `enabled` is `true`, a positive value is required; when unset or zero while enabled, the service applies a default size. Ignored when `enabled` is `false`."""
+
+
+SandboxEnvironmentTemplatePersistentDiskConfigOrDict = Union[
+    SandboxEnvironmentTemplatePersistentDiskConfig,
+    SandboxEnvironmentTemplatePersistentDiskConfigDict,
+]
+
+
 class SandboxEnvironmentTemplate(_common.BaseModel):
     """A sandbox environment template."""
 
@@ -17873,6 +18082,16 @@ class SandboxEnvironmentTemplate(_common.BaseModel):
         default=None,
         description="""Optional. The configuration for private ingress (PSC-E) of this template. When set, the sandbox router is exposed privately via a PSC service attachment so VPC-SC customers can connect from their VPC over a private endpoint instead of the public internet. The resulting service attachment is surfaced on `SandboxEnvironment.connection_info.service_attachment`. Only the PSC-E (service-attachment/ingress) portion of `PrivateServiceConnectConfig` applies here: `enable_private_service_connect` and `project_allowlist` (the consumer projects allowed to connect). The nested `psc_interface_config` (PSC-I / egress) is not used for sandbox ingress; sandbox egress is configured via `egress_control_config` instead.""",
     )
+    use_gke_td: Optional[bool] = Field(
+        default=None,
+        description="""Optional. Immutable. Whether to provision the SandboxEnvironmentTemplate via the GKE TD pool.""",
+    )
+    persistent_disk_config: Optional[SandboxEnvironmentTemplatePersistentDiskConfig] = (
+        Field(
+            default=None,
+            description="""Optional. Configuration for attaching a persistent disk (PD) to each SandboxEnvironment created from this template. When unset (or when `enabled` is `false`), sandboxes created from this template are not backed by a persistent disk and rely on ephemeral storage only. See PersistentDiskConfig for details.""",
+        )
+    )
 
 
 class SandboxEnvironmentTemplateDict(TypedDict, total=False):
@@ -17908,6 +18127,12 @@ class SandboxEnvironmentTemplateDict(TypedDict, total=False):
 
     ingress_control_config: Optional[PrivateServiceConnectConfigDict]
     """Optional. The configuration for private ingress (PSC-E) of this template. When set, the sandbox router is exposed privately via a PSC service attachment so VPC-SC customers can connect from their VPC over a private endpoint instead of the public internet. The resulting service attachment is surfaced on `SandboxEnvironment.connection_info.service_attachment`. Only the PSC-E (service-attachment/ingress) portion of `PrivateServiceConnectConfig` applies here: `enable_private_service_connect` and `project_allowlist` (the consumer projects allowed to connect). The nested `psc_interface_config` (PSC-I / egress) is not used for sandbox ingress; sandbox egress is configured via `egress_control_config` instead."""
+
+    use_gke_td: Optional[bool]
+    """Optional. Immutable. Whether to provision the SandboxEnvironmentTemplate via the GKE TD pool."""
+
+    persistent_disk_config: Optional[SandboxEnvironmentTemplatePersistentDiskConfigDict]
+    """Optional. Configuration for attaching a persistent disk (PD) to each SandboxEnvironment created from this template. When unset (or when `enabled` is `false`), sandboxes created from this template are not backed by a persistent disk and rely on ephemeral storage only. See PersistentDiskConfig for details."""
 
 
 SandboxEnvironmentTemplateOrDict = Union[
@@ -18340,6 +18565,10 @@ class SandboxEnvironmentSnapshot(_common.BaseModel):
         default=None,
         description="""Output only. The timestamp when this SandboxEnvironment was most recently updated.""",
     )
+    use_gke_td: Optional[bool] = Field(
+        default=None,
+        description="""Output only. Whether the source SandboxEnvironment uses the GKE TD pool.""",
+    )
 
 
 class SandboxEnvironmentSnapshotDict(TypedDict, total=False):
@@ -18378,6 +18607,9 @@ class SandboxEnvironmentSnapshotDict(TypedDict, total=False):
 
     update_time: Optional[datetime.datetime]
     """Output only. The timestamp when this SandboxEnvironment was most recently updated."""
+
+    use_gke_td: Optional[bool]
+    """Output only. Whether the source SandboxEnvironment uses the GKE TD pool."""
 
 
 SandboxEnvironmentSnapshotOrDict = Union[
@@ -20965,6 +21197,10 @@ class SchemaPromptSpecAppBuilderData(_common.BaseModel):
             description="""Linked resources attached to the application by the user.""",
         )
     )
+    deployed_regions: Optional[list[str]] = Field(
+        default=None,
+        description="""Optional. The Cloud Run regions in which the application is currently deployed. Used to rediscover and redeploy the app in the regions it already runs in, which may differ from the prompt's location.""",
+    )
 
 
 class SchemaPromptSpecAppBuilderDataDict(TypedDict, total=False):
@@ -20978,6 +21214,9 @@ class SchemaPromptSpecAppBuilderDataDict(TypedDict, total=False):
 
     linked_resources: Optional[list[SchemaPromptSpecAppBuilderDataLinkedResourceDict]]
     """Linked resources attached to the application by the user."""
+
+    deployed_regions: Optional[list[str]]
+    """Optional. The Cloud Run regions in which the application is currently deployed. Used to rediscover and redeploy the app in the regions it already runs in, which may differ from the prompt's location."""
 
 
 SchemaPromptSpecAppBuilderDataOrDict = Union[
@@ -28666,11 +28905,11 @@ AudioTranscriptionWordInfoOrDict = Union[
 
 
 class AudioTranscription(_common.BaseModel):
-    """The transcription of an audio part. For multi-speaker audio, each speaker segment is a separate Part with its own AudioTranscription carrying the speaker_label."""
+    """The transcription of an audio part. For multi-speaker audio, each speaker segment is a separate `Part` with its own `AudioTranscription` carrying the `speaker_label`."""
 
     speaker_label: Optional[str] = Field(
         default=None,
-        description="""Optional. A label identifying the speaker of this audio segment (e.g. "spk_1", "spk_2"). Present when diarization is set.""",
+        description="""Optional. A label identifying the speaker of this audio segment (e.g. `spk_1`, `spk_2`). Present when `diarization` is set.""",
     )
     text: Optional[str] = Field(
         default=None,
@@ -28678,21 +28917,21 @@ class AudioTranscription(_common.BaseModel):
     )
     words: Optional[list[AudioTranscriptionWordInfo]] = Field(
         default=None,
-        description="""Optional. Detailed word-level transcriptions and timing details. Present when word_timestamp is set.""",
+        description="""Optional. Detailed word-level transcriptions and timing details. Present when `word_timestamp` is set.""",
     )
 
 
 class AudioTranscriptionDict(TypedDict, total=False):
-    """The transcription of an audio part. For multi-speaker audio, each speaker segment is a separate Part with its own AudioTranscription carrying the speaker_label."""
+    """The transcription of an audio part. For multi-speaker audio, each speaker segment is a separate `Part` with its own `AudioTranscription` carrying the `speaker_label`."""
 
     speaker_label: Optional[str]
-    """Optional. A label identifying the speaker of this audio segment (e.g. "spk_1", "spk_2"). Present when diarization is set."""
+    """Optional. A label identifying the speaker of this audio segment (e.g. `spk_1`, `spk_2`). Present when `diarization` is set."""
 
     text: Optional[str]
     """Required. The transcription text of this audio segment."""
 
     words: Optional[list[AudioTranscriptionWordInfoDict]]
-    """Optional. Detailed word-level transcriptions and timing details. Present when word_timestamp is set."""
+    """Optional. Detailed word-level transcriptions and timing details. Present when `word_timestamp` is set."""
 
 
 AudioTranscriptionOrDict = Union[AudioTranscription, AudioTranscriptionDict]
@@ -29392,6 +29631,488 @@ _GetExampleStoreOperationParametersOrDict = Union[
 ]
 
 
+class GetServingProfileConfig(_common.BaseModel):
+    """Config for getting a serving profile."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class GetServingProfileConfigDict(TypedDict, total=False):
+    """Config for getting a serving profile."""
+
+    http_options: Optional[genai_types.HttpOptions]
+    """Used to override HTTP request options."""
+
+
+GetServingProfileConfigOrDict = Union[
+    GetServingProfileConfig, GetServingProfileConfigDict
+]
+
+
+class _GetServingProfileRequestParameters(_common.BaseModel):
+    """Parameters for GetServingProfileRequest."""
+
+    name: Optional[str] = Field(
+        default=None, description="""The resource name of the ServingProfile."""
+    )
+    config: Optional[GetServingProfileConfig] = Field(default=None, description="""""")
+
+
+class _GetServingProfileRequestParametersDict(TypedDict, total=False):
+    """Parameters for GetServingProfileRequest."""
+
+    name: Optional[str]
+    """The resource name of the ServingProfile."""
+
+    config: Optional[GetServingProfileConfigDict]
+    """"""
+
+
+_GetServingProfileRequestParametersOrDict = Union[
+    _GetServingProfileRequestParameters, _GetServingProfileRequestParametersDict
+]
+
+
+class ServingProfileCmekConfig(_common.BaseModel):
+    """Configuration for Customer-Managed Encryption Keys (CMEK)."""
+
+    encryption_spec: Optional[genai_types.EncryptionSpec] = Field(
+        default=None,
+        description="""Required. The customer-managed encryption key spec for the Serving Profile.""",
+    )
+
+
+class ServingProfileCmekConfigDict(TypedDict, total=False):
+    """Configuration for Customer-Managed Encryption Keys (CMEK)."""
+
+    encryption_spec: Optional[genai_types.EncryptionSpecDict]
+    """Required. The customer-managed encryption key spec for the Serving Profile."""
+
+
+ServingProfileCmekConfigOrDict = Union[
+    ServingProfileCmekConfig, ServingProfileCmekConfigDict
+]
+
+
+class ServingProfile(_common.BaseModel):
+    """Represents a ServingProfile resource."""
+
+    scope: Optional[ServingProfileScope] = Field(
+        default=None,
+        description="""Required. The specific API this ServingProfile applies to.""",
+    )
+    cmek_config: Optional[ServingProfileCmekConfig] = Field(
+        default=None, description="""CMEK configuration for the ServingProfile."""
+    )
+    create_time: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Output only. Timestamp when the ServingProfile was created.""",
+    )
+    description: Optional[str] = Field(
+        default=None, description="""Optional. The description of the ServingProfile."""
+    )
+    display_name: Optional[str] = Field(
+        default=None,
+        description="""Required. The display name of the ServingProfile. The name can be up to 128 characters long and can consist of any UTF-8 characters.""",
+    )
+    name: Optional[str] = Field(
+        default=None,
+        description="""Identifier. The resource name of the ServingProfile.""",
+    )
+    update_time: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Output only. Timestamp when the ServingProfile was last updated.""",
+    )
+
+
+class ServingProfileDict(TypedDict, total=False):
+    """Represents a ServingProfile resource."""
+
+    scope: Optional[ServingProfileScope]
+    """Required. The specific API this ServingProfile applies to."""
+
+    cmek_config: Optional[ServingProfileCmekConfigDict]
+    """CMEK configuration for the ServingProfile."""
+
+    create_time: Optional[datetime.datetime]
+    """Output only. Timestamp when the ServingProfile was created."""
+
+    description: Optional[str]
+    """Optional. The description of the ServingProfile."""
+
+    display_name: Optional[str]
+    """Required. The display name of the ServingProfile. The name can be up to 128 characters long and can consist of any UTF-8 characters."""
+
+    name: Optional[str]
+    """Identifier. The resource name of the ServingProfile."""
+
+    update_time: Optional[datetime.datetime]
+    """Output only. Timestamp when the ServingProfile was last updated."""
+
+
+ServingProfileOrDict = Union[ServingProfile, ServingProfileDict]
+
+
+class CreateServingProfileConfig(_common.BaseModel):
+    """Config for creating a serving profile."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    wait_for_completion: Optional[bool] = Field(
+        default=True,
+        description="""Whether to wait for the creation LRO to complete.""",
+    )
+    description: Optional[str] = Field(
+        default=None, description="""Optional. The description."""
+    )
+
+
+class CreateServingProfileConfigDict(TypedDict, total=False):
+    """Config for creating a serving profile."""
+
+    http_options: Optional[genai_types.HttpOptions]
+    """Used to override HTTP request options."""
+
+    wait_for_completion: Optional[bool]
+    """Whether to wait for the creation LRO to complete."""
+
+    description: Optional[str]
+    """Optional. The description."""
+
+
+CreateServingProfileConfigOrDict = Union[
+    CreateServingProfileConfig, CreateServingProfileConfigDict
+]
+
+
+class _CreateServingProfileRequestParameters(_common.BaseModel):
+    """Parameters for creating a serving profile."""
+
+    serving_profile_id: Optional[str] = Field(
+        default=None, description="""Required. The ID to use for the ServingProfile."""
+    )
+    display_name: Optional[str] = Field(
+        default=None,
+        description="""Required. The display name of the ServingProfile.""",
+    )
+    scope: Optional[ServingProfileScope] = Field(
+        default=None,
+        description="""Required. The specific API this ServingProfile applies to.""",
+    )
+    cmek_config: Optional[ServingProfileCmekConfig] = Field(
+        default=None, description="""Required. CMEK configuration."""
+    )
+    config: Optional[CreateServingProfileConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _CreateServingProfileRequestParametersDict(TypedDict, total=False):
+    """Parameters for creating a serving profile."""
+
+    serving_profile_id: Optional[str]
+    """Required. The ID to use for the ServingProfile."""
+
+    display_name: Optional[str]
+    """Required. The display name of the ServingProfile."""
+
+    scope: Optional[ServingProfileScope]
+    """Required. The specific API this ServingProfile applies to."""
+
+    cmek_config: Optional[ServingProfileCmekConfigDict]
+    """Required. CMEK configuration."""
+
+    config: Optional[CreateServingProfileConfigDict]
+    """"""
+
+
+_CreateServingProfileRequestParametersOrDict = Union[
+    _CreateServingProfileRequestParameters, _CreateServingProfileRequestParametersDict
+]
+
+
+class ServingProfileOperation(_common.BaseModel):
+    """Operation that has a serving profile as a response."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`.""",
+    )
+    metadata: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any.""",
+    )
+    done: Optional[bool] = Field(
+        default=None,
+        description="""If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available.""",
+    )
+    error: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""The error result of the operation in case of failure or cancellation.""",
+    )
+    response: Optional[ServingProfile] = Field(
+        default=None, description="""The created ServingProfile."""
+    )
+
+
+class ServingProfileOperationDict(TypedDict, total=False):
+    """Operation that has a serving profile as a response."""
+
+    name: Optional[str]
+    """The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`."""
+
+    metadata: Optional[dict[str, Any]]
+    """Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any."""
+
+    done: Optional[bool]
+    """If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available."""
+
+    error: Optional[dict[str, Any]]
+    """The error result of the operation in case of failure or cancellation."""
+
+    response: Optional[ServingProfileDict]
+    """The created ServingProfile."""
+
+
+ServingProfileOperationOrDict = Union[
+    ServingProfileOperation, ServingProfileOperationDict
+]
+
+
+class UpdateServingProfileConfig(_common.BaseModel):
+    """Config for updating a serving profile."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    display_name: Optional[str] = Field(default=None, description="""""")
+    description: Optional[str] = Field(default=None, description="""""")
+    update_mask: Optional[str] = Field(
+        default=None,
+        description="""Update mask. If not provided, it will be inferred based on the other fields provided to the update method. If provided, only the fields that are specified in the update mask will be updated.""",
+    )
+
+
+class UpdateServingProfileConfigDict(TypedDict, total=False):
+    """Config for updating a serving profile."""
+
+    http_options: Optional[genai_types.HttpOptions]
+    """Used to override HTTP request options."""
+
+    display_name: Optional[str]
+    """"""
+
+    description: Optional[str]
+    """"""
+
+    update_mask: Optional[str]
+    """Update mask. If not provided, it will be inferred based on the other fields provided to the update method. If provided, only the fields that are specified in the update mask will be updated."""
+
+
+UpdateServingProfileConfigOrDict = Union[
+    UpdateServingProfileConfig, UpdateServingProfileConfigDict
+]
+
+
+class _UpdateServingProfileRequestParameters(_common.BaseModel):
+    """Parameters for updating a serving profile."""
+
+    name: Optional[str] = Field(
+        default=None, description="""Required. The resource name."""
+    )
+    config: Optional[UpdateServingProfileConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _UpdateServingProfileRequestParametersDict(TypedDict, total=False):
+    """Parameters for updating a serving profile."""
+
+    name: Optional[str]
+    """Required. The resource name."""
+
+    config: Optional[UpdateServingProfileConfigDict]
+    """"""
+
+
+_UpdateServingProfileRequestParametersOrDict = Union[
+    _UpdateServingProfileRequestParameters, _UpdateServingProfileRequestParametersDict
+]
+
+
+class ListServingProfilesConfig(_common.BaseModel):
+    """Config for listing ServingProfiles."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    page_size: Optional[int] = Field(default=None, description="""""")
+    page_token: Optional[str] = Field(default=None, description="""""")
+
+
+class ListServingProfilesConfigDict(TypedDict, total=False):
+    """Config for listing ServingProfiles."""
+
+    http_options: Optional[genai_types.HttpOptions]
+    """Used to override HTTP request options."""
+
+    page_size: Optional[int]
+    """"""
+
+    page_token: Optional[str]
+    """"""
+
+
+ListServingProfilesConfigOrDict = Union[
+    ListServingProfilesConfig, ListServingProfilesConfigDict
+]
+
+
+class _ListServingProfilesRequestParameters(_common.BaseModel):
+    """Parameters for listing ServingProfiles."""
+
+    config: Optional[ListServingProfilesConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _ListServingProfilesRequestParametersDict(TypedDict, total=False):
+    """Parameters for listing ServingProfiles."""
+
+    config: Optional[ListServingProfilesConfigDict]
+    """"""
+
+
+_ListServingProfilesRequestParametersOrDict = Union[
+    _ListServingProfilesRequestParameters, _ListServingProfilesRequestParametersDict
+]
+
+
+class ListServingProfilesResponse(_common.BaseModel):
+    """Response for listing ServingProfiles."""
+
+    sdk_http_response: Optional[genai_types.HttpResponse] = Field(
+        default=None, description="""Used to retain the full HTTP response."""
+    )
+    next_page_token: Optional[str] = Field(default=None, description="""""")
+    serving_profiles: Optional[list[ServingProfile]] = Field(
+        default=None, description="""List of ServingProfiles."""
+    )
+
+
+class ListServingProfilesResponseDict(TypedDict, total=False):
+    """Response for listing ServingProfiles."""
+
+    sdk_http_response: Optional[genai_types.HttpResponse]
+    """Used to retain the full HTTP response."""
+
+    next_page_token: Optional[str]
+    """"""
+
+    serving_profiles: Optional[list[ServingProfileDict]]
+    """List of ServingProfiles."""
+
+
+ListServingProfilesResponseOrDict = Union[
+    ListServingProfilesResponse, ListServingProfilesResponseDict
+]
+
+
+class DeleteServingProfileConfig(_common.BaseModel):
+    """Config for deleting a serving profile."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class DeleteServingProfileConfigDict(TypedDict, total=False):
+    """Config for deleting a serving profile."""
+
+    http_options: Optional[genai_types.HttpOptions]
+    """Used to override HTTP request options."""
+
+
+DeleteServingProfileConfigOrDict = Union[
+    DeleteServingProfileConfig, DeleteServingProfileConfigDict
+]
+
+
+class _DeleteServingProfileRequestParameters(_common.BaseModel):
+    """Parameters for deleting a serving profile."""
+
+    name: Optional[str] = Field(
+        default=None, description="""Required. The resource name."""
+    )
+    config: Optional[DeleteServingProfileConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _DeleteServingProfileRequestParametersDict(TypedDict, total=False):
+    """Parameters for deleting a serving profile."""
+
+    name: Optional[str]
+    """Required. The resource name."""
+
+    config: Optional[DeleteServingProfileConfigDict]
+    """"""
+
+
+_DeleteServingProfileRequestParametersOrDict = Union[
+    _DeleteServingProfileRequestParameters, _DeleteServingProfileRequestParametersDict
+]
+
+
+class GetServingProfileOperationConfig(_common.BaseModel):
+    """Config for getting a serving profile operation."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class GetServingProfileOperationConfigDict(TypedDict, total=False):
+    """Config for getting a serving profile operation."""
+
+    http_options: Optional[genai_types.HttpOptions]
+    """Used to override HTTP request options."""
+
+
+GetServingProfileOperationConfigOrDict = Union[
+    GetServingProfileOperationConfig, GetServingProfileOperationConfigDict
+]
+
+
+class _GetServingProfileOperationParameters(_common.BaseModel):
+    """Parameters for getting a serving profile operation."""
+
+    operation_name: Optional[str] = Field(
+        default=None, description="""The operation name."""
+    )
+    config: Optional[GetServingProfileOperationConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _GetServingProfileOperationParametersDict(TypedDict, total=False):
+    """Parameters for getting a serving profile operation."""
+
+    operation_name: Optional[str]
+    """The operation name."""
+
+    config: Optional[GetServingProfileOperationConfigDict]
+    """"""
+
+
+_GetServingProfileOperationParametersOrDict = Union[
+    _GetServingProfileOperationParameters, _GetServingProfileOperationParametersDict
+]
+
+
 class PromptOptimizerConfig(_common.BaseModel):
     """VAPO Prompt Optimizer Config."""
 
@@ -29500,6 +30221,13 @@ class EvaluateMethodConfig(_common.BaseModel):
       evaluation service. Defaults to 10. Increase this value if your
       project has a higher EvaluateInstances API quota.""",
     )
+    allow_cross_region_model: Optional[bool] = Field(
+        default=None,
+        description="""Allows judge models to be served from other regions. When set,
+      the service may route judge requests to another region if the model is
+      unavailable in the request's region. Required when a judge model's
+      fully-qualified resource name uses a different region.""",
+    )
 
 
 class EvaluateMethodConfigDict(TypedDict, total=False):
@@ -29520,6 +30248,12 @@ class EvaluateMethodConfigDict(TypedDict, total=False):
     """The rate limit (queries per second) for calls to the
       evaluation service. Defaults to 10. Increase this value if your
       project has a higher EvaluateInstances API quota."""
+
+    allow_cross_region_model: Optional[bool]
+    """Allows judge models to be served from other regions. When set,
+      the service may route judge requests to another region if the model is
+      unavailable in the request's region. Required when a judge model's
+      fully-qualified resource name uses a different region."""
 
 
 EvaluateMethodConfigOrDict = Union[EvaluateMethodConfig, EvaluateMethodConfigDict]
@@ -30266,7 +31000,7 @@ class Prompt(_common.BaseModel):
 
         my_prompt = types.Prompt(
             prompt_data=types.PromptData(
-                model="gemini-2.0-flash-001",
+                model="gemini-flash-latest",
                 contents=[
                     genai_types.Content(
                         parts=[

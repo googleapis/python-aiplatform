@@ -1,5 +1,71 @@
 # Changelog
 
+## [2.4.0](https://github.com/googleapis/python-aiplatform/compare/v2.3.0...v2.4.0) (2026-10-06)
+
+
+### Features
+
+* Add per-step judges and cross-region routing to evals ([5fa1455](https://github.com/googleapis/python-aiplatform/commit/5fa14552cd06179e8ea08f0ea0d29ea6cafb1ca0))
+* GenAI Client(evals) - add EvaluationDataset.load_from_adk_eval_set ([4c045e1](https://github.com/googleapis/python-aiplatform/commit/4c045e16c2459d0708bca77c2a82a3c1daff0409))
+* Surface the LRO name in Agent Engine create and update requests ([b1378bb](https://github.com/googleapis/python-aiplatform/commit/b1378bb54566396506dfe17041f4e8d3fb715573))
+* Update discovery doc ([39693a9](https://github.com/googleapis/python-aiplatform/commit/39693a9d956449f810c18d340eb57526faa9cb00))
+
+
+### Bug Fixes
+
+* Replay session_events into a scratch session and delete it afterwards ([3647753](https://github.com/googleapis/python-aiplatform/commit/364775307aa9c0b4d30844da4c7f23c05221dfcd))
+
+## [2.3.0](https://github.com/googleapis/python-aiplatform/compare/v2.2.0...v2.3.0) (2026-09-25)
+
+
+### Features
+
+* Add serving profiles support to agentplatform genai sdk ([6da2b9b](https://github.com/googleapis/python-aiplatform/commit/6da2b9b5352798893cc009ca83a1578f91994a51))
+* Include labels for LiveClientSetup ([6b29d01](https://github.com/googleapis/python-aiplatform/commit/6b29d01332c0a8030aa4c263e0b25cfb6f1da440))
+
+
+### Bug Fixes
+
+* Keep AdkApp subclass, plugins and credential_service_builder in clone() ([cfb44c4](https://github.com/googleapis/python-aiplatform/commit/cfb44c45e341e3f0da98af3b73ab809c97405fbb))
+* Make async_stream_query non-blocking by using the async execution client ([d62114d](https://github.com/googleapis/python-aiplatform/commit/d62114df682f0b7dafc4108f852edd2ccc709686))
+
+## [2.2.0](https://github.com/googleapis/python-aiplatform/compare/v2.1.3...v2.2.0) (2026-09-22)
+
+
+### Features
+
+* Update discovery doc ([6ad6fe8](https://github.com/googleapis/python-aiplatform/commit/6ad6fe8829c437b37012f2d0ff4f8a1ad2f95bac))
+
+
+### Bug Fixes
+
+* Allow unknown union variants when validating gaos responses in evals ([a9c4e6e](https://github.com/googleapis/python-aiplatform/commit/a9c4e6ee29111a57ae5fdb637da923b928280a2d))
+* Resolve vertexai.types against agentplatform.types ([5af2f8e](https://github.com/googleapis/python-aiplatform/commit/5af2f8e70784252a1ec50d59ce8805a01170acfe))
+* Resolve vertexai.types against agentplatform.types ([36a47bd](https://github.com/googleapis/python-aiplatform/commit/36a47bd6f43194333a6291af0b06b46ed8960d35))
+* Resolve vertexai.types against agentplatform.types ([75ecb3b](https://github.com/googleapis/python-aiplatform/commit/75ecb3b5c6cb610c8fec5c72c698996c0919e962))
+
+## [2.1.3](https://github.com/googleapis/python-aiplatform/compare/v2.1.0...v2.1.3) (2026-09-15)
+
+
+### Features
+
+* Add `psc_endpoint` parameter to `Sandboxes.send_command` and `Sandboxes.generate_browser_ws_headers` so VPC-SC sandboxes with `ingressControlConfig.enablePrivateServiceConnect=true` (which populate only `connection_info.service_attachment`, never `load_balancer_hostname` / `load_balancer_ip`) can route data-plane traffic through a customer-provisioned PSC endpoint. Existing non-VPC-SC callers are unaffected; the parameter defaults to `None` and the load-balancer branches remain the primary path. ([39971ae](https://github.com/googleapis/python-aiplatform/commit/39971ae242906c4f03833f53f7c7b2aadb772df4))
+* Add build configuration support to Vertex AI Reasoning Engine ([bea1abd](https://github.com/googleapis/python-aiplatform/commit/bea1abd141ff8fc62c5527e5c0e9eb864d382ae0))
+* Add enable_zero_data_retention to Tool.ParallelAiSearch ([bea1abd](https://github.com/googleapis/python-aiplatform/commit/bea1abd141ff8fc62c5527e5c0e9eb864d382ae0))
+* Add enable_zero_data_retention to Tool.ParallelAiSearch ([bea1abd](https://github.com/googleapis/python-aiplatform/commit/bea1abd141ff8fc62c5527e5c0e9eb864d382ae0))
+
+
+### Bug Fixes
+
+* Fail open on any error resolving the project ID in the ADK templates. ([30bf665](https://github.com/googleapis/python-aiplatform/commit/30bf665a51581f638275bcc630ffb6b49d517f32))
+* Fix Sandboxes.send_command failing to reach the sandbox data plane. ([2b28caf](https://github.com/googleapis/python-aiplatform/commit/2b28caf784749321d57afd6f43bad60fde42fa3c))
+* Import pandas lazily in the Gen AI SDK `_gcs_utils` module. ([7c94277](https://github.com/googleapis/python-aiplatform/commit/7c942774be1c8b149e6d2740dbcca3afc072092c)), refs [#5928](https://github.com/googleapis/python-aiplatform/issues/5928) [#7129](https://github.com/googleapis/python-aiplatform/issues/7129)
+
+
+### Miscellaneous Chores
+
+* Release 2.1.3 ([2c7a22d](https://github.com/googleapis/python-aiplatform/commit/2c7a22d929755ff8e07ba804b3cc2ae919fd2ef9))
+
 ## [2.1.0](https://github.com/googleapis/python-aiplatform/compare/v2.0.1...v2.1.0) (2026-09-01)
 
 
