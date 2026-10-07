@@ -4308,6 +4308,54 @@ class TestEvalsRunInference:
         assert result_df["agent_data"].tolist()[0] == {}
         assert mock_interactions.create.call_count == 2
 
+    @mock.patch.object(_evals_common, "_fetch_agent_config_dict")
+    @mock.patch.object(_evals_common, "_get_interactions_client")
+    @mock.patch.object(_evals_utils, "EvalDatasetLoader")
+    def test_run_inference_gemini_agent_saves_to_dest(
+        self,
+        mock_eval_dataset_loader,
+        mock_get_interactions_client,
+        mock_fetch_agent_config,
+    ):
+        mock_fetch_agent_config.return_value = (
+            agentplatform_genai_types.evals.AgentConfig(agent_id="test-agent")
+        )
+        mock_df = pd.DataFrame({"prompt": ["p1"]})
+        mock_eval_dataset_loader.return_value.load.return_value = mock_df.to_dict(
+            orient="records"
+        )
+        mock_interactions = mock.Mock()
+        mock_interactions.create.return_value = {
+            "id": "interaction-1",
+            "status": "completed",
+            "steps": [
+                {
+                    "type": "model_output",
+                    "content": [{"type": "text", "text": "response 1"}],
+                }
+            ],
+        }
+        mock_get_interactions_client.return_value = mock_interactions
+
+        with tempfile.TemporaryDirectory() as local_dest_dir:
+            inference_result = self.client.evals.run_inference(
+                src=mock_df,
+                agent=_TEST_GEMINI_AGENT,
+                config=agentplatform_genai_types.EvalRunInferenceConfig(
+                    dest=local_dest_dir
+                ),
+            )
+
+            saved_file_path = os.path.join(local_dest_dir, "agent_run_results.jsonl")
+            with open(saved_file_path, "r") as f:
+                saved_records = [json.loads(line) for line in f]
+
+        assert saved_records == inference_result.eval_dataset_df.to_dict(
+            orient="records"
+        )
+        assert saved_records[0]["interaction_id"] == "interaction-1"
+        assert inference_result.candidate_name == "test-agent"
+
     @mock.patch.object(_evals_common, "_get_interactions_client")
     @mock.patch.object(_evals_utils, "EvalDatasetLoader")
     @mock.patch.object(_evals_common.agentplatform, "Client")

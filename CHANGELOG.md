@@ -1,20 +1,5 @@
 # Changelog
 
-## [2.4.0](https://github.com/googleapis/python-aiplatform/compare/v2.3.0...v2.4.0) (2026-10-06)
-
-
-### Features
-
-* Add per-step judges and cross-region routing to evals ([5fa1455](https://github.com/googleapis/python-aiplatform/commit/5fa14552cd06179e8ea08f0ea0d29ea6cafb1ca0))
-* GenAI Client(evals) - add EvaluationDataset.load_from_adk_eval_set ([4c045e1](https://github.com/googleapis/python-aiplatform/commit/4c045e16c2459d0708bca77c2a82a3c1daff0409))
-* Surface the LRO name in Agent Engine create and update requests ([b1378bb](https://github.com/googleapis/python-aiplatform/commit/b1378bb54566396506dfe17041f4e8d3fb715573))
-* Update discovery doc ([39693a9](https://github.com/googleapis/python-aiplatform/commit/39693a9d956449f810c18d340eb57526faa9cb00))
-
-
-### Bug Fixes
-
-* Replay session_events into a scratch session and delete it afterwards ([3647753](https://github.com/googleapis/python-aiplatform/commit/364775307aa9c0b4d30844da4c7f23c05221dfcd))
-
 ## [2.3.0](https://github.com/googleapis/python-aiplatform/compare/v2.2.0...v2.3.0) (2026-09-25)
 
 

@@ -2654,7 +2654,7 @@ def _execute_inference(
             "Gemini Agent inference completed in %.2f seconds.",
             end_time - start_time,
         )
-        return types.EvaluationDataset(
+        evaluation_dataset = types.EvaluationDataset(
             eval_dataset_df=results_df,
             candidate_name=gemini_agent.split("/")[-1],
         )
@@ -2759,7 +2759,12 @@ def _execute_inference(
                 results_df.to_json(full_dest_path, orient="records", lines=True)
                 logger.info("Results saved locally to: %s", full_dest_path)
         except Exception as e:  # pylint: disable=broad-exception-caught
-            logger.error("Failed to save results to %s. Error: %s", full_dest_path, e)
+            logger.error(
+                "Failed to save results to %s. Error: %s",
+                full_dest_path,
+                e,
+                exc_info=True,
+            )
 
     return evaluation_dataset
 
