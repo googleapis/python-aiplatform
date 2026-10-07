@@ -1111,7 +1111,7 @@ def get_comparison_html(eval_result_json: str) -> str:
                     winRateText = m.win_rates.map((rate, i) => `<b>${{candidateNames ? candidateNames[i] : `Candidate #${{i+1}}`}}</b> wins: <b>${{(rate * 100).toFixed(1)}}%</b>`).join('<br>');
                     if (m.tie_rate !== undefined) {{ winRateText += `<br>Ties: <b>${{(m.tie_rate * 100).toFixed(1)}}%</b>`; }}
                 }}
-                table += `<tr><td>${{m.metric_name}}</td><td>${{m.mean_score.toFixed(4)}}</td><td>${{m.stdev_score.toFixed(4)}}</td><td>${{winRateText}}</td></tr>`;
+                table += `<tr><td>${{m.metric_name}}</td><td>${{m.mean_score != null ? m.mean_score.toFixed(4) : 'N/A'}}</td><td>${{m.stdev_score != null ? m.stdev_score.toFixed(4) : 'N/A'}}</td><td>${{winRateText}}</td></tr>`;
             }});
             container.innerHTML = table + '</tbody></table>';
         }}

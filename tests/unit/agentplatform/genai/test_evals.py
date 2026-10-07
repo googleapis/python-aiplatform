@@ -822,6 +822,16 @@ class TestLossAnalysis:
         assert payload_b64 in html
         assert "DOMPurify" in html
 
+    def test_get_comparison_html_shows_na_for_missing_summary_scores(self):
+        from vertexai._genai import (
+            _evals_visualization as vertexai_evals_visualization,
+        )
+
+        for viz in (_evals_visualization, vertexai_evals_visualization):
+            html = viz.get_comparison_html("{}")
+            assert "m.mean_score != null ? m.mean_score.toFixed(4) : 'N/A'" in html
+            assert "m.stdev_score != null ? m.stdev_score.toFixed(4) : 'N/A'" in html
+
     def test_get_inference_html(self):
         """Tests that get_inference_html generates valid HTML with data."""
         from agentplatform._genai import _evals_visualization
