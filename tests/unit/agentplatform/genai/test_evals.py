@@ -26,6 +26,7 @@ import sys
 import tempfile
 from unittest import mock
 
+from google.api_core import exceptions as api_exceptions
 import google.auth.credentials
 from google.cloud import aiplatform
 import agentplatform
@@ -3390,9 +3391,7 @@ class TestEvalsRunInference:
         ]
 
         mock_runtime.stream_query.return_value = iter(stream_query_return_value)
-        mock_agentplatform_client.return_value.runtimes.get.return_value = (
-            mock_runtime
-        )
+        mock_agentplatform_client.return_value.runtimes.get.return_value = mock_runtime
 
         inference_result = self.client.evals.run_inference(
             agent="projects/test-project/locations/us-central1/reasoningEngines/123",
@@ -3499,9 +3498,7 @@ class TestEvalsRunInference:
         ]
 
         mock_runtime.stream_query.return_value = iter(stream_query_return_value)
-        mock_agentplatform_client.return_value.runtimes.get.return_value = (
-            mock_runtime
-        )
+        mock_agentplatform_client.return_value.runtimes.get.return_value = mock_runtime
 
         inference_result = self.client.evals.run_inference(
             agent="projects/test-project/locations/us-central1/reasoningEngines/123",
@@ -3591,9 +3588,7 @@ class TestEvalsRunInference:
         )
 
         mock_runtime = mock.Mock()
-        mock_agentplatform_client.return_value.runtimes.get.return_value = (
-            mock_runtime
-        )
+        mock_agentplatform_client.return_value.runtimes.get.return_value = mock_runtime
 
         with pytest.raises(ValueError) as excinfo:
             self.client.evals.run_inference(
@@ -3644,9 +3639,7 @@ class TestEvalsRunInference:
             "projects/test-project/locations/us-central1"
             "/reasoningEngines/123/sessions/managed-session-1"
         )
-        mock_runtime.api_client.sessions.create.return_value = (
-            mock_session_operation
-        )
+        mock_runtime.api_client.sessions.create.return_value = mock_session_operation
 
         stream_query_return_value = [
             {
@@ -3663,9 +3656,7 @@ class TestEvalsRunInference:
             },
         ]
         mock_runtime.stream_query.return_value = iter(stream_query_return_value)
-        mock_agentplatform_client.return_value.runtimes.get.return_value = (
-            mock_runtime
-        )
+        mock_agentplatform_client.return_value.runtimes.get.return_value = mock_runtime
 
         inference_result = self.client.evals.run_inference(
             agent="projects/test-project/locations/us-central1/reasoningEngines/123",
@@ -4392,9 +4383,7 @@ class TestEvalsRunInference:
                 }
             ]
         )
-        mock_agentplatform_client.return_value.runtimes.get.return_value = (
-            mock_runtime
-        )
+        mock_agentplatform_client.return_value.runtimes.get.return_value = mock_runtime
 
         self.client.evals.run_inference(
             src=mock_df,
@@ -11139,6 +11128,113 @@ class TestCallWithRetry:
             _evals_metric_handlers._call_with_retry(fn, "test_metric")
         assert fn.call_count == 1
         assert mock_sleep.call_count == 0
+
+
+class TestInferenceRetry:
+    @pytest.mark.parametrize(
+        "error, expected",
+        [
+            (genai_errors.ClientError(code=429, response_json={}), True),
+            (genai_errors.ServerError(code=503, response_json={}), True),
+            (genai_errors.ClientError(code=400, response_json={}), False),
+            (genai_errors.ClientError(code=403, response_json={}), False),
+            (genai_errors.ClientError(code=404, response_json={}), False),
+            (api_exceptions.ResourceExhausted("quota"), True),
+            (api_exceptions.ServiceUnavailable("unavailable"), True),
+            (api_exceptions.InvalidArgument("bad request"), False),
+            (ValueError("bad value"), False),
+        ],
+    )
+    def test_is_retryable_error(self, error, expected):
+        assert _evals_common._is_retryable_error(error) is expected
+
+    @mock.patch("time.sleep", return_value=None)
+    @mock.patch.object(_evals_common, "Models")
+    def test_generate_content_retries_429_with_backoff(self, mock_models, mock_sleep):
+        response = genai_types.GenerateContentResponse(
+            candidates=[
+                genai_types.Candidate(
+                    content=genai_types.Content(parts=[genai_types.Part(text="ok")]),
+                    finish_reason=genai_types.FinishReason.STOP,
+                )
+            ]
+        )
+        error = genai_errors.ClientError(code=429, response_json={})
+        mock_models.return_value.generate_content.side_effect = [error, error, response]
+
+        result = _evals_common._generate_content_with_retry(
+            api_client=mock.Mock(), model="gemini-pro", contents="prompt"
+        )
+
+        assert result is response
+        assert mock_models.return_value.generate_content.call_count == 3
+        backoffs = [call.args[0] for call in mock_sleep.call_args_list]
+        assert len(backoffs) == 2
+        assert 1 <= backoffs[0] <= 2
+        assert 2 <= backoffs[1] <= 3
+
+    @mock.patch("time.sleep", return_value=None)
+    @mock.patch.object(_evals_common, "Models")
+    def test_generate_content_does_not_retry_400(self, mock_models, mock_sleep):
+        mock_models.return_value.generate_content.side_effect = (
+            genai_errors.ClientError(code=400, response_json={})
+        )
+
+        result = _evals_common._generate_content_with_retry(
+            api_client=mock.Mock(), model="gemini-pro", contents="prompt"
+        )
+
+        assert result["error"].startswith("Failed on attempt 1/3: 400")
+        assert mock_models.return_value.generate_content.call_count == 1
+        mock_sleep.assert_not_called()
+
+    @mock.patch("time.sleep", return_value=None)
+    def test_agent_engine_run_retries_429_and_fails_fast_on_400(self, mock_sleep):
+        runtime = mock.Mock()
+        runtime.stream_query.side_effect = [
+            genai_errors.ClientError(code=429, response_json={}),
+            genai_errors.ClientError(code=400, response_json={}),
+        ]
+
+        with mock.patch.object(
+            _evals_common, "_create_runtime_session", return_value="session-id"
+        ):
+            result = _evals_common._execute_agent_run_with_retry(
+                row=pd.Series({"prompt": "prompt"}), contents="prompt", runtime=runtime
+            )
+
+        assert result["error"].startswith("Failed on attempt 2/3: 400")
+        assert runtime.stream_query.call_count == 2
+        mock_sleep.assert_called_once()
+        assert 1 <= mock_sleep.call_args.args[0] <= 2
+
+    @mock.patch("asyncio.sleep", new_callable=mock.AsyncMock)
+    def test_local_agent_run_retries_429_and_fails_fast_on_400(self, mock_sleep):
+        mock_runners = mock.MagicMock()
+        mock_runners.Runner.return_value.run_async.side_effect = [
+            genai_errors.ClientError(code=429, response_json={}),
+            genai_errors.ClientError(code=400, response_json={}),
+        ]
+        mock_sessions = mock.MagicMock()
+        mock_sessions.InMemorySessionService.return_value.create_session = (
+            mock.AsyncMock()
+        )
+
+        with mock.patch.dict(
+            sys.modules,
+            {"google.adk.runners": mock_runners, "google.adk.sessions": mock_sessions},
+        ):
+            result = _evals_common._execute_local_agent_run_with_retry(
+                row=pd.Series({"prompt": "prompt"}),
+                contents="prompt",
+                agent=mock.Mock(),
+                api_client=mock.Mock(),
+            )
+
+        assert result["error"].startswith("Failed on attempt 2/3: 400")
+        assert mock_runners.Runner.return_value.run_async.call_count == 2
+        mock_sleep.assert_awaited_once()
+        assert 1 <= mock_sleep.await_args.args[0] <= 2
 
 
 class TestComputationMetricRetry:

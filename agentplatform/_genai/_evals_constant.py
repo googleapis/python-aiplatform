@@ -120,3 +120,17 @@ COMMON_DATASET_COLUMNS = frozenset(
         INTERACTION_ID,
     }
 )
+
+# HTTP status codes that are safe to retry with backoff.
+RETRYABLE_STATUS_CODES = frozenset(
+    {
+        408,  # RequestTimeout (DEADLINE_EXCEEDED)
+        409,  # Conflict / Aborted (ABORTED)
+        429,  # TooManyRequests / ResourceExhausted (RESOURCE_EXHAUSTED)
+        499,  # Client Closed Request (CANCELLED)
+        500,  # InternalServerError (INTERNAL)
+        502,  # BadGateway
+        503,  # ServiceUnavailable (UNAVAILABLE)
+        504,  # GatewayTimeout (DEADLINE_EXCEEDED)
+    }
+)
