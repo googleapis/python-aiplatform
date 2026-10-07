@@ -35,6 +35,7 @@ from typing import (
 )
 from google.genai import _common
 from google.genai import types as genai_types
+import pydantic
 from pydantic import (
     ConfigDict,
     Field,
@@ -3462,6 +3463,59 @@ class EvaluationDataset(_common.BaseModel):
                     " google-cloud-aiplatform[evaluation]`."
                 )
         return data
+
+    @field_validator("eval_dataset_df", mode="before")
+    @classmethod
+    def _eval_dataset_df_from_records(cls, value: Any) -> Any:
+        if (
+            pd is not None
+            and isinstance(value, list)
+            and all(isinstance(row, dict) for row in value)
+        ):
+            return pd.DataFrame(value)
+        return value
+
+    @pydantic.field_serializer("eval_dataset_df", when_used="json")
+    def _eval_dataset_df_to_records(self, value: Any) -> Any:
+        if pd is None or not isinstance(value, pd.DataFrame):
+            return value
+        labels = pd.Index([str(label) for label in value.columns])
+        keys = pd.Index(
+            [label if isinstance(label, str) else str(label) for label in value.columns]
+        )
+        duplicated = (
+            value.columns.duplicated() | labels.duplicated() | keys.duplicated()
+        )
+        if duplicated.any():
+            duplicates = value.columns[duplicated].unique().tolist()
+            raise ValueError(
+                "eval_dataset_df needs unique column names to serialize to JSON,"
+                f" found duplicates: {duplicates}"
+            )
+        import numpy as np
+
+        def to_serializable(item: Any) -> Any:
+            if isinstance(item, np.ndarray) and item.ndim == 0:
+                return None if item is np.ma.masked else to_serializable(item[()])
+            if isinstance(item, dict):
+                return {
+                    (
+                        to_serializable(key) if isinstance(key, np.generic) else key
+                    ): to_serializable(val)
+                    for key, val in item.items()
+                }
+            if isinstance(item, (list, tuple, np.ndarray, pd.Series)):
+                return [to_serializable(val) for val in item]
+            if isinstance(item, np.datetime64):
+                item = pd.Timestamp(item)
+            elif isinstance(item, np.generic):
+                return item.item()
+            return None if item is pd.NaT or item is pd.NA else item
+
+        return [
+            dict(zip(keys, map(to_serializable, row)))
+            for row in value.to_dict(orient="split")["data"]
+        ]
 
     @classmethod
     def load_from_observability_eval_cases(
