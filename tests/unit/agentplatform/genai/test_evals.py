@@ -45,9 +45,11 @@ from agentplatform._genai import (
     types as agentplatform_genai_types,
 )
 from agentplatform._genai.types import common as common_types
+from vertexai._genai import types as vertexai_genai_types
 from google.genai import client
 from google.genai import errors as genai_errors
 from google.genai import types as genai_types
+import numpy as np
 import pandas as pd
 import pydantic
 import pytest
@@ -9540,6 +9542,222 @@ _ADK_EVAL_SET = {
 
 class TestEvaluationDataset:
     """Contains set of tests for the EvaluationDataset class methods."""
+
+    @pytest.mark.parametrize(
+        "types_module",
+        [agentplatform_genai_types, vertexai_genai_types],
+        ids=["agent_platform", "vertexai"],
+    )
+    def test_evaluation_dataset_model_dump_json_writes_dataframe_rows(
+        self, types_module
+    ):
+        df = pd.DataFrame(
+            {
+                "tool_names": [
+                    np.array(["search", "book"]),
+                    np.array([], dtype=object),
+                ],
+                "created_at": pd.to_datetime(["2026-10-02T10:00:00Z", None]),
+                "metadata": [{"turn": np.int64(3)}, pd.NA],
+                "latency": pd.Series(
+                    [np.timedelta64(2_000_000_000, "ns"), None], dtype=object
+                ),
+                "score": [0.1 + 0.2, float("nan")],
+                "response": [
+                    genai_types.Content(parts=[genai_types.Part(text="r1")]),
+                    None,
+                ],
+            }
+        )
+
+        dataset_json = types_module.EvaluationDataset(
+            eval_dataset_df=df
+        ).model_dump_json(exclude_none=True)
+
+        assert json.loads(dataset_json)["eval_dataset_df"] == [
+            {
+                "tool_names": ["search", "book"],
+                "created_at": "2026-10-02T10:00:00Z",
+                "metadata": {"turn": 3},
+                "latency": "PT2S",
+                "score": 0.30000000000000004,
+                "response": {"parts": [{"text": "r1"}]},
+            },
+            {
+                "tool_names": [],
+                "created_at": None,
+                "metadata": None,
+                "latency": None,
+                "score": None,
+                "response": None,
+            },
+        ]
+
+    @pytest.mark.parametrize(
+        "types_module",
+        [agentplatform_genai_types, vertexai_genai_types],
+        ids=["agent_platform", "vertexai"],
+    )
+    def test_evaluation_result_json_round_trip_restores_dataframe(self, types_module):
+        df = pd.DataFrame([{"prompt": "p1", "response": "r1"}])
+        result = types_module.EvaluationResult(
+            evaluation_dataset=[types_module.EvaluationDataset(eval_dataset_df=df)]
+        )
+
+        restored = types_module.EvaluationResult.model_validate_json(
+            result.model_dump_json()
+        )
+
+        pd.testing.assert_frame_equal(
+            restored.evaluation_dataset[0].eval_dataset_df, df
+        )
+
+    @pytest.mark.parametrize(
+        "types_module",
+        [agentplatform_genai_types, vertexai_genai_types],
+        ids=["agent_platform", "vertexai"],
+    )
+    def test_evaluation_dataset_model_dump_keeps_dataframe(self, types_module):
+        df = pd.DataFrame([{"prompt": "p1", "response": "r1"}])
+
+        dataset_dict = types_module.EvaluationDataset(eval_dataset_df=df).model_dump()
+
+        assert isinstance(dataset_dict["eval_dataset_df"], pd.DataFrame)
+
+    @pytest.mark.parametrize(
+        "types_module",
+        [agentplatform_genai_types, vertexai_genai_types],
+        ids=["agent_platform", "vertexai"],
+    )
+    @pytest.mark.parametrize(
+        "columns, duplicates",
+        [
+            (["prompt", "prompt"], r"\['prompt'\]"),
+            ([True, 1], r"\[1\]"),
+            ([1, "1"], r"\['1'\]"),
+            ([enum.Enum("Lv", {"ONE": "1"}, type=str).ONE, 1], r"\[1\]"),
+        ],
+        ids=["same", "equal_in_python", "equal_as_strings", "equal_as_keys"],
+    )
+    def test_evaluation_dataset_model_dump_json_rejects_colliding_column_labels(
+        self, types_module, columns, duplicates
+    ):
+        df = pd.DataFrame([["v1", "v2"]], columns=pd.Index(columns, dtype=object))
+
+        with pytest.raises(ValueError, match=f"found duplicates: {duplicates}"):
+            types_module.EvaluationDataset(eval_dataset_df=df).model_dump_json()
+
+    @pytest.mark.parametrize(
+        "types_module",
+        [agentplatform_genai_types, vertexai_genai_types],
+        ids=["agent_platform", "vertexai"],
+    )
+    @pytest.mark.parametrize(
+        "columns, keys",
+        [
+            (
+                pd.Index(
+                    [
+                        True,
+                        ("a", "b"),
+                        pd.Period("2026-10", "M"),
+                        enum.Enum("Col", {"PROMPT": "prompt"}, type=str).PROMPT,
+                    ],
+                    dtype=object,
+                ),
+                ["True", "('a', 'b')", "2026-10", "prompt"],
+            ),
+            (
+                pd.MultiIndex.from_tuples([("a", "b"), ("a", "c")]),
+                ["('a', 'b')", "('a', 'c')"],
+            ),
+        ],
+        ids=["mixed", "multi_index"],
+    )
+    def test_evaluation_dataset_model_dump_json_writes_labels_as_strings(
+        self, types_module, columns, keys
+    ):
+        df = pd.DataFrame([list(range(len(keys)))], columns=columns)
+
+        dataset_json = types_module.EvaluationDataset(
+            eval_dataset_df=df
+        ).model_dump_json()
+
+        assert list(json.loads(dataset_json)["eval_dataset_df"][0]) == keys
+
+    @pytest.mark.parametrize(
+        "types_module",
+        [agentplatform_genai_types, vertexai_genai_types],
+        ids=["agent_platform", "vertexai"],
+    )
+    def test_evaluation_dataset_model_dump_json_unwraps_zero_dim_arrays(
+        self, types_module
+    ):
+        df = pd.DataFrame({"metadata": [{"score": np.array(0.5)}]})
+
+        dataset_json = types_module.EvaluationDataset(
+            eval_dataset_df=df
+        ).model_dump_json()
+
+        assert json.loads(dataset_json)["eval_dataset_df"] == [
+            {"metadata": {"score": 0.5}}
+        ]
+
+    @pytest.mark.parametrize(
+        "types_module",
+        [agentplatform_genai_types, vertexai_genai_types],
+        ids=["agent_platform", "vertexai"],
+    )
+    def test_evaluation_dataset_model_dump_json_converts_numpy_keys(self, types_module):
+        df = pd.DataFrame({"scores": [dict(zip(np.arange(2), [0.1, 0.2]))]})
+        df[np.int64(7)] = ["seven"]
+
+        dataset_json = types_module.EvaluationDataset(
+            eval_dataset_df=df
+        ).model_dump_json()
+
+        assert json.loads(dataset_json)["eval_dataset_df"] == [
+            {"scores": {"0": 0.1, "1": 0.2}, "7": "seven"}
+        ]
+
+    @pytest.mark.parametrize(
+        "types_module",
+        [agentplatform_genai_types, vertexai_genai_types],
+        ids=["agent_platform", "vertexai"],
+    )
+    def test_evaluation_dataset_model_dump_json_writes_masked_values_as_null(
+        self, types_module
+    ):
+        df = pd.DataFrame(
+            {
+                "metadata": [
+                    {
+                        "score": np.ma.masked,
+                        "turns": np.ma.array([1, 2], mask=[False, True]),
+                        "pair": np.ma.array(
+                            [(1, 2.0)], dtype=[("a", int), ("b", float)]
+                        ),
+                    }
+                ]
+            }
+        )
+
+        dataset_json = types_module.EvaluationDataset(
+            eval_dataset_df=df
+        ).model_dump_json()
+
+        assert json.loads(dataset_json)["eval_dataset_df"] == [
+            {"metadata": {"score": None, "turns": [1, None], "pair": [[1, 2.0]]}}
+        ]
+
+    @pytest.mark.parametrize(
+        "types_module",
+        [agentplatform_genai_types, vertexai_genai_types],
+        ids=["agent_platform", "vertexai"],
+    )
+    def test_evaluation_dataset_rejects_list_that_is_not_records(self, types_module):
+        with pytest.raises(pydantic.ValidationError):
+            types_module.EvaluationDataset(eval_dataset_df=[1, 2])
 
     def test_load_from_adk_eval_set_file(self, tmp_path):
         path = tmp_path / "home_automation.evalset.json"
