@@ -2382,12 +2382,19 @@ class TestEvalsVisualization:
                 }
             },
         ]
+        agent_data = {"turns": [{"turn_index": 3, "turn_id": "t3", "events": []}]}
         dataset_df = pd.DataFrame(
             [
                 {
                     "prompt": "Test prompt",
                     "response": "Test response",
                     "intermediate_events": intermediate_events_list,
+                },
+                {
+                    "prompt": "Test prompt 2",
+                    "response": "Test response 2",
+                    "intermediate_events": intermediate_events_list,
+                    "agent_data": agent_data,
                 },
             ]
         )
@@ -2415,9 +2422,12 @@ class TestEvalsVisualization:
         html_content = mock_display_module.HTML.call_args[0][0]
         match = re.search(r'atob\("([^"]+)"\)', html_content)
         assert match
-        decoded_json = base64.b64decode(match.group(1)).decode("utf-8")
-        assert "my_function" in decoded_json
-        assert "this is model response" in decoded_json
+        payload = json.loads(base64.b64decode(match.group(1)).decode("utf-8"))
+        rows = payload["metadata"]["dataset"]
+        assert json.loads(rows[0]["agent_data"]) == {
+            "turns": [{"turn_index": 0, "events": intermediate_events_list}]
+        }
+        assert json.loads(rows[1]["agent_data"]) == agent_data
 
         del sys.modules["IPython"]
         del sys.modules["IPython.display"]

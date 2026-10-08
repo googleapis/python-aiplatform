@@ -228,6 +228,20 @@ def _extract_dataset_rows(dataset: types.EvaluationDataset) -> list[dict[str, An
             }
             processed_rows.append(processed_row)
 
+    for row in processed_rows:
+        if isinstance(row["agent_data"], str) or not isinstance(
+            row["intermediate_events"], str
+        ):
+            continue
+        try:
+            events = json.loads(row["intermediate_events"])
+        except json.JSONDecodeError:
+            continue
+        if isinstance(events, list) and events:
+            row["agent_data"] = json.dumps(
+                {"turns": [{"turn_index": 0, "events": events}]}, ensure_ascii=False
+            )
+
     return processed_rows
 
 
