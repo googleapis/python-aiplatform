@@ -26,6 +26,7 @@ except ImportError as e:  # pragma: NO COVER
         "`rest_asyncio` transport requires the library to be installed with the `async_rest` extra. Install the library with the `async_rest` extra using `pip install google-cloud-aiplatform[async_rest]`"
     ) from e
 
+from google.auth import credentials as ga_credentials  # type: ignore
 from google.auth.aio import credentials as ga_credentials_async  # type: ignore
 
 from google.api_core import exceptions as core_exceptions
@@ -37,6 +38,8 @@ from google.cloud.location import locations_pb2  # type: ignore
 from google.api_core import retry_async as retries
 from google.api_core import rest_helpers
 from google.api_core import rest_streaming_async  # type: ignore
+from google.cloud.aiplatform_v1beta1._compat import transcode_request
+
 import google.protobuf
 
 from google.protobuf import json_format
@@ -1744,7 +1747,9 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
         self,
         *,
         host: str = "aiplatform.googleapis.com",
-        credentials: Optional[ga_credentials_async.Credentials] = None,
+        credentials: Optional[
+            Union[ga_credentials.Credentials, ga_credentials_async.Credentials]
+        ] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
         url_scheme: str = "https",
         interceptor: Optional[AsyncVertexRagDataServiceRestInterceptor] = None,
@@ -1754,7 +1759,7 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
         Args:
             host (Optional[str]):
                  The hostname to connect to (default: 'aiplatform.googleapis.com').
-            credentials (Optional[google.auth.aio.credentials.Credentials]): The
+            credentials (Optional[Union[google.auth.credentials.Credentials, google.auth.aio.credentials.Credentials]]): The
                 authorization credentials to attach to requests. These
                 credentials identify the application to the service; if none
                 are specified, the client will attempt to ascertain the
@@ -2039,23 +2044,20 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             http_options = (
                 _BaseVertexRagDataServiceRestTransport._BaseBatchCreateRagDataSchemas._get_http_options()
             )
-
             request, metadata = (
                 await self._interceptor.pre_batch_create_rag_data_schemas(
                     request, metadata
                 )
             )
-            transcoded_request = _BaseVertexRagDataServiceRestTransport._BaseBatchCreateRagDataSchemas._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseVertexRagDataServiceRestTransport._BaseBatchCreateRagDataSchemas._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseVertexRagDataServiceRestTransport._BaseBatchCreateRagDataSchemas._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseVertexRagDataServiceRestTransport._BaseBatchCreateRagDataSchemas,
+                    "_BaseBatchCreateRagDataSchemas__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -2207,21 +2209,18 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             http_options = (
                 _BaseVertexRagDataServiceRestTransport._BaseBatchCreateRagMetadata._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_batch_create_rag_metadata(
                 request, metadata
             )
-            transcoded_request = _BaseVertexRagDataServiceRestTransport._BaseBatchCreateRagMetadata._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseVertexRagDataServiceRestTransport._BaseBatchCreateRagMetadata._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseVertexRagDataServiceRestTransport._BaseBatchCreateRagMetadata._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseVertexRagDataServiceRestTransport._BaseBatchCreateRagMetadata,
+                    "_BaseBatchCreateRagMetadata__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -2376,23 +2375,20 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             http_options = (
                 _BaseVertexRagDataServiceRestTransport._BaseBatchDeleteRagDataSchemas._get_http_options()
             )
-
             request, metadata = (
                 await self._interceptor.pre_batch_delete_rag_data_schemas(
                     request, metadata
                 )
             )
-            transcoded_request = _BaseVertexRagDataServiceRestTransport._BaseBatchDeleteRagDataSchemas._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseVertexRagDataServiceRestTransport._BaseBatchDeleteRagDataSchemas._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseVertexRagDataServiceRestTransport._BaseBatchDeleteRagDataSchemas._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseVertexRagDataServiceRestTransport._BaseBatchDeleteRagDataSchemas,
+                    "_BaseBatchDeleteRagDataSchemas__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -2544,21 +2540,18 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             http_options = (
                 _BaseVertexRagDataServiceRestTransport._BaseBatchDeleteRagMetadata._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_batch_delete_rag_metadata(
                 request, metadata
             )
-            transcoded_request = _BaseVertexRagDataServiceRestTransport._BaseBatchDeleteRagMetadata._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseVertexRagDataServiceRestTransport._BaseBatchDeleteRagMetadata._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseVertexRagDataServiceRestTransport._BaseBatchDeleteRagMetadata._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseVertexRagDataServiceRestTransport._BaseBatchDeleteRagMetadata,
+                    "_BaseBatchDeleteRagMetadata__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -2710,21 +2703,18 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             http_options = (
                 _BaseVertexRagDataServiceRestTransport._BaseCreateRagCorpus._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_create_rag_corpus(
                 request, metadata
             )
-            transcoded_request = _BaseVertexRagDataServiceRestTransport._BaseCreateRagCorpus._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseVertexRagDataServiceRestTransport._BaseCreateRagCorpus._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseVertexRagDataServiceRestTransport._BaseCreateRagCorpus._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseVertexRagDataServiceRestTransport._BaseCreateRagCorpus,
+                    "_BaseCreateRagCorpus__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -2873,21 +2863,18 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             http_options = (
                 _BaseVertexRagDataServiceRestTransport._BaseCreateRagDataSchema._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_create_rag_data_schema(
                 request, metadata
             )
-            transcoded_request = _BaseVertexRagDataServiceRestTransport._BaseCreateRagDataSchema._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseVertexRagDataServiceRestTransport._BaseCreateRagDataSchema._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseVertexRagDataServiceRestTransport._BaseCreateRagDataSchema._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseVertexRagDataServiceRestTransport._BaseCreateRagDataSchema,
+                    "_BaseCreateRagDataSchema__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -3036,21 +3023,18 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             http_options = (
                 _BaseVertexRagDataServiceRestTransport._BaseCreateRagMetadata._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_create_rag_metadata(
                 request, metadata
             )
-            transcoded_request = _BaseVertexRagDataServiceRestTransport._BaseCreateRagMetadata._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseVertexRagDataServiceRestTransport._BaseCreateRagMetadata._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseVertexRagDataServiceRestTransport._BaseCreateRagMetadata._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseVertexRagDataServiceRestTransport._BaseCreateRagMetadata,
+                    "_BaseCreateRagMetadata__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -3199,17 +3183,18 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             http_options = (
                 _BaseVertexRagDataServiceRestTransport._BaseDeleteRagCorpus._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_delete_rag_corpus(
                 request, metadata
             )
-            transcoded_request = _BaseVertexRagDataServiceRestTransport._BaseDeleteRagCorpus._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseVertexRagDataServiceRestTransport._BaseDeleteRagCorpus._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseVertexRagDataServiceRestTransport._BaseDeleteRagCorpus,
+                    "_BaseDeleteRagCorpus__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -3350,17 +3335,18 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             http_options = (
                 _BaseVertexRagDataServiceRestTransport._BaseDeleteRagDataSchema._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_delete_rag_data_schema(
                 request, metadata
             )
-            transcoded_request = _BaseVertexRagDataServiceRestTransport._BaseDeleteRagDataSchema._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseVertexRagDataServiceRestTransport._BaseDeleteRagDataSchema._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseVertexRagDataServiceRestTransport._BaseDeleteRagDataSchema,
+                    "_BaseDeleteRagDataSchema__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -3474,17 +3460,18 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             http_options = (
                 _BaseVertexRagDataServiceRestTransport._BaseDeleteRagFile._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_delete_rag_file(
                 request, metadata
             )
-            transcoded_request = _BaseVertexRagDataServiceRestTransport._BaseDeleteRagFile._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseVertexRagDataServiceRestTransport._BaseDeleteRagFile._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseVertexRagDataServiceRestTransport._BaseDeleteRagFile,
+                    "_BaseDeleteRagFile__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -3625,17 +3612,18 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             http_options = (
                 _BaseVertexRagDataServiceRestTransport._BaseDeleteRagMetadata._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_delete_rag_metadata(
                 request, metadata
             )
-            transcoded_request = _BaseVertexRagDataServiceRestTransport._BaseDeleteRagMetadata._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseVertexRagDataServiceRestTransport._BaseDeleteRagMetadata._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseVertexRagDataServiceRestTransport._BaseDeleteRagMetadata,
+                    "_BaseDeleteRagMetadata__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -3749,17 +3737,18 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             http_options = (
                 _BaseVertexRagDataServiceRestTransport._BaseGetRagCorpus._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_get_rag_corpus(
                 request, metadata
             )
-            transcoded_request = _BaseVertexRagDataServiceRestTransport._BaseGetRagCorpus._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseVertexRagDataServiceRestTransport._BaseGetRagCorpus._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseVertexRagDataServiceRestTransport._BaseGetRagCorpus,
+                    "_BaseGetRagCorpus__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -3906,17 +3895,18 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             http_options = (
                 _BaseVertexRagDataServiceRestTransport._BaseGetRagDataSchema._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_get_rag_data_schema(
                 request, metadata
             )
-            transcoded_request = _BaseVertexRagDataServiceRestTransport._BaseGetRagDataSchema._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseVertexRagDataServiceRestTransport._BaseGetRagDataSchema._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseVertexRagDataServiceRestTransport._BaseGetRagDataSchema,
+                    "_BaseGetRagDataSchema__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -4061,17 +4051,18 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             http_options = (
                 _BaseVertexRagDataServiceRestTransport._BaseGetRagEngineConfig._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_get_rag_engine_config(
                 request, metadata
             )
-            transcoded_request = _BaseVertexRagDataServiceRestTransport._BaseGetRagEngineConfig._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseVertexRagDataServiceRestTransport._BaseGetRagEngineConfig._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseVertexRagDataServiceRestTransport._BaseGetRagEngineConfig,
+                    "_BaseGetRagEngineConfig__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -4218,17 +4209,18 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             http_options = (
                 _BaseVertexRagDataServiceRestTransport._BaseGetRagFile._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_get_rag_file(
                 request, metadata
             )
-            transcoded_request = _BaseVertexRagDataServiceRestTransport._BaseGetRagFile._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseVertexRagDataServiceRestTransport._BaseGetRagFile._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseVertexRagDataServiceRestTransport._BaseGetRagFile,
+                    "_BaseGetRagFile__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -4377,17 +4369,18 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             http_options = (
                 _BaseVertexRagDataServiceRestTransport._BaseGetRagMetadata._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_get_rag_metadata(
                 request, metadata
             )
-            transcoded_request = _BaseVertexRagDataServiceRestTransport._BaseGetRagMetadata._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseVertexRagDataServiceRestTransport._BaseGetRagMetadata._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseVertexRagDataServiceRestTransport._BaseGetRagMetadata,
+                    "_BaseGetRagMetadata__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -4536,21 +4529,18 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             http_options = (
                 _BaseVertexRagDataServiceRestTransport._BaseImportRagFiles._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_import_rag_files(
                 request, metadata
             )
-            transcoded_request = _BaseVertexRagDataServiceRestTransport._BaseImportRagFiles._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseVertexRagDataServiceRestTransport._BaseImportRagFiles._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseVertexRagDataServiceRestTransport._BaseImportRagFiles._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseVertexRagDataServiceRestTransport._BaseImportRagFiles,
+                    "_BaseImportRagFiles__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -4698,17 +4688,18 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             http_options = (
                 _BaseVertexRagDataServiceRestTransport._BaseListRagCorpora._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_list_rag_corpora(
                 request, metadata
             )
-            transcoded_request = _BaseVertexRagDataServiceRestTransport._BaseListRagCorpora._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseVertexRagDataServiceRestTransport._BaseListRagCorpora._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseVertexRagDataServiceRestTransport._BaseListRagCorpora,
+                    "_BaseListRagCorpora__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -4857,17 +4848,18 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             http_options = (
                 _BaseVertexRagDataServiceRestTransport._BaseListRagDataSchemas._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_list_rag_data_schemas(
                 request, metadata
             )
-            transcoded_request = _BaseVertexRagDataServiceRestTransport._BaseListRagDataSchemas._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseVertexRagDataServiceRestTransport._BaseListRagDataSchemas._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseVertexRagDataServiceRestTransport._BaseListRagDataSchemas,
+                    "_BaseListRagDataSchemas__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -5018,17 +5010,18 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             http_options = (
                 _BaseVertexRagDataServiceRestTransport._BaseListRagFiles._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_list_rag_files(
                 request, metadata
             )
-            transcoded_request = _BaseVertexRagDataServiceRestTransport._BaseListRagFiles._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseVertexRagDataServiceRestTransport._BaseListRagFiles._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseVertexRagDataServiceRestTransport._BaseListRagFiles,
+                    "_BaseListRagFiles__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -5177,17 +5170,18 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             http_options = (
                 _BaseVertexRagDataServiceRestTransport._BaseListRagMetadata._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_list_rag_metadata(
                 request, metadata
             )
-            transcoded_request = _BaseVertexRagDataServiceRestTransport._BaseListRagMetadata._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseVertexRagDataServiceRestTransport._BaseListRagMetadata._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseVertexRagDataServiceRestTransport._BaseListRagMetadata,
+                    "_BaseListRagMetadata__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -5340,21 +5334,18 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             http_options = (
                 _BaseVertexRagDataServiceRestTransport._BaseUpdateRagCorpus._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_update_rag_corpus(
                 request, metadata
             )
-            transcoded_request = _BaseVertexRagDataServiceRestTransport._BaseUpdateRagCorpus._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseVertexRagDataServiceRestTransport._BaseUpdateRagCorpus._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseVertexRagDataServiceRestTransport._BaseUpdateRagCorpus._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseVertexRagDataServiceRestTransport._BaseUpdateRagCorpus,
+                    "_BaseUpdateRagCorpus__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -5504,21 +5495,18 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             http_options = (
                 _BaseVertexRagDataServiceRestTransport._BaseUpdateRagEngineConfig._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_update_rag_engine_config(
                 request, metadata
             )
-            transcoded_request = _BaseVertexRagDataServiceRestTransport._BaseUpdateRagEngineConfig._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseVertexRagDataServiceRestTransport._BaseUpdateRagEngineConfig._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseVertexRagDataServiceRestTransport._BaseUpdateRagEngineConfig._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseVertexRagDataServiceRestTransport._BaseUpdateRagEngineConfig,
+                    "_BaseUpdateRagEngineConfig__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -5669,21 +5657,18 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             http_options = (
                 _BaseVertexRagDataServiceRestTransport._BaseUpdateRagMetadata._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_update_rag_metadata(
                 request, metadata
             )
-            transcoded_request = _BaseVertexRagDataServiceRestTransport._BaseUpdateRagMetadata._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseVertexRagDataServiceRestTransport._BaseUpdateRagMetadata._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseVertexRagDataServiceRestTransport._BaseUpdateRagMetadata._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseVertexRagDataServiceRestTransport._BaseUpdateRagMetadata,
+                    "_BaseUpdateRagMetadata__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -5832,21 +5817,18 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             http_options = (
                 _BaseVertexRagDataServiceRestTransport._BaseUploadRagFile._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_upload_rag_file(
                 request, metadata
             )
-            transcoded_request = _BaseVertexRagDataServiceRestTransport._BaseUploadRagFile._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseVertexRagDataServiceRestTransport._BaseUploadRagFile._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseVertexRagDataServiceRestTransport._BaseUploadRagFile._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseVertexRagDataServiceRestTransport._BaseUploadRagFile,
+                    "_BaseUploadRagFile__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -8428,17 +8410,18 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             http_options = (
                 _BaseVertexRagDataServiceRestTransport._BaseGetLocation._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_get_location(
                 request, metadata
             )
-            transcoded_request = _BaseVertexRagDataServiceRestTransport._BaseGetLocation._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseVertexRagDataServiceRestTransport._BaseGetLocation._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseVertexRagDataServiceRestTransport._BaseGetLocation,
+                    "_BaseGetLocation__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -8580,17 +8563,18 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             http_options = (
                 _BaseVertexRagDataServiceRestTransport._BaseListLocations._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_list_locations(
                 request, metadata
             )
-            transcoded_request = _BaseVertexRagDataServiceRestTransport._BaseListLocations._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseVertexRagDataServiceRestTransport._BaseListLocations._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseVertexRagDataServiceRestTransport._BaseListLocations,
+                    "_BaseListLocations__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -8731,21 +8715,18 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             http_options = (
                 _BaseVertexRagDataServiceRestTransport._BaseGetIamPolicy._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_get_iam_policy(
                 request, metadata
             )
-            transcoded_request = _BaseVertexRagDataServiceRestTransport._BaseGetIamPolicy._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseVertexRagDataServiceRestTransport._BaseGetIamPolicy._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseVertexRagDataServiceRestTransport._BaseGetIamPolicy._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseVertexRagDataServiceRestTransport._BaseGetIamPolicy,
+                    "_BaseGetIamPolicy__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -8887,21 +8868,18 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             http_options = (
                 _BaseVertexRagDataServiceRestTransport._BaseSetIamPolicy._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_set_iam_policy(
                 request, metadata
             )
-            transcoded_request = _BaseVertexRagDataServiceRestTransport._BaseSetIamPolicy._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseVertexRagDataServiceRestTransport._BaseSetIamPolicy._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseVertexRagDataServiceRestTransport._BaseSetIamPolicy._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseVertexRagDataServiceRestTransport._BaseSetIamPolicy,
+                    "_BaseSetIamPolicy__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -9043,21 +9021,18 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             http_options = (
                 _BaseVertexRagDataServiceRestTransport._BaseTestIamPermissions._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_test_iam_permissions(
                 request, metadata
             )
-            transcoded_request = _BaseVertexRagDataServiceRestTransport._BaseTestIamPermissions._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BaseVertexRagDataServiceRestTransport._BaseTestIamPermissions._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseVertexRagDataServiceRestTransport._BaseTestIamPermissions._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseVertexRagDataServiceRestTransport._BaseTestIamPermissions,
+                    "_BaseTestIamPermissions__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -9195,17 +9170,18 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             http_options = (
                 _BaseVertexRagDataServiceRestTransport._BaseCancelOperation._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_cancel_operation(
                 request, metadata
             )
-            transcoded_request = _BaseVertexRagDataServiceRestTransport._BaseCancelOperation._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseVertexRagDataServiceRestTransport._BaseCancelOperation._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseVertexRagDataServiceRestTransport._BaseCancelOperation,
+                    "_BaseCancelOperation__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -9317,17 +9293,18 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             http_options = (
                 _BaseVertexRagDataServiceRestTransport._BaseDeleteOperation._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_delete_operation(
                 request, metadata
             )
-            transcoded_request = _BaseVertexRagDataServiceRestTransport._BaseDeleteOperation._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseVertexRagDataServiceRestTransport._BaseDeleteOperation._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseVertexRagDataServiceRestTransport._BaseDeleteOperation,
+                    "_BaseDeleteOperation__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -9442,17 +9419,18 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             http_options = (
                 _BaseVertexRagDataServiceRestTransport._BaseGetOperation._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_get_operation(
                 request, metadata
             )
-            transcoded_request = _BaseVertexRagDataServiceRestTransport._BaseGetOperation._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseVertexRagDataServiceRestTransport._BaseGetOperation._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseVertexRagDataServiceRestTransport._BaseGetOperation,
+                    "_BaseGetOperation__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -9592,17 +9570,18 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             http_options = (
                 _BaseVertexRagDataServiceRestTransport._BaseListOperations._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_list_operations(
                 request, metadata
             )
-            transcoded_request = _BaseVertexRagDataServiceRestTransport._BaseListOperations._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseVertexRagDataServiceRestTransport._BaseListOperations._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseVertexRagDataServiceRestTransport._BaseListOperations,
+                    "_BaseListOperations__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -9742,17 +9721,18 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             http_options = (
                 _BaseVertexRagDataServiceRestTransport._BaseWaitOperation._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_wait_operation(
                 request, metadata
             )
-            transcoded_request = _BaseVertexRagDataServiceRestTransport._BaseWaitOperation._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BaseVertexRagDataServiceRestTransport._BaseWaitOperation._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BaseVertexRagDataServiceRestTransport._BaseWaitOperation,
+                    "_BaseWaitOperation__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(

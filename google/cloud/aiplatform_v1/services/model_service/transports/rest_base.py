@@ -104,14 +104,6 @@ class _BaseModelServiceRestTransport(ModelServiceTransport):
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
-
         @staticmethod
         def _get_http_options():
             http_options: List[Dict[str, str]] = [
@@ -123,53 +115,11 @@ class _BaseModelServiceRestTransport(ModelServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = model_service.BatchImportEvaluatedAnnotationsRequest.pb(
-                request
-            )
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_request_body_json(transcoded_request):
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
-            )
-            return body
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseModelServiceRestTransport._BaseBatchImportEvaluatedAnnotations._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseBatchImportModelEvaluationSlices:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -182,53 +132,11 @@ class _BaseModelServiceRestTransport(ModelServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = model_service.BatchImportModelEvaluationSlicesRequest.pb(
-                request
-            )
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_request_body_json(transcoded_request):
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
-            )
-            return body
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseModelServiceRestTransport._BaseBatchImportModelEvaluationSlices._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseCopyModel:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -241,51 +149,11 @@ class _BaseModelServiceRestTransport(ModelServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = model_service.CopyModelRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_request_body_json(transcoded_request):
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
-            )
-            return body
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseModelServiceRestTransport._BaseCopyModel._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseDeleteModel:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -297,42 +165,11 @@ class _BaseModelServiceRestTransport(ModelServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = model_service.DeleteModelRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseModelServiceRestTransport._BaseDeleteModel._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseDeleteModelVersion:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -344,42 +181,11 @@ class _BaseModelServiceRestTransport(ModelServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = model_service.DeleteModelVersionRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseModelServiceRestTransport._BaseDeleteModelVersion._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseExportModel:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -392,51 +198,11 @@ class _BaseModelServiceRestTransport(ModelServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = model_service.ExportModelRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_request_body_json(transcoded_request):
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
-            )
-            return body
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseModelServiceRestTransport._BaseExportModel._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseGetModel:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -448,42 +214,11 @@ class _BaseModelServiceRestTransport(ModelServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = model_service.GetModelRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseModelServiceRestTransport._BaseGetModel._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseGetModelEvaluation:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -495,42 +230,11 @@ class _BaseModelServiceRestTransport(ModelServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = model_service.GetModelEvaluationRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseModelServiceRestTransport._BaseGetModelEvaluation._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseGetModelEvaluationSlice:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -542,42 +246,11 @@ class _BaseModelServiceRestTransport(ModelServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = model_service.GetModelEvaluationSliceRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseModelServiceRestTransport._BaseGetModelEvaluationSlice._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseImportModelEvaluation:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -590,51 +263,11 @@ class _BaseModelServiceRestTransport(ModelServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = model_service.ImportModelEvaluationRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_request_body_json(transcoded_request):
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
-            )
-            return body
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseModelServiceRestTransport._BaseImportModelEvaluation._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseListModelEvaluations:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -646,42 +279,11 @@ class _BaseModelServiceRestTransport(ModelServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = model_service.ListModelEvaluationsRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseModelServiceRestTransport._BaseListModelEvaluations._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseListModelEvaluationSlices:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -693,42 +295,11 @@ class _BaseModelServiceRestTransport(ModelServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = model_service.ListModelEvaluationSlicesRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseModelServiceRestTransport._BaseListModelEvaluationSlices._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseListModels:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -740,42 +311,11 @@ class _BaseModelServiceRestTransport(ModelServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = model_service.ListModelsRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseModelServiceRestTransport._BaseListModels._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseListModelVersionCheckpoints:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -787,42 +327,11 @@ class _BaseModelServiceRestTransport(ModelServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = model_service.ListModelVersionCheckpointsRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseModelServiceRestTransport._BaseListModelVersionCheckpoints._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseListModelVersions:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -834,42 +343,11 @@ class _BaseModelServiceRestTransport(ModelServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = model_service.ListModelVersionsRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseModelServiceRestTransport._BaseListModelVersions._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseMergeVersionAliases:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -882,51 +360,11 @@ class _BaseModelServiceRestTransport(ModelServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = model_service.MergeVersionAliasesRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_request_body_json(transcoded_request):
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
-            )
-            return body
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseModelServiceRestTransport._BaseMergeVersionAliases._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseUpdateExplanationDataset:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -939,38 +377,6 @@ class _BaseModelServiceRestTransport(ModelServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = model_service.UpdateExplanationDatasetRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_request_body_json(transcoded_request):
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
-            )
-            return body
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseModelServiceRestTransport._BaseUpdateExplanationDataset._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseUpdateModel:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
@@ -978,14 +384,6 @@ class _BaseModelServiceRestTransport(ModelServiceTransport):
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {
             "updateMask": {},
         }
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -998,51 +396,11 @@ class _BaseModelServiceRestTransport(ModelServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = model_service.UpdateModelRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_request_body_json(transcoded_request):
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
-            )
-            return body
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseModelServiceRestTransport._BaseUpdateModel._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseUploadModel:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -1054,38 +412,6 @@ class _BaseModelServiceRestTransport(ModelServiceTransport):
                 },
             ]
             return http_options
-
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = model_service.UploadModelRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_request_body_json(transcoded_request):
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
-            )
-            return body
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseModelServiceRestTransport._BaseUploadModel._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
 
     class _BaseGetLocation:
         def __hash__(self):  # pragma: NO COVER
@@ -1105,17 +431,6 @@ class _BaseModelServiceRestTransport(ModelServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
-            return query_params
-
     class _BaseListLocations:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
@@ -1133,17 +448,6 @@ class _BaseModelServiceRestTransport(ModelServiceTransport):
                 },
             ]
             return http_options
-
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
-            return query_params
 
     class _BaseGetIamPolicy:
         def __hash__(self):  # pragma: NO COVER
@@ -1214,17 +518,6 @@ class _BaseModelServiceRestTransport(ModelServiceTransport):
                 },
             ]
             return http_options
-
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
-            return query_params
 
     class _BaseSetIamPolicy:
         def __hash__(self):  # pragma: NO COVER
@@ -1306,22 +599,6 @@ class _BaseModelServiceRestTransport(ModelServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-            return transcoded_request
-
-        @staticmethod
-        def _get_request_body_json(transcoded_request):
-            body = json.dumps(transcoded_request["body"])
-            return body
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
-            return query_params
-
     class _BaseTestIamPermissions:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
@@ -1387,17 +664,6 @@ class _BaseModelServiceRestTransport(ModelServiceTransport):
                 },
             ]
             return http_options
-
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
-            return query_params
 
     class _BaseCancelOperation:
         def __hash__(self):  # pragma: NO COVER
@@ -1772,17 +1038,6 @@ class _BaseModelServiceRestTransport(ModelServiceTransport):
                 },
             ]
             return http_options
-
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
-            return query_params
 
     class _BaseDeleteOperation:
         def __hash__(self):  # pragma: NO COVER
@@ -2185,17 +1440,6 @@ class _BaseModelServiceRestTransport(ModelServiceTransport):
                 },
             ]
             return http_options
-
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
-            return query_params
 
     class _BaseGetOperation:
         def __hash__(self):  # pragma: NO COVER
@@ -2611,17 +1855,6 @@ class _BaseModelServiceRestTransport(ModelServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
-            return query_params
-
     class _BaseListOperations:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
@@ -3032,17 +2265,6 @@ class _BaseModelServiceRestTransport(ModelServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
-            return query_params
-
     class _BaseWaitOperation:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
@@ -3448,17 +2670,6 @@ class _BaseModelServiceRestTransport(ModelServiceTransport):
                 },
             ]
             return http_options
-
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
-            return query_params
 
 
 __all__ = ("_BaseModelServiceRestTransport",)

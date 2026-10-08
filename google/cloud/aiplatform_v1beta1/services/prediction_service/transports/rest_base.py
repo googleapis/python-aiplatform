@@ -100,14 +100,6 @@ class _BasePredictionServiceRestTransport(PredictionServiceTransport):
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
-
         @staticmethod
         def _get_http_options():
             http_options: List[Dict[str, str]] = [
@@ -119,51 +111,11 @@ class _BasePredictionServiceRestTransport(PredictionServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = prediction_service.ChatCompletionsRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_request_body_json(transcoded_request):
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
-            )
-            return body
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BasePredictionServiceRestTransport._BaseChatCompletions._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseCountTokens:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -191,51 +143,11 @@ class _BasePredictionServiceRestTransport(PredictionServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = prediction_service.CountTokensRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_request_body_json(transcoded_request):
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
-            )
-            return body
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BasePredictionServiceRestTransport._BaseCountTokens._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseDirectPredict:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -248,51 +160,11 @@ class _BasePredictionServiceRestTransport(PredictionServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = prediction_service.DirectPredictRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_request_body_json(transcoded_request):
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
-            )
-            return body
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BasePredictionServiceRestTransport._BaseDirectPredict._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseDirectRawPredict:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -304,38 +176,6 @@ class _BasePredictionServiceRestTransport(PredictionServiceTransport):
                 },
             ]
             return http_options
-
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = prediction_service.DirectRawPredictRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_request_body_json(transcoded_request):
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
-            )
-            return body
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BasePredictionServiceRestTransport._BaseDirectRawPredict._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
 
     class _BaseEmbedContent:
         def __hash__(self):  # pragma: NO COVER
@@ -352,46 +192,11 @@ class _BasePredictionServiceRestTransport(PredictionServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = prediction_service.EmbedContentRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_request_body_json(transcoded_request):
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
-            )
-            return body
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseExplain:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -404,51 +209,11 @@ class _BasePredictionServiceRestTransport(PredictionServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = prediction_service.ExplainRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_request_body_json(transcoded_request):
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
-            )
-            return body
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BasePredictionServiceRestTransport._BaseExplain._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseGenerateContent:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -476,51 +241,11 @@ class _BasePredictionServiceRestTransport(PredictionServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = prediction_service.GenerateContentRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_request_body_json(transcoded_request):
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
-            )
-            return body
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BasePredictionServiceRestTransport._BaseGenerateContent._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BasePredict:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -538,51 +263,11 @@ class _BasePredictionServiceRestTransport(PredictionServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = prediction_service.PredictRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_request_body_json(transcoded_request):
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
-            )
-            return body
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BasePredictionServiceRestTransport._BasePredict._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseRawPredict:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -600,51 +285,11 @@ class _BasePredictionServiceRestTransport(PredictionServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = prediction_service.RawPredictRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_request_body_json(transcoded_request):
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
-            )
-            return body
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BasePredictionServiceRestTransport._BaseRawPredict._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseServerStreamingPredict:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -662,38 +307,6 @@ class _BasePredictionServiceRestTransport(PredictionServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = prediction_service.StreamingPredictRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_request_body_json(transcoded_request):
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
-            )
-            return body
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BasePredictionServiceRestTransport._BaseServerStreamingPredict._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseStreamDirectPredict:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
@@ -707,14 +320,6 @@ class _BasePredictionServiceRestTransport(PredictionServiceTransport):
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -742,38 +347,6 @@ class _BasePredictionServiceRestTransport(PredictionServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = prediction_service.GenerateContentRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_request_body_json(transcoded_request):
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
-            )
-            return body
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BasePredictionServiceRestTransport._BaseStreamGenerateContent._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseStreamingPredict:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
@@ -787,14 +360,6 @@ class _BasePredictionServiceRestTransport(PredictionServiceTransport):
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -811,38 +376,6 @@ class _BasePredictionServiceRestTransport(PredictionServiceTransport):
                 },
             ]
             return http_options
-
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = prediction_service.StreamRawPredictRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_request_body_json(transcoded_request):
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
-            )
-            return body
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BasePredictionServiceRestTransport._BaseStreamRawPredict._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
 
     class _BaseGetLocation:
         def __hash__(self):  # pragma: NO COVER
@@ -862,17 +395,6 @@ class _BasePredictionServiceRestTransport(PredictionServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
-            return query_params
-
     class _BaseListLocations:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
@@ -890,17 +412,6 @@ class _BasePredictionServiceRestTransport(PredictionServiceTransport):
                 },
             ]
             return http_options
-
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
-            return query_params
 
     class _BaseGetIamPolicy:
         def __hash__(self):  # pragma: NO COVER
@@ -984,22 +495,6 @@ class _BasePredictionServiceRestTransport(PredictionServiceTransport):
                 },
             ]
             return http_options
-
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-            return transcoded_request
-
-        @staticmethod
-        def _get_request_body_json(transcoded_request):
-            body = json.dumps(transcoded_request["body"])
-            return body
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
-            return query_params
 
     class _BaseSetIamPolicy:
         def __hash__(self):  # pragma: NO COVER
@@ -1091,22 +586,6 @@ class _BasePredictionServiceRestTransport(PredictionServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-            return transcoded_request
-
-        @staticmethod
-        def _get_request_body_json(transcoded_request):
-            body = json.dumps(transcoded_request["body"])
-            return body
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
-            return query_params
-
     class _BaseTestIamPermissions:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
@@ -1181,22 +660,6 @@ class _BasePredictionServiceRestTransport(PredictionServiceTransport):
                 },
             ]
             return http_options
-
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-            return transcoded_request
-
-        @staticmethod
-        def _get_request_body_json(transcoded_request):
-            body = json.dumps(transcoded_request["body"])
-            return body
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
-            return query_params
 
     class _BaseCancelOperation:
         def __hash__(self):  # pragma: NO COVER
@@ -1607,17 +1070,6 @@ class _BasePredictionServiceRestTransport(PredictionServiceTransport):
                 },
             ]
             return http_options
-
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
-            return query_params
 
     class _BaseDeleteOperation:
         def __hash__(self):  # pragma: NO COVER
@@ -2072,17 +1524,6 @@ class _BasePredictionServiceRestTransport(PredictionServiceTransport):
                 },
             ]
             return http_options
-
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
-            return query_params
 
     class _BaseGetOperation:
         def __hash__(self):  # pragma: NO COVER
@@ -2546,17 +1987,6 @@ class _BasePredictionServiceRestTransport(PredictionServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
-            return query_params
-
     class _BaseListOperations:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
@@ -3015,17 +2445,6 @@ class _BasePredictionServiceRestTransport(PredictionServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
-            return query_params
-
     class _BaseWaitOperation:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
@@ -3479,17 +2898,6 @@ class _BasePredictionServiceRestTransport(PredictionServiceTransport):
                 },
             ]
             return http_options
-
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
-            return query_params
 
 
 __all__ = ("_BasePredictionServiceRestTransport",)

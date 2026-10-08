@@ -109,14 +109,6 @@ class _BaseMetadataServiceRestTransport(MetadataServiceTransport):
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
-
         @staticmethod
         def _get_http_options():
             http_options: List[Dict[str, str]] = [
@@ -128,53 +120,11 @@ class _BaseMetadataServiceRestTransport(MetadataServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = metadata_service.AddContextArtifactsAndExecutionsRequest.pb(
-                request
-            )
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_request_body_json(transcoded_request):
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
-            )
-            return body
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseMetadataServiceRestTransport._BaseAddContextArtifactsAndExecutions._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseAddContextChildren:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -187,51 +137,11 @@ class _BaseMetadataServiceRestTransport(MetadataServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = metadata_service.AddContextChildrenRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_request_body_json(transcoded_request):
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
-            )
-            return body
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseMetadataServiceRestTransport._BaseAddContextChildren._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseAddExecutionEvents:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -244,51 +154,11 @@ class _BaseMetadataServiceRestTransport(MetadataServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = metadata_service.AddExecutionEventsRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_request_body_json(transcoded_request):
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
-            )
-            return body
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseMetadataServiceRestTransport._BaseAddExecutionEvents._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseCreateArtifact:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -301,51 +171,11 @@ class _BaseMetadataServiceRestTransport(MetadataServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = metadata_service.CreateArtifactRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_request_body_json(transcoded_request):
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
-            )
-            return body
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseMetadataServiceRestTransport._BaseCreateArtifact._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseCreateContext:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -358,51 +188,11 @@ class _BaseMetadataServiceRestTransport(MetadataServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = metadata_service.CreateContextRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_request_body_json(transcoded_request):
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
-            )
-            return body
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseMetadataServiceRestTransport._BaseCreateContext._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseCreateExecution:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -415,51 +205,11 @@ class _BaseMetadataServiceRestTransport(MetadataServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = metadata_service.CreateExecutionRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_request_body_json(transcoded_request):
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
-            )
-            return body
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseMetadataServiceRestTransport._BaseCreateExecution._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseCreateMetadataSchema:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -472,51 +222,11 @@ class _BaseMetadataServiceRestTransport(MetadataServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = metadata_service.CreateMetadataSchemaRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_request_body_json(transcoded_request):
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
-            )
-            return body
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseMetadataServiceRestTransport._BaseCreateMetadataSchema._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseCreateMetadataStore:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -529,51 +239,11 @@ class _BaseMetadataServiceRestTransport(MetadataServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = metadata_service.CreateMetadataStoreRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_request_body_json(transcoded_request):
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
-            )
-            return body
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseMetadataServiceRestTransport._BaseCreateMetadataStore._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseDeleteArtifact:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -585,42 +255,11 @@ class _BaseMetadataServiceRestTransport(MetadataServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = metadata_service.DeleteArtifactRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseMetadataServiceRestTransport._BaseDeleteArtifact._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseDeleteContext:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -632,42 +271,11 @@ class _BaseMetadataServiceRestTransport(MetadataServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = metadata_service.DeleteContextRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseMetadataServiceRestTransport._BaseDeleteContext._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseDeleteExecution:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -679,42 +287,11 @@ class _BaseMetadataServiceRestTransport(MetadataServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = metadata_service.DeleteExecutionRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseMetadataServiceRestTransport._BaseDeleteExecution._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseDeleteMetadataStore:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -726,42 +303,11 @@ class _BaseMetadataServiceRestTransport(MetadataServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = metadata_service.DeleteMetadataStoreRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseMetadataServiceRestTransport._BaseDeleteMetadataStore._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseGetArtifact:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -773,42 +319,11 @@ class _BaseMetadataServiceRestTransport(MetadataServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = metadata_service.GetArtifactRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseMetadataServiceRestTransport._BaseGetArtifact._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseGetContext:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -820,42 +335,11 @@ class _BaseMetadataServiceRestTransport(MetadataServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = metadata_service.GetContextRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseMetadataServiceRestTransport._BaseGetContext._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseGetExecution:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -867,42 +351,11 @@ class _BaseMetadataServiceRestTransport(MetadataServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = metadata_service.GetExecutionRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseMetadataServiceRestTransport._BaseGetExecution._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseGetMetadataSchema:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -914,42 +367,11 @@ class _BaseMetadataServiceRestTransport(MetadataServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = metadata_service.GetMetadataSchemaRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseMetadataServiceRestTransport._BaseGetMetadataSchema._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseGetMetadataStore:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -961,42 +383,11 @@ class _BaseMetadataServiceRestTransport(MetadataServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = metadata_service.GetMetadataStoreRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseMetadataServiceRestTransport._BaseGetMetadataStore._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseListArtifacts:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -1008,42 +399,11 @@ class _BaseMetadataServiceRestTransport(MetadataServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = metadata_service.ListArtifactsRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseMetadataServiceRestTransport._BaseListArtifacts._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseListContexts:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -1055,42 +415,11 @@ class _BaseMetadataServiceRestTransport(MetadataServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = metadata_service.ListContextsRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseMetadataServiceRestTransport._BaseListContexts._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseListExecutions:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -1102,42 +431,11 @@ class _BaseMetadataServiceRestTransport(MetadataServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = metadata_service.ListExecutionsRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseMetadataServiceRestTransport._BaseListExecutions._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseListMetadataSchemas:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -1149,42 +447,11 @@ class _BaseMetadataServiceRestTransport(MetadataServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = metadata_service.ListMetadataSchemasRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseMetadataServiceRestTransport._BaseListMetadataSchemas._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseListMetadataStores:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -1196,42 +463,11 @@ class _BaseMetadataServiceRestTransport(MetadataServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = metadata_service.ListMetadataStoresRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseMetadataServiceRestTransport._BaseListMetadataStores._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BasePurgeArtifacts:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -1244,51 +480,11 @@ class _BaseMetadataServiceRestTransport(MetadataServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = metadata_service.PurgeArtifactsRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_request_body_json(transcoded_request):
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
-            )
-            return body
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseMetadataServiceRestTransport._BasePurgeArtifacts._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BasePurgeContexts:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -1301,51 +497,11 @@ class _BaseMetadataServiceRestTransport(MetadataServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = metadata_service.PurgeContextsRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_request_body_json(transcoded_request):
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
-            )
-            return body
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseMetadataServiceRestTransport._BasePurgeContexts._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BasePurgeExecutions:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -1358,51 +514,11 @@ class _BaseMetadataServiceRestTransport(MetadataServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = metadata_service.PurgeExecutionsRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_request_body_json(transcoded_request):
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
-            )
-            return body
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseMetadataServiceRestTransport._BasePurgeExecutions._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseQueryArtifactLineageSubgraph:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -1414,44 +530,11 @@ class _BaseMetadataServiceRestTransport(MetadataServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = metadata_service.QueryArtifactLineageSubgraphRequest.pb(
-                request
-            )
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseMetadataServiceRestTransport._BaseQueryArtifactLineageSubgraph._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseQueryContextLineageSubgraph:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -1463,42 +546,11 @@ class _BaseMetadataServiceRestTransport(MetadataServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = metadata_service.QueryContextLineageSubgraphRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseMetadataServiceRestTransport._BaseQueryContextLineageSubgraph._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseQueryExecutionInputsAndOutputs:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -1510,44 +562,11 @@ class _BaseMetadataServiceRestTransport(MetadataServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = metadata_service.QueryExecutionInputsAndOutputsRequest.pb(
-                request
-            )
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseMetadataServiceRestTransport._BaseQueryExecutionInputsAndOutputs._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseRemoveContextChildren:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -1560,51 +579,11 @@ class _BaseMetadataServiceRestTransport(MetadataServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = metadata_service.RemoveContextChildrenRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_request_body_json(transcoded_request):
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
-            )
-            return body
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseMetadataServiceRestTransport._BaseRemoveContextChildren._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseUpdateArtifact:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -1617,51 +596,11 @@ class _BaseMetadataServiceRestTransport(MetadataServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = metadata_service.UpdateArtifactRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_request_body_json(transcoded_request):
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
-            )
-            return body
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseMetadataServiceRestTransport._BaseUpdateArtifact._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseUpdateContext:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -1674,51 +613,11 @@ class _BaseMetadataServiceRestTransport(MetadataServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = metadata_service.UpdateContextRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_request_body_json(transcoded_request):
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
-            )
-            return body
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseMetadataServiceRestTransport._BaseUpdateContext._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
-
     class _BaseUpdateExecution:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
 
         __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
-
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
 
         @staticmethod
         def _get_http_options():
@@ -1730,38 +629,6 @@ class _BaseMetadataServiceRestTransport(MetadataServiceTransport):
                 },
             ]
             return http_options
-
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            pb_request = metadata_service.UpdateExecutionRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-            return transcoded_request
-
-        @staticmethod
-        def _get_request_body_json(transcoded_request):
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
-            )
-            return body
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
-            )
-            query_params.update(
-                _BaseMetadataServiceRestTransport._BaseUpdateExecution._get_unset_required_fields(
-                    query_params
-                )
-            )
-
-            query_params["$alt"] = "json;enum-encoding=int"
-            return query_params
 
     class _BaseGetLocation:
         def __hash__(self):  # pragma: NO COVER
@@ -1781,17 +648,6 @@ class _BaseMetadataServiceRestTransport(MetadataServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
-            return query_params
-
     class _BaseListLocations:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
@@ -1809,17 +665,6 @@ class _BaseMetadataServiceRestTransport(MetadataServiceTransport):
                 },
             ]
             return http_options
-
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
-            return query_params
 
     class _BaseGetIamPolicy:
         def __hash__(self):  # pragma: NO COVER
@@ -1903,22 +748,6 @@ class _BaseMetadataServiceRestTransport(MetadataServiceTransport):
                 },
             ]
             return http_options
-
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-            return transcoded_request
-
-        @staticmethod
-        def _get_request_body_json(transcoded_request):
-            body = json.dumps(transcoded_request["body"])
-            return body
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
-            return query_params
 
     class _BaseSetIamPolicy:
         def __hash__(self):  # pragma: NO COVER
@@ -2010,22 +839,6 @@ class _BaseMetadataServiceRestTransport(MetadataServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-            return transcoded_request
-
-        @staticmethod
-        def _get_request_body_json(transcoded_request):
-            body = json.dumps(transcoded_request["body"])
-            return body
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
-            return query_params
-
     class _BaseTestIamPermissions:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
@@ -2100,22 +913,6 @@ class _BaseMetadataServiceRestTransport(MetadataServiceTransport):
                 },
             ]
             return http_options
-
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-            return transcoded_request
-
-        @staticmethod
-        def _get_request_body_json(transcoded_request):
-            body = json.dumps(transcoded_request["body"])
-            return body
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
-            return query_params
 
     class _BaseCancelOperation:
         def __hash__(self):  # pragma: NO COVER
@@ -2526,17 +1323,6 @@ class _BaseMetadataServiceRestTransport(MetadataServiceTransport):
                 },
             ]
             return http_options
-
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
-            return query_params
 
     class _BaseDeleteOperation:
         def __hash__(self):  # pragma: NO COVER
@@ -2991,17 +1777,6 @@ class _BaseMetadataServiceRestTransport(MetadataServiceTransport):
                 },
             ]
             return http_options
-
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
-            return query_params
 
     class _BaseGetOperation:
         def __hash__(self):  # pragma: NO COVER
@@ -3465,17 +2240,6 @@ class _BaseMetadataServiceRestTransport(MetadataServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
-            return query_params
-
     class _BaseListOperations:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
@@ -3934,17 +2698,6 @@ class _BaseMetadataServiceRestTransport(MetadataServiceTransport):
             ]
             return http_options
 
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
-            return query_params
-
     class _BaseWaitOperation:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
@@ -4398,17 +3151,6 @@ class _BaseMetadataServiceRestTransport(MetadataServiceTransport):
                 },
             ]
             return http_options
-
-        @staticmethod
-        def _get_transcoded_request(http_options, request):
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-            return transcoded_request
-
-        @staticmethod
-        def _get_query_params_json(transcoded_request):
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
-            return query_params
 
 
 __all__ = ("_BaseMetadataServiceRestTransport",)
