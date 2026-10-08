@@ -22,6 +22,7 @@ import datetime
 import json
 import logging
 import os
+import random
 import threading
 import time
 from typing import Any, Callable, Literal, Optional, Union, cast
@@ -29,6 +30,7 @@ import uuid
 
 from google.api_core import exceptions as api_exceptions
 import vertexai
+from google.genai import errors as genai_errors
 from google.genai import types as genai_types
 from google.genai._api_client import BaseApiClient
 from google.genai.models import Models
@@ -129,6 +131,45 @@ def _get_agent_engine_instance(
     return _thread_local_data.agent_engine_instances[agent_name]
 
 
+def _is_retryable_error(e: Exception) -> bool:
+    """Returns True for transient errors that are safe to retry with backoff."""
+    if isinstance(e, genai_errors.APIError):
+        return e.code in _evals_constant.RETRYABLE_STATUS_CODES
+    return isinstance(
+        e, (api_exceptions.ResourceExhausted, api_exceptions.ServiceUnavailable)
+    )
+
+
+def _get_retry_backoff(
+    e: Exception, attempt: int, max_retries: int, operation: str
+) -> Optional[float]:
+    """Returns the seconds to wait before the next attempt, or None to stop.
+
+    Retryable errors back off exponentially with jitter. Other errors fail
+    fast, and the last attempt never waits.
+    """
+    if not _is_retryable_error(e) or attempt == max_retries - 1:
+        logger.error(
+            "Error during %s on attempt %d/%d: %s",
+            operation,
+            attempt + 1,
+            max_retries,
+            e,
+        )
+        return None
+    backoff = 2.0**attempt + random.uniform(0, 1)
+    logger.warning(
+        "Retryable error during %s on attempt %d/%d: %s. Retrying in %.1f"
+        " seconds...",
+        operation,
+        attempt + 1,
+        max_retries,
+        e,
+        backoff,
+    )
+    return backoff
+
+
 def _generate_content_with_retry(
     api_client: BaseApiClient,
     model: str,
@@ -191,29 +232,11 @@ def _generate_content_with_retry(
                         }
                 else:
                     return response
-        except api_exceptions.ResourceExhausted as e:
-            logger.warning(
-                "Resource Exhausted error on attempt %d/%d: %s. Retrying in %s"
-                " seconds...",
-                attempt + 1,
-                max_retries,
-                e,
-                2**attempt,
-            )
-            if attempt == max_retries - 1:
-                return {"error": f"Resource exhausted after retries: {e}"}
-            time.sleep(2**attempt)
         except Exception as e:  # pylint: disable=broad-exception-caught
-            logger.error(
-                "Unexpected error during generate_content on attempt %d/%d: %s",
-                attempt + 1,
-                max_retries,
-                e,
-            )
-
-            if attempt == max_retries - 1:
-                return {"error": f"Failed after retries: {e}"}
-            time.sleep(1)
+            backoff = _get_retry_backoff(e, attempt, max_retries, "generate_content")
+            if backoff is None:
+                return {"error": f"Failed on attempt {attempt + 1}/{max_retries}: {e}"}
+            time.sleep(backoff)
     return {"error": f"Failed to generate content after {max_retries} retries"}
 
 
@@ -2352,28 +2375,11 @@ def _execute_agent_run_with_retry(
                 if event and CONTENT in event and PARTS in event[CONTENT]:
                     responses.append(event)
             return responses
-        except api_exceptions.ResourceExhausted as e:
-            logger.warning(
-                "Resource Exhausted error on attempt %d/%d: %s. Retrying in %s"
-                " seconds...",
-                attempt + 1,
-                max_retries,
-                e,
-                2**attempt,
-            )
-            if attempt == max_retries - 1:
-                return {"error": f"Resource exhausted after retries: {e}"}
-            time.sleep(2**attempt)
         except Exception as e:  # pylint: disable=broad-exception-caught
-            logger.error(
-                "Unexpected error during agent engine run on attempt %d/%d: %s",
-                attempt + 1,
-                max_retries,
-                e,
-            )
-            if attempt == max_retries - 1:
-                return {"error": f"Failed after retries: {e}"}
-            time.sleep(1)
+            backoff = _get_retry_backoff(e, attempt, max_retries, "agent engine run")
+            if backoff is None:
+                return {"error": f"Failed on attempt {attempt + 1}/{max_retries}: {e}"}
+            time.sleep(backoff)
     return {"error": f"Failed to get agent run results after {max_retries} retries"}
 
 
@@ -2475,28 +2481,13 @@ async def _execute_local_agent_run_with_retry_async(
                     if event and CONTENT in event and PARTS in event[CONTENT]:
                         events.append(event)
                 return events
-            except api_exceptions.ResourceExhausted as e:
-                logger.warning(
-                    "Resource Exhausted error on attempt %d/%d: %s. Retrying"
-                    " in %s seconds...",
-                    attempt + 1,
-                    max_retries,
-                    e,
-                    2**attempt,
-                )
-                if attempt == max_retries - 1:
-                    return {"error": f"Resource exhausted after retries: {e}"}
-                await asyncio.sleep(2**attempt)
             except Exception as e:  # pylint: disable=broad-exception-caught
-                logger.error(
-                    "Unexpected error during agent run on attempt %d/%d: %s",
-                    attempt + 1,
-                    max_retries,
-                    e,
-                )
-                if attempt == max_retries - 1:
-                    return {"error": f"Failed after retries: {e}"}
-                await asyncio.sleep(1)
+                backoff = _get_retry_backoff(e, attempt, max_retries, "agent run")
+                if backoff is None:
+                    return {
+                        "error": f"Failed on attempt {attempt + 1}/{max_retries}: {e}"
+                    }
+                await asyncio.sleep(backoff)
         return {"error": f"Failed to get agent run results after {max_retries} retries"}
 
 
