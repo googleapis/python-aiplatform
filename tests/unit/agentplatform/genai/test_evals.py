@@ -3655,12 +3655,14 @@ class TestEvalsRunInference:
             "'intermediate_events' or 'response' columns"
         ) in str(excinfo.value)
 
+    @mock.patch("agentplatform._genai.sessions.Sessions")
     @mock.patch.object(_evals_utils, "EvalDatasetLoader")
     @mock.patch.object(_evals_common.agentplatform, "Client")
     def test_run_inference_with_runtime_falls_back_to_managed_sessions_api(
         self,
         mock_agentplatform_client,
         mock_eval_dataset_loader,
+        mock_sessions,
     ):
         """Tests that run_inference falls back to the managed Sessions API
         when the agent engine does not have create_session registered."""
@@ -3694,7 +3696,7 @@ class TestEvalsRunInference:
             "projects/test-project/locations/us-central1"
             "/reasoningEngines/123/sessions/managed-session-1"
         )
-        mock_runtime.api_client.sessions.create.return_value = mock_session_operation
+        mock_sessions.return_value.create.return_value = mock_session_operation
 
         stream_query_return_value = [
             {
@@ -3719,7 +3721,8 @@ class TestEvalsRunInference:
         )
 
         # Verify the managed Sessions API was called as fallback.
-        mock_runtime.api_client.sessions.create.assert_called_once_with(
+        mock_sessions.assert_called_once_with(mock_runtime.api_client._api_client)
+        mock_sessions.return_value.create.assert_called_once_with(
             name="projects/test-project/locations/us-central1/reasoningEngines/123",
             user_id="123",
             config=agentplatform_genai_types.CreateRuntimeSessionConfig(
@@ -3832,7 +3835,9 @@ class TestEvalsRunInference:
             sys.modules,
             {
                 "google.adk": mock.MagicMock(),
-                "google.adk.sessions": mock_adk_sessions_module,
+                "google.adk.sessions.in_memory_session_service": (
+                    mock_adk_sessions_module
+                ),
                 "google.adk.runners": mock_adk_runners_module,
                 "google.adk.agents": mock.MagicMock(),
             },
@@ -11359,7 +11364,11 @@ class TestInferenceRetry:
 
         with mock.patch.dict(
             sys.modules,
-            {"google.adk.runners": mock_runners, "google.adk.sessions": mock_sessions},
+            {
+                "google.adk.runners": mock_runners,
+                "google.adk.sessions": mock_sessions,
+                "google.adk.sessions.in_memory_session_service": mock_sessions,
+            },
         ):
             result = _evals_common._execute_local_agent_run_with_retry(
                 row=pd.Series({"prompt": "prompt"}),

@@ -3510,7 +3510,9 @@ def _create_runtime_session(
             raise RuntimeError(
                 "Failed to create session: runtime.api_client is None."
             ) from exc
-        operation = runtime.api_client.sessions.create(
+        from . import sessions
+
+        operation = sessions.Sessions(runtime.api_client._api_client).create(
             name=runtime.api_resource.name,
             user_id=user_id,
             config=types.CreateRuntimeSessionConfig(
@@ -3574,10 +3576,12 @@ def _execute_agent_run_with_retry(
             return {"error": "runtime.api_resource is None."}
         if runtime.api_client is None:
             return {"error": "runtime.api_client is None."}
+        from . import sessions
+
         session_name = f"{runtime.api_resource.name}/sessions/{session_id}"
         base_ts = datetime.datetime(2000, 1, 1, tzinfo=datetime.timezone.utc)
         for i, ag_event in enumerate(history_events):
-            runtime.api_client.sessions.events.append(
+            sessions.Sessions(runtime.api_client._api_client).events.append(
                 name=session_name,
                 author=ag_event.author or "user",
                 invocation_id="history",
@@ -3635,7 +3639,7 @@ async def _execute_local_agent_run_with_retry_async(
     # Lazy-import ADK dependencies to avoid top-level import failures when
     # google-adk is not installed.
     from google.adk.runners import Runner
-    from google.adk.sessions import InMemorySessionService
+    from google.adk.sessions.in_memory_session_service import InMemorySessionService
 
     # Multi-turn agent scraping with user simulation.
     if user_simulator_config or "conversation_plan" in row:

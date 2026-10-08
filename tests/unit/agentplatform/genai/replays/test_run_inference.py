@@ -14,18 +14,10 @@
 #
 # pylint: disable=protected-access,bad-continuation,missing-function-docstring
 
-import pytest
-
+from google.adk.agents import LlmAgent
 from tests.unit.agentplatform.genai.replays import pytest_helper
 from agentplatform._genai import types
 from google.genai import types as genai_types
-
-pytest.importorskip(
-    "google.adk", reason="google-adk not installed, skipping ADK agent tests"
-)
-from google.adk.agents import (  # noqa: E402
-    LlmAgent,
-)  # pylint: disable=g-import-not-at-top,g-bad-import-order
 
 
 def test_inference_with_eval_cases_multi_turn_agent_data(client):
@@ -187,6 +179,7 @@ def test_inference_with_prompt_column_local_agent(client):
     assert response_val is not None
     assert isinstance(response_val, str)
     assert len(response_val) > 0
+    assert '"error"' not in response_val
 
 
 def test_inference_with_completed_and_incomplete_agent_data(client):
@@ -298,6 +291,7 @@ def test_inference_with_completed_and_incomplete_agent_data(client):
     assert row1_response is not None
     assert isinstance(row1_response, str)
     assert len(row1_response) > 0
+    assert '"error"' not in row1_response
 
 
 def test_inference_with_gemini_agent(client):

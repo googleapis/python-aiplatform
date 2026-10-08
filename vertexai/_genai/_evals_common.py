@@ -2416,7 +2416,7 @@ async def _execute_local_agent_run_with_retry_async(
     # Lazy-import ADK dependencies to avoid top-level import failures when
     # google-adk is not installed.
     from google.adk.runners import Runner
-    from google.adk.sessions import InMemorySessionService
+    from google.adk.sessions.in_memory_session_service import InMemorySessionService
 
     # Multi-turn agent scraping with user simulation.
     if user_simulator_config or "conversation_plan" in row:
