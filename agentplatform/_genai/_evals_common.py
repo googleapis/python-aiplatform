@@ -154,6 +154,8 @@ def _get_runtime_instance(
         client = agentplatform.Client(
             project=api_client.project,
             location=api_client.location,
+            credentials=api_client._credentials,
+            http_options=api_client._http_options,
         )
         _thread_local_data.runtime_instances[agent_name] = client.runtimes.get(
             name=agent_name

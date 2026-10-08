@@ -234,6 +234,41 @@ class TestGetApiClientWithLocation:
         mock_agentplatform_client.assert_not_called()
 
 
+class TestGetRuntimeInstance:
+    _RUNTIME_NAME = "projects/test-project/locations/us-central1/reasoningEngines/123"
+
+    def setup_method(self):
+        if hasattr(_evals_common._thread_local_data, "runtime_instances"):
+            del _evals_common._thread_local_data.runtime_instances
+
+    def teardown_method(self):
+        if hasattr(_evals_common._thread_local_data, "runtime_instances"):
+            del _evals_common._thread_local_data.runtime_instances
+
+    @mock.patch.object(_evals_common.agentplatform, "Client")
+    def test_get_runtime_instance_uses_client_credentials_and_http_options(
+        self, mock_agentplatform_client, mock_api_client_fixture
+    ):
+        mock_api_client_fixture._http_options = genai_types.HttpOptions(
+            base_url="https://custom-endpoint.example.com/"
+        )
+        runtime = _evals_common._get_runtime_instance(
+            self._RUNTIME_NAME, mock_api_client_fixture
+        )
+        mock_agentplatform_client.assert_called_once_with(
+            project=mock_api_client_fixture.project,
+            location=mock_api_client_fixture.location,
+            credentials=mock_api_client_fixture._credentials,
+            http_options=mock_api_client_fixture._http_options,
+        )
+        mock_agentplatform_client.return_value.runtimes.get.assert_called_once_with(
+            name=self._RUNTIME_NAME
+        )
+        assert runtime is (
+            mock_agentplatform_client.return_value.runtimes.get.return_value
+        )
+
+
 class TestNormalizeInferenceModelName:
     _FQ_PREFIX = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/"
 
