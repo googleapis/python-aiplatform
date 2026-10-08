@@ -93,6 +93,11 @@ def _temp_logger_level(logger_name: str, level: int) -> None:  # type: ignore[mi
         logger_instance.setLevel(original_level)
 
 
+def _is_missing(value: Any) -> bool:
+    """Returns True for None or a scalar NaN, such as a missing DataFrame cell."""
+    return bool(pd.api.types.is_scalar(value) and pd.isna(value))
+
+
 def _get_api_client_with_location(
     api_client: BaseApiClient, location: Optional[str]
 ) -> BaseApiClient:
@@ -684,12 +689,12 @@ def _execute_inference_concurrently(
     max_workers = AGENT_MAX_WORKERS if agent_engine or agent else MAX_WORKERS
     with tqdm(total=len(prompt_dataset), desc=progress_desc) as pbar:
         with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
-            for index, row in prompt_dataset.iterrows():
+            for index, (_, row) in enumerate(prompt_dataset.iterrows()):
                 try:
                     if (
                         has_agent_data
                         and AGENT_DATA in row.index
-                        and row.get(AGENT_DATA) is not None
+                        and not _is_missing(row.get(AGENT_DATA))
                     ):
                         agent_data_obj = row[AGENT_DATA]
                         if isinstance(agent_data_obj, dict):
@@ -913,7 +918,7 @@ def _run_litellm_inference(
 
     with tqdm(total=len(prompt_dataset), desc=f"LiteLLM Inference ({model})") as pbar:
         with concurrent.futures.ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
-            for index, row in prompt_dataset.iterrows():
+            for index, (_, row) in enumerate(prompt_dataset.iterrows()):
                 messages = _convert_prompt_row_to_litellm_messages(row)
                 future = executor.submit(
                     _call_litellm_completion, model=model, messages=messages
@@ -2645,7 +2650,7 @@ def _drop_empty_columns(df: "pd.DataFrame") -> "pd.DataFrame":
     def is_empty(x: Any) -> bool:
         if isinstance(x, (list, dict)):
             return not x
-        return pd.isna(x)  # type: ignore[no-any-return]
+        return _is_missing(x)
 
     cols_to_drop = [col for col in df.columns if df[col].apply(is_empty).all()]
     return df.drop(columns=cols_to_drop)
@@ -2944,6 +2949,8 @@ def _create_evaluation_set_from_dataframe(
         if _evals_constant.RESPONSE in row or agent_data_obj or intermediate_events:
             # Resolve the oneof conflict: prioritize agent_data over flat text
             response_text = row.get(_evals_constant.RESPONSE) or None
+            if _is_missing(response_text):
+                response_text = None
 
             if agent_data_obj and response_text:
                 logger.info(
@@ -2998,7 +3005,7 @@ def _create_evaluation_set_from_dataframe(
             prompt = types.EvaluationPrompt(
                 prompt_template_data=types.PromptTemplateData(values=values)
             )
-        elif _evals_constant.PROMPT in row:
+        elif not _is_missing(row.get(_evals_constant.PROMPT)):
             prompt = types.EvaluationPrompt(text=row[_evals_constant.PROMPT])
 
         eval_item_requests.append(
@@ -3006,7 +3013,7 @@ def _create_evaluation_set_from_dataframe(
                 prompt=prompt or None,
                 golden_response=(
                     types.CandidateResponse(text=row[_evals_constant.REFERENCE])
-                    if _evals_constant.REFERENCE in row
+                    if not _is_missing(row.get(_evals_constant.REFERENCE))
                     else None
                 ),
                 candidate_responses=(

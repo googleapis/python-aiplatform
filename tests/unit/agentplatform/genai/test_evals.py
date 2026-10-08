@@ -102,6 +102,16 @@ class TestDropEmptyColumns:
         result_df = _evals_common._drop_empty_columns(df)
         assert list(result_df.columns) == ["col1", "col2"]
 
+    def test_drop_empty_columns_with_array_cells(self):
+        df = pd.DataFrame(
+            {
+                "col1": [None, None],
+                "col2": [pd.Series([1, 2]).to_numpy(), pd.Series([3, 4]).to_numpy()],
+            }
+        )
+        result_df = _evals_common._drop_empty_columns(df)
+        assert list(result_df.columns) == ["col2"]
+
 
 def _create_content_dump(text: str) -> dict[str, list[genai_types.Content]]:
     return {
@@ -4814,6 +4824,61 @@ class TestEvalsMetricHandlers:
             )
         ]
         assert _evals_metric_handlers._has_tool_call(events)
+
+
+class TestExecuteInferenceConcurrently:
+    """Unit tests for row handling in the concurrent inference helpers."""
+
+    def test_missing_agent_data_falls_back_to_prompt(self):
+        completed_trace = {
+            "turns": [
+                {
+                    "events": [
+                        {"author": "user", "content": {"parts": [{"text": "hi"}]}},
+                        {"author": "agent", "content": {"parts": [{"text": "hey"}]}},
+                    ]
+                }
+            ]
+        }
+        prompt_dataset = pd.DataFrame(
+            [{"prompt": "p0", "agent_data": completed_trace}, {"prompt": "p1"}]
+        )
+        inference_fn = mock.Mock(return_value={"response": "r1"})
+
+        responses = _evals_common._execute_inference_concurrently(
+            api_client=mock.Mock(),
+            prompt_dataset=prompt_dataset,
+            progress_desc="Agent Run",
+            inference_fn=inference_fn,
+            runtime=mock.Mock(),
+        )
+
+        assert [event["author"] for event in responses[0]] == ["user", "agent"]
+        assert responses[1] == {"response": "r1"}
+        assert inference_fn.call_args.kwargs["contents"] == "p1"
+
+    def test_responses_follow_row_positions(self):
+        prompt_dataset = pd.DataFrame({"prompt": ["p0", "p1"]}, index=[1, 0])
+
+        responses = _evals_common._execute_inference_concurrently(
+            api_client=None,
+            prompt_dataset=prompt_dataset,
+            progress_desc="Custom Inference",
+            model_or_fn=lambda contents: f"response to {contents}",
+        )
+
+        assert responses == ["response to p0", "response to p1"]
+
+    @mock.patch.object(_evals_common, "_call_litellm_completion")
+    def test_litellm_responses_follow_row_positions(self, mock_call_litellm_completion):
+        mock_call_litellm_completion.side_effect = lambda model, messages: {
+            "content": messages[0]["content"]
+        }
+        prompt_dataset = pd.DataFrame({"prompt": ["p0", "p1"]}, index=[1, 0])
+
+        responses = _evals_common._run_litellm_inference("gpt-4o", prompt_dataset)
+
+        assert responses == [{"content": "p0"}, {"content": "p1"}]
 
 
 @pytest.mark.usefixtures("google_auth_mock")
@@ -10310,6 +10375,33 @@ class TestCreateEvaluationSetFromDataFrame:
 
     @mock.patch.object(_evals_common, "evals")
     @mock.patch.object(_evals_common, "_gcs_utils")
+    def test_create_evaluation_set_treats_nan_cells_as_missing(
+        self, mock_gcs_utils, mock_evals_module
+    ):
+        eval_df = pd.DataFrame(
+            [{"prompt": "p0", "response": "r0"}, {"reference": "ref1"}]
+        )
+
+        _evals_common._create_evaluation_set_from_dataframe(
+            api_client=self.mock_api_client,
+            gcs_dest_prefix="gs://bucket/prefix",
+            eval_df=eval_df,
+            candidate_name="test-candidate",
+        )
+
+        upload = mock_gcs_utils.GcsUtils.return_value.upload_json_to_prefix
+        first, second = (call.kwargs["data"] for call in upload.call_args_list)
+        assert first == {
+            "prompt": {"text": "p0"},
+            "candidateResponses": [{"candidate": "test-candidate", "text": "r0"}],
+        }
+        assert second == {
+            "goldenResponse": {"text": "ref1"},
+            "candidateResponses": [{"candidate": "test-candidate"}],
+        }
+
+    @mock.patch.object(_evals_common, "evals")
+    @mock.patch.object(_evals_common, "_gcs_utils")
     def test_create_evaluation_set_with_user_scenario(
         self, mock_gcs_utils, mock_evals_module
     ):
@@ -11797,6 +11889,14 @@ class TestEvaluateInteractionIdDataset:
         with pytest.raises(ValueError, match="agent.*required"):
             _evals_common._build_interaction_id_dataset(
                 [{"interaction_id": "abc123"}], None, "global"
+            )
+
+    def test_build_interaction_id_dataset_rejects_nan_interaction_id(self):
+        with pytest.raises(ValueError, match="Missing `interaction_id` value"):
+            _evals_common._build_interaction_id_dataset(
+                [{"interaction_id": "abc123"}, {"interaction_id": float("nan")}],
+                _TEST_GEMINI_AGENT,
+                "global",
             )
 
     def test_build_interaction_id_dataset_rejects_non_gemini_agent(self):
