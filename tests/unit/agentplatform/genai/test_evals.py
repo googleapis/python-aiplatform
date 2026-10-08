@@ -45,6 +45,9 @@ from agentplatform._genai import (
     types as agentplatform_genai_types,
 )
 from agentplatform._genai.types import common as common_types
+from vertexai._genai import (
+    _evals_data_converters as vertexai_evals_data_converters,
+)
 from google.genai import client
 from google.genai import errors as genai_errors
 from google.genai import types as genai_types
@@ -60,6 +63,12 @@ _evals_common = _genai.evals._evals_common
 _evals_utils = _genai._evals_utils
 
 pytestmark = pytest.mark.usefixtures("google_auth_mock")
+
+_CONVERTER_MODULES = pytest.mark.parametrize(
+    "converters",
+    [_evals_data_converters, vertexai_evals_data_converters],
+    ids=["agent_platform", "vertexai"],
+)
 
 
 class TestDropEmptyColumns:
@@ -5778,6 +5787,84 @@ class TestFlattenEvalDataConverter:
             eval_case.conversation_history[1].content.parts[0].text == "Old model msg"
         )
 
+    @_CONVERTER_MODULES
+    def test_convert_openai_style_history(self, converters):
+        result_dataset = converters._FlattenEvalDataConverter().convert(
+            [
+                {
+                    "prompt": "Code word?",
+                    "response": "BLUE",
+                    "conversation_history": [
+                        {"content": "My code word is BLUE."},
+                        {"role": "assistant", "content": "Noted."},
+                    ],
+                }
+            ]
+        )
+
+        assert result_dataset.eval_cases[0].conversation_history == [
+            converters.types.evals.Message(
+                turn_id="0",
+                content=genai_types.Content(
+                    parts=[genai_types.Part(text="My code word is BLUE.")], role="user"
+                ),
+                author="user",
+            ),
+            converters.types.evals.Message(
+                turn_id="1",
+                content=genai_types.Content(
+                    parts=[genai_types.Part(text="Noted.")], role="assistant"
+                ),
+                author="assistant",
+            ),
+        ]
+
+    @_CONVERTER_MODULES
+    def test_convert_message_history_items(self, converters):
+        history = [
+            converters.types.evals.Message(
+                turn_id="turn-0",
+                content=genai_types.Content(
+                    parts=[genai_types.Part(text="My code word is BLUE.")], role="user"
+                ),
+                author="user",
+            )
+        ]
+
+        result_dataset = converters._FlattenEvalDataConverter().convert(
+            [{"prompt": "Code word?", "response": "BLUE", "history": history}]
+        )
+
+        assert result_dataset.eval_cases[0].conversation_history == history
+
+    @_CONVERTER_MODULES
+    @pytest.mark.parametrize("column", ["conversation_history", "history"])
+    @pytest.mark.parametrize(
+        "item,expected_warning",
+        [
+            (
+                {"role": "user", "text": "Hi"},
+                "Item at index 0 in '{column}' column for case eval_case_0 is a dict",
+            ),
+            (
+                {"role": 1, "content": "Hi"},
+                "Item at index 0 in '{column}' column for case eval_case_0 is a dict",
+            ),
+            (42, "Invalid type in '{column}' column for case eval_case_0 at index 0."),
+        ],
+        ids=["invalid_dict_item", "non_str_role", "invalid_item_type"],
+    )
+    def test_convert_invalid_history_item_logs_warning(
+        self, converters, column, item, expected_warning, caplog
+    ):
+        with caplog.at_level("WARNING", logger=converters.logger.name):
+            result_dataset = converters._FlattenEvalDataConverter().convert(
+                [{"prompt": "Hello", "response": "Hi", column: [item]}]
+            )
+
+        assert result_dataset.eval_cases[0].conversation_history == []
+        assert expected_warning.format(column=column) in caplog.text
+
     def test_convert_missing_response_raises_value_error(self):
         raw_data_df = pd.DataFrame({"prompt": ["Hello"]})  # Missing response
         raw_data = raw_data_df.to_dict(orient="records")
@@ -6031,6 +6118,20 @@ class TestOpenAIDataConverter:
         raw_data = [{"response": {"choices": []}}, {"request": {"messages": []}}]
         result_dataset = self.converter.convert(raw_data)
         assert len(result_dataset.eval_cases) == 0
+
+    @pytest.mark.parametrize(
+        "message,role,text",
+        [({"role": "assistant", "content": "Hi"}, "assistant", "Hi"), ({}, "user", "")],
+        ids=["role_and_content", "defaults"],
+    )
+    def test_openai_message_to_eval_message(self, message, role, text):
+        assert _evals_data_converters._openai_message_to_eval_message(
+            1, message
+        ) == agentplatform_genai_types.evals.Message(
+            turn_id="1",
+            content=genai_types.Content(parts=[genai_types.Part(text=text)], role=role),
+            author=role,
+        )
 
 
 class TestObservabilityDataConverter:

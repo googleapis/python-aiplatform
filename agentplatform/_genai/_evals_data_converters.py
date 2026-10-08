@@ -57,6 +57,20 @@ def _create_placeholder_response_candidate(
     )
 
 
+def _openai_message_to_eval_message(
+    turn_id: int, message: dict[str, Any]
+) -> types.evals.Message:
+    """Converts an OpenAI chat message into a conversation history message."""
+    role = message.get("role", "user")
+    return types.evals.Message(
+        turn_id=str(turn_id),
+        content=genai_types.Content(
+            parts=[genai_types.Part(text=message.get("content", ""))], role=role
+        ),
+        author=role,
+    )
+
+
 class _GeminiEvalDataConverter(_evals_utils.EvalDataConverter):
     """Converter for dataset in the Gemini format."""
 
@@ -199,9 +213,11 @@ class _FlattenEvalDataConverter(_evals_utils.EvalDataConverter):
             if not prompt_data:
                 prompt_data = item.pop("source", None)
 
-            conversation_history_data = item.pop("conversation_history", None)
+            history_column = "conversation_history"
+            conversation_history_data = item.pop(history_column, None)
             if conversation_history_data is None:
-                conversation_history_data = item.pop("history", None)
+                history_column = "history"
+                conversation_history_data = item.pop(history_column, None)
             response_data = item.pop("response", None)
             reference_data = item.pop("reference", None)
             system_instruction_data = item.pop("instruction", None)
@@ -241,6 +257,16 @@ class _FlattenEvalDataConverter(_evals_utils.EvalDataConverter):
                                 content=content,
                             )
                         )
+                    elif isinstance(content, types.evals.Message):
+                        conversation_history.append(content)
+                    elif (
+                        isinstance(content, dict)
+                        and isinstance(content.get("content"), str)
+                        and isinstance(content.get("role", "user"), str)
+                    ):
+                        conversation_history.append(
+                            _openai_message_to_eval_message(turn_id, content)
+                        )
                     elif isinstance(content, dict):
                         try:
                             validated_content = genai_types.Content.model_validate(
@@ -254,18 +280,20 @@ class _FlattenEvalDataConverter(_evals_utils.EvalDataConverter):
                             )
                         except ValidationError as e:
                             logger.warning(
-                                "Item at index %s in 'history' column for case "
+                                "Item at index %s in '%s' column for case"
                                 " %s is a dict but could not be validated as"
                                 " genai_types.Content: %s",
                                 turn_id,
+                                history_column,
                                 eval_case_id,
                                 e,
                             )
                     else:
                         logger.warning(
-                            "Invalid type in 'history' column for case %s at index %s. "
-                            "Expected genai_types.Content or dict, but got %s. "
-                            "Skipping this history item.",
+                            "Invalid type in '%s' column for case %s at index %s. "
+                            "Expected genai_types.Content, types.evals.Message or "
+                            "dict, but got %s. Skipping this history item.",
+                            history_column,
                             eval_case_id,
                             turn_id,
                             type(content),
@@ -492,17 +520,7 @@ class _OpenAIDataConverter(_evals_utils.EvalDataConverter):
             messages = messages[1:]
 
         for turn_id, msg in enumerate(messages):
-            role = msg.get("role", "user")
-            content = msg.get("content", "")
-            conversation_history.append(
-                types.evals.Message(
-                    turn_id=str(turn_id),
-                    content=genai_types.Content(
-                        parts=[genai_types.Part(text=content)], role=role
-                    ),
-                    author=role,
-                )
-            )
+            conversation_history.append(_openai_message_to_eval_message(turn_id, msg))
 
         if conversation_history:
             last_message = conversation_history.pop()
