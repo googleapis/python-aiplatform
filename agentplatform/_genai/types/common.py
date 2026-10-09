@@ -1163,6 +1163,10 @@ class EvaluationItemRequest(_common.BaseModel):
         default=None,
         description="""Responses from model under test and other baseline models for comparison.""",
     )
+    extra_context: Optional[dict[str, genai_types.Content]] = Field(
+        default=None,
+        description="""Additional named inputs for metrics, such as `golden_schema` alongside an agent trace. Each entry is passed to metrics under its key: LLM-based metrics reference it as `{key}` in the metric prompt template. Standard fields (prompt, response, reference) take precedence over a matching key; `extra_context` takes precedence over `prompt.prompt_template_data.values`.""",
+    )
 
 
 class EvaluationItemRequestDict(TypedDict, total=False):
@@ -1179,6 +1183,9 @@ class EvaluationItemRequestDict(TypedDict, total=False):
 
     candidate_responses: Optional[list[CandidateResponseDict]]
     """Responses from model under test and other baseline models for comparison."""
+
+    extra_context: Optional[dict[str, genai_types.Content]]
+    """Additional named inputs for metrics, such as `golden_schema` alongside an agent trace. Each entry is passed to metrics under its key: LLM-based metrics reference it as `{key}` in the metric prompt template. Standard fields (prompt, response, reference) take precedence over a matching key; `extra_context` takes precedence over `prompt.prompt_template_data.values`."""
 
 
 EvaluationItemRequestOrDict = Union[EvaluationItemRequest, EvaluationItemRequestDict]
