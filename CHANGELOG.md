@@ -1,5 +1,27 @@
 # Changelog
 
+## [2.4.1](https://github.com/googleapis/python-aiplatform/compare/v2.4.0...v2.4.1) (2026-10-09)
+
+
+### Bug Fixes
+
+* **agentplatform:** Allow opentelemetry-instrumentation-google-genai 1.x in agent_engines ([7f08bd6](https://github.com/googleapis/python-aiplatform/commit/7f08bd6c1dbb99f8a00922ae13c488bda3ece7b9))
+* GenAI Client(evals) - Back off only on retryable errors in inference and agent-run retries ([f6bf219](https://github.com/googleapis/python-aiplatform/commit/f6bf2195cd1503b1a41586cc617b6939941f5147))
+* GenAI Client(evals) - Fix run_inference for local ADK agents and remote runtime N+1 ([738e2b1](https://github.com/googleapis/python-aiplatform/commit/738e2b1b2f531888ba262f76639ae7f9c0149605))
+* GenAI Client(evals) - Mirror the inference retry fix to agentplatform/private and vertexai ([efa3980](https://github.com/googleapis/python-aiplatform/commit/efa3980521c74ad7f9c1603a75cfd311349cf003))
+* GenAI Client(evals) - Pass client credentials and http_options to per-thread runtime clients ([58c34ea](https://github.com/googleapis/python-aiplatform/commit/58c34ea6f2dbe01fc6cacfb38f4f694d0981b66c))
+* GenAI Client(evals) - Save Gemini agent run_inference results to dest ([be0eb9a](https://github.com/googleapis/python-aiplatform/commit/be0eb9a725505550f0c1993a87188826af411522))
+* GenAI Client(evals) - Send list and dict context to the evaluation service ([2c2d69e](https://github.com/googleapis/python-aiplatform/commit/2c2d69e39fc40c916c2d24a615adffa334623a2f))
+* GenAI Client(evals) - Show intermediate_events as a conversation trace in show() ([4d4ac8a](https://github.com/googleapis/python-aiplatform/commit/4d4ac8af446b643fbf283ff3d3a54505220c57d6))
+* GenAI Client(evals) - Show N/A for missing summary scores in the comparison report ([be4ea51](https://github.com/googleapis/python-aiplatform/commit/be4ea51e923999708e951f4ef9612a91f34d6421))
+* GenAI Client(evals) - Treat NaN and array cells as missing in eval DataFrames ([b28737e](https://github.com/googleapis/python-aiplatform/commit/b28737e979ff246a557dc71e776dec6e4900da1f))
+* Raise google.genai.errors.APIError when Agent Engine create or update LROs fail ([e631a16](https://github.com/googleapis/python-aiplatform/commit/e631a16d6451384f5b35552faf21427bdd072f6f))
+
+
+### Documentation
+
+* Update generated SDK docstring examples to use gemini-flash-latest ([8010cbd](https://github.com/googleapis/python-aiplatform/commit/8010cbd60a07e998be97355d675f8ce3c2b0ab09))
+
 ## [2.4.0](https://github.com/googleapis/python-aiplatform/compare/v2.3.0...v2.4.0) (2026-10-06)
 
 
