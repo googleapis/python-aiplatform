@@ -532,7 +532,7 @@ class FeedbackEntries(_api_module.BaseModule):
         Args:
             name (str): Required. Name of the Feedback Entry to update. Format:
                 `projects/{project}/locations/{location}/reasoningEngines/{resource_id}/feedbackEntries/{feedback_entry_id}`.
-            feedback_type (shared.FeedbackType): Optional. The type of feedback provided.
+            feedback_type (FeedbackType): Optional. The type of feedback provided.
             config (UpdateRuntimeFeedbackEntryConfig): Optional. The configuration for updating the Feedback Entry.
 
         Returns:
@@ -1245,7 +1245,7 @@ class AsyncFeedbackEntries(_api_module.BaseModule):
         Args:
             name (str): Required. Name of the Feedback Entry to update. Format:
                 `projects/{project}/locations/{location}/reasoningEngines/{resource_id}/feedbackEntries/{feedback_entry_id}`.
-            feedback_type (shared.FeedbackType): Optional. The type of feedback provided.
+            feedback_type (FeedbackType): Optional. The type of feedback provided.
             config (UpdateRuntimeFeedbackEntryConfig): Optional. The configuration for updating the Feedback Entry.
 
         Returns:
