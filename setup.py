@@ -174,7 +174,7 @@ agent_engines_extra_require = [
     "aiohttp",  # for ADK users to use aiohttp rather than httpx client
 ]
 
-adk_testing_extra_require = list(
+adk_testing_extra_require = sorted(
     set(
         adk_extra_require + reasoning_engine_extra_require + ["absl-py", "pytest-xdist"]
     )
@@ -203,7 +203,7 @@ langchain_extra_require = [
     "openinference-instrumentation-langchain >= 0.1.19, < 0.2",
 ]
 
-langchain_testing_extra_require = list(
+langchain_testing_extra_require = sorted(
     set(
         langchain_extra_require
         + reasoning_engine_extra_require
@@ -216,7 +216,7 @@ ag2_extra_require = [
     "openinference-instrumentation-autogen >= 0.1.6, < 0.2",
 ]
 
-ag2_testing_extra_require = list(
+ag2_testing_extra_require = sorted(
     set(
         ag2_extra_require + reasoning_engine_extra_require + ["absl-py", "pytest-xdist"]
     )
@@ -228,7 +228,7 @@ llama_index_extra_require = [
     "openinference-instrumentation-llama-index >= 3.0, < 4.0",
 ]
 
-llama_index_testing_extra_require = list(
+llama_index_testing_extra_require = sorted(
     set(
         llama_index_extra_require
         + reasoning_engine_extra_require
@@ -239,7 +239,7 @@ llama_index_testing_extra_require = list(
 tokenization_extra_require = ["sentencepiece >= 0.2.0"]
 tokenization_testing_extra_require = tokenization_extra_require + ["nltk"]
 
-full_extra_require = list(
+full_extra_require = sorted(
     set(
         tensorboard_extra_require
         + metadata_extra_require
@@ -310,7 +310,6 @@ setuptools.setup(
             "tb-gcp-uploader=google.cloud.aiplatform.tensorboard.uploader_main:run_main"
         ],
     },
-    namespace_packages=("google", "google.cloud"),
     author="Google LLC",
     author_email="googleapis-packages@google.com",
     license="Apache 2.0",
