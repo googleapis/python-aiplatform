@@ -10306,6 +10306,36 @@ class TestConvertRequestToDatasetRow:
         assert result["intermediate_events"] == []
 
 
+class TestGetEvalCasesEvalDfsFromEvalItems:
+    def test_eval_case_index_matches_dataset_row_when_item_is_skipped(self):
+        valid_items = [
+            agentplatform_genai_types.EvaluationItem(
+                evaluation_response=agentplatform_genai_types.EvaluationItemResult(
+                    request=agentplatform_genai_types.EvaluationItemRequest(
+                        prompt=agentplatform_genai_types.EvaluationPrompt(text=prompt),
+                        candidate_responses=[
+                            agentplatform_genai_types.CandidateResponse(
+                                candidate="candidate-1", text="response"
+                            )
+                        ],
+                    )
+                )
+            )
+            for prompt in ("first", "second")
+        ]
+        item_without_request = agentplatform_genai_types.EvaluationItem(
+            evaluation_response=agentplatform_genai_types.EvaluationItemResult()
+        )
+
+        results, eval_dfs = _evals_common._get_eval_cases_eval_dfs_from_eval_items(
+            [valid_items[0], item_without_request, valid_items[1]]
+        )
+
+        df = eval_dfs[0].eval_dataset_df
+        assert [r.eval_case_index for r in results] == [0, 1]
+        assert df["prompt"].tolist() == ["first", "second"]
+
+
 class TestCreateEvaluationSetFromDataFrame:
     """Unit tests for the _create_evaluation_set_from_dataframe function."""
 
