@@ -32104,6 +32104,16 @@ class AgentRuntimeConfig(_common.BaseModel):
         default=None,
         description="""The build config for the Agent Runtime. Allows bringing your own Cloud Build private worker pool (BYOBP) and, optionally, a build-time service account for the container build. Supported keys: `worker_pool` (the resource name of the Cloud Build WorkerPool to use for the build) and `service_account` (the service account that Cloud Build uses to run the build; only applicable when `worker_pool` is specified).""",
     )
+    agent_card: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""The A2A agent card for the Agent Runtime, as a dictionary with
+      the A2A JSON field names (camelCase, such as `preferredTransport`).
+      Use it when there is no `agent` object to read the card from, for
+      example with `container_spec` or `source_packages`. If the `agent` also
+      has an `agent_card`, this value is used instead. On `update()`, it
+      replaces the deployed card; pass `{}` to remove it. The service sets
+      the card's `url` to the runtime's A2A endpoint.""",
+    )
 
 
 class AgentRuntimeConfigDict(TypedDict, total=False):
@@ -32293,6 +32303,15 @@ class AgentRuntimeConfigDict(TypedDict, total=False):
 
     build_config: Optional[ReasoningEngineSpecBuildSpecDict]
     """The build config for the Agent Runtime. Allows bringing your own Cloud Build private worker pool (BYOBP) and, optionally, a build-time service account for the container build. Supported keys: `worker_pool` (the resource name of the Cloud Build WorkerPool to use for the build) and `service_account` (the service account that Cloud Build uses to run the build; only applicable when `worker_pool` is specified)."""
+
+    agent_card: Optional[dict[str, Any]]
+    """The A2A agent card for the Agent Runtime, as a dictionary with
+      the A2A JSON field names (camelCase, such as `preferredTransport`).
+      Use it when there is no `agent` object to read the card from, for
+      example with `container_spec` or `source_packages`. If the `agent` also
+      has an `agent_card`, this value is used instead. On `update()`, it
+      replaces the deployed card; pass `{}` to remove it. The service sets
+      the card's `url` to the runtime's A2A endpoint."""
 
 
 AgentRuntimeConfigOrDict = Union[AgentRuntimeConfig, AgentRuntimeConfigDict]
