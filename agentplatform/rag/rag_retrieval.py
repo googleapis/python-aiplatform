@@ -46,8 +46,8 @@ def retrieval_query(
             vector_distance_threshold=0.5
         ),
         ranking=agentplatform.rag.Ranking(
-            llm_ranker=rag.LlmRanker(
-                model_name="gemini-2.5-flash"
+            llm_ranker=agentplatform.rag.LlmRanker(
+                model_name="gemini-3.8-flash"
             )
         )
     )

@@ -61,7 +61,7 @@ class VertexRagStore:
             ),
             ranking=vertex.rag.Ranking(
                 llm_ranker=agentplatform.rag.LlmRanker(
-                    model_name="gemini-1.5-flash-002"
+                    model_name="gemini-3.8-flash"
                 )
             )
         )

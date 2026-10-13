@@ -1045,7 +1045,7 @@ def add_inline_citations_and_references(
       )
 
     rag_model = GenerativeModel(
-        model_name="gemini-2.5-pro-preview-05-06", tools=[rag_retrieval_tool]
+        model_name="gemini-3.8-flash", tools=[rag_retrieval_tool]
     )
     response = rag_model.generate_content("Why is the sky blue?")
 
