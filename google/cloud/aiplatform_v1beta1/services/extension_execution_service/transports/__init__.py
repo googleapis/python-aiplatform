@@ -25,13 +25,15 @@ from .rest import ExtensionExecutionServiceRestInterceptor
 ASYNC_REST_CLASSES: Tuple[str, ...]
 try:
     from .rest_asyncio import AsyncExtensionExecutionServiceRestTransport
-    from .rest_asyncio import AsyncExtensionExecutionServiceRestInterceptor
+    from .rest_asyncio import (
+        AsyncExtensionExecutionServiceRestInterceptor,
+    )  # pragma: NO COVER
 
     ASYNC_REST_CLASSES = (
         "AsyncExtensionExecutionServiceRestTransport",
         "AsyncExtensionExecutionServiceRestInterceptor",
-    )
-    HAS_REST_ASYNC = True
+    )  # pragma: NO COVER
+    HAS_REST_ASYNC = True  # pragma: NO COVER
 except ImportError:  # pragma: NO COVER
     ASYNC_REST_CLASSES = ()
     HAS_REST_ASYNC = False
