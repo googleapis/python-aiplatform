@@ -25,13 +25,15 @@ from .rest import ModelMonitoringServiceRestInterceptor
 ASYNC_REST_CLASSES: Tuple[str, ...]
 try:
     from .rest_asyncio import AsyncModelMonitoringServiceRestTransport
-    from .rest_asyncio import AsyncModelMonitoringServiceRestInterceptor
+    from .rest_asyncio import (
+        AsyncModelMonitoringServiceRestInterceptor,
+    )  # pragma: NO COVER
 
     ASYNC_REST_CLASSES = (
         "AsyncModelMonitoringServiceRestTransport",
         "AsyncModelMonitoringServiceRestInterceptor",
-    )
-    HAS_REST_ASYNC = True
+    )  # pragma: NO COVER
+    HAS_REST_ASYNC = True  # pragma: NO COVER
 except ImportError:  # pragma: NO COVER
     ASYNC_REST_CLASSES = ()
     HAS_REST_ASYNC = False

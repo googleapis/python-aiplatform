@@ -60,14 +60,14 @@ class ReasoningEngineRuntimeRevision(proto.Message):
                 The unspecified state.
             ACTIVE (1):
                 Is deployed and ready to be used.
-            DEPRECATED (2):
-                Is deprecated, may not be used, only
-                preserved for historical purposes.
+            ARCHIVED (3):
+                Is archived and can no longer receive
+                traffic, only preserved for historical purposes.
         """
 
         STATE_UNSPECIFIED = 0
         ACTIVE = 1
-        DEPRECATED = 2
+        ARCHIVED = 3
 
     name: str = proto.Field(
         proto.STRING,
