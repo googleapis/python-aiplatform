@@ -31797,6 +31797,187 @@ DeployPublisherModelConfigOrDict = Union[
 ]
 
 
+class DeployCustomModelConfig(_common.BaseModel):
+    """Config for ``deploy_custom_model``.
+
+    Deliberately narrower than ``DeployPublisherModelConfig``: a custom model
+    has no publisher, so there is no EULA to accept, no Hugging Face artifacts
+    to authenticate against, and no publisher-supplied default container for a
+    container override to patch.
+    """
+
+    machine_type: Optional[str] = Field(
+        default=None,
+        description="""Machine type (e.g. ``'a3-highgpu-8g'``). Must be set together
+      with ``accelerator_type`` and ``accelerator_count``, or left unset for
+      automatic resources.""",
+    )
+    min_replica_count: Optional[int] = Field(
+        default=1,
+        description="""Minimum number of replicas. ``0`` is treated as unset and not
+      sent, as in ``CustomModel.deploy``.""",
+    )
+    max_replica_count: Optional[int] = Field(
+        default=1,
+        description="""Maximum number of replicas. ``0`` is treated as unset and not
+      sent, as in ``CustomModel.deploy``.""",
+    )
+    accelerator_type: Optional[str] = Field(
+        default=None,
+        description="""Accelerator type (e.g. ``'NVIDIA_H100_80GB'``). Must be set
+      together with ``machine_type`` and ``accelerator_count``.""",
+    )
+    accelerator_count: Optional[int] = Field(
+        default=None,
+        description="""Number of accelerators per replica; must be positive. Must be set
+      together with ``machine_type`` and ``accelerator_type``. ``0`` counts as
+      unset for that check, as in ``CustomModel.deploy``.""",
+    )
+    endpoint_display_name: Optional[str] = Field(
+        default=None, description="""Display name for the endpoint."""
+    )
+    model_display_name: Optional[str] = Field(
+        default=None, description="""Display name for the deployed model."""
+    )
+    enable_private_service_connect: Optional[bool] = Field(
+        default=None,
+        description="""Enable Private Service Connect for the endpoint. Only sent
+      together with a non-empty ``psc_project_allow_list``.""",
+    )
+    psc_project_allow_list: Optional[list[str]] = Field(
+        default=None,
+        description="""Projects allowed to access the endpoint over Private Service
+      Connect. Only sent when ``enable_private_service_connect`` is True.""",
+    )
+    wait_for_completion: Optional[bool] = Field(
+        default=True,
+        description="""Whether to block on the deployment long-running operation. When
+      ``True`` (default), returns the ``DeployResponse`` (deployed endpoint
+      and model resource names) on completion. When ``False``, returns the
+      ``DeployModelOperation`` for the caller to poll.""",
+    )
+    poll_interval_seconds: Optional[float] = Field(
+        default=None,
+        description="""Seconds between LRO polls when ``wait_for_completion=True``.
+      Defaults to 30. Ignored when ``wait_for_completion=False``.""",
+    )
+    timeout_seconds: Optional[float] = Field(
+        default=None,
+        description="""Total wall-clock seconds to wait for the deployment to complete
+      when ``wait_for_completion=True``. Defaults to 2 hours, matching the
+      Vertex AI Console one-click deployment timeout. Ignored when
+      ``wait_for_completion=False``.""",
+    )
+    reservation_affinity_type: Optional[str] = Field(
+        default=None,
+        description="""Reservation affinity type. One of ``NO_RESERVATION``,
+      ``ANY_RESERVATION`` or ``SPECIFIC_RESERVATION``.""",
+    )
+    reservation_affinity_key: Optional[str] = Field(
+        default=None,
+        description="""Label key of the reservation resource. To target a
+      ``SPECIFIC_RESERVATION`` by name, use
+      ``compute.googleapis.com/reservation-name``. Only sent together with
+      ``reservation_affinity_values``.""",
+    )
+    reservation_affinity_values: Optional[list[str]] = Field(
+        default=None,
+        description="""Label values of the reservation resource, as full reservation
+      resource names
+      (``projects/{project}/zones/{zone}/reservations/{name}``). Only sent
+      together with ``reservation_affinity_key``.""",
+    )
+    system_labels: Optional[dict[str, str]] = Field(
+        default=None, description="""System labels for Model Garden deployments."""
+    )
+
+
+class DeployCustomModelConfigDict(TypedDict, total=False):
+    """Config for ``deploy_custom_model``.
+
+    Deliberately narrower than ``DeployPublisherModelConfig``: a custom model
+    has no publisher, so there is no EULA to accept, no Hugging Face artifacts
+    to authenticate against, and no publisher-supplied default container for a
+    container override to patch.
+    """
+
+    machine_type: Optional[str]
+    """Machine type (e.g. ``'a3-highgpu-8g'``). Must be set together
+      with ``accelerator_type`` and ``accelerator_count``, or left unset for
+      automatic resources."""
+
+    min_replica_count: Optional[int]
+    """Minimum number of replicas. ``0`` is treated as unset and not
+      sent, as in ``CustomModel.deploy``."""
+
+    max_replica_count: Optional[int]
+    """Maximum number of replicas. ``0`` is treated as unset and not
+      sent, as in ``CustomModel.deploy``."""
+
+    accelerator_type: Optional[str]
+    """Accelerator type (e.g. ``'NVIDIA_H100_80GB'``). Must be set
+      together with ``machine_type`` and ``accelerator_count``."""
+
+    accelerator_count: Optional[int]
+    """Number of accelerators per replica; must be positive. Must be set
+      together with ``machine_type`` and ``accelerator_type``. ``0`` counts as
+      unset for that check, as in ``CustomModel.deploy``."""
+
+    endpoint_display_name: Optional[str]
+    """Display name for the endpoint."""
+
+    model_display_name: Optional[str]
+    """Display name for the deployed model."""
+
+    enable_private_service_connect: Optional[bool]
+    """Enable Private Service Connect for the endpoint. Only sent
+      together with a non-empty ``psc_project_allow_list``."""
+
+    psc_project_allow_list: Optional[list[str]]
+    """Projects allowed to access the endpoint over Private Service
+      Connect. Only sent when ``enable_private_service_connect`` is True."""
+
+    wait_for_completion: Optional[bool]
+    """Whether to block on the deployment long-running operation. When
+      ``True`` (default), returns the ``DeployResponse`` (deployed endpoint
+      and model resource names) on completion. When ``False``, returns the
+      ``DeployModelOperation`` for the caller to poll."""
+
+    poll_interval_seconds: Optional[float]
+    """Seconds between LRO polls when ``wait_for_completion=True``.
+      Defaults to 30. Ignored when ``wait_for_completion=False``."""
+
+    timeout_seconds: Optional[float]
+    """Total wall-clock seconds to wait for the deployment to complete
+      when ``wait_for_completion=True``. Defaults to 2 hours, matching the
+      Vertex AI Console one-click deployment timeout. Ignored when
+      ``wait_for_completion=False``."""
+
+    reservation_affinity_type: Optional[str]
+    """Reservation affinity type. One of ``NO_RESERVATION``,
+      ``ANY_RESERVATION`` or ``SPECIFIC_RESERVATION``."""
+
+    reservation_affinity_key: Optional[str]
+    """Label key of the reservation resource. To target a
+      ``SPECIFIC_RESERVATION`` by name, use
+      ``compute.googleapis.com/reservation-name``. Only sent together with
+      ``reservation_affinity_values``."""
+
+    reservation_affinity_values: Optional[list[str]]
+    """Label values of the reservation resource, as full reservation
+      resource names
+      (``projects/{project}/zones/{zone}/reservations/{name}``). Only sent
+      together with ``reservation_affinity_key``."""
+
+    system_labels: Optional[dict[str, str]]
+    """System labels for Model Garden deployments."""
+
+
+DeployCustomModelConfigOrDict = Union[
+    DeployCustomModelConfig, DeployCustomModelConfigDict
+]
+
+
 class DeployOption(_common.BaseModel):
     """A verified deploy option for a model."""
 

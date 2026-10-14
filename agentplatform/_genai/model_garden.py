@@ -712,7 +712,7 @@ class ModelGarden(_api_module.BaseModule):
         config: Optional[types.GetDeployOperationConfigOrDict] = None,
     ) -> types.DeployModelOperation:
         """
-        Fetches the status of an in-flight ``deploy_publisher_model`` LRO.
+        Fetches the status of an in-flight ``deploy_publisher_model`` or ``deploy_custom_model`` LRO.
         """
 
         parameter_model = types._GetDeployOperationParameters(
@@ -1232,6 +1232,94 @@ class ModelGarden(_api_module.BaseModule):
 
         return model_config, endpoint_config, deploy_config
 
+    @staticmethod
+    def _validate_custom_deploy_config(
+        config: types.DeployCustomModelConfig,
+    ) -> None:
+        """Rejects a partially-specified machine shape for a custom model deploy.
+
+        A publisher model can fall back to its own recommended machine spec, so
+        a partial override there is still deployable. A custom model has no such
+        fallback: the backend needs the machine type and the accelerator pair
+        together or not at all. Matches the all-or-none check in
+        ``vertexai.model_garden.CustomModel.deploy``, including its truthiness
+        test: ``accelerator_count=0`` counts as unset, since an accelerator type
+        with zero accelerators is not a deployable shape.
+
+        Raises:
+          ValueError: If some but not all of ``machine_type``,
+            ``accelerator_type`` and ``accelerator_count`` are set.
+        """
+        fields = ("machine_type", "accelerator_type", "accelerator_count")
+        set_fields = [name for name in fields if getattr(config, name)]
+        if set_fields and len(set_fields) != len(fields):
+            missing = [name for name in fields if name not in set_fields]
+            raise ValueError(
+                f"{', '.join(fields)} must all be provided or all be omitted; "
+                f"got {', '.join(set_fields)} without {', '.join(missing)}."
+            )
+
+    @staticmethod
+    def _prepare_custom_deploy_request(
+        config: types.DeployCustomModelConfig,
+    ) -> tuple[
+        types.DeployRequestModelConfig,
+        types.DeployRequestEndpointConfig,
+        types.DeployRequestDeployConfig,
+    ]:
+        """Translates ``DeployCustomModelConfig`` to the three ``DeployRequest`` sub-messages.
+
+        Mirrors ``vertexai.model_garden.CustomModel.deploy`` field for field:
+        replica counts and reservation affinity are sent even without a machine
+        shape, and PSC is sent only with a non-empty project allowlist.
+        """
+        model_config = types.DeployRequestModelConfig(
+            model_display_name=config.model_display_name,
+        )
+
+        endpoint_config = types.DeployRequestEndpointConfig(
+            endpoint_display_name=config.endpoint_display_name,
+        )
+        if config.enable_private_service_connect and config.psc_project_allow_list:
+            endpoint_config.private_service_connect_config = (
+                types.PrivateServiceConnectConfig(
+                    enable_private_service_connect=True,
+                    project_allowlist=config.psc_project_allow_list,
+                )
+            )
+
+        reservation_affinity = None
+        if config.reservation_affinity_type or (
+            config.reservation_affinity_key and config.reservation_affinity_values
+        ):
+            reservation_affinity = types.ReservationAffinity(
+                reservation_affinity_type=config.reservation_affinity_type,
+            )
+            if config.reservation_affinity_key and config.reservation_affinity_values:
+                reservation_affinity.key = config.reservation_affinity_key
+                reservation_affinity.values = config.reservation_affinity_values
+
+        machine_spec = None
+        if config.machine_type or reservation_affinity:
+            machine_spec = types.MachineSpec(
+                machine_type=config.machine_type,
+                accelerator_type=config.accelerator_type,
+                accelerator_count=config.accelerator_count,
+                reservation_affinity=reservation_affinity,
+            )
+
+        deploy_config = types.DeployRequestDeployConfig(
+            system_labels=config.system_labels or None,
+        )
+        if machine_spec or config.min_replica_count or config.max_replica_count:
+            deploy_config.dedicated_resources = types.DedicatedResources(
+                machine_spec=machine_spec,
+                min_replica_count=config.min_replica_count or None,
+                max_replica_count=config.max_replica_count or None,
+            )
+
+        return model_config, endpoint_config, deploy_config
+
     def _list_all_publisher_models(
         self,
         api_config: types.ListPublisherModelsConfig,
@@ -1480,6 +1568,81 @@ class ModelGarden(_api_module.BaseModule):
             destination=destination,
             publisher_model_name=publisher_model_name,
             hugging_face_model_id=hugging_face_model_id,
+            model_config_val=model_config,
+            endpoint_config=endpoint_config,
+            deploy_config=deploy_config,
+        )
+        if not config.wait_for_completion:
+            return operation
+
+        operation = _operations_utils.await_operation(
+            operation_name=operation.name,
+            get_operation_fn=self.get_deploy_publisher_model_operation,
+            poll_interval=(
+                config.poll_interval_seconds
+                or ModelGarden._DEFAULT_DEPLOY_POLL_INTERVAL_SECONDS
+            ),
+            timeout_seconds=(
+                config.timeout_seconds or ModelGarden._DEFAULT_DEPLOY_TIMEOUT_SECONDS
+            ),
+        )
+        return ModelGarden._deploy_response_or_raise(operation)
+
+    def deploy_custom_model(
+        self,
+        *,
+        src: str,
+        config: Optional[types.DeployCustomModelConfigOrDict] = None,
+    ) -> Union[types.DeployResponse, types.DeployModelOperation]:
+        """Deploys a custom model from its weights in Cloud Storage.
+
+        Use this for weights you produced yourself (a tuning job checkpoint, a
+        converted open model) rather than a model served from a Model Garden
+        publisher. For the latter, use ``deploy_publisher_model``.
+
+        Args:
+          src: The Cloud Storage URI holding the model weights and config files,
+            e.g. ``'gs://my-bucket/weights/'``. The base model is inferred from
+            the config files found there.
+          config: Optional deployment configuration (machine shape, display
+            names, Private Service Connect, blocking behavior, poll timing). See
+            ``DeployCustomModelConfig``.
+
+        Returns:
+          When ``config.wait_for_completion`` is ``True`` (default), a
+          ``DeployResponse`` carrying the deployed ``endpoint`` and ``model``
+          resource names (both ``str``).
+          When ``config.wait_for_completion`` is ``False``, the
+          ``DeployModelOperation`` for the caller to poll (via
+          ``get_deploy_publisher_model_operation`` or their own strategy).
+
+        Raises:
+          ValueError: If ``src`` is empty, or if the machine shape is only
+            partially specified (see ``DeployCustomModelConfig.machine_type``).
+          TimeoutError: If ``wait_for_completion=True`` and the LRO does not
+            complete within ``config.timeout_seconds`` (default 2 hours).
+          RuntimeError: If the LRO completes with an error, or completes
+            successfully but without an endpoint resource name.
+        """
+        if not src:
+            raise ValueError("src must be specified.")
+        if config is None:
+            config = types.DeployCustomModelConfig()
+        elif isinstance(config, dict):
+            config = types.DeployCustomModelConfig.model_validate(config)
+        ModelGarden._validate_custom_deploy_config(config)
+
+        model_config, endpoint_config, deploy_config = (
+            ModelGarden._prepare_custom_deploy_request(config)
+        )
+        destination = (
+            f"projects/{self._api_client.project}/locations/"
+            f"{self._api_client.location}"
+        )
+
+        operation = self._deploy(
+            destination=destination,
+            custom_model=types.DeployRequestCustomModel(gcs_uri=src),
             model_config_val=model_config,
             endpoint_config=endpoint_config,
             deploy_config=deploy_config,
@@ -2207,7 +2370,7 @@ class AsyncModelGarden(_api_module.BaseModule):
         config: Optional[types.GetDeployOperationConfigOrDict] = None,
     ) -> types.DeployModelOperation:
         """
-        Fetches the status of an in-flight ``deploy_publisher_model`` LRO.
+        Fetches the status of an in-flight ``deploy_publisher_model`` or ``deploy_custom_model`` LRO.
         """
 
         parameter_model = types._GetDeployOperationParameters(
@@ -2487,6 +2650,52 @@ class AsyncModelGarden(_api_module.BaseModule):
             destination=destination,
             publisher_model_name=publisher_model_name,
             hugging_face_model_id=hugging_face_model_id,
+            model_config_val=model_config,
+            endpoint_config=endpoint_config,
+            deploy_config=deploy_config,
+        )
+        if not config.wait_for_completion:
+            return operation
+
+        operation = await _operations_utils.await_operation_async(
+            operation_name=operation.name,
+            get_operation_fn=self.get_deploy_publisher_model_operation,
+            poll_interval=(
+                config.poll_interval_seconds
+                or ModelGarden._DEFAULT_DEPLOY_POLL_INTERVAL_SECONDS
+            ),
+            timeout_seconds=(
+                config.timeout_seconds or ModelGarden._DEFAULT_DEPLOY_TIMEOUT_SECONDS
+            ),
+        )
+        return ModelGarden._deploy_response_or_raise(operation)
+
+    async def deploy_custom_model(
+        self,
+        *,
+        src: str,
+        config: Optional[types.DeployCustomModelConfigOrDict] = None,
+    ) -> Union[types.DeployResponse, types.DeployModelOperation]:
+        """Async variant of ``ModelGarden.deploy_custom_model``."""
+        if not src:
+            raise ValueError("src must be specified.")
+        if config is None:
+            config = types.DeployCustomModelConfig()
+        elif isinstance(config, dict):
+            config = types.DeployCustomModelConfig.model_validate(config)
+        ModelGarden._validate_custom_deploy_config(config)
+
+        model_config, endpoint_config, deploy_config = (
+            ModelGarden._prepare_custom_deploy_request(config)
+        )
+        destination = (
+            f"projects/{self._api_client.project}/locations/"
+            f"{self._api_client.location}"
+        )
+
+        operation = await self._deploy(
+            destination=destination,
+            custom_model=types.DeployRequestCustomModel(gcs_uri=src),
             model_config_val=model_config,
             endpoint_config=endpoint_config,
             deploy_config=deploy_config,

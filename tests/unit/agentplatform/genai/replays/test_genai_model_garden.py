@@ -410,6 +410,120 @@ def test_deploy_publisher_model_container_args_without_image_raises(client):
     )
 
 
+def test_deploy_custom_model_empty_src_raises(client):
+  """An empty src is rejected client-side; no RPC needed."""
+  with pytest.raises(ValueError, match="src must be specified"):
+    client.model_garden.deploy_custom_model(src="")
+
+
+def test_deploy_custom_model_partial_machine_shape_raises(client):
+  """A half-specified machine shape is rejected before any RPC.
+
+  Validation runs after the src check but before the deploy call, so a
+  regression here would surface as an unrecorded interaction rather than a
+  silent partial deploy.
+  """
+  with pytest.raises(ValueError, match="must all be provided or all be"):
+    client.model_garden.deploy_custom_model(
+        src=_CUSTOM_MODEL_SRC,
+        config=types.DeployCustomModelConfig(machine_type="g2-standard-12"),
+    )
+
+
+def test_deploy_custom_model_accelerator_without_machine_type_raises(client):
+  """Accelerators without a machine type hit the same all-or-none check."""
+  with pytest.raises(ValueError, match="must all be provided or all be"):
+    client.model_garden.deploy_custom_model(
+        src=_CUSTOM_MODEL_SRC,
+        config=types.DeployCustomModelConfig(
+            accelerator_type="NVIDIA_L4",
+            accelerator_count=1,
+        ),
+    )
+
+
+def test_get_deploy_operation_for_custom_model(client):
+  """The deploy operation getter also polls custom-model deploy LROs.
+
+  Chains a wait_for_completion=False deploy with an explicit poll via
+  ``get_deploy_publisher_model_operation`` -- the same `{operationName}` GET
+  serves both deploy methods.
+  """
+  op = client.model_garden.deploy_custom_model(
+      src=_CUSTOM_MODEL_SRC,
+      config=types.DeployCustomModelConfig(
+          machine_type="g2-standard-12",
+          accelerator_type="NVIDIA_L4",
+          accelerator_count=1,
+          wait_for_completion=False,
+      ),
+  )
+  polled = client.model_garden.get_deploy_publisher_model_operation(
+      operation_name=op.name,
+  )
+  assert isinstance(polled, types.DeployModelOperation)
+  assert polled.name == op.name
+
+
+def test_deploy_custom_model_no_wait_returns_operation(client):
+  """wait_for_completion=False returns the DeployModelOperation immediately.
+
+  Records only the initial Deploy POST. Also pins the wire mapping: ``src``
+  must serialize to ``customModel.gcs_uri`` and the machine shape to
+  ``deployConfig.dedicated_resources`` exactly as recorded, or the replay
+  framework's request-body comparison fails.
+  """
+  operation = client.model_garden.deploy_custom_model(
+      src=_CUSTOM_MODEL_SRC,
+      config=types.DeployCustomModelConfig(
+          machine_type="g2-standard-12",
+          accelerator_type="NVIDIA_L4",
+          accelerator_count=1,
+          min_replica_count=1,
+          max_replica_count=1,
+          wait_for_completion=False,
+      ),
+  )
+  assert isinstance(operation, types.DeployModelOperation)
+  assert "/operations/" in operation.name
+  # The non-blocking path must not resolve the LRO.
+  assert operation.done is not True
+
+
+def test_deploy_custom_model_default_config_no_wait(client):
+  """Without a machine shape, only the 1/1 replica counts are sent.
+
+  Matches ``CustomModel.deploy`` and confirms the backend accepts
+  ``dedicated_resources`` without a ``machine_spec``.
+  """
+  operation = client.model_garden.deploy_custom_model(
+      src=_CUSTOM_MODEL_SRC,
+      config=types.DeployCustomModelConfig(wait_for_completion=False),
+  )
+  assert isinstance(operation, types.DeployModelOperation)
+  assert operation.name
+
+
+def test_deploy_custom_model_no_wait_dict_config(client):
+  """The config may be passed as a plain dict; wait_for_completion=False path.
+
+  Also pins ``endpoint_display_name`` and ``system_labels`` on the wire.
+  """
+  operation = client.model_garden.deploy_custom_model(
+      src=_CUSTOM_MODEL_SRC,
+      config={
+          "machine_type": "g2-standard-12",
+          "accelerator_type": "NVIDIA_L4",
+          "accelerator_count": 1,
+          "endpoint_display_name": "sdk-replay-custom-model-dict",
+          "system_labels": {"source": "sdk-replay"},
+          "wait_for_completion": False,
+      },
+  )
+  assert isinstance(operation, types.DeployModelOperation)
+  assert operation.name
+
+
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
@@ -542,3 +656,37 @@ async def test_deploy_publisher_model_async_container_override_raises(client):
             container_args=["--tensor-parallel-size=2"],
         ),
     )
+
+
+@pytest.mark.asyncio
+async def test_deploy_custom_model_async_empty_src_raises(client):
+  """Async empty src is rejected client-side; no RPC needed."""
+  with pytest.raises(ValueError, match="src must be specified"):
+    await client.aio.model_garden.deploy_custom_model(src="")
+
+
+@pytest.mark.asyncio
+async def test_deploy_custom_model_async_partial_machine_shape_raises(client):
+  """Async machine-shape validation matches the sync surface."""
+  with pytest.raises(ValueError, match="must all be provided or all be"):
+    await client.aio.model_garden.deploy_custom_model(
+        src=_CUSTOM_MODEL_SRC,
+        config=types.DeployCustomModelConfig(machine_type="g2-standard-12"),
+    )
+
+
+@pytest.mark.asyncio
+async def test_deploy_custom_model_async_no_wait_returns_operation(client):
+  """Async wait_for_completion=False returns the DeployModelOperation immediately."""
+  operation = await client.aio.model_garden.deploy_custom_model(
+      src=_CUSTOM_MODEL_SRC,
+      config=types.DeployCustomModelConfig(
+          machine_type="g2-standard-12",
+          accelerator_type="NVIDIA_L4",
+          accelerator_count=1,
+          wait_for_completion=False,
+      ),
+  )
+  assert isinstance(operation, types.DeployModelOperation)
+  assert "/operations/" in operation.name
+  assert operation.done is not True

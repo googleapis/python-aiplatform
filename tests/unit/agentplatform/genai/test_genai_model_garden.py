@@ -2520,6 +2520,627 @@ def test_deploy_publisher_model_async_raises_on_operation_error(
       asyncio.run(mock_async_client.deploy_publisher_model(model=_OPEN_MODEL))
 
 
+# ---- deploy_custom_model tests ----------------------------------------
+
+
+_TEST_CUSTOM_MODEL_SRC = "gs://tuning-job-output/node-0/checkpoints/final"
+
+
+# --- Return type & blocking behavior ------------------------------------
+
+
+def test_deploy_custom_model_returns_deploy_response_when_waiting(mock_client):
+  """Default (wait_for_completion=True) blocks on the LRO and returns DeployResponse."""
+  with (
+      _patch_deploy_rpc(mock_client),
+      mock.patch.object(
+          model_garden._operations_utils,
+          "await_operation",
+          return_value=_done_deploy_operation(),
+      ) as m_await,
+  ):
+    result = mock_client.deploy_custom_model(src=_TEST_CUSTOM_MODEL_SRC)
+    m_await.assert_called_once()
+    assert isinstance(result, types.DeployResponse)
+    assert result.endpoint == _TEST_ENDPOINT_NAME
+    assert result.model == _TEST_DEPLOYED_MODEL_NAME
+
+
+def test_deploy_custom_model_returns_operation_when_not_waiting(mock_client):
+  """wait_for_completion=False returns the operation immediately (no polling)."""
+  initial_op = _make_deploy_operation()
+  with (
+      _patch_deploy_rpc(mock_client, initial_op=initial_op),
+      mock.patch.object(
+          model_garden._operations_utils, "await_operation"
+      ) as m_await,
+  ):
+    result = mock_client.deploy_custom_model(
+        src=_TEST_CUSTOM_MODEL_SRC,
+        config=types.DeployCustomModelConfig(wait_for_completion=False),
+    )
+    m_await.assert_not_called()
+    assert result is initial_op
+
+
+def test_deploy_custom_model_polls_via_public_getter(mock_client):
+  """Custom deploys reuse ``get_deploy_publisher_model_operation`` to poll."""
+  with (
+      _patch_deploy_rpc(mock_client),
+      mock.patch.object(
+          model_garden._operations_utils,
+          "await_operation",
+          return_value=_done_deploy_operation(),
+      ) as m_await,
+  ):
+    mock_client.deploy_custom_model(src=_TEST_CUSTOM_MODEL_SRC)
+    kwargs = m_await.call_args.kwargs
+    assert (
+        kwargs["get_operation_fn"]
+        == mock_client.get_deploy_publisher_model_operation
+    )
+    assert kwargs["operation_name"] == _TEST_DEPLOY_OPERATION
+
+
+def test_deploy_custom_model_uses_default_poll_and_timeout(mock_client):
+  """No override in config -> ModelGarden deploy defaults reach the poller."""
+  with (
+      _patch_deploy_rpc(mock_client),
+      mock.patch.object(
+          model_garden._operations_utils,
+          "await_operation",
+          return_value=_done_deploy_operation(),
+      ) as m_await,
+  ):
+    mock_client.deploy_custom_model(src=_TEST_CUSTOM_MODEL_SRC)
+    kwargs = m_await.call_args.kwargs
+    assert kwargs["poll_interval"] == 30
+    assert kwargs["timeout_seconds"] == 2 * 60 * 60
+
+
+def test_deploy_custom_model_config_overrides_poll_and_timeout(mock_client):
+  """Config values override the defaults on the polling call."""
+  with (
+      _patch_deploy_rpc(mock_client),
+      mock.patch.object(
+          model_garden._operations_utils,
+          "await_operation",
+          return_value=_done_deploy_operation(),
+      ) as m_await,
+  ):
+    mock_client.deploy_custom_model(
+        src=_TEST_CUSTOM_MODEL_SRC,
+        config=types.DeployCustomModelConfig(
+            poll_interval_seconds=5,
+            timeout_seconds=600,
+        ),
+    )
+    kwargs = m_await.call_args.kwargs
+    assert kwargs["poll_interval"] == 5
+    assert kwargs["timeout_seconds"] == 600
+
+
+def test_deploy_custom_model_raises_on_operation_error(mock_client):
+  """A backend error on the LRO surfaces as RuntimeError."""
+  failed_op = _make_deploy_operation(
+      done=True, error={"message": "quota exceeded"}
+  )
+  with (
+      _patch_deploy_rpc(mock_client),
+      mock.patch.object(
+          model_garden._operations_utils,
+          "await_operation",
+          return_value=failed_op,
+      ),
+  ):
+    with pytest.raises(RuntimeError, match="Deploy failed"):
+      mock_client.deploy_custom_model(src=_TEST_CUSTOM_MODEL_SRC)
+
+
+def test_deploy_custom_model_raises_when_response_missing_endpoint(mock_client):
+  """An LRO that completes without an endpoint is reported, not returned."""
+  done_op = _make_deploy_operation(done=True)  # no response set
+  with (
+      _patch_deploy_rpc(mock_client),
+      mock.patch.object(
+          model_garden._operations_utils,
+          "await_operation",
+          return_value=done_op,
+      ),
+  ):
+    with pytest.raises(RuntimeError, match="no endpoint"):
+      mock_client.deploy_custom_model(src=_TEST_CUSTOM_MODEL_SRC)
+
+
+# --- Request shaping -----------------------------------------------------
+
+
+def test_deploy_custom_model_sends_gcs_uri_as_custom_model(mock_client):
+  """``src`` rides on ``custom_model.gcs_uri``, not as a publisher model."""
+  with (
+      _patch_deploy_rpc(mock_client) as m_rpc,
+      mock.patch.object(
+          model_garden._operations_utils,
+          "await_operation",
+          return_value=_done_deploy_operation(),
+      ),
+  ):
+    mock_client.deploy_custom_model(src=_TEST_CUSTOM_MODEL_SRC)
+    kwargs = m_rpc.call_args.kwargs
+    assert kwargs["custom_model"].gcs_uri == _TEST_CUSTOM_MODEL_SRC
+    assert "publisher_model_name" not in kwargs
+    assert "hugging_face_model_id" not in kwargs
+    assert kwargs["destination"] == (
+        f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
+    )
+
+
+def test_deploy_custom_model_default_config_sends_only_replica_counts(
+    mock_client,
+):
+  """An empty config sends only the 1/1 replica counts, as CustomModel does."""
+  with (
+      _patch_deploy_rpc(mock_client) as m_rpc,
+      mock.patch.object(
+          model_garden._operations_utils,
+          "await_operation",
+          return_value=_done_deploy_operation(),
+      ),
+  ):
+    mock_client.deploy_custom_model(src=_TEST_CUSTOM_MODEL_SRC)
+    kwargs = m_rpc.call_args.kwargs
+    resources = kwargs["deploy_config"].dedicated_resources
+    assert resources.machine_spec is None
+    assert resources.min_replica_count == 1
+    assert resources.max_replica_count == 1
+    assert kwargs["deploy_config"].system_labels is None
+    assert kwargs["endpoint_config"].private_service_connect_config is None
+
+
+def test_deploy_custom_model_replica_counts_without_machine_shape(mock_client):
+  """Replica counts are sent even when the machine shape is left automatic."""
+  with (
+      _patch_deploy_rpc(mock_client) as m_rpc,
+      mock.patch.object(
+          model_garden._operations_utils,
+          "await_operation",
+          return_value=_done_deploy_operation(),
+      ),
+  ):
+    mock_client.deploy_custom_model(
+        src=_TEST_CUSTOM_MODEL_SRC,
+        config=types.DeployCustomModelConfig(
+            min_replica_count=2,
+            max_replica_count=5,
+        ),
+    )
+    resources = m_rpc.call_args.kwargs["deploy_config"].dedicated_resources
+    assert resources.machine_spec is None
+    assert resources.min_replica_count == 2
+    assert resources.max_replica_count == 5
+
+
+def test_deploy_custom_model_specific_reservation_forwarded(mock_client):
+  """Reservation type, key and values land on the machine spec."""
+  reservation = "projects/p/zones/us-central1-a/reservations/r"
+  with (
+      _patch_deploy_rpc(mock_client) as m_rpc,
+      mock.patch.object(
+          model_garden._operations_utils,
+          "await_operation",
+          return_value=_done_deploy_operation(),
+      ),
+  ):
+    mock_client.deploy_custom_model(
+        src=_TEST_CUSTOM_MODEL_SRC,
+        config=types.DeployCustomModelConfig(
+            machine_type="a3-highgpu-8g",
+            accelerator_type="NVIDIA_H100_80GB",
+            accelerator_count=8,
+            reservation_affinity_type="SPECIFIC_RESERVATION",
+            reservation_affinity_key="compute.googleapis.com/reservation-name",
+            reservation_affinity_values=[reservation],
+        ),
+    )
+    machine_spec = m_rpc.call_args.kwargs[
+        "deploy_config"
+    ].dedicated_resources.machine_spec
+    assert machine_spec.machine_type == "a3-highgpu-8g"
+    affinity = machine_spec.reservation_affinity
+    assert affinity.reservation_affinity_type == "SPECIFIC_RESERVATION"
+    assert affinity.key == "compute.googleapis.com/reservation-name"
+    assert affinity.values == [reservation]
+
+
+def test_deploy_custom_model_reservation_without_machine_shape(mock_client):
+  """Reservation affinity is sent even when the machine shape is automatic."""
+  with (
+      _patch_deploy_rpc(mock_client) as m_rpc,
+      mock.patch.object(
+          model_garden._operations_utils,
+          "await_operation",
+          return_value=_done_deploy_operation(),
+      ),
+  ):
+    mock_client.deploy_custom_model(
+        src=_TEST_CUSTOM_MODEL_SRC,
+        config=types.DeployCustomModelConfig(
+            reservation_affinity_type="ANY_RESERVATION",
+        ),
+    )
+    machine_spec = m_rpc.call_args.kwargs[
+        "deploy_config"
+    ].dedicated_resources.machine_spec
+    assert machine_spec.machine_type is None
+    affinity = machine_spec.reservation_affinity
+    assert affinity.reservation_affinity_type == "ANY_RESERVATION"
+    assert affinity.key is None
+    assert affinity.values is None
+
+
+def test_deploy_custom_model_reservation_key_without_values_dropped(
+    mock_client,
+):
+  """A reservation key without values is not sent, as in CustomModel.deploy."""
+  with (
+      _patch_deploy_rpc(mock_client) as m_rpc,
+      mock.patch.object(
+          model_garden._operations_utils,
+          "await_operation",
+          return_value=_done_deploy_operation(),
+      ),
+  ):
+    mock_client.deploy_custom_model(
+        src=_TEST_CUSTOM_MODEL_SRC,
+        config=types.DeployCustomModelConfig(
+            reservation_affinity_type="SPECIFIC_RESERVATION",
+            reservation_affinity_key="compute.googleapis.com/reservation-name",
+        ),
+    )
+    affinity = m_rpc.call_args.kwargs[
+        "deploy_config"
+    ].dedicated_resources.machine_spec.reservation_affinity
+    assert affinity.reservation_affinity_type == "SPECIFIC_RESERVATION"
+    assert affinity.key is None
+    assert affinity.values is None
+
+
+def test_deploy_custom_model_system_labels_forwarded(mock_client):
+  """System labels land on the deploy config."""
+  with (
+      _patch_deploy_rpc(mock_client) as m_rpc,
+      mock.patch.object(
+          model_garden._operations_utils,
+          "await_operation",
+          return_value=_done_deploy_operation(),
+      ),
+  ):
+    mock_client.deploy_custom_model(
+        src=_TEST_CUSTOM_MODEL_SRC,
+        config=types.DeployCustomModelConfig(
+            system_labels={"source": "notebook"},
+        ),
+    )
+    assert m_rpc.call_args.kwargs["deploy_config"].system_labels == {
+        "source": "notebook"
+    }
+
+
+def test_deploy_custom_model_machine_shape_forwarded(mock_client):
+  """A complete machine shape becomes dedicated resources with replica counts."""
+  with (
+      _patch_deploy_rpc(mock_client) as m_rpc,
+      mock.patch.object(
+          model_garden._operations_utils,
+          "await_operation",
+          return_value=_done_deploy_operation(),
+      ),
+  ):
+    mock_client.deploy_custom_model(
+        src=_TEST_CUSTOM_MODEL_SRC,
+        config=types.DeployCustomModelConfig(
+            machine_type="a3-highgpu-8g",
+            accelerator_type="NVIDIA_H100_80GB",
+            accelerator_count=8,
+            min_replica_count=2,
+            max_replica_count=4,
+        ),
+    )
+    resources = m_rpc.call_args.kwargs["deploy_config"].dedicated_resources
+    assert resources.machine_spec.machine_type == "a3-highgpu-8g"
+    assert resources.machine_spec.accelerator_type == "NVIDIA_H100_80GB"
+    assert resources.machine_spec.accelerator_count == 8
+    assert resources.min_replica_count == 2
+    assert resources.max_replica_count == 4
+
+
+def test_deploy_custom_model_display_names_forwarded(mock_client):
+  """Endpoint and model display names land on their respective sub-messages."""
+  with (
+      _patch_deploy_rpc(mock_client) as m_rpc,
+      mock.patch.object(
+          model_garden._operations_utils,
+          "await_operation",
+          return_value=_done_deploy_operation(),
+      ),
+  ):
+    mock_client.deploy_custom_model(
+        src=_TEST_CUSTOM_MODEL_SRC,
+        config=types.DeployCustomModelConfig(
+            endpoint_display_name="my-endpoint",
+            model_display_name="my-model",
+        ),
+    )
+    kwargs = m_rpc.call_args.kwargs
+    assert kwargs["endpoint_config"].endpoint_display_name == "my-endpoint"
+    assert kwargs["model_config_val"].model_display_name == "my-model"
+
+
+def test_deploy_custom_model_private_service_connect(mock_client):
+  """PSC config is built only when explicitly enabled, carrying the allowlist."""
+  with (
+      _patch_deploy_rpc(mock_client) as m_rpc,
+      mock.patch.object(
+          model_garden._operations_utils,
+          "await_operation",
+          return_value=_done_deploy_operation(),
+      ),
+  ):
+    mock_client.deploy_custom_model(
+        src=_TEST_CUSTOM_MODEL_SRC,
+        config=types.DeployCustomModelConfig(
+            enable_private_service_connect=True,
+            psc_project_allow_list=["proj-a", "proj-b"],
+        ),
+    )
+    psc = m_rpc.call_args.kwargs[
+        "endpoint_config"
+    ].private_service_connect_config
+    assert psc.enable_private_service_connect is True
+    assert psc.project_allowlist == ["proj-a", "proj-b"]
+
+
+def test_deploy_custom_model_psc_without_allow_list_not_sent(mock_client):
+  """PSC enabled with no allowlist is not sent, as in CustomModel.deploy."""
+  with (
+      _patch_deploy_rpc(mock_client) as m_rpc,
+      mock.patch.object(
+          model_garden._operations_utils,
+          "await_operation",
+          return_value=_done_deploy_operation(),
+      ),
+  ):
+    mock_client.deploy_custom_model(
+        src=_TEST_CUSTOM_MODEL_SRC,
+        config=types.DeployCustomModelConfig(
+            enable_private_service_connect=True,
+        ),
+    )
+    assert (
+        m_rpc.call_args.kwargs["endpoint_config"].private_service_connect_config
+        is None
+    )
+
+
+def test_deploy_custom_model_sends_no_publisher_only_fields(mock_client):
+  """A custom model carries no EULA, HF token or container override."""
+  with (
+      _patch_deploy_rpc(mock_client) as m_rpc,
+      mock.patch.object(
+          model_garden._operations_utils,
+          "await_operation",
+          return_value=_done_deploy_operation(),
+      ),
+  ):
+    mock_client.deploy_custom_model(src=_TEST_CUSTOM_MODEL_SRC)
+    model_config = m_rpc.call_args.kwargs["model_config_val"]
+    assert model_config.accept_eula is None
+    assert model_config.hugging_face_access_token is None
+    assert model_config.container_spec is None
+
+
+def test_deploy_custom_model_dict_config_validated(mock_client):
+  """A plain dict config is coerced to DeployCustomModelConfig."""
+  with (
+      _patch_deploy_rpc(mock_client) as m_rpc,
+      mock.patch.object(
+          model_garden._operations_utils,
+          "await_operation",
+          return_value=_done_deploy_operation(),
+      ),
+  ):
+    mock_client.deploy_custom_model(
+        src=_TEST_CUSTOM_MODEL_SRC,
+        config={"model_display_name": "from-dict"},
+    )
+    assert (
+        m_rpc.call_args.kwargs["model_config_val"].model_display_name
+        == "from-dict"
+    )
+
+
+# --- Client-side validation ----------------------------------------------
+
+
+def test_deploy_custom_model_empty_src_raises_before_rpc(mock_client):
+  """An empty src is rejected locally, with no RPC issued."""
+  with _patch_deploy_rpc(mock_client) as m_rpc:
+    with pytest.raises(ValueError, match="src must be specified"):
+      mock_client.deploy_custom_model(src="")
+    m_rpc.assert_not_called()
+
+
+def test_deploy_custom_model_partial_machine_shape_raises_before_rpc(
+    mock_client,
+):
+  """Machine type without the accelerator pair is rejected locally."""
+  with _patch_deploy_rpc(mock_client) as m_rpc:
+    with pytest.raises(ValueError, match="must all be provided or all be"):
+      mock_client.deploy_custom_model(
+          src=_TEST_CUSTOM_MODEL_SRC,
+          config=types.DeployCustomModelConfig(machine_type="a3-highgpu-8g"),
+      )
+    m_rpc.assert_not_called()
+
+
+def test_deploy_custom_model_partial_machine_shape_error_names_missing_fields(
+    mock_client,
+):
+  """The error tells the caller which fields are still missing."""
+  with pytest.raises(ValueError) as exc_info:
+    mock_client.deploy_custom_model(
+        src=_TEST_CUSTOM_MODEL_SRC,
+        config=types.DeployCustomModelConfig(
+            machine_type="a3-highgpu-8g",
+            accelerator_type="NVIDIA_H100_80GB",
+        ),
+    )
+  message = str(exc_info.value)
+  assert "accelerator_count" in message
+  assert "machine_type, accelerator_type" in message
+
+
+def test_deploy_custom_model_accelerator_only_raises(mock_client):
+  """Accelerators without a machine type are rejected too (not silently sent)."""
+  with _patch_deploy_rpc(mock_client) as m_rpc:
+    with pytest.raises(ValueError, match="must all be provided or all be"):
+      mock_client.deploy_custom_model(
+          src=_TEST_CUSTOM_MODEL_SRC,
+          config=types.DeployCustomModelConfig(
+              accelerator_type="NVIDIA_H100_80GB",
+              accelerator_count=8,
+          ),
+      )
+    m_rpc.assert_not_called()
+
+
+def test_deploy_custom_model_zero_accelerator_count_raises(mock_client):
+  """accelerator_count=0 counts as unset (as in CustomModel), so it is rejected."""
+  with _patch_deploy_rpc(mock_client) as m_rpc:
+    with pytest.raises(ValueError, match="without accelerator_count"):
+      mock_client.deploy_custom_model(
+          src=_TEST_CUSTOM_MODEL_SRC,
+          config=types.DeployCustomModelConfig(
+              machine_type="a3-highgpu-8g",
+              accelerator_type="NVIDIA_H100_80GB",
+              accelerator_count=0,
+          ),
+      )
+    m_rpc.assert_not_called()
+
+
+def test_deploy_custom_model_zero_replica_count_not_sent(mock_client):
+  """A replica count of 0 is treated as unset, as in CustomModel.deploy."""
+  with (
+      _patch_deploy_rpc(mock_client) as m_rpc,
+      mock.patch.object(
+          model_garden._operations_utils,
+          "await_operation",
+          return_value=_done_deploy_operation(),
+      ),
+  ):
+    mock_client.deploy_custom_model(
+        src=_TEST_CUSTOM_MODEL_SRC,
+        config=types.DeployCustomModelConfig(
+            min_replica_count=0,
+            max_replica_count=3,
+        ),
+    )
+    resources = m_rpc.call_args.kwargs["deploy_config"].dedicated_resources
+    assert resources.min_replica_count is None
+    assert resources.max_replica_count == 3
+
+
+# --- Async surface parity ------------------------------------------------
+
+
+def test_deploy_custom_model_async_returns_deploy_response_when_waiting(
+    mock_async_client,
+):
+  """Async default (wait=True) awaits the LRO and returns DeployResponse."""
+  with (
+      _patch_async_deploy_rpc(mock_async_client) as m_rpc,
+      mock.patch.object(
+          model_garden._operations_utils,
+          "await_operation_async",
+          new=mock.AsyncMock(return_value=_done_deploy_operation()),
+      ),
+  ):
+    result = asyncio.run(
+        mock_async_client.deploy_custom_model(src=_TEST_CUSTOM_MODEL_SRC)
+    )
+    assert isinstance(result, types.DeployResponse)
+    assert result.endpoint == _TEST_ENDPOINT_NAME
+    assert (
+        m_rpc.call_args.kwargs["custom_model"].gcs_uri == _TEST_CUSTOM_MODEL_SRC
+    )
+
+
+def test_deploy_custom_model_async_returns_operation_when_not_waiting(
+    mock_async_client,
+):
+  """Async wait=False returns the operation immediately."""
+  initial_op = _make_deploy_operation()
+  with (
+      _patch_async_deploy_rpc(mock_async_client, initial_op=initial_op),
+      mock.patch.object(
+          model_garden._operations_utils, "await_operation_async"
+      ) as m_await,
+  ):
+    result = asyncio.run(
+        mock_async_client.deploy_custom_model(
+            src=_TEST_CUSTOM_MODEL_SRC,
+            config=types.DeployCustomModelConfig(wait_for_completion=False),
+        )
+    )
+    m_await.assert_not_called()
+    assert result is initial_op
+
+
+def test_deploy_custom_model_async_partial_machine_shape_raises(
+    mock_async_client,
+):
+  """Async machine-shape validation matches the sync surface."""
+  with _patch_async_deploy_rpc(mock_async_client) as m_rpc:
+    with pytest.raises(ValueError, match="must all be provided or all be"):
+      asyncio.run(
+          mock_async_client.deploy_custom_model(
+              src=_TEST_CUSTOM_MODEL_SRC,
+              config=types.DeployCustomModelConfig(
+                  machine_type="a3-highgpu-8g"
+              ),
+          )
+      )
+    m_rpc.assert_not_called()
+
+
+def test_deploy_custom_model_async_empty_src_raises(mock_async_client):
+  """Async empty src is rejected locally, with no RPC issued."""
+  with _patch_async_deploy_rpc(mock_async_client) as m_rpc:
+    with pytest.raises(ValueError, match="src must be specified"):
+      asyncio.run(mock_async_client.deploy_custom_model(src=""))
+    m_rpc.assert_not_called()
+
+
+def test_deploy_custom_model_async_raises_on_operation_error(mock_async_client):
+  """Async backend error on the LRO surfaces as RuntimeError."""
+  failed_op = _make_deploy_operation(
+      done=True, error={"message": "quota exceeded"}
+  )
+  with (
+      _patch_async_deploy_rpc(mock_async_client),
+      mock.patch.object(
+          model_garden._operations_utils,
+          "await_operation_async",
+          new=mock.AsyncMock(return_value=failed_op),
+      ),
+  ):
+    with pytest.raises(RuntimeError, match="Deploy failed"):
+      asyncio.run(
+          mock_async_client.deploy_custom_model(src=_TEST_CUSTOM_MODEL_SRC)
+      )
+
+
 # --- Private (pre-GA) surface ------------------------------------------
 #
 # No direct unit tests: `agentplatform/private/**` is excluded from the

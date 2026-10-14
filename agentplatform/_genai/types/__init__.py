@@ -538,6 +538,9 @@ from .common import DeleteSkillOperationOrDict
 from .common import DeployConfig
 from .common import DeployConfigDict
 from .common import DeployConfigOrDict
+from .common import DeployCustomModelConfig
+from .common import DeployCustomModelConfigDict
+from .common import DeployCustomModelConfigOrDict
 from .common import DeployedModel
 from .common import DeployedModelDict
 from .common import DeployedModelOrDict
@@ -4360,6 +4363,9 @@ __all__ = [
     "DeployPublisherModelConfig",
     "DeployPublisherModelConfigDict",
     "DeployPublisherModelConfigOrDict",
+    "DeployCustomModelConfig",
+    "DeployCustomModelConfigDict",
+    "DeployCustomModelConfigOrDict",
     "DeployOption",
     "DeployOptionDict",
     "DeployOptionOrDict",
