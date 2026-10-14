@@ -590,6 +590,44 @@ def _StructuredMemorySchemaConfig_to_vertex(
     return to_object
 
 
+def _UpdateMemoryBankConfig_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+
+    if getv(from_object, ["display_name"]) is not None:
+        setv(parent_object, ["displayName"], getv(from_object, ["display_name"]))
+
+    if getv(from_object, ["description"]) is not None:
+        setv(parent_object, ["description"], getv(from_object, ["description"]))
+
+    return to_object
+
+
+def _UpdateMemoryBankRequestParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["name"]) is not None:
+        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
+
+    if getv(from_object, ["memory_bank_config"]) is not None:
+        setv(
+            to_object,
+            ["context_spec", "memory_bank_config"],
+            _ReasoningEngineContextSpecMemoryBankConfig_to_vertex(
+                getv(from_object, ["memory_bank_config"]), to_object
+            ),
+        )
+
+    if getv(from_object, ["config"]) is not None:
+        _UpdateMemoryBankConfig_to_vertex(getv(from_object, ["config"]), to_object)
+
+    return to_object
+
+
 class MemoryBanks(_api_module.BaseModule):
 
     def _create(
@@ -639,6 +677,85 @@ class MemoryBanks(_api_module.BaseModule):
         request_dict = _common.encode_unserializable_types(request_dict)
 
         response = self._api_client.request("post", path, request_dict, http_options)
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        if self._api_client.vertexai:
+            response_dict = _MemoryBankOperation_from_vertex(response_dict)
+
+        return_value = types.MemoryBankOperation._from_response(
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    def _update(
+        self,
+        *,
+        name: str,
+        memory_bank_config: Optional[
+            types.ReasoningEngineContextSpecMemoryBankConfigOrDict
+        ] = None,
+        config: Optional[types.UpdateMemoryBankConfigOrDict] = None,
+    ) -> types.MemoryBankOperation:
+        """
+        Updates a Memory Bank.
+        """
+
+        parameter_model = types._UpdateMemoryBankRequestParameters(
+            name=name,
+            memory_bank_config=memory_bank_config,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
+        else:
+            request_dict = _UpdateMemoryBankRequestParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{name}".format_map(request_url_dict)
+            else:
+                path = "{name}"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = self._api_client.request("patch", path, request_dict, http_options)
 
         response_dict = {} if not response.body else json.loads(response.body)
 
@@ -1082,6 +1199,41 @@ class MemoryBanks(_api_module.BaseModule):
         memory_bank = types.MemoryBank(name=operation.response.name)
         return memory_bank
 
+    def update(
+        self,
+        *,
+        name: str,
+        managed_semantic_memory_config: Optional[
+            types.ManagedSemanticMemoryConfigOrDict
+        ] = None,
+        config: Optional[types.UpdateMemoryBankConfigOrDict] = None,
+    ) -> types.MemoryBank:
+        """Updates a Memory Bank resource."""
+        memory_bank_config = (
+            _memory_bank_utils._managed_semantic_memory_config_to_memory_bank_config(
+                managed_semantic_memory_config
+            )
+        )
+
+        operation = self._update(
+            name=name,
+            memory_bank_config=memory_bank_config,
+            config=config,
+        )
+
+        operation = _memory_bank_utils._await_operation(
+            operation_name=operation.name,
+            get_operation_fn=self._get_memory_bank_operation,
+        )
+        if operation.error:
+            raise RuntimeError(operation.error)
+        if not operation.response:
+            raise RuntimeError(
+                f"Memory Bank update completed without a response: {operation}"
+            )
+        memory_bank = types.MemoryBank(name=operation.response.name)
+        return memory_bank
+
     def delete(
         self,
         *,
@@ -1301,6 +1453,87 @@ class AsyncMemoryBanks(_api_module.BaseModule):
 
         response = await self._api_client.async_request(
             "post", path, request_dict, http_options
+        )
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        if self._api_client.vertexai:
+            response_dict = _MemoryBankOperation_from_vertex(response_dict)
+
+        return_value = types.MemoryBankOperation._from_response(
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    async def _update(
+        self,
+        *,
+        name: str,
+        memory_bank_config: Optional[
+            types.ReasoningEngineContextSpecMemoryBankConfigOrDict
+        ] = None,
+        config: Optional[types.UpdateMemoryBankConfigOrDict] = None,
+    ) -> types.MemoryBankOperation:
+        """
+        Updates a Memory Bank.
+        """
+
+        parameter_model = types._UpdateMemoryBankRequestParameters(
+            name=name,
+            memory_bank_config=memory_bank_config,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
+        else:
+            request_dict = _UpdateMemoryBankRequestParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{name}".format_map(request_url_dict)
+            else:
+                path = "{name}"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = await self._api_client.async_request(
+            "patch", path, request_dict, http_options
         )
 
         response_dict = {} if not response.body else json.loads(response.body)
@@ -1751,6 +1984,41 @@ class AsyncMemoryBanks(_api_module.BaseModule):
         if not operation.response:
             raise RuntimeError(
                 f"Memory Bank creation completed without a response: {operation}"
+            )
+        memory_bank = types.MemoryBank(name=operation.response.name)
+        return memory_bank
+
+    async def update(
+        self,
+        *,
+        name: str,
+        managed_semantic_memory_config: Optional[
+            types.ManagedSemanticMemoryConfigOrDict
+        ] = None,
+        config: Optional[types.UpdateMemoryBankConfigOrDict] = None,
+    ) -> types.MemoryBank:
+        """Updates a Memory Bank."""
+        memory_bank_config = (
+            _memory_bank_utils._managed_semantic_memory_config_to_memory_bank_config(
+                managed_semantic_memory_config
+            )
+        )
+
+        operation = await self._update(
+            name=name,
+            memory_bank_config=memory_bank_config,
+            config=config,
+        )
+
+        operation = await _memory_bank_utils._await_async_operation(
+            operation_name=operation.name,
+            get_operation_fn=self._get_memory_bank_operation,
+        )
+        if operation.error:
+            raise RuntimeError(operation.error)
+        if not operation.response:
+            raise RuntimeError(
+                f"Memory Bank update completed without a response: {operation}"
             )
         memory_bank = types.MemoryBank(name=operation.response.name)
         return memory_bank

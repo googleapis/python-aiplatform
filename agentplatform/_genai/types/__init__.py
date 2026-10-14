@@ -183,6 +183,7 @@ from .common import _SearchExamplesParameters
 from .common import _UndeployModelRequestParameters
 from .common import _UpdateDatasetParameters
 from .common import _UpdateEvaluationExperimentParameters
+from .common import _UpdateMemoryBankRequestParameters
 from .common import _UpdateMemoryRequestParameters
 from .common import _UpdateMultimodalDatasetParameters
 from .common import _UpdateRagConfigRequestParameters
@@ -2265,6 +2266,9 @@ from .common import UnifiedMetricOrDict
 from .common import UpdateEvaluationExperimentConfig
 from .common import UpdateEvaluationExperimentConfigDict
 from .common import UpdateEvaluationExperimentConfigOrDict
+from .common import UpdateMemoryBankConfig
+from .common import UpdateMemoryBankConfigDict
+from .common import UpdateMemoryBankConfigOrDict
 from .common import UpdateMemoryConfig
 from .common import UpdateMemoryConfigDict
 from .common import UpdateMemoryConfigOrDict
@@ -3024,6 +3028,9 @@ __all__ = [
     "MemoryBankOperation",
     "MemoryBankOperationDict",
     "MemoryBankOperationOrDict",
+    "UpdateMemoryBankConfig",
+    "UpdateMemoryBankConfigDict",
+    "UpdateMemoryBankConfigOrDict",
     "DeleteMemoryBankConfig",
     "DeleteMemoryBankConfigDict",
     "DeleteMemoryBankConfigOrDict",
@@ -4493,6 +4500,7 @@ __all__ = [
     "_GetDeleteRuntimeRevisionOperationParameters",
     "_QueryRuntimeRevisionRequestParameters",
     "_CreateMemoryBankRequestParameters",
+    "_UpdateMemoryBankRequestParameters",
     "_DeleteMemoryBankRequestParameters",
     "_GetMemoryBankRequestParameters",
     "_IngestEventsRequestParameters",

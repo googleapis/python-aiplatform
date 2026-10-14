@@ -10965,6 +10965,75 @@ class MemoryBankOperationDict(TypedDict, total=False):
 MemoryBankOperationOrDict = Union[MemoryBankOperation, MemoryBankOperationDict]
 
 
+class UpdateMemoryBankConfig(_common.BaseModel):
+    """Config for updating a memory bank."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    display_name: Optional[str] = Field(
+        default=None,
+        description="""The user-defined name of the Memory Bank.
+
+      The display name can be up to 128 characters long and can comprise any
+      UTF-8 characters.
+      """,
+    )
+    description: Optional[str] = Field(
+        default=None, description="""The description of the Memory Bank."""
+    )
+
+
+class UpdateMemoryBankConfigDict(TypedDict, total=False):
+    """Config for updating a memory bank."""
+
+    http_options: Optional[genai_types.HttpOptions]
+    """Used to override HTTP request options."""
+
+    display_name: Optional[str]
+    """The user-defined name of the Memory Bank.
+
+      The display name can be up to 128 characters long and can comprise any
+      UTF-8 characters.
+      """
+
+    description: Optional[str]
+    """The description of the Memory Bank."""
+
+
+UpdateMemoryBankConfigOrDict = Union[UpdateMemoryBankConfig, UpdateMemoryBankConfigDict]
+
+
+class _UpdateMemoryBankRequestParameters(_common.BaseModel):
+    """Parameters for updating memory banks."""
+
+    name: Optional[str] = Field(
+        default=None, description="""Name of the memory bank."""
+    )
+    memory_bank_config: Optional[ReasoningEngineContextSpecMemoryBankConfig] = Field(
+        default=None, description=""""""
+    )
+    config: Optional[UpdateMemoryBankConfig] = Field(default=None, description="""""")
+
+
+class _UpdateMemoryBankRequestParametersDict(TypedDict, total=False):
+    """Parameters for updating memory banks."""
+
+    name: Optional[str]
+    """Name of the memory bank."""
+
+    memory_bank_config: Optional[ReasoningEngineContextSpecMemoryBankConfigDict]
+    """"""
+
+    config: Optional[UpdateMemoryBankConfigDict]
+    """"""
+
+
+_UpdateMemoryBankRequestParametersOrDict = Union[
+    _UpdateMemoryBankRequestParameters, _UpdateMemoryBankRequestParametersDict
+]
+
+
 class DeleteMemoryBankConfig(_common.BaseModel):
     """Config for delete memory bank."""
 
