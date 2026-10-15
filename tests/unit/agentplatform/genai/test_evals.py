@@ -45,9 +45,11 @@ from agentplatform._genai import (
     types as agentplatform_genai_types,
 )
 from agentplatform._genai.types import common as common_types
+from vertexai._genai import types as vertexai_genai_types
 from google.genai import client
 from google.genai import errors as genai_errors
 from google.genai import types as genai_types
+import numpy as np
 import pandas as pd
 import pydantic
 import pytest
@@ -10066,6 +10068,101 @@ class TestEvaluationDataset:
                 }
             ),
         )
+
+    @pytest.mark.parametrize(
+        "types_module",
+        [agentplatform_genai_types, vertexai_genai_types],
+        ids=["agent_platform", "vertexai"],
+    )
+    def test_model_dump_json_writes_dataframe_rows(self, types_module):
+        df = pd.DataFrame(
+            {
+                "tool_names": [
+                    np.array(["search", "book"]),
+                    np.array([], dtype=object),
+                ],
+                "created_at": pd.to_datetime(["2026-10-02T10:00:00Z", None]),
+                "metadata": [
+                    {
+                        np.int64(1): np.int64(3),
+                        "score": np.array(0.5),
+                        "masked": np.ma.masked,
+                    },
+                    pd.NA,
+                ],
+                "score": [0.1 + 0.2, float("nan")],
+                "response": [
+                    genai_types.Content(parts=[genai_types.Part(text="r1")]),
+                    None,
+                ],
+            }
+        )
+
+        dataset_json = types_module.EvaluationDataset(
+            eval_dataset_df=df
+        ).model_dump_json(exclude_none=True)
+
+        assert json.loads(dataset_json)["eval_dataset_df"] == [
+            {
+                "tool_names": ["search", "book"],
+                "created_at": "2026-10-02T10:00:00Z",
+                "metadata": {"1": 3, "score": 0.5, "masked": None},
+                "score": 0.30000000000000004,
+                "response": {"parts": [{"text": "r1"}]},
+            },
+            {
+                "tool_names": [],
+                "created_at": None,
+                "metadata": None,
+                "score": None,
+                "response": None,
+            },
+        ]
+
+    @pytest.mark.parametrize(
+        "types_module",
+        [agentplatform_genai_types, vertexai_genai_types],
+        ids=["agent_platform", "vertexai"],
+    )
+    def test_json_round_trip_restores_dataframe(self, types_module):
+        df = pd.DataFrame([{"prompt": "p1", "response": "r1"}])
+        result = types_module.EvaluationResult(
+            evaluation_dataset=[types_module.EvaluationDataset(eval_dataset_df=df)]
+        )
+
+        restored = types_module.EvaluationResult.model_validate_json(
+            result.model_dump_json()
+        )
+
+        pd.testing.assert_frame_equal(
+            restored.evaluation_dataset[0].eval_dataset_df, df
+        )
+        assert isinstance(
+            result.model_dump()["evaluation_dataset"][0]["eval_dataset_df"],
+            pd.DataFrame,
+        )
+
+    @pytest.mark.parametrize(
+        "types_module",
+        [agentplatform_genai_types, vertexai_genai_types],
+        ids=["agent_platform", "vertexai"],
+    )
+    @pytest.mark.parametrize(
+        "columns, duplicates",
+        [
+            (["prompt", "prompt"], r"\['prompt'\]"),
+            ([True, 1], r"\[1\]"),
+            ([1, "1"], r"\['1'\]"),
+        ],
+        ids=["same", "equal_in_python", "equal_as_strings"],
+    )
+    def test_model_dump_json_rejects_duplicate_column_names(
+        self, types_module, columns, duplicates
+    ):
+        df = pd.DataFrame([["v1", "v2"]], columns=pd.Index(columns, dtype=object))
+
+        with pytest.raises(ValueError, match=f"found duplicates: {duplicates}"):
+            types_module.EvaluationDataset(eval_dataset_df=df).model_dump_json()
 
 
 class TestEvalsGenerateConversationScenarios:
