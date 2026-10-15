@@ -450,6 +450,7 @@ def _default_instrumentor_builder(
             opentelemetry.sdk.trace.SynchronousMultiSpanProcessor(),
         )
         tracer_provider.add_span_processor(span_processor)
+        _maybe_add_configured_otlp_span_processor(tracer_provider)
 
     if enable_logging:
         try:
@@ -507,6 +508,50 @@ def _default_instrumentor_builder(
         )
 
     return None
+
+
+def _maybe_add_configured_otlp_span_processor(
+    tracer_provider: "TracerProvider",
+) -> None:
+    """Tees spans to a user-configured OTLP endpoint, in addition to the default
+    Agent Engine telemetry export.
+
+    Honors the standard OpenTelemetry variables so an existing OTLP pipeline
+    works without code changes: ``OTEL_EXPORTER_OTLP_TRACES_ENDPOINT`` or
+    ``OTEL_EXPORTER_OTLP_ENDPOINT`` (``OTEL_EXPORTER_OTLP_HEADERS`` is read by the
+    exporter). Does nothing when neither endpoint variable is set. Purely
+    additive: the default export is left in place, and failures on this extra
+    processor are isolated by ``BatchSpanProcessor``.
+
+    Args:
+        tracer_provider (TracerProvider):
+            The tracer provider to add the additional span processor to.
+    """
+    import os
+
+    if not (
+        os.environ.get("OTEL_EXPORTER_OTLP_TRACES_ENDPOINT")
+        or os.environ.get("OTEL_EXPORTER_OTLP_ENDPOINT")
+    ):
+        return
+
+    try:
+        import opentelemetry.sdk.trace.export
+        from opentelemetry.exporter.otlp.proto.http.trace_exporter import (
+            OTLPSpanExporter,
+        )
+    except (ImportError, AttributeError):
+        _warn(
+            "OTEL_EXPORTER_OTLP_ENDPOINT is set but"
+            " opentelemetry-exporter-otlp-proto-http is not installed;"
+            " skipping the additional OTLP span exporter."
+        )
+        return
+
+    # OTLPSpanExporter() reads OTEL_EXPORTER_OTLP_* (endpoint, headers, timeout).
+    tracer_provider.add_span_processor(
+        opentelemetry.sdk.trace.export.BatchSpanProcessor(OTLPSpanExporter())
+    )
 
 
 def _override_active_span_processor(
