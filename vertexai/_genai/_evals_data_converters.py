@@ -22,6 +22,8 @@ from typing import Any, Optional, TypeVar, Union
 
 from google.genai import _common
 from google.genai import types as genai_types
+import numpy as np
+import pandas as pd
 from pydantic import alias_generators
 from pydantic import ValidationError
 from typing_extensions import override
@@ -194,14 +196,22 @@ class _FlattenEvalDataConverter(_evals_utils.EvalDataConverter):
                     % (i, type(item_dict).__name__, item_dict)
                 )
             item = copy.deepcopy(item_dict)
+            for column in ("conversation_history", "history"):
+                value = item.get(column)
+                if (isinstance(value, str) and not value.strip()) or (
+                    pd.api.types.is_scalar(value) and pd.isna(value)
+                ):
+                    item.pop(column, None)
             eval_case_id = "eval_case_%s" % i
             prompt_data = item.pop("prompt", None)
             if not prompt_data:
                 prompt_data = item.pop("source", None)
 
-            conversation_history_data = item.pop("conversation_history", None)
+            history_column = "conversation_history"
+            conversation_history_data = item.pop(history_column, None)
             if conversation_history_data is None:
-                conversation_history_data = item.pop("history", None)
+                history_column = "history"
+                conversation_history_data = item.pop(history_column, None)
             response_data = item.pop("response", None)
             reference_data = item.pop("reference", None)
             system_instruction_data = item.pop("instruction", None)
@@ -230,6 +240,33 @@ class _FlattenEvalDataConverter(_evals_utils.EvalDataConverter):
                     "Invalid prompt type for case %s: %s" % (i, type(prompt_data))
                 )
 
+            if isinstance(conversation_history_data, np.ndarray):
+                conversation_history_data = conversation_history_data.tolist()
+            elif isinstance(conversation_history_data, tuple):
+                conversation_history_data = list(conversation_history_data)
+            elif isinstance(conversation_history_data, str):
+                try:
+                    conversation_history_data = json.loads(conversation_history_data)
+                except (ValueError, RecursionError) as e:
+                    logger.warning(
+                        "Could not decode JSON string in '%s' column for case %s:"
+                        " %s. Skipping conversation history.",
+                        history_column,
+                        eval_case_id,
+                        e,
+                    )
+                    conversation_history_data = None
+            if conversation_history_data is not None and not isinstance(
+                conversation_history_data, list
+            ):
+                logger.warning(
+                    "Invalid type in '%s' column for case %s. Expected a list or a"
+                    " JSON string of a list, but got %s. Skipping conversation"
+                    " history.",
+                    history_column,
+                    eval_case_id,
+                    type(conversation_history_data),
+                )
             conversation_history: Optional[list[types.evals.Message]] = None
             if isinstance(conversation_history_data, list):
                 conversation_history = []
