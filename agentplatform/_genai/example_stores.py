@@ -17,262 +17,16 @@
 
 import json
 import logging
-from typing import Any, Optional, Union
+from typing import Optional
 from urllib.parse import urlencode
 
 from google.genai import _api_module
 from google.genai import _common
-from google.genai._common import get_value_by_path as getv
-from google.genai._common import set_value_by_path as setv
 
-from . import _transformers as t
+from . import _converters
 from . import types
 
 logger = logging.getLogger("agentplatform_genai.examplestores")
-
-
-def _CreateExampleStoreConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-
-    if getv(from_object, ["description"]) is not None:
-        setv(
-            to_object,
-            ["_query", "exampleStore", "description"],
-            getv(from_object, ["description"]),
-        )
-
-    if getv(from_object, ["vertex_embedding_model"]) is not None:
-        setv(
-            to_object,
-            ["_query", "exampleStore", "exampleStoreConfig", "vertexEmbeddingModel"],
-            getv(from_object, ["vertex_embedding_model"]),
-        )
-
-    return to_object
-
-
-def _CreateExampleStoreParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["display_name"]) is not None:
-        setv(
-            to_object,
-            ["_query", "exampleStore", "displayName"],
-            getv(from_object, ["display_name"]),
-        )
-
-    if getv(from_object, ["config"]) is not None:
-        _CreateExampleStoreConfig_to_vertex(getv(from_object, ["config"]), to_object)
-
-    return to_object
-
-
-def _DeleteExampleStoreConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-
-    return to_object
-
-
-def _DeleteExampleStoreRequestParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(
-            to_object, ["_url", "name"], t.t_example_store(getv(from_object, ["name"]))
-        )
-
-    if getv(from_object, ["config"]) is not None:
-        _DeleteExampleStoreConfig_to_vertex(getv(from_object, ["config"]), to_object)
-
-    return to_object
-
-
-def _FetchExamplesConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-
-    if getv(from_object, ["example_ids"]) is not None:
-        setv(parent_object, ["exampleIds"], getv(from_object, ["example_ids"]))
-
-    if getv(from_object, ["stored_contents_example_filter"]) is not None:
-        setv(
-            parent_object,
-            ["storedContentsExampleFilter"],
-            getv(from_object, ["stored_contents_example_filter"]),
-        )
-
-    if getv(from_object, ["page_size"]) is not None:
-        setv(parent_object, ["pageSize"], getv(from_object, ["page_size"]))
-
-    if getv(from_object, ["page_token"]) is not None:
-        setv(parent_object, ["pageToken"], getv(from_object, ["page_token"]))
-
-    return to_object
-
-
-def _FetchExamplesParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(
-            to_object,
-            ["_url", "exampleStore"],
-            t.t_example_store(getv(from_object, ["name"])),
-        )
-
-    if getv(from_object, ["config"]) is not None:
-        _FetchExamplesConfig_to_vertex(getv(from_object, ["config"]), to_object)
-
-    return to_object
-
-
-def _GetExampleStoreOperationParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["operation_name"]) is not None:
-        setv(
-            to_object, ["_url", "operationName"], getv(from_object, ["operation_name"])
-        )
-
-    return to_object
-
-
-def _GetExampleStoreParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(
-            to_object, ["_url", "name"], t.t_example_store(getv(from_object, ["name"]))
-        )
-
-    return to_object
-
-
-def _RemoveExamplesConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-
-    if getv(from_object, ["example_ids"]) is not None:
-        setv(parent_object, ["exampleIds"], getv(from_object, ["example_ids"]))
-
-    if getv(from_object, ["stored_contents_example_filter"]) is not None:
-        setv(
-            parent_object,
-            ["storedContentsExampleFilter"],
-            getv(from_object, ["stored_contents_example_filter"]),
-        )
-
-    return to_object
-
-
-def _RemoveExamplesParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(
-            to_object,
-            ["_url", "exampleStore"],
-            t.t_example_store(getv(from_object, ["name"])),
-        )
-
-    if getv(from_object, ["config"]) is not None:
-        _RemoveExamplesConfig_to_vertex(getv(from_object, ["config"]), to_object)
-
-    return to_object
-
-
-def _SearchExamplesConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-
-    if getv(from_object, ["top_k"]) is not None:
-        setv(parent_object, ["topK"], getv(from_object, ["top_k"]))
-
-    return to_object
-
-
-def _SearchExamplesParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(
-            to_object,
-            ["_url", "exampleStore"],
-            t.t_example_store(getv(from_object, ["name"])),
-        )
-
-    if getv(from_object, ["stored_contents_example_parameters"]) is not None:
-        setv(
-            to_object,
-            ["storedContentsExampleParameters"],
-            getv(from_object, ["stored_contents_example_parameters"]),
-        )
-
-    if getv(from_object, ["config"]) is not None:
-        _SearchExamplesConfig_to_vertex(getv(from_object, ["config"]), to_object)
-
-    return to_object
-
-
-def _UpsertExamplesConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-
-    if getv(from_object, ["overwrite"]) is not None:
-        setv(parent_object, ["overwrite"], getv(from_object, ["overwrite"]))
-
-    return to_object
-
-
-def _UpsertExamplesParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(
-            to_object,
-            ["_url", "exampleStore"],
-            t.t_example_store(getv(from_object, ["name"])),
-        )
-
-    if getv(from_object, ["examples"]) is not None:
-        setv(
-            to_object, ["examples"], [item for item in getv(from_object, ["examples"])]
-        )
-
-    if getv(from_object, ["config"]) is not None:
-        _UpsertExamplesConfig_to_vertex(getv(from_object, ["config"]), to_object)
-
-    return to_object
 
 
 class ExampleStores(_api_module.BaseModule):
@@ -299,7 +53,9 @@ class ExampleStores(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _CreateExampleStoreParameters_to_vertex(parameter_model)
+            request_dict = _converters._CreateExampleStoreParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{parent}/exampleStores:create".format_map(request_url_dict)
@@ -368,7 +124,9 @@ class ExampleStores(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetExampleStoreParameters_to_vertex(parameter_model)
+            request_dict = _converters._GetExampleStoreParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}".format_map(request_url_dict)
@@ -440,7 +198,7 @@ class ExampleStores(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _DeleteExampleStoreRequestParameters_to_vertex(
+            request_dict = _converters._DeleteExampleStoreRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -516,7 +274,9 @@ class ExampleStores(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _UpsertExamplesParameters_to_vertex(parameter_model)
+            request_dict = _converters._UpsertExamplesParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{exampleStore}:upsertExamples".format_map(request_url_dict)
@@ -592,7 +352,9 @@ class ExampleStores(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _SearchExamplesParameters_to_vertex(parameter_model)
+            request_dict = _converters._SearchExamplesParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{exampleStore}:searchExamples".format_map(request_url_dict)
@@ -661,7 +423,9 @@ class ExampleStores(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _FetchExamplesParameters_to_vertex(parameter_model)
+            request_dict = _converters._FetchExamplesParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{exampleStore}:fetchExamples".format_map(request_url_dict)
@@ -730,7 +494,9 @@ class ExampleStores(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _RemoveExamplesParameters_to_vertex(parameter_model)
+            request_dict = _converters._RemoveExamplesParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{exampleStore}:removeExamples".format_map(request_url_dict)
@@ -798,7 +564,7 @@ class ExampleStores(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetExampleStoreOperationParameters_to_vertex(
+            request_dict = _converters._GetExampleStoreOperationParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -876,7 +642,9 @@ class AsyncExampleStores(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _CreateExampleStoreParameters_to_vertex(parameter_model)
+            request_dict = _converters._CreateExampleStoreParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{parent}/exampleStores:create".format_map(request_url_dict)
@@ -947,7 +715,9 @@ class AsyncExampleStores(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetExampleStoreParameters_to_vertex(parameter_model)
+            request_dict = _converters._GetExampleStoreParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}".format_map(request_url_dict)
@@ -1021,7 +791,7 @@ class AsyncExampleStores(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _DeleteExampleStoreRequestParameters_to_vertex(
+            request_dict = _converters._DeleteExampleStoreRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -1099,7 +869,9 @@ class AsyncExampleStores(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _UpsertExamplesParameters_to_vertex(parameter_model)
+            request_dict = _converters._UpsertExamplesParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{exampleStore}:upsertExamples".format_map(request_url_dict)
@@ -1177,7 +949,9 @@ class AsyncExampleStores(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _SearchExamplesParameters_to_vertex(parameter_model)
+            request_dict = _converters._SearchExamplesParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{exampleStore}:searchExamples".format_map(request_url_dict)
@@ -1248,7 +1022,9 @@ class AsyncExampleStores(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _FetchExamplesParameters_to_vertex(parameter_model)
+            request_dict = _converters._FetchExamplesParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{exampleStore}:fetchExamples".format_map(request_url_dict)
@@ -1319,7 +1095,9 @@ class AsyncExampleStores(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _RemoveExamplesParameters_to_vertex(parameter_model)
+            request_dict = _converters._RemoveExamplesParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{exampleStore}:removeExamples".format_map(request_url_dict)
@@ -1389,7 +1167,7 @@ class AsyncExampleStores(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetExampleStoreOperationParameters_to_vertex(
+            request_dict = _converters._GetExampleStoreOperationParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")

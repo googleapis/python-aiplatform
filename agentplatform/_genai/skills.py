@@ -21,15 +21,14 @@ import importlib
 import json
 import logging
 import typing
-from typing import Any, Optional, Union
+from typing import Optional, Union
 from urllib.parse import urlencode
 
 from google.genai import _api_module
 from google.genai import _common
-from google.genai._common import get_value_by_path as getv
-from google.genai._common import set_value_by_path as setv
 from google.genai.pagers import AsyncPager, Pager
 
+from . import _converters
 from . import _operations_utils
 from . import _skills_utils
 from . import types
@@ -41,184 +40,6 @@ if typing.TYPE_CHECKING:
 
 
 logger = logging.getLogger("agentplatform_genai.skills")
-
-
-def _CreateSkillConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-
-    if getv(from_object, ["zipped_filesystem"]) is not None:
-        setv(
-            parent_object,
-            ["zippedFilesystem"],
-            getv(from_object, ["zipped_filesystem"]),
-        )
-
-    return to_object
-
-
-def _CreateSkillRequestParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["display_name"]) is not None:
-        setv(to_object, ["displayName"], getv(from_object, ["display_name"]))
-
-    if getv(from_object, ["description"]) is not None:
-        setv(to_object, ["description"], getv(from_object, ["description"]))
-
-    if getv(from_object, ["skill_id"]) is not None:
-        setv(to_object, ["_query", "skillId"], getv(from_object, ["skill_id"]))
-
-    if getv(from_object, ["config"]) is not None:
-        _CreateSkillConfig_to_vertex(getv(from_object, ["config"]), to_object)
-
-    return to_object
-
-
-def _DeleteSkillRequestParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    return to_object
-
-
-def _GetSkillOperationParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["operation_name"]) is not None:
-        setv(
-            to_object, ["_url", "operationName"], getv(from_object, ["operation_name"])
-        )
-
-    return to_object
-
-
-def _GetSkillRequestParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
-    return to_object
-
-
-def _ListSkillsConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-
-    if getv(from_object, ["page_size"]) is not None:
-        setv(parent_object, ["_query", "pageSize"], getv(from_object, ["page_size"]))
-
-    if getv(from_object, ["page_token"]) is not None:
-        setv(parent_object, ["_query", "pageToken"], getv(from_object, ["page_token"]))
-
-    if getv(from_object, ["filter"]) is not None:
-        setv(parent_object, ["_query", "filter"], getv(from_object, ["filter"]))
-
-    return to_object
-
-
-def _ListSkillsRequestParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["config"]) is not None:
-        setv(
-            to_object,
-            ["config"],
-            _ListSkillsConfig_to_vertex(getv(from_object, ["config"]), to_object),
-        )
-
-    return to_object
-
-
-def _RetrieveSkillsConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-
-    if getv(from_object, ["top_k"]) is not None:
-        setv(parent_object, ["_query", "topK"], getv(from_object, ["top_k"]))
-
-    return to_object
-
-
-def _RetrieveSkillsRequestParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["query"]) is not None:
-        setv(to_object, ["_query", "query"], getv(from_object, ["query"]))
-
-    if getv(from_object, ["config"]) is not None:
-        setv(
-            to_object,
-            ["config"],
-            _RetrieveSkillsConfig_to_vertex(getv(from_object, ["config"]), to_object),
-        )
-
-    return to_object
-
-
-def _UpdateSkillConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-
-    if getv(from_object, ["display_name"]) is not None:
-        setv(parent_object, ["displayName"], getv(from_object, ["display_name"]))
-
-    if getv(from_object, ["description"]) is not None:
-        setv(parent_object, ["description"], getv(from_object, ["description"]))
-
-    if getv(from_object, ["zipped_filesystem"]) is not None:
-        setv(
-            parent_object,
-            ["zippedFilesystem"],
-            getv(from_object, ["zipped_filesystem"]),
-        )
-
-    if getv(from_object, ["update_mask"]) is not None:
-        setv(
-            parent_object, ["_query", "updateMask"], getv(from_object, ["update_mask"])
-        )
-
-    return to_object
-
-
-def _UpdateSkillRequestParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["config"]) is not None:
-        _UpdateSkillConfig_to_vertex(getv(from_object, ["config"]), to_object)
-
-    return to_object
 
 
 class Skills(_api_module.BaseModule):
@@ -242,7 +63,9 @@ class Skills(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetSkillRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._GetSkillRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}".format_map(request_url_dict)
@@ -311,7 +134,9 @@ class Skills(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _RetrieveSkillsRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._RetrieveSkillsRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "skills:retrieve".format_map(request_url_dict)
@@ -387,7 +212,9 @@ class Skills(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _CreateSkillRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._CreateSkillRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "skills".format_map(request_url_dict)
@@ -456,7 +283,9 @@ class Skills(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _UpdateSkillRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._UpdateSkillRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}".format_map(request_url_dict)
@@ -520,7 +349,9 @@ class Skills(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _ListSkillsRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._ListSkillsRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "skills".format_map(request_url_dict)
@@ -589,7 +420,9 @@ class Skills(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _DeleteSkillRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._DeleteSkillRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}".format_map(request_url_dict)
@@ -657,7 +490,9 @@ class Skills(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetSkillOperationParameters_to_vertex(parameter_model)
+            request_dict = _converters._GetSkillOperationParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{operationName}".format_map(request_url_dict)
@@ -982,7 +817,9 @@ class AsyncSkills(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetSkillRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._GetSkillRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}".format_map(request_url_dict)
@@ -1053,7 +890,9 @@ class AsyncSkills(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _RetrieveSkillsRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._RetrieveSkillsRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "skills:retrieve".format_map(request_url_dict)
@@ -1131,7 +970,9 @@ class AsyncSkills(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _CreateSkillRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._CreateSkillRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "skills".format_map(request_url_dict)
@@ -1202,7 +1043,9 @@ class AsyncSkills(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _UpdateSkillRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._UpdateSkillRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}".format_map(request_url_dict)
@@ -1268,7 +1111,9 @@ class AsyncSkills(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _ListSkillsRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._ListSkillsRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "skills".format_map(request_url_dict)
@@ -1339,7 +1184,9 @@ class AsyncSkills(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _DeleteSkillRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._DeleteSkillRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}".format_map(request_url_dict)
@@ -1409,7 +1256,9 @@ class AsyncSkills(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetSkillOperationParameters_to_vertex(parameter_model)
+            request_dict = _converters._GetSkillOperationParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{operationName}".format_map(request_url_dict)
