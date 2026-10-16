@@ -45,6 +45,9 @@ from agentplatform._genai import (
     types as agentplatform_genai_types,
 )
 from agentplatform._genai.types import common as common_types
+from vertexai._genai import (
+    _evals_data_converters as vertexai_evals_data_converters,
+)
 from vertexai._genai import types as vertexai_genai_types
 from google.genai import client
 from google.genai import errors as genai_errors
@@ -5866,6 +5869,68 @@ class TestFlattenEvalDataConverter:
         assert (
             eval_case.conversation_history[1].content.parts[0].text == "Old model msg"
         )
+
+    @pytest.mark.parametrize(
+        "converters",
+        [_evals_data_converters, vertexai_evals_data_converters],
+        ids=["agent_platform", "vertexai"],
+    )
+    @pytest.mark.parametrize(
+        "history, model_role",
+        [
+            (
+                '[{"role": "user", "parts": [{"text": "Old user msg"}]},'
+                ' {"role": "model", "parts": [{"text": "Old model msg"}]}]',
+                "model",
+            ),
+            (
+                '[{"role": "user", "content": "Old user msg"},'
+                ' {"role": "assistant", "content": "Old model msg"}]',
+                "assistant",
+            ),
+            (
+                [
+                    {"role": "user", "content": "Old user msg"},
+                    {"role": "assistant", "content": "Old model msg"},
+                ],
+                "assistant",
+            ),
+        ],
+        ids=["json_string", "openai_json_string", "openai_dicts"],
+    )
+    def test_convert_parses_string_and_openai_conversation_history(
+        self, converters, history, model_role
+    ):
+        result_dataset = converters._FlattenEvalDataConverter().convert(
+            [
+                {
+                    "prompt": "Current prompt",
+                    "response": "A response",
+                    "conversation_history": history,
+                }
+            ]
+        )
+
+        assert [
+            (message.content.role, message.content.parts[0].text)
+            for message in result_dataset.eval_cases[0].conversation_history
+        ] == [("user", "Old user msg"), (model_role, "Old model msg")]
+
+    @pytest.mark.parametrize(
+        "history, warns",
+        [("not json", True), ("  ", False)],
+        ids=["invalid_json", "blank"],
+    )
+    def test_convert_skips_unparsable_conversation_history(
+        self, history, warns, caplog
+    ):
+        with caplog.at_level("WARNING", logger=_evals_data_converters.logger.name):
+            result_dataset = self.converter.convert(
+                [{"prompt": "p", "response": "r", "conversation_history": history}]
+            )
+
+        assert result_dataset.eval_cases[0].conversation_history is None
+        assert ("Could not decode conversation_history" in caplog.text) == warns
 
     def test_convert_with_conversation_history_column_name(self):
         """Tests that 'conversation_history' is accepted as a column name alias for 'history'."""
