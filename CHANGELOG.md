@@ -1,5 +1,23 @@
 # Changelog
 
+## [2.6.0](https://github.com/googleapis/python-aiplatform/compare/v2.5.0...v2.6.0) (2026-10-16)
+
+
+### Features
+
+* Add client.memory_banks.update method. ([0ac315e](https://github.com/googleapis/python-aiplatform/commit/0ac315ef93924318ce53916ee47c6b28a67294de))
+* Export ADK agent engine template logs to the Telemetry API ([448abba](https://github.com/googleapis/python-aiplatform/commit/448abba2e6d4c907f6d4e0970e1c5bc0b3ac18e9))
+* Onboard Vertex Model Garden to GenAI Python SDK: Add deploy_custom_model ([46ae3d0](https://github.com/googleapis/python-aiplatform/commit/46ae3d06858d9a8c278189c19b779818cd13c978))
+* Support batch predict in Model Garden ([6b2870f](https://github.com/googleapis/python-aiplatform/commit/6b2870f3004a039cc895bad31f4db841028165e3))
+
+
+### Bug Fixes
+
+* GenAI Client(evals) - Default missing rubric verdicts to False ([93c52a6](https://github.com/googleapis/python-aiplatform/commit/93c52a6c66a33651e8f978d2ff79d4c4a509fd56))
+* GenAI Client(evals) - Log serialization errors in show() instead of raising AttributeError ([4b1ace9](https://github.com/googleapis/python-aiplatform/commit/4b1ace936b3f03c8171956f6b9f3fedf36c212d8))
+* GenAI Client(evals) - Parse JSON-string and OpenAI-style conversation_history ([1d93955](https://github.com/googleapis/python-aiplatform/commit/1d93955196e7708b6eebd3995630adb6bf548563))
+* GenAI Client(evals) - Serialize DataFrame-backed evaluation datasets to JSON ([9e5c721](https://github.com/googleapis/python-aiplatform/commit/9e5c7210475a109b59064464a5936975896913ad))
+
 ## [2.5.0](https://github.com/googleapis/python-aiplatform/compare/v2.4.0...v2.5.0) (2026-10-13)
 
 
