@@ -25,13 +25,13 @@ from .rest import DataFoundryServiceRestInterceptor
 ASYNC_REST_CLASSES: Tuple[str, ...]
 try:
     from .rest_asyncio import AsyncDataFoundryServiceRestTransport
-    from .rest_asyncio import AsyncDataFoundryServiceRestInterceptor
+    from .rest_asyncio import AsyncDataFoundryServiceRestInterceptor  # pragma: NO COVER
 
     ASYNC_REST_CLASSES = (
         "AsyncDataFoundryServiceRestTransport",
         "AsyncDataFoundryServiceRestInterceptor",
-    )
-    HAS_REST_ASYNC = True
+    )  # pragma: NO COVER
+    HAS_REST_ASYNC = True  # pragma: NO COVER
 except ImportError:  # pragma: NO COVER
     ASYNC_REST_CLASSES = ()
     HAS_REST_ASYNC = False

@@ -25,13 +25,15 @@ from .rest import FeaturestoreServiceRestInterceptor
 ASYNC_REST_CLASSES: Tuple[str, ...]
 try:
     from .rest_asyncio import AsyncFeaturestoreServiceRestTransport
-    from .rest_asyncio import AsyncFeaturestoreServiceRestInterceptor
+    from .rest_asyncio import (
+        AsyncFeaturestoreServiceRestInterceptor,
+    )  # pragma: NO COVER
 
     ASYNC_REST_CLASSES = (
         "AsyncFeaturestoreServiceRestTransport",
         "AsyncFeaturestoreServiceRestInterceptor",
-    )
-    HAS_REST_ASYNC = True
+    )  # pragma: NO COVER
+    HAS_REST_ASYNC = True  # pragma: NO COVER
 except ImportError:  # pragma: NO COVER
     ASYNC_REST_CLASSES = ()
     HAS_REST_ASYNC = False

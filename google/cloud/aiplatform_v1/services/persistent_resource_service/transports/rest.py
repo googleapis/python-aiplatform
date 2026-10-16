@@ -23,6 +23,7 @@ from google.api_core import retry as retries
 from google.api_core import rest_helpers
 from google.api_core import rest_streaming
 from google.api_core import gapic_v1
+from google.cloud.aiplatform_v1._compat import transcode_request
 import google.protobuf
 
 from google.protobuf import json_format
@@ -2838,21 +2839,18 @@ class PersistentResourceServiceRestTransport(
             http_options = (
                 _BasePersistentResourceServiceRestTransport._BaseCreatePersistentResource._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_create_persistent_resource(
                 request, metadata
             )
-            transcoded_request = _BasePersistentResourceServiceRestTransport._BaseCreatePersistentResource._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BasePersistentResourceServiceRestTransport._BaseCreatePersistentResource._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BasePersistentResourceServiceRestTransport._BaseCreatePersistentResource._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BasePersistentResourceServiceRestTransport._BaseCreatePersistentResource,
+                    "_BaseCreatePersistentResource__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -2996,17 +2994,18 @@ class PersistentResourceServiceRestTransport(
             http_options = (
                 _BasePersistentResourceServiceRestTransport._BaseDeletePersistentResource._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_delete_persistent_resource(
                 request, metadata
             )
-            transcoded_request = _BasePersistentResourceServiceRestTransport._BaseDeletePersistentResource._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BasePersistentResourceServiceRestTransport._BaseDeletePersistentResource._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BasePersistentResourceServiceRestTransport._BaseDeletePersistentResource,
+                    "_BaseDeletePersistentResource__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -3148,17 +3147,18 @@ class PersistentResourceServiceRestTransport(
             http_options = (
                 _BasePersistentResourceServiceRestTransport._BaseGetPersistentResource._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_get_persistent_resource(
                 request, metadata
             )
-            transcoded_request = _BasePersistentResourceServiceRestTransport._BaseGetPersistentResource._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BasePersistentResourceServiceRestTransport._BaseGetPersistentResource._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BasePersistentResourceServiceRestTransport._BaseGetPersistentResource,
+                    "_BaseGetPersistentResource__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -3303,17 +3303,18 @@ class PersistentResourceServiceRestTransport(
             http_options = (
                 _BasePersistentResourceServiceRestTransport._BaseListPersistentResources._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_list_persistent_resources(
                 request, metadata
             )
-            transcoded_request = _BasePersistentResourceServiceRestTransport._BaseListPersistentResources._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BasePersistentResourceServiceRestTransport._BaseListPersistentResources._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BasePersistentResourceServiceRestTransport._BaseListPersistentResources,
+                    "_BaseListPersistentResources__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -3463,21 +3464,18 @@ class PersistentResourceServiceRestTransport(
             http_options = (
                 _BasePersistentResourceServiceRestTransport._BaseRebootPersistentResource._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_reboot_persistent_resource(
                 request, metadata
             )
-            transcoded_request = _BasePersistentResourceServiceRestTransport._BaseRebootPersistentResource._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BasePersistentResourceServiceRestTransport._BaseRebootPersistentResource._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BasePersistentResourceServiceRestTransport._BaseRebootPersistentResource._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BasePersistentResourceServiceRestTransport._BaseRebootPersistentResource,
+                    "_BaseRebootPersistentResource__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -3622,21 +3620,18 @@ class PersistentResourceServiceRestTransport(
             http_options = (
                 _BasePersistentResourceServiceRestTransport._BaseUpdatePersistentResource._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_update_persistent_resource(
                 request, metadata
             )
-            transcoded_request = _BasePersistentResourceServiceRestTransport._BaseUpdatePersistentResource._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BasePersistentResourceServiceRestTransport._BaseUpdatePersistentResource._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BasePersistentResourceServiceRestTransport._BaseUpdatePersistentResource._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BasePersistentResourceServiceRestTransport._BaseUpdatePersistentResource,
+                    "_BaseUpdatePersistentResource__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=True,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -3842,15 +3837,16 @@ class PersistentResourceServiceRestTransport(
             http_options = (
                 _BasePersistentResourceServiceRestTransport._BaseGetLocation._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_get_location(request, metadata)
-            transcoded_request = _BasePersistentResourceServiceRestTransport._BaseGetLocation._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BasePersistentResourceServiceRestTransport._BaseGetLocation._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BasePersistentResourceServiceRestTransport._BaseGetLocation,
+                    "_BaseGetLocation__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -3986,15 +3982,16 @@ class PersistentResourceServiceRestTransport(
             http_options = (
                 _BasePersistentResourceServiceRestTransport._BaseListLocations._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_list_locations(request, metadata)
-            transcoded_request = _BasePersistentResourceServiceRestTransport._BaseListLocations._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BasePersistentResourceServiceRestTransport._BaseListLocations._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BasePersistentResourceServiceRestTransport._BaseListLocations,
+                    "_BaseListLocations__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -4130,15 +4127,16 @@ class PersistentResourceServiceRestTransport(
             http_options = (
                 _BasePersistentResourceServiceRestTransport._BaseGetIamPolicy._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_get_iam_policy(request, metadata)
-            transcoded_request = _BasePersistentResourceServiceRestTransport._BaseGetIamPolicy._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BasePersistentResourceServiceRestTransport._BaseGetIamPolicy._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BasePersistentResourceServiceRestTransport._BaseGetIamPolicy,
+                    "_BaseGetIamPolicy__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -4275,19 +4273,16 @@ class PersistentResourceServiceRestTransport(
             http_options = (
                 _BasePersistentResourceServiceRestTransport._BaseSetIamPolicy._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_set_iam_policy(request, metadata)
-            transcoded_request = _BasePersistentResourceServiceRestTransport._BaseSetIamPolicy._get_transcoded_request(
-                http_options, request
-            )
-
-            body = _BasePersistentResourceServiceRestTransport._BaseSetIamPolicy._get_request_body_json(
-                transcoded_request
-            )
-
-            # Jsonify the query params
-            query_params = _BasePersistentResourceServiceRestTransport._BaseSetIamPolicy._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BasePersistentResourceServiceRestTransport._BaseSetIamPolicy,
+                    "_BaseSetIamPolicy__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -4424,17 +4419,18 @@ class PersistentResourceServiceRestTransport(
             http_options = (
                 _BasePersistentResourceServiceRestTransport._BaseTestIamPermissions._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_test_iam_permissions(
                 request, metadata
             )
-            transcoded_request = _BasePersistentResourceServiceRestTransport._BaseTestIamPermissions._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BasePersistentResourceServiceRestTransport._BaseTestIamPermissions._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BasePersistentResourceServiceRestTransport._BaseTestIamPermissions,
+                    "_BaseTestIamPermissions__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -4565,17 +4561,18 @@ class PersistentResourceServiceRestTransport(
             http_options = (
                 _BasePersistentResourceServiceRestTransport._BaseCancelOperation._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_cancel_operation(
                 request, metadata
             )
-            transcoded_request = _BasePersistentResourceServiceRestTransport._BaseCancelOperation._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BasePersistentResourceServiceRestTransport._BaseCancelOperation._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BasePersistentResourceServiceRestTransport._BaseCancelOperation,
+                    "_BaseCancelOperation__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -4683,17 +4680,18 @@ class PersistentResourceServiceRestTransport(
             http_options = (
                 _BasePersistentResourceServiceRestTransport._BaseDeleteOperation._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_delete_operation(
                 request, metadata
             )
-            transcoded_request = _BasePersistentResourceServiceRestTransport._BaseDeleteOperation._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BasePersistentResourceServiceRestTransport._BaseDeleteOperation._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BasePersistentResourceServiceRestTransport._BaseDeleteOperation,
+                    "_BaseDeleteOperation__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -4804,15 +4802,16 @@ class PersistentResourceServiceRestTransport(
             http_options = (
                 _BasePersistentResourceServiceRestTransport._BaseGetOperation._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_get_operation(request, metadata)
-            transcoded_request = _BasePersistentResourceServiceRestTransport._BaseGetOperation._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BasePersistentResourceServiceRestTransport._BaseGetOperation._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BasePersistentResourceServiceRestTransport._BaseGetOperation,
+                    "_BaseGetOperation__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -4948,15 +4947,16 @@ class PersistentResourceServiceRestTransport(
             http_options = (
                 _BasePersistentResourceServiceRestTransport._BaseListOperations._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_list_operations(request, metadata)
-            transcoded_request = _BasePersistentResourceServiceRestTransport._BaseListOperations._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BasePersistentResourceServiceRestTransport._BaseListOperations._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BasePersistentResourceServiceRestTransport._BaseListOperations,
+                    "_BaseListOperations__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
@@ -5092,15 +5092,16 @@ class PersistentResourceServiceRestTransport(
             http_options = (
                 _BasePersistentResourceServiceRestTransport._BaseWaitOperation._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_wait_operation(request, metadata)
-            transcoded_request = _BasePersistentResourceServiceRestTransport._BaseWaitOperation._get_transcoded_request(
-                http_options, request
-            )
-
-            # Jsonify the query params
-            query_params = _BasePersistentResourceServiceRestTransport._BaseWaitOperation._get_query_params_json(
-                transcoded_request
+            transcoded_request, body, query_params = transcode_request(
+                http_options,
+                request,
+                required_fields_default_values=getattr(
+                    _BasePersistentResourceServiceRestTransport._BaseWaitOperation,
+                    "_BaseWaitOperation__REQUIRED_FIELDS_DEFAULT_VALUES",
+                    None,
+                ),
+                rest_numeric_enums=False,
             )
 
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
