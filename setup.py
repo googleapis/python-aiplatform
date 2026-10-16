@@ -266,7 +266,7 @@ testing_extra_require = (
         "aiohttp",
         "bigframes; python_version>='3.10' and python_version<'3.14'",
         # google-api-core 2.x is required since kfp requires protobuf > 4
-        "google-api-core >= 2.11, < 3.0.0",
+        "google-api-core >= 2.27.0, < 3.0.0",
         "grpcio-testing",
         "grpcio-tools >= 1.63.0; python_version>='3.13'",
         "ipython",
@@ -315,14 +315,11 @@ setuptools.setup(
     platforms="Posix; MacOS X; Windows",
     include_package_data=True,
     install_requires=(
-        (
-            "google-api-core[grpc] >= 1.34.1,"
-            " <3.0.0,!=2.0.*,!=2.1.*,!=2.2.*,!=2.3.*,!=2.4.*,!=2.5.*,!=2.6.*,!=2.7.*"
-        ),
+        "google-api-core[grpc] >= 2.27.0, <3.0.0",
         "google-auth >= 2.47.0, <3.0.0",
         "certifi >= 2023.7.22",
         "proto-plus >= 1.22.3, <2.0.0",
-        "protobuf>=3.20.2,<7.0.0,!=4.21.0,!=4.21.1,!=4.21.2,!=4.21.3,!=4.21.4,!=4.21.5",
+        "protobuf>=3.20.2,<8.0.0,!=4.21.0,!=4.21.1,!=4.21.2,!=4.21.3,!=4.21.4,!=4.21.5",
         "packaging >= 14.3",
         "google-cloud-storage >= 1.32.0, < 4.0.0; python_version<'3.13'",
         "google-cloud-storage >= 3.10.0, < 4.0.0; python_version>='3.13'",

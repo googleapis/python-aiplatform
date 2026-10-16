@@ -45,11 +45,21 @@ from agentplatform._genai import (
     types as agentplatform_genai_types,
 )
 from agentplatform._genai.types import common as common_types
+from vertexai._genai import (
+    _evals_data_converters as vertexai_evals_data_converters,
+)
+from vertexai._genai import (
+    _evals_visualization as vertexai_evals_visualization,
+)
+from vertexai._genai import evals as vertexai_evals
+from vertexai._genai import types as vertexai_genai_types
 from google.genai import client
 from google.genai import errors as genai_errors
 from google.genai import types as genai_types
+import numpy as np
 import pandas as pd
 import pydantic
+import pydantic_core
 import pytest
 
 _TEST_PROJECT = "test-project"
@@ -869,10 +879,6 @@ class TestLossAnalysis:
         assert "DOMPurify" in html
 
     def test_get_comparison_html_shows_na_for_missing_summary_scores(self):
-        from vertexai._genai import (
-            _evals_visualization as vertexai_evals_visualization,
-        )
-
         for viz in (_evals_visualization, vertexai_evals_visualization):
             html = viz.get_comparison_html("{}")
             assert "m.mean_score != null ? m.mean_score.toFixed(4) : 'N/A'" in html
@@ -2356,6 +2362,49 @@ class TestEvals:
         assert kwargs["agent_info"] == agent_info
 
 
+class TestRubricVerdict:
+    """Unit tests for parsing RubricVerdict from API responses."""
+
+    @pytest.mark.parametrize(
+        "evals_module", [evals, vertexai_evals], ids=["agent_platform", "vertexai"]
+    )
+    def test_evaluate_instances_missing_verdict_is_false(self, evals_module):
+        api_client = mock.MagicMock()
+        api_client.vertexai = True
+        api_client.request.return_value.body = json.dumps(
+            {
+                "metricResults": [
+                    {
+                        "score": 0.5,
+                        "rubricVerdicts": [
+                            {
+                                "evaluatedRubric": {
+                                    "content": {
+                                        "property": {"description": "In English."}
+                                    }
+                                },
+                                "verdict": True,
+                            },
+                            {
+                                "evaluatedRubric": {
+                                    "content": {
+                                        "property": {"description": "One sentence."}
+                                    }
+                                },
+                                "reasoning": "The response has two sentences.",
+                            },
+                        ],
+                    }
+                ]
+            }
+        )
+
+        response = evals_module.Evals(api_client_=api_client)._evaluate_instances()
+
+        verdicts = response.metric_results[0].rubric_verdicts
+        assert [verdict.verdict for verdict in verdicts] == [True, False]
+
+
 class TestEvalsVisualization:
     # fmt: off
     @mock.patch(
@@ -2502,6 +2551,31 @@ class TestEvalsVisualization:
 
         del sys.modules["IPython"]
         del sys.modules["IPython.display"]
+
+    @pytest.mark.parametrize(
+        "visualization_module",
+        [_evals_visualization, vertexai_evals_visualization],
+        ids=["agent_platform", "vertexai"],
+    )
+    @mock.patch.dict(sys.modules, {"IPython": mock.MagicMock()})
+    def test_display_evaluation_result_logs_serialization_error(
+        self, visualization_module
+    ):
+        eval_result = mock.Mock()
+        eval_result.model_dump.side_effect = pydantic_core.PydanticSerializationError(
+            "bad value"
+        )
+
+        with (
+            mock.patch.object(
+                visualization_module, "_is_ipython_env", return_value=True
+            ),
+            mock.patch.object(visualization_module, "logger") as mock_logger,
+        ):
+            visualization_module.display_evaluation_result(eval_result)
+
+        mock_logger.error.assert_called_once()
+        assert "Serialization Error" in mock_logger.error.call_args[0][0]
 
 
 class TestEvalsRunInference:
@@ -5864,6 +5938,68 @@ class TestFlattenEvalDataConverter:
         assert (
             eval_case.conversation_history[1].content.parts[0].text == "Old model msg"
         )
+
+    @pytest.mark.parametrize(
+        "converters",
+        [_evals_data_converters, vertexai_evals_data_converters],
+        ids=["agent_platform", "vertexai"],
+    )
+    @pytest.mark.parametrize(
+        "history, model_role",
+        [
+            (
+                '[{"role": "user", "parts": [{"text": "Old user msg"}]},'
+                ' {"role": "model", "parts": [{"text": "Old model msg"}]}]',
+                "model",
+            ),
+            (
+                '[{"role": "user", "content": "Old user msg"},'
+                ' {"role": "assistant", "content": "Old model msg"}]',
+                "assistant",
+            ),
+            (
+                [
+                    {"role": "user", "content": "Old user msg"},
+                    {"role": "assistant", "content": "Old model msg"},
+                ],
+                "assistant",
+            ),
+        ],
+        ids=["json_string", "openai_json_string", "openai_dicts"],
+    )
+    def test_convert_parses_string_and_openai_conversation_history(
+        self, converters, history, model_role
+    ):
+        result_dataset = converters._FlattenEvalDataConverter().convert(
+            [
+                {
+                    "prompt": "Current prompt",
+                    "response": "A response",
+                    "conversation_history": history,
+                }
+            ]
+        )
+
+        assert [
+            (message.content.role, message.content.parts[0].text)
+            for message in result_dataset.eval_cases[0].conversation_history
+        ] == [("user", "Old user msg"), (model_role, "Old model msg")]
+
+    @pytest.mark.parametrize(
+        "history, warns",
+        [("not json", True), ("  ", False)],
+        ids=["invalid_json", "blank"],
+    )
+    def test_convert_skips_unparsable_conversation_history(
+        self, history, warns, caplog
+    ):
+        with caplog.at_level("WARNING", logger=_evals_data_converters.logger.name):
+            result_dataset = self.converter.convert(
+                [{"prompt": "p", "response": "r", "conversation_history": history}]
+            )
+
+        assert result_dataset.eval_cases[0].conversation_history is None
+        assert ("Could not decode conversation_history" in caplog.text) == warns
 
     def test_convert_with_conversation_history_column_name(self):
         """Tests that 'conversation_history' is accepted as a column name alias for 'history'."""
@@ -10066,6 +10202,101 @@ class TestEvaluationDataset:
                 }
             ),
         )
+
+    @pytest.mark.parametrize(
+        "types_module",
+        [agentplatform_genai_types, vertexai_genai_types],
+        ids=["agent_platform", "vertexai"],
+    )
+    def test_model_dump_json_writes_dataframe_rows(self, types_module):
+        df = pd.DataFrame(
+            {
+                "tool_names": [
+                    np.array(["search", "book"]),
+                    np.array([], dtype=object),
+                ],
+                "created_at": pd.to_datetime(["2026-10-02T10:00:00Z", None]),
+                "metadata": [
+                    {
+                        np.int64(1): np.int64(3),
+                        "score": np.array(0.5),
+                        "masked": np.ma.masked,
+                    },
+                    pd.NA,
+                ],
+                "score": [0.1 + 0.2, float("nan")],
+                "response": [
+                    genai_types.Content(parts=[genai_types.Part(text="r1")]),
+                    None,
+                ],
+            }
+        )
+
+        dataset_json = types_module.EvaluationDataset(
+            eval_dataset_df=df
+        ).model_dump_json(exclude_none=True)
+
+        assert json.loads(dataset_json)["eval_dataset_df"] == [
+            {
+                "tool_names": ["search", "book"],
+                "created_at": "2026-10-02T10:00:00Z",
+                "metadata": {"1": 3, "score": 0.5, "masked": None},
+                "score": 0.30000000000000004,
+                "response": {"parts": [{"text": "r1"}]},
+            },
+            {
+                "tool_names": [],
+                "created_at": None,
+                "metadata": None,
+                "score": None,
+                "response": None,
+            },
+        ]
+
+    @pytest.mark.parametrize(
+        "types_module",
+        [agentplatform_genai_types, vertexai_genai_types],
+        ids=["agent_platform", "vertexai"],
+    )
+    def test_json_round_trip_restores_dataframe(self, types_module):
+        df = pd.DataFrame([{"prompt": "p1", "response": "r1"}])
+        result = types_module.EvaluationResult(
+            evaluation_dataset=[types_module.EvaluationDataset(eval_dataset_df=df)]
+        )
+
+        restored = types_module.EvaluationResult.model_validate_json(
+            result.model_dump_json()
+        )
+
+        pd.testing.assert_frame_equal(
+            restored.evaluation_dataset[0].eval_dataset_df, df
+        )
+        assert isinstance(
+            result.model_dump()["evaluation_dataset"][0]["eval_dataset_df"],
+            pd.DataFrame,
+        )
+
+    @pytest.mark.parametrize(
+        "types_module",
+        [agentplatform_genai_types, vertexai_genai_types],
+        ids=["agent_platform", "vertexai"],
+    )
+    @pytest.mark.parametrize(
+        "columns, duplicates",
+        [
+            (["prompt", "prompt"], r"\['prompt'\]"),
+            ([True, 1], r"\[1\]"),
+            ([1, "1"], r"\['1'\]"),
+        ],
+        ids=["same", "equal_in_python", "equal_as_strings"],
+    )
+    def test_model_dump_json_rejects_duplicate_column_names(
+        self, types_module, columns, duplicates
+    ):
+        df = pd.DataFrame([["v1", "v2"]], columns=pd.Index(columns, dtype=object))
+
+        with pytest.raises(ValueError, match=f"found duplicates: {duplicates}"):
+            types_module.EvaluationDataset(eval_dataset_df=df).model_dump_json()
 
 
 class TestEvalsGenerateConversationScenarios:

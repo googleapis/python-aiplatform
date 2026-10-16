@@ -32,6 +32,62 @@ from . import types
 logger = logging.getLogger("agentplatform_genai.modelgarden")
 
 
+def _CreateBatchPredictionJobConfig_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+
+    if getv(from_object, ["display_name"]) is not None:
+        setv(parent_object, ["displayName"], getv(from_object, ["display_name"]))
+
+    if getv(from_object, ["input_config"]) is not None:
+        setv(
+            parent_object,
+            ["inputConfig"],
+            _ModelGardenBatchJobSource_to_vertex(
+                getv(from_object, ["input_config"]), to_object
+            ),
+        )
+
+    if getv(from_object, ["output_config"]) is not None:
+        setv(
+            parent_object,
+            ["outputConfig"],
+            _ModelGardenBatchJobDestination_to_vertex(
+                getv(from_object, ["output_config"]), to_object
+            ),
+        )
+
+    if getv(from_object, ["dedicated_resources"]) is not None:
+        setv(
+            parent_object,
+            ["dedicatedResources"],
+            getv(from_object, ["dedicated_resources"]),
+        )
+
+    return to_object
+
+
+def _CreateBatchPredictionJobParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["parent"]) is not None:
+        setv(to_object, ["_url", "parent"], getv(from_object, ["parent"]))
+
+    if getv(from_object, ["model"]) is not None:
+        setv(to_object, ["model"], getv(from_object, ["model"]))
+
+    if getv(from_object, ["config"]) is not None:
+        _CreateBatchPredictionJobConfig_to_vertex(
+            getv(from_object, ["config"]), to_object
+        )
+
+    return to_object
+
+
 def _DeployRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
@@ -94,6 +150,17 @@ def _ExportPublisherModelRequestParameters_to_vertex(
 
     if getv(from_object, ["config"]) is not None:
         _ExportPublisherModelConfig_to_vertex(getv(from_object, ["config"]), to_object)
+
+    return to_object
+
+
+def _GetBatchPredictionJobParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["name"]) is not None:
+        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
 
     return to_object
 
@@ -209,6 +276,154 @@ def _ListPublisherModelsRequestParameters_to_vertex(
 
     if getv(from_object, ["config"]) is not None:
         _ListPublisherModelsConfig_to_vertex(getv(from_object, ["config"]), to_object)
+
+    return to_object
+
+
+def _ModelGardenBatchJobDestination_from_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["predictionsFormat"]) is not None:
+        setv(to_object, ["format"], getv(from_object, ["predictionsFormat"]))
+
+    if getv(from_object, ["gcsDestination", "outputUriPrefix"]) is not None:
+        setv(
+            to_object,
+            ["gcs_uri"],
+            getv(from_object, ["gcsDestination", "outputUriPrefix"]),
+        )
+
+    if getv(from_object, ["bigqueryDestination", "outputUri"]) is not None:
+        setv(
+            to_object,
+            ["bigquery_uri"],
+            getv(from_object, ["bigqueryDestination", "outputUri"]),
+        )
+
+    return to_object
+
+
+def _ModelGardenBatchJobDestination_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["format"]) is not None:
+        setv(to_object, ["predictionsFormat"], getv(from_object, ["format"]))
+
+    if getv(from_object, ["gcs_uri"]) is not None:
+        setv(
+            to_object,
+            ["gcsDestination", "outputUriPrefix"],
+            getv(from_object, ["gcs_uri"]),
+        )
+
+    if getv(from_object, ["bigquery_uri"]) is not None:
+        setv(
+            to_object,
+            ["bigqueryDestination", "outputUri"],
+            getv(from_object, ["bigquery_uri"]),
+        )
+
+    return to_object
+
+
+def _ModelGardenBatchJobSource_from_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["instancesFormat"]) is not None:
+        setv(to_object, ["format"], getv(from_object, ["instancesFormat"]))
+
+    if getv(from_object, ["gcsSource", "uris"]) is not None:
+        setv(to_object, ["gcs_uri"], getv(from_object, ["gcsSource", "uris"]))
+
+    if getv(from_object, ["bigquerySource", "inputUri"]) is not None:
+        setv(
+            to_object,
+            ["bigquery_uri"],
+            getv(from_object, ["bigquerySource", "inputUri"]),
+        )
+
+    return to_object
+
+
+def _ModelGardenBatchJobSource_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["format"]) is not None:
+        setv(to_object, ["instancesFormat"], getv(from_object, ["format"]))
+
+    if getv(from_object, ["gcs_uri"]) is not None:
+        setv(to_object, ["gcsSource", "uris"], getv(from_object, ["gcs_uri"]))
+
+    if getv(from_object, ["bigquery_uri"]) is not None:
+        setv(
+            to_object,
+            ["bigquerySource", "inputUri"],
+            getv(from_object, ["bigquery_uri"]),
+        )
+
+    return to_object
+
+
+def _ModelGardenBatchPredictionJob_from_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["name"]) is not None:
+        setv(to_object, ["name"], getv(from_object, ["name"]))
+
+    if getv(from_object, ["displayName"]) is not None:
+        setv(to_object, ["display_name"], getv(from_object, ["displayName"]))
+
+    if getv(from_object, ["model"]) is not None:
+        setv(to_object, ["model"], getv(from_object, ["model"]))
+
+    if getv(from_object, ["inputConfig"]) is not None:
+        setv(
+            to_object,
+            ["input_config"],
+            _ModelGardenBatchJobSource_from_vertex(
+                getv(from_object, ["inputConfig"]), to_object
+            ),
+        )
+
+    if getv(from_object, ["outputConfig"]) is not None:
+        setv(
+            to_object,
+            ["output_config"],
+            _ModelGardenBatchJobDestination_from_vertex(
+                getv(from_object, ["outputConfig"]), to_object
+            ),
+        )
+
+    if getv(from_object, ["outputInfo"]) is not None:
+        setv(to_object, ["output_info"], getv(from_object, ["outputInfo"]))
+
+    if getv(from_object, ["state"]) is not None:
+        setv(to_object, ["state"], getv(from_object, ["state"]))
+
+    if getv(from_object, ["error"]) is not None:
+        setv(to_object, ["error"], getv(from_object, ["error"]))
+
+    if getv(from_object, ["createTime"]) is not None:
+        setv(to_object, ["create_time"], getv(from_object, ["createTime"]))
+
+    if getv(from_object, ["startTime"]) is not None:
+        setv(to_object, ["start_time"], getv(from_object, ["startTime"]))
+
+    if getv(from_object, ["endTime"]) is not None:
+        setv(to_object, ["end_time"], getv(from_object, ["endTime"]))
+
+    if getv(from_object, ["updateTime"]) is not None:
+        setv(to_object, ["update_time"], getv(from_object, ["updateTime"]))
 
     return to_object
 
@@ -754,6 +969,160 @@ class ModelGarden(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.DeployModelOperation._from_response(
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    def _create_batch_prediction_job(
+        self,
+        *,
+        parent: str,
+        model: str,
+        config: Optional[types.CreateBatchPredictionJobConfigOrDict] = None,
+    ) -> types.ModelGardenBatchPredictionJob:
+        """
+        Creates a batch prediction job (internal).
+        """
+
+        parameter_model = types._CreateBatchPredictionJobParameters(
+            parent=parent,
+            model=model,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
+        else:
+            request_dict = _CreateBatchPredictionJobParameters_to_vertex(
+                parameter_model
+            )
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{parent}/batchPredictionJobs".format_map(request_url_dict)
+            else:
+                path = "{parent}/batchPredictionJobs"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = self._api_client.request("post", path, request_dict, http_options)
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        if self._api_client.vertexai:
+            response_dict = _ModelGardenBatchPredictionJob_from_vertex(response_dict)
+
+        return_value = types.ModelGardenBatchPredictionJob._from_response(
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    def get_batch_prediction_job(
+        self,
+        *,
+        name: str,
+        config: Optional[types.GetBatchPredictionJobConfigOrDict] = None,
+    ) -> types.ModelGardenBatchPredictionJob:
+        """
+        Fetches the current state of a ``batch_predict`` job.
+        """
+
+        parameter_model = types._GetBatchPredictionJobParameters(
+            name=name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
+        else:
+            request_dict = _GetBatchPredictionJobParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{name}".format_map(request_url_dict)
+            else:
+                path = "{name}"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = self._api_client.request("get", path, request_dict, http_options)
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        if self._api_client.vertexai:
+            response_dict = _ModelGardenBatchPredictionJob_from_vertex(response_dict)
+
+        return_value = types.ModelGardenBatchPredictionJob._from_response(
             response=response_dict,
             kwargs=(
                 {
@@ -1894,6 +2263,210 @@ class ModelGarden(_api_module.BaseModule):
             )
         return operation.response.destination_uri
 
+    @staticmethod
+    def _complete_bq_uri(uri: Optional[str], project: str) -> str:
+        """Completes a BigQuery URI prefix to a full table URI.
+
+        Mirrors ``vertexai.batch_prediction.BatchPredictionJob``: a missing
+        project, dataset or table is filled with the client project, the
+        ``gen_ai_batch_prediction`` dataset and a timestamped ``predictions_*``
+        table respectively.
+
+        Args:
+          uri: A ``'bq://{project}[.{dataset}[.{table}]]'`` URI, or None.
+          project: The project to use when ``uri`` is None.
+
+        Returns:
+          A ``'bq://{project}.{dataset}.{table}'`` URI.
+
+        Raises:
+          ValueError: If ``uri`` has more than three parts or does not start with
+            ``'bq://'``.
+        """
+        import datetime
+
+        parts = uri.split(".") if uri else []
+        if len(parts) > 3:
+            raise ValueError(
+                f"Invalid BigQuery URI: {uri}. Supported format: "
+                "'bq://projectId.bqDatasetId.bqTableId'."
+            )
+        project_part = parts[0] if parts else f"bq://{project}"
+        if not project_part.startswith("bq://"):
+            raise ValueError(f"BigQuery URI must start with 'bq://': {uri}.")
+        dataset = parts[1] if len(parts) >= 2 else "gen_ai_batch_prediction"
+        table = (
+            parts[2]
+            if len(parts) >= 3
+            else "predictions_"
+            + datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S_%f")
+        )
+        return f"{project_part}.{dataset}.{table}"
+
+    @staticmethod
+    def _prepare_batch_predict_request(
+        model: str,
+        src: Union[str, list[str]],
+        config: types.BatchPredictConfig,
+        project: str,
+    ) -> tuple[str, types.CreateBatchPredictionJobConfig]:
+        """Translates ``batch_predict`` arguments to a ``CreateBatchPredictionJob`` request.
+
+        Shared by the sync and async surfaces. Infers the input and output
+        formats from the URI schemes, as ``OpenModel.batch_predict`` does.
+
+        Returns:
+          The ``(publisher_model_name, request_config)`` pair.
+
+        Raises:
+          ValueError: If ``model`` is a Hugging Face model ID or not a valid
+            publisher model name, if ``src`` or ``dest`` use an unsupported
+            scheme, if ``dest`` is missing for a Cloud Storage ``src``, or if
+            accelerator or replica settings are given without ``machine_type``.
+        """
+        import datetime
+
+        if ModelGarden._is_hugging_face_model(model):
+            raise ValueError(
+                f"batch_predict does not support Hugging Face model IDs (got "
+                f"{model!r}); pass a Model Garden publisher model such as "
+                "'google/gemma3@gemma-3-12b-it'."
+            )
+        if not src:
+            raise ValueError("src must be specified.")
+        publisher_model_name = ModelGarden._reconcile_model_name(model)
+
+        uris = [src] if isinstance(src, str) else list(src)
+        if all(uri.startswith("gs://") for uri in uris):
+            input_config = types.ModelGardenBatchJobSource(format="jsonl", gcs_uri=uris)
+        elif uris[0].startswith("bq://"):
+            if len(uris) > 1:
+                raise ValueError("Multiple BigQuery input tables are not supported.")
+            input_config = types.ModelGardenBatchJobSource(
+                format="bigquery", bigquery_uri=uris[0]
+            )
+        else:
+            raise ValueError(
+                f"Unsupported src: {src}. Supported formats: "
+                "'gs://path/to/input/data.jsonl' and "
+                "'bq://projectId.bqDatasetId.bqTableId'."
+            )
+
+        dest = config.dest
+        if dest and dest.startswith("gs://"):
+            output_config = types.ModelGardenBatchJobDestination(
+                format="jsonl", gcs_uri=dest
+            )
+        elif dest and dest.startswith("bq://"):
+            output_config = types.ModelGardenBatchJobDestination(
+                format="bigquery",
+                bigquery_uri=ModelGarden._complete_bq_uri(dest, project),
+            )
+        elif dest:
+            raise ValueError(
+                f"Unsupported dest: {dest}. Supported formats: "
+                "'gs://path/to/output/data' and 'bq://projectId.bqDatasetId'."
+            )
+        elif input_config.format == "bigquery":
+            output_config = types.ModelGardenBatchJobDestination(
+                format="bigquery",
+                bigquery_uri=ModelGarden._complete_bq_uri(None, project),
+            )
+        else:
+            raise ValueError("dest must be specified when src is a Cloud Storage URI.")
+
+        # Like the legacy SDK, the machine shape is only sent with a machine
+        # type; reject the settings that would otherwise be dropped silently.
+        dedicated_resources = None
+        if config.machine_type:
+            dedicated_resources = types.BatchDedicatedResources(
+                machine_spec=types.MachineSpec(
+                    machine_type=config.machine_type,
+                    accelerator_type=config.accelerator_type,
+                    accelerator_count=config.accelerator_count,
+                ),
+                starting_replica_count=config.starting_replica_count,
+                max_replica_count=config.max_replica_count,
+            )
+        else:
+            dropped = [
+                name
+                for name in (
+                    "accelerator_type",
+                    "accelerator_count",
+                    "starting_replica_count",
+                    "max_replica_count",
+                )
+                if getattr(config, name)
+            ]
+            if dropped:
+                raise ValueError(
+                    f"{', '.join(dropped)} require machine_type to also be set."
+                )
+
+        display_name = config.display_name or (
+            "model-garden-batch-predict-"
+            + datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+        )
+        return publisher_model_name, types.CreateBatchPredictionJobConfig(
+            display_name=display_name,
+            input_config=input_config,
+            output_config=output_config,
+            dedicated_resources=dedicated_resources,
+        )
+
+    def batch_predict(
+        self,
+        *,
+        model: str,
+        src: Union[str, list[str]],
+        config: Optional[types.BatchPredictConfigOrDict] = None,
+    ) -> types.ModelGardenBatchPredictionJob:
+        """Runs batch prediction on a Model Garden publisher model.
+
+        Submits a batch prediction job and returns without waiting for it to
+        finish. Use ``get_batch_prediction_job`` with the returned job's ``name``
+        to track its ``state``.
+
+        Args:
+          model: The publisher model to run. Accepts the full resource name
+            ``'publishers/{publisher}/models/{model}@{version}'`` or the
+            simplified ``'{publisher}/{model}@{version}'`` (or without the
+            ``@{version}``). Hugging Face model IDs are not supported.
+          src: Cloud Storage URI(s) of JSONL input files (e.g.
+            ``'gs://my-bucket/input/prompts.jsonl'``), or a single BigQuery
+            table URI (e.g. ``'bq://my-project.my_dataset.my_table'``).
+          config: Optional configuration (output destination, display name,
+            machine shape). See ``BatchPredictConfig``.
+
+        Returns:
+          The created ``ModelGardenBatchPredictionJob``.
+
+        Raises:
+          ValueError: If ``model`` is not a valid publisher model name or is a
+            Hugging Face model ID, if ``src`` or ``config.dest`` is malformed, if
+            ``config.dest`` is missing for a Cloud Storage ``src``, or if
+            accelerator or replica settings are given without
+            ``config.machine_type``.
+        """
+        if config is None:
+            config = types.BatchPredictConfig()
+        elif isinstance(config, dict):
+            config = types.BatchPredictConfig.model_validate(config)
+
+        publisher_model_name, api_config = ModelGarden._prepare_batch_predict_request(
+            model, src, config, self._api_client.project
+        )
+        parent = (
+            f"projects/{self._api_client.project}/locations/"
+            f"{self._api_client.location}"
+        )
+        return self._create_batch_prediction_job(
+            parent=parent,
+            model=publisher_model_name,
+            config=api_config,
+        )
+
 
 class AsyncModelGarden(_api_module.BaseModule):
     """Model Garden module."""
@@ -2437,6 +3010,164 @@ class AsyncModelGarden(_api_module.BaseModule):
         self._api_client._verify_response(return_value)
         return return_value
 
+    async def _create_batch_prediction_job(
+        self,
+        *,
+        parent: str,
+        model: str,
+        config: Optional[types.CreateBatchPredictionJobConfigOrDict] = None,
+    ) -> types.ModelGardenBatchPredictionJob:
+        """
+        Creates a batch prediction job (internal).
+        """
+
+        parameter_model = types._CreateBatchPredictionJobParameters(
+            parent=parent,
+            model=model,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
+        else:
+            request_dict = _CreateBatchPredictionJobParameters_to_vertex(
+                parameter_model
+            )
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{parent}/batchPredictionJobs".format_map(request_url_dict)
+            else:
+                path = "{parent}/batchPredictionJobs"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = await self._api_client.async_request(
+            "post", path, request_dict, http_options
+        )
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        if self._api_client.vertexai:
+            response_dict = _ModelGardenBatchPredictionJob_from_vertex(response_dict)
+
+        return_value = types.ModelGardenBatchPredictionJob._from_response(
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    async def get_batch_prediction_job(
+        self,
+        *,
+        name: str,
+        config: Optional[types.GetBatchPredictionJobConfigOrDict] = None,
+    ) -> types.ModelGardenBatchPredictionJob:
+        """
+        Fetches the current state of a ``batch_predict`` job.
+        """
+
+        parameter_model = types._GetBatchPredictionJobParameters(
+            name=name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
+        else:
+            request_dict = _GetBatchPredictionJobParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{name}".format_map(request_url_dict)
+            else:
+                path = "{name}"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = await self._api_client.async_request(
+            "get", path, request_dict, http_options
+        )
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        if self._api_client.vertexai:
+            response_dict = _ModelGardenBatchPredictionJob_from_vertex(response_dict)
+
+        return_value = types.ModelGardenBatchPredictionJob._from_response(
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
     async def _list_all_publisher_models(
         self,
         api_config: types.ListPublisherModelsConfig,
@@ -2845,3 +3576,29 @@ class AsyncModelGarden(_api_module.BaseModule):
                 f"{operation!r}"
             )
         return operation.response.destination_uri
+
+    async def batch_predict(
+        self,
+        *,
+        model: str,
+        src: Union[str, list[str]],
+        config: Optional[types.BatchPredictConfigOrDict] = None,
+    ) -> types.ModelGardenBatchPredictionJob:
+        """Async variant of ``ModelGarden.batch_predict``."""
+        if config is None:
+            config = types.BatchPredictConfig()
+        elif isinstance(config, dict):
+            config = types.BatchPredictConfig.model_validate(config)
+
+        publisher_model_name, api_config = ModelGarden._prepare_batch_predict_request(
+            model, src, config, self._api_client.project
+        )
+        parent = (
+            f"projects/{self._api_client.project}/locations/"
+            f"{self._api_client.location}"
+        )
+        return await self._create_batch_prediction_job(
+            parent=parent,
+            model=publisher_model_name,
+            config=api_config,
+        )

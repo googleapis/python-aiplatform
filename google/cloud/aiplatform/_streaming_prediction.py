@@ -38,12 +38,12 @@ def value_to_tensor(value: Any) -> aiplatform_types.Tensor:
     """
     if value is None:
         return aiplatform_types.Tensor()
+    elif isinstance(value, bool):
+        return aiplatform_types.Tensor(bool_val=[value])
     elif isinstance(value, int):
         return aiplatform_types.Tensor(int_val=[value])
     elif isinstance(value, float):
         return aiplatform_types.Tensor(float_val=[value])
-    elif isinstance(value, bool):
-        return aiplatform_types.Tensor(bool_val=[value])
     elif isinstance(value, str):
         return aiplatform_types.Tensor(string_val=[value])
     elif isinstance(value, bytes):
