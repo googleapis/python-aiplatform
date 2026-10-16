@@ -20,15 +20,14 @@ import importlib
 import json
 import logging
 import typing
-from typing import Any, Iterator, Optional, Union
+from typing import Iterator, Optional
 from urllib.parse import urlencode
 
 from google.genai import _api_module
 from google.genai import _common
-from google.genai._common import get_value_by_path as getv
-from google.genai._common import set_value_by_path as setv
 from google.genai.pagers import AsyncPager, Pager
 
+from . import _converters
 from . import _runtimes_utils
 from . import types
 
@@ -41,166 +40,6 @@ if typing.TYPE_CHECKING:
 logger = logging.getLogger("agentplatform_genai.sessions")
 
 logger.setLevel(logging.INFO)
-
-
-def _CreateRuntimeSessionConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-
-    if getv(from_object, ["display_name"]) is not None:
-        setv(parent_object, ["displayName"], getv(from_object, ["display_name"]))
-
-    if getv(from_object, ["session_state"]) is not None:
-        setv(parent_object, ["sessionState"], getv(from_object, ["session_state"]))
-
-    if getv(from_object, ["ttl"]) is not None:
-        setv(parent_object, ["ttl"], getv(from_object, ["ttl"]))
-
-    if getv(from_object, ["expire_time"]) is not None:
-        setv(parent_object, ["expireTime"], getv(from_object, ["expire_time"]))
-
-    if getv(from_object, ["labels"]) is not None:
-        setv(parent_object, ["labels"], getv(from_object, ["labels"]))
-
-    if getv(from_object, ["session_id"]) is not None:
-        setv(parent_object, ["_query", "sessionId"], getv(from_object, ["session_id"]))
-
-    return to_object
-
-
-def _CreateRuntimeSessionRequestParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["user_id"]) is not None:
-        setv(to_object, ["userId"], getv(from_object, ["user_id"]))
-
-    if getv(from_object, ["config"]) is not None:
-        _CreateRuntimeSessionConfig_to_vertex(getv(from_object, ["config"]), to_object)
-
-    return to_object
-
-
-def _DeleteRuntimeSessionRequestParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    return to_object
-
-
-def _GetRuntimeSessionOperationParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["operation_name"]) is not None:
-        setv(
-            to_object, ["_url", "operationName"], getv(from_object, ["operation_name"])
-        )
-
-    return to_object
-
-
-def _GetRuntimeSessionRequestParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    return to_object
-
-
-def _ListRuntimeSessionsConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-
-    if getv(from_object, ["page_size"]) is not None:
-        setv(parent_object, ["_query", "pageSize"], getv(from_object, ["page_size"]))
-
-    if getv(from_object, ["page_token"]) is not None:
-        setv(parent_object, ["_query", "pageToken"], getv(from_object, ["page_token"]))
-
-    if getv(from_object, ["filter"]) is not None:
-        setv(parent_object, ["_query", "filter"], getv(from_object, ["filter"]))
-
-    return to_object
-
-
-def _ListRuntimeSessionsRequestParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["config"]) is not None:
-        _ListRuntimeSessionsConfig_to_vertex(getv(from_object, ["config"]), to_object)
-
-    return to_object
-
-
-def _UpdateRuntimeSessionConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-
-    if getv(from_object, ["display_name"]) is not None:
-        setv(parent_object, ["displayName"], getv(from_object, ["display_name"]))
-
-    if getv(from_object, ["session_state"]) is not None:
-        setv(parent_object, ["sessionState"], getv(from_object, ["session_state"]))
-
-    if getv(from_object, ["ttl"]) is not None:
-        setv(parent_object, ["ttl"], getv(from_object, ["ttl"]))
-
-    if getv(from_object, ["expire_time"]) is not None:
-        setv(parent_object, ["expireTime"], getv(from_object, ["expire_time"]))
-
-    if getv(from_object, ["labels"]) is not None:
-        setv(parent_object, ["labels"], getv(from_object, ["labels"]))
-
-    if getv(from_object, ["session_id"]) is not None:
-        setv(parent_object, ["_query", "sessionId"], getv(from_object, ["session_id"]))
-
-    if getv(from_object, ["update_mask"]) is not None:
-        setv(
-            parent_object, ["_query", "updateMask"], getv(from_object, ["update_mask"])
-        )
-
-    if getv(from_object, ["user_id"]) is not None:
-        setv(parent_object, ["userId"], getv(from_object, ["user_id"]))
-
-    return to_object
-
-
-def _UpdateRuntimeSessionRequestParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["config"]) is not None:
-        _UpdateRuntimeSessionConfig_to_vertex(getv(from_object, ["config"]), to_object)
-
-    return to_object
 
 
 class Sessions(_api_module.BaseModule):
@@ -239,7 +78,7 @@ class Sessions(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _CreateRuntimeSessionRequestParameters_to_vertex(
+            request_dict = _converters._CreateRuntimeSessionRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -323,7 +162,7 @@ class Sessions(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _DeleteRuntimeSessionRequestParameters_to_vertex(
+            request_dict = _converters._DeleteRuntimeSessionRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -404,7 +243,7 @@ class Sessions(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetRuntimeSessionRequestParameters_to_vertex(
+            request_dict = _converters._GetRuntimeSessionRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -488,7 +327,7 @@ class Sessions(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _ListRuntimeSessionsRequestParameters_to_vertex(
+            request_dict = _converters._ListRuntimeSessionsRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -558,7 +397,7 @@ class Sessions(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetRuntimeSessionOperationParameters_to_vertex(
+            request_dict = _converters._GetRuntimeSessionOperationParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -642,7 +481,7 @@ class Sessions(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _UpdateRuntimeSessionRequestParameters_to_vertex(
+            request_dict = _converters._UpdateRuntimeSessionRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -850,7 +689,7 @@ class AsyncSessions(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _CreateRuntimeSessionRequestParameters_to_vertex(
+            request_dict = _converters._CreateRuntimeSessionRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -936,7 +775,7 @@ class AsyncSessions(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _DeleteRuntimeSessionRequestParameters_to_vertex(
+            request_dict = _converters._DeleteRuntimeSessionRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -1019,7 +858,7 @@ class AsyncSessions(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetRuntimeSessionRequestParameters_to_vertex(
+            request_dict = _converters._GetRuntimeSessionRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -1105,7 +944,7 @@ class AsyncSessions(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _ListRuntimeSessionsRequestParameters_to_vertex(
+            request_dict = _converters._ListRuntimeSessionsRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -1177,7 +1016,7 @@ class AsyncSessions(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetRuntimeSessionOperationParameters_to_vertex(
+            request_dict = _converters._GetRuntimeSessionOperationParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -1263,7 +1102,7 @@ class AsyncSessions(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _UpdateRuntimeSessionRequestParameters_to_vertex(
+            request_dict = _converters._UpdateRuntimeSessionRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
