@@ -18,187 +18,20 @@
 import json
 import logging
 import time
-from typing import Any, Optional, Union
+from typing import Optional
 from urllib.parse import urlencode
 
 from google.genai import _api_module
 from google.genai import _common
 from google.genai import types as genai_types
-from google.genai._common import get_value_by_path as getv
-from google.genai._common import set_value_by_path as setv
 
+from . import _converters
 from . import _logging_utils
 from . import _prompt_optimizer_utils
 from . import prompts
 from . import types
 
 logger = logging.getLogger("agentplatform_genai.promptoptimizer")
-
-
-def _CustomJobParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["custom_job"]) is not None:
-        setv(
-            parent_object,
-            ["customJob"],
-            _CustomJob_to_vertex(getv(from_object, ["custom_job"]), to_object),
-        )
-
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
-    return to_object
-
-
-def _CustomJob_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(parent_object, ["displayName"]) is not None:
-        setv(to_object, ["display_name"], getv(parent_object, ["displayName"]))
-
-    if getv(parent_object, ["jobSpec"]) is not None:
-        setv(to_object, ["job_spec"], getv(parent_object, ["jobSpec"]))
-
-    if getv(parent_object, ["encryptionSpec"]) is not None:
-        setv(to_object, ["encryption_spec"], getv(parent_object, ["encryptionSpec"]))
-
-    if getv(from_object, ["state"]) is not None:
-        setv(to_object, ["state"], getv(from_object, ["state"]))
-
-    if getv(parent_object, ["error"]) is not None:
-        setv(to_object, ["error"], getv(parent_object, ["error"]))
-
-    if getv(from_object, ["createTime"]) is not None:
-        setv(to_object, ["create_time"], getv(from_object, ["createTime"]))
-
-    if getv(from_object, ["endTime"]) is not None:
-        setv(to_object, ["end_time"], getv(from_object, ["endTime"]))
-
-    if getv(from_object, ["labels"]) is not None:
-        setv(to_object, ["labels"], getv(from_object, ["labels"]))
-
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["satisfiesPzi"]) is not None:
-        setv(to_object, ["satisfies_pzi"], getv(from_object, ["satisfiesPzi"]))
-
-    if getv(from_object, ["satisfiesPzs"]) is not None:
-        setv(to_object, ["satisfies_pzs"], getv(from_object, ["satisfiesPzs"]))
-
-    if getv(from_object, ["startTime"]) is not None:
-        setv(to_object, ["start_time"], getv(from_object, ["startTime"]))
-
-    if getv(from_object, ["updateTime"]) is not None:
-        setv(to_object, ["update_time"], getv(from_object, ["updateTime"]))
-
-    if getv(from_object, ["webAccessUris"]) is not None:
-        setv(to_object, ["web_access_uris"], getv(from_object, ["webAccessUris"]))
-
-    return to_object
-
-
-def _CustomJob_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["display_name"]) is not None:
-        setv(parent_object, ["displayName"], getv(from_object, ["display_name"]))
-
-    if getv(from_object, ["job_spec"]) is not None:
-        setv(parent_object, ["jobSpec"], getv(from_object, ["job_spec"]))
-
-    if getv(from_object, ["encryption_spec"]) is not None:
-        setv(parent_object, ["encryptionSpec"], getv(from_object, ["encryption_spec"]))
-
-    if getv(from_object, ["state"]) is not None:
-        setv(to_object, ["state"], getv(from_object, ["state"]))
-
-    if getv(from_object, ["error"]) is not None:
-        setv(parent_object, ["error"], getv(from_object, ["error"]))
-
-    if getv(from_object, ["create_time"]) is not None:
-        setv(to_object, ["createTime"], getv(from_object, ["create_time"]))
-
-    if getv(from_object, ["end_time"]) is not None:
-        setv(to_object, ["endTime"], getv(from_object, ["end_time"]))
-
-    if getv(from_object, ["labels"]) is not None:
-        setv(to_object, ["labels"], getv(from_object, ["labels"]))
-
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["satisfies_pzi"]) is not None:
-        setv(to_object, ["satisfiesPzi"], getv(from_object, ["satisfies_pzi"]))
-
-    if getv(from_object, ["satisfies_pzs"]) is not None:
-        setv(to_object, ["satisfiesPzs"], getv(from_object, ["satisfies_pzs"]))
-
-    if getv(from_object, ["start_time"]) is not None:
-        setv(to_object, ["startTime"], getv(from_object, ["start_time"]))
-
-    if getv(from_object, ["update_time"]) is not None:
-        setv(to_object, ["updateTime"], getv(from_object, ["update_time"]))
-
-    if getv(from_object, ["web_access_uris"]) is not None:
-        setv(to_object, ["webAccessUris"], getv(from_object, ["web_access_uris"]))
-
-    return to_object
-
-
-def _GetCustomJobParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
-    return to_object
-
-
-def _OptimizeConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-
-    if getv(from_object, ["optimization_target"]) is not None:
-        setv(
-            parent_object,
-            ["optimizationTarget"],
-            getv(from_object, ["optimization_target"]),
-        )
-
-    return to_object
-
-
-def _OptimizeRequestParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["content"]) is not None:
-        setv(to_object, ["content"], getv(from_object, ["content"]))
-
-    if getv(from_object, ["config"]) is not None:
-        setv(
-            to_object,
-            ["config"],
-            _OptimizeConfig_to_vertex(getv(from_object, ["config"]), to_object),
-        )
-
-    return to_object
 
 
 class PromptOptimizer(_api_module.BaseModule):
@@ -225,7 +58,9 @@ class PromptOptimizer(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _OptimizeRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._OptimizeRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "tuningJobs:optimizePrompt".format_map(request_url_dict)
@@ -297,7 +132,7 @@ class PromptOptimizer(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _CustomJobParameters_to_vertex(parameter_model)
+            request_dict = _converters._CustomJobParameters_to_vertex(parameter_model)
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "customJobs".format_map(request_url_dict)
@@ -325,7 +160,7 @@ class PromptOptimizer(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         if self._api_client.vertexai:
-            response_dict = _CustomJob_from_vertex(response_dict)
+            response_dict = _converters._CustomJob_from_vertex(response_dict)
 
         return_value = types.CustomJob._from_response(
             response=response_dict,
@@ -369,7 +204,9 @@ class PromptOptimizer(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetCustomJobParameters_to_vertex(parameter_model)
+            request_dict = _converters._GetCustomJobParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "customJobs/{name}".format_map(request_url_dict)
@@ -397,7 +234,7 @@ class PromptOptimizer(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         if self._api_client.vertexai:
-            response_dict = _CustomJob_from_vertex(response_dict)
+            response_dict = _converters._CustomJob_from_vertex(response_dict)
 
         return_value = types.CustomJob._from_response(
             response=response_dict,
@@ -635,7 +472,9 @@ class AsyncPromptOptimizer(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _OptimizeRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._OptimizeRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "tuningJobs:optimizePrompt".format_map(request_url_dict)
@@ -709,7 +548,7 @@ class AsyncPromptOptimizer(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _CustomJobParameters_to_vertex(parameter_model)
+            request_dict = _converters._CustomJobParameters_to_vertex(parameter_model)
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "customJobs".format_map(request_url_dict)
@@ -739,7 +578,7 @@ class AsyncPromptOptimizer(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         if self._api_client.vertexai:
-            response_dict = _CustomJob_from_vertex(response_dict)
+            response_dict = _converters._CustomJob_from_vertex(response_dict)
 
         return_value = types.CustomJob._from_response(
             response=response_dict,
@@ -783,7 +622,9 @@ class AsyncPromptOptimizer(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetCustomJobParameters_to_vertex(parameter_model)
+            request_dict = _converters._GetCustomJobParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "customJobs/{name}".format_map(request_url_dict)
@@ -813,7 +654,7 @@ class AsyncPromptOptimizer(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         if self._api_client.vertexai:
-            response_dict = _CustomJob_from_vertex(response_dict)
+            response_dict = _converters._CustomJob_from_vertex(response_dict)
 
         return_value = types.CustomJob._from_response(
             response=response_dict,

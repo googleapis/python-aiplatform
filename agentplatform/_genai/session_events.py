@@ -19,106 +19,19 @@ import datetime
 import functools
 import json
 import logging
-from typing import Any, Iterator, Optional, Union
+from typing import Iterator, Optional
 from urllib.parse import urlencode
 
 from google.genai import _api_module
 from google.genai import _common
-from google.genai._common import get_value_by_path as getv
-from google.genai._common import set_value_by_path as setv
 from google.genai.pagers import AsyncPager, Pager
 
+from . import _converters
 from . import types
 
 logger = logging.getLogger("agentplatform_genai.sessionevents")
 
 logger.setLevel(logging.INFO)
-
-
-def _AppendRuntimeSessionEventConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-
-    if getv(from_object, ["content"]) is not None:
-        setv(parent_object, ["content"], getv(from_object, ["content"]))
-
-    if getv(from_object, ["actions"]) is not None:
-        setv(parent_object, ["actions"], getv(from_object, ["actions"]))
-
-    if getv(from_object, ["error_code"]) is not None:
-        setv(parent_object, ["errorCode"], getv(from_object, ["error_code"]))
-
-    if getv(from_object, ["error_message"]) is not None:
-        setv(parent_object, ["errorMessage"], getv(from_object, ["error_message"]))
-
-    if getv(from_object, ["event_metadata"]) is not None:
-        setv(parent_object, ["eventMetadata"], getv(from_object, ["event_metadata"]))
-
-    if getv(from_object, ["raw_event"]) is not None:
-        setv(parent_object, ["rawEvent"], getv(from_object, ["raw_event"]))
-
-    return to_object
-
-
-def _AppendRuntimeSessionEventRequestParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["author"]) is not None:
-        setv(to_object, ["author"], getv(from_object, ["author"]))
-
-    if getv(from_object, ["invocation_id"]) is not None:
-        setv(to_object, ["invocationId"], getv(from_object, ["invocation_id"]))
-
-    if getv(from_object, ["timestamp"]) is not None:
-        setv(to_object, ["timestamp"], getv(from_object, ["timestamp"]))
-
-    if getv(from_object, ["config"]) is not None:
-        _AppendRuntimeSessionEventConfig_to_vertex(
-            getv(from_object, ["config"]), to_object
-        )
-
-    return to_object
-
-
-def _ListRuntimeSessionEventsConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-
-    if getv(from_object, ["page_size"]) is not None:
-        setv(parent_object, ["_query", "pageSize"], getv(from_object, ["page_size"]))
-
-    if getv(from_object, ["page_token"]) is not None:
-        setv(parent_object, ["_query", "pageToken"], getv(from_object, ["page_token"]))
-
-    if getv(from_object, ["filter"]) is not None:
-        setv(parent_object, ["_query", "filter"], getv(from_object, ["filter"]))
-
-    return to_object
-
-
-def _ListRuntimeSessionEventsRequestParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["config"]) is not None:
-        _ListRuntimeSessionEventsConfig_to_vertex(
-            getv(from_object, ["config"]), to_object
-        )
-
-    return to_object
 
 
 class SessionEvents(_api_module.BaseModule):
@@ -163,8 +76,10 @@ class SessionEvents(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _AppendRuntimeSessionEventRequestParameters_to_vertex(
-                parameter_model
+            request_dict = (
+                _converters._AppendRuntimeSessionEventRequestParameters_to_vertex(
+                    parameter_model
+                )
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
@@ -247,8 +162,10 @@ class SessionEvents(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _ListRuntimeSessionEventsRequestParameters_to_vertex(
-                parameter_model
+            request_dict = (
+                _converters._ListRuntimeSessionEventsRequestParameters_to_vertex(
+                    parameter_model
+                )
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
@@ -372,8 +289,10 @@ class AsyncSessionEvents(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _AppendRuntimeSessionEventRequestParameters_to_vertex(
-                parameter_model
+            request_dict = (
+                _converters._AppendRuntimeSessionEventRequestParameters_to_vertex(
+                    parameter_model
+                )
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
@@ -458,8 +377,10 @@ class AsyncSessionEvents(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _ListRuntimeSessionEventsRequestParameters_to_vertex(
-                parameter_model
+            request_dict = (
+                _converters._ListRuntimeSessionEventsRequestParameters_to_vertex(
+                    parameter_model
+                )
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
