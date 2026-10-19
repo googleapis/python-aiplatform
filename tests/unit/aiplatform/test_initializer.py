@@ -385,12 +385,9 @@ class TestInit:
             client_class=utils.ModelClientWithOverride
         )
 
-        for wrapped_method in client._transport._wrapped_methods.values():
-            # wrapped_method._metadata looks like:
-            # [('x-goog-api-client', 'model-builder/0.3.1 gl-python/3.7.6 grpc/1.30.0 gax/1.22.2 gapic/0.3.1')]
-            user_agent = wrapped_method._metadata[0][1]
-            assert "model-builder/" in user_agent
-            assert "google.cloud.aiplatform" in user_agent
+        user_agent = client._client_info.to_user_agent()
+        assert "model-builder/" in user_agent
+        assert "google.cloud.aiplatform" in user_agent
 
     def test_create_client_user_agent_top_level_method(self):
         initializer.global_config.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
@@ -404,14 +401,11 @@ class TestInit:
                     client_class=utils.ModelClientWithOverride
                 )
 
-        for wrapped_method in SomeClass()._client._transport._wrapped_methods.values():
-            # wrapped_method._metadata looks like:
-            # [('x-goog-api-client', 'model-builder/0.3.1 gl-python/3.7.6 grpc/1.30.0 gax/1.22.2 gapic/0.3.1')]
-            user_agent = wrapped_method._metadata[0][1]
-            assert (
-                f"+{initializer._TOP_GOOGLE_CONSTRUCTOR_METHOD_TAG}+vertexai.SomeClass.__init__"
-                in user_agent
-            )
+        user_agent = SomeClass()._client._client_info.to_user_agent()
+        assert (
+            f"+{initializer._TOP_GOOGLE_CONSTRUCTOR_METHOD_TAG}+vertexai.SomeClass.__init__"
+            in user_agent
+        )
 
     def test_create_client_appended_user_agent(self):
         appended_user_agent = ["fake_user_agent", "another_fake_user_agent"]
@@ -421,12 +415,9 @@ class TestInit:
             appended_user_agent=appended_user_agent,
         )
 
-        for wrapped_method in client._transport._wrapped_methods.values():
-            # wrapped_method._metadata looks like:
-            # [('x-goog-api-client', 'model-builder/0.3.1 gl-python/3.7.6 grpc/1.30.0 gax/1.22.2 gapic/0.3.1')]
-            user_agent = wrapped_method._metadata[0][1]
-            assert " " + appended_user_agent[0] in user_agent
-            assert " " + appended_user_agent[1] in user_agent
+        user_agent = client._client_info.to_user_agent()
+        assert " " + appended_user_agent[0] in user_agent
+        assert " " + appended_user_agent[1] in user_agent
 
     def test_set_api_endpoint(self):
         initializer.global_config.init(

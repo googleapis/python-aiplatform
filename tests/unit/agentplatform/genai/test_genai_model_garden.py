@@ -3141,6 +3141,310 @@ def test_deploy_custom_model_async_raises_on_operation_error(mock_async_client):
       )
 
 
+# --- batch_predict -------------------------------------------------------
+
+_TEST_BATCH_JOB_NAME = (
+    f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
+    "/batchPredictionJobs/789"
+)
+_TEST_BATCH_SRC = "gs://my-bucket/input/prompts.jsonl"
+_TEST_BATCH_DEST = "gs://my-bucket/output/"
+
+
+def _make_batch_job():
+  return types.ModelGardenBatchPredictionJob(
+      name=_TEST_BATCH_JOB_NAME,
+      state="JOB_STATE_PENDING",
+  )
+
+
+def _patch_batch_rpc(mg_client):
+  return mock.patch.object(
+      mg_client,
+      "_create_batch_prediction_job",
+      return_value=_make_batch_job(),
+  )
+
+
+def _patch_async_batch_rpc(mg_client):
+  return mock.patch.object(
+      mg_client,
+      "_create_batch_prediction_job",
+      new=mock.AsyncMock(return_value=_make_batch_job()),
+  )
+
+
+def test_batch_predict_returns_created_job(mock_client):
+  """The job is returned as soon as it is created; nothing is polled."""
+  with _patch_batch_rpc(mock_client):
+    job = mock_client.batch_predict(
+        model=_OPEN_MODEL,
+        src=_TEST_BATCH_SRC,
+        config=types.BatchPredictConfig(dest=_TEST_BATCH_DEST),
+    )
+  assert isinstance(job, types.ModelGardenBatchPredictionJob)
+  assert job.name == _TEST_BATCH_JOB_NAME
+
+
+def test_batch_predict_gcs_request_shape(mock_client):
+  """A GCS src/dest pair is sent as JSONL in and JSONL out."""
+  with _patch_batch_rpc(mock_client) as m_rpc:
+    mock_client.batch_predict(
+        model=_OPEN_MODEL,
+        src=_TEST_BATCH_SRC,
+        config=types.BatchPredictConfig(
+            dest=_TEST_BATCH_DEST, display_name="my-job"
+        ),
+    )
+  kwargs = m_rpc.call_args.kwargs
+  assert kwargs["parent"] == (
+      f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
+  )
+  assert kwargs["model"] == "publishers/google/models/gemma3@gemma-3-12b-it"
+  api_config = kwargs["config"]
+  assert api_config.display_name == "my-job"
+  assert api_config.input_config.format == "jsonl"
+  assert api_config.input_config.gcs_uri == [_TEST_BATCH_SRC]
+  assert api_config.input_config.bigquery_uri is None
+  assert api_config.output_config.format == "jsonl"
+  assert api_config.output_config.gcs_uri == _TEST_BATCH_DEST
+  assert api_config.dedicated_resources is None
+
+
+def test_batch_predict_full_resource_name_passed_through(mock_client):
+  """A full publisher model resource name is sent unchanged."""
+  model = "publishers/google/models/gemma3@gemma-3-12b-it"
+  with _patch_batch_rpc(mock_client) as m_rpc:
+    mock_client.batch_predict(
+        model=model,
+        src=_TEST_BATCH_SRC,
+        config=types.BatchPredictConfig(dest=_TEST_BATCH_DEST),
+    )
+  assert m_rpc.call_args.kwargs["model"] == model
+
+
+def test_batch_predict_multiple_gcs_sources(mock_client):
+  """A list of GCS URIs is sent as-is."""
+  srcs = ["gs://my-bucket/a.jsonl", "gs://my-bucket/b.jsonl"]
+  with _patch_batch_rpc(mock_client) as m_rpc:
+    mock_client.batch_predict(
+        model=_OPEN_MODEL,
+        src=srcs,
+        config=types.BatchPredictConfig(dest=_TEST_BATCH_DEST),
+    )
+  assert m_rpc.call_args.kwargs["config"].input_config.gcs_uri == srcs
+
+
+def test_batch_predict_bigquery_full_table_dest_kept(mock_client):
+  """A fully qualified BigQuery table dest is sent unchanged."""
+  dest = "bq://my-project.my_dataset.my_table"
+  with _patch_batch_rpc(mock_client) as m_rpc:
+    mock_client.batch_predict(
+        model=_OPEN_MODEL,
+        src="bq://my-project.my_dataset.input",
+        config=types.BatchPredictConfig(dest=dest),
+    )
+  api_config = m_rpc.call_args.kwargs["config"]
+  assert api_config.input_config.format == "bigquery"
+  assert api_config.input_config.bigquery_uri == (
+      "bq://my-project.my_dataset.input"
+  )
+  assert api_config.input_config.gcs_uri is None
+  assert api_config.output_config.format == "bigquery"
+  assert api_config.output_config.bigquery_uri == dest
+
+
+def test_batch_predict_bigquery_dataset_dest_gets_table(mock_client):
+  """A BigQuery dataset dest gets a timestamped predictions table."""
+  with _patch_batch_rpc(mock_client) as m_rpc:
+    mock_client.batch_predict(
+        model=_OPEN_MODEL,
+        src=_TEST_BATCH_SRC,
+        config=types.BatchPredictConfig(dest="bq://my-project.my_dataset"),
+    )
+  output_uri = m_rpc.call_args.kwargs["config"].output_config.bigquery_uri
+  assert output_uri.startswith("bq://my-project.my_dataset.predictions_")
+
+
+def test_batch_predict_bigquery_src_defaults_dest(mock_client):
+  """A BigQuery src without dest writes to the default dataset."""
+  with _patch_batch_rpc(mock_client) as m_rpc:
+    mock_client.batch_predict(
+        model=_OPEN_MODEL, src="bq://my-project.my_dataset.input"
+    )
+  output_config = m_rpc.call_args.kwargs["config"].output_config
+  assert output_config.format == "bigquery"
+  assert output_config.bigquery_uri.startswith(
+      f"bq://{_TEST_PROJECT}.gen_ai_batch_prediction.predictions_"
+  )
+
+
+def test_batch_predict_machine_shape_forwarded(mock_client):
+  """Machine shape and replica counts ride on dedicated_resources."""
+  with _patch_batch_rpc(mock_client) as m_rpc:
+    mock_client.batch_predict(
+        model=_OPEN_MODEL,
+        src=_TEST_BATCH_SRC,
+        config=types.BatchPredictConfig(
+            dest=_TEST_BATCH_DEST,
+            machine_type="g2-standard-48",
+            accelerator_type="NVIDIA_L4",
+            accelerator_count=4,
+            starting_replica_count=1,
+            max_replica_count=2,
+        ),
+    )
+  resources = m_rpc.call_args.kwargs["config"].dedicated_resources
+  assert resources.machine_spec.machine_type == "g2-standard-48"
+  assert resources.machine_spec.accelerator_type == "NVIDIA_L4"
+  assert resources.machine_spec.accelerator_count == 4
+  assert resources.starting_replica_count == 1
+  assert resources.max_replica_count == 2
+
+
+def test_batch_predict_default_display_name(mock_client):
+  """Without a display name, a timestamped one is generated."""
+  with _patch_batch_rpc(mock_client) as m_rpc:
+    mock_client.batch_predict(
+        model=_OPEN_MODEL,
+        src=_TEST_BATCH_SRC,
+        config=types.BatchPredictConfig(dest=_TEST_BATCH_DEST),
+    )
+  assert m_rpc.call_args.kwargs["config"].display_name.startswith(
+      "model-garden-batch-predict-"
+  )
+
+
+def test_batch_predict_dict_config_validated(mock_client):
+  """The config may be passed as a plain dict."""
+  with _patch_batch_rpc(mock_client) as m_rpc:
+    mock_client.batch_predict(
+        model=_OPEN_MODEL,
+        src=_TEST_BATCH_SRC,
+        config={"dest": _TEST_BATCH_DEST, "display_name": "dict-job"},
+    )
+  api_config = m_rpc.call_args.kwargs["config"]
+  assert api_config.display_name == "dict-job"
+  assert api_config.output_config.gcs_uri == _TEST_BATCH_DEST
+
+
+@pytest.mark.parametrize(
+    "kwargs,match",
+    [
+        (
+            {"src": _TEST_BATCH_SRC},
+            "dest must be specified",
+        ),
+        (
+            {"src": ""},
+            "src must be specified",
+        ),
+        (
+            {"src": "s3://bucket/input.jsonl", "dest": _TEST_BATCH_DEST},
+            "Unsupported src",
+        ),
+        (
+            {"src": ["bq://p.d.a", "bq://p.d.b"]},
+            "Multiple BigQuery input tables",
+        ),
+        (
+            {"src": [_TEST_BATCH_SRC, "bq://p.d.t"], "dest": _TEST_BATCH_DEST},
+            "Unsupported src",
+        ),
+        (
+            {"src": _TEST_BATCH_SRC, "dest": "s3://bucket/output/"},
+            "Unsupported dest",
+        ),
+        (
+            {"src": _TEST_BATCH_SRC, "dest": "bq://p.d.t.extra"},
+            "Invalid BigQuery URI",
+        ),
+    ],
+)
+def test_batch_predict_invalid_io_raises_before_rpc(mock_client, kwargs, match):
+  """Malformed src/dest combinations are rejected locally."""
+  config = {"dest": kwargs["dest"]} if "dest" in kwargs else None
+  with _patch_batch_rpc(mock_client) as m_rpc:
+    with pytest.raises(ValueError, match=match):
+      mock_client.batch_predict(
+          model=_OPEN_MODEL, src=kwargs["src"], config=config
+      )
+    m_rpc.assert_not_called()
+
+
+def test_batch_predict_hugging_face_model_raises(mock_client):
+  """Hugging Face model IDs are rejected locally."""
+  with _patch_batch_rpc(mock_client) as m_rpc:
+    with pytest.raises(ValueError, match="does not support Hugging Face"):
+      mock_client.batch_predict(
+          model="meta-llama/Llama-3.3-70B-Instruct",
+          src=_TEST_BATCH_SRC,
+          config=types.BatchPredictConfig(dest=_TEST_BATCH_DEST),
+      )
+    m_rpc.assert_not_called()
+
+
+def test_batch_predict_invalid_model_name_raises(mock_client):
+  """Model Registry names are not publisher models."""
+  with _patch_batch_rpc(mock_client) as m_rpc:
+    with pytest.raises(ValueError, match="not a valid publisher model name"):
+      mock_client.batch_predict(
+          model="projects/p/locations/l/models/123",
+          src=_TEST_BATCH_SRC,
+          config=types.BatchPredictConfig(dest=_TEST_BATCH_DEST),
+      )
+    m_rpc.assert_not_called()
+
+
+def test_batch_predict_accelerator_without_machine_type_raises(mock_client):
+  """Machine settings that would be dropped without machine_type raise."""
+  with _patch_batch_rpc(mock_client) as m_rpc:
+    with pytest.raises(
+        ValueError,
+        match="accelerator_type, max_replica_count require machine_type",
+    ):
+      mock_client.batch_predict(
+          model=_OPEN_MODEL,
+          src=_TEST_BATCH_SRC,
+          config=types.BatchPredictConfig(
+              dest=_TEST_BATCH_DEST,
+              accelerator_type="NVIDIA_L4",
+              max_replica_count=2,
+          ),
+      )
+    m_rpc.assert_not_called()
+
+
+def test_batch_predict_async_returns_created_job(mock_async_client):
+  """The async surface shapes the same request and returns the job."""
+  with _patch_async_batch_rpc(mock_async_client) as m_rpc:
+    job = asyncio.run(
+        mock_async_client.batch_predict(
+            model=_OPEN_MODEL,
+            src=_TEST_BATCH_SRC,
+            config=types.BatchPredictConfig(dest=_TEST_BATCH_DEST),
+        )
+    )
+  assert isinstance(job, types.ModelGardenBatchPredictionJob)
+  assert job.name == _TEST_BATCH_JOB_NAME
+  kwargs = m_rpc.call_args.kwargs
+  assert kwargs["model"] == "publishers/google/models/gemma3@gemma-3-12b-it"
+  assert kwargs["config"].input_config.gcs_uri == [_TEST_BATCH_SRC]
+  assert kwargs["config"].output_config.gcs_uri == _TEST_BATCH_DEST
+
+
+def test_batch_predict_async_missing_dest_raises(mock_async_client):
+  """Async validation matches the sync surface."""
+  with _patch_async_batch_rpc(mock_async_client) as m_rpc:
+    with pytest.raises(ValueError, match="dest must be specified"):
+      asyncio.run(
+          mock_async_client.batch_predict(
+              model=_OPEN_MODEL, src=_TEST_BATCH_SRC
+          )
+      )
+    m_rpc.assert_not_called()
+
+
 # --- Private (pre-GA) surface ------------------------------------------
 #
 # No direct unit tests: `agentplatform/private/**` is excluded from the

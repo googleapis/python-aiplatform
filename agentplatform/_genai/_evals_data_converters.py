@@ -230,6 +230,18 @@ class _FlattenEvalDataConverter(_evals_utils.EvalDataConverter):
                     "Invalid prompt type for case %s: %s" % (i, type(prompt_data))
                 )
 
+            if (
+                isinstance(conversation_history_data, str)
+                and conversation_history_data.strip()
+            ):
+                try:
+                    conversation_history_data = json.loads(conversation_history_data)
+                except json.JSONDecodeError:
+                    logger.warning(
+                        "Could not decode conversation_history JSON string for case %s.",
+                        eval_case_id,
+                    )
+
             conversation_history: Optional[list[types.evals.Message]] = None
             if isinstance(conversation_history_data, list):
                 conversation_history = []
@@ -242,6 +254,11 @@ class _FlattenEvalDataConverter(_evals_utils.EvalDataConverter):
                             )
                         )
                     elif isinstance(content, dict):
+                        if isinstance(content.get("content"), str):
+                            content = {
+                                "role": content.get("role"),
+                                "parts": [{"text": content["content"]}],
+                            }
                         try:
                             validated_content = genai_types.Content.model_validate(
                                 content

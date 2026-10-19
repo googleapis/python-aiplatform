@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 # This constraints file is required for unit tests.
 # List all library dependencies and extras in this file.
-google-api-core==2.27.0
 google-auth==2.49.0
 proto-plus
 mock==4.0.2
@@ -14,3 +13,4 @@ google-adk==0.0.2
 google-genai>=1.10.0
 google-vizier==0.1.21
 pyarrow>=22.0.0
+protobuf>=7
