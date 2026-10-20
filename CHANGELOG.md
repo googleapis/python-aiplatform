@@ -1,52 +1,5 @@
 # Changelog
 
-## [2.6.0](https://github.com/googleapis/python-aiplatform/compare/v2.5.0...v2.6.0) (2026-10-20)
-
-
-### ⚠ BREAKING CHANGES
-
-* An existing value `DEPRECATED` is removed from enum `State`
-
-### Features
-
-* Add ARCHIVED state to ReasoningEngineRuntimeRevision ([faed3f4](https://github.com/googleapis/python-aiplatform/commit/faed3f49931c037259880647ff96da11c3d1c5f4))
-* Add client.memory_banks.update method. ([0ac315e](https://github.com/googleapis/python-aiplatform/commit/0ac315ef93924318ce53916ee47c6b28a67294de))
-* Add context to Memory, MemoryRevision, and IntermediateExtractedMemory in Vertex AI v1beta1 ([faed3f4](https://github.com/googleapis/python-aiplatform/commit/faed3f49931c037259880647ff96da11c3d1c5f4))
-* Add extra_context to EvaluationItemRequest ([c0a8de2](https://github.com/googleapis/python-aiplatform/commit/c0a8de2206f08615e0c11bd63894a7bc6e7c3ebe))
-* Export ADK agent engine template logs to the Telemetry API ([448abba](https://github.com/googleapis/python-aiplatform/commit/448abba2e6d4c907f6d4e0970e1c5bc0b3ac18e9))
-* Onboard Vertex Model Garden to GenAI Python SDK: Add deploy_custom_model ([46ae3d0](https://github.com/googleapis/python-aiplatform/commit/46ae3d06858d9a8c278189c19b779818cd13c978))
-* Support batch predict in Model Garden ([6b2870f](https://github.com/googleapis/python-aiplatform/commit/6b2870f3004a039cc895bad31f4db841028165e3))
-* Update discovery doc ([b60bddc](https://github.com/googleapis/python-aiplatform/commit/b60bddc9d314b4fd29c0eddc9ed674d10805bba8))
-
-
-### Bug Fixes
-
-* An existing value `DEPRECATED` is removed from enum `State` ([faed3f4](https://github.com/googleapis/python-aiplatform/commit/faed3f49931c037259880647ff96da11c3d1c5f4))
-* GenAI Client(evals) - Default missing rubric verdicts to False ([93c52a6](https://github.com/googleapis/python-aiplatform/commit/93c52a6c66a33651e8f978d2ff79d4c4a509fd56))
-* GenAI Client(evals) - Honor per-row tool_config in Gemini inference ([48ce2ae](https://github.com/googleapis/python-aiplatform/commit/48ce2ae53d3636adb580b19f4edbfc5581890baf))
-* GenAI Client(evals) - Keep eval_case_index aligned with dataset rows ([19b0c40](https://github.com/googleapis/python-aiplatform/commit/19b0c40452d732955ee2341ada0ba193e23ec141))
-* GenAI Client(evals) - Log serialization errors in show() instead of raising AttributeError ([4b1ace9](https://github.com/googleapis/python-aiplatform/commit/4b1ace936b3f03c8171956f6b9f3fedf36c212d8))
-* GenAI Client(evals) - Parse JSON-string and OpenAI-style conversation_history ([1d93955](https://github.com/googleapis/python-aiplatform/commit/1d93955196e7708b6eebd3995630adb6bf548563))
-* GenAI Client(evals) - Serialize DataFrame-backed evaluation datasets to JSON ([9e5c721](https://github.com/googleapis/python-aiplatform/commit/9e5c7210475a109b59064464a5936975896913ad))
-
-
-### Documentation
-
-* A comment for field `create_time` in message `.google.cloud.aiplatform.v1beta1.Memory` is changed ([faed3f4](https://github.com/googleapis/python-aiplatform/commit/faed3f49931c037259880647ff96da11c3d1c5f4))
-* A comment for field `description` in message `.google.cloud.aiplatform.v1beta1.Memory` is changed ([faed3f4](https://github.com/googleapis/python-aiplatform/commit/faed3f49931c037259880647ff96da11c3d1c5f4))
-* A comment for field `display_name` in message `.google.cloud.aiplatform.v1beta1.Memory` is changed ([faed3f4](https://github.com/googleapis/python-aiplatform/commit/faed3f49931c037259880647ff96da11c3d1c5f4))
-* A comment for field `expire_time` in message `.google.cloud.aiplatform.v1beta1.Memory` is changed ([faed3f4](https://github.com/googleapis/python-aiplatform/commit/faed3f49931c037259880647ff96da11c3d1c5f4))
-* A comment for field `fact` in message `.google.cloud.aiplatform.v1beta1.Memory` is changed ([faed3f4](https://github.com/googleapis/python-aiplatform/commit/faed3f49931c037259880647ff96da11c3d1c5f4))
-* A comment for field `name` in message `.google.cloud.aiplatform.v1beta1.Memory` is changed ([faed3f4](https://github.com/googleapis/python-aiplatform/commit/faed3f49931c037259880647ff96da11c3d1c5f4))
-* A comment for field `scope` in message `.google.cloud.aiplatform.v1beta1.Memory` is changed ([faed3f4](https://github.com/googleapis/python-aiplatform/commit/faed3f49931c037259880647ff96da11c3d1c5f4))
-* A comment for field `ttl` in message `.google.cloud.aiplatform.v1beta1.Memory` is changed ([faed3f4](https://github.com/googleapis/python-aiplatform/commit/faed3f49931c037259880647ff96da11c3d1c5f4))
-* A comment for field `update_time` in message `.google.cloud.aiplatform.v1beta1.Memory` is changed ([faed3f4](https://github.com/googleapis/python-aiplatform/commit/faed3f49931c037259880647ff96da11c3d1c5f4))
-
-
-### Miscellaneous Chores
-
-* Release 2.6.0 ([ed98faa](https://github.com/googleapis/python-aiplatform/commit/ed98faafee8d88db33c5fa8e5720243b0bf266b1))
-
 ## [2.5.0](https://github.com/googleapis/python-aiplatform/compare/v2.4.0...v2.5.0) (2026-10-13)
 
 

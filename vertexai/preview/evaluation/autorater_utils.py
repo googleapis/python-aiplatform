@@ -26,7 +26,6 @@ from vertexai.preview.evaluation import eval_task
 from vertexai.preview.evaluation.metrics import pairwise_metric
 from vertexai.preview.evaluation.metrics import pointwise_metric
 from vertexai.preview.tuning import sft
-from sklearn import metrics
 
 
 if TYPE_CHECKING:
@@ -113,6 +112,14 @@ def _get_evaluation_result(
     human_eval_results: List[str],
 ) -> Dict[str, Any]:
     """Get evaluation result for autorater."""
+    try:
+        from sklearn import metrics
+    except ImportError:
+        raise ImportError(
+            'scikit-learn is not installed. Please install the SDK using "pip'
+            ' install google-cloud-aiplatform[evaluation]"'
+        )
+
     filtered_autorater_eval_results = []
     filtered_human_eval_results = []
     for autorater_eval_result, human_eval_result in zip(
