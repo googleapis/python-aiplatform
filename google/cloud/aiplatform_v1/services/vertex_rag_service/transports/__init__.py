@@ -25,13 +25,13 @@ from .rest import VertexRagServiceRestInterceptor
 ASYNC_REST_CLASSES: Tuple[str, ...]
 try:
     from .rest_asyncio import AsyncVertexRagServiceRestTransport
-    from .rest_asyncio import AsyncVertexRagServiceRestInterceptor
+    from .rest_asyncio import AsyncVertexRagServiceRestInterceptor  # pragma: NO COVER
 
     ASYNC_REST_CLASSES = (
         "AsyncVertexRagServiceRestTransport",
         "AsyncVertexRagServiceRestInterceptor",
-    )
-    HAS_REST_ASYNC = True
+    )  # pragma: NO COVER
+    HAS_REST_ASYNC = True  # pragma: NO COVER
 except ImportError:  # pragma: NO COVER
     ASYNC_REST_CLASSES = ()
     HAS_REST_ASYNC = False

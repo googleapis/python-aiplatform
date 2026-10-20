@@ -25,13 +25,13 @@ from .rest import VizierServiceRestInterceptor
 ASYNC_REST_CLASSES: Tuple[str, ...]
 try:
     from .rest_asyncio import AsyncVizierServiceRestTransport
-    from .rest_asyncio import AsyncVizierServiceRestInterceptor
+    from .rest_asyncio import AsyncVizierServiceRestInterceptor  # pragma: NO COVER
 
     ASYNC_REST_CLASSES = (
         "AsyncVizierServiceRestTransport",
         "AsyncVizierServiceRestInterceptor",
-    )
-    HAS_REST_ASYNC = True
+    )  # pragma: NO COVER
+    HAS_REST_ASYNC = True  # pragma: NO COVER
 except ImportError:  # pragma: NO COVER
     ASYNC_REST_CLASSES = ()
     HAS_REST_ASYNC = False

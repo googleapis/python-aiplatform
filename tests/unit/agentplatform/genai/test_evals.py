@@ -3405,6 +3405,49 @@ class TestEvalsRunInference:
 
     @mock.patch.object(_evals_common, "Models")
     @mock.patch.object(_evals_utils, "EvalDatasetLoader")
+    def test_inference_with_row_level_tool_config(
+        self, mock_eval_dataset_loader, mock_models
+    ):
+        mock_df = pd.DataFrame(
+            {
+                "request": [
+                    {
+                        "contents": [
+                            {"parts": [{"text": "test prompt"}], "role": "user"}
+                        ],
+                        "tool_config": {"function_calling_config": {"mode": "NONE"}},
+                    }
+                ]
+            }
+        )
+        mock_eval_dataset_loader.return_value.load.return_value = mock_df.to_dict(
+            orient="records"
+        )
+        mock_models.return_value.generate_content.return_value = (
+            genai_types.GenerateContentResponse(
+                candidates=[
+                    genai_types.Candidate(
+                        content=genai_types.Content(
+                            parts=[genai_types.Part(text="test response")]
+                        ),
+                        finish_reason=genai_types.FinishReason.STOP,
+                    )
+                ],
+                prompt_feedback=None,
+            )
+        )
+
+        self.client.evals.run_inference(model="gemini-pro", src=mock_df)
+
+        config = mock_models.return_value.generate_content.call_args[1]["config"]
+        assert config.tool_config == genai_types.ToolConfig(
+            function_calling_config=genai_types.FunctionCallingConfig(
+                mode=genai_types.FunctionCallingConfigMode.NONE
+            )
+        )
+
+    @mock.patch.object(_evals_common, "Models")
+    @mock.patch.object(_evals_utils, "EvalDatasetLoader")
     def test_inference_with_multimodal_content(
         self, mock_eval_dataset_loader, mock_models
     ):
@@ -10537,6 +10580,88 @@ class TestConvertRequestToDatasetRow:
         assert result["intermediate_events"] == []
 
 
+class TestEvaluationItemRequestExtraContext:
+    """Unit tests for EvaluationItemRequest.extra_context."""
+
+    def test_extra_context_serializes_as_camel_case(self):
+        request = agentplatform_genai_types.EvaluationItemRequest(
+            prompt=agentplatform_genai_types.EvaluationPrompt(text="test prompt"),
+            extra_context={
+                "golden_schema": genai_types.Content(
+                    parts=[genai_types.Part(text="CREATE TABLE t (id INT)")]
+                )
+            },
+        )
+        assert request.model_dump(mode="json", by_alias=True, exclude_none=True) == {
+            "prompt": {"text": "test prompt"},
+            "extraContext": {
+                "golden_schema": {"parts": [{"text": "CREATE TABLE t (id INT)"}]}
+            },
+        }
+
+    def test_extra_context_from_dict(self):
+        request = agentplatform_genai_types.EvaluationItemRequest.model_validate(
+            {"extra_context": {"golden_rows": {"parts": [{"text": "[1, 2]"}]}}}
+        )
+        assert request.extra_context == {
+            "golden_rows": genai_types.Content(parts=[genai_types.Part(text="[1, 2]")])
+        }
+
+    @mock.patch.object(_evals_common, "_gcs_utils")
+    def test_convert_gcs_to_evaluation_item_request_with_extra_context(
+        self, mock_gcs_utils
+    ):
+        """Tests that a camelCase request JSON from GCS keeps extra_context."""
+        mock_gcs_utils.GcsUtils.return_value.read_file_contents.return_value = (
+            json.dumps(
+                {
+                    "prompt": {"text": "test prompt"},
+                    "extraContext": {
+                        "golden_schema": {"parts": [{"text": "CREATE TABLE t"}]}
+                    },
+                }
+            )
+        )
+        request = _evals_common._convert_gcs_to_evaluation_item_request(
+            mock.Mock(), "gs://bucket/request.json"
+        )
+        assert request.extra_context == {
+            "golden_schema": genai_types.Content(
+                parts=[genai_types.Part(text="CREATE TABLE t")]
+            )
+        }
+
+
+class TestGetEvalCasesEvalDfsFromEvalItems:
+    def test_eval_case_index_matches_dataset_row_when_item_is_skipped(self):
+        valid_items = [
+            agentplatform_genai_types.EvaluationItem(
+                evaluation_response=agentplatform_genai_types.EvaluationItemResult(
+                    request=agentplatform_genai_types.EvaluationItemRequest(
+                        prompt=agentplatform_genai_types.EvaluationPrompt(text=prompt),
+                        candidate_responses=[
+                            agentplatform_genai_types.CandidateResponse(
+                                candidate="candidate-1", text="response"
+                            )
+                        ],
+                    )
+                )
+            )
+            for prompt in ("first", "second")
+        ]
+        item_without_request = agentplatform_genai_types.EvaluationItem(
+            evaluation_response=agentplatform_genai_types.EvaluationItemResult()
+        )
+
+        results, eval_dfs = _evals_common._get_eval_cases_eval_dfs_from_eval_items(
+            [valid_items[0], item_without_request, valid_items[1]]
+        )
+
+        df = eval_dfs[0].eval_dataset_df
+        assert [r.eval_case_index for r in results] == [0, 1]
+        assert df["prompt"].tolist() == ["first", "second"]
+
+
 class TestCreateEvaluationSetFromDataFrame:
     """Unit tests for the _create_evaluation_set_from_dataframe function."""
 
@@ -10544,6 +10669,68 @@ class TestCreateEvaluationSetFromDataFrame:
         self.mock_api_client = mock.Mock(spec=client.Client)
         self.mock_api_client.project = "test-project"
         self.mock_api_client.location = "us-central1"
+
+    def _uploaded_requests(self, eval_df):
+        """Returns the request dicts uploaded to GCS for `eval_df`."""
+        with (
+            mock.patch.object(_evals_common, "evals"),
+            mock.patch.object(_evals_common, "_gcs_utils") as mock_gcs_utils,
+        ):
+            _evals_common._create_evaluation_set_from_dataframe(
+                api_client=self.mock_api_client,
+                gcs_dest_prefix="gs://bucket/prefix",
+                eval_df=eval_df,
+            )
+            upload = mock_gcs_utils.GcsUtils.return_value.upload_json_to_prefix
+            return [c.kwargs["data"] for c in upload.call_args_list]
+
+    def test_custom_columns_go_to_extra_context(self):
+        """Tests that only non-standard columns go to extra_context."""
+        eval_df = pd.DataFrame(
+            [
+                {
+                    "prompt": "test prompt",
+                    "response": "test response",
+                    "reference": "test reference",
+                    "context": "test context",
+                    "golden_schema": "CREATE TABLE t (id INT)",
+                    "golden_rows": [1, 2],
+                }
+            ]
+        )
+        (request,) = self._uploaded_requests(eval_df)
+        assert request["extraContext"] == {
+            "golden_schema": {"parts": [{"text": "CREATE TABLE t (id INT)"}]},
+            "golden_rows": {"parts": [{"text": "[1, 2]"}]},
+        }
+
+    def test_custom_columns_kept_for_agent_data_only_row(self):
+        eval_df = pd.DataFrame(
+            [{"agent_data": {"turns": []}, "golden_schema": "CREATE TABLE t"}]
+        )
+        (request,) = self._uploaded_requests(eval_df)
+        assert "prompt" not in request
+        assert request["extraContext"] == {
+            "golden_schema": {"parts": [{"text": "CREATE TABLE t"}]}
+        }
+
+    def test_missing_custom_values_are_skipped(self):
+        eval_df = pd.DataFrame(
+            [
+                {"prompt": "p1", "golden_schema": "CREATE TABLE t"},
+                {"prompt": "p2", "golden_schema": float("nan")},
+            ]
+        )
+        first, second = self._uploaded_requests(eval_df)
+        assert first["extraContext"] == {
+            "golden_schema": {"parts": [{"text": "CREATE TABLE t"}]}
+        }
+        assert "extraContext" not in second
+
+    def test_no_extra_context_without_custom_columns(self):
+        eval_df = pd.DataFrame([{"prompt": "test prompt", "response": "test response"}])
+        (request,) = self._uploaded_requests(eval_df)
+        assert "extraContext" not in request
 
     @mock.patch.object(_evals_common, "evals")
     @mock.patch.object(_evals_common, "_gcs_utils")

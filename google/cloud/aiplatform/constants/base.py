@@ -70,7 +70,7 @@ SUPPORTED_REGIONS = frozenset(
 # Multi-regional (mREP) jurisdictions. These are served on dedicated REP hosts
 # (aiplatform.<geo>.rep.googleapis.com) rather than the locational
 # <region>-aiplatform.googleapis.com form.
-MREP_JURISDICTIONS = frozenset({"us"})
+MREP_JURISDICTIONS = frozenset({"us", "eu"})
 
 API_BASE_PATH = "aiplatform.googleapis.com"
 PREDICTION_API_BASE_PATH = API_BASE_PATH

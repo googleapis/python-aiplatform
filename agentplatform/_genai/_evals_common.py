@@ -296,9 +296,8 @@ def _build_generate_content_config(
     for key in [
         "system_instruction",
         "tools",
-        "tools_config",
+        "tool_config",
         "safety_settings",
-        "labels",
     ]:
         if key in request_dict:
             merged_config_dict[key] = request_dict[key]
@@ -3735,7 +3734,10 @@ def _convert_gcs_to_evaluation_item_result(
         return types.EvaluationItemResult(**eval_item_data)
     except Exception as e:
         logger.error(
-            "Failed to load evaluation result from GCS: %s. Error: %s", gcs_uri, e
+            "Failed to load evaluation result from GCS: %s. Error: %s",
+            gcs_uri,
+            e,
+            exc_info=True,
         )
     return types.EvaluationItemResult()
 
@@ -3752,7 +3754,10 @@ def _convert_gcs_to_evaluation_item_request(
         return types.EvaluationItemRequest(**eval_item_data)
     except Exception as e:
         logger.error(
-            "Failed to load evaluation request from GCS: %s. Error: %s", gcs_uri, e
+            "Failed to load evaluation request from GCS: %s. Error: %s",
+            gcs_uri,
+            e,
+            exc_info=True,
         )
     return types.EvaluationItemRequest()
 
@@ -3926,16 +3931,16 @@ def _get_eval_cases_eval_dfs_from_eval_items(
           item.
         - eval_dfs: A list of EvaluationDatasets, one for each candidate.
     """
-    dataset_rows = []
+    dataset_rows: list[dict[str, Any]] = []
     eval_case_results = []
-    for index, eval_item in enumerate(eval_items):
+    for eval_item in eval_items:
         if (
             eval_item
             and eval_item.evaluation_response
             and eval_item.evaluation_response.request
         ):
             eval_case_results.append(
-                _get_eval_case_result_from_eval_item(index, eval_item)
+                _get_eval_case_result_from_eval_item(len(dataset_rows), eval_item)
             )
             dataset_rows.append(
                 _convert_request_to_dataset_row(eval_item.evaluation_response.request)
@@ -4120,6 +4125,36 @@ def _get_content(row: dict[str, Any], column: str) -> Optional[genai_types.Conte
         )
 
 
+# Columns mapped to EvaluationItemRequest fields; all others go to extra_context.
+_EVALUATION_SET_STANDARD_COLUMNS = _evals_constant.COMMON_DATASET_COLUMNS | {
+    _evals_constant.RESPONSE,
+    "interaction",
+    "gemini_agent",
+}
+
+
+def _to_extra_context_content(value: Any) -> Optional[genai_types.Content]:
+    if isinstance(value, str):
+        return genai_types.Content(parts=[genai_types.Part(text=value)])
+    if isinstance(value, genai_types.Content):
+        return value
+    parts = []
+    for content in _evals_metric_handlers._value_to_content_list(value):
+        parts.extend(content.parts or [])
+    return genai_types.Content(parts=parts) if parts else None
+
+
+def _get_extra_context(row: "pd.Series") -> Optional[dict[str, genai_types.Content]]:
+    extra_context = {}
+    for column, value in row.items():
+        if column in _EVALUATION_SET_STANDARD_COLUMNS or _is_missing(value):
+            continue
+        content = _to_extra_context_content(value)
+        if content:
+            extra_context[str(column)] = content
+    return extra_context or None
+
+
 def _create_evaluation_set_from_dataframe(
     api_client: BaseApiClient,
     gcs_dest_prefix: str,
@@ -4244,6 +4279,7 @@ def _create_evaluation_set_from_dataframe(
                 candidate_responses=(
                     candidate_responses if candidate_responses else None
                 ),
+                extra_context=_get_extra_context(row),
             )
         )
     logger.info("Writing evaluation item requests to GCS.")
