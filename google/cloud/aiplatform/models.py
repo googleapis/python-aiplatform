@@ -586,7 +586,9 @@ class DeploymentResourcePool(base.VertexAiResourceNounWithFutureManager):
             deployment_resource_pool=self.resource_name
         )
         return list(
-            itertools.chain(page.deployed_model_refs for page in response.pages)
+            itertools.chain.from_iterable(
+                page.deployed_model_refs for page in response.pages
+            )
         )
 
     @classmethod
