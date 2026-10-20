@@ -21367,6 +21367,32 @@ SchemaPromptSpecInteractionDataOrDict = Union[
 ]
 
 
+class SchemaPromptSpecContentMetadata(_common.BaseModel):
+    """Metadata the model returned alongside the content it generated."""
+
+    citation_metadata: Optional[genai_types.CitationMetadata] = Field(
+        default=None, description="""Optional. Citations that apply to the content."""
+    )
+    grounding_metadata: Optional[genai_types.GroundingMetadata] = Field(
+        default=None, description="""Optional. Sources used to ground the content."""
+    )
+
+
+class SchemaPromptSpecContentMetadataDict(TypedDict, total=False):
+    """Metadata the model returned alongside the content it generated."""
+
+    citation_metadata: Optional[genai_types.CitationMetadataDict]
+    """Optional. Citations that apply to the content."""
+
+    grounding_metadata: Optional[genai_types.GroundingMetadataDict]
+    """Optional. Sources used to ground the content."""
+
+
+SchemaPromptSpecContentMetadataOrDict = Union[
+    SchemaPromptSpecContentMetadata, SchemaPromptSpecContentMetadataDict
+]
+
+
 class SchemaPromptSpecStructuredPrompt(_common.BaseModel):
     """Represents a structured prompt."""
 
@@ -21406,6 +21432,10 @@ class SchemaPromptSpecStructuredPrompt(_common.BaseModel):
     interaction_data: Optional[SchemaPromptSpecInteractionData] = Field(
         default=None, description="""Data for interaction use case."""
     )
+    content_metadata: Optional[list[SchemaPromptSpecContentMetadata]] = Field(
+        default=None,
+        description="""Optional. Metadata the model returned with each of `prompt_message.contents`, such as citations and grounding sources. This maps 1:1 to PromptMessage.contents; an entry is empty when its content has no metadata.""",
+    )
 
 
 class SchemaPromptSpecStructuredPromptDict(TypedDict, total=False):
@@ -21440,6 +21470,9 @@ class SchemaPromptSpecStructuredPromptDict(TypedDict, total=False):
 
     interaction_data: Optional[SchemaPromptSpecInteractionDataDict]
     """Data for interaction use case."""
+
+    content_metadata: Optional[list[SchemaPromptSpecContentMetadataDict]]
+    """Optional. Metadata the model returned with each of `prompt_message.contents`, such as citations and grounding sources. This maps 1:1 to PromptMessage.contents; an entry is empty when its content has no metadata."""
 
 
 SchemaPromptSpecStructuredPromptOrDict = Union[
@@ -24295,7 +24328,7 @@ class ModelContainerSpec(_common.BaseModel):
     )
     env: Optional[list[EnvVar]] = Field(
         default=None,
-        description="""Immutable. List of environment variables to set in the container. After the container starts running, code running in the container can read these environment variables. Additionally, the command and args fields can reference these variables. Later entries in this list can also reference earlier entries. For example, the following example sets the variable `VAR_2` to have the value `foo bar`: ```json [ { "name": "VAR_1", "value": "foo" }, { "name": "VAR_2", "value": "$(VAR_1) bar" } ] ``` If you switch the order of the variables in the example, then the expansion does not occur. This field corresponds to the `env` field of the Kubernetes Containers [v1 core API](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.23/#container-v1-core).""",
+        description="""Immutable. List of environment variables to set in the container. After the container starts running, code running in the container can read these environment variables. Additionally, the command and args fields can reference these variables. Later entries in this list can also reference earlier entries. For example, the following example sets the variable `VAR_2` to have the value `foo bar`: ```json [ { "name": "VAR_1", "value": "foo" }, { "name": "VAR_2", "value": "$(VAR_1) bar" } ] ``` If you switch the order of the variables in the example, then the expansion does not occur. This field corresponds to the `env` field of the Kubernetes Containers [v1 core API](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.23/#container-v1-core). At most 200 environment variables can be specified. Each variable (`NAME=value`) must be smaller than 128 KiB, and the total size of all variables must not exceed 512 KiB.""",
     )
     grpc_ports: Optional[list[Port]] = Field(
         default=None,
@@ -24352,7 +24385,7 @@ class ModelContainerSpecDict(TypedDict, total=False):
     """Immutable. Deployment timeout. Limit for deployment timeout is 2 hours."""
 
     env: Optional[list[EnvVarDict]]
-    """Immutable. List of environment variables to set in the container. After the container starts running, code running in the container can read these environment variables. Additionally, the command and args fields can reference these variables. Later entries in this list can also reference earlier entries. For example, the following example sets the variable `VAR_2` to have the value `foo bar`: ```json [ { "name": "VAR_1", "value": "foo" }, { "name": "VAR_2", "value": "$(VAR_1) bar" } ] ``` If you switch the order of the variables in the example, then the expansion does not occur. This field corresponds to the `env` field of the Kubernetes Containers [v1 core API](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.23/#container-v1-core)."""
+    """Immutable. List of environment variables to set in the container. After the container starts running, code running in the container can read these environment variables. Additionally, the command and args fields can reference these variables. Later entries in this list can also reference earlier entries. For example, the following example sets the variable `VAR_2` to have the value `foo bar`: ```json [ { "name": "VAR_1", "value": "foo" }, { "name": "VAR_2", "value": "$(VAR_1) bar" } ] ``` If you switch the order of the variables in the example, then the expansion does not occur. This field corresponds to the `env` field of the Kubernetes Containers [v1 core API](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.23/#container-v1-core). At most 200 environment variables can be specified. Each variable (`NAME=value`) must be smaller than 128 KiB, and the total size of all variables must not exceed 512 KiB."""
 
     grpc_ports: Optional[list[PortDict]]
     """Immutable. List of ports to expose from the container. Vertex AI sends gRPC prediction requests that it receives to the first port on this list. Vertex AI also sends liveness and health checks to this port. If you do not specify this field, gRPC requests to the container will be disabled. Vertex AI does not use ports other than the first one listed. This field corresponds to the `ports` field of the Kubernetes Containers v1 core API."""
