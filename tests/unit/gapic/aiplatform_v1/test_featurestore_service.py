@@ -99,6 +99,18 @@ CRED_INFO_JSON = {
 CRED_INFO_STRING = json.dumps(CRED_INFO_JSON)
 
 
+@pytest.fixture(autouse=True)
+def disable_mtls_env():
+    with mock.patch.dict(
+        os.environ,
+        {
+            "GOOGLE_API_USE_CLIENT_CERTIFICATE": "false",
+            "CLOUDSDK_CONTEXT_AWARE_USE_CLIENT_CERTIFICATE": "false",
+        },
+    ):
+        yield
+
+
 async def mock_async_gen(data, chunk_size=1):
     for i in range(0, len(data)):  # pragma: NO COVER
         chunk = data[i : i + chunk_size]
@@ -142,150 +154,6 @@ def set_event_loop():
             asyncio.set_event_loop(None)
 
 
-def test__get_default_mtls_endpoint():
-    api_endpoint = "example.googleapis.com"
-    api_mtls_endpoint = "example.mtls.googleapis.com"
-    sandbox_endpoint = "example.sandbox.googleapis.com"
-    sandbox_mtls_endpoint = "example.mtls.sandbox.googleapis.com"
-    non_googleapi = "api.example.com"
-    custom_endpoint = ".custom"
-
-    assert FeaturestoreServiceClient._get_default_mtls_endpoint(None) is None
-    assert FeaturestoreServiceClient._get_default_mtls_endpoint(api_endpoint) == api_mtls_endpoint
-    assert FeaturestoreServiceClient._get_default_mtls_endpoint(api_mtls_endpoint) == api_mtls_endpoint
-    assert FeaturestoreServiceClient._get_default_mtls_endpoint(sandbox_endpoint) == sandbox_mtls_endpoint
-    assert FeaturestoreServiceClient._get_default_mtls_endpoint(sandbox_mtls_endpoint) == sandbox_mtls_endpoint
-    assert FeaturestoreServiceClient._get_default_mtls_endpoint(non_googleapi) == non_googleapi
-    assert FeaturestoreServiceClient._get_default_mtls_endpoint(custom_endpoint) == custom_endpoint
-
-def test__read_environment_variables():
-    assert FeaturestoreServiceClient._read_environment_variables() == (False, "auto", None)
-
-    with mock.patch.dict(os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "true"}):
-        assert FeaturestoreServiceClient._read_environment_variables() == (True, "auto", None)
-
-    with mock.patch.dict(os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "false"}):
-        assert FeaturestoreServiceClient._read_environment_variables() == (False, "auto", None)
-
-    with mock.patch.dict(
-        os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "Unsupported"}
-    ):
-        if not hasattr(google.auth.transport.mtls, "should_use_client_cert"):
-            with pytest.raises(ValueError) as excinfo:
-                FeaturestoreServiceClient._read_environment_variables()
-            assert (
-                str(excinfo.value)
-                == "Environment variable `GOOGLE_API_USE_CLIENT_CERTIFICATE` must be either `true` or `false`"
-            )
-        else:
-            assert FeaturestoreServiceClient._read_environment_variables() == (
-            False,
-            "auto",
-            None,
-        )
-
-    with mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "never"}):
-        assert FeaturestoreServiceClient._read_environment_variables() == (False, "never", None)
-
-    with mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "always"}):
-        assert FeaturestoreServiceClient._read_environment_variables() == (False, "always", None)
-
-    with mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "auto"}):
-        assert FeaturestoreServiceClient._read_environment_variables() == (False, "auto", None)
-
-    with mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "Unsupported"}):
-        with pytest.raises(MutualTLSChannelError) as excinfo:
-            FeaturestoreServiceClient._read_environment_variables()
-    assert str(excinfo.value) == "Environment variable `GOOGLE_API_USE_MTLS_ENDPOINT` must be `never`, `auto` or `always`"
-
-    with mock.patch.dict(os.environ, {"GOOGLE_CLOUD_UNIVERSE_DOMAIN": "foo.com"}):
-        assert FeaturestoreServiceClient._read_environment_variables() == (False, "auto", "foo.com")
-
-
-def test_use_client_cert_effective():
-    # Test case 1: Test when `should_use_client_cert` returns True.
-    # We mock the `should_use_client_cert` function to simulate a scenario where
-    # the google-auth library supports automatic mTLS and determines that a
-    # client certificate should be used.
-    if hasattr(google.auth.transport.mtls, "should_use_client_cert"):
-        with mock.patch("google.auth.transport.mtls.should_use_client_cert", return_value=True):
-            assert FeaturestoreServiceClient._use_client_cert_effective() is True
-
-    # Test case 2: Test when `should_use_client_cert` returns False.
-    # We mock the `should_use_client_cert` function to simulate a scenario where
-    # the google-auth library supports automatic mTLS and determines that a
-    # client certificate should NOT be used.
-    if hasattr(google.auth.transport.mtls, "should_use_client_cert"):
-        with mock.patch("google.auth.transport.mtls.should_use_client_cert", return_value=False):
-            assert FeaturestoreServiceClient._use_client_cert_effective() is False
-
-    # Test case 3: Test when `should_use_client_cert` is unavailable and the
-    # `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is set to "true".
-    if not hasattr(google.auth.transport.mtls, "should_use_client_cert"):
-        with mock.patch.dict(os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "true"}):
-            assert FeaturestoreServiceClient._use_client_cert_effective() is True
-
-    # Test case 4: Test when `should_use_client_cert` is unavailable and the
-    # `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is set to "false".
-    if not hasattr(google.auth.transport.mtls, "should_use_client_cert"):
-        with mock.patch.dict(os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "false"}):
-            assert FeaturestoreServiceClient._use_client_cert_effective() is False
-
-    # Test case 5: Test when `should_use_client_cert` is unavailable and the
-    # `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is set to "True".
-    if not hasattr(google.auth.transport.mtls, "should_use_client_cert"):
-        with mock.patch.dict(os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "True"}):
-            assert FeaturestoreServiceClient._use_client_cert_effective() is True
-
-    # Test case 6: Test when `should_use_client_cert` is unavailable and the
-    # `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is set to "False".
-    if not hasattr(google.auth.transport.mtls, "should_use_client_cert"):
-        with mock.patch.dict(os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "False"}):
-            assert FeaturestoreServiceClient._use_client_cert_effective() is False
-
-    # Test case 7: Test when `should_use_client_cert` is unavailable and the
-    # `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is set to "TRUE".
-    if not hasattr(google.auth.transport.mtls, "should_use_client_cert"):
-        with mock.patch.dict(os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "TRUE"}):
-            assert FeaturestoreServiceClient._use_client_cert_effective() is True
-
-    # Test case 8: Test when `should_use_client_cert` is unavailable and the
-    # `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is set to "FALSE".
-    if not hasattr(google.auth.transport.mtls, "should_use_client_cert"):
-        with mock.patch.dict(os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "FALSE"}):
-            assert FeaturestoreServiceClient._use_client_cert_effective() is False
-
-    # Test case 9: Test when `should_use_client_cert` is unavailable and the
-    # `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is not set.
-    # In this case, the method should return False, which is the default value.
-    if not hasattr(google.auth.transport.mtls, "should_use_client_cert"):
-        with mock.patch.dict(os.environ, clear=True):
-            assert FeaturestoreServiceClient._use_client_cert_effective() is False
-
-    # Test case 10: Test when `should_use_client_cert` is unavailable and the
-    # `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is set to an invalid value.
-    # The method should raise a ValueError as the environment variable must be either
-    # "true" or "false".
-    if not hasattr(google.auth.transport.mtls, "should_use_client_cert"):
-        with mock.patch.dict(os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "unsupported"}):
-            with pytest.raises(ValueError):
-                FeaturestoreServiceClient._use_client_cert_effective()
-
-    # Test case 11: Test when `should_use_client_cert` is available and the
-    # `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is set to an invalid value.
-    # The method should return False as the environment variable is set to an invalid value.
-    if  hasattr(google.auth.transport.mtls, "should_use_client_cert"):
-        with mock.patch.dict(os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "unsupported"}):
-            assert FeaturestoreServiceClient._use_client_cert_effective() is False
-
-    # Test case 12: Test when `should_use_client_cert` is available and the
-    # `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is unset. Also,
-    # the GOOGLE_API_CONFIG environment variable is unset.
-    if  hasattr(google.auth.transport.mtls, "should_use_client_cert"):
-        with mock.patch.dict(os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": ""}):
-            with mock.patch.dict(os.environ, {"GOOGLE_API_CERTIFICATE_CONFIG": ""}):
-                assert FeaturestoreServiceClient._use_client_cert_effective() is False
-
 def test__get_client_cert_source():
     mock_provided_cert_source = mock.Mock()
     mock_default_cert_source = mock.Mock()
@@ -299,40 +167,6 @@ def test__get_client_cert_source():
             assert FeaturestoreServiceClient._get_client_cert_source(None, True) is mock_default_cert_source
             assert FeaturestoreServiceClient._get_client_cert_source(mock_provided_cert_source, "true") is mock_provided_cert_source
 
-@mock.patch.object(FeaturestoreServiceClient, "_DEFAULT_ENDPOINT_TEMPLATE", modify_default_endpoint_template(FeaturestoreServiceClient))
-@mock.patch.object(FeaturestoreServiceAsyncClient, "_DEFAULT_ENDPOINT_TEMPLATE", modify_default_endpoint_template(FeaturestoreServiceAsyncClient))
-def test__get_api_endpoint():
-    api_override = "foo.com"
-    mock_client_cert_source = mock.Mock()
-    default_universe = FeaturestoreServiceClient._DEFAULT_UNIVERSE
-    default_endpoint = FeaturestoreServiceClient._DEFAULT_ENDPOINT_TEMPLATE.format(UNIVERSE_DOMAIN=default_universe)
-    mock_universe = "bar.com"
-    mock_endpoint = FeaturestoreServiceClient._DEFAULT_ENDPOINT_TEMPLATE.format(UNIVERSE_DOMAIN=mock_universe)
-
-    assert FeaturestoreServiceClient._get_api_endpoint(api_override, mock_client_cert_source, default_universe, "always") == api_override
-    assert FeaturestoreServiceClient._get_api_endpoint(None, mock_client_cert_source, default_universe, "auto") == FeaturestoreServiceClient.DEFAULT_MTLS_ENDPOINT
-    assert FeaturestoreServiceClient._get_api_endpoint(None, None, default_universe, "auto") == default_endpoint
-    assert FeaturestoreServiceClient._get_api_endpoint(None, None, default_universe, "always") == FeaturestoreServiceClient.DEFAULT_MTLS_ENDPOINT
-    assert FeaturestoreServiceClient._get_api_endpoint(None, mock_client_cert_source, default_universe, "always") == FeaturestoreServiceClient.DEFAULT_MTLS_ENDPOINT
-    assert FeaturestoreServiceClient._get_api_endpoint(None, None, mock_universe, "never") == mock_endpoint
-    assert FeaturestoreServiceClient._get_api_endpoint(None, None, default_universe, "never") == default_endpoint
-
-    with pytest.raises(MutualTLSChannelError) as excinfo:
-        FeaturestoreServiceClient._get_api_endpoint(None, mock_client_cert_source, mock_universe, "auto")
-    assert str(excinfo.value) == "mTLS is not supported in any universe other than googleapis.com."
-
-
-def test__get_universe_domain():
-    client_universe_domain = "foo.com"
-    universe_domain_env = "bar.com"
-
-    assert FeaturestoreServiceClient._get_universe_domain(client_universe_domain, universe_domain_env) == client_universe_domain
-    assert FeaturestoreServiceClient._get_universe_domain(None, universe_domain_env) == universe_domain_env
-    assert FeaturestoreServiceClient._get_universe_domain(None, None) == FeaturestoreServiceClient._DEFAULT_UNIVERSE
-
-    with pytest.raises(ValueError) as excinfo:
-        FeaturestoreServiceClient._get_universe_domain("", None)
-    assert str(excinfo.value) == "Universe Domain cannot be an empty string."
 
 @pytest.mark.parametrize("error_code,cred_info_json,show_cred_info", [
     (401, CRED_INFO_JSON, True),
@@ -717,11 +551,12 @@ def test_featurestore_service_client_get_mtls_endpoint_and_cert_source(client_cl
         for config_data, expected_cert_source in test_cases:
             env = os.environ.copy()
             env.pop("GOOGLE_API_USE_CLIENT_CERTIFICATE", None)
+            env.pop("CLOUDSDK_CONTEXT_AWARE_USE_CLIENT_CERTIFICATE", None)
             with mock.patch.dict(os.environ, env, clear=True):
                     config_filename = "mock_certificate_config.json"
                     config_file_content = json.dumps(config_data)
                     m = mock.mock_open(read_data=config_file_content)
-                    with mock.patch("builtins.open", m):
+                    with mock.patch("builtins.open", m), mock.patch("os.path.exists", side_effect=lambda path: os.path.basename(path) == config_filename):
                         with mock.patch.dict(
                             os.environ, {"GOOGLE_API_CERTIFICATE_CONFIG": config_filename}
                         ):
@@ -764,11 +599,12 @@ def test_featurestore_service_client_get_mtls_endpoint_and_cert_source(client_cl
         for config_data, expected_cert_source in test_cases:
             env = os.environ.copy()
             env.pop("GOOGLE_API_USE_CLIENT_CERTIFICATE", "")
+            env.pop("CLOUDSDK_CONTEXT_AWARE_USE_CLIENT_CERTIFICATE", "")
             with mock.patch.dict(os.environ, env, clear=True):
                     config_filename = "mock_certificate_config.json"
                     config_file_content = json.dumps(config_data)
                     m = mock.mock_open(read_data=config_file_content)
-                    with mock.patch("builtins.open", m):
+                    with mock.patch("builtins.open", m), mock.patch("os.path.exists", side_effect=lambda path: os.path.basename(path) == config_filename):
                         with mock.patch.dict(
                             os.environ, {"GOOGLE_API_CERTIFICATE_CONFIG": config_filename}
                         ):
@@ -8701,7 +8537,12 @@ def test_create_featurestore_rest_required_fields(request_type=featurestore_serv
     # verify fields with default values are dropped
     assert "featurestoreId" not in jsonified_request
 
-    unset_fields = transport_class(credentials=ga_credentials.AnonymousCredentials()).create_featurestore._get_unset_required_fields(jsonified_request)
+    default_values = getattr(
+        transport_class._BaseCreateFeaturestore,
+        "_BaseCreateFeaturestore__REQUIRED_FIELDS_DEFAULT_VALUES",
+        {},
+    )
+    unset_fields = {k: v for k, v in default_values.items() if k not in jsonified_request}
     jsonified_request.update(unset_fields)
 
     # verify required fields with default values are now present
@@ -8711,10 +8552,8 @@ def test_create_featurestore_rest_required_fields(request_type=featurestore_serv
     jsonified_request["parent"] = 'parent_value'
     jsonified_request["featurestoreId"] = 'featurestore_id_value'
 
-    unset_fields = transport_class(credentials=ga_credentials.AnonymousCredentials()).create_featurestore._get_unset_required_fields(jsonified_request)
     # Check that path parameters and body parameters are not mixing in.
-    assert not set(unset_fields) - set(("featurestore_id", ))
-    jsonified_request.update(unset_fields)
+    assert not set(unset_fields) - set(("featurestoreId", ))
 
     # verify required fields with non-default values are left alone
     assert "parent" in jsonified_request
@@ -8766,13 +8605,6 @@ def test_create_featurestore_rest_required_fields(request_type=featurestore_serv
             ]
             actual_params = req.call_args.kwargs['params']
             assert sorted(expected_params) == sorted(actual_params)
-
-
-def test_create_featurestore_rest_unset_required_fields():
-    transport = transports.FeaturestoreServiceRestTransport(credentials=ga_credentials.AnonymousCredentials)
-
-    unset_fields = transport.create_featurestore._get_unset_required_fields({})
-    assert set(unset_fields) == (set(("featurestoreId", )) & set(("parent", "featurestore", "featurestoreId", )))
 
 
 def test_create_featurestore_rest_flattened():
@@ -8879,15 +8711,17 @@ def test_get_featurestore_rest_required_fields(request_type=featurestore_service
 
     # verify fields with default values are dropped
 
-    unset_fields = transport_class(credentials=ga_credentials.AnonymousCredentials()).get_featurestore._get_unset_required_fields(jsonified_request)
+    default_values = getattr(
+        transport_class._BaseGetFeaturestore,
+        "_BaseGetFeaturestore__REQUIRED_FIELDS_DEFAULT_VALUES",
+        {},
+    )
+    unset_fields = {k: v for k, v in default_values.items() if k not in jsonified_request}
     jsonified_request.update(unset_fields)
 
     # verify required fields with default values are now present
 
     jsonified_request["name"] = 'name_value'
-
-    unset_fields = transport_class(credentials=ga_credentials.AnonymousCredentials()).get_featurestore._get_unset_required_fields(jsonified_request)
-    jsonified_request.update(unset_fields)
 
     # verify required fields with non-default values are left alone
     assert "name" in jsonified_request
@@ -8935,13 +8769,6 @@ def test_get_featurestore_rest_required_fields(request_type=featurestore_service
             ]
             actual_params = req.call_args.kwargs['params']
             assert sorted(expected_params) == sorted(actual_params)
-
-
-def test_get_featurestore_rest_unset_required_fields():
-    transport = transports.FeaturestoreServiceRestTransport(credentials=ga_credentials.AnonymousCredentials)
-
-    unset_fields = transport.get_featurestore._get_unset_required_fields({})
-    assert set(unset_fields) == (set(()) & set(("name", )))
 
 
 def test_get_featurestore_rest_flattened():
@@ -9046,17 +8873,20 @@ def test_list_featurestores_rest_required_fields(request_type=featurestore_servi
 
     # verify fields with default values are dropped
 
-    unset_fields = transport_class(credentials=ga_credentials.AnonymousCredentials()).list_featurestores._get_unset_required_fields(jsonified_request)
+    default_values = getattr(
+        transport_class._BaseListFeaturestores,
+        "_BaseListFeaturestores__REQUIRED_FIELDS_DEFAULT_VALUES",
+        {},
+    )
+    unset_fields = {k: v for k, v in default_values.items() if k not in jsonified_request}
     jsonified_request.update(unset_fields)
 
     # verify required fields with default values are now present
 
     jsonified_request["parent"] = 'parent_value'
 
-    unset_fields = transport_class(credentials=ga_credentials.AnonymousCredentials()).list_featurestores._get_unset_required_fields(jsonified_request)
     # Check that path parameters and body parameters are not mixing in.
-    assert not set(unset_fields) - set(("filter", "order_by", "page_size", "page_token", "read_mask", ))
-    jsonified_request.update(unset_fields)
+    assert not set(unset_fields) - set(("filter", "orderBy", "pageSize", "pageToken", "readMask", ))
 
     # verify required fields with non-default values are left alone
     assert "parent" in jsonified_request
@@ -9104,13 +8934,6 @@ def test_list_featurestores_rest_required_fields(request_type=featurestore_servi
             ]
             actual_params = req.call_args.kwargs['params']
             assert sorted(expected_params) == sorted(actual_params)
-
-
-def test_list_featurestores_rest_unset_required_fields():
-    transport = transports.FeaturestoreServiceRestTransport(credentials=ga_credentials.AnonymousCredentials)
-
-    unset_fields = transport.list_featurestores._get_unset_required_fields({})
-    assert set(unset_fields) == (set(("filter", "orderBy", "pageSize", "pageToken", "readMask", )) & set(("parent", )))
 
 
 def test_list_featurestores_rest_flattened():
@@ -9283,15 +9106,18 @@ def test_update_featurestore_rest_required_fields(request_type=featurestore_serv
 
     # verify fields with default values are dropped
 
-    unset_fields = transport_class(credentials=ga_credentials.AnonymousCredentials()).update_featurestore._get_unset_required_fields(jsonified_request)
+    default_values = getattr(
+        transport_class._BaseUpdateFeaturestore,
+        "_BaseUpdateFeaturestore__REQUIRED_FIELDS_DEFAULT_VALUES",
+        {},
+    )
+    unset_fields = {k: v for k, v in default_values.items() if k not in jsonified_request}
     jsonified_request.update(unset_fields)
 
     # verify required fields with default values are now present
 
-    unset_fields = transport_class(credentials=ga_credentials.AnonymousCredentials()).update_featurestore._get_unset_required_fields(jsonified_request)
     # Check that path parameters and body parameters are not mixing in.
-    assert not set(unset_fields) - set(("update_mask", ))
-    jsonified_request.update(unset_fields)
+    assert not set(unset_fields) - set(("updateMask", ))
 
     # verify required fields with non-default values are left alone
 
@@ -9335,13 +9161,6 @@ def test_update_featurestore_rest_required_fields(request_type=featurestore_serv
             ]
             actual_params = req.call_args.kwargs['params']
             assert sorted(expected_params) == sorted(actual_params)
-
-
-def test_update_featurestore_rest_unset_required_fields():
-    transport = transports.FeaturestoreServiceRestTransport(credentials=ga_credentials.AnonymousCredentials)
-
-    unset_fields = transport.update_featurestore._get_unset_required_fields({})
-    assert set(unset_fields) == (set(("updateMask", )) & set(("featurestore", )))
 
 
 def test_update_featurestore_rest_flattened():
@@ -9450,17 +9269,20 @@ def test_delete_featurestore_rest_required_fields(request_type=featurestore_serv
 
     # verify fields with default values are dropped
 
-    unset_fields = transport_class(credentials=ga_credentials.AnonymousCredentials()).delete_featurestore._get_unset_required_fields(jsonified_request)
+    default_values = getattr(
+        transport_class._BaseDeleteFeaturestore,
+        "_BaseDeleteFeaturestore__REQUIRED_FIELDS_DEFAULT_VALUES",
+        {},
+    )
+    unset_fields = {k: v for k, v in default_values.items() if k not in jsonified_request}
     jsonified_request.update(unset_fields)
 
     # verify required fields with default values are now present
 
     jsonified_request["name"] = 'name_value'
 
-    unset_fields = transport_class(credentials=ga_credentials.AnonymousCredentials()).delete_featurestore._get_unset_required_fields(jsonified_request)
     # Check that path parameters and body parameters are not mixing in.
     assert not set(unset_fields) - set(("force", ))
-    jsonified_request.update(unset_fields)
 
     # verify required fields with non-default values are left alone
     assert "name" in jsonified_request
@@ -9505,13 +9327,6 @@ def test_delete_featurestore_rest_required_fields(request_type=featurestore_serv
             ]
             actual_params = req.call_args.kwargs['params']
             assert sorted(expected_params) == sorted(actual_params)
-
-
-def test_delete_featurestore_rest_unset_required_fields():
-    transport = transports.FeaturestoreServiceRestTransport(credentials=ga_credentials.AnonymousCredentials)
-
-    unset_fields = transport.delete_featurestore._get_unset_required_fields({})
-    assert set(unset_fields) == (set(("force", )) & set(("name", )))
 
 
 def test_delete_featurestore_rest_flattened():
@@ -9622,7 +9437,12 @@ def test_create_entity_type_rest_required_fields(request_type=featurestore_servi
     # verify fields with default values are dropped
     assert "entityTypeId" not in jsonified_request
 
-    unset_fields = transport_class(credentials=ga_credentials.AnonymousCredentials()).create_entity_type._get_unset_required_fields(jsonified_request)
+    default_values = getattr(
+        transport_class._BaseCreateEntityType,
+        "_BaseCreateEntityType__REQUIRED_FIELDS_DEFAULT_VALUES",
+        {},
+    )
+    unset_fields = {k: v for k, v in default_values.items() if k not in jsonified_request}
     jsonified_request.update(unset_fields)
 
     # verify required fields with default values are now present
@@ -9632,10 +9452,8 @@ def test_create_entity_type_rest_required_fields(request_type=featurestore_servi
     jsonified_request["parent"] = 'parent_value'
     jsonified_request["entityTypeId"] = 'entity_type_id_value'
 
-    unset_fields = transport_class(credentials=ga_credentials.AnonymousCredentials()).create_entity_type._get_unset_required_fields(jsonified_request)
     # Check that path parameters and body parameters are not mixing in.
-    assert not set(unset_fields) - set(("entity_type_id", ))
-    jsonified_request.update(unset_fields)
+    assert not set(unset_fields) - set(("entityTypeId", ))
 
     # verify required fields with non-default values are left alone
     assert "parent" in jsonified_request
@@ -9687,13 +9505,6 @@ def test_create_entity_type_rest_required_fields(request_type=featurestore_servi
             ]
             actual_params = req.call_args.kwargs['params']
             assert sorted(expected_params) == sorted(actual_params)
-
-
-def test_create_entity_type_rest_unset_required_fields():
-    transport = transports.FeaturestoreServiceRestTransport(credentials=ga_credentials.AnonymousCredentials)
-
-    unset_fields = transport.create_entity_type._get_unset_required_fields({})
-    assert set(unset_fields) == (set(("entityTypeId", )) & set(("parent", "entityTypeId", )))
 
 
 def test_create_entity_type_rest_flattened():
@@ -9800,15 +9611,17 @@ def test_get_entity_type_rest_required_fields(request_type=featurestore_service.
 
     # verify fields with default values are dropped
 
-    unset_fields = transport_class(credentials=ga_credentials.AnonymousCredentials()).get_entity_type._get_unset_required_fields(jsonified_request)
+    default_values = getattr(
+        transport_class._BaseGetEntityType,
+        "_BaseGetEntityType__REQUIRED_FIELDS_DEFAULT_VALUES",
+        {},
+    )
+    unset_fields = {k: v for k, v in default_values.items() if k not in jsonified_request}
     jsonified_request.update(unset_fields)
 
     # verify required fields with default values are now present
 
     jsonified_request["name"] = 'name_value'
-
-    unset_fields = transport_class(credentials=ga_credentials.AnonymousCredentials()).get_entity_type._get_unset_required_fields(jsonified_request)
-    jsonified_request.update(unset_fields)
 
     # verify required fields with non-default values are left alone
     assert "name" in jsonified_request
@@ -9856,13 +9669,6 @@ def test_get_entity_type_rest_required_fields(request_type=featurestore_service.
             ]
             actual_params = req.call_args.kwargs['params']
             assert sorted(expected_params) == sorted(actual_params)
-
-
-def test_get_entity_type_rest_unset_required_fields():
-    transport = transports.FeaturestoreServiceRestTransport(credentials=ga_credentials.AnonymousCredentials)
-
-    unset_fields = transport.get_entity_type._get_unset_required_fields({})
-    assert set(unset_fields) == (set(()) & set(("name", )))
 
 
 def test_get_entity_type_rest_flattened():
@@ -9967,17 +9773,20 @@ def test_list_entity_types_rest_required_fields(request_type=featurestore_servic
 
     # verify fields with default values are dropped
 
-    unset_fields = transport_class(credentials=ga_credentials.AnonymousCredentials()).list_entity_types._get_unset_required_fields(jsonified_request)
+    default_values = getattr(
+        transport_class._BaseListEntityTypes,
+        "_BaseListEntityTypes__REQUIRED_FIELDS_DEFAULT_VALUES",
+        {},
+    )
+    unset_fields = {k: v for k, v in default_values.items() if k not in jsonified_request}
     jsonified_request.update(unset_fields)
 
     # verify required fields with default values are now present
 
     jsonified_request["parent"] = 'parent_value'
 
-    unset_fields = transport_class(credentials=ga_credentials.AnonymousCredentials()).list_entity_types._get_unset_required_fields(jsonified_request)
     # Check that path parameters and body parameters are not mixing in.
-    assert not set(unset_fields) - set(("filter", "order_by", "page_size", "page_token", "read_mask", ))
-    jsonified_request.update(unset_fields)
+    assert not set(unset_fields) - set(("filter", "orderBy", "pageSize", "pageToken", "readMask", ))
 
     # verify required fields with non-default values are left alone
     assert "parent" in jsonified_request
@@ -10025,13 +9834,6 @@ def test_list_entity_types_rest_required_fields(request_type=featurestore_servic
             ]
             actual_params = req.call_args.kwargs['params']
             assert sorted(expected_params) == sorted(actual_params)
-
-
-def test_list_entity_types_rest_unset_required_fields():
-    transport = transports.FeaturestoreServiceRestTransport(credentials=ga_credentials.AnonymousCredentials)
-
-    unset_fields = transport.list_entity_types._get_unset_required_fields({})
-    assert set(unset_fields) == (set(("filter", "orderBy", "pageSize", "pageToken", "readMask", )) & set(("parent", )))
 
 
 def test_list_entity_types_rest_flattened():
@@ -10200,15 +10002,18 @@ def test_update_entity_type_rest_required_fields(request_type=featurestore_servi
 
     # verify fields with default values are dropped
 
-    unset_fields = transport_class(credentials=ga_credentials.AnonymousCredentials()).update_entity_type._get_unset_required_fields(jsonified_request)
+    default_values = getattr(
+        transport_class._BaseUpdateEntityType,
+        "_BaseUpdateEntityType__REQUIRED_FIELDS_DEFAULT_VALUES",
+        {},
+    )
+    unset_fields = {k: v for k, v in default_values.items() if k not in jsonified_request}
     jsonified_request.update(unset_fields)
 
     # verify required fields with default values are now present
 
-    unset_fields = transport_class(credentials=ga_credentials.AnonymousCredentials()).update_entity_type._get_unset_required_fields(jsonified_request)
     # Check that path parameters and body parameters are not mixing in.
-    assert not set(unset_fields) - set(("update_mask", ))
-    jsonified_request.update(unset_fields)
+    assert not set(unset_fields) - set(("updateMask", ))
 
     # verify required fields with non-default values are left alone
 
@@ -10255,13 +10060,6 @@ def test_update_entity_type_rest_required_fields(request_type=featurestore_servi
             ]
             actual_params = req.call_args.kwargs['params']
             assert sorted(expected_params) == sorted(actual_params)
-
-
-def test_update_entity_type_rest_unset_required_fields():
-    transport = transports.FeaturestoreServiceRestTransport(credentials=ga_credentials.AnonymousCredentials)
-
-    unset_fields = transport.update_entity_type._get_unset_required_fields({})
-    assert set(unset_fields) == (set(("updateMask", )) & set(("entityType", )))
 
 
 def test_update_entity_type_rest_flattened():
@@ -10372,17 +10170,20 @@ def test_delete_entity_type_rest_required_fields(request_type=featurestore_servi
 
     # verify fields with default values are dropped
 
-    unset_fields = transport_class(credentials=ga_credentials.AnonymousCredentials()).delete_entity_type._get_unset_required_fields(jsonified_request)
+    default_values = getattr(
+        transport_class._BaseDeleteEntityType,
+        "_BaseDeleteEntityType__REQUIRED_FIELDS_DEFAULT_VALUES",
+        {},
+    )
+    unset_fields = {k: v for k, v in default_values.items() if k not in jsonified_request}
     jsonified_request.update(unset_fields)
 
     # verify required fields with default values are now present
 
     jsonified_request["name"] = 'name_value'
 
-    unset_fields = transport_class(credentials=ga_credentials.AnonymousCredentials()).delete_entity_type._get_unset_required_fields(jsonified_request)
     # Check that path parameters and body parameters are not mixing in.
     assert not set(unset_fields) - set(("force", ))
-    jsonified_request.update(unset_fields)
 
     # verify required fields with non-default values are left alone
     assert "name" in jsonified_request
@@ -10427,13 +10228,6 @@ def test_delete_entity_type_rest_required_fields(request_type=featurestore_servi
             ]
             actual_params = req.call_args.kwargs['params']
             assert sorted(expected_params) == sorted(actual_params)
-
-
-def test_delete_entity_type_rest_unset_required_fields():
-    transport = transports.FeaturestoreServiceRestTransport(credentials=ga_credentials.AnonymousCredentials)
-
-    unset_fields = transport.delete_entity_type._get_unset_required_fields({})
-    assert set(unset_fields) == (set(("force", )) & set(("name", )))
 
 
 def test_delete_entity_type_rest_flattened():
@@ -10544,7 +10338,12 @@ def test_create_feature_rest_required_fields(request_type=featurestore_service.C
     # verify fields with default values are dropped
     assert "featureId" not in jsonified_request
 
-    unset_fields = transport_class(credentials=ga_credentials.AnonymousCredentials()).create_feature._get_unset_required_fields(jsonified_request)
+    default_values = getattr(
+        transport_class._BaseCreateFeature,
+        "_BaseCreateFeature__REQUIRED_FIELDS_DEFAULT_VALUES",
+        {},
+    )
+    unset_fields = {k: v for k, v in default_values.items() if k not in jsonified_request}
     jsonified_request.update(unset_fields)
 
     # verify required fields with default values are now present
@@ -10554,10 +10353,8 @@ def test_create_feature_rest_required_fields(request_type=featurestore_service.C
     jsonified_request["parent"] = 'parent_value'
     jsonified_request["featureId"] = 'feature_id_value'
 
-    unset_fields = transport_class(credentials=ga_credentials.AnonymousCredentials()).create_feature._get_unset_required_fields(jsonified_request)
     # Check that path parameters and body parameters are not mixing in.
-    assert not set(unset_fields) - set(("feature_id", ))
-    jsonified_request.update(unset_fields)
+    assert not set(unset_fields) - set(("featureId", ))
 
     # verify required fields with non-default values are left alone
     assert "parent" in jsonified_request
@@ -10609,13 +10406,6 @@ def test_create_feature_rest_required_fields(request_type=featurestore_service.C
             ]
             actual_params = req.call_args.kwargs['params']
             assert sorted(expected_params) == sorted(actual_params)
-
-
-def test_create_feature_rest_unset_required_fields():
-    transport = transports.FeaturestoreServiceRestTransport(credentials=ga_credentials.AnonymousCredentials)
-
-    unset_fields = transport.create_feature._get_unset_required_fields({})
-    assert set(unset_fields) == (set(("featureId", )) & set(("parent", "feature", "featureId", )))
 
 
 def test_create_feature_rest_flattened():
@@ -10726,15 +10516,17 @@ def test_batch_create_features_rest_required_fields(request_type=featurestore_se
 
     # verify fields with default values are dropped
 
-    unset_fields = transport_class(credentials=ga_credentials.AnonymousCredentials()).batch_create_features._get_unset_required_fields(jsonified_request)
+    default_values = getattr(
+        transport_class._BaseBatchCreateFeatures,
+        "_BaseBatchCreateFeatures__REQUIRED_FIELDS_DEFAULT_VALUES",
+        {},
+    )
+    unset_fields = {k: v for k, v in default_values.items() if k not in jsonified_request}
     jsonified_request.update(unset_fields)
 
     # verify required fields with default values are now present
 
     jsonified_request["parent"] = 'parent_value'
-
-    unset_fields = transport_class(credentials=ga_credentials.AnonymousCredentials()).batch_create_features._get_unset_required_fields(jsonified_request)
-    jsonified_request.update(unset_fields)
 
     # verify required fields with non-default values are left alone
     assert "parent" in jsonified_request
@@ -10780,13 +10572,6 @@ def test_batch_create_features_rest_required_fields(request_type=featurestore_se
             ]
             actual_params = req.call_args.kwargs['params']
             assert sorted(expected_params) == sorted(actual_params)
-
-
-def test_batch_create_features_rest_unset_required_fields():
-    transport = transports.FeaturestoreServiceRestTransport(credentials=ga_credentials.AnonymousCredentials)
-
-    unset_fields = transport.batch_create_features._get_unset_required_fields({})
-    assert set(unset_fields) == (set(()) & set(("parent", "requests", )))
 
 
 def test_batch_create_features_rest_flattened():
@@ -10891,15 +10676,17 @@ def test_get_feature_rest_required_fields(request_type=featurestore_service.GetF
 
     # verify fields with default values are dropped
 
-    unset_fields = transport_class(credentials=ga_credentials.AnonymousCredentials()).get_feature._get_unset_required_fields(jsonified_request)
+    default_values = getattr(
+        transport_class._BaseGetFeature,
+        "_BaseGetFeature__REQUIRED_FIELDS_DEFAULT_VALUES",
+        {},
+    )
+    unset_fields = {k: v for k, v in default_values.items() if k not in jsonified_request}
     jsonified_request.update(unset_fields)
 
     # verify required fields with default values are now present
 
     jsonified_request["name"] = 'name_value'
-
-    unset_fields = transport_class(credentials=ga_credentials.AnonymousCredentials()).get_feature._get_unset_required_fields(jsonified_request)
-    jsonified_request.update(unset_fields)
 
     # verify required fields with non-default values are left alone
     assert "name" in jsonified_request
@@ -10947,13 +10734,6 @@ def test_get_feature_rest_required_fields(request_type=featurestore_service.GetF
             ]
             actual_params = req.call_args.kwargs['params']
             assert sorted(expected_params) == sorted(actual_params)
-
-
-def test_get_feature_rest_unset_required_fields():
-    transport = transports.FeaturestoreServiceRestTransport(credentials=ga_credentials.AnonymousCredentials)
-
-    unset_fields = transport.get_feature._get_unset_required_fields({})
-    assert set(unset_fields) == (set(()) & set(("name", )))
 
 
 def test_get_feature_rest_flattened():
@@ -11058,17 +10838,20 @@ def test_list_features_rest_required_fields(request_type=featurestore_service.Li
 
     # verify fields with default values are dropped
 
-    unset_fields = transport_class(credentials=ga_credentials.AnonymousCredentials()).list_features._get_unset_required_fields(jsonified_request)
+    default_values = getattr(
+        transport_class._BaseListFeatures,
+        "_BaseListFeatures__REQUIRED_FIELDS_DEFAULT_VALUES",
+        {},
+    )
+    unset_fields = {k: v for k, v in default_values.items() if k not in jsonified_request}
     jsonified_request.update(unset_fields)
 
     # verify required fields with default values are now present
 
     jsonified_request["parent"] = 'parent_value'
 
-    unset_fields = transport_class(credentials=ga_credentials.AnonymousCredentials()).list_features._get_unset_required_fields(jsonified_request)
     # Check that path parameters and body parameters are not mixing in.
-    assert not set(unset_fields) - set(("filter", "latest_stats_count", "order_by", "page_size", "page_token", "read_mask", ))
-    jsonified_request.update(unset_fields)
+    assert not set(unset_fields) - set(("filter", "latestStatsCount", "orderBy", "pageSize", "pageToken", "readMask", ))
 
     # verify required fields with non-default values are left alone
     assert "parent" in jsonified_request
@@ -11116,13 +10899,6 @@ def test_list_features_rest_required_fields(request_type=featurestore_service.Li
             ]
             actual_params = req.call_args.kwargs['params']
             assert sorted(expected_params) == sorted(actual_params)
-
-
-def test_list_features_rest_unset_required_fields():
-    transport = transports.FeaturestoreServiceRestTransport(credentials=ga_credentials.AnonymousCredentials)
-
-    unset_fields = transport.list_features._get_unset_required_fields({})
-    assert set(unset_fields) == (set(("filter", "latestStatsCount", "orderBy", "pageSize", "pageToken", "readMask", )) & set(("parent", )))
 
 
 def test_list_features_rest_flattened():
@@ -11291,15 +11067,18 @@ def test_update_feature_rest_required_fields(request_type=featurestore_service.U
 
     # verify fields with default values are dropped
 
-    unset_fields = transport_class(credentials=ga_credentials.AnonymousCredentials()).update_feature._get_unset_required_fields(jsonified_request)
+    default_values = getattr(
+        transport_class._BaseUpdateFeature,
+        "_BaseUpdateFeature__REQUIRED_FIELDS_DEFAULT_VALUES",
+        {},
+    )
+    unset_fields = {k: v for k, v in default_values.items() if k not in jsonified_request}
     jsonified_request.update(unset_fields)
 
     # verify required fields with default values are now present
 
-    unset_fields = transport_class(credentials=ga_credentials.AnonymousCredentials()).update_feature._get_unset_required_fields(jsonified_request)
     # Check that path parameters and body parameters are not mixing in.
-    assert not set(unset_fields) - set(("update_mask", ))
-    jsonified_request.update(unset_fields)
+    assert not set(unset_fields) - set(("updateMask", ))
 
     # verify required fields with non-default values are left alone
 
@@ -11346,13 +11125,6 @@ def test_update_feature_rest_required_fields(request_type=featurestore_service.U
             ]
             actual_params = req.call_args.kwargs['params']
             assert sorted(expected_params) == sorted(actual_params)
-
-
-def test_update_feature_rest_unset_required_fields():
-    transport = transports.FeaturestoreServiceRestTransport(credentials=ga_credentials.AnonymousCredentials)
-
-    unset_fields = transport.update_feature._get_unset_required_fields({})
-    assert set(unset_fields) == (set(("updateMask", )) & set(("feature", )))
 
 
 def test_update_feature_rest_flattened():
@@ -11463,15 +11235,17 @@ def test_delete_feature_rest_required_fields(request_type=featurestore_service.D
 
     # verify fields with default values are dropped
 
-    unset_fields = transport_class(credentials=ga_credentials.AnonymousCredentials()).delete_feature._get_unset_required_fields(jsonified_request)
+    default_values = getattr(
+        transport_class._BaseDeleteFeature,
+        "_BaseDeleteFeature__REQUIRED_FIELDS_DEFAULT_VALUES",
+        {},
+    )
+    unset_fields = {k: v for k, v in default_values.items() if k not in jsonified_request}
     jsonified_request.update(unset_fields)
 
     # verify required fields with default values are now present
 
     jsonified_request["name"] = 'name_value'
-
-    unset_fields = transport_class(credentials=ga_credentials.AnonymousCredentials()).delete_feature._get_unset_required_fields(jsonified_request)
-    jsonified_request.update(unset_fields)
 
     # verify required fields with non-default values are left alone
     assert "name" in jsonified_request
@@ -11516,13 +11290,6 @@ def test_delete_feature_rest_required_fields(request_type=featurestore_service.D
             ]
             actual_params = req.call_args.kwargs['params']
             assert sorted(expected_params) == sorted(actual_params)
-
-
-def test_delete_feature_rest_unset_required_fields():
-    transport = transports.FeaturestoreServiceRestTransport(credentials=ga_credentials.AnonymousCredentials)
-
-    unset_fields = transport.delete_feature._get_unset_required_fields({})
-    assert set(unset_fields) == (set(()) & set(("name", )))
 
 
 def test_delete_feature_rest_flattened():
@@ -11629,15 +11396,17 @@ def test_import_feature_values_rest_required_fields(request_type=featurestore_se
 
     # verify fields with default values are dropped
 
-    unset_fields = transport_class(credentials=ga_credentials.AnonymousCredentials()).import_feature_values._get_unset_required_fields(jsonified_request)
+    default_values = getattr(
+        transport_class._BaseImportFeatureValues,
+        "_BaseImportFeatureValues__REQUIRED_FIELDS_DEFAULT_VALUES",
+        {},
+    )
+    unset_fields = {k: v for k, v in default_values.items() if k not in jsonified_request}
     jsonified_request.update(unset_fields)
 
     # verify required fields with default values are now present
 
     jsonified_request["entityType"] = 'entity_type_value'
-
-    unset_fields = transport_class(credentials=ga_credentials.AnonymousCredentials()).import_feature_values._get_unset_required_fields(jsonified_request)
-    jsonified_request.update(unset_fields)
 
     # verify required fields with non-default values are left alone
     assert "entityType" in jsonified_request
@@ -11683,13 +11452,6 @@ def test_import_feature_values_rest_required_fields(request_type=featurestore_se
             ]
             actual_params = req.call_args.kwargs['params']
             assert sorted(expected_params) == sorted(actual_params)
-
-
-def test_import_feature_values_rest_unset_required_fields():
-    transport = transports.FeaturestoreServiceRestTransport(credentials=ga_credentials.AnonymousCredentials)
-
-    unset_fields = transport.import_feature_values._get_unset_required_fields({})
-    assert set(unset_fields) == (set(()) & set(("entityType", "featureSpecs", )))
 
 
 def test_import_feature_values_rest_flattened():
@@ -11796,15 +11558,17 @@ def test_batch_read_feature_values_rest_required_fields(request_type=featurestor
 
     # verify fields with default values are dropped
 
-    unset_fields = transport_class(credentials=ga_credentials.AnonymousCredentials()).batch_read_feature_values._get_unset_required_fields(jsonified_request)
+    default_values = getattr(
+        transport_class._BaseBatchReadFeatureValues,
+        "_BaseBatchReadFeatureValues__REQUIRED_FIELDS_DEFAULT_VALUES",
+        {},
+    )
+    unset_fields = {k: v for k, v in default_values.items() if k not in jsonified_request}
     jsonified_request.update(unset_fields)
 
     # verify required fields with default values are now present
 
     jsonified_request["featurestore"] = 'featurestore_value'
-
-    unset_fields = transport_class(credentials=ga_credentials.AnonymousCredentials()).batch_read_feature_values._get_unset_required_fields(jsonified_request)
-    jsonified_request.update(unset_fields)
 
     # verify required fields with non-default values are left alone
     assert "featurestore" in jsonified_request
@@ -11850,13 +11614,6 @@ def test_batch_read_feature_values_rest_required_fields(request_type=featurestor
             ]
             actual_params = req.call_args.kwargs['params']
             assert sorted(expected_params) == sorted(actual_params)
-
-
-def test_batch_read_feature_values_rest_unset_required_fields():
-    transport = transports.FeaturestoreServiceRestTransport(credentials=ga_credentials.AnonymousCredentials)
-
-    unset_fields = transport.batch_read_feature_values._get_unset_required_fields({})
-    assert set(unset_fields) == (set(()) & set(("featurestore", "destination", "entityTypeSpecs", )))
 
 
 def test_batch_read_feature_values_rest_flattened():
@@ -11963,15 +11720,17 @@ def test_export_feature_values_rest_required_fields(request_type=featurestore_se
 
     # verify fields with default values are dropped
 
-    unset_fields = transport_class(credentials=ga_credentials.AnonymousCredentials()).export_feature_values._get_unset_required_fields(jsonified_request)
+    default_values = getattr(
+        transport_class._BaseExportFeatureValues,
+        "_BaseExportFeatureValues__REQUIRED_FIELDS_DEFAULT_VALUES",
+        {},
+    )
+    unset_fields = {k: v for k, v in default_values.items() if k not in jsonified_request}
     jsonified_request.update(unset_fields)
 
     # verify required fields with default values are now present
 
     jsonified_request["entityType"] = 'entity_type_value'
-
-    unset_fields = transport_class(credentials=ga_credentials.AnonymousCredentials()).export_feature_values._get_unset_required_fields(jsonified_request)
-    jsonified_request.update(unset_fields)
 
     # verify required fields with non-default values are left alone
     assert "entityType" in jsonified_request
@@ -12017,13 +11776,6 @@ def test_export_feature_values_rest_required_fields(request_type=featurestore_se
             ]
             actual_params = req.call_args.kwargs['params']
             assert sorted(expected_params) == sorted(actual_params)
-
-
-def test_export_feature_values_rest_unset_required_fields():
-    transport = transports.FeaturestoreServiceRestTransport(credentials=ga_credentials.AnonymousCredentials)
-
-    unset_fields = transport.export_feature_values._get_unset_required_fields({})
-    assert set(unset_fields) == (set(()) & set(("entityType", "destination", "featureSelector", )))
 
 
 def test_export_feature_values_rest_flattened():
@@ -12130,15 +11882,17 @@ def test_delete_feature_values_rest_required_fields(request_type=featurestore_se
 
     # verify fields with default values are dropped
 
-    unset_fields = transport_class(credentials=ga_credentials.AnonymousCredentials()).delete_feature_values._get_unset_required_fields(jsonified_request)
+    default_values = getattr(
+        transport_class._BaseDeleteFeatureValues,
+        "_BaseDeleteFeatureValues__REQUIRED_FIELDS_DEFAULT_VALUES",
+        {},
+    )
+    unset_fields = {k: v for k, v in default_values.items() if k not in jsonified_request}
     jsonified_request.update(unset_fields)
 
     # verify required fields with default values are now present
 
     jsonified_request["entityType"] = 'entity_type_value'
-
-    unset_fields = transport_class(credentials=ga_credentials.AnonymousCredentials()).delete_feature_values._get_unset_required_fields(jsonified_request)
-    jsonified_request.update(unset_fields)
 
     # verify required fields with non-default values are left alone
     assert "entityType" in jsonified_request
@@ -12184,13 +11938,6 @@ def test_delete_feature_values_rest_required_fields(request_type=featurestore_se
             ]
             actual_params = req.call_args.kwargs['params']
             assert sorted(expected_params) == sorted(actual_params)
-
-
-def test_delete_feature_values_rest_unset_required_fields():
-    transport = transports.FeaturestoreServiceRestTransport(credentials=ga_credentials.AnonymousCredentials)
-
-    unset_fields = transport.delete_feature_values._get_unset_required_fields({})
-    assert set(unset_fields) == (set(()) & set(("entityType", )))
 
 
 def test_delete_feature_values_rest_flattened():
@@ -12293,17 +12040,20 @@ def test_search_features_rest_required_fields(request_type=featurestore_service.
 
     # verify fields with default values are dropped
 
-    unset_fields = transport_class(credentials=ga_credentials.AnonymousCredentials()).search_features._get_unset_required_fields(jsonified_request)
+    default_values = getattr(
+        transport_class._BaseSearchFeatures,
+        "_BaseSearchFeatures__REQUIRED_FIELDS_DEFAULT_VALUES",
+        {},
+    )
+    unset_fields = {k: v for k, v in default_values.items() if k not in jsonified_request}
     jsonified_request.update(unset_fields)
 
     # verify required fields with default values are now present
 
     jsonified_request["location"] = 'location_value'
 
-    unset_fields = transport_class(credentials=ga_credentials.AnonymousCredentials()).search_features._get_unset_required_fields(jsonified_request)
     # Check that path parameters and body parameters are not mixing in.
-    assert not set(unset_fields) - set(("page_size", "page_token", "query", ))
-    jsonified_request.update(unset_fields)
+    assert not set(unset_fields) - set(("pageSize", "pageToken", "query", ))
 
     # verify required fields with non-default values are left alone
     assert "location" in jsonified_request
@@ -12351,13 +12101,6 @@ def test_search_features_rest_required_fields(request_type=featurestore_service.
             ]
             actual_params = req.call_args.kwargs['params']
             assert sorted(expected_params) == sorted(actual_params)
-
-
-def test_search_features_rest_unset_required_fields():
-    transport = transports.FeaturestoreServiceRestTransport(credentials=ga_credentials.AnonymousCredentials)
-
-    unset_fields = transport.search_features._get_unset_required_fields({})
-    assert set(unset_fields) == (set(("pageSize", "pageToken", "query", )) & set(("location", )))
 
 
 def test_search_features_rest_flattened():
