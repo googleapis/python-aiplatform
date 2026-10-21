@@ -32128,7 +32128,11 @@ class DeployPublisherModelConfig(_common.BaseModel):
     accelerator_count: Optional[int] = Field(
         default=None, description="""Number of accelerators per replica."""
     )
-    spot: Optional[bool] = Field(default=None, description="""Schedule on Spot VMs.""")
+    spot: Optional[bool] = Field(
+        default=None,
+        description="""Schedule on Spot VMs. Without ``machine_type``, applies to the
+      model's default machine.""",
+    )
     dedicated_endpoint_disabled: Optional[bool] = Field(
         default=None,
         description="""Set True to serve predictions via the shared endpoint DNS
@@ -32217,7 +32221,8 @@ class DeployPublisherModelConfigDict(TypedDict, total=False):
     """Number of accelerators per replica."""
 
     spot: Optional[bool]
-    """Schedule on Spot VMs."""
+    """Schedule on Spot VMs. Without ``machine_type``, applies to the
+      model's default machine."""
 
     dedicated_endpoint_disabled: Optional[bool]
     """Set True to serve predictions via the shared endpoint DNS

@@ -2120,6 +2120,7 @@ def test_deploy_publisher_model_default_config_no_optional_blocks(mock_client):
     assert kwargs["deploy_config"].dedicated_resources is None
     assert kwargs["model_config_val"].container_spec is None
     assert kwargs["endpoint_config"].dedicated_endpoint_enabled is None
+    assert kwargs["endpoint_config"].dedicated_endpoint_disabled is None
     assert kwargs["endpoint_config"].private_service_connect_config is None
 
 
@@ -2215,10 +2216,38 @@ def test_deploy_publisher_model_accelerator_only_triggers_dedicated_resources(
     assert dr.machine_spec.accelerator_type == "NVIDIA_L4"
 
 
-def test_deploy_publisher_model_dedicated_endpoint_disabled_inverts(
+def test_deploy_publisher_model_spot_without_machine_shape_forwarded(
     mock_client,
 ):
-  """dedicated_endpoint_disabled=True maps to dedicated_endpoint_enabled=False on wire."""
+  """spot alone is sent without a machine spec; the backend applies it to the default machine."""
+  with (
+      _patch_deploy_rpc(mock_client) as m_rpc,
+      mock.patch.object(
+          model_garden._operations_utils,
+          "await_operation",
+          return_value=_done_deploy_operation(),
+      ),
+  ):
+    mock_client.deploy_publisher_model(
+        model=_OPEN_MODEL,
+        config=types.DeployPublisherModelConfig(spot=True),
+    )
+    dr = m_rpc.call_args.kwargs["deploy_config"].dedicated_resources
+    assert dr is not None
+    assert dr.spot is True
+    assert dr.machine_spec is None
+    assert dr.min_replica_count is None
+    assert dr.max_replica_count is None
+
+
+def test_deploy_publisher_model_dedicated_endpoint_disabled_forwarded(
+    mock_client,
+):
+  """dedicated_endpoint_disabled=True is sent as-is, not as the deprecated field.
+
+  dedicated_endpoint_enabled=False is the proto3 default, so the backend
+  cannot tell it from unset and would keep the dedicated endpoint on.
+  """
   with (
       _patch_deploy_rpc(mock_client) as m_rpc,
       mock.patch.object(
@@ -2233,16 +2262,15 @@ def test_deploy_publisher_model_dedicated_endpoint_disabled_inverts(
             dedicated_endpoint_disabled=True
         ),
     )
-    assert (
-        m_rpc.call_args.kwargs["endpoint_config"].dedicated_endpoint_enabled
-        is False
-    )
+    endpoint_config = m_rpc.call_args.kwargs["endpoint_config"]
+    assert endpoint_config.dedicated_endpoint_disabled is True
+    assert endpoint_config.dedicated_endpoint_enabled is None
 
 
-def test_deploy_publisher_model_dedicated_endpoint_disabled_false_maps_to_true(
+def test_deploy_publisher_model_dedicated_endpoint_disabled_false_not_sent(
     mock_client,
 ):
-  """dedicated_endpoint_disabled=False maps to dedicated_endpoint_enabled=True."""
+  """dedicated_endpoint_disabled=False sends neither field (server default)."""
   with (
       _patch_deploy_rpc(mock_client) as m_rpc,
       mock.patch.object(
@@ -2257,10 +2285,9 @@ def test_deploy_publisher_model_dedicated_endpoint_disabled_false_maps_to_true(
             dedicated_endpoint_disabled=False
         ),
     )
-    assert (
-        m_rpc.call_args.kwargs["endpoint_config"].dedicated_endpoint_enabled
-        is True
-    )
+    endpoint_config = m_rpc.call_args.kwargs["endpoint_config"]
+    assert endpoint_config.dedicated_endpoint_disabled is None
+    assert endpoint_config.dedicated_endpoint_enabled is None
 
 
 def test_deploy_publisher_model_private_service_connect(mock_client):
