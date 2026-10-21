@@ -185,10 +185,11 @@ evaluation_extra_require = [
     "jsonschema",
     "ruamel.yaml",
     "pyyaml",
-    "litellm>=1.83.7, <1.86.0; python_version<'3.14'",
-    "litellm>=1.93.0, <1.97.0; python_version>='3.14'",
+    "litellm>=1.83.7, <1.97.0; python_version<'3.14'",
+    # litellm does not support Python 3.15 yet (Requires-Python <3.15).
+    "litellm>=1.93.0, <1.97.0; python_version=='3.14'",
     # For LiteLLM tests. Lower bound: CVE-2026-35030 plus 4 follow-on
-    # advisories patched in 1.83.7. Upper bound <1.86.0 for stable interface only.
+    # advisories patched in 1.83.7. Upper bound <1.97.0 for stable interface only.
 ]
 
 langchain_extra_require = [
@@ -372,6 +373,7 @@ setuptools.setup(
         "Programming Language :: Python :: 3.12",
         "Programming Language :: Python :: 3.13",
         "Programming Language :: Python :: 3.14",
+        "Programming Language :: Python :: 3.15",
         "Topic :: Internet",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],

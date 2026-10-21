@@ -2060,6 +2060,9 @@ from .common import SchemaPromptSpecAppBuilderDataLinkedResource
 from .common import SchemaPromptSpecAppBuilderDataLinkedResourceDict
 from .common import SchemaPromptSpecAppBuilderDataLinkedResourceOrDict
 from .common import SchemaPromptSpecAppBuilderDataOrDict
+from .common import SchemaPromptSpecContentMetadata
+from .common import SchemaPromptSpecContentMetadataDict
+from .common import SchemaPromptSpecContentMetadataOrDict
 from .common import SchemaPromptSpecInteractionData
 from .common import SchemaPromptSpecInteractionDataDict
 from .common import SchemaPromptSpecInteractionDataOrDict
@@ -3735,6 +3738,9 @@ __all__ = [
     "SchemaPromptSpecInteractionData",
     "SchemaPromptSpecInteractionDataDict",
     "SchemaPromptSpecInteractionDataOrDict",
+    "SchemaPromptSpecContentMetadata",
+    "SchemaPromptSpecContentMetadataDict",
+    "SchemaPromptSpecContentMetadataOrDict",
     "SchemaPromptSpecStructuredPrompt",
     "SchemaPromptSpecStructuredPromptDict",
     "SchemaPromptSpecStructuredPromptOrDict",
