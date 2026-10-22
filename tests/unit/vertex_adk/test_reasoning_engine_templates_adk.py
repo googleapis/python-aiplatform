@@ -23,6 +23,7 @@ from unittest import mock
 from typing import Optional
 
 from google import auth
+from google.adk.events.event import Event
 from google.api_core import exceptions as api_exceptions
 import vertexai
 from google.cloud.aiplatform import initializer
@@ -807,6 +808,45 @@ class TestAdkApp:
         assert captured["run_config"] is not None
         assert captured["run_config"].labels == labels
 
+    def test_streaming_agent_run_with_events_fallback_session_preserves_upstream_session_id(
+        self,
+    ):
+        """Preserves upstream_session_id in state_delta when creating a fallback session."""
+        captured = {}
+
+        class _StateDeltaCapturingRunner(_MockRunner):
+
+            def run(self, *args, **kwargs):
+                captured["session_id"] = kwargs.get("session_id")
+                captured["state_delta"] = kwargs.get("state_delta")
+                yield from super().run(*args, **kwargs)
+
+        app = reasoning_engines.AdkApp(
+            agent=Agent(name=_TEST_AGENT_NAME, model=_TEST_MODEL)
+        )
+        app.set_up()
+        app._tmpl_attrs[  # pylint: disable=protected-access
+            "runner"
+        ] = _StateDeltaCapturingRunner()
+
+        request_json = json.dumps(
+            {
+                "user_id": _TEST_USER_ID,
+                "session_id": "ge_originating_session_123",
+                "message": {
+                    "parts": [{"text": "What is the exchange rate from USD to SEK?"}],
+                    "role": "user",
+                },
+            }
+        )
+        events = list(app.streaming_agent_run_with_events(request_json=request_json))
+
+        assert len(events) == 1
+        assert captured["session_id"] != "ge_originating_session_123"
+        assert captured["state_delta"] == {
+            "upstream_session_id": "ge_originating_session_123"
+        }
+
     @pytest.mark.asyncio
     @mock.patch.dict(
         os.environ,
@@ -969,6 +1009,31 @@ class TestAdkApp:
         )
         assert app._tmpl_attrs.get("memory_service") is None
         session = app.create_session(user_id=_TEST_USER_ID)
+        app._tmpl_attrs[  # pylint: disable=protected-access
+            "runner"
+        ] = _MockRunner()
+
+        session_obj = await app._tmpl_attrs[  # pylint: disable=protected-access
+            "session_service"
+        ].get_session(
+            app_name=app._tmpl_attrs.get(  # pylint: disable=protected-access
+                "app_name"
+            ),
+            user_id=_TEST_USER_ID,
+            session_id=session["id"],
+        )
+        await app._tmpl_attrs[  # pylint: disable=protected-access
+            "session_service"
+        ].append_event(
+            session=session_obj,
+            event=Event(
+                author="user",
+                content={
+                    "parts": [{"text": "My cat's name is Garfield"}],
+                    "role": "user",
+                },
+            ),
+        )
         list(
             app.stream_query(
                 user_id=_TEST_USER_ID,
