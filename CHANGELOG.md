@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.7.0](https://github.com/googleapis/python-aiplatform/compare/v2.6.0...v2.7.0) (2026-10-23)
+
+
+### Features
+
+* Add support for Python 3.15 ([9b9f2b3](https://github.com/googleapis/python-aiplatform/commit/9b9f2b315c520421dd5d7f90eab6dbc674ceef65))
+
+
+### Bug Fixes
+
+* GenAI Evaluation: Lazily import scikit-learn in preview autorater_utils so importing vertexai.preview.evaluation doesn't require it ([d6f690e](https://github.com/googleapis/python-aiplatform/commit/d6f690e061aa68f02ffdb82bcdee63911612325a))
+* Stop deserializing the staged agent from Cloud Storage during Agent Engine deployment ([d02310f](https://github.com/googleapis/python-aiplatform/commit/d02310f292314bdf9b21fcdda3b39155f34b08b6))
+
 ## [2.6.0](https://github.com/googleapis/python-aiplatform/compare/v2.5.0...v2.6.0) (2026-10-20)
 
 
