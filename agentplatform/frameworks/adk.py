@@ -1595,6 +1595,9 @@ class AdkApp:
                     artifact_service=artifact_service,
                     request=request,
                 )
+                if state_delta is None:
+                    state_delta = {}
+                state_delta["upstream_session_id"] = request.session_id
         else:
             # Not providing a session ID will create a new in-memory session.
             session_service = self._tmpl_attrs.get("in_memory_session_service")
