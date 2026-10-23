@@ -1281,11 +1281,6 @@ def _upload_agent_engine(
                     "`from a2a import types`."
                 )
             raise TypeError(error_msg) from e
-    with blob.open("rb") as f:
-        try:
-            _ = cloudpickle.load(f)
-        except Exception as e:
-            raise TypeError("Agent engine serialized to an invalid format") from e
     dir_name = f"gs://{gcs_bucket.name}/{gcs_dir_name}"
     logger.info(f"Wrote to {dir_name}/{_BLOB_FILENAME}")
 

@@ -14,9 +14,7 @@
 #
 # pylint: disable=protected-access,bad-continuation,missing-function-docstring
 
-import contextlib
 import os
-from unittest import mock
 from tests.unit.agentplatform.genai.replays import pytest_helper
 from agentplatform._genai import types
 from agentplatform.frameworks.a2a import default_a2a_agent
@@ -30,7 +28,7 @@ from a2a.types import AgentInterface
 from a2a.utils.constants import TransportProtocol
 
 
-def test_create_a2a_agent(client, is_replay_mode):
+def test_create_a2a_agent(client):
     my_agent = default_a2a_agent()
 
     my_agent.agent_card.supported_interfaces.append(
@@ -44,29 +42,19 @@ def test_create_a2a_agent(client, is_replay_mode):
 
     staging_bucket = os.environ["GCS_BUCKET"]
 
-    # In replay mode, GCS operations are mocked and blob.open("rb") returns a mock
-    # that fails when cloudpickle.load expects bytes. We mock _upload_runtime
-    # to skip this verification step, which is not needed when replaying API calls.
-    upload_patch = (
-        mock.patch("agentplatform._genai._runtimes_utils._upload_runtime")
-        if is_replay_mode
-        else contextlib.nullcontext()
+    runtime = client.runtimes.create(
+        agent=my_agent,
+        config={
+            "staging_bucket": staging_bucket,
+            "display_name": "test-a2a-agent",
+            "http_options": {"api_version": "v1beta1"},
+            "requirements": [
+                "google-cloud-aiplatform[agent_engines]",
+                "a2a-sdk",
+                "sse-starlette",
+            ],
+        },
     )
-
-    with upload_patch:
-        runtime = client.runtimes.create(
-            agent=my_agent,
-            config={
-                "staging_bucket": staging_bucket,
-                "display_name": "test-a2a-agent",
-                "http_options": {"api_version": "v1beta1"},
-                "requirements": [
-                    "google-cloud-aiplatform[agent_engines]",
-                    "a2a-sdk",
-                    "sse-starlette",
-                ],
-            },
-        )
 
 
     assert isinstance(runtime, types.Runtime)
