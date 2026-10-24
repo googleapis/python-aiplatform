@@ -70,6 +70,9 @@ from google.cloud.aiplatform.compat.types import (
 
 _TEST_PROJECT = "test-project"
 _TEST_LOCATION = "us-central1"
+# a project and location for the job itself, different from aiplatform.init
+_TEST_JOB_PROJECT = "test-job-project"
+_TEST_JOB_LOCATION = "europe-west4"
 _TEST_PIPELINE_JOB_DISPLAY_NAME = "sample-pipeline-job-display-name"
 _TEST_PIPELINE_JOB_DISPLAY_NAME_2 = "sample-pipeline-job-display-name-2"
 _TEST_PIPELINE_JOB_ID = "sample-test-pipeline-202111111"
@@ -2497,6 +2500,87 @@ class TestPipelineJob:
 
         assert mock_pipeline_v1beta1_service_get.call_count == 1
         assert mock_pipeline_v1beta1_service_create.call_count == 2
+
+    def _make_preview_job_in_another_project(self, job_credentials):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            staging_bucket=_TEST_GCS_BUCKET_NAME,
+            credentials=_TEST_CREDENTIALS,
+        )
+        return preview_pipeline_jobs._PipelineJob(
+            display_name=_TEST_PIPELINE_JOB_DISPLAY_NAME,
+            template_path=_TEST_TEMPLATE_PATH,
+            job_id=_TEST_PIPELINE_JOB_ID,
+            project=_TEST_JOB_PROJECT,
+            location=_TEST_JOB_LOCATION,
+            credentials=job_credentials,
+        )
+
+    def _assert_created_with_the_jobs_project_location_and_credentials(
+        self, mock_create, job_credentials
+    ):
+        # autospec records the client instance that made the call
+        client = mock_create.call_args.args[0]
+        assert client._transport._host == (
+            f"{_TEST_JOB_LOCATION}-aiplatform.googleapis.com:443"
+        )
+        assert client._transport._credentials == job_credentials
+        assert mock_create.call_args.kwargs["request"].parent == (
+            f"projects/{_TEST_JOB_PROJECT}/locations/{_TEST_JOB_LOCATION}"
+        )
+
+    @pytest.mark.parametrize("job_spec", [_TEST_PIPELINE_SPEC_JSON])
+    def test_submit_v1beta1_pipeline_job_uses_the_jobs_project_location_and_credentials(
+        self,
+        mock_load_yaml_and_json,
+        job_spec,
+    ):
+        job_credentials = auth_credentials.AnonymousCredentials()
+        job = self._make_preview_job_in_another_project(job_credentials)
+
+        with mock.patch.object(
+            v1beta1_pipeline_service.PipelineServiceClient,
+            "create_pipeline_job",
+            autospec=True,
+            return_value=v1beta1_pipeline_job.PipelineJob(name=_TEST_PIPELINE_JOB_NAME),
+        ) as mock_create:
+            job.submit(create_request_timeout=180.0)
+
+        self._assert_created_with_the_jobs_project_location_and_credentials(
+            mock_create, job_credentials
+        )
+        assert mock_create.call_args.kwargs["timeout"] == 180.0
+
+    @pytest.mark.usefixtures("mock_pipeline_v1beta1_service_get")
+    @pytest.mark.parametrize("job_spec", [_TEST_PIPELINE_SPEC_JSON])
+    def test_rerun_v1beta1_pipeline_job_uses_the_jobs_project_location_and_credentials(
+        self,
+        mock_load_yaml_and_json,
+        job_spec,
+    ):
+        job_credentials = auth_credentials.AnonymousCredentials()
+        job = self._make_preview_job_in_another_project(job_credentials)
+
+        with mock.patch.object(
+            v1beta1_pipeline_service.PipelineServiceClient,
+            "create_pipeline_job",
+            autospec=True,
+            return_value=v1beta1_pipeline_job.PipelineJob(name=_TEST_PIPELINE_JOB_NAME),
+        ) as mock_create:
+            job.rerun(
+                original_pipelinejob_name=_TEST_PIPELINE_JOB_NAME,
+                pipeline_task_rerun_configs=[
+                    aiplatform_v1beta1.PipelineTaskRerunConfig(
+                        task_name="task-name",
+                        task_id=100,
+                    )
+                ],
+            )
+
+        self._assert_created_with_the_jobs_project_location_and_credentials(
+            mock_create, job_credentials
+        )
 
     @pytest.mark.usefixtures(
         "mock_pipeline_v1beta1_service_create",
