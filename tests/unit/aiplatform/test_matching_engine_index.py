@@ -637,7 +637,12 @@ class TestMatchingEngineIndex:
             display_name=_TEST_INDEX_DISPLAY_NAME,
             metadata={
                 "config": {
-                    "algorithmConfig": None,
+                    "algorithmConfig": {
+                        "treeAhConfig": {
+                            "leafNodeEmbeddingCount": None,
+                            "leafNodesToSearchPercent": None,
+                        }
+                    },
                     "dimensions": _TEST_INDEX_CONFIG_DIMENSIONS,
                     "approximateNeighborsCount": _TEST_INDEX_APPROXIMATE_NEIGHBORS_COUNT,
                     "distanceMeasureType": _TEST_INDEX_DISTANCE_MEASURE_TYPE,
