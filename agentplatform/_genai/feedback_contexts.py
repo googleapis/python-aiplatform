@@ -17,81 +17,19 @@
 
 import json
 import logging
-from typing import Any, Optional, Union
+from typing import Optional
 from urllib.parse import urlencode
 
 from google.genai import _api_module
 from google.genai import _common
-from google.genai._common import get_value_by_path as getv
-from google.genai._common import set_value_by_path as setv
 
+from . import _converters
 from . import _runtimes_utils
 from . import types
 
 logger = logging.getLogger("agentplatform_genai.feedbackcontexts")
 
 logger.setLevel(logging.INFO)
-
-
-def _GetRuntimeFeedbackContextOperationParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["operation_name"]) is not None:
-        setv(
-            to_object, ["_url", "operationName"], getv(from_object, ["operation_name"])
-        )
-
-    return to_object
-
-
-def _GetRuntimeFeedbackContextRequestParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    return to_object
-
-
-def _UpdateRuntimeFeedbackContextConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-
-    if getv(from_object, ["update_mask"]) is not None:
-        setv(
-            parent_object, ["_query", "updateMask"], getv(from_object, ["update_mask"])
-        )
-
-    return to_object
-
-
-def _UpdateRuntimeFeedbackContextRequestParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["context_events"]) is not None:
-        setv(
-            to_object,
-            ["contextEvents"],
-            [item for item in getv(from_object, ["context_events"])],
-        )
-
-    if getv(from_object, ["config"]) is not None:
-        _UpdateRuntimeFeedbackContextConfig_to_vertex(
-            getv(from_object, ["config"]), to_object
-        )
-
-    return to_object
 
 
 class FeedbackContexts(_api_module.BaseModule):
@@ -127,8 +65,10 @@ class FeedbackContexts(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetRuntimeFeedbackContextRequestParameters_to_vertex(
-                parameter_model
+            request_dict = (
+                _converters._GetRuntimeFeedbackContextRequestParameters_to_vertex(
+                    parameter_model
+                )
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
@@ -197,8 +137,10 @@ class FeedbackContexts(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetRuntimeFeedbackContextOperationParameters_to_vertex(
-                parameter_model
+            request_dict = (
+                _converters._GetRuntimeFeedbackContextOperationParameters_to_vertex(
+                    parameter_model
+                )
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
@@ -273,8 +215,10 @@ class FeedbackContexts(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _UpdateRuntimeFeedbackContextRequestParameters_to_vertex(
-                parameter_model
+            request_dict = (
+                _converters._UpdateRuntimeFeedbackContextRequestParameters_to_vertex(
+                    parameter_model
+                )
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
@@ -427,8 +371,10 @@ class AsyncFeedbackContexts(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetRuntimeFeedbackContextRequestParameters_to_vertex(
-                parameter_model
+            request_dict = (
+                _converters._GetRuntimeFeedbackContextRequestParameters_to_vertex(
+                    parameter_model
+                )
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
@@ -499,8 +445,10 @@ class AsyncFeedbackContexts(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetRuntimeFeedbackContextOperationParameters_to_vertex(
-                parameter_model
+            request_dict = (
+                _converters._GetRuntimeFeedbackContextOperationParameters_to_vertex(
+                    parameter_model
+                )
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
@@ -577,8 +525,10 @@ class AsyncFeedbackContexts(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _UpdateRuntimeFeedbackContextRequestParameters_to_vertex(
-                parameter_model
+            request_dict = (
+                _converters._UpdateRuntimeFeedbackContextRequestParameters_to_vertex(
+                    parameter_model
+                )
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:

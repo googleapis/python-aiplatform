@@ -23,445 +23,12 @@ from urllib.parse import urlencode
 from google.genai import _api_module
 from google.genai import _common
 from google.genai import types as genai_types
-from google.genai._common import get_value_by_path as getv
-from google.genai._common import set_value_by_path as setv
 
+from . import _converters
 from . import _operations_utils
 from . import types
 
 logger = logging.getLogger("agentplatform_genai.modelgarden")
-
-
-def _CreateBatchPredictionJobConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-
-    if getv(from_object, ["display_name"]) is not None:
-        setv(parent_object, ["displayName"], getv(from_object, ["display_name"]))
-
-    if getv(from_object, ["input_config"]) is not None:
-        setv(
-            parent_object,
-            ["inputConfig"],
-            _ModelGardenBatchJobSource_to_vertex(
-                getv(from_object, ["input_config"]), to_object
-            ),
-        )
-
-    if getv(from_object, ["output_config"]) is not None:
-        setv(
-            parent_object,
-            ["outputConfig"],
-            _ModelGardenBatchJobDestination_to_vertex(
-                getv(from_object, ["output_config"]), to_object
-            ),
-        )
-
-    if getv(from_object, ["dedicated_resources"]) is not None:
-        setv(
-            parent_object,
-            ["dedicatedResources"],
-            getv(from_object, ["dedicated_resources"]),
-        )
-
-    return to_object
-
-
-def _CreateBatchPredictionJobParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["parent"]) is not None:
-        setv(to_object, ["_url", "parent"], getv(from_object, ["parent"]))
-
-    if getv(from_object, ["model"]) is not None:
-        setv(to_object, ["model"], getv(from_object, ["model"]))
-
-    if getv(from_object, ["config"]) is not None:
-        _CreateBatchPredictionJobConfig_to_vertex(
-            getv(from_object, ["config"]), to_object
-        )
-
-    return to_object
-
-
-def _DeployRequestParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["destination"]) is not None:
-        setv(to_object, ["_url", "destination"], getv(from_object, ["destination"]))
-
-    if getv(from_object, ["publisher_model_name"]) is not None:
-        setv(
-            to_object,
-            ["publisherModelName"],
-            getv(from_object, ["publisher_model_name"]),
-        )
-
-    if getv(from_object, ["hugging_face_model_id"]) is not None:
-        setv(
-            to_object,
-            ["huggingFaceModelId"],
-            getv(from_object, ["hugging_face_model_id"]),
-        )
-
-    if getv(from_object, ["custom_model"]) is not None:
-        setv(to_object, ["customModel"], getv(from_object, ["custom_model"]))
-
-    if getv(from_object, ["model_config_val"]) is not None:
-        setv(to_object, ["modelConfig"], getv(from_object, ["model_config_val"]))
-
-    if getv(from_object, ["endpoint_config"]) is not None:
-        setv(to_object, ["endpointConfig"], getv(from_object, ["endpoint_config"]))
-
-    if getv(from_object, ["deploy_config"]) is not None:
-        setv(to_object, ["deployConfig"], getv(from_object, ["deploy_config"]))
-
-    return to_object
-
-
-def _ExportPublisherModelConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-
-    if getv(from_object, ["destination"]) is not None:
-        setv(parent_object, ["destination"], getv(from_object, ["destination"]))
-
-    return to_object
-
-
-def _ExportPublisherModelRequestParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["parent"]) is not None:
-        setv(to_object, ["_url", "parent"], getv(from_object, ["parent"]))
-
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["config"]) is not None:
-        _ExportPublisherModelConfig_to_vertex(getv(from_object, ["config"]), to_object)
-
-    return to_object
-
-
-def _GetBatchPredictionJobParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    return to_object
-
-
-def _GetDeployOperationParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["operation_name"]) is not None:
-        setv(
-            to_object, ["_url", "operationName"], getv(from_object, ["operation_name"])
-        )
-
-    return to_object
-
-
-def _GetExportPublisherModelOperationParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["operation_name"]) is not None:
-        setv(
-            to_object, ["_url", "operationName"], getv(from_object, ["operation_name"])
-        )
-
-    return to_object
-
-
-def _GetPublisherModelConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-
-    if getv(from_object, ["hugging_face_token"]) is not None:
-        setv(
-            parent_object,
-            ["_query", "huggingFaceToken"],
-            getv(from_object, ["hugging_face_token"]),
-        )
-
-    if (
-        getv(from_object, ["include_equivalent_model_garden_model_deployment_configs"])
-        is not None
-    ):
-        setv(
-            parent_object,
-            ["_query", "includeEquivalentModelGardenModelDeploymentConfigs"],
-            getv(
-                from_object,
-                ["include_equivalent_model_garden_model_deployment_configs"],
-            ),
-        )
-
-    if getv(from_object, ["is_hugging_face_model"]) is not None:
-        setv(
-            parent_object,
-            ["_query", "isHuggingFaceModel"],
-            getv(from_object, ["is_hugging_face_model"]),
-        )
-
-    return to_object
-
-
-def _GetPublisherModelRequestParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["config"]) is not None:
-        _GetPublisherModelConfig_to_vertex(getv(from_object, ["config"]), to_object)
-
-    return to_object
-
-
-def _ListPublisherModelsConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-
-    if getv(from_object, ["page_size"]) is not None:
-        setv(parent_object, ["_query", "pageSize"], getv(from_object, ["page_size"]))
-
-    if getv(from_object, ["page_token"]) is not None:
-        setv(parent_object, ["_query", "pageToken"], getv(from_object, ["page_token"]))
-
-    if getv(from_object, ["filter"]) is not None:
-        setv(parent_object, ["_query", "filter"], getv(from_object, ["filter"]))
-
-    if getv(from_object, ["list_all_versions"]) is not None:
-        setv(
-            parent_object,
-            ["_query", "listAllVersions"],
-            getv(from_object, ["list_all_versions"]),
-        )
-
-    return to_object
-
-
-def _ListPublisherModelsRequestParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["parent"]) is not None:
-        setv(to_object, ["_url", "parent"], getv(from_object, ["parent"]))
-
-    if getv(from_object, ["config"]) is not None:
-        _ListPublisherModelsConfig_to_vertex(getv(from_object, ["config"]), to_object)
-
-    return to_object
-
-
-def _ModelGardenBatchJobDestination_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["predictionsFormat"]) is not None:
-        setv(to_object, ["format"], getv(from_object, ["predictionsFormat"]))
-
-    if getv(from_object, ["gcsDestination", "outputUriPrefix"]) is not None:
-        setv(
-            to_object,
-            ["gcs_uri"],
-            getv(from_object, ["gcsDestination", "outputUriPrefix"]),
-        )
-
-    if getv(from_object, ["bigqueryDestination", "outputUri"]) is not None:
-        setv(
-            to_object,
-            ["bigquery_uri"],
-            getv(from_object, ["bigqueryDestination", "outputUri"]),
-        )
-
-    return to_object
-
-
-def _ModelGardenBatchJobDestination_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["format"]) is not None:
-        setv(to_object, ["predictionsFormat"], getv(from_object, ["format"]))
-
-    if getv(from_object, ["gcs_uri"]) is not None:
-        setv(
-            to_object,
-            ["gcsDestination", "outputUriPrefix"],
-            getv(from_object, ["gcs_uri"]),
-        )
-
-    if getv(from_object, ["bigquery_uri"]) is not None:
-        setv(
-            to_object,
-            ["bigqueryDestination", "outputUri"],
-            getv(from_object, ["bigquery_uri"]),
-        )
-
-    return to_object
-
-
-def _ModelGardenBatchJobSource_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["instancesFormat"]) is not None:
-        setv(to_object, ["format"], getv(from_object, ["instancesFormat"]))
-
-    if getv(from_object, ["gcsSource", "uris"]) is not None:
-        setv(to_object, ["gcs_uri"], getv(from_object, ["gcsSource", "uris"]))
-
-    if getv(from_object, ["bigquerySource", "inputUri"]) is not None:
-        setv(
-            to_object,
-            ["bigquery_uri"],
-            getv(from_object, ["bigquerySource", "inputUri"]),
-        )
-
-    return to_object
-
-
-def _ModelGardenBatchJobSource_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["format"]) is not None:
-        setv(to_object, ["instancesFormat"], getv(from_object, ["format"]))
-
-    if getv(from_object, ["gcs_uri"]) is not None:
-        setv(to_object, ["gcsSource", "uris"], getv(from_object, ["gcs_uri"]))
-
-    if getv(from_object, ["bigquery_uri"]) is not None:
-        setv(
-            to_object,
-            ["bigquerySource", "inputUri"],
-            getv(from_object, ["bigquery_uri"]),
-        )
-
-    return to_object
-
-
-def _ModelGardenBatchPredictionJob_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["displayName"]) is not None:
-        setv(to_object, ["display_name"], getv(from_object, ["displayName"]))
-
-    if getv(from_object, ["model"]) is not None:
-        setv(to_object, ["model"], getv(from_object, ["model"]))
-
-    if getv(from_object, ["inputConfig"]) is not None:
-        setv(
-            to_object,
-            ["input_config"],
-            _ModelGardenBatchJobSource_from_vertex(
-                getv(from_object, ["inputConfig"]), to_object
-            ),
-        )
-
-    if getv(from_object, ["outputConfig"]) is not None:
-        setv(
-            to_object,
-            ["output_config"],
-            _ModelGardenBatchJobDestination_from_vertex(
-                getv(from_object, ["outputConfig"]), to_object
-            ),
-        )
-
-    if getv(from_object, ["outputInfo"]) is not None:
-        setv(to_object, ["output_info"], getv(from_object, ["outputInfo"]))
-
-    if getv(from_object, ["state"]) is not None:
-        setv(to_object, ["state"], getv(from_object, ["state"]))
-
-    if getv(from_object, ["error"]) is not None:
-        setv(to_object, ["error"], getv(from_object, ["error"]))
-
-    if getv(from_object, ["createTime"]) is not None:
-        setv(to_object, ["create_time"], getv(from_object, ["createTime"]))
-
-    if getv(from_object, ["startTime"]) is not None:
-        setv(to_object, ["start_time"], getv(from_object, ["startTime"]))
-
-    if getv(from_object, ["endTime"]) is not None:
-        setv(to_object, ["end_time"], getv(from_object, ["endTime"]))
-
-    if getv(from_object, ["updateTime"]) is not None:
-        setv(to_object, ["update_time"], getv(from_object, ["updateTime"]))
-
-    return to_object
-
-
-def _RecommendSpecConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-
-    if getv(from_object, ["check_machine_availability"]) is not None:
-        setv(
-            parent_object,
-            ["checkMachineAvailability"],
-            getv(from_object, ["check_machine_availability"]),
-        )
-
-    if getv(from_object, ["check_user_quota"]) is not None:
-        setv(parent_object, ["checkUserQuota"], getv(from_object, ["check_user_quota"]))
-
-    return to_object
-
-
-def _RecommendSpecRequestParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["parent"]) is not None:
-        setv(to_object, ["_url", "parent"], getv(from_object, ["parent"]))
-
-    if getv(from_object, ["gcs_uri"]) is not None:
-        setv(to_object, ["gcsUri"], getv(from_object, ["gcs_uri"]))
-
-    if getv(from_object, ["config"]) is not None:
-        _RecommendSpecConfig_to_vertex(getv(from_object, ["config"]), to_object)
-
-    return to_object
 
 
 class ModelGarden(_api_module.BaseModule):
@@ -488,7 +55,7 @@ class ModelGarden(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _ListPublisherModelsRequestParameters_to_vertex(
+            request_dict = _converters._ListPublisherModelsRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -559,7 +126,7 @@ class ModelGarden(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetPublisherModelRequestParameters_to_vertex(
+            request_dict = _converters._GetPublisherModelRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -635,7 +202,9 @@ class ModelGarden(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _RecommendSpecRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._RecommendSpecRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{parent}:recommendSpec".format_map(request_url_dict)
@@ -709,7 +278,7 @@ class ModelGarden(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _ExportPublisherModelRequestParameters_to_vertex(
+            request_dict = _converters._ExportPublisherModelRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -783,8 +352,10 @@ class ModelGarden(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetExportPublisherModelOperationParameters_to_vertex(
-                parameter_model
+            request_dict = (
+                _converters._GetExportPublisherModelOperationParameters_to_vertex(
+                    parameter_model
+                )
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
@@ -869,7 +440,9 @@ class ModelGarden(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _DeployRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._DeployRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{destination}:deploy".format_map(request_url_dict)
@@ -941,7 +514,9 @@ class ModelGarden(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetDeployOperationParameters_to_vertex(parameter_model)
+            request_dict = _converters._GetDeployOperationParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{operationName}".format_map(request_url_dict)
@@ -1015,7 +590,7 @@ class ModelGarden(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _CreateBatchPredictionJobParameters_to_vertex(
+            request_dict = _converters._CreateBatchPredictionJobParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -1045,7 +620,9 @@ class ModelGarden(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         if self._api_client.vertexai:
-            response_dict = _ModelGardenBatchPredictionJob_from_vertex(response_dict)
+            response_dict = _converters._ModelGardenBatchPredictionJob_from_vertex(
+                response_dict
+            )
 
         return_value = types.ModelGardenBatchPredictionJob._from_response(
             response=response_dict,
@@ -1092,7 +669,9 @@ class ModelGarden(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetBatchPredictionJobParameters_to_vertex(parameter_model)
+            request_dict = _converters._GetBatchPredictionJobParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}".format_map(request_url_dict)
@@ -1120,7 +699,9 @@ class ModelGarden(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         if self._api_client.vertexai:
-            response_dict = _ModelGardenBatchPredictionJob_from_vertex(response_dict)
+            response_dict = _converters._ModelGardenBatchPredictionJob_from_vertex(
+                response_dict
+            )
 
         return_value = types.ModelGardenBatchPredictionJob._from_response(
             response=response_dict,
@@ -2492,7 +2073,7 @@ class AsyncModelGarden(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _ListPublisherModelsRequestParameters_to_vertex(
+            request_dict = _converters._ListPublisherModelsRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -2565,7 +2146,7 @@ class AsyncModelGarden(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetPublisherModelRequestParameters_to_vertex(
+            request_dict = _converters._GetPublisherModelRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -2643,7 +2224,9 @@ class AsyncModelGarden(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _RecommendSpecRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._RecommendSpecRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{parent}:recommendSpec".format_map(request_url_dict)
@@ -2719,7 +2302,7 @@ class AsyncModelGarden(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _ExportPublisherModelRequestParameters_to_vertex(
+            request_dict = _converters._ExportPublisherModelRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -2795,8 +2378,10 @@ class AsyncModelGarden(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetExportPublisherModelOperationParameters_to_vertex(
-                parameter_model
+            request_dict = (
+                _converters._GetExportPublisherModelOperationParameters_to_vertex(
+                    parameter_model
+                )
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
@@ -2883,7 +2468,9 @@ class AsyncModelGarden(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _DeployRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._DeployRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{destination}:deploy".format_map(request_url_dict)
@@ -2957,7 +2544,9 @@ class AsyncModelGarden(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetDeployOperationParameters_to_vertex(parameter_model)
+            request_dict = _converters._GetDeployOperationParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{operationName}".format_map(request_url_dict)
@@ -3033,7 +2622,7 @@ class AsyncModelGarden(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _CreateBatchPredictionJobParameters_to_vertex(
+            request_dict = _converters._CreateBatchPredictionJobParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -3065,7 +2654,9 @@ class AsyncModelGarden(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         if self._api_client.vertexai:
-            response_dict = _ModelGardenBatchPredictionJob_from_vertex(response_dict)
+            response_dict = _converters._ModelGardenBatchPredictionJob_from_vertex(
+                response_dict
+            )
 
         return_value = types.ModelGardenBatchPredictionJob._from_response(
             response=response_dict,
@@ -3112,7 +2703,9 @@ class AsyncModelGarden(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetBatchPredictionJobParameters_to_vertex(parameter_model)
+            request_dict = _converters._GetBatchPredictionJobParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}".format_map(request_url_dict)
@@ -3142,7 +2735,9 @@ class AsyncModelGarden(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         if self._api_client.vertexai:
-            response_dict = _ModelGardenBatchPredictionJob_from_vertex(response_dict)
+            response_dict = _converters._ModelGardenBatchPredictionJob_from_vertex(
+                response_dict
+            )
 
         return_value = types.ModelGardenBatchPredictionJob._from_response(
             response=response_dict,

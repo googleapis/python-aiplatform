@@ -26,10 +26,9 @@ from urllib.parse import urlencode
 from google.genai import _api_module
 from google.genai import _common
 from google.genai import types as genai_types
-from google.genai._common import get_value_by_path as getv
-from google.genai._common import set_value_by_path as setv
 from google.genai.pagers import Pager
 
+from . import _converters
 from . import _runtimes_utils
 from . import types
 
@@ -42,693 +41,6 @@ if typing.TYPE_CHECKING:
 logger = logging.getLogger("agentplatform_genai.runtimes")
 
 logger.setLevel(logging.INFO)
-
-
-def _CancelQueryJobRuntimeConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-
-    if getv(from_object, ["operation_name"]) is not None:
-        setv(parent_object, ["operationName"], getv(from_object, ["operation_name"]))
-
-    return to_object
-
-
-def _CancelQueryJobRuntimeRequestParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["config"]) is not None:
-        setv(
-            to_object,
-            ["config"],
-            _CancelQueryJobRuntimeConfig_to_vertex(
-                getv(from_object, ["config"]), to_object
-            ),
-        )
-
-    return to_object
-
-
-def _CheckQueryJobResult_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-
-    if getv(parent_object, ["operationName"]) is not None:
-        setv(to_object, ["operation_name"], getv(parent_object, ["operationName"]))
-
-    if getv(parent_object, ["outputGcsUri"]) is not None:
-        setv(to_object, ["output_gcs_uri"], getv(parent_object, ["outputGcsUri"]))
-
-    if getv(parent_object, ["status"]) is not None:
-        setv(to_object, ["status"], getv(parent_object, ["status"]))
-
-    if getv(parent_object, ["result"]) is not None:
-        setv(to_object, ["result"], getv(parent_object, ["result"]))
-
-    return to_object
-
-
-def _CheckQueryJobRuntimeConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-
-    if getv(from_object, ["retrieve_result"]) is not None:
-        setv(parent_object, ["retrieveResult"], getv(from_object, ["retrieve_result"]))
-
-    return to_object
-
-
-def _CheckQueryJobRuntimeRequestParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["config"]) is not None:
-        setv(
-            to_object,
-            ["config"],
-            _CheckQueryJobRuntimeConfig_to_vertex(
-                getv(from_object, ["config"]), to_object
-            ),
-        )
-
-    return to_object
-
-
-def _CreateRuntimeConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-
-    if getv(from_object, ["display_name"]) is not None:
-        setv(parent_object, ["displayName"], getv(from_object, ["display_name"]))
-
-    if getv(from_object, ["description"]) is not None:
-        setv(parent_object, ["description"], getv(from_object, ["description"]))
-
-    if getv(from_object, ["spec"]) is not None:
-        setv(parent_object, ["spec"], getv(from_object, ["spec"]))
-
-    if getv(from_object, ["context_spec"]) is not None:
-        setv(
-            parent_object,
-            ["contextSpec"],
-            _ReasoningEngineContextSpec_to_vertex(
-                getv(from_object, ["context_spec"]), to_object
-            ),
-        )
-
-    if getv(from_object, ["psc_interface_config"]) is not None:
-        setv(
-            parent_object,
-            ["pscInterfaceConfig"],
-            getv(from_object, ["psc_interface_config"]),
-        )
-
-    if getv(from_object, ["agent_gateway_config"]) is not None:
-        setv(
-            parent_object,
-            ["agentGatewayConfig"],
-            getv(from_object, ["agent_gateway_config"]),
-        )
-
-    if getv(from_object, ["encryption_spec"]) is not None:
-        setv(parent_object, ["encryptionSpec"], getv(from_object, ["encryption_spec"]))
-
-    if getv(from_object, ["labels"]) is not None:
-        setv(parent_object, ["labels"], getv(from_object, ["labels"]))
-
-    if getv(from_object, ["source_packages"]) is not None:
-        setv(parent_object, ["sourcePackages"], getv(from_object, ["source_packages"]))
-
-    if getv(from_object, ["entrypoint_module"]) is not None:
-        setv(
-            parent_object,
-            ["entrypointModule"],
-            getv(from_object, ["entrypoint_module"]),
-        )
-
-    if getv(from_object, ["entrypoint_object"]) is not None:
-        setv(
-            parent_object,
-            ["entrypointObject"],
-            getv(from_object, ["entrypoint_object"]),
-        )
-
-    if getv(from_object, ["requirements_file"]) is not None:
-        setv(
-            parent_object,
-            ["requirementsFile"],
-            getv(from_object, ["requirements_file"]),
-        )
-
-    if getv(from_object, ["agent_framework"]) is not None:
-        setv(parent_object, ["agentFramework"], getv(from_object, ["agent_framework"]))
-
-    if getv(from_object, ["python_version"]) is not None:
-        setv(parent_object, ["pythonVersion"], getv(from_object, ["python_version"]))
-
-    return to_object
-
-
-def _CreateRuntimeRequestParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["config"]) is not None:
-        _CreateRuntimeConfig_to_vertex(getv(from_object, ["config"]), to_object)
-
-    return to_object
-
-
-def _DeleteRuntimeRequestParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["force"]) is not None:
-        setv(to_object, ["force"], getv(from_object, ["force"]))
-
-    return to_object
-
-
-def _GetRuntimeOperationParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["operation_name"]) is not None:
-        setv(
-            to_object, ["_url", "operationName"], getv(from_object, ["operation_name"])
-        )
-
-    return to_object
-
-
-def _GetRuntimeRequestParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    return to_object
-
-
-def _ListRuntimeConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-
-    if getv(from_object, ["page_size"]) is not None:
-        setv(parent_object, ["_query", "pageSize"], getv(from_object, ["page_size"]))
-
-    if getv(from_object, ["page_token"]) is not None:
-        setv(parent_object, ["_query", "pageToken"], getv(from_object, ["page_token"]))
-
-    if getv(from_object, ["filter"]) is not None:
-        setv(parent_object, ["_query", "filter"], getv(from_object, ["filter"]))
-
-    return to_object
-
-
-def _ListRuntimeRequestParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["config"]) is not None:
-        _ListRuntimeConfig_to_vertex(getv(from_object, ["config"]), to_object)
-
-    return to_object
-
-
-def _QueryRuntimeConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-
-    if getv(from_object, ["class_method"]) is not None:
-        setv(parent_object, ["classMethod"], getv(from_object, ["class_method"]))
-
-    if getv(from_object, ["input"]) is not None:
-        setv(parent_object, ["input"], getv(from_object, ["input"]))
-
-    if getv(from_object, ["include_all_fields"]) is not None:
-        setv(to_object, ["includeAllFields"], getv(from_object, ["include_all_fields"]))
-
-    return to_object
-
-
-def _QueryRuntimeRequestParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["config"]) is not None:
-        _QueryRuntimeConfig_to_vertex(getv(from_object, ["config"]), to_object)
-
-    return to_object
-
-
-def _ReasoningEngineContextSpecMemoryBankConfig_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["customizationConfigs"]) is not None:
-        setv(
-            to_object,
-            ["customization_configs"],
-            [item for item in getv(from_object, ["customizationConfigs"])],
-        )
-
-    if getv(from_object, ["disableMemoryRevisions"]) is not None:
-        setv(
-            to_object,
-            ["disable_memory_revisions"],
-            getv(from_object, ["disableMemoryRevisions"]),
-        )
-
-    if getv(from_object, ["generationConfig"]) is not None:
-        setv(to_object, ["generation_config"], getv(from_object, ["generationConfig"]))
-
-    if getv(from_object, ["similaritySearchConfig"]) is not None:
-        setv(
-            to_object,
-            ["similarity_search_config"],
-            getv(from_object, ["similaritySearchConfig"]),
-        )
-
-    if getv(from_object, ["ttlConfig"]) is not None:
-        setv(to_object, ["ttl_config"], getv(from_object, ["ttlConfig"]))
-
-    if getv(from_object, ["structuredMemoryConfigs"]) is not None:
-        setv(
-            to_object,
-            ["structured_memory_configs"],
-            [
-                _StructuredMemoryConfig_from_vertex(item, to_object)
-                for item in getv(from_object, ["structuredMemoryConfigs"])
-            ],
-        )
-
-    return to_object
-
-
-def _ReasoningEngineContextSpecMemoryBankConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["customization_configs"]) is not None:
-        setv(
-            to_object,
-            ["customizationConfigs"],
-            [item for item in getv(from_object, ["customization_configs"])],
-        )
-
-    if getv(from_object, ["disable_memory_revisions"]) is not None:
-        setv(
-            to_object,
-            ["disableMemoryRevisions"],
-            getv(from_object, ["disable_memory_revisions"]),
-        )
-
-    if getv(from_object, ["generation_config"]) is not None:
-        setv(to_object, ["generationConfig"], getv(from_object, ["generation_config"]))
-
-    if getv(from_object, ["similarity_search_config"]) is not None:
-        setv(
-            to_object,
-            ["similaritySearchConfig"],
-            getv(from_object, ["similarity_search_config"]),
-        )
-
-    if getv(from_object, ["ttl_config"]) is not None:
-        setv(to_object, ["ttlConfig"], getv(from_object, ["ttl_config"]))
-
-    if getv(from_object, ["structured_memory_configs"]) is not None:
-        setv(
-            to_object,
-            ["structuredMemoryConfigs"],
-            [
-                _StructuredMemoryConfig_to_vertex(item, to_object)
-                for item in getv(from_object, ["structured_memory_configs"])
-            ],
-        )
-
-    return to_object
-
-
-def _ReasoningEngineContextSpec_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["memoryBankConfig"]) is not None:
-        setv(
-            to_object,
-            ["memory_bank_config"],
-            _ReasoningEngineContextSpecMemoryBankConfig_from_vertex(
-                getv(from_object, ["memoryBankConfig"]), to_object
-            ),
-        )
-
-    return to_object
-
-
-def _ReasoningEngineContextSpec_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["memory_bank_config"]) is not None:
-        setv(
-            to_object,
-            ["memoryBankConfig"],
-            _ReasoningEngineContextSpecMemoryBankConfig_to_vertex(
-                getv(from_object, ["memory_bank_config"]), to_object
-            ),
-        )
-
-    return to_object
-
-
-def _ReasoningEngine_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["encryptionSpec"]) is not None:
-        setv(to_object, ["encryption_spec"], getv(from_object, ["encryptionSpec"]))
-
-    if getv(from_object, ["contextSpec"]) is not None:
-        setv(
-            to_object,
-            ["context_spec"],
-            _ReasoningEngineContextSpec_from_vertex(
-                getv(from_object, ["contextSpec"]), to_object
-            ),
-        )
-
-    if getv(from_object, ["createTime"]) is not None:
-        setv(to_object, ["create_time"], getv(from_object, ["createTime"]))
-
-    if getv(from_object, ["description"]) is not None:
-        setv(to_object, ["description"], getv(from_object, ["description"]))
-
-    if getv(from_object, ["displayName"]) is not None:
-        setv(to_object, ["display_name"], getv(from_object, ["displayName"]))
-
-    if getv(from_object, ["etag"]) is not None:
-        setv(to_object, ["etag"], getv(from_object, ["etag"]))
-
-    if getv(from_object, ["labels"]) is not None:
-        setv(to_object, ["labels"], getv(from_object, ["labels"]))
-
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["spec"]) is not None:
-        setv(to_object, ["spec"], getv(from_object, ["spec"]))
-
-    if getv(from_object, ["updateTime"]) is not None:
-        setv(to_object, ["update_time"], getv(from_object, ["updateTime"]))
-
-    if getv(from_object, ["trafficConfig"]) is not None:
-        setv(to_object, ["traffic_config"], getv(from_object, ["trafficConfig"]))
-
-    if getv(from_object, ["revisionGarbageCollectionStrategy"]) is not None:
-        setv(
-            to_object,
-            ["revision_garbage_collection_strategy"],
-            getv(from_object, ["revisionGarbageCollectionStrategy"]),
-        )
-
-    return to_object
-
-
-def _RunQueryJobRuntimeConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-
-    if getv(from_object, ["input_gcs_uri"]) is not None:
-        setv(parent_object, ["inputGcsUri"], getv(from_object, ["input_gcs_uri"]))
-
-    if getv(from_object, ["output_gcs_uri"]) is not None:
-        setv(parent_object, ["outputGcsUri"], getv(from_object, ["output_gcs_uri"]))
-
-    return to_object
-
-
-def _RunQueryJobRuntimeRequestParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["config"]) is not None:
-        setv(
-            to_object,
-            ["config"],
-            _RunQueryJobRuntimeConfig_to_vertex(
-                getv(from_object, ["config"]), to_object
-            ),
-        )
-
-    return to_object
-
-
-def _RuntimeOperation_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["metadata"]) is not None:
-        setv(to_object, ["metadata"], getv(from_object, ["metadata"]))
-
-    if getv(from_object, ["done"]) is not None:
-        setv(to_object, ["done"], getv(from_object, ["done"]))
-
-    if getv(from_object, ["error"]) is not None:
-        setv(to_object, ["error"], getv(from_object, ["error"]))
-
-    if getv(from_object, ["response"]) is not None:
-        setv(
-            to_object,
-            ["response"],
-            _ReasoningEngine_from_vertex(getv(from_object, ["response"]), to_object),
-        )
-
-    return to_object
-
-
-def _StructuredMemoryConfig_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["schemaConfigs"]) is not None:
-        setv(
-            to_object,
-            ["schema_configs"],
-            [
-                _StructuredMemorySchemaConfig_from_vertex(item, to_object)
-                for item in getv(from_object, ["schemaConfigs"])
-            ],
-        )
-
-    if getv(from_object, ["scopeKeys"]) is not None:
-        setv(to_object, ["scope_keys"], getv(from_object, ["scopeKeys"]))
-
-    return to_object
-
-
-def _StructuredMemoryConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["schema_configs"]) is not None:
-        setv(
-            to_object,
-            ["schemaConfigs"],
-            [
-                _StructuredMemorySchemaConfig_to_vertex(item, to_object)
-                for item in getv(from_object, ["schema_configs"])
-            ],
-        )
-
-    if getv(from_object, ["scope_keys"]) is not None:
-        setv(to_object, ["scopeKeys"], getv(from_object, ["scope_keys"]))
-
-    return to_object
-
-
-def _StructuredMemorySchemaConfig_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["schema"]) is not None:
-        setv(to_object, ["memory_schema"], getv(from_object, ["schema"]))
-
-    if getv(from_object, ["id"]) is not None:
-        setv(to_object, ["id"], getv(from_object, ["id"]))
-
-    if getv(from_object, ["memoryType"]) is not None:
-        setv(to_object, ["memory_type"], getv(from_object, ["memoryType"]))
-
-    return to_object
-
-
-def _StructuredMemorySchemaConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["memory_schema"]) is not None:
-        setv(to_object, ["schema"], getv(from_object, ["memory_schema"]))
-
-    if getv(from_object, ["id"]) is not None:
-        setv(to_object, ["id"], getv(from_object, ["id"]))
-
-    if getv(from_object, ["memory_type"]) is not None:
-        setv(to_object, ["memoryType"], getv(from_object, ["memory_type"]))
-
-    return to_object
-
-
-def _UpdateRuntimeConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-
-    if getv(from_object, ["display_name"]) is not None:
-        setv(parent_object, ["displayName"], getv(from_object, ["display_name"]))
-
-    if getv(from_object, ["description"]) is not None:
-        setv(parent_object, ["description"], getv(from_object, ["description"]))
-
-    if getv(from_object, ["spec"]) is not None:
-        setv(parent_object, ["spec"], getv(from_object, ["spec"]))
-
-    if getv(from_object, ["context_spec"]) is not None:
-        setv(
-            parent_object,
-            ["contextSpec"],
-            _ReasoningEngineContextSpec_to_vertex(
-                getv(from_object, ["context_spec"]), to_object
-            ),
-        )
-
-    if getv(from_object, ["psc_interface_config"]) is not None:
-        setv(
-            parent_object,
-            ["pscInterfaceConfig"],
-            getv(from_object, ["psc_interface_config"]),
-        )
-
-    if getv(from_object, ["agent_gateway_config"]) is not None:
-        setv(
-            parent_object,
-            ["agentGatewayConfig"],
-            getv(from_object, ["agent_gateway_config"]),
-        )
-
-    if getv(from_object, ["encryption_spec"]) is not None:
-        setv(parent_object, ["encryptionSpec"], getv(from_object, ["encryption_spec"]))
-
-    if getv(from_object, ["labels"]) is not None:
-        setv(parent_object, ["labels"], getv(from_object, ["labels"]))
-
-    if getv(from_object, ["source_packages"]) is not None:
-        setv(parent_object, ["sourcePackages"], getv(from_object, ["source_packages"]))
-
-    if getv(from_object, ["entrypoint_module"]) is not None:
-        setv(
-            parent_object,
-            ["entrypointModule"],
-            getv(from_object, ["entrypoint_module"]),
-        )
-
-    if getv(from_object, ["entrypoint_object"]) is not None:
-        setv(
-            parent_object,
-            ["entrypointObject"],
-            getv(from_object, ["entrypoint_object"]),
-        )
-
-    if getv(from_object, ["requirements_file"]) is not None:
-        setv(
-            parent_object,
-            ["requirementsFile"],
-            getv(from_object, ["requirements_file"]),
-        )
-
-    if getv(from_object, ["agent_framework"]) is not None:
-        setv(parent_object, ["agentFramework"], getv(from_object, ["agent_framework"]))
-
-    if getv(from_object, ["python_version"]) is not None:
-        setv(parent_object, ["pythonVersion"], getv(from_object, ["python_version"]))
-
-    if getv(from_object, ["update_mask"]) is not None:
-        setv(
-            parent_object, ["_query", "updateMask"], getv(from_object, ["update_mask"])
-        )
-
-    if getv(from_object, ["traffic_config"]) is not None:
-        setv(parent_object, ["trafficConfig"], getv(from_object, ["traffic_config"]))
-
-    return to_object
-
-
-def _UpdateRuntimeRequestParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["config"]) is not None:
-        _UpdateRuntimeConfig_to_vertex(getv(from_object, ["config"]), to_object)
-
-    return to_object
 
 
 class Runtimes(_api_module.BaseModule):
@@ -761,8 +73,10 @@ class Runtimes(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _CancelQueryJobRuntimeRequestParameters_to_vertex(
-                parameter_model
+            request_dict = (
+                _converters._CancelQueryJobRuntimeRequestParameters_to_vertex(
+                    parameter_model
+                )
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
@@ -835,7 +149,7 @@ class Runtimes(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _CheckQueryJobRuntimeRequestParameters_to_vertex(
+            request_dict = _converters._CheckQueryJobRuntimeRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -865,7 +179,7 @@ class Runtimes(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         if self._api_client.vertexai:
-            response_dict = _CheckQueryJobResult_from_vertex(response_dict)
+            response_dict = _converters._CheckQueryJobResult_from_vertex(response_dict)
 
         return_value = types.CheckQueryJobResult._from_response(
             response=response_dict,
@@ -912,7 +226,7 @@ class Runtimes(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _RunQueryJobRuntimeRequestParameters_to_vertex(
+            request_dict = _converters._RunQueryJobRuntimeRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -942,7 +256,7 @@ class Runtimes(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         if self._api_client.vertexai:
-            response_dict = _RuntimeOperation_from_vertex(response_dict)
+            response_dict = _converters._RuntimeOperation_from_vertex(response_dict)
 
         return_value = types.RuntimeOperation._from_response(
             response=response_dict,
@@ -985,7 +299,9 @@ class Runtimes(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _CreateRuntimeRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._CreateRuntimeRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "reasoningEngines".format_map(request_url_dict)
@@ -1013,7 +329,7 @@ class Runtimes(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         if self._api_client.vertexai:
-            response_dict = _RuntimeOperation_from_vertex(response_dict)
+            response_dict = _converters._RuntimeOperation_from_vertex(response_dict)
 
         return_value = types.RuntimeOperation._from_response(
             response=response_dict,
@@ -1075,7 +391,9 @@ class Runtimes(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _DeleteRuntimeRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._DeleteRuntimeRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}".format_map(request_url_dict)
@@ -1144,7 +462,9 @@ class Runtimes(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetRuntimeRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._GetRuntimeRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}".format_map(request_url_dict)
@@ -1172,7 +492,7 @@ class Runtimes(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         if self._api_client.vertexai:
-            response_dict = _ReasoningEngine_from_vertex(response_dict)
+            response_dict = _converters._ReasoningEngine_from_vertex(response_dict)
 
         return_value = types.ReasoningEngine._from_response(
             response=response_dict,
@@ -1215,7 +535,9 @@ class Runtimes(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _ListRuntimeRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._ListRuntimeRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "reasoningEngines".format_map(request_url_dict)
@@ -1241,6 +563,11 @@ class Runtimes(_api_module.BaseModule):
         response = self._api_client.request("get", path, request_dict, http_options)
 
         response_dict = {} if not response.body else json.loads(response.body)
+
+        if self._api_client.vertexai:
+            response_dict = _converters._ListReasoningEnginesResponse_from_vertex(
+                response_dict
+            )
 
         return_value = types.ListReasoningEnginesResponse._from_response(
             response=response_dict,
@@ -1283,7 +610,9 @@ class Runtimes(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetRuntimeOperationParameters_to_vertex(parameter_model)
+            request_dict = _converters._GetRuntimeOperationParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{operationName}".format_map(request_url_dict)
@@ -1311,7 +640,7 @@ class Runtimes(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         if self._api_client.vertexai:
-            response_dict = _RuntimeOperation_from_vertex(response_dict)
+            response_dict = _converters._RuntimeOperation_from_vertex(response_dict)
 
         return_value = types.RuntimeOperation._from_response(
             response=response_dict,
@@ -1355,7 +684,9 @@ class Runtimes(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _QueryRuntimeRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._QueryRuntimeRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}:query".format_map(request_url_dict)
@@ -1424,7 +755,9 @@ class Runtimes(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _UpdateRuntimeRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._UpdateRuntimeRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}".format_map(request_url_dict)
@@ -1452,7 +785,7 @@ class Runtimes(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         if self._api_client.vertexai:
-            response_dict = _RuntimeOperation_from_vertex(response_dict)
+            response_dict = _converters._RuntimeOperation_from_vertex(response_dict)
 
         return_value = types.RuntimeOperation._from_response(
             response=response_dict,
@@ -2875,8 +2208,10 @@ class AsyncRuntimes(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _CancelQueryJobRuntimeRequestParameters_to_vertex(
-                parameter_model
+            request_dict = (
+                _converters._CancelQueryJobRuntimeRequestParameters_to_vertex(
+                    parameter_model
+                )
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
@@ -2951,7 +2286,7 @@ class AsyncRuntimes(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _CheckQueryJobRuntimeRequestParameters_to_vertex(
+            request_dict = _converters._CheckQueryJobRuntimeRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -2983,7 +2318,7 @@ class AsyncRuntimes(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         if self._api_client.vertexai:
-            response_dict = _CheckQueryJobResult_from_vertex(response_dict)
+            response_dict = _converters._CheckQueryJobResult_from_vertex(response_dict)
 
         return_value = types.CheckQueryJobResult._from_response(
             response=response_dict,
@@ -3030,7 +2365,7 @@ class AsyncRuntimes(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _RunQueryJobRuntimeRequestParameters_to_vertex(
+            request_dict = _converters._RunQueryJobRuntimeRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -3062,7 +2397,7 @@ class AsyncRuntimes(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         if self._api_client.vertexai:
-            response_dict = _RuntimeOperation_from_vertex(response_dict)
+            response_dict = _converters._RuntimeOperation_from_vertex(response_dict)
 
         return_value = types.RuntimeOperation._from_response(
             response=response_dict,
@@ -3105,7 +2440,9 @@ class AsyncRuntimes(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _CreateRuntimeRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._CreateRuntimeRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "reasoningEngines".format_map(request_url_dict)
@@ -3135,7 +2472,7 @@ class AsyncRuntimes(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         if self._api_client.vertexai:
-            response_dict = _RuntimeOperation_from_vertex(response_dict)
+            response_dict = _converters._RuntimeOperation_from_vertex(response_dict)
 
         return_value = types.RuntimeOperation._from_response(
             response=response_dict,
@@ -3197,7 +2534,9 @@ class AsyncRuntimes(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _DeleteRuntimeRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._DeleteRuntimeRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}".format_map(request_url_dict)
@@ -3268,7 +2607,9 @@ class AsyncRuntimes(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetRuntimeRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._GetRuntimeRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}".format_map(request_url_dict)
@@ -3298,7 +2639,7 @@ class AsyncRuntimes(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         if self._api_client.vertexai:
-            response_dict = _ReasoningEngine_from_vertex(response_dict)
+            response_dict = _converters._ReasoningEngine_from_vertex(response_dict)
 
         return_value = types.ReasoningEngine._from_response(
             response=response_dict,
@@ -3341,7 +2682,9 @@ class AsyncRuntimes(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _ListRuntimeRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._ListRuntimeRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "reasoningEngines".format_map(request_url_dict)
@@ -3369,6 +2712,11 @@ class AsyncRuntimes(_api_module.BaseModule):
         )
 
         response_dict = {} if not response.body else json.loads(response.body)
+
+        if self._api_client.vertexai:
+            response_dict = _converters._ListReasoningEnginesResponse_from_vertex(
+                response_dict
+            )
 
         return_value = types.ListReasoningEnginesResponse._from_response(
             response=response_dict,
@@ -3411,7 +2759,9 @@ class AsyncRuntimes(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetRuntimeOperationParameters_to_vertex(parameter_model)
+            request_dict = _converters._GetRuntimeOperationParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{operationName}".format_map(request_url_dict)
@@ -3441,7 +2791,7 @@ class AsyncRuntimes(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         if self._api_client.vertexai:
-            response_dict = _RuntimeOperation_from_vertex(response_dict)
+            response_dict = _converters._RuntimeOperation_from_vertex(response_dict)
 
         return_value = types.RuntimeOperation._from_response(
             response=response_dict,
@@ -3485,7 +2835,9 @@ class AsyncRuntimes(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _QueryRuntimeRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._QueryRuntimeRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}:query".format_map(request_url_dict)
@@ -3556,7 +2908,9 @@ class AsyncRuntimes(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _UpdateRuntimeRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._UpdateRuntimeRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}".format_map(request_url_dict)
@@ -3586,7 +2940,7 @@ class AsyncRuntimes(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         if self._api_client.vertexai:
-            response_dict = _RuntimeOperation_from_vertex(response_dict)
+            response_dict = _converters._RuntimeOperation_from_vertex(response_dict)
 
         return_value = types.RuntimeOperation._from_response(
             response=response_dict,

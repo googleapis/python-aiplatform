@@ -19,1627 +19,20 @@ import json
 import logging
 import mimetypes
 import os
-from typing import Any, Optional, Union
+from typing import Optional
 from urllib.parse import urlencode
 
 from google.genai import _api_module
 from google.genai import _common
 from google.genai import _extra_utils
 from google.genai import types as genai_types
-from google.genai._common import get_value_by_path as getv
-from google.genai._common import set_value_by_path as setv
 
+from . import _converters
 from . import _gcs_utils
 from . import _operations_utils
 from . import types
 
 logger = logging.getLogger("agentplatform_genai.rag")
-
-
-def _AskContextsConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-
-    if getv(from_object, ["tools"]) is not None:
-        setv(parent_object, ["tools"], getv(from_object, ["tools"]))
-
-    return to_object
-
-
-def _AskContextsRequestParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["query"]) is not None:
-        setv(to_object, ["query"], getv(from_object, ["query"]))
-
-    if getv(from_object, ["config"]) is not None:
-        setv(
-            to_object,
-            ["config"],
-            _AskContextsConfig_to_vertex(getv(from_object, ["config"]), to_object),
-        )
-
-    return to_object
-
-
-def _CorpusOperation_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["metadata"]) is not None:
-        setv(to_object, ["metadata"], getv(from_object, ["metadata"]))
-
-    if getv(from_object, ["done"]) is not None:
-        setv(to_object, ["done"], getv(from_object, ["done"]))
-
-    if getv(from_object, ["error"]) is not None:
-        setv(to_object, ["error"], getv(from_object, ["error"]))
-
-    if getv(from_object, ["response"]) is not None:
-        setv(
-            to_object,
-            ["response"],
-            _RagCorpus_from_vertex(getv(from_object, ["response"]), to_object),
-        )
-
-    return to_object
-
-
-def _CreateRagCorpusRequestParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["rag_corpus"]) is not None:
-        setv(
-            to_object,
-            ["_self"],
-            _RagCorpus_to_vertex(getv(from_object, ["rag_corpus"]), to_object),
-        )
-
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
-    return to_object
-
-
-def _DeleteRagCorpusRequestParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
-    return to_object
-
-
-def _DeleteRagFileRequestParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
-    return to_object
-
-
-def _GetCorpusOperationParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["operation_name"]) is not None:
-        setv(
-            to_object, ["_url", "operationName"], getv(from_object, ["operation_name"])
-        )
-
-    return to_object
-
-
-def _GetImportFilesOperationParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["operation_name"]) is not None:
-        setv(
-            to_object, ["_url", "operation_name"], getv(from_object, ["operation_name"])
-        )
-
-    return to_object
-
-
-def _GetRagConfigOperationParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["operation_name"]) is not None:
-        setv(
-            to_object, ["_url", "operation_name"], getv(from_object, ["operation_name"])
-        )
-
-    return to_object
-
-
-def _GetRagConfigRequestParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
-    return to_object
-
-
-def _GetRagCorpusRequestParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
-    return to_object
-
-
-def _GetRagFileRequestParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
-    return to_object
-
-
-def _ImportRagFilesConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["gcs_source"]) is not None:
-        setv(to_object, ["gcsSource"], getv(from_object, ["gcs_source"]))
-
-    if getv(from_object, ["global_max_embedding_requests_per_min"]) is not None:
-        setv(
-            to_object,
-            ["globalMaxEmbeddingRequestsPerMin"],
-            getv(from_object, ["global_max_embedding_requests_per_min"]),
-        )
-
-    if getv(from_object, ["google_drive_source"]) is not None:
-        setv(
-            to_object, ["googleDriveSource"], getv(from_object, ["google_drive_source"])
-        )
-
-    if getv(from_object, ["import_result_bigquery_sink"]) is not None:
-        setv(
-            to_object,
-            ["importResultBigquerySink"],
-            getv(from_object, ["import_result_bigquery_sink"]),
-        )
-
-    if getv(from_object, ["import_result_gcs_sink"]) is not None:
-        setv(
-            to_object,
-            ["importResultGcsSink"],
-            getv(from_object, ["import_result_gcs_sink"]),
-        )
-
-    if getv(from_object, ["jira_source"]) is not None:
-        setv(to_object, ["jiraSource"], getv(from_object, ["jira_source"]))
-
-    if getv(from_object, ["max_embedding_requests_per_min"]) is not None:
-        setv(
-            to_object,
-            ["maxEmbeddingRequestsPerMin"],
-            getv(from_object, ["max_embedding_requests_per_min"]),
-        )
-
-    if getv(from_object, ["partial_failure_bigquery_sink"]) is not None:
-        setv(
-            to_object,
-            ["partialFailureBigquerySink"],
-            getv(from_object, ["partial_failure_bigquery_sink"]),
-        )
-
-    if getv(from_object, ["partial_failure_gcs_sink"]) is not None:
-        setv(
-            to_object,
-            ["partialFailureGcsSink"],
-            getv(from_object, ["partial_failure_gcs_sink"]),
-        )
-
-    if getv(from_object, ["rag_file_chunking_config"]) is not None:
-        setv(
-            to_object,
-            ["ragFileChunkingConfig"],
-            getv(from_object, ["rag_file_chunking_config"]),
-        )
-
-    if getv(from_object, ["rag_file_metadata_config"]) is not None:
-        setv(
-            to_object,
-            ["ragFileMetadataConfig"],
-            getv(from_object, ["rag_file_metadata_config"]),
-        )
-
-    if getv(from_object, ["rag_file_parsing_config"]) is not None:
-        setv(
-            to_object,
-            ["ragFileParsingConfig"],
-            _RagFileParsingConfig_to_vertex(
-                getv(from_object, ["rag_file_parsing_config"]), to_object
-            ),
-        )
-
-    if getv(from_object, ["rag_file_transformation_config"]) is not None:
-        setv(
-            to_object,
-            ["ragFileTransformationConfig"],
-            getv(from_object, ["rag_file_transformation_config"]),
-        )
-
-    if getv(from_object, ["rebuild_ann_index"]) is not None:
-        setv(to_object, ["rebuildAnnIndex"], getv(from_object, ["rebuild_ann_index"]))
-
-    if getv(from_object, ["share_point_sources"]) is not None:
-        setv(
-            to_object, ["sharePointSources"], getv(from_object, ["share_point_sources"])
-        )
-
-    if getv(from_object, ["slack_source"]) is not None:
-        setv(to_object, ["slackSource"], getv(from_object, ["slack_source"]))
-
-    return to_object
-
-
-def _ImportRagFilesRequestParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["import_rag_files_request"]) is not None:
-        setv(
-            to_object,
-            ["_self"],
-            _ImportRagFilesRequest_to_vertex(
-                getv(from_object, ["import_rag_files_request"]), to_object
-            ),
-        )
-
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
-    return to_object
-
-
-def _ImportRagFilesRequest_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["import_rag_files_config"]) is not None:
-        setv(
-            to_object,
-            ["importRagFilesConfig"],
-            _ImportRagFilesConfig_to_vertex(
-                getv(from_object, ["import_rag_files_config"]), to_object
-            ),
-        )
-
-    return to_object
-
-
-def _ListRagCorporaConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-
-    if getv(from_object, ["page_size"]) is not None:
-        setv(parent_object, ["_query", "pageSize"], getv(from_object, ["page_size"]))
-
-    if getv(from_object, ["page_token"]) is not None:
-        setv(parent_object, ["_query", "pageToken"], getv(from_object, ["page_token"]))
-
-    return to_object
-
-
-def _ListRagCorporaRequestParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["config"]) is not None:
-        setv(
-            to_object,
-            ["config"],
-            _ListRagCorporaConfig_to_vertex(getv(from_object, ["config"]), to_object),
-        )
-
-    return to_object
-
-
-def _ListRagCorporaResponse_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["sdkHttpResponse"]) is not None:
-        setv(to_object, ["sdk_http_response"], getv(from_object, ["sdkHttpResponse"]))
-
-    if getv(from_object, ["nextPageToken"]) is not None:
-        setv(to_object, ["next_page_token"], getv(from_object, ["nextPageToken"]))
-
-    if getv(from_object, ["ragCorpora"]) is not None:
-        setv(
-            to_object,
-            ["rag_corpora"],
-            [
-                _RagCorpus_from_vertex(item, to_object)
-                for item in getv(from_object, ["ragCorpora"])
-            ],
-        )
-
-    return to_object
-
-
-def _ListRagFilesConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-
-    if getv(from_object, ["page_size"]) is not None:
-        setv(parent_object, ["_query", "pageSize"], getv(from_object, ["page_size"]))
-
-    if getv(from_object, ["page_token"]) is not None:
-        setv(parent_object, ["_query", "pageToken"], getv(from_object, ["page_token"]))
-
-    return to_object
-
-
-def _ListRagFilesRequestParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["config"]) is not None:
-        setv(
-            to_object,
-            ["config"],
-            _ListRagFilesConfig_to_vertex(getv(from_object, ["config"]), to_object),
-        )
-
-    return to_object
-
-
-def _RagCorpusCorpusTypeConfigMemoryCorpus_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["llmParser"]) is not None:
-        setv(
-            to_object,
-            ["llm_parser"],
-            _RagFileParsingConfigLlmParser_from_vertex(
-                getv(from_object, ["llmParser"]), to_object
-            ),
-        )
-
-    return to_object
-
-
-def _RagCorpusCorpusTypeConfigMemoryCorpus_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["llm_parser"]) is not None:
-        setv(
-            to_object,
-            ["llmParser"],
-            _RagFileParsingConfigLlmParser_to_vertex(
-                getv(from_object, ["llm_parser"]), to_object
-            ),
-        )
-
-    return to_object
-
-
-def _RagCorpusCorpusTypeConfig_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["documentCorpus"]) is not None:
-        setv(to_object, ["document_corpus"], getv(from_object, ["documentCorpus"]))
-
-    if getv(from_object, ["memoryCorpus"]) is not None:
-        setv(
-            to_object,
-            ["memory_corpus"],
-            _RagCorpusCorpusTypeConfigMemoryCorpus_from_vertex(
-                getv(from_object, ["memoryCorpus"]), to_object
-            ),
-        )
-
-    return to_object
-
-
-def _RagCorpusCorpusTypeConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["document_corpus"]) is not None:
-        setv(to_object, ["documentCorpus"], getv(from_object, ["document_corpus"]))
-
-    if getv(from_object, ["memory_corpus"]) is not None:
-        setv(
-            to_object,
-            ["memoryCorpus"],
-            _RagCorpusCorpusTypeConfigMemoryCorpus_to_vertex(
-                getv(from_object, ["memory_corpus"]), to_object
-            ),
-        )
-
-    return to_object
-
-
-def _RagCorpus_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["corpusStatus"]) is not None:
-        setv(to_object, ["corpus_status"], getv(from_object, ["corpusStatus"]))
-
-    if getv(from_object, ["corpusTypeConfig"]) is not None:
-        setv(
-            to_object,
-            ["corpus_type_config"],
-            _RagCorpusCorpusTypeConfig_from_vertex(
-                getv(from_object, ["corpusTypeConfig"]), to_object
-            ),
-        )
-
-    if getv(from_object, ["createTime"]) is not None:
-        setv(to_object, ["create_time"], getv(from_object, ["createTime"]))
-
-    if getv(from_object, ["description"]) is not None:
-        setv(to_object, ["description"], getv(from_object, ["description"]))
-
-    if getv(from_object, ["displayName"]) is not None:
-        setv(to_object, ["display_name"], getv(from_object, ["displayName"]))
-
-    if getv(from_object, ["encryptionSpec"]) is not None:
-        setv(to_object, ["encryption_spec"], getv(from_object, ["encryptionSpec"]))
-
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["ragEmbeddingModelConfig"]) is not None:
-        setv(
-            to_object,
-            ["rag_embedding_model_config"],
-            _RagEmbeddingModelConfig_from_vertex(
-                getv(from_object, ["ragEmbeddingModelConfig"]), to_object
-            ),
-        )
-
-    if getv(from_object, ["ragFilesCount"]) is not None:
-        setv(to_object, ["rag_files_count"], getv(from_object, ["ragFilesCount"]))
-
-    if getv(from_object, ["ragVectorDbConfig"]) is not None:
-        setv(
-            to_object,
-            ["rag_vector_db_config"],
-            _RagVectorDbConfig_from_vertex(
-                getv(from_object, ["ragVectorDbConfig"]), to_object
-            ),
-        )
-
-    if getv(from_object, ["satisfiesPzi"]) is not None:
-        setv(to_object, ["satisfies_pzi"], getv(from_object, ["satisfiesPzi"]))
-
-    if getv(from_object, ["satisfiesPzs"]) is not None:
-        setv(to_object, ["satisfies_pzs"], getv(from_object, ["satisfiesPzs"]))
-
-    if getv(from_object, ["updateTime"]) is not None:
-        setv(to_object, ["update_time"], getv(from_object, ["updateTime"]))
-
-    if getv(from_object, ["vectorDbConfig"]) is not None:
-        setv(
-            to_object,
-            ["vector_db_config"],
-            _RagVectorDbConfig_from_vertex(
-                getv(from_object, ["vectorDbConfig"]), to_object
-            ),
-        )
-
-    if getv(from_object, ["vertexAiSearchConfig"]) is not None:
-        setv(
-            to_object,
-            ["vertex_ai_search_config"],
-            _VertexAiSearchConfig_from_vertex(
-                getv(from_object, ["vertexAiSearchConfig"]), to_object
-            ),
-        )
-
-    return to_object
-
-
-def _RagCorpus_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["corpus_status"]) is not None:
-        setv(to_object, ["corpusStatus"], getv(from_object, ["corpus_status"]))
-
-    if getv(from_object, ["corpus_type_config"]) is not None:
-        setv(
-            to_object,
-            ["corpusTypeConfig"],
-            _RagCorpusCorpusTypeConfig_to_vertex(
-                getv(from_object, ["corpus_type_config"]), to_object
-            ),
-        )
-
-    if getv(from_object, ["create_time"]) is not None:
-        setv(to_object, ["createTime"], getv(from_object, ["create_time"]))
-
-    if getv(from_object, ["description"]) is not None:
-        setv(to_object, ["description"], getv(from_object, ["description"]))
-
-    if getv(from_object, ["display_name"]) is not None:
-        setv(to_object, ["displayName"], getv(from_object, ["display_name"]))
-
-    if getv(from_object, ["encryption_spec"]) is not None:
-        setv(to_object, ["encryptionSpec"], getv(from_object, ["encryption_spec"]))
-
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["rag_embedding_model_config"]) is not None:
-        setv(
-            to_object,
-            ["ragEmbeddingModelConfig"],
-            _RagEmbeddingModelConfig_to_vertex(
-                getv(from_object, ["rag_embedding_model_config"]), to_object
-            ),
-        )
-
-    if getv(from_object, ["rag_files_count"]) is not None:
-        setv(to_object, ["ragFilesCount"], getv(from_object, ["rag_files_count"]))
-
-    if getv(from_object, ["rag_vector_db_config"]) is not None:
-        setv(
-            to_object,
-            ["ragVectorDbConfig"],
-            _RagVectorDbConfig_to_vertex(
-                getv(from_object, ["rag_vector_db_config"]), to_object
-            ),
-        )
-
-    if getv(from_object, ["satisfies_pzi"]) is not None:
-        setv(to_object, ["satisfiesPzi"], getv(from_object, ["satisfies_pzi"]))
-
-    if getv(from_object, ["satisfies_pzs"]) is not None:
-        setv(to_object, ["satisfiesPzs"], getv(from_object, ["satisfies_pzs"]))
-
-    if getv(from_object, ["update_time"]) is not None:
-        setv(to_object, ["updateTime"], getv(from_object, ["update_time"]))
-
-    if getv(from_object, ["vector_db_config"]) is not None:
-        setv(
-            to_object,
-            ["vectorDbConfig"],
-            _RagVectorDbConfig_to_vertex(
-                getv(from_object, ["vector_db_config"]), to_object
-            ),
-        )
-
-    if getv(from_object, ["vertex_ai_search_config"]) is not None:
-        setv(
-            to_object,
-            ["vertexAiSearchConfig"],
-            _VertexAiSearchConfig_to_vertex(
-                getv(from_object, ["vertex_ai_search_config"]), to_object
-            ),
-        )
-
-    return to_object
-
-
-def _RagEmbeddingModelConfigHybridSearchConfig_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["denseEmbeddingModelPredictionEndpoint"]) is not None:
-        setv(
-            to_object,
-            ["dense_embedding_model_prediction_endpoint"],
-            _RagEmbeddingModelConfigVertexPredictionEndpoint_from_vertex(
-                getv(from_object, ["denseEmbeddingModelPredictionEndpoint"]), to_object
-            ),
-        )
-
-    if getv(from_object, ["sparseEmbeddingConfig"]) is not None:
-        setv(
-            to_object,
-            ["sparse_embedding_config"],
-            _RagEmbeddingModelConfigSparseEmbeddingConfig_from_vertex(
-                getv(from_object, ["sparseEmbeddingConfig"]), to_object
-            ),
-        )
-
-    return to_object
-
-
-def _RagEmbeddingModelConfigHybridSearchConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["dense_embedding_model_prediction_endpoint"]) is not None:
-        setv(
-            to_object,
-            ["denseEmbeddingModelPredictionEndpoint"],
-            _RagEmbeddingModelConfigVertexPredictionEndpoint_to_vertex(
-                getv(from_object, ["dense_embedding_model_prediction_endpoint"]),
-                to_object,
-            ),
-        )
-
-    if getv(from_object, ["sparse_embedding_config"]) is not None:
-        setv(
-            to_object,
-            ["sparseEmbeddingConfig"],
-            _RagEmbeddingModelConfigSparseEmbeddingConfig_to_vertex(
-                getv(from_object, ["sparse_embedding_config"]), to_object
-            ),
-        )
-
-    return to_object
-
-
-def _RagEmbeddingModelConfigSparseEmbeddingConfigBm25_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["b"]) is not None:
-        setv(to_object, ["b"], getv(from_object, ["b"]))
-
-    if getv(from_object, ["k1"]) is not None:
-        setv(to_object, ["k1"], getv(from_object, ["k1"]))
-
-    if getv(from_object, ["multilingual"]) is not None:
-        setv(to_object, ["multilingual"], getv(from_object, ["multilingual"]))
-
-    return to_object
-
-
-def _RagEmbeddingModelConfigSparseEmbeddingConfigBm25_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["b"]) is not None:
-        setv(to_object, ["b"], getv(from_object, ["b"]))
-
-    if getv(from_object, ["k1"]) is not None:
-        setv(to_object, ["k1"], getv(from_object, ["k1"]))
-
-    if getv(from_object, ["multilingual"]) is not None:
-        setv(to_object, ["multilingual"], getv(from_object, ["multilingual"]))
-
-    return to_object
-
-
-def _RagEmbeddingModelConfigSparseEmbeddingConfig_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["bm25"]) is not None:
-        setv(
-            to_object,
-            ["bm25"],
-            _RagEmbeddingModelConfigSparseEmbeddingConfigBm25_from_vertex(
-                getv(from_object, ["bm25"]), to_object
-            ),
-        )
-
-    return to_object
-
-
-def _RagEmbeddingModelConfigSparseEmbeddingConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["bm25"]) is not None:
-        setv(
-            to_object,
-            ["bm25"],
-            _RagEmbeddingModelConfigSparseEmbeddingConfigBm25_to_vertex(
-                getv(from_object, ["bm25"]), to_object
-            ),
-        )
-
-    return to_object
-
-
-def _RagEmbeddingModelConfigVertexPredictionEndpoint_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["endpoint"]) is not None:
-        setv(to_object, ["endpoint"], getv(from_object, ["endpoint"]))
-
-    if getv(from_object, ["model"]) is not None:
-        setv(to_object, ["model"], getv(from_object, ["model"]))
-
-    if getv(from_object, ["modelVersionId"]) is not None:
-        setv(to_object, ["model_version_id"], getv(from_object, ["modelVersionId"]))
-
-    return to_object
-
-
-def _RagEmbeddingModelConfigVertexPredictionEndpoint_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["endpoint"]) is not None:
-        setv(to_object, ["endpoint"], getv(from_object, ["endpoint"]))
-
-    if getv(from_object, ["model"]) is not None:
-        setv(to_object, ["model"], getv(from_object, ["model"]))
-
-    if getv(from_object, ["model_version_id"]) is not None:
-        setv(to_object, ["modelVersionId"], getv(from_object, ["model_version_id"]))
-
-    return to_object
-
-
-def _RagEmbeddingModelConfig_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["hybridSearchConfig"]) is not None:
-        setv(
-            to_object,
-            ["hybrid_search_config"],
-            _RagEmbeddingModelConfigHybridSearchConfig_from_vertex(
-                getv(from_object, ["hybridSearchConfig"]), to_object
-            ),
-        )
-
-    if getv(from_object, ["vertexPredictionEndpoint"]) is not None:
-        setv(
-            to_object,
-            ["vertex_prediction_endpoint"],
-            _RagEmbeddingModelConfigVertexPredictionEndpoint_from_vertex(
-                getv(from_object, ["vertexPredictionEndpoint"]), to_object
-            ),
-        )
-
-    return to_object
-
-
-def _RagEmbeddingModelConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["hybrid_search_config"]) is not None:
-        setv(
-            to_object,
-            ["hybridSearchConfig"],
-            _RagEmbeddingModelConfigHybridSearchConfig_to_vertex(
-                getv(from_object, ["hybrid_search_config"]), to_object
-            ),
-        )
-
-    if getv(from_object, ["vertex_prediction_endpoint"]) is not None:
-        setv(
-            to_object,
-            ["vertexPredictionEndpoint"],
-            _RagEmbeddingModelConfigVertexPredictionEndpoint_to_vertex(
-                getv(from_object, ["vertex_prediction_endpoint"]), to_object
-            ),
-        )
-
-    return to_object
-
-
-def _RagEngineConfig_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["ragManagedDbConfig"]) is not None:
-        setv(
-            to_object,
-            ["rag_managed_db_config"],
-            _RagManagedDbConfig_from_vertex(
-                getv(from_object, ["ragManagedDbConfig"]), to_object
-            ),
-        )
-
-    return to_object
-
-
-def _RagEngineConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["rag_managed_db_config"]) is not None:
-        setv(
-            to_object,
-            ["ragManagedDbConfig"],
-            _RagManagedDbConfig_to_vertex(
-                getv(from_object, ["rag_managed_db_config"]), to_object
-            ),
-        )
-
-    return to_object
-
-
-def _RagFileParsingConfigLlmParser_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["customParsingPrompt"]) is not None:
-        setv(
-            to_object,
-            ["custom_parsing_prompt"],
-            getv(from_object, ["customParsingPrompt"]),
-        )
-
-    if getv(from_object, ["globalMaxParsingRequestsPerMin"]) is not None:
-        setv(
-            to_object,
-            ["global_max_parsing_requests_per_min"],
-            getv(from_object, ["globalMaxParsingRequestsPerMin"]),
-        )
-
-    if getv(from_object, ["maxParsingRequestsPerMin"]) is not None:
-        setv(
-            to_object,
-            ["max_parsing_requests_per_min"],
-            getv(from_object, ["maxParsingRequestsPerMin"]),
-        )
-
-    if getv(from_object, ["modelName"]) is not None:
-        setv(to_object, ["model_name"], getv(from_object, ["modelName"]))
-
-    return to_object
-
-
-def _RagFileParsingConfigLlmParser_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["custom_parsing_prompt"]) is not None:
-        setv(
-            to_object,
-            ["customParsingPrompt"],
-            getv(from_object, ["custom_parsing_prompt"]),
-        )
-
-    if getv(from_object, ["global_max_parsing_requests_per_min"]) is not None:
-        setv(
-            to_object,
-            ["globalMaxParsingRequestsPerMin"],
-            getv(from_object, ["global_max_parsing_requests_per_min"]),
-        )
-
-    if getv(from_object, ["max_parsing_requests_per_min"]) is not None:
-        setv(
-            to_object,
-            ["maxParsingRequestsPerMin"],
-            getv(from_object, ["max_parsing_requests_per_min"]),
-        )
-
-    if getv(from_object, ["model_name"]) is not None:
-        setv(to_object, ["modelName"], getv(from_object, ["model_name"]))
-
-    return to_object
-
-
-def _RagFileParsingConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["advanced_parser"]) is not None:
-        setv(to_object, ["advancedParser"], getv(from_object, ["advanced_parser"]))
-
-    if getv(from_object, ["layout_parser"]) is not None:
-        setv(to_object, ["layoutParser"], getv(from_object, ["layout_parser"]))
-
-    if getv(from_object, ["llm_parser"]) is not None:
-        setv(
-            to_object,
-            ["llmParser"],
-            _RagFileParsingConfigLlmParser_to_vertex(
-                getv(from_object, ["llm_parser"]), to_object
-            ),
-        )
-
-    if getv(from_object, ["use_advanced_pdf_parsing"]) is not None:
-        setv(
-            to_object,
-            ["useAdvancedPdfParsing"],
-            getv(from_object, ["use_advanced_pdf_parsing"]),
-        )
-
-    return to_object
-
-
-def _RagManagedDbConfigSpanner_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["basic"]) is not None:
-        setv(to_object, ["basic"], getv(from_object, ["basic"]))
-
-    if getv(from_object, ["scaled"]) is not None:
-        setv(to_object, ["scaled"], getv(from_object, ["scaled"]))
-
-    if getv(from_object, ["unprovisioned"]) is not None:
-        setv(to_object, ["unprovisioned"], getv(from_object, ["unprovisioned"]))
-
-    return to_object
-
-
-def _RagManagedDbConfigSpanner_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["basic"]) is not None:
-        setv(to_object, ["basic"], getv(from_object, ["basic"]))
-
-    if getv(from_object, ["scaled"]) is not None:
-        setv(to_object, ["scaled"], getv(from_object, ["scaled"]))
-
-    if getv(from_object, ["unprovisioned"]) is not None:
-        setv(to_object, ["unprovisioned"], getv(from_object, ["unprovisioned"]))
-
-    return to_object
-
-
-def _RagManagedDbConfig_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["basic"]) is not None:
-        setv(to_object, ["basic"], getv(from_object, ["basic"]))
-
-    if getv(from_object, ["enterprise"]) is not None:
-        setv(to_object, ["enterprise"], getv(from_object, ["enterprise"]))
-
-    if getv(from_object, ["scaled"]) is not None:
-        setv(to_object, ["scaled"], getv(from_object, ["scaled"]))
-
-    if getv(from_object, ["serverless"]) is not None:
-        setv(to_object, ["serverless"], getv(from_object, ["serverless"]))
-
-    if getv(from_object, ["spanner"]) is not None:
-        setv(
-            to_object,
-            ["spanner"],
-            _RagManagedDbConfigSpanner_from_vertex(
-                getv(from_object, ["spanner"]), to_object
-            ),
-        )
-
-    if getv(from_object, ["unprovisioned"]) is not None:
-        setv(to_object, ["unprovisioned"], getv(from_object, ["unprovisioned"]))
-
-    return to_object
-
-
-def _RagManagedDbConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["basic"]) is not None:
-        setv(to_object, ["basic"], getv(from_object, ["basic"]))
-
-    if getv(from_object, ["enterprise"]) is not None:
-        setv(to_object, ["enterprise"], getv(from_object, ["enterprise"]))
-
-    if getv(from_object, ["scaled"]) is not None:
-        setv(to_object, ["scaled"], getv(from_object, ["scaled"]))
-
-    if getv(from_object, ["serverless"]) is not None:
-        setv(to_object, ["serverless"], getv(from_object, ["serverless"]))
-
-    if getv(from_object, ["spanner"]) is not None:
-        setv(
-            to_object,
-            ["spanner"],
-            _RagManagedDbConfigSpanner_to_vertex(
-                getv(from_object, ["spanner"]), to_object
-            ),
-        )
-
-    if getv(from_object, ["unprovisioned"]) is not None:
-        setv(to_object, ["unprovisioned"], getv(from_object, ["unprovisioned"]))
-
-    return to_object
-
-
-def _RagVectorDbConfigPinecone_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["indexName"]) is not None:
-        setv(to_object, ["index_name"], getv(from_object, ["indexName"]))
-
-    return to_object
-
-
-def _RagVectorDbConfigPinecone_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["index_name"]) is not None:
-        setv(to_object, ["indexName"], getv(from_object, ["index_name"]))
-
-    return to_object
-
-
-def _RagVectorDbConfigRagManagedDbANN_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["leafCount"]) is not None:
-        setv(to_object, ["leaf_count"], getv(from_object, ["leafCount"]))
-
-    if getv(from_object, ["treeDepth"]) is not None:
-        setv(to_object, ["tree_depth"], getv(from_object, ["treeDepth"]))
-
-    return to_object
-
-
-def _RagVectorDbConfigRagManagedDbANN_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["leaf_count"]) is not None:
-        setv(to_object, ["leafCount"], getv(from_object, ["leaf_count"]))
-
-    if getv(from_object, ["tree_depth"]) is not None:
-        setv(to_object, ["treeDepth"], getv(from_object, ["tree_depth"]))
-
-    return to_object
-
-
-def _RagVectorDbConfigRagManagedDbKNN_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-
-    return to_object
-
-
-def _RagVectorDbConfigRagManagedDbKNN_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-
-    return to_object
-
-
-def _RagVectorDbConfigRagManagedDb_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["ann"]) is not None:
-        setv(
-            to_object,
-            ["ann"],
-            _RagVectorDbConfigRagManagedDbANN_from_vertex(
-                getv(from_object, ["ann"]), to_object
-            ),
-        )
-
-    if getv(from_object, ["knn"]) is not None:
-        setv(
-            to_object,
-            ["knn"],
-            _RagVectorDbConfigRagManagedDbKNN_from_vertex(
-                getv(from_object, ["knn"]), to_object
-            ),
-        )
-
-    return to_object
-
-
-def _RagVectorDbConfigRagManagedDb_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["ann"]) is not None:
-        setv(
-            to_object,
-            ["ann"],
-            _RagVectorDbConfigRagManagedDbANN_to_vertex(
-                getv(from_object, ["ann"]), to_object
-            ),
-        )
-
-    if getv(from_object, ["knn"]) is not None:
-        setv(
-            to_object,
-            ["knn"],
-            _RagVectorDbConfigRagManagedDbKNN_to_vertex(
-                getv(from_object, ["knn"]), to_object
-            ),
-        )
-
-    return to_object
-
-
-def _RagVectorDbConfigRagManagedVertexVectorSearch_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["collectionName"]) is not None:
-        setv(to_object, ["collection_name"], getv(from_object, ["collectionName"]))
-
-    return to_object
-
-
-def _RagVectorDbConfigRagManagedVertexVectorSearch_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["collection_name"]) is not None:
-        setv(to_object, ["collectionName"], getv(from_object, ["collection_name"]))
-
-    return to_object
-
-
-def _RagVectorDbConfigVertexFeatureStore_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["featureViewResourceName"]) is not None:
-        setv(
-            to_object,
-            ["feature_view_resource_name"],
-            getv(from_object, ["featureViewResourceName"]),
-        )
-
-    return to_object
-
-
-def _RagVectorDbConfigVertexFeatureStore_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["feature_view_resource_name"]) is not None:
-        setv(
-            to_object,
-            ["featureViewResourceName"],
-            getv(from_object, ["feature_view_resource_name"]),
-        )
-
-    return to_object
-
-
-def _RagVectorDbConfigVertexVectorSearch_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["index"]) is not None:
-        setv(to_object, ["index"], getv(from_object, ["index"]))
-
-    if getv(from_object, ["indexEndpoint"]) is not None:
-        setv(to_object, ["index_endpoint"], getv(from_object, ["indexEndpoint"]))
-
-    return to_object
-
-
-def _RagVectorDbConfigVertexVectorSearch_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["index"]) is not None:
-        setv(to_object, ["index"], getv(from_object, ["index"]))
-
-    if getv(from_object, ["index_endpoint"]) is not None:
-        setv(to_object, ["indexEndpoint"], getv(from_object, ["index_endpoint"]))
-
-    return to_object
-
-
-def _RagVectorDbConfigWeaviate_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["collectionName"]) is not None:
-        setv(to_object, ["collection_name"], getv(from_object, ["collectionName"]))
-
-    if getv(from_object, ["httpEndpoint"]) is not None:
-        setv(to_object, ["http_endpoint"], getv(from_object, ["httpEndpoint"]))
-
-    return to_object
-
-
-def _RagVectorDbConfigWeaviate_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["collection_name"]) is not None:
-        setv(to_object, ["collectionName"], getv(from_object, ["collection_name"]))
-
-    if getv(from_object, ["http_endpoint"]) is not None:
-        setv(to_object, ["httpEndpoint"], getv(from_object, ["http_endpoint"]))
-
-    return to_object
-
-
-def _RagVectorDbConfig_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["apiAuth"]) is not None:
-        setv(to_object, ["api_auth"], getv(from_object, ["apiAuth"]))
-
-    if getv(from_object, ["pinecone"]) is not None:
-        setv(
-            to_object,
-            ["pinecone"],
-            _RagVectorDbConfigPinecone_from_vertex(
-                getv(from_object, ["pinecone"]), to_object
-            ),
-        )
-
-    if getv(from_object, ["ragEmbeddingModelConfig"]) is not None:
-        setv(
-            to_object,
-            ["rag_embedding_model_config"],
-            _RagEmbeddingModelConfig_from_vertex(
-                getv(from_object, ["ragEmbeddingModelConfig"]), to_object
-            ),
-        )
-
-    if getv(from_object, ["ragManagedDb"]) is not None:
-        setv(
-            to_object,
-            ["rag_managed_db"],
-            _RagVectorDbConfigRagManagedDb_from_vertex(
-                getv(from_object, ["ragManagedDb"]), to_object
-            ),
-        )
-
-    if getv(from_object, ["ragManagedVertexVectorSearch"]) is not None:
-        setv(
-            to_object,
-            ["rag_managed_vertex_vector_search"],
-            _RagVectorDbConfigRagManagedVertexVectorSearch_from_vertex(
-                getv(from_object, ["ragManagedVertexVectorSearch"]), to_object
-            ),
-        )
-
-    if getv(from_object, ["vertexFeatureStore"]) is not None:
-        setv(
-            to_object,
-            ["vertex_feature_store"],
-            _RagVectorDbConfigVertexFeatureStore_from_vertex(
-                getv(from_object, ["vertexFeatureStore"]), to_object
-            ),
-        )
-
-    if getv(from_object, ["vertexVectorSearch"]) is not None:
-        setv(
-            to_object,
-            ["vertex_vector_search"],
-            _RagVectorDbConfigVertexVectorSearch_from_vertex(
-                getv(from_object, ["vertexVectorSearch"]), to_object
-            ),
-        )
-
-    if getv(from_object, ["weaviate"]) is not None:
-        setv(
-            to_object,
-            ["weaviate"],
-            _RagVectorDbConfigWeaviate_from_vertex(
-                getv(from_object, ["weaviate"]), to_object
-            ),
-        )
-
-    return to_object
-
-
-def _RagVectorDbConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["api_auth"]) is not None:
-        setv(to_object, ["apiAuth"], getv(from_object, ["api_auth"]))
-
-    if getv(from_object, ["pinecone"]) is not None:
-        setv(
-            to_object,
-            ["pinecone"],
-            _RagVectorDbConfigPinecone_to_vertex(
-                getv(from_object, ["pinecone"]), to_object
-            ),
-        )
-
-    if getv(from_object, ["rag_embedding_model_config"]) is not None:
-        setv(
-            to_object,
-            ["ragEmbeddingModelConfig"],
-            _RagEmbeddingModelConfig_to_vertex(
-                getv(from_object, ["rag_embedding_model_config"]), to_object
-            ),
-        )
-
-    if getv(from_object, ["rag_managed_db"]) is not None:
-        setv(
-            to_object,
-            ["ragManagedDb"],
-            _RagVectorDbConfigRagManagedDb_to_vertex(
-                getv(from_object, ["rag_managed_db"]), to_object
-            ),
-        )
-
-    if getv(from_object, ["rag_managed_vertex_vector_search"]) is not None:
-        setv(
-            to_object,
-            ["ragManagedVertexVectorSearch"],
-            _RagVectorDbConfigRagManagedVertexVectorSearch_to_vertex(
-                getv(from_object, ["rag_managed_vertex_vector_search"]), to_object
-            ),
-        )
-
-    if getv(from_object, ["vertex_feature_store"]) is not None:
-        setv(
-            to_object,
-            ["vertexFeatureStore"],
-            _RagVectorDbConfigVertexFeatureStore_to_vertex(
-                getv(from_object, ["vertex_feature_store"]), to_object
-            ),
-        )
-
-    if getv(from_object, ["vertex_vector_search"]) is not None:
-        setv(
-            to_object,
-            ["vertexVectorSearch"],
-            _RagVectorDbConfigVertexVectorSearch_to_vertex(
-                getv(from_object, ["vertex_vector_search"]), to_object
-            ),
-        )
-
-    if getv(from_object, ["weaviate"]) is not None:
-        setv(
-            to_object,
-            ["weaviate"],
-            _RagVectorDbConfigWeaviate_to_vertex(
-                getv(from_object, ["weaviate"]), to_object
-            ),
-        )
-
-    return to_object
-
-
-def _RetrieveRagContextsRequestParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["vertex_rag_store"]) is not None:
-        setv(to_object, ["vertexRagStore"], getv(from_object, ["vertex_rag_store"]))
-
-    if getv(from_object, ["query"]) is not None:
-        setv(to_object, ["query"], getv(from_object, ["query"]))
-
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
-    return to_object
-
-
-def _UpdateRagConfigRequestParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["updated_config"]) is not None:
-        setv(
-            to_object,
-            ["_self"],
-            _RagEngineConfig_to_vertex(
-                getv(from_object, ["updated_config"]), to_object
-            ),
-        )
-
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
-    return to_object
-
-
-def _UpdateRagCorpusRequestParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["rag_corpus"]) is not None:
-        setv(
-            to_object,
-            ["_self"],
-            _RagCorpus_to_vertex(getv(from_object, ["rag_corpus"]), to_object),
-        )
-
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
-    return to_object
-
-
-def _UploadRagFileConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["rag_file_chunking_config"]) is not None:
-        setv(
-            to_object,
-            ["ragFileChunkingConfig"],
-            getv(from_object, ["rag_file_chunking_config"]),
-        )
-
-    if getv(from_object, ["rag_file_metadata_config"]) is not None:
-        setv(
-            to_object,
-            ["ragFileMetadataConfig"],
-            getv(from_object, ["rag_file_metadata_config"]),
-        )
-
-    if getv(from_object, ["rag_file_parsing_config"]) is not None:
-        setv(
-            to_object,
-            ["ragFileParsingConfig"],
-            _RagFileParsingConfig_to_vertex(
-                getv(from_object, ["rag_file_parsing_config"]), to_object
-            ),
-        )
-
-    if getv(from_object, ["rag_file_transformation_config"]) is not None:
-        setv(
-            to_object,
-            ["ragFileTransformationConfig"],
-            getv(from_object, ["rag_file_transformation_config"]),
-        )
-
-    return to_object
-
-
-def _UploadRagFileParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["rag_file"]) is not None:
-        setv(to_object, ["ragFile"], getv(from_object, ["rag_file"]))
-
-    if getv(from_object, ["upload_rag_file_config"]) is not None:
-        setv(
-            to_object,
-            ["uploadRagFileConfig"],
-            _UploadRagFileConfig_to_vertex(
-                getv(from_object, ["upload_rag_file_config"]), to_object
-            ),
-        )
-
-    return to_object
-
-
-def _VertexAiSearchConfig_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["servingConfig"]) is not None:
-        setv(to_object, ["serving_config"], getv(from_object, ["servingConfig"]))
-
-    return to_object
-
-
-def _VertexAiSearchConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["serving_config"]) is not None:
-        setv(to_object, ["servingConfig"], getv(from_object, ["serving_config"]))
-
-    return to_object
 
 
 class Rag(_api_module.BaseModule):
@@ -1673,7 +66,9 @@ class Rag(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _AskContextsRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._AskContextsRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = ":askContexts".format_map(request_url_dict)
@@ -1745,7 +140,9 @@ class Rag(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _CreateRagCorpusRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._CreateRagCorpusRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "ragCorpora".format_map(request_url_dict)
@@ -1813,7 +210,9 @@ class Rag(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetCorpusOperationParameters_to_vertex(parameter_model)
+            request_dict = _converters._GetCorpusOperationParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{operationName}".format_map(request_url_dict)
@@ -1841,7 +240,7 @@ class Rag(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         if self._api_client.vertexai:
-            response_dict = _CorpusOperation_from_vertex(response_dict)
+            response_dict = _converters._CorpusOperation_from_vertex(response_dict)
 
         return_value = types.CorpusOperation._from_response(
             response=response_dict,
@@ -1893,7 +292,9 @@ class Rag(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetRagCorpusRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._GetRagCorpusRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}".format_map(request_url_dict)
@@ -1921,7 +322,7 @@ class Rag(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         if self._api_client.vertexai:
-            response_dict = _RagCorpus_from_vertex(response_dict)
+            response_dict = _converters._RagCorpus_from_vertex(response_dict)
 
         return_value = types.RagCorpus._from_response(
             response=response_dict,
@@ -1971,7 +372,9 @@ class Rag(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _ListRagCorporaRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._ListRagCorporaRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "ragCorpora".format_map(request_url_dict)
@@ -1999,7 +402,9 @@ class Rag(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         if self._api_client.vertexai:
-            response_dict = _ListRagCorporaResponse_from_vertex(response_dict)
+            response_dict = _converters._ListRagCorporaResponse_from_vertex(
+                response_dict
+            )
 
         return_value = types.ListRagCorporaResponse._from_response(
             response=response_dict,
@@ -2051,7 +456,9 @@ class Rag(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetRagFileRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._GetRagFileRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}".format_map(request_url_dict)
@@ -2128,7 +535,9 @@ class Rag(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _ListRagFilesRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._ListRagFilesRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}/ragFiles".format_map(request_url_dict)
@@ -2203,7 +612,9 @@ class Rag(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetRagConfigRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._GetRagConfigRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "ragEngineConfig".format_map(request_url_dict)
@@ -2231,7 +642,7 @@ class Rag(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         if self._api_client.vertexai:
-            response_dict = _RagEngineConfig_from_vertex(response_dict)
+            response_dict = _converters._RagEngineConfig_from_vertex(response_dict)
 
         return_value = types.RagEngineConfig._from_response(
             response=response_dict,
@@ -2280,7 +691,9 @@ class Rag(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _UpdateRagCorpusRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._UpdateRagCorpusRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}".format_map(request_url_dict)
@@ -2352,7 +765,9 @@ class Rag(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _DeleteRagCorpusRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._DeleteRagCorpusRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}".format_map(request_url_dict)
@@ -2421,7 +836,9 @@ class Rag(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _DeleteRagFileRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._DeleteRagFileRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}".format_map(request_url_dict)
@@ -2493,7 +910,9 @@ class Rag(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _UpdateRagConfigRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._UpdateRagConfigRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "ragEngineConfig".format_map(request_url_dict)
@@ -2576,7 +995,7 @@ class Rag(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _RetrieveRagContextsRequestParameters_to_vertex(
+            request_dict = _converters._RetrieveRagContextsRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -2646,7 +1065,9 @@ class Rag(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetRagConfigOperationParameters_to_vertex(parameter_model)
+            request_dict = _converters._GetRagConfigOperationParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{operation_name}".format_map(request_url_dict)
@@ -2720,7 +1141,9 @@ class Rag(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _ImportRagFilesRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._ImportRagFilesRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}/ragFiles:import".format_map(request_url_dict)
@@ -2788,7 +1211,9 @@ class Rag(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetImportFilesOperationParameters_to_vertex(parameter_model)
+            request_dict = _converters._GetImportFilesOperationParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{operation_name}".format_map(request_url_dict)
@@ -2860,7 +1285,9 @@ class Rag(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _UploadRagFileParameters_to_vertex(parameter_model)
+            request_dict = _converters._UploadRagFileParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}/ragFiles:upload".format_map(request_url_dict)
@@ -3315,7 +1742,9 @@ class AsyncRag(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _AskContextsRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._AskContextsRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = ":askContexts".format_map(request_url_dict)
@@ -3389,7 +1818,9 @@ class AsyncRag(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _CreateRagCorpusRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._CreateRagCorpusRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "ragCorpora".format_map(request_url_dict)
@@ -3459,7 +1890,9 @@ class AsyncRag(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetCorpusOperationParameters_to_vertex(parameter_model)
+            request_dict = _converters._GetCorpusOperationParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{operationName}".format_map(request_url_dict)
@@ -3489,7 +1922,7 @@ class AsyncRag(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         if self._api_client.vertexai:
-            response_dict = _CorpusOperation_from_vertex(response_dict)
+            response_dict = _converters._CorpusOperation_from_vertex(response_dict)
 
         return_value = types.CorpusOperation._from_response(
             response=response_dict,
@@ -3541,7 +1974,9 @@ class AsyncRag(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetRagCorpusRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._GetRagCorpusRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}".format_map(request_url_dict)
@@ -3571,7 +2006,7 @@ class AsyncRag(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         if self._api_client.vertexai:
-            response_dict = _RagCorpus_from_vertex(response_dict)
+            response_dict = _converters._RagCorpus_from_vertex(response_dict)
 
         return_value = types.RagCorpus._from_response(
             response=response_dict,
@@ -3621,7 +2056,9 @@ class AsyncRag(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _ListRagCorporaRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._ListRagCorporaRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "ragCorpora".format_map(request_url_dict)
@@ -3651,7 +2088,9 @@ class AsyncRag(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         if self._api_client.vertexai:
-            response_dict = _ListRagCorporaResponse_from_vertex(response_dict)
+            response_dict = _converters._ListRagCorporaResponse_from_vertex(
+                response_dict
+            )
 
         return_value = types.ListRagCorporaResponse._from_response(
             response=response_dict,
@@ -3703,7 +2142,9 @@ class AsyncRag(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetRagFileRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._GetRagFileRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}".format_map(request_url_dict)
@@ -3782,7 +2223,9 @@ class AsyncRag(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _ListRagFilesRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._ListRagFilesRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}/ragFiles".format_map(request_url_dict)
@@ -3859,7 +2302,9 @@ class AsyncRag(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetRagConfigRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._GetRagConfigRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "ragEngineConfig".format_map(request_url_dict)
@@ -3889,7 +2334,7 @@ class AsyncRag(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         if self._api_client.vertexai:
-            response_dict = _RagEngineConfig_from_vertex(response_dict)
+            response_dict = _converters._RagEngineConfig_from_vertex(response_dict)
 
         return_value = types.RagEngineConfig._from_response(
             response=response_dict,
@@ -3938,7 +2383,9 @@ class AsyncRag(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _UpdateRagCorpusRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._UpdateRagCorpusRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}".format_map(request_url_dict)
@@ -4012,7 +2459,9 @@ class AsyncRag(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _DeleteRagCorpusRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._DeleteRagCorpusRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}".format_map(request_url_dict)
@@ -4083,7 +2532,9 @@ class AsyncRag(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _DeleteRagFileRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._DeleteRagFileRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}".format_map(request_url_dict)
@@ -4157,7 +2608,9 @@ class AsyncRag(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _UpdateRagConfigRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._UpdateRagConfigRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "ragEngineConfig".format_map(request_url_dict)
@@ -4242,7 +2695,7 @@ class AsyncRag(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _RetrieveRagContextsRequestParameters_to_vertex(
+            request_dict = _converters._RetrieveRagContextsRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -4314,7 +2767,9 @@ class AsyncRag(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetRagConfigOperationParameters_to_vertex(parameter_model)
+            request_dict = _converters._GetRagConfigOperationParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{operation_name}".format_map(request_url_dict)
@@ -4390,7 +2845,9 @@ class AsyncRag(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _ImportRagFilesRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._ImportRagFilesRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}/ragFiles:import".format_map(request_url_dict)
@@ -4460,7 +2917,9 @@ class AsyncRag(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetImportFilesOperationParameters_to_vertex(parameter_model)
+            request_dict = _converters._GetImportFilesOperationParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{operation_name}".format_map(request_url_dict)
@@ -4534,7 +2993,9 @@ class AsyncRag(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _UploadRagFileParameters_to_vertex(parameter_model)
+            request_dict = _converters._UploadRagFileParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}/ragFiles:upload".format_map(request_url_dict)

@@ -18,120 +18,20 @@
 import functools
 import json
 import logging
-from typing import Any, AsyncIterator, Iterator, Optional, Union
+from typing import Any, AsyncIterator, Iterator, Optional
 from urllib.parse import urlencode
 
 from google.genai import _api_module
 from google.genai import _common
-from google.genai._common import get_value_by_path as getv
-from google.genai._common import set_value_by_path as setv
 from google.genai.pagers import AsyncPager, Pager
 
+from . import _converters
 from . import _runtimes_utils
 from . import types
 
 logger = logging.getLogger("agentplatform_genai.runtimerevisions")
 
 logger.setLevel(logging.INFO)
-
-
-def _DeleteRuntimeRevisionRequestParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    return to_object
-
-
-def _GetDeleteRuntimeRevisionOperationParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["operation_name"]) is not None:
-        setv(
-            to_object, ["_url", "operationName"], getv(from_object, ["operation_name"])
-        )
-
-    return to_object
-
-
-def _GetRuntimeRevisionRequestParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    return to_object
-
-
-def _ListRuntimeRevisionsConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-
-    if getv(from_object, ["page_size"]) is not None:
-        setv(parent_object, ["_query", "pageSize"], getv(from_object, ["page_size"]))
-
-    if getv(from_object, ["page_token"]) is not None:
-        setv(parent_object, ["_query", "pageToken"], getv(from_object, ["page_token"]))
-
-    if getv(from_object, ["filter"]) is not None:
-        setv(parent_object, ["_query", "filter"], getv(from_object, ["filter"]))
-
-    return to_object
-
-
-def _ListRuntimeRevisionsRequestParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["config"]) is not None:
-        _ListRuntimeRevisionsConfig_to_vertex(getv(from_object, ["config"]), to_object)
-
-    return to_object
-
-
-def _QueryRuntimeRevisionConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-
-    if getv(from_object, ["class_method"]) is not None:
-        setv(parent_object, ["classMethod"], getv(from_object, ["class_method"]))
-
-    if getv(from_object, ["input"]) is not None:
-        setv(parent_object, ["input"], getv(from_object, ["input"]))
-
-    if getv(from_object, ["include_all_fields"]) is not None:
-        setv(to_object, ["includeAllFields"], getv(from_object, ["include_all_fields"]))
-
-    return to_object
-
-
-def _QueryRuntimeRevisionRequestParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["config"]) is not None:
-        _QueryRuntimeRevisionConfig_to_vertex(getv(from_object, ["config"]), to_object)
-
-    return to_object
 
 
 class RuntimeRevisions(_api_module.BaseModule):
@@ -157,7 +57,7 @@ class RuntimeRevisions(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetRuntimeRevisionRequestParameters_to_vertex(
+            request_dict = _converters._GetRuntimeRevisionRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -241,7 +141,7 @@ class RuntimeRevisions(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _ListRuntimeRevisionsRequestParameters_to_vertex(
+            request_dict = _converters._ListRuntimeRevisionsRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -327,8 +227,10 @@ class RuntimeRevisions(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _DeleteRuntimeRevisionRequestParameters_to_vertex(
-                parameter_model
+            request_dict = (
+                _converters._DeleteRuntimeRevisionRequestParameters_to_vertex(
+                    parameter_model
+                )
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
@@ -397,8 +299,10 @@ class RuntimeRevisions(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetDeleteRuntimeRevisionOperationParameters_to_vertex(
-                parameter_model
+            request_dict = (
+                _converters._GetDeleteRuntimeRevisionOperationParameters_to_vertex(
+                    parameter_model
+                )
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
@@ -471,7 +375,7 @@ class RuntimeRevisions(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _QueryRuntimeRevisionRequestParameters_to_vertex(
+            request_dict = _converters._QueryRuntimeRevisionRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -741,7 +645,7 @@ class AsyncRuntimeRevisions(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetRuntimeRevisionRequestParameters_to_vertex(
+            request_dict = _converters._GetRuntimeRevisionRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -827,7 +731,7 @@ class AsyncRuntimeRevisions(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _ListRuntimeRevisionsRequestParameters_to_vertex(
+            request_dict = _converters._ListRuntimeRevisionsRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -915,8 +819,10 @@ class AsyncRuntimeRevisions(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _DeleteRuntimeRevisionRequestParameters_to_vertex(
-                parameter_model
+            request_dict = (
+                _converters._DeleteRuntimeRevisionRequestParameters_to_vertex(
+                    parameter_model
+                )
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
@@ -987,8 +893,10 @@ class AsyncRuntimeRevisions(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetDeleteRuntimeRevisionOperationParameters_to_vertex(
-                parameter_model
+            request_dict = (
+                _converters._GetDeleteRuntimeRevisionOperationParameters_to_vertex(
+                    parameter_model
+                )
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
@@ -1063,7 +971,7 @@ class AsyncRuntimeRevisions(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _QueryRuntimeRevisionRequestParameters_to_vertex(
+            request_dict = _converters._QueryRuntimeRevisionRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")

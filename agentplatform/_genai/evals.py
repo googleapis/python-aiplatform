@@ -24,13 +24,11 @@ import uuid
 from google.genai import _api_module
 from google.genai import _common
 from google.genai import types as genai_types
-from google.genai._common import get_value_by_path as getv
-from google.genai._common import set_value_by_path as setv
 import pandas as pd
 
+from . import _converters
 from . import _evals_common
 from . import _evals_utils
-from . import _transformers as t
 from . import types
 from .types import evals as evals_types
 
@@ -41,1231 +39,6 @@ except ImportError:
 
 
 logger = logging.getLogger("agentplatform_genai.evals")
-
-
-def _CreateEvaluationExperimentParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["display_name"]) is not None:
-        setv(to_object, ["displayName"], getv(from_object, ["display_name"]))
-
-    if getv(from_object, ["labels"]) is not None:
-        setv(to_object, ["labels"], getv(from_object, ["labels"]))
-
-    if getv(from_object, ["merge_strategy"]) is not None:
-        setv(to_object, ["mergeStrategy"], getv(from_object, ["merge_strategy"]))
-
-    if getv(from_object, ["metadata"]) is not None:
-        setv(to_object, ["metadata"], getv(from_object, ["metadata"]))
-
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
-    return to_object
-
-
-def _CreateEvaluationItemParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["evaluation_item_type"]) is not None:
-        setv(
-            to_object,
-            ["evaluationItemType"],
-            getv(from_object, ["evaluation_item_type"]),
-        )
-
-    if getv(from_object, ["gcs_uri"]) is not None:
-        setv(to_object, ["gcsUri"], getv(from_object, ["gcs_uri"]))
-
-    if getv(from_object, ["display_name"]) is not None:
-        setv(to_object, ["displayName"], getv(from_object, ["display_name"]))
-
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
-    return to_object
-
-
-def _CreateEvaluationMetricParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["display_name"]) is not None:
-        setv(to_object, ["displayName"], getv(from_object, ["display_name"]))
-
-    if getv(from_object, ["description"]) is not None:
-        setv(to_object, ["description"], getv(from_object, ["description"]))
-
-    if getv(from_object, ["metric"]) is not None:
-        setv(
-            to_object,
-            ["metric"],
-            t.t_metric_for_registry(getv(from_object, ["metric"])),
-        )
-
-    if getv(from_object, ["encryption_spec"]) is not None:
-        setv(to_object, ["encryptionSpec"], getv(from_object, ["encryption_spec"]))
-
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
-    return to_object
-
-
-def _CreateEvaluationRunParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["display_name"]) is not None:
-        setv(to_object, ["displayName"], getv(from_object, ["display_name"]))
-
-    if getv(from_object, ["data_source"]) is not None:
-        setv(to_object, ["dataSource"], getv(from_object, ["data_source"]))
-
-    if getv(from_object, ["evaluation_config"]) is not None:
-        setv(
-            to_object,
-            ["evaluationConfig"],
-            _EvaluationRunConfig_to_vertex(
-                getv(from_object, ["evaluation_config"]), to_object
-            ),
-        )
-
-    if getv(from_object, ["labels"]) is not None:
-        setv(to_object, ["labels"], getv(from_object, ["labels"]))
-
-    if getv(from_object, ["inference_configs"]) is not None:
-        setv(
-            to_object,
-            ["inferenceConfigs"],
-            {
-                k: _EvaluationRunInferenceConfig_to_vertex(v, to_object)
-                for k, v in getv(from_object, ["inference_configs"]).items()
-            },
-        )
-
-    if getv(from_object, ["analysis_configs"]) is not None:
-        setv(
-            to_object,
-            ["analysisConfigs"],
-            [item for item in getv(from_object, ["analysis_configs"])],
-        )
-
-    if getv(from_object, ["evaluation_experiment"]) is not None:
-        setv(
-            to_object,
-            ["evaluationExperiment"],
-            getv(from_object, ["evaluation_experiment"]),
-        )
-
-    if getv(from_object, ["encryption_spec"]) is not None:
-        setv(to_object, ["encryptionSpec"], getv(from_object, ["encryption_spec"]))
-
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
-    return to_object
-
-
-def _CreateEvaluationSetParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["evaluation_items"]) is not None:
-        setv(to_object, ["evaluationItems"], getv(from_object, ["evaluation_items"]))
-
-    if getv(from_object, ["display_name"]) is not None:
-        setv(to_object, ["displayName"], getv(from_object, ["display_name"]))
-
-    if getv(from_object, ["encryption_spec"]) is not None:
-        setv(to_object, ["encryptionSpec"], getv(from_object, ["encryption_spec"]))
-
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
-    return to_object
-
-
-def _CustomCodeExecutionSpec_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["evaluationFunction"]) is not None:
-        setv(
-            to_object,
-            ["evaluation_function"],
-            getv(from_object, ["evaluationFunction"]),
-        )
-
-    if getv(from_object, ["evaluation_function"]) is not None:
-        setv(
-            to_object,
-            ["remote_custom_function"],
-            getv(from_object, ["evaluation_function"]),
-        )
-
-    if getv(from_object, ["codeExecutionRegion"]) is not None:
-        setv(
-            to_object,
-            ["code_execution_region"],
-            getv(from_object, ["codeExecutionRegion"]),
-        )
-
-    return to_object
-
-
-def _CustomCodeExecutionSpec_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["evaluation_function"]) is not None:
-        setv(
-            to_object,
-            ["evaluationFunction"],
-            getv(from_object, ["evaluation_function"]),
-        )
-
-    if getv(from_object, ["remote_custom_function"]) is not None:
-        setv(
-            to_object,
-            ["evaluation_function"],
-            getv(from_object, ["remote_custom_function"]),
-        )
-
-    if getv(from_object, ["code_execution_region"]) is not None:
-        setv(
-            to_object,
-            ["codeExecutionRegion"],
-            getv(from_object, ["code_execution_region"]),
-        )
-
-    return to_object
-
-
-def _DeleteEvaluationExperimentParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
-    return to_object
-
-
-def _DeleteEvaluationMetricParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["metric_resource_name"]) is not None:
-        setv(
-            to_object,
-            ["_url", "evaluation_metric"],
-            getv(from_object, ["metric_resource_name"]),
-        )
-
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
-    return to_object
-
-
-def _DeleteEvaluationSetParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
-    return to_object
-
-
-def _EvaluateInstancesRequestParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["bleu_input"]) is not None:
-        setv(to_object, ["bleuInput"], getv(from_object, ["bleu_input"]))
-
-    if getv(from_object, ["exact_match_input"]) is not None:
-        setv(to_object, ["exactMatchInput"], getv(from_object, ["exact_match_input"]))
-
-    if getv(from_object, ["rouge_input"]) is not None:
-        setv(to_object, ["rougeInput"], getv(from_object, ["rouge_input"]))
-
-    if getv(from_object, ["pointwise_metric_input"]) is not None:
-        setv(
-            to_object,
-            ["pointwiseMetricInput"],
-            getv(from_object, ["pointwise_metric_input"]),
-        )
-
-    if getv(from_object, ["pairwise_metric_input"]) is not None:
-        setv(
-            to_object,
-            ["pairwiseMetricInput"],
-            getv(from_object, ["pairwise_metric_input"]),
-        )
-
-    if getv(from_object, ["tool_call_valid_input"]) is not None:
-        setv(
-            to_object,
-            ["toolCallValidInput"],
-            getv(from_object, ["tool_call_valid_input"]),
-        )
-
-    if getv(from_object, ["tool_name_match_input"]) is not None:
-        setv(
-            to_object,
-            ["toolNameMatchInput"],
-            getv(from_object, ["tool_name_match_input"]),
-        )
-
-    if getv(from_object, ["tool_parameter_key_match_input"]) is not None:
-        setv(
-            to_object,
-            ["toolParameterKeyMatchInput"],
-            getv(from_object, ["tool_parameter_key_match_input"]),
-        )
-
-    if getv(from_object, ["tool_parameter_kv_match_input"]) is not None:
-        setv(
-            to_object,
-            ["toolParameterKvMatchInput"],
-            getv(from_object, ["tool_parameter_kv_match_input"]),
-        )
-
-    if getv(from_object, ["rubric_based_metric_input"]) is not None:
-        setv(
-            to_object,
-            ["rubricBasedMetricInput"],
-            _RubricBasedMetricInput_to_vertex(
-                getv(from_object, ["rubric_based_metric_input"]), to_object
-            ),
-        )
-
-    if getv(from_object, ["autorater_config"]) is not None:
-        setv(to_object, ["autoraterConfig"], getv(from_object, ["autorater_config"]))
-
-    if getv(from_object, ["metrics"]) is not None:
-        setv(
-            to_object,
-            ["metrics"],
-            [item for item in t.t_metrics(getv(from_object, ["metrics"]))],
-        )
-
-    if getv(from_object, ["instance"]) is not None:
-        setv(
-            to_object,
-            ["instance"],
-            _EvaluationInstance_to_vertex(getv(from_object, ["instance"]), to_object),
-        )
-
-    if getv(from_object, ["metric_sources"]) is not None:
-        setv(
-            to_object,
-            ["metricSources"],
-            [
-                item
-                for item in t.t_metric_sources(getv(from_object, ["metric_sources"]))
-            ],
-        )
-
-    if getv(from_object, ["allow_cross_region_model"]) is not None:
-        setv(
-            to_object,
-            ["allowCrossRegionModel"],
-            getv(from_object, ["allow_cross_region_model"]),
-        )
-
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
-    return to_object
-
-
-def _EvaluationInstance_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["prompt"]) is not None:
-        setv(to_object, ["prompt"], getv(from_object, ["prompt"]))
-
-    if getv(from_object, ["response"]) is not None:
-        setv(to_object, ["response"], getv(from_object, ["response"]))
-
-    if getv(from_object, ["reference"]) is not None:
-        setv(to_object, ["reference"], getv(from_object, ["reference"]))
-
-    if getv(from_object, ["other_data"]) is not None:
-        setv(to_object, ["otherData"], getv(from_object, ["other_data"]))
-
-    if getv(from_object, ["agent_data"]) is not None:
-        setv(to_object, ["agent_eval_data"], getv(from_object, ["agent_data"]))
-
-    if getv(from_object, ["rubric_groups"]) is not None:
-        setv(to_object, ["rubricGroups"], getv(from_object, ["rubric_groups"]))
-
-    if getv(from_object, ["interactions_data_source"]) is not None:
-        setv(
-            to_object,
-            ["interactionsDataSource"],
-            getv(from_object, ["interactions_data_source"]),
-        )
-
-    return to_object
-
-
-def _EvaluationMetric_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["displayName"]) is not None:
-        setv(to_object, ["display_name"], getv(from_object, ["displayName"]))
-
-    if getv(from_object, ["description"]) is not None:
-        setv(to_object, ["description"], getv(from_object, ["description"]))
-
-    if getv(from_object, ["metric"]) is not None:
-        setv(
-            to_object,
-            ["metric"],
-            _UnifiedMetric_from_vertex(getv(from_object, ["metric"]), to_object),
-        )
-
-    if getv(from_object, ["encryptionSpec"]) is not None:
-        setv(to_object, ["encryption_spec"], getv(from_object, ["encryptionSpec"]))
-
-    return to_object
-
-
-def _EvaluationRunConfig_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["metrics"]) is not None:
-        setv(
-            to_object,
-            ["metrics"],
-            [
-                _EvaluationRunMetric_from_vertex(item, to_object)
-                for item in getv(from_object, ["metrics"])
-            ],
-        )
-
-    if getv(from_object, ["outputConfig"]) is not None:
-        setv(to_object, ["output_config"], getv(from_object, ["outputConfig"]))
-
-    if getv(from_object, ["autoraterConfig"]) is not None:
-        setv(to_object, ["autorater_config"], getv(from_object, ["autoraterConfig"]))
-
-    if getv(from_object, ["promptTemplate"]) is not None:
-        setv(to_object, ["prompt_template"], getv(from_object, ["promptTemplate"]))
-
-    if getv(from_object, ["lossAnalysisConfig"]) is not None:
-        setv(
-            to_object,
-            ["loss_analysis_config"],
-            [item for item in getv(from_object, ["lossAnalysisConfig"])],
-        )
-
-    if getv(from_object, ["allowCrossRegionModel"]) is not None:
-        setv(
-            to_object,
-            ["allow_cross_region_model"],
-            getv(from_object, ["allowCrossRegionModel"]),
-        )
-
-    return to_object
-
-
-def _EvaluationRunConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["metrics"]) is not None:
-        setv(
-            to_object,
-            ["metrics"],
-            [
-                _EvaluationRunMetric_to_vertex(item, to_object)
-                for item in getv(from_object, ["metrics"])
-            ],
-        )
-
-    if getv(from_object, ["output_config"]) is not None:
-        setv(to_object, ["outputConfig"], getv(from_object, ["output_config"]))
-
-    if getv(from_object, ["autorater_config"]) is not None:
-        setv(to_object, ["autoraterConfig"], getv(from_object, ["autorater_config"]))
-
-    if getv(from_object, ["prompt_template"]) is not None:
-        setv(to_object, ["promptTemplate"], getv(from_object, ["prompt_template"]))
-
-    if getv(from_object, ["loss_analysis_config"]) is not None:
-        setv(
-            to_object,
-            ["lossAnalysisConfig"],
-            [item for item in getv(from_object, ["loss_analysis_config"])],
-        )
-
-    if getv(from_object, ["allow_cross_region_model"]) is not None:
-        setv(
-            to_object,
-            ["allowCrossRegionModel"],
-            getv(from_object, ["allow_cross_region_model"]),
-        )
-
-    return to_object
-
-
-def _EvaluationRunInferenceConfig_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["agentConfig"]) is not None:
-        setv(to_object, ["agent_config"], getv(from_object, ["agentConfig"]))
-
-    if getv(from_object, ["model"]) is not None:
-        setv(to_object, ["model"], getv(from_object, ["model"]))
-
-    if getv(from_object, ["promptTemplate"]) is not None:
-        setv(to_object, ["prompt_template"], getv(from_object, ["promptTemplate"]))
-
-    if getv(from_object, ["agentRunConfig"]) is not None:
-        setv(to_object, ["agent_run_config"], getv(from_object, ["agentRunConfig"]))
-
-    if getv(from_object, ["agents"]) is not None:
-        setv(to_object, ["agent_configs"], getv(from_object, ["agents"]))
-
-    return to_object
-
-
-def _EvaluationRunInferenceConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["agent_config"]) is not None:
-        setv(to_object, ["agentConfig"], getv(from_object, ["agent_config"]))
-
-    if getv(from_object, ["model"]) is not None:
-        setv(to_object, ["model"], getv(from_object, ["model"]))
-
-    if getv(from_object, ["prompt_template"]) is not None:
-        setv(to_object, ["promptTemplate"], getv(from_object, ["prompt_template"]))
-
-    if getv(from_object, ["agent_run_config"]) is not None:
-        setv(to_object, ["agentRunConfig"], getv(from_object, ["agent_run_config"]))
-
-    if getv(from_object, ["agent_configs"]) is not None:
-        setv(to_object, ["agents"], getv(from_object, ["agent_configs"]))
-
-    return to_object
-
-
-def _EvaluationRunMetric_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["metric"]) is not None:
-        setv(to_object, ["metric"], getv(from_object, ["metric"]))
-
-    if getv(from_object, ["metricResourceName"]) is not None:
-        setv(
-            to_object,
-            ["metric_resource_name"],
-            getv(from_object, ["metricResourceName"]),
-        )
-
-    if getv(from_object, ["metricConfig"]) is not None:
-        setv(
-            to_object,
-            ["metric_config"],
-            _UnifiedMetric_from_vertex(getv(from_object, ["metricConfig"]), to_object),
-        )
-
-    return to_object
-
-
-def _EvaluationRunMetric_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["metric"]) is not None:
-        setv(to_object, ["metric"], getv(from_object, ["metric"]))
-
-    if getv(from_object, ["metric_resource_name"]) is not None:
-        setv(
-            to_object,
-            ["metricResourceName"],
-            getv(from_object, ["metric_resource_name"]),
-        )
-
-    if getv(from_object, ["metric_config"]) is not None:
-        setv(
-            to_object,
-            ["metricConfig"],
-            _UnifiedMetric_to_vertex(getv(from_object, ["metric_config"]), to_object),
-        )
-
-    return to_object
-
-
-def _EvaluationRun_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["displayName"]) is not None:
-        setv(to_object, ["display_name"], getv(from_object, ["displayName"]))
-
-    if getv(from_object, ["metadata"]) is not None:
-        setv(to_object, ["metadata"], getv(from_object, ["metadata"]))
-
-    if getv(from_object, ["createTime"]) is not None:
-        setv(to_object, ["create_time"], getv(from_object, ["createTime"]))
-
-    if getv(from_object, ["completionTime"]) is not None:
-        setv(to_object, ["completion_time"], getv(from_object, ["completionTime"]))
-
-    if getv(from_object, ["state"]) is not None:
-        setv(to_object, ["state"], getv(from_object, ["state"]))
-
-    if getv(from_object, ["evaluationSetSnapshot"]) is not None:
-        setv(
-            to_object,
-            ["evaluation_set_snapshot"],
-            getv(from_object, ["evaluationSetSnapshot"]),
-        )
-
-    if getv(from_object, ["error"]) is not None:
-        setv(to_object, ["error"], getv(from_object, ["error"]))
-
-    if getv(from_object, ["dataSource"]) is not None:
-        setv(to_object, ["data_source"], getv(from_object, ["dataSource"]))
-
-    if getv(from_object, ["evaluationResults"]) is not None:
-        setv(
-            to_object,
-            ["evaluation_run_results"],
-            getv(from_object, ["evaluationResults"]),
-        )
-
-    if getv(from_object, ["evaluationConfig"]) is not None:
-        setv(
-            to_object,
-            ["evaluation_config"],
-            _EvaluationRunConfig_from_vertex(
-                getv(from_object, ["evaluationConfig"]), to_object
-            ),
-        )
-
-    if getv(from_object, ["inferenceConfigs"]) is not None:
-        setv(
-            to_object,
-            ["inference_configs"],
-            {
-                k: _EvaluationRunInferenceConfig_from_vertex(v, to_object)
-                for k, v in getv(from_object, ["inferenceConfigs"]).items()
-            },
-        )
-
-    if getv(from_object, ["labels"]) is not None:
-        setv(to_object, ["labels"], getv(from_object, ["labels"]))
-
-    if getv(from_object, ["analysisConfigs"]) is not None:
-        setv(
-            to_object,
-            ["analysis_configs"],
-            [item for item in getv(from_object, ["analysisConfigs"])],
-        )
-
-    if getv(from_object, ["encryptionSpec"]) is not None:
-        setv(to_object, ["encryption_spec"], getv(from_object, ["encryptionSpec"]))
-
-    return to_object
-
-
-def _GenerateInstanceRubricsRequest_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["contents"]) is not None:
-        setv(to_object, ["contents"], getv(from_object, ["contents"]))
-
-    if getv(from_object, ["predefined_rubric_generation_spec"]) is not None:
-        setv(
-            to_object,
-            ["predefinedRubricGenerationSpec"],
-            getv(from_object, ["predefined_rubric_generation_spec"]),
-        )
-
-    if getv(from_object, ["rubric_generation_spec"]) is not None:
-        setv(
-            to_object,
-            ["rubricGenerationSpec"],
-            getv(from_object, ["rubric_generation_spec"]),
-        )
-
-    if getv(from_object, ["metric_resource_name"]) is not None:
-        setv(
-            to_object,
-            ["metricResourceName"],
-            getv(from_object, ["metric_resource_name"]),
-        )
-
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
-    return to_object
-
-
-def _GenerateLossClustersParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["location"]) is not None:
-        setv(to_object, ["location"], getv(from_object, ["location"]))
-
-    if getv(from_object, ["evaluation_set"]) is not None:
-        setv(to_object, ["evaluationSet"], getv(from_object, ["evaluation_set"]))
-
-    if getv(from_object, ["inline_results"]) is not None:
-        setv(
-            to_object,
-            ["inlineResults", "evaluationResults"],
-            [
-                item
-                for item in t.t_inline_results(getv(from_object, ["inline_results"]))
-            ],
-        )
-
-    if getv(from_object, ["configs"]) is not None:
-        setv(to_object, ["configs"], [item for item in getv(from_object, ["configs"])])
-
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
-    return to_object
-
-
-def _GenerateUserScenariosParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["location"]) is not None:
-        setv(to_object, ["location"], getv(from_object, ["location"]))
-
-    if getv(from_object, ["agents"]) is not None:
-        setv(to_object, ["agents"], getv(from_object, ["agents"]))
-
-    if getv(from_object, ["root_agent_id"]) is not None:
-        setv(to_object, ["rootAgentId"], getv(from_object, ["root_agent_id"]))
-
-    if getv(from_object, ["user_scenario_generation_config"]) is not None:
-        setv(
-            to_object,
-            ["userScenarioGenerationConfig"],
-            t.t_user_scenario_generation_config(
-                getv(from_object, ["user_scenario_generation_config"])
-            ),
-        )
-
-    if getv(from_object, ["allow_cross_region_model"]) is not None:
-        setv(
-            to_object,
-            ["allowCrossRegionModel"],
-            getv(from_object, ["allow_cross_region_model"]),
-        )
-
-    if getv(from_object, ["gemini_agent_config"]) is not None:
-        setv(
-            to_object, ["geminiAgentConfig"], getv(from_object, ["gemini_agent_config"])
-        )
-
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
-    return to_object
-
-
-def _GetEvaluationExperimentParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
-    return to_object
-
-
-def _GetEvaluationItemParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
-    return to_object
-
-
-def _GetEvaluationMetricParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["metric_resource_name"]) is not None:
-        setv(
-            to_object,
-            ["_url", "evaluation_metric"],
-            getv(from_object, ["metric_resource_name"]),
-        )
-
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
-    return to_object
-
-
-def _GetEvaluationRunParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
-    return to_object
-
-
-def _GetEvaluationSetParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
-    return to_object
-
-
-def _ImportEvaluationSetParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["evaluation_set"]) is not None:
-        setv(to_object, ["evaluationSet"], getv(from_object, ["evaluation_set"]))
-
-    if getv(from_object, ["gcs_destination"]) is not None:
-        setv(to_object, ["gcsDestination"], getv(from_object, ["gcs_destination"]))
-
-    if getv(from_object, ["gcs_source"]) is not None:
-        setv(to_object, ["gcsSource"], getv(from_object, ["gcs_source"]))
-
-    if getv(from_object, ["inline_source"]) is not None:
-        setv(to_object, ["inlineSource"], getv(from_object, ["inline_source"]))
-
-    if getv(from_object, ["cloud_trace_source"]) is not None:
-        setv(to_object, ["cloudTraceSource"], getv(from_object, ["cloud_trace_source"]))
-
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
-    return to_object
-
-
-def _ListEvaluationExperimentsConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-
-    if getv(from_object, ["page_size"]) is not None:
-        setv(parent_object, ["_query", "pageSize"], getv(from_object, ["page_size"]))
-
-    if getv(from_object, ["page_token"]) is not None:
-        setv(parent_object, ["_query", "pageToken"], getv(from_object, ["page_token"]))
-
-    if getv(from_object, ["filter"]) is not None:
-        setv(parent_object, ["_query", "filter"], getv(from_object, ["filter"]))
-
-    if getv(from_object, ["order_by"]) is not None:
-        setv(parent_object, ["_query", "orderBy"], getv(from_object, ["order_by"]))
-
-    return to_object
-
-
-def _ListEvaluationExperimentsParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["config"]) is not None:
-        setv(
-            to_object,
-            ["config"],
-            _ListEvaluationExperimentsConfig_to_vertex(
-                getv(from_object, ["config"]), to_object
-            ),
-        )
-
-    return to_object
-
-
-def _ListEvaluationMetricsConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-
-    if getv(from_object, ["page_size"]) is not None:
-        setv(parent_object, ["_query", "pageSize"], getv(from_object, ["page_size"]))
-
-    if getv(from_object, ["page_token"]) is not None:
-        setv(parent_object, ["_query", "pageToken"], getv(from_object, ["page_token"]))
-
-    if getv(from_object, ["filter"]) is not None:
-        setv(parent_object, ["_query", "filter"], getv(from_object, ["filter"]))
-
-    if getv(from_object, ["order_by"]) is not None:
-        setv(parent_object, ["_query", "orderBy"], getv(from_object, ["order_by"]))
-
-    return to_object
-
-
-def _ListEvaluationMetricsParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["config"]) is not None:
-        setv(
-            to_object,
-            ["config"],
-            _ListEvaluationMetricsConfig_to_vertex(
-                getv(from_object, ["config"]), to_object
-            ),
-        )
-
-    return to_object
-
-
-def _ListEvaluationMetricsResponse_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["sdkHttpResponse"]) is not None:
-        setv(to_object, ["sdk_http_response"], getv(from_object, ["sdkHttpResponse"]))
-
-    if getv(from_object, ["nextPageToken"]) is not None:
-        setv(to_object, ["next_page_token"], getv(from_object, ["nextPageToken"]))
-
-    if getv(from_object, ["evaluationMetrics"]) is not None:
-        setv(
-            to_object,
-            ["evaluation_metrics"],
-            [
-                _EvaluationMetric_from_vertex(item, to_object)
-                for item in getv(from_object, ["evaluationMetrics"])
-            ],
-        )
-
-    return to_object
-
-
-def _ListEvaluationSetsConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-
-    if getv(from_object, ["page_size"]) is not None:
-        setv(parent_object, ["_query", "pageSize"], getv(from_object, ["page_size"]))
-
-    if getv(from_object, ["page_token"]) is not None:
-        setv(parent_object, ["_query", "pageToken"], getv(from_object, ["page_token"]))
-
-    if getv(from_object, ["filter"]) is not None:
-        setv(parent_object, ["_query", "filter"], getv(from_object, ["filter"]))
-
-    if getv(from_object, ["order_by"]) is not None:
-        setv(parent_object, ["_query", "orderBy"], getv(from_object, ["order_by"]))
-
-    return to_object
-
-
-def _ListEvaluationSetsParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["config"]) is not None:
-        setv(
-            to_object,
-            ["config"],
-            _ListEvaluationSetsConfig_to_vertex(
-                getv(from_object, ["config"]), to_object
-            ),
-        )
-
-    return to_object
-
-
-def _RubricBasedMetricInput_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["metric_spec"]) is not None:
-        setv(
-            to_object,
-            ["metricSpec"],
-            _RubricBasedMetricSpec_to_vertex(
-                getv(from_object, ["metric_spec"]), to_object
-            ),
-        )
-
-    if getv(from_object, ["instance"]) is not None:
-        setv(to_object, ["instance"], getv(from_object, ["instance"]))
-
-    return to_object
-
-
-def _RubricBasedMetricSpec_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["metric_prompt_template"]) is not None:
-        setv(
-            to_object,
-            ["metricPromptTemplate"],
-            getv(from_object, ["metric_prompt_template"]),
-        )
-
-    if getv(from_object, ["judge_autorater_config"]) is not None:
-        setv(
-            to_object,
-            ["judgeAutoraterConfig"],
-            getv(from_object, ["judge_autorater_config"]),
-        )
-
-    if getv(from_object, ["inline_rubrics"]) is not None:
-        setv(
-            to_object,
-            ["inline_rubrics", "rubrics"],
-            getv(from_object, ["inline_rubrics"]),
-        )
-
-    if getv(from_object, ["rubric_group_key"]) is not None:
-        setv(to_object, ["rubricGroupKey"], getv(from_object, ["rubric_group_key"]))
-
-    if getv(from_object, ["rubric_generation_spec"]) is not None:
-        setv(
-            to_object,
-            ["rubricGenerationSpec"],
-            getv(from_object, ["rubric_generation_spec"]),
-        )
-
-    return to_object
-
-
-def _UnifiedMetric_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["bleuSpec"]) is not None:
-        setv(to_object, ["bleu_spec"], getv(from_object, ["bleuSpec"]))
-
-    if getv(from_object, ["rougeSpec"]) is not None:
-        setv(to_object, ["rouge_spec"], getv(from_object, ["rougeSpec"]))
-
-    if getv(from_object, ["pointwiseMetricSpec"]) is not None:
-        setv(
-            to_object,
-            ["pointwise_metric_spec"],
-            getv(from_object, ["pointwiseMetricSpec"]),
-        )
-
-    if getv(from_object, ["llmBasedMetricSpec"]) is not None:
-        setv(
-            to_object,
-            ["llm_based_metric_spec"],
-            getv(from_object, ["llmBasedMetricSpec"]),
-        )
-
-    if getv(from_object, ["customCodeExecutionSpec"]) is not None:
-        setv(
-            to_object,
-            ["custom_code_execution_spec"],
-            _CustomCodeExecutionSpec_from_vertex(
-                getv(from_object, ["customCodeExecutionSpec"]), to_object
-            ),
-        )
-
-    if getv(from_object, ["predefinedMetricSpec"]) is not None:
-        setv(
-            to_object,
-            ["predefined_metric_spec"],
-            getv(from_object, ["predefinedMetricSpec"]),
-        )
-
-    if getv(from_object, ["computationBasedMetricSpec"]) is not None:
-        setv(
-            to_object,
-            ["computation_based_metric_spec"],
-            getv(from_object, ["computationBasedMetricSpec"]),
-        )
-
-    return to_object
-
-
-def _UnifiedMetric_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["bleu_spec"]) is not None:
-        setv(to_object, ["bleuSpec"], getv(from_object, ["bleu_spec"]))
-
-    if getv(from_object, ["rouge_spec"]) is not None:
-        setv(to_object, ["rougeSpec"], getv(from_object, ["rouge_spec"]))
-
-    if getv(from_object, ["pointwise_metric_spec"]) is not None:
-        setv(
-            to_object,
-            ["pointwiseMetricSpec"],
-            getv(from_object, ["pointwise_metric_spec"]),
-        )
-
-    if getv(from_object, ["llm_based_metric_spec"]) is not None:
-        setv(
-            to_object,
-            ["llmBasedMetricSpec"],
-            getv(from_object, ["llm_based_metric_spec"]),
-        )
-
-    if getv(from_object, ["custom_code_execution_spec"]) is not None:
-        setv(
-            to_object,
-            ["customCodeExecutionSpec"],
-            _CustomCodeExecutionSpec_to_vertex(
-                getv(from_object, ["custom_code_execution_spec"]), to_object
-            ),
-        )
-
-    if getv(from_object, ["predefined_metric_spec"]) is not None:
-        setv(
-            to_object,
-            ["predefinedMetricSpec"],
-            getv(from_object, ["predefined_metric_spec"]),
-        )
-
-    if getv(from_object, ["computation_based_metric_spec"]) is not None:
-        setv(
-            to_object,
-            ["computationBasedMetricSpec"],
-            getv(from_object, ["computation_based_metric_spec"]),
-        )
-
-    return to_object
-
-
-def _UpdateEvaluationExperimentConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-
-    if getv(from_object, ["update_mask"]) is not None:
-        setv(
-            parent_object, ["_query", "updateMask"], getv(from_object, ["update_mask"])
-        )
-
-    if getv(from_object, ["display_name"]) is not None:
-        setv(parent_object, ["displayName"], getv(from_object, ["display_name"]))
-
-    if getv(from_object, ["labels"]) is not None:
-        setv(parent_object, ["labels"], getv(from_object, ["labels"]))
-
-    if getv(from_object, ["merge_strategy"]) is not None:
-        setv(parent_object, ["mergeStrategy"], getv(from_object, ["merge_strategy"]))
-
-    if getv(from_object, ["metadata"]) is not None:
-        setv(parent_object, ["metadata"], getv(from_object, ["metadata"]))
-
-    return to_object
-
-
-def _UpdateEvaluationExperimentParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["config"]) is not None:
-        _UpdateEvaluationExperimentConfig_to_vertex(
-            getv(from_object, ["config"]), to_object
-        )
-
-    return to_object
 
 
 class Evals(_api_module.BaseModule):
@@ -1315,7 +88,7 @@ class Evals(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _CreateEvaluationExperimentParameters_to_vertex(
+            request_dict = _converters._CreateEvaluationExperimentParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -1393,7 +166,9 @@ class Evals(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _CreateEvaluationItemParameters_to_vertex(parameter_model)
+            request_dict = _converters._CreateEvaluationItemParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "evaluationItems".format_map(request_url_dict)
@@ -1471,7 +246,9 @@ class Evals(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _CreateEvaluationMetricParameters_to_vertex(parameter_model)
+            request_dict = _converters._CreateEvaluationMetricParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "evaluationMetrics".format_map(request_url_dict)
@@ -1499,7 +276,7 @@ class Evals(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         if self._api_client.vertexai:
-            response_dict = _EvaluationMetric_from_vertex(response_dict)
+            response_dict = _converters._EvaluationMetric_from_vertex(response_dict)
 
         return_value = types.EvaluationMetric._from_response(
             response=response_dict,
@@ -1564,7 +341,9 @@ class Evals(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _CreateEvaluationRunParameters_to_vertex(parameter_model)
+            request_dict = _converters._CreateEvaluationRunParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "evaluationRuns".format_map(request_url_dict)
@@ -1592,7 +371,7 @@ class Evals(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         if self._api_client.vertexai:
-            response_dict = _EvaluationRun_from_vertex(response_dict)
+            response_dict = _converters._EvaluationRun_from_vertex(response_dict)
 
         return_value = types.EvaluationRun._from_response(
             response=response_dict,
@@ -1643,7 +422,9 @@ class Evals(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _CreateEvaluationSetParameters_to_vertex(parameter_model)
+            request_dict = _converters._CreateEvaluationSetParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "evaluationSets".format_map(request_url_dict)
@@ -1724,7 +505,7 @@ class Evals(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _DeleteEvaluationExperimentParameters_to_vertex(
+            request_dict = _converters._DeleteEvaluationExperimentParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -1798,7 +579,9 @@ class Evals(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _DeleteEvaluationMetricParameters_to_vertex(parameter_model)
+            request_dict = _converters._DeleteEvaluationMetricParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{evaluation_metric}".format_map(request_url_dict)
@@ -1870,7 +653,9 @@ class Evals(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _DeleteEvaluationSetParameters_to_vertex(parameter_model)
+            request_dict = _converters._DeleteEvaluationSetParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "evaluationSets/{name}".format_map(request_url_dict)
@@ -1974,7 +759,7 @@ class Evals(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _EvaluateInstancesRequestParameters_to_vertex(
+            request_dict = _converters._EvaluateInstancesRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -2060,7 +845,9 @@ class Evals(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GenerateUserScenariosParameters_to_vertex(parameter_model)
+            request_dict = _converters._GenerateUserScenariosParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = ":generateUserScenarios".format_map(request_url_dict)
@@ -2138,7 +925,9 @@ class Evals(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GenerateLossClustersParameters_to_vertex(parameter_model)
+            request_dict = _converters._GenerateLossClustersParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = ":generateLossClusters".format_map(request_url_dict)
@@ -2218,7 +1007,9 @@ class Evals(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GenerateInstanceRubricsRequest_to_vertex(parameter_model)
+            request_dict = _converters._GenerateInstanceRubricsRequest_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = ":generateInstanceRubrics".format_map(request_url_dict)
@@ -2307,7 +1098,9 @@ class Evals(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetEvaluationExperimentParameters_to_vertex(parameter_model)
+            request_dict = _converters._GetEvaluationExperimentParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}".format_map(request_url_dict)
@@ -2379,7 +1172,9 @@ class Evals(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetEvaluationMetricParameters_to_vertex(parameter_model)
+            request_dict = _converters._GetEvaluationMetricParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{evaluation_metric}".format_map(request_url_dict)
@@ -2407,7 +1202,7 @@ class Evals(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         if self._api_client.vertexai:
-            response_dict = _EvaluationMetric_from_vertex(response_dict)
+            response_dict = _converters._EvaluationMetric_from_vertex(response_dict)
 
         return_value = types.EvaluationMetric._from_response(
             response=response_dict,
@@ -2451,7 +1246,9 @@ class Evals(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetEvaluationRunParameters_to_vertex(parameter_model)
+            request_dict = _converters._GetEvaluationRunParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "evaluationRuns/{name}".format_map(request_url_dict)
@@ -2479,7 +1276,7 @@ class Evals(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         if self._api_client.vertexai:
-            response_dict = _EvaluationRun_from_vertex(response_dict)
+            response_dict = _converters._EvaluationRun_from_vertex(response_dict)
 
         return_value = types.EvaluationRun._from_response(
             response=response_dict,
@@ -2523,7 +1320,9 @@ class Evals(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetEvaluationSetParameters_to_vertex(parameter_model)
+            request_dict = _converters._GetEvaluationSetParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "evaluationSets/{name}".format_map(request_url_dict)
@@ -2592,7 +1391,9 @@ class Evals(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetEvaluationItemParameters_to_vertex(parameter_model)
+            request_dict = _converters._GetEvaluationItemParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "evaluationItems/{name}".format_map(request_url_dict)
@@ -2672,7 +1473,9 @@ class Evals(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _ImportEvaluationSetParameters_to_vertex(parameter_model)
+            request_dict = _converters._ImportEvaluationSetParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "evaluationSets:import".format_map(request_url_dict)
@@ -2757,7 +1560,7 @@ class Evals(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _ListEvaluationExperimentsParameters_to_vertex(
+            request_dict = _converters._ListEvaluationExperimentsParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -2827,7 +1630,9 @@ class Evals(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _ListEvaluationMetricsParameters_to_vertex(parameter_model)
+            request_dict = _converters._ListEvaluationMetricsParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "evaluationMetrics".format_map(request_url_dict)
@@ -2855,7 +1660,9 @@ class Evals(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         if self._api_client.vertexai:
-            response_dict = _ListEvaluationMetricsResponse_from_vertex(response_dict)
+            response_dict = _converters._ListEvaluationMetricsResponse_from_vertex(
+                response_dict
+            )
 
         return_value = types.ListEvaluationMetricsResponse._from_response(
             response=response_dict,
@@ -2898,7 +1705,9 @@ class Evals(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _ListEvaluationSetsParameters_to_vertex(parameter_model)
+            request_dict = _converters._ListEvaluationSetsParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "evaluationSets".format_map(request_url_dict)
@@ -2980,7 +1789,7 @@ class Evals(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _UpdateEvaluationExperimentParameters_to_vertex(
+            request_dict = _converters._UpdateEvaluationExperimentParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -4313,7 +3122,7 @@ class AsyncEvals(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _CreateEvaluationExperimentParameters_to_vertex(
+            request_dict = _converters._CreateEvaluationExperimentParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -4393,7 +3202,9 @@ class AsyncEvals(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _CreateEvaluationItemParameters_to_vertex(parameter_model)
+            request_dict = _converters._CreateEvaluationItemParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "evaluationItems".format_map(request_url_dict)
@@ -4473,7 +3284,9 @@ class AsyncEvals(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _CreateEvaluationMetricParameters_to_vertex(parameter_model)
+            request_dict = _converters._CreateEvaluationMetricParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "evaluationMetrics".format_map(request_url_dict)
@@ -4503,7 +3316,7 @@ class AsyncEvals(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         if self._api_client.vertexai:
-            response_dict = _EvaluationMetric_from_vertex(response_dict)
+            response_dict = _converters._EvaluationMetric_from_vertex(response_dict)
 
         return_value = types.EvaluationMetric._from_response(
             response=response_dict,
@@ -4568,7 +3381,9 @@ class AsyncEvals(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _CreateEvaluationRunParameters_to_vertex(parameter_model)
+            request_dict = _converters._CreateEvaluationRunParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "evaluationRuns".format_map(request_url_dict)
@@ -4598,7 +3413,7 @@ class AsyncEvals(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         if self._api_client.vertexai:
-            response_dict = _EvaluationRun_from_vertex(response_dict)
+            response_dict = _converters._EvaluationRun_from_vertex(response_dict)
 
         return_value = types.EvaluationRun._from_response(
             response=response_dict,
@@ -4649,7 +3464,9 @@ class AsyncEvals(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _CreateEvaluationSetParameters_to_vertex(parameter_model)
+            request_dict = _converters._CreateEvaluationSetParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "evaluationSets".format_map(request_url_dict)
@@ -4732,7 +3549,7 @@ class AsyncEvals(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _DeleteEvaluationExperimentParameters_to_vertex(
+            request_dict = _converters._DeleteEvaluationExperimentParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -4808,7 +3625,9 @@ class AsyncEvals(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _DeleteEvaluationMetricParameters_to_vertex(parameter_model)
+            request_dict = _converters._DeleteEvaluationMetricParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{evaluation_metric}".format_map(request_url_dict)
@@ -4882,7 +3701,9 @@ class AsyncEvals(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _DeleteEvaluationSetParameters_to_vertex(parameter_model)
+            request_dict = _converters._DeleteEvaluationSetParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "evaluationSets/{name}".format_map(request_url_dict)
@@ -4988,7 +3809,7 @@ class AsyncEvals(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _EvaluateInstancesRequestParameters_to_vertex(
+            request_dict = _converters._EvaluateInstancesRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -5076,7 +3897,9 @@ class AsyncEvals(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GenerateUserScenariosParameters_to_vertex(parameter_model)
+            request_dict = _converters._GenerateUserScenariosParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = ":generateUserScenarios".format_map(request_url_dict)
@@ -5156,7 +3979,9 @@ class AsyncEvals(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GenerateLossClustersParameters_to_vertex(parameter_model)
+            request_dict = _converters._GenerateLossClustersParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = ":generateLossClusters".format_map(request_url_dict)
@@ -5238,7 +4063,9 @@ class AsyncEvals(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GenerateInstanceRubricsRequest_to_vertex(parameter_model)
+            request_dict = _converters._GenerateInstanceRubricsRequest_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = ":generateInstanceRubrics".format_map(request_url_dict)
@@ -5329,7 +4156,9 @@ class AsyncEvals(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetEvaluationExperimentParameters_to_vertex(parameter_model)
+            request_dict = _converters._GetEvaluationExperimentParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}".format_map(request_url_dict)
@@ -5403,7 +4232,9 @@ class AsyncEvals(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetEvaluationMetricParameters_to_vertex(parameter_model)
+            request_dict = _converters._GetEvaluationMetricParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{evaluation_metric}".format_map(request_url_dict)
@@ -5433,7 +4264,7 @@ class AsyncEvals(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         if self._api_client.vertexai:
-            response_dict = _EvaluationMetric_from_vertex(response_dict)
+            response_dict = _converters._EvaluationMetric_from_vertex(response_dict)
 
         return_value = types.EvaluationMetric._from_response(
             response=response_dict,
@@ -5477,7 +4308,9 @@ class AsyncEvals(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetEvaluationRunParameters_to_vertex(parameter_model)
+            request_dict = _converters._GetEvaluationRunParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "evaluationRuns/{name}".format_map(request_url_dict)
@@ -5507,7 +4340,7 @@ class AsyncEvals(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         if self._api_client.vertexai:
-            response_dict = _EvaluationRun_from_vertex(response_dict)
+            response_dict = _converters._EvaluationRun_from_vertex(response_dict)
 
         return_value = types.EvaluationRun._from_response(
             response=response_dict,
@@ -5551,7 +4384,9 @@ class AsyncEvals(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetEvaluationSetParameters_to_vertex(parameter_model)
+            request_dict = _converters._GetEvaluationSetParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "evaluationSets/{name}".format_map(request_url_dict)
@@ -5622,7 +4457,9 @@ class AsyncEvals(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetEvaluationItemParameters_to_vertex(parameter_model)
+            request_dict = _converters._GetEvaluationItemParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "evaluationItems/{name}".format_map(request_url_dict)
@@ -5704,7 +4541,9 @@ class AsyncEvals(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _ImportEvaluationSetParameters_to_vertex(parameter_model)
+            request_dict = _converters._ImportEvaluationSetParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "evaluationSets:import".format_map(request_url_dict)
@@ -5791,7 +4630,7 @@ class AsyncEvals(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _ListEvaluationExperimentsParameters_to_vertex(
+            request_dict = _converters._ListEvaluationExperimentsParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -5863,7 +4702,9 @@ class AsyncEvals(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _ListEvaluationMetricsParameters_to_vertex(parameter_model)
+            request_dict = _converters._ListEvaluationMetricsParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "evaluationMetrics".format_map(request_url_dict)
@@ -5893,7 +4734,9 @@ class AsyncEvals(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         if self._api_client.vertexai:
-            response_dict = _ListEvaluationMetricsResponse_from_vertex(response_dict)
+            response_dict = _converters._ListEvaluationMetricsResponse_from_vertex(
+                response_dict
+            )
 
         return_value = types.ListEvaluationMetricsResponse._from_response(
             response=response_dict,
@@ -5936,7 +4779,9 @@ class AsyncEvals(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _ListEvaluationSetsParameters_to_vertex(parameter_model)
+            request_dict = _converters._ListEvaluationSetsParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "evaluationSets".format_map(request_url_dict)
@@ -6020,7 +4865,7 @@ class AsyncEvals(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _UpdateEvaluationExperimentParameters_to_vertex(
+            request_dict = _converters._UpdateEvaluationExperimentParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")

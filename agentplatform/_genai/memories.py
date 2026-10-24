@@ -21,15 +21,14 @@ import importlib
 import json
 import logging
 import typing
-from typing import Any, Iterator, List, Optional, Union
+from typing import Iterator, List, Optional
 from urllib.parse import urlencode
 
 from google.genai import _api_module
 from google.genai import _common
-from google.genai._common import get_value_by_path as getv
-from google.genai._common import set_value_by_path as setv
 from google.genai.pagers import AsyncPager, Pager
 
+from . import _converters
 from . import _memory_bank_utils
 from . import types
 
@@ -40,440 +39,6 @@ if typing.TYPE_CHECKING:
 
 
 logger = logging.getLogger("agentplatform_genai.memories")
-
-
-def _CreateMemoryRequestParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["fact"]) is not None:
-        setv(to_object, ["fact"], getv(from_object, ["fact"]))
-
-    if getv(from_object, ["scope"]) is not None:
-        setv(to_object, ["scope"], getv(from_object, ["scope"]))
-
-    if getv(from_object, ["config"]) is not None:
-        _MemoryConfig_to_vertex(getv(from_object, ["config"]), to_object)
-
-    return to_object
-
-
-def _DeleteMemoryRequestParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    return to_object
-
-
-def _GenerateMemoriesConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-
-    if getv(from_object, ["disable_consolidation"]) is not None:
-        setv(
-            parent_object,
-            ["disableConsolidation"],
-            getv(from_object, ["disable_consolidation"]),
-        )
-
-    if getv(from_object, ["revision_labels"]) is not None:
-        setv(parent_object, ["revisionLabels"], getv(from_object, ["revision_labels"]))
-
-    if getv(from_object, ["revision_expire_time"]) is not None:
-        setv(
-            parent_object,
-            ["revisionExpireTime"],
-            getv(from_object, ["revision_expire_time"]),
-        )
-
-    if getv(from_object, ["revision_ttl"]) is not None:
-        setv(parent_object, ["revisionTtl"], getv(from_object, ["revision_ttl"]))
-
-    if getv(from_object, ["disable_memory_revisions"]) is not None:
-        setv(
-            parent_object,
-            ["disableMemoryRevisions"],
-            getv(from_object, ["disable_memory_revisions"]),
-        )
-
-    if getv(from_object, ["metadata"]) is not None:
-        setv(
-            parent_object,
-            ["metadata"],
-            {k: v for k, v in getv(from_object, ["metadata"]).items()},
-        )
-
-    if getv(from_object, ["metadata_merge_strategy"]) is not None:
-        setv(
-            parent_object,
-            ["metadataMergeStrategy"],
-            getv(from_object, ["metadata_merge_strategy"]),
-        )
-
-    if getv(from_object, ["allowed_topics"]) is not None:
-        setv(
-            parent_object,
-            ["allowedTopics"],
-            [item for item in getv(from_object, ["allowed_topics"])],
-        )
-
-    return to_object
-
-
-def _GenerateMemoriesRequestParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["vertex_session_source"]) is not None:
-        setv(
-            to_object,
-            ["vertexSessionSource"],
-            getv(from_object, ["vertex_session_source"]),
-        )
-
-    if getv(from_object, ["direct_contents_source"]) is not None:
-        setv(
-            to_object,
-            ["directContentsSource"],
-            getv(from_object, ["direct_contents_source"]),
-        )
-
-    if getv(from_object, ["direct_memories_source"]) is not None:
-        setv(
-            to_object,
-            ["directMemoriesSource"],
-            getv(from_object, ["direct_memories_source"]),
-        )
-
-    if getv(from_object, ["scope"]) is not None:
-        setv(to_object, ["scope"], getv(from_object, ["scope"]))
-
-    if getv(from_object, ["config"]) is not None:
-        _GenerateMemoriesConfig_to_vertex(getv(from_object, ["config"]), to_object)
-
-    return to_object
-
-
-def _GetGenerateMemoriesOperationParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["operation_name"]) is not None:
-        setv(
-            to_object, ["_url", "operationName"], getv(from_object, ["operation_name"])
-        )
-
-    return to_object
-
-
-def _GetMemoryOperationParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["operation_name"]) is not None:
-        setv(
-            to_object, ["_url", "operationName"], getv(from_object, ["operation_name"])
-        )
-
-    return to_object
-
-
-def _GetMemoryRequestParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    return to_object
-
-
-def _ListMemoriesConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-
-    if getv(from_object, ["page_size"]) is not None:
-        setv(parent_object, ["_query", "pageSize"], getv(from_object, ["page_size"]))
-
-    if getv(from_object, ["page_token"]) is not None:
-        setv(parent_object, ["_query", "pageToken"], getv(from_object, ["page_token"]))
-
-    if getv(from_object, ["filter"]) is not None:
-        setv(parent_object, ["_query", "filter"], getv(from_object, ["filter"]))
-
-    if getv(from_object, ["order_by"]) is not None:
-        setv(parent_object, ["_query", "orderBy"], getv(from_object, ["order_by"]))
-
-    return to_object
-
-
-def _ListMemoriesRequestParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["config"]) is not None:
-        _ListMemoriesConfig_to_vertex(getv(from_object, ["config"]), to_object)
-
-    return to_object
-
-
-def _MemoryConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-
-    if getv(from_object, ["display_name"]) is not None:
-        setv(parent_object, ["displayName"], getv(from_object, ["display_name"]))
-
-    if getv(from_object, ["description"]) is not None:
-        setv(parent_object, ["description"], getv(from_object, ["description"]))
-
-    if getv(from_object, ["ttl"]) is not None:
-        setv(parent_object, ["ttl"], getv(from_object, ["ttl"]))
-
-    if getv(from_object, ["expire_time"]) is not None:
-        setv(parent_object, ["expireTime"], getv(from_object, ["expire_time"]))
-
-    if getv(from_object, ["revision_expire_time"]) is not None:
-        setv(
-            parent_object,
-            ["revisionExpireTime"],
-            getv(from_object, ["revision_expire_time"]),
-        )
-
-    if getv(from_object, ["revision_ttl"]) is not None:
-        setv(parent_object, ["revisionTtl"], getv(from_object, ["revision_ttl"]))
-
-    if getv(from_object, ["disable_memory_revisions"]) is not None:
-        setv(
-            parent_object,
-            ["disableMemoryRevisions"],
-            getv(from_object, ["disable_memory_revisions"]),
-        )
-
-    if getv(from_object, ["topics"]) is not None:
-        setv(
-            parent_object, ["topics"], [item for item in getv(from_object, ["topics"])]
-        )
-
-    if getv(from_object, ["metadata"]) is not None:
-        setv(
-            parent_object,
-            ["metadata"],
-            {k: v for k, v in getv(from_object, ["metadata"]).items()},
-        )
-
-    if getv(from_object, ["memory_id"]) is not None:
-        setv(parent_object, ["_query", "memoryId"], getv(from_object, ["memory_id"]))
-
-    return to_object
-
-
-def _PurgeMemoriesRequestParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["filter"]) is not None:
-        setv(to_object, ["filter"], getv(from_object, ["filter"]))
-
-    if getv(from_object, ["filter_groups"]) is not None:
-        setv(
-            to_object,
-            ["filterGroups"],
-            [item for item in getv(from_object, ["filter_groups"])],
-        )
-
-    if getv(from_object, ["force"]) is not None:
-        setv(to_object, ["force"], getv(from_object, ["force"]))
-
-    return to_object
-
-
-def _RetrieveMemoriesConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-
-    if getv(from_object, ["filter"]) is not None:
-        setv(parent_object, ["filter"], getv(from_object, ["filter"]))
-
-    if getv(from_object, ["filter_groups"]) is not None:
-        setv(
-            parent_object,
-            ["filterGroups"],
-            [item for item in getv(from_object, ["filter_groups"])],
-        )
-
-    if getv(from_object, ["memory_types"]) is not None:
-        setv(parent_object, ["memoryTypes"], getv(from_object, ["memory_types"]))
-
-    return to_object
-
-
-def _RetrieveMemoriesRequestParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["scope"]) is not None:
-        setv(to_object, ["scope"], getv(from_object, ["scope"]))
-
-    if getv(from_object, ["similarity_search_params"]) is not None:
-        setv(
-            to_object,
-            ["similaritySearchParams"],
-            getv(from_object, ["similarity_search_params"]),
-        )
-
-    if getv(from_object, ["simple_retrieval_params"]) is not None:
-        setv(
-            to_object,
-            ["simpleRetrievalParams"],
-            getv(from_object, ["simple_retrieval_params"]),
-        )
-
-    if getv(from_object, ["config"]) is not None:
-        _RetrieveMemoriesConfig_to_vertex(getv(from_object, ["config"]), to_object)
-
-    return to_object
-
-
-def _RetrieveMemoryProfilesRequestParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["scope"]) is not None:
-        setv(to_object, ["scope"], getv(from_object, ["scope"]))
-
-    return to_object
-
-
-def _RollbackMemoryRequestParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["target_revision_id"]) is not None:
-        setv(to_object, ["targetRevisionId"], getv(from_object, ["target_revision_id"]))
-
-    return to_object
-
-
-def _UpdateMemoryConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-
-    if getv(from_object, ["display_name"]) is not None:
-        setv(parent_object, ["displayName"], getv(from_object, ["display_name"]))
-
-    if getv(from_object, ["description"]) is not None:
-        setv(parent_object, ["description"], getv(from_object, ["description"]))
-
-    if getv(from_object, ["ttl"]) is not None:
-        setv(parent_object, ["ttl"], getv(from_object, ["ttl"]))
-
-    if getv(from_object, ["expire_time"]) is not None:
-        setv(parent_object, ["expireTime"], getv(from_object, ["expire_time"]))
-
-    if getv(from_object, ["revision_expire_time"]) is not None:
-        setv(
-            parent_object,
-            ["revisionExpireTime"],
-            getv(from_object, ["revision_expire_time"]),
-        )
-
-    if getv(from_object, ["revision_ttl"]) is not None:
-        setv(parent_object, ["revisionTtl"], getv(from_object, ["revision_ttl"]))
-
-    if getv(from_object, ["disable_memory_revisions"]) is not None:
-        setv(
-            parent_object,
-            ["disableMemoryRevisions"],
-            getv(from_object, ["disable_memory_revisions"]),
-        )
-
-    if getv(from_object, ["topics"]) is not None:
-        setv(
-            parent_object, ["topics"], [item for item in getv(from_object, ["topics"])]
-        )
-
-    if getv(from_object, ["metadata"]) is not None:
-        setv(
-            parent_object,
-            ["metadata"],
-            {k: v for k, v in getv(from_object, ["metadata"]).items()},
-        )
-
-    if getv(from_object, ["memory_id"]) is not None:
-        setv(parent_object, ["_query", "memoryId"], getv(from_object, ["memory_id"]))
-
-    if getv(from_object, ["update_mask"]) is not None:
-        setv(
-            parent_object, ["_query", "updateMask"], getv(from_object, ["update_mask"])
-        )
-
-    return to_object
-
-
-def _UpdateMemoryRequestParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["fact"]) is not None:
-        setv(to_object, ["fact"], getv(from_object, ["fact"]))
-
-    if getv(from_object, ["scope"]) is not None:
-        setv(to_object, ["scope"], getv(from_object, ["scope"]))
-
-    if getv(from_object, ["config"]) is not None:
-        _UpdateMemoryConfig_to_vertex(getv(from_object, ["config"]), to_object)
-
-    return to_object
 
 
 class Memories(_api_module.BaseModule):
@@ -503,7 +68,9 @@ class Memories(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _CreateMemoryRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._CreateMemoryRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}/memories".format_map(request_url_dict)
@@ -580,7 +147,9 @@ class Memories(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _DeleteMemoryRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._DeleteMemoryRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}".format_map(request_url_dict)
@@ -666,7 +235,9 @@ class Memories(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GenerateMemoriesRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._GenerateMemoriesRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}/memories:generate".format_map(request_url_dict)
@@ -741,7 +312,9 @@ class Memories(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetMemoryRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._GetMemoryRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}".format_map(request_url_dict)
@@ -810,7 +383,9 @@ class Memories(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _ListMemoriesRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._ListMemoriesRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}/memories".format_map(request_url_dict)
@@ -878,7 +453,9 @@ class Memories(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetMemoryOperationParameters_to_vertex(parameter_model)
+            request_dict = _converters._GetMemoryOperationParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{operationName}".format_map(request_url_dict)
@@ -946,8 +523,10 @@ class Memories(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetGenerateMemoriesOperationParameters_to_vertex(
-                parameter_model
+            request_dict = (
+                _converters._GetGenerateMemoriesOperationParameters_to_vertex(
+                    parameter_model
+                )
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
@@ -1030,7 +609,9 @@ class Memories(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _RetrieveMemoriesRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._RetrieveMemoriesRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}/memories:retrieve".format_map(request_url_dict)
@@ -1130,8 +711,10 @@ class Memories(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _RetrieveMemoryProfilesRequestParameters_to_vertex(
-                parameter_model
+            request_dict = (
+                _converters._RetrieveMemoryProfilesRequestParameters_to_vertex(
+                    parameter_model
+                )
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
@@ -1206,7 +789,9 @@ class Memories(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _RollbackMemoryRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._RollbackMemoryRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}:rollback".format_map(request_url_dict)
@@ -1282,7 +867,9 @@ class Memories(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _UpdateMemoryRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._UpdateMemoryRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}".format_map(request_url_dict)
@@ -1362,7 +949,9 @@ class Memories(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _PurgeMemoriesRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._PurgeMemoriesRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}/memories:purge".format_map(request_url_dict)
@@ -1734,7 +1323,9 @@ class AsyncMemories(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _CreateMemoryRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._CreateMemoryRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}/memories".format_map(request_url_dict)
@@ -1813,7 +1404,9 @@ class AsyncMemories(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _DeleteMemoryRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._DeleteMemoryRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}".format_map(request_url_dict)
@@ -1901,7 +1494,9 @@ class AsyncMemories(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GenerateMemoriesRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._GenerateMemoriesRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}/memories:generate".format_map(request_url_dict)
@@ -1978,7 +1573,9 @@ class AsyncMemories(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetMemoryRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._GetMemoryRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}".format_map(request_url_dict)
@@ -2049,7 +1646,9 @@ class AsyncMemories(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _ListMemoriesRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._ListMemoriesRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}/memories".format_map(request_url_dict)
@@ -2119,7 +1718,9 @@ class AsyncMemories(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetMemoryOperationParameters_to_vertex(parameter_model)
+            request_dict = _converters._GetMemoryOperationParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{operationName}".format_map(request_url_dict)
@@ -2189,8 +1790,10 @@ class AsyncMemories(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetGenerateMemoriesOperationParameters_to_vertex(
-                parameter_model
+            request_dict = (
+                _converters._GetGenerateMemoriesOperationParameters_to_vertex(
+                    parameter_model
+                )
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
@@ -2275,7 +1878,9 @@ class AsyncMemories(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _RetrieveMemoriesRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._RetrieveMemoriesRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}/memories:retrieve".format_map(request_url_dict)
@@ -2377,8 +1982,10 @@ class AsyncMemories(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _RetrieveMemoryProfilesRequestParameters_to_vertex(
-                parameter_model
+            request_dict = (
+                _converters._RetrieveMemoryProfilesRequestParameters_to_vertex(
+                    parameter_model
+                )
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
@@ -2455,7 +2062,9 @@ class AsyncMemories(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _RollbackMemoryRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._RollbackMemoryRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}:rollback".format_map(request_url_dict)
@@ -2533,7 +2142,9 @@ class AsyncMemories(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _UpdateMemoryRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._UpdateMemoryRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}".format_map(request_url_dict)
@@ -2615,7 +2226,9 @@ class AsyncMemories(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _PurgeMemoriesRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._PurgeMemoriesRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}/memories:purge".format_map(request_url_dict)
