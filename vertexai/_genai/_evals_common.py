@@ -1995,6 +1995,31 @@ def _process_multi_turn_agent_response(
     ).model_dump(exclude_unset=True)
 
 
+def _extract_final_response_text(
+    events: list[dict[str, Any]],
+) -> tuple[Optional[int], str]:
+    """Returns the index and text of the last final response in the events.
+
+    As in ADK's `Event.is_final_response()`, events with function calls or
+    responses are not final responses, so they stay in the intermediate events.
+    Thought parts are not part of the response text.
+    """
+    for index in range(len(events) - 1, -1, -1):
+        parts = (events[index].get("content") or {}).get("parts") or []
+        if any(
+            part.get("function_call") or part.get("function_response") for part in parts
+        ):
+            continue
+        texts = [
+            part["text"]
+            for part in parts
+            if part.get("text") and not part.get("thought")
+        ]
+        if texts:
+            return index, "".join(texts)
+    return None, ""
+
+
 def _process_single_turn_agent_response(
     resp_item: Any,
     agent_data_agents: Optional[dict[str, Any]],
@@ -2010,8 +2035,10 @@ def _process_single_turn_agent_response(
 
     if isinstance(resp_item, list):
         try:
-            response_row = resp_item[-1]["content"]["parts"][0]["text"]
-            for intermediate_event in resp_item[:-1]:
+            response_index, response_row = _extract_final_response_text(resp_item)
+            for index, intermediate_event in enumerate(resp_item):
+                if index == response_index:
+                    continue
                 intermediate_events_row.append(
                     {
                         "event_id": intermediate_event.get("id"),
@@ -2045,6 +2072,7 @@ def _process_single_turn_agent_response(
                 agents=agent_data_agents,
             ).model_dump(exclude_unset=True)
         except Exception as e:  # pylint: disable=broad-exception-caught
+            intermediate_events_row = []
             error_payload = {
                 "error": (
                     f"Failed to parse agent run response {str(resp_item)} to "
