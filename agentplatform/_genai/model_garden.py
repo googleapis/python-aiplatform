@@ -1573,9 +1573,11 @@ class ModelGarden(_api_module.BaseModule):
         endpoint_config = types.DeployRequestEndpointConfig(
             endpoint_display_name=config.endpoint_display_name,
         )
-        disabled = config.dedicated_endpoint_disabled
-        if disabled is not None:
-            endpoint_config.dedicated_endpoint_enabled = not disabled
+        # Send the current field, as vertexai.model_garden does. The deprecated
+        # dedicated_endpoint_enabled cannot express "off": False is its proto3
+        # default, so the backend would keep its default (dedicated endpoint on).
+        if config.dedicated_endpoint_disabled:
+            endpoint_config.dedicated_endpoint_disabled = True
         if config.enable_private_service_connect:
             endpoint_config.private_service_connect_config = (
                 types.PrivateServiceConnectConfig(
@@ -1598,6 +1600,10 @@ class ModelGarden(_api_module.BaseModule):
                 max_replica_count=config.max_replica_count,
                 spot=config.spot,
             )
+        elif config.spot:
+            # Without a machine shape the backend deploys the model's default
+            # verified config and applies spot to it, as with vertexai.model_garden.
+            deploy_config.dedicated_resources = types.DedicatedResources(spot=True)
 
         return model_config, endpoint_config, deploy_config
 
