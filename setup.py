@@ -235,7 +235,11 @@ llama_index_testing_extra_require = list(
 )
 
 tokenization_extra_require = ["sentencepiece >= 0.2.0"]
-tokenization_testing_extra_require = tokenization_extra_require + ["nltk"]
+tokenization_testing_extra_require = [
+    # sentencepiece has no Python 3.15 wheels yet and fails to build from source.
+    "sentencepiece >= 0.2.0; python_version<'3.15'",
+    "nltk",
+]
 
 full_extra_require = list(
     set(
