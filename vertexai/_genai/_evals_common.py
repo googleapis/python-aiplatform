@@ -30,6 +30,12 @@ import uuid
 
 from google.api_core import exceptions as api_exceptions
 import vertexai
+from agentplatform._genai import (
+    _evals_metric_loaders as _agentplatform_metric_loaders,
+)
+from agentplatform._genai import (
+    types as _agentplatform_types,
+)
 from google.genai import errors as genai_errors
 from google.genai import types as genai_types
 from google.genai._api_client import BaseApiClient
@@ -1692,6 +1698,36 @@ def _resolve_dataset_inputs(
     return processed_eval_dataset, num_response_candidates
 
 
+def _to_vertexai_metric(metric: Any) -> Any:
+    """Converts an agentplatform metric object to its vertexai._genai class.
+
+    `vertexai.types` resolves to the agentplatform classes, which fail
+    isinstance checks against the vertexai._genai classes used in this module.
+
+    Args:
+        metric: A metric object, metric name, or any other value.
+
+    Returns:
+        The vertexai._genai equivalent of an agentplatform metric, otherwise
+        `metric` unchanged.
+    """
+    if isinstance(metric, _agentplatform_metric_loaders.LazyLoadedPrebuiltMetric):
+        return _evals_metric_loaders.LazyLoadedPrebuiltMetric(
+            name=metric.name, version=metric.version, **metric.metric_kwargs
+        )
+    if isinstance(
+        metric,
+        (_agentplatform_types.Metric, _agentplatform_types.EvaluationRunMetric),
+    ):
+        converted = getattr(types, type(metric).__name__).model_validate(
+            metric, from_attributes=True
+        )
+        if metric.__pydantic_private__:
+            converted.__pydantic_private__.update(metric.__pydantic_private__)
+        return converted
+    return metric
+
+
 def _resolve_evaluation_run_metrics(
     metrics: Union[list[types.EvaluationRunMetric], list[types.Metric]], api_client: Any
 ) -> list[types.EvaluationRunMetric]:
@@ -1700,6 +1736,7 @@ def _resolve_evaluation_run_metrics(
         return []
     resolved_metrics_list = []
     for metric_instance in metrics:
+        metric_instance = _to_vertexai_metric(metric_instance)
         if isinstance(metric_instance, types.EvaluationRunMetric):
             resolved_metrics_list.append(metric_instance)
         elif isinstance(
@@ -1736,6 +1773,8 @@ def _resolve_evaluation_run_metrics(
                     metric_resource_name=res_name,
                 )
             )
+        elif not isinstance(metric_instance, str):
+            raise TypeError(f"Unsupported metric type: {type(metric_instance)}")
         else:
             try:
                 metric_name_str = str(metric_instance)
@@ -1777,6 +1816,7 @@ def _resolve_metrics(
     """Resolves a list of metric instances, loading RubricMetric if necessary."""
     resolved_metrics_list = []
     for metric_instance in metrics:
+        metric_instance = _to_vertexai_metric(metric_instance)
         if isinstance(metric_instance, _evals_metric_loaders.LazyLoadedPrebuiltMetric):
             try:
                 resolved_metrics_list.append(
@@ -1792,6 +1832,8 @@ def _resolve_metrics(
                 raise
         elif isinstance(metric_instance, types.Metric):
             resolved_metrics_list.append(metric_instance)
+        elif not isinstance(metric_instance, str):
+            raise TypeError(f"Unsupported metric type: {type(metric_instance)}")
         else:
             try:
                 metric_name_str = str(metric_instance)
