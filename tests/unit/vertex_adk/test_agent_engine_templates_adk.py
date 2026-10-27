@@ -26,6 +26,7 @@ import cloudpickle
 from google import auth
 from google.adk.events.event import Event
 from google.adk.events.event_actions import EventActions
+from google.adk.plugins.base_plugin import BasePlugin
 from google.adk.sessions.base_session_service import BaseSessionService
 from google.adk.sessions.in_memory_session_service import InMemorySessionService
 from google.api_core import exceptions as api_exceptions
@@ -409,6 +410,30 @@ class _SessionReadingRunner:
         self.seen_event_ids = [event.id for event in session.events]
         async for event in _MockRunner().run_async():
             yield event
+
+
+class _SessionStateCapturingPlugin(BasePlugin):
+    """Captures session state on user message and short-circuits the run."""
+
+    def __init__(self):
+        super().__init__(name="session_state_capturing_plugin")
+        self.user_message_session_states = []
+
+    async def on_user_message_callback(
+        self, *, invocation_context, user_message
+    ):
+        del user_message
+        self.user_message_session_states.append(
+            dict(invocation_context.session.state)
+        )
+        return None
+
+    async def before_run_callback(self, *, invocation_context):
+        del invocation_context
+        return types.Content(
+            role="model",
+            parts=[types.Part(text="Sweden")],
+        )
 
 
 @pytest.mark.usefixtures("google_auth_mock")
@@ -844,6 +869,187 @@ class TestAdkApp:
             state_delta={"temp:test_user_id1": "test_access_token"},
             run_config=None,
         )
+
+    @pytest.mark.asyncio
+    @pytest.mark.usefixtures(
+        "default_instrumentor_builder_mock",
+        "get_project_id_mock",
+    )
+    async def test_streaming_agent_run_with_events_fallback_session_preserves_upstream_session_id(
+        self,
+    ):
+        """Seeds agent_engine:upstream_session_id in session.state on fallback."""
+        plugin = _SessionStateCapturingPlugin()
+        app = agent_engines.AdkApp(agent=_TEST_AGENT, plugins=[plugin])
+        app.set_up()
+
+        real_runner = app._tmpl_attrs[  # pylint: disable=protected-access
+            "runner"
+        ]
+        run_async_spy = mock.MagicMock(wraps=real_runner.run_async)
+        real_runner.run_async = run_async_spy
+
+        request_json = json.dumps(
+            {
+                "user_id": _TEST_USER_ID,
+                "session_id": "ge_originating_session_123",
+                "message": {
+                    "parts": [
+                        {"text": "What is the exchange rate from USD to SEK?"}
+                    ],
+                    "role": "user",
+                },
+            }
+        )
+
+        events = []
+        async for event in app.streaming_agent_run_with_events(
+            request_json=request_json,
+        ):
+            events.append(event)
+
+        assert len(events) == 1
+        run_async_spy.assert_called_once()
+        created_session_id = run_async_spy.call_args.kwargs["session_id"]
+        assert created_session_id != "ge_originating_session_123"
+        assert run_async_spy.call_args.kwargs["state_delta"] is None
+        assert plugin.user_message_session_states == [
+            {"agent_engine:upstream_session_id": "ge_originating_session_123"}
+        ]
+        session = await app.async_get_session(
+            user_id=_TEST_USER_ID,
+            session_id=created_session_id,
+        )
+        assert session.state == {
+            "agent_engine:upstream_session_id": "ge_originating_session_123"
+        }
+
+    @pytest.mark.asyncio
+    @pytest.mark.usefixtures(
+        "default_instrumentor_builder_mock",
+        "get_project_id_mock",
+    )
+    async def test_streaming_agent_run_with_events_fallback_session_with_authorizations(
+        self,
+    ):
+        """Persists upstream_session_id in session.state while keeping tokens temp."""
+        plugin = _SessionStateCapturingPlugin()
+        app = agent_engines.AdkApp(agent=_TEST_AGENT, plugins=[plugin])
+        app.set_up()
+
+        session_service = app._tmpl_attrs[  # pylint: disable=protected-access
+            "session_service"
+        ]
+        create_session_spy = mock.AsyncMock(
+            wraps=session_service.create_session
+        )
+        session_service.create_session = create_session_spy
+
+        real_runner = app._tmpl_attrs[  # pylint: disable=protected-access
+            "runner"
+        ]
+        run_async_spy = mock.MagicMock(wraps=real_runner.run_async)
+        real_runner.run_async = run_async_spy
+
+        request_json = json.dumps(
+            {
+                "authorizations": {
+                    "test_user_id1": {"access_token": "test_access_token"},
+                },
+                "user_id": _TEST_USER_ID,
+                "session_id": "ge_originating_session_123",
+                "message": {
+                    "parts": [
+                        {"text": "What is the exchange rate from USD to SEK?"}
+                    ],
+                    "role": "user",
+                },
+            }
+        )
+
+        events = []
+        async for event in app.streaming_agent_run_with_events(
+            request_json=request_json,
+        ):
+            events.append(event)
+
+        assert len(events) == 1
+        create_session_spy.assert_called_once()
+        assert create_session_spy.call_args.kwargs.get("state") == {
+            "agent_engine:upstream_session_id": "ge_originating_session_123"
+        }
+        run_async_spy.assert_called_once()
+        created_session_id = run_async_spy.call_args.kwargs["session_id"]
+        assert created_session_id != "ge_originating_session_123"
+        assert run_async_spy.call_args.kwargs["state_delta"] == {
+            "temp:test_user_id1": "test_access_token"
+        }
+        assert plugin.user_message_session_states == [
+            {"agent_engine:upstream_session_id": "ge_originating_session_123"}
+        ]
+        session = await app.async_get_session(
+            user_id=_TEST_USER_ID,
+            session_id=created_session_id,
+        )
+        assert session.state == {
+            "agent_engine:upstream_session_id": "ge_originating_session_123"
+        }
+        assert "test_access_token" not in json.dumps(session.state)
+
+    @pytest.mark.asyncio
+    @pytest.mark.usefixtures(
+        "default_instrumentor_builder_mock",
+        "get_project_id_mock",
+    )
+    async def test_streaming_agent_run_with_events_existing_session_omits_upstream_session_id(
+        self,
+    ):
+        """Does not add agent_engine:upstream_session_id when get_session succeeds."""
+        plugin = _SessionStateCapturingPlugin()
+        app = agent_engines.AdkApp(agent=_TEST_AGENT, plugins=[plugin])
+        app.set_up()
+
+        await app.async_create_session(
+            user_id=_TEST_USER_ID,
+            session_id="test_session_id",
+        )
+
+        real_runner = app._tmpl_attrs[  # pylint: disable=protected-access
+            "runner"
+        ]
+        run_async_spy = mock.MagicMock(wraps=real_runner.run_async)
+        real_runner.run_async = run_async_spy
+
+        request_json = json.dumps(
+            {
+                "user_id": _TEST_USER_ID,
+                "session_id": "test_session_id",
+                "message": {
+                    "parts": [
+                        {"text": "What is the exchange rate from USD to SEK?"}
+                    ],
+                    "role": "user",
+                },
+            }
+        )
+
+        events = []
+        async for event in app.streaming_agent_run_with_events(
+            request_json=request_json,
+        ):
+            events.append(event)
+
+        assert len(events) == 1
+        run_async_spy.assert_called_once()
+        assert run_async_spy.call_args.kwargs["session_id"] == "test_session_id"
+        assert run_async_spy.call_args.kwargs["state_delta"] is None
+        assert plugin.user_message_session_states == [{}]
+        session = await app.async_get_session(
+            user_id=_TEST_USER_ID,
+            session_id="test_session_id",
+        )
+        assert "agent_engine:upstream_session_id" not in session.state
+        assert not session.state
 
     @pytest.mark.asyncio
     async def test_streaming_agent_run_with_events_new_session_uses_temp_state(

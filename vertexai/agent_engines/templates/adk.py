@@ -98,6 +98,7 @@ if TYPE_CHECKING:
 
 _DEFAULT_APP_NAME = "default_app_name"
 _DEFAULT_USER_ID = "default-user-id"
+_UPSTREAM_SESSION_ID_KEY = "agent_engine:upstream_session_id"
 _TELEMETRY_API_DISABLED_WARNING = """\
 Tracing integration for Agent Engine has migrated to a new API.
 The 'telemetry.googleapis.com' has not been enabled in project %s.
@@ -966,14 +967,18 @@ class AdkApp:
         session_service: "BaseSessionService",
         artifact_service: "BaseArtifactService",
         request: _StreamRunRequest,
+        state: Optional[Dict[str, Any]] = None,
     ):
         """Initializes the session, and returns the session id."""
         from google.adk.events.event import Event
 
-        session = await session_service.create_session(
-            app_name=self._app_name(),
-            user_id=request.user_id,
-        )
+        create_session_kwargs: Dict[str, Any] = {
+            "app_name": self._app_name(),
+            "user_id": request.user_id,
+        }
+        if state is not None:
+            create_session_kwargs["state"] = state
+        session = await session_service.create_session(**create_session_kwargs)
         if not session:
             raise RuntimeError("Create session failed.")
         if request.events:
@@ -1501,6 +1506,11 @@ class AdkApp:
         you have defined for the AdkApp. This method is primarily meant for
         invocation from AgentSpace.
 
+        When `request_json` includes a `session_id` that is not found in
+        `session_service`, a new fallback session is created and the caller's
+        `session_id` is stored in `session.state` under
+        `agent_engine:upstream_session_id` (`_UPSTREAM_SESSION_ID_KEY`).
+
         Args:
             request_json (str):
                 Required. The request to stream responses for.
@@ -1565,6 +1575,7 @@ class AdkApp:
                     session_service=session_service,
                     artifact_service=artifact_service,
                     request=request,
+                    state={_UPSTREAM_SESSION_ID_KEY: request.session_id},
                 )
         else:
             # Not providing a session ID will create a new in-memory session.

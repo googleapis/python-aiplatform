@@ -100,6 +100,7 @@ if TYPE_CHECKING:
 
 _DEFAULT_APP_NAME = "default-app-name"
 _DEFAULT_USER_ID = "default-user-id"
+_UPSTREAM_SESSION_ID_KEY = "agent_engine:upstream_session_id"
 _DEFAULT_TELEMETRY_ENDPOINT = "https://telemetry.googleapis.com/v1/traces"
 _DEFAULT_MTLS_TELEMETRY_ENDPOINT = "https://telemetry.mtls.googleapis.com/v1/traces"
 # Timeout (in seconds) for the best-effort Telemetry API enablement check. This
@@ -877,14 +878,18 @@ class AdkApp:
         session_service: "BaseSessionService",
         artifact_service: "BaseArtifactService",
         request: _StreamRunRequest,
+        state: Optional[Dict[str, Any]] = None,
     ):
         """Initializes the session, and returns the session id."""
         from google.adk.events.event import Event
 
-        session = await session_service.create_session(
-            app_name=self._tmpl_attrs.get("app_name"),
-            user_id=request.user_id,
-        )
+        create_session_kwargs: Dict[str, Any] = {
+            "app_name": self._tmpl_attrs.get("app_name"),
+            "user_id": request.user_id,
+        }
+        if state is not None:
+            create_session_kwargs["state"] = state
+        session = await session_service.create_session(**create_session_kwargs)
         if not session:
             raise RuntimeError("Create session failed.")
         if request.events:
@@ -1304,6 +1309,20 @@ class AdkApp:
             )
 
     def streaming_agent_run_with_events(self, request_json: str):
+        """Streams responses from the ADK application.
+
+        When `request_json` includes a `session_id` that is not found in
+        `session_service`, a new fallback session is created and the caller's
+        `session_id` is stored in `session.state` under
+        `agent_engine:upstream_session_id` (`_UPSTREAM_SESSION_ID_KEY`).
+
+        Args:
+            request_json (str):
+                Required. The request to stream responses for.
+
+        Yields:
+            The stream responses of querying the ADK application.
+        """
         import json
         from google.genai import types
         from google.genai.errors import ClientError
@@ -1365,6 +1384,7 @@ class AdkApp:
                         session_service=session_service,
                         artifact_service=artifact_service,
                         request=request,
+                        state={_UPSTREAM_SESSION_ID_KEY: request.session_id},
                     )
             else:
                 # Not providing a session ID will create a new in-memory session.
