@@ -1,5 +1,23 @@
 # Changelog
 
+## [2.7.0](https://github.com/googleapis/python-aiplatform/compare/v2.6.0...v2.7.0) (2026-10-28)
+
+
+### Features
+
+* Add support for Python 3.15 ([9b9f2b3](https://github.com/googleapis/python-aiplatform/commit/9b9f2b315c520421dd5d7f90eab6dbc674ceef65))
+
+
+### Bug Fixes
+
+* Build the VPC-SC `psc_endpoint` URL as `http://{psc_endpoint}:{port}` in `Sandboxes.send_command` and `ws://{psc_endpoint}:{port}` in `Sandboxes.generate_browser_ws_headers`, instead of `https://{psc_endpoint}` on 443. The sandbox router pod serves plain HTTP on the caller-supplied port (default 8080) and does not terminate TLS on 443, so the prior URLs hung on `ConnectTimeout`. Non-VPC-SC branches are unaffected. ([dd39926](https://github.com/googleapis/python-aiplatform/commit/dd39926783ed403fbce9f2ca7d871295856e3af2))
+* GenAI Evaluation: Lazily import scikit-learn in preview autorater_utils so importing vertexai.preview.evaluation doesn't require it ([d6f690e](https://github.com/googleapis/python-aiplatform/commit/d6f690e061aa68f02ffdb82bcdee63911612325a))
+* Model Garden deploy_publisher_model now honors dedicated_endpoint_disabled and spot without a machine type ([5b3dba9](https://github.com/googleapis/python-aiplatform/commit/5b3dba96038e008786f538e90e733266ee765eb7))
+* Model Garden list_deployable_models, list_models and list_publisher_model_deploy_options now read the catalog from us-central1 for clients in any location ([1ba7a41](https://github.com/googleapis/python-aiplatform/commit/1ba7a41b6b9b23764a88da4cc9a72bd5a6cad0f7))
+* Preserve caller session_id as agent_engine:upstream_session_id on fallback session creation in AdkApp. ([f1944ac](https://github.com/googleapis/python-aiplatform/commit/f1944ac07d5093b0a484c06772d60c2925d67fb9))
+* Resolve agentplatform metric objects in vertexai evals ([46f4e55](https://github.com/googleapis/python-aiplatform/commit/46f4e5507e140ff919cd101b914f65baa203d86a))
+* Stop deserializing the staged agent from Cloud Storage during Agent Engine deployment ([d02310f](https://github.com/googleapis/python-aiplatform/commit/d02310f292314bdf9b21fcdda3b39155f34b08b6))
+
 ## [2.6.0](https://github.com/googleapis/python-aiplatform/compare/v2.5.0...v2.6.0) (2026-10-20)
 
 
