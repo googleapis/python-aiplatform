@@ -2565,3 +2565,85 @@ class TestAdkTemplateLoggingExport:
         assert "gcp.resource_type" not in incoming.resource.attributes
         assert emitted.log_record.attributes["event.name"] == "gen_ai.choice"
         provider.shutdown()
+
+
+class TestConfiguredOtlpSpanProcessor:
+    """Tests for the additive OTEL_EXPORTER_OTLP_ENDPOINT span processor."""
+
+    _EXPORTER_PATH = (
+        "opentelemetry.exporter.otlp.proto.http.trace_exporter.OTLPSpanExporter"
+    )
+
+    @staticmethod
+    def _tracer_provider():
+        import opentelemetry.sdk.trace
+
+        return opentelemetry.sdk.trace.TracerProvider()
+
+    @staticmethod
+    def _processor_count(tracer_provider):
+        return len(tracer_provider._active_span_processor._span_processors)
+
+    @mock.patch.dict(os.environ, {}, clear=False)
+    def test_no_op_when_endpoint_not_set(self):
+        os.environ.pop("OTEL_EXPORTER_OTLP_ENDPOINT", None)
+        os.environ.pop("OTEL_EXPORTER_OTLP_TRACES_ENDPOINT", None)
+        tracer_provider = self._tracer_provider()
+        with mock.patch(self._EXPORTER_PATH) as mock_exporter:
+            adk_template._maybe_add_configured_otlp_span_processor(tracer_provider)
+        mock_exporter.assert_not_called()
+        assert self._processor_count(tracer_provider) == 0
+
+    @pytest.mark.parametrize(
+        "env_var",
+        ["OTEL_EXPORTER_OTLP_ENDPOINT", "OTEL_EXPORTER_OTLP_TRACES_ENDPOINT"],
+    )
+    def test_adds_batch_span_processor_when_endpoint_set(self, env_var):
+        import opentelemetry.sdk.trace.export
+
+        tracer_provider = self._tracer_provider()
+        with mock.patch.dict(os.environ, {env_var: "http://localhost:4318"}):
+            with mock.patch(self._EXPORTER_PATH) as mock_exporter:
+                adk_template._maybe_add_configured_otlp_span_processor(
+                    tracer_provider
+                )
+        # The exporter is built with no arguments so it reads OTEL_EXPORTER_OTLP_*.
+        mock_exporter.assert_called_once_with()
+        processors = tracer_provider._active_span_processor._span_processors
+        assert len(processors) == 1
+        assert isinstance(
+            processors[0], opentelemetry.sdk.trace.export.BatchSpanProcessor
+        )
+        tracer_provider.shutdown()
+
+    def test_does_not_remove_existing_processors(self):
+        tracer_provider = self._tracer_provider()
+        existing = mock.MagicMock()
+        tracer_provider.add_span_processor(existing)
+        with mock.patch.dict(
+            os.environ, {"OTEL_EXPORTER_OTLP_ENDPOINT": "http://localhost:4318"}
+        ):
+            with mock.patch(self._EXPORTER_PATH):
+                adk_template._maybe_add_configured_otlp_span_processor(
+                    tracer_provider
+                )
+        processors = tracer_provider._active_span_processor._span_processors
+        assert len(processors) == 2
+        assert processors[0] is existing
+        tracer_provider.shutdown()
+
+    def test_warns_and_skips_when_exporter_not_installed(self):
+        tracer_provider = self._tracer_provider()
+        with mock.patch.dict(
+            os.environ, {"OTEL_EXPORTER_OTLP_ENDPOINT": "http://localhost:4318"}
+        ):
+            with mock.patch.dict(
+                sys.modules,
+                {"opentelemetry.exporter.otlp.proto.http.trace_exporter": None},
+            ):
+                with mock.patch.object(adk_template, "_warn") as mock_warn:
+                    adk_template._maybe_add_configured_otlp_span_processor(
+                        tracer_provider
+                    )
+        mock_warn.assert_called_once()
+        assert self._processor_count(tracer_provider) == 0
