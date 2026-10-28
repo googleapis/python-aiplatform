@@ -22,12 +22,15 @@ import os
 from unittest import mock
 from unittest.mock import patch
 
+import pytest
+
+# mlflow is not installed on Python 3.15 (it requires pyarrow<26).
+pytest.importorskip("mlflow")
 
 from mlflow import entities as mlflow_entities
 from google.cloud.aiplatform._mlflow_plugin import _vertex_mlflow_tracking
 from google.cloud.aiplatform.utils import autologging_utils
 
-import pytest
 from google.api_core import exceptions
 
 
