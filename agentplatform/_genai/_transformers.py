@@ -89,6 +89,11 @@ def t_metrics(
             metric_payload_item["custom_code_execution_spec"] = {
                 "evaluation_function": metric.custom_function
             }
+        # Step-based LLM metrics
+        elif getv(metric, ["steps"]):
+            metric_payload_item["step_based_llm_metric_spec"] = (
+                _step_based_llm_metric_spec(metric)
+            )
         # LLM-based metrics
         elif hasattr(metric, "prompt_template") and metric.prompt_template:
             llm_based_spec: dict[str, Any] = {
@@ -143,6 +148,43 @@ def t_metrics(
             )
         metrics_payload.append(metric_payload_item)
     return metrics_payload
+
+
+def _dump(value: Any) -> Any:
+    if hasattr(value, "model_dump"):
+        return value.model_dump(exclude_none=True)
+    return value
+
+
+def _step_based_llm_metric_spec(metric: Any) -> dict[str, Any]:
+    """Builds a StepBasedLlmMetricSpec payload.
+
+    Steps without an autorater_config use the metric's judge model settings.
+    """
+    default_autorater_config: dict[str, Any] = {}
+    if getv(metric, ["judge_model"]):
+        default_autorater_config["autorater_model"] = getv(metric, ["judge_model"])
+    if getv(metric, ["judge_model_generation_config"]):
+        default_autorater_config["generation_config"] = _dump(
+            getv(metric, ["judge_model_generation_config"])
+        )
+    if getv(metric, ["judge_model_sampling_count"]):
+        default_autorater_config["sampling_count"] = getv(
+            metric, ["judge_model_sampling_count"]
+        )
+
+    steps = []
+    for step in getv(metric, ["steps"]):
+        step_payload = _dump(step)
+        if default_autorater_config and not step_payload.get("autorater_config"):
+            step_payload["autorater_config"] = dict(default_autorater_config)
+        steps.append(step_payload)
+
+    spec: dict[str, Any] = {"steps": steps}
+    preprocessor = getv(metric, ["preprocessor"])
+    if preprocessor:
+        spec["preprocessor"] = _dump(preprocessor)
+    return spec
 
 
 def t_metric_sources(metrics: list[Any]) -> list[dict[str, Any]]:
@@ -216,6 +258,12 @@ def t_metric_for_registry(
         metric_payload_item["custom_code_execution_spec"] = {
             "evaluation_function": metric.custom_function
         }
+
+    # Step-based LLM metric
+    elif getv(metric, ["steps"]):
+        metric_payload_item["step_based_llm_metric_spec"] = _step_based_llm_metric_spec(
+            metric
+        )
 
     # LLM-based metric
     elif (hasattr(metric, "prompt_template") and metric.prompt_template) or (

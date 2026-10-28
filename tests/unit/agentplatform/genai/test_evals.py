@@ -12227,6 +12227,204 @@ class TestJudgeModelStepConfigs:
         assert default_again.judge_model_step_configs is None
 
 
+class TestStepBasedLLMMetric:
+    """Unit tests for StepBasedLLMMetric."""
+
+    _PARSE_CODE = "def parse_results(responses):\n    return float(responses[0])"
+    _PREPROCESS_CODE = "def preprocess(agent_data):\n    return agent_data"
+
+    def _metric(self, **kwargs):
+        return agentplatform_genai_types.StepBasedLLMMetric(
+            name="coordinator_quality",
+            preprocessor=agentplatform_genai_types.AgentDataPreprocessor(
+                filter_config=agentplatform_genai_types.FilterPreprocessorConfig(
+                    trace_compression_config=agentplatform_genai_types.TraceCompressionConfig(
+                        thoughts_filtered=True, max_turn_count=3
+                    )
+                )
+            ),
+            steps=[
+                agentplatform_genai_types.StepBasedLLMMetricStep(
+                    step_id="extract",
+                    prompt_template="List the delegations in {agent_eval_data}.",
+                ),
+                agentplatform_genai_types.StepBasedLLMMetricStep(
+                    step_id="judge",
+                    prompt_template=(
+                        "Given {step.extract.output} and {user_goal}, rate 1-5."
+                    ),
+                    autorater_config=genai_types.AutoraterConfig(
+                        autorater_model="gemini-2.5-pro", sampling_count=3
+                    ),
+                    response_parser_config=agentplatform_genai_types.ResponseParserConfig(
+                        custom_code_parser_config=agentplatform_genai_types.CustomCodeParserConfig(
+                            parsing_function=self._PARSE_CODE
+                        )
+                    ),
+                ),
+            ],
+            **kwargs,
+        )
+
+    def test_t_metrics_builds_step_based_spec(self):
+        payload = _transformers.t_metrics([self._metric()])[0]
+
+        assert payload == {
+            "step_based_llm_metric_spec": {
+                "preprocessor": {
+                    "filter_config": {
+                        "trace_compression_config": {
+                            "thoughts_filtered": True,
+                            "max_turn_count": 3,
+                        }
+                    }
+                },
+                "steps": [
+                    {
+                        "step_id": "extract",
+                        "prompt_template": (
+                            "List the delegations in {agent_eval_data}."
+                        ),
+                    },
+                    {
+                        "step_id": "judge",
+                        "prompt_template": (
+                            "Given {step.extract.output} and {user_goal}, rate 1-5."
+                        ),
+                        "autorater_config": {
+                            "autorater_model": "gemini-2.5-pro",
+                            "sampling_count": 3,
+                        },
+                        "response_parser_config": {
+                            "custom_code_parser_config": {
+                                "parsing_function": self._PARSE_CODE
+                            }
+                        },
+                    },
+                ],
+            }
+        }
+
+    def test_t_metrics_applies_metric_judge_to_steps_without_one(self):
+        payload = _transformers.t_metrics(
+            [self._metric(judge_model="gemini-2.5-flash", judge_model_sampling_count=2)]
+        )[0]
+
+        steps = payload["step_based_llm_metric_spec"]["steps"]
+        assert steps[0]["autorater_config"] == {
+            "autorater_model": "gemini-2.5-flash",
+            "sampling_count": 2,
+        }
+        assert steps[1]["autorater_config"]["autorater_model"] == "gemini-2.5-pro"
+
+    def test_t_metrics_code_preprocessor(self):
+        metric = agentplatform_genai_types.StepBasedLLMMetric(
+            name="m",
+            preprocessor={"code_config": {"code": self._PREPROCESS_CODE}},
+            steps=[{"step_id": "score", "prompt_template": "Rate {agent_eval_data}."}],
+        )
+
+        spec = _transformers.t_metrics([metric])[0]["step_based_llm_metric_spec"]
+
+        assert spec["preprocessor"] == {"code_config": {"code": self._PREPROCESS_CODE}}
+        assert "autorater_config" not in spec["steps"][0]
+
+    def test_t_metric_for_registry_builds_step_based_spec(self):
+        metric = self._metric()
+
+        payload = _transformers.t_metric_for_registry(metric)
+
+        assert payload == {
+            "step_based_llm_metric_spec": _transformers.t_metrics([metric])[0][
+                "step_based_llm_metric_spec"
+            ]
+        }
+
+    @pytest.mark.parametrize(
+        "steps,error",
+        [
+            (None, "at least one step"),
+            ([], "at least one step"),
+            ([{"step_id": "Bad-Id", "prompt_template": "p"}], "Invalid step_id"),
+            (
+                [
+                    {"step_id": "a", "prompt_template": "p"},
+                    {"step_id": "a", "prompt_template": "q"},
+                ],
+                "Duplicate step_id",
+            ),
+            ([{"step_id": "a", "prompt_template": " "}], "requires a prompt_template"),
+        ],
+    )
+    def test_validation_errors(self, steps, error):
+        with pytest.raises(pydantic.ValidationError, match=error):
+            agentplatform_genai_types.StepBasedLLMMetric(name="m", steps=steps)
+
+    def test_rejects_both_preprocessors(self):
+        with pytest.raises(pydantic.ValidationError, match="only one of"):
+            agentplatform_genai_types.StepBasedLLMMetric(
+                name="m",
+                preprocessor={
+                    "filter_config": {},
+                    "code_config": {"code": self._PREPROCESS_CODE},
+                },
+                steps=[{"step_id": "a", "prompt_template": "p"}],
+            )
+
+    def test_handler_sends_spec_agent_data_and_columns(self):
+        api_client = mock.MagicMock()
+        api_client.vertexai = True
+        api_client.request.return_value.body = json.dumps(
+            {"metricResults": [{"score": 4.0, "explanation": "Good delegation."}]}
+        )
+        eval_case = agentplatform_genai_types.EvalCase(
+            prompt=genai_types.Content(parts=[genai_types.Part(text="Book a trip")]),
+            responses=[
+                agentplatform_genai_types.ResponseCandidate(
+                    response=genai_types.Content(parts=[genai_types.Part(text="Done")])
+                )
+            ],
+            user_goal="Stay under budget",
+        )
+        handler = _evals_metric_handlers.get_handler_for_metric(
+            evals.Evals(api_client_=api_client), self._metric()
+        )
+
+        result = handler.get_metric_result(eval_case, response_index=0)
+
+        assert isinstance(handler, _evals_metric_handlers.StepBasedLLMMetricHandler)
+        assert result.score == 4.0
+        assert result.explanation == "Good delegation."
+        assert result.error_message is None
+        request_body = api_client.request.call_args[0][2]
+        spec = request_body["metrics"][0]["step_based_llm_metric_spec"]
+        assert [step["step_id"] for step in spec["steps"]] == ["extract", "judge"]
+        instance = request_body["instance"]
+        assert "agent_eval_data" in instance
+        assert "user_goal" in instance["otherData"]["map_instance"]
+
+    def test_resolve_evaluation_run_metrics_keeps_spec(self):
+        resolved = _evals_common._resolve_evaluation_run_metrics(
+            [self._metric()], api_client=mock.MagicMock()
+        )
+
+        spec = resolved[0].metric_config.step_based_llm_metric_spec
+        assert [step.step_id for step in spec.steps] == ["extract", "judge"]
+        api_metric = evals._EvaluationRunMetric_to_vertex(resolved[0])
+        assert api_metric["metricConfig"]["stepBasedLlmMetricSpec"] is spec
+
+    def test_metric_dict_coerces_to_step_based_handler(self):
+        metric = agentplatform_genai_types.Metric.model_validate(
+            self._metric().model_dump(exclude_none=True)
+        )
+
+        handler = _evals_metric_handlers.get_handler_for_metric(
+            evals.Evals(api_client_=mock.MagicMock()), metric
+        )
+
+        assert isinstance(handler, _evals_metric_handlers.StepBasedLLMMetricHandler)
+
+
 _TEST_INTERACTION = (
     "projects/test-project/locations/us-central1/interactions/test-interaction"
 )
