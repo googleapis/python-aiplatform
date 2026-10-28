@@ -1403,9 +1403,9 @@ class Sandboxes(_api_module.BaseModule):
         if not connection_info:
             raise ValueError("Connection info is not available.")
         if psc_endpoint:
-            # VPC-SC path: caller has provisioned a PSC endpoint against
-            # connection_info.service_attachment and passes its host here.
-            endpoint = "https://" + psc_endpoint
+            # VPC-SC path: PSC endpoint routes to the router pod, which serves
+            # plain HTTP on `port`.
+            endpoint = f"http://{psc_endpoint}:{port}"
         elif connection_info.load_balancer_hostname:
             endpoint = "https://" + connection_info.load_balancer_hostname
         elif connection_info.load_balancer_ip:
@@ -1489,7 +1489,8 @@ class Sandboxes(_api_module.BaseModule):
 
         connection_info = sandbox_environment.connection_info
         if psc_endpoint:
-            ws_base_url = "wss://" + psc_endpoint
+            # VPC-SC path: see send_command for rationale.
+            ws_base_url = f"ws://{psc_endpoint}:{port}"
         elif connection_info.load_balancer_hostname:
             ws_base_url = "wss://" + connection_info.load_balancer_hostname
         elif connection_info.load_balancer_ip:

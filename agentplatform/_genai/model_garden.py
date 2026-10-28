@@ -1157,6 +1157,33 @@ class ModelGarden(_api_module.BaseModule):
     _DEFAULT_DEPLOY_TIMEOUT_SECONDS = 2 * 60 * 60
     _DEFAULT_DEPLOY_POLL_INTERVAL_SECONDS = 30
 
+    # Model Garden catalog reads (ListPublisherModels, GetPublisherModel) are
+    # served from us-central1, as in vertexai.model_garden. Other regional
+    # endpoints return a partial catalog (e.g. no deploy configs for models that
+    # deploy fine there, since Deploy reads the global model configs).
+    _CATALOG_BASE_URL = "https://us-central1-aiplatform.googleapis.com/"
+
+    @staticmethod
+    def _catalog_http_options(
+        api_client: Any,
+    ) -> Optional[genai_types.HttpOptions]:
+        """Returns ``http_options`` that send catalog reads to us-central1.
+
+        Only the catalog reads are routed this way; deploy, export and batch
+        requests still go to the client's location.
+
+        Args:
+          api_client: The client's API client.
+
+        Returns:
+          ``HttpOptions`` with the us-central1 base URL, or None when the client
+          was created with a custom ``base_url`` (e.g. a proxy or private
+          endpoint), which is then left unchanged.
+        """
+        if api_client.custom_base_url:
+            return None
+        return genai_types.HttpOptions(base_url=ModelGarden._CATALOG_BASE_URL)
+
     @staticmethod
     def _build_filter_str(
         model_filter: Optional[str],
@@ -1573,9 +1600,11 @@ class ModelGarden(_api_module.BaseModule):
         endpoint_config = types.DeployRequestEndpointConfig(
             endpoint_display_name=config.endpoint_display_name,
         )
-        disabled = config.dedicated_endpoint_disabled
-        if disabled is not None:
-            endpoint_config.dedicated_endpoint_enabled = not disabled
+        # Send the current field, as vertexai.model_garden does. The deprecated
+        # dedicated_endpoint_enabled cannot express "off": False is its proto3
+        # default, so the backend would keep its default (dedicated endpoint on).
+        if config.dedicated_endpoint_disabled:
+            endpoint_config.dedicated_endpoint_disabled = True
         if config.enable_private_service_connect:
             endpoint_config.private_service_connect_config = (
                 types.PrivateServiceConnectConfig(
@@ -1598,6 +1627,10 @@ class ModelGarden(_api_module.BaseModule):
                 max_replica_count=config.max_replica_count,
                 spot=config.spot,
             )
+        elif config.spot:
+            # Without a machine shape the backend deploys the model's default
+            # verified config and applies spot to it, as with vertexai.model_garden.
+            deploy_config.dedicated_resources = types.DedicatedResources(spot=True)
 
         return model_config, endpoint_config, deploy_config
 
@@ -1710,6 +1743,7 @@ class ModelGarden(_api_module.BaseModule):
                     filter=api_config.filter,
                     list_all_versions=api_config.list_all_versions,
                     page_token=page_token,
+                    http_options=api_config.http_options,
                 )
             response = self._list_publisher_models(
                 parent="publishers/*",
@@ -1746,6 +1780,7 @@ class ModelGarden(_api_module.BaseModule):
         api_config = types.ListPublisherModelsConfig(
             filter=filter_str,
             list_all_versions=True,
+            http_options=ModelGarden._catalog_http_options(self._api_client),
         )
 
         models = self._list_all_publisher_models(api_config)
@@ -1859,6 +1894,7 @@ class ModelGarden(_api_module.BaseModule):
         get_publisher_model_config = types.GetPublisherModelConfig(
             is_hugging_face_model=self._is_hugging_face_model(model),
             include_equivalent_model_garden_model_deployment_configs=True,
+            http_options=ModelGarden._catalog_http_options(self._api_client),
         )
         publisher_model = self._get_publisher_model(
             name=self._reconcile_model_name(model),
@@ -3189,6 +3225,7 @@ class AsyncModelGarden(_api_module.BaseModule):
                     filter=api_config.filter,
                     list_all_versions=api_config.list_all_versions,
                     page_token=page_token,
+                    http_options=api_config.http_options,
                 )
             response = await self._list_publisher_models(
                 parent="publishers/*",
@@ -3225,6 +3262,7 @@ class AsyncModelGarden(_api_module.BaseModule):
         api_config = types.ListPublisherModelsConfig(
             filter=filter_str,
             list_all_versions=True,
+            http_options=ModelGarden._catalog_http_options(self._api_client),
         )
 
         models = await self._list_all_publisher_models(api_config)
@@ -3336,6 +3374,7 @@ class AsyncModelGarden(_api_module.BaseModule):
         api_config = types.GetPublisherModelConfig(
             is_hugging_face_model=ModelGarden._is_hugging_face_model(model),
             include_equivalent_model_garden_model_deployment_configs=True,
+            http_options=ModelGarden._catalog_http_options(self._api_client),
         )
         publisher_model = await self._get_publisher_model(
             name=ModelGarden._reconcile_model_name(model), config=api_config

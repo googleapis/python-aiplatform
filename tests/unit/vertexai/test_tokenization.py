@@ -20,6 +20,12 @@ import shutil
 import tempfile
 from typing import List
 from unittest import mock
+
+import pytest
+
+# sentencepiece has no Python 3.15 wheels yet, so it is not installed there.
+pytest.importorskip("sentencepiece")
+
 from vertexai.generative_models import (
     Content,
     Image,
@@ -35,7 +41,6 @@ from vertexai.tokenization._tokenizers import (
     _TextsAccumulator,
     get_tokenizer_for_model,
 )
-import pytest
 import sentencepiece as spm
 from sentencepiece import sentencepiece_model_pb2, sentencepiece_pb2
 from google.cloud.aiplatform_v1beta1.types import (

@@ -98,7 +98,8 @@ private_endpoints_extra_require = [
 
 autologging_extra_require = [
     "mlflow>=1.27.0,<=2.16.0; python_version<'3.13'",
-    "mlflow>=1.27.0; python_version>='3.13'",
+    # mlflow requires pyarrow<26, and only pyarrow 26+ has Python 3.15 wheels.
+    "mlflow>=1.27.0; python_version>='3.13' and python_version<'3.15'",
 ]
 
 preview_extra_require = []
@@ -235,7 +236,11 @@ llama_index_testing_extra_require = list(
 )
 
 tokenization_extra_require = ["sentencepiece >= 0.2.0"]
-tokenization_testing_extra_require = tokenization_extra_require + ["nltk"]
+tokenization_testing_extra_require = [
+    # sentencepiece has no Python 3.15 wheels yet and fails to build from source.
+    "sentencepiece >= 0.2.0; python_version<'3.15'",
+    "nltk",
+]
 
 full_extra_require = list(
     set(
@@ -271,6 +276,8 @@ testing_extra_require = (
         "grpcio-testing",
         "grpcio-tools >= 1.63.0; python_version>='3.13'",
         "ipython",
+        # Used by the offline store; previously only installed via mlflow.
+        "jinja2",
         "kfp >= 2.6.0, < 3.0.0; python_version<'3.13'",
         "pytest-asyncio",
         "pytest-cov",

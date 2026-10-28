@@ -28,12 +28,18 @@ _TEST_LOCATION = "us-central1"
 _OPEN_MODEL = "google/gemma3@gemma-3-12b-it"
 
 
+_CATALOG_HTTP_OPTIONS = model_garden.genai_types.HttpOptions(
+    base_url="https://us-central1-aiplatform.googleapis.com/"
+)
+
+
 @pytest.fixture
 def mock_client():
     mock_api_client = mock.Mock(spec=client.Client)
     mock_api_client.project = _TEST_PROJECT
     mock_api_client.location = _TEST_LOCATION
     mock_api_client.vertexai = True
+    mock_api_client.custom_base_url = None
 
     return model_garden.ModelGarden(mock_api_client)
 
@@ -44,6 +50,7 @@ def mock_async_client():
     mock_api_client.project = _TEST_PROJECT
     mock_api_client.location = _TEST_LOCATION
     mock_api_client.vertexai = True
+    mock_api_client.custom_base_url = None
 
     return model_garden.AsyncModelGarden(mock_api_client)
 
@@ -488,6 +495,7 @@ def test_list_publisher_model_deploy_options_basic(mock_client):
         config=types.GetPublisherModelConfig(
             is_hugging_face_model=False,
             include_equivalent_model_garden_model_deployment_configs=True,
+            http_options=_CATALOG_HTTP_OPTIONS,
         ),
     )
     assert len(options) == 1
@@ -826,8 +834,123 @@ def test_list_publisher_model_deploy_options_hugging_face_model(mock_client):
         config=types.GetPublisherModelConfig(
             is_hugging_face_model=True,
             include_equivalent_model_garden_model_deployment_configs=True,
+            http_options=_CATALOG_HTTP_OPTIONS,
         ),
     )
+
+
+# --- Catalog reads are served from us-central1 ---------------------------
+
+
+def test_list_models_catalog_routed_to_us_central1(mock_client):
+  """A client outside us-central1 still lists the catalog from us-central1."""
+  mock_client._api_client.location = "europe-west4"
+  with mock.patch.object(
+      mock_client,
+      "_list_publisher_models",
+      return_value=types.ListPublisherModelsResponse(publisher_models=[]),
+  ) as mock_list:
+    mock_client.list_deployable_models()
+    mock_client.list_models()
+
+  for call in mock_list.call_args_list:
+    assert call.kwargs["config"].http_options == _CATALOG_HTTP_OPTIONS
+
+
+def test_list_models_catalog_routing_kept_across_pages(mock_client):
+  """Every page request carries the us-central1 base URL, not just the first."""
+  pages = [
+      types.ListPublisherModelsResponse(
+          publisher_models=[
+              _make_deployable_model("publishers/google/models/a")
+          ],
+          next_page_token="page-2",
+      ),
+      types.ListPublisherModelsResponse(
+          publisher_models=[
+              _make_deployable_model("publishers/google/models/b")
+          ],
+      ),
+  ]
+  with mock.patch.object(
+      mock_client, "_list_publisher_models", side_effect=pages
+  ) as mock_list:
+    models = mock_client.list_models()
+
+  assert models == ["google/a@001", "google/b@001"]
+  second_config = mock_list.call_args_list[1].kwargs["config"]
+  assert second_config.page_token == "page-2"
+  assert second_config.http_options == _CATALOG_HTTP_OPTIONS
+
+
+def test_list_publisher_model_deploy_options_routed_to_us_central1(
+    mock_client,
+):
+  """GetPublisherModel is sent to us-central1 for a client in another region."""
+  mock_client._api_client.location = "asia-southeast1"
+  dummy_model = _make_model_with_deploy_options([_make_deploy_option()])
+  with mock.patch.object(
+      mock_client, "_get_publisher_model", return_value=dummy_model
+  ) as mock_get:
+    mock_client.list_publisher_model_deploy_options(model=_OPEN_MODEL)
+
+  assert mock_get.call_args.kwargs["config"].http_options == (
+      _CATALOG_HTTP_OPTIONS
+  )
+
+
+def test_catalog_reads_keep_custom_base_url(mock_client):
+  """A client created with a custom base_url is not redirected."""
+  mock_client._api_client.custom_base_url = "https://my-proxy.example.com/"
+  dummy_model = _make_model_with_deploy_options([_make_deploy_option()])
+  with (
+      mock.patch.object(
+          mock_client,
+          "_list_publisher_models",
+          return_value=types.ListPublisherModelsResponse(publisher_models=[]),
+      ) as mock_list,
+      mock.patch.object(
+          mock_client, "_get_publisher_model", return_value=dummy_model
+      ) as mock_get,
+  ):
+    mock_client.list_models()
+    mock_client.list_publisher_model_deploy_options(model=_OPEN_MODEL)
+
+  assert mock_list.call_args.kwargs["config"].http_options is None
+  assert mock_get.call_args.kwargs["config"].http_options is None
+
+
+def test_catalog_reads_routed_to_us_central1_async(mock_async_client):
+  """The async surface routes catalog reads the same way."""
+  mock_async_client._api_client.location = "europe-west4"
+  dummy_model = _make_model_with_deploy_options([_make_deploy_option()])
+  with (
+      mock.patch.object(
+          mock_async_client,
+          "_list_publisher_models",
+          new=mock.AsyncMock(
+              return_value=types.ListPublisherModelsResponse(
+                  publisher_models=[]
+              )
+          ),
+      ) as mock_list,
+      mock.patch.object(
+          mock_async_client,
+          "_get_publisher_model",
+          new=mock.AsyncMock(return_value=dummy_model),
+      ) as mock_get,
+  ):
+    asyncio.run(mock_async_client.list_deployable_models())
+    asyncio.run(
+        mock_async_client.list_publisher_model_deploy_options(model=_OPEN_MODEL)
+    )
+
+  assert mock_list.call_args.kwargs["config"].http_options == (
+      _CATALOG_HTTP_OPTIONS
+  )
+  assert mock_get.call_args.kwargs["config"].http_options == (
+      _CATALOG_HTTP_OPTIONS
+  )
 
 
 def test_list_publisher_model_deploy_options_async(mock_async_client):
@@ -2120,6 +2243,7 @@ def test_deploy_publisher_model_default_config_no_optional_blocks(mock_client):
     assert kwargs["deploy_config"].dedicated_resources is None
     assert kwargs["model_config_val"].container_spec is None
     assert kwargs["endpoint_config"].dedicated_endpoint_enabled is None
+    assert kwargs["endpoint_config"].dedicated_endpoint_disabled is None
     assert kwargs["endpoint_config"].private_service_connect_config is None
 
 
@@ -2215,10 +2339,38 @@ def test_deploy_publisher_model_accelerator_only_triggers_dedicated_resources(
     assert dr.machine_spec.accelerator_type == "NVIDIA_L4"
 
 
-def test_deploy_publisher_model_dedicated_endpoint_disabled_inverts(
+def test_deploy_publisher_model_spot_without_machine_shape_forwarded(
     mock_client,
 ):
-  """dedicated_endpoint_disabled=True maps to dedicated_endpoint_enabled=False on wire."""
+  """spot alone is sent without a machine spec; the backend applies it to the default machine."""
+  with (
+      _patch_deploy_rpc(mock_client) as m_rpc,
+      mock.patch.object(
+          model_garden._operations_utils,
+          "await_operation",
+          return_value=_done_deploy_operation(),
+      ),
+  ):
+    mock_client.deploy_publisher_model(
+        model=_OPEN_MODEL,
+        config=types.DeployPublisherModelConfig(spot=True),
+    )
+    dr = m_rpc.call_args.kwargs["deploy_config"].dedicated_resources
+    assert dr is not None
+    assert dr.spot is True
+    assert dr.machine_spec is None
+    assert dr.min_replica_count is None
+    assert dr.max_replica_count is None
+
+
+def test_deploy_publisher_model_dedicated_endpoint_disabled_forwarded(
+    mock_client,
+):
+  """dedicated_endpoint_disabled=True is sent as-is, not as the deprecated field.
+
+  dedicated_endpoint_enabled=False is the proto3 default, so the backend
+  cannot tell it from unset and would keep the dedicated endpoint on.
+  """
   with (
       _patch_deploy_rpc(mock_client) as m_rpc,
       mock.patch.object(
@@ -2233,16 +2385,15 @@ def test_deploy_publisher_model_dedicated_endpoint_disabled_inverts(
             dedicated_endpoint_disabled=True
         ),
     )
-    assert (
-        m_rpc.call_args.kwargs["endpoint_config"].dedicated_endpoint_enabled
-        is False
-    )
+    endpoint_config = m_rpc.call_args.kwargs["endpoint_config"]
+    assert endpoint_config.dedicated_endpoint_disabled is True
+    assert endpoint_config.dedicated_endpoint_enabled is None
 
 
-def test_deploy_publisher_model_dedicated_endpoint_disabled_false_maps_to_true(
+def test_deploy_publisher_model_dedicated_endpoint_disabled_false_not_sent(
     mock_client,
 ):
-  """dedicated_endpoint_disabled=False maps to dedicated_endpoint_enabled=True."""
+  """dedicated_endpoint_disabled=False sends neither field (server default)."""
   with (
       _patch_deploy_rpc(mock_client) as m_rpc,
       mock.patch.object(
@@ -2257,10 +2408,9 @@ def test_deploy_publisher_model_dedicated_endpoint_disabled_false_maps_to_true(
             dedicated_endpoint_disabled=False
         ),
     )
-    assert (
-        m_rpc.call_args.kwargs["endpoint_config"].dedicated_endpoint_enabled
-        is True
-    )
+    endpoint_config = m_rpc.call_args.kwargs["endpoint_config"]
+    assert endpoint_config.dedicated_endpoint_disabled is None
+    assert endpoint_config.dedicated_endpoint_enabled is None
 
 
 def test_deploy_publisher_model_private_service_connect(mock_client):
