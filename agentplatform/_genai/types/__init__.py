@@ -199,6 +199,9 @@ from .common import _UpdateSkillRequestParameters
 from .common import _UploadRagFileParameters
 from .common import _UpsertExamplesParameters
 from .common import AcceleratorType
+from .common import AgentDataPreprocessor
+from .common import AgentDataPreprocessorDict
+from .common import AgentDataPreprocessorOrDict
 from .common import AgentRunConfig
 from .common import AgentRunConfigDict
 from .common import AgentRunConfigOrDict
@@ -312,6 +315,9 @@ from .common import ClientConnectionConfig
 from .common import ClientConnectionConfigDict
 from .common import ClientConnectionConfigOrDict
 from .common import CodeExecutionMetric
+from .common import CodePreprocessorConfig
+from .common import CodePreprocessorConfigDict
+from .common import CodePreprocessorConfigOrDict
 from .common import ColorMap
 from .common import CometResult
 from .common import CometResultDict
@@ -409,6 +415,9 @@ from .common import CreateSkillConfigOrDict
 from .common import CustomCodeExecutionSpec
 from .common import CustomCodeExecutionSpecDict
 from .common import CustomCodeExecutionSpecOrDict
+from .common import CustomCodeParserConfig
+from .common import CustomCodeParserConfigDict
+from .common import CustomCodeParserConfigOrDict
 from .common import CustomJob
 from .common import CustomJobDict
 from .common import CustomJobOrDict
@@ -806,6 +815,9 @@ from .common import FetchExamplesConfigOrDict
 from .common import FetchExamplesResponse
 from .common import FetchExamplesResponseDict
 from .common import FetchExamplesResponseOrDict
+from .common import FilterPreprocessorConfig
+from .common import FilterPreprocessorConfigDict
+from .common import FilterPreprocessorConfigOrDict
 from .common import FlexStart
 from .common import FlexStartDict
 from .common import FlexStartOrDict
@@ -1851,6 +1863,9 @@ from .common import ResponseCandidateOrDict
 from .common import ResponseCandidateResult
 from .common import ResponseCandidateResultDict
 from .common import ResponseCandidateResultOrDict
+from .common import ResponseParserConfig
+from .common import ResponseParserConfigDict
+from .common import ResponseParserConfigOrDict
 from .common import RestoreVersionConfig
 from .common import RestoreVersionConfigDict
 from .common import RestoreVersionConfigOrDict
@@ -2185,6 +2200,13 @@ from .common import SpeculativeDecodingSpecNgramSpeculationDict
 from .common import SpeculativeDecodingSpecNgramSpeculationOrDict
 from .common import SpeculativeDecodingSpecOrDict
 from .common import State
+from .common import StepBasedLLMMetric
+from .common import StepBasedLLMMetricSpec
+from .common import StepBasedLLMMetricSpecDict
+from .common import StepBasedLLMMetricSpecOrDict
+from .common import StepBasedLLMMetricStep
+from .common import StepBasedLLMMetricStepDict
+from .common import StepBasedLLMMetricStepOrDict
 from .common import StoredContentsExample
 from .common import StoredContentsExampleDict
 from .common import StoredContentsExampleFilter
@@ -2273,6 +2295,9 @@ from .common import ToolParameterKVMatchResultsOrDict
 from .common import ToolParameterKVMatchSpec
 from .common import ToolParameterKVMatchSpecDict
 from .common import ToolParameterKVMatchSpecOrDict
+from .common import TraceCompressionConfig
+from .common import TraceCompressionConfigDict
+from .common import TraceCompressionConfigOrDict
 from .common import TuningResourceUsageAssessmentConfig
 from .common import TuningResourceUsageAssessmentConfigDict
 from .common import TuningResourceUsageAssessmentConfigOrDict
@@ -2406,6 +2431,27 @@ __all__ = [
     "EvaluationItem",
     "EvaluationItemDict",
     "EvaluationItemOrDict",
+    "TraceCompressionConfig",
+    "TraceCompressionConfigDict",
+    "TraceCompressionConfigOrDict",
+    "FilterPreprocessorConfig",
+    "FilterPreprocessorConfigDict",
+    "FilterPreprocessorConfigOrDict",
+    "CodePreprocessorConfig",
+    "CodePreprocessorConfigDict",
+    "CodePreprocessorConfigOrDict",
+    "AgentDataPreprocessor",
+    "AgentDataPreprocessorDict",
+    "AgentDataPreprocessorOrDict",
+    "CustomCodeParserConfig",
+    "CustomCodeParserConfigDict",
+    "CustomCodeParserConfigOrDict",
+    "ResponseParserConfig",
+    "ResponseParserConfigDict",
+    "ResponseParserConfigOrDict",
+    "StepBasedLLMMetricStep",
+    "StepBasedLLMMetricStepDict",
+    "StepBasedLLMMetricStepOrDict",
     "Metric",
     "MetricDict",
     "MetricOrDict",
@@ -2415,6 +2461,9 @@ __all__ = [
     "CustomCodeExecutionSpec",
     "CustomCodeExecutionSpecDict",
     "CustomCodeExecutionSpecOrDict",
+    "StepBasedLLMMetricSpec",
+    "StepBasedLLMMetricSpecDict",
+    "StepBasedLLMMetricSpecOrDict",
     "UnifiedMetric",
     "UnifiedMetricDict",
     "UnifiedMetricOrDict",
@@ -4504,6 +4553,7 @@ __all__ = [
     "PromptDataOrDict",
     "LLMMetric",
     "CodeExecutionMetric",
+    "StepBasedLLMMetric",
     "MetricPromptBuilder",
     "RubricContentProperty",
     "RubricContentPropertyDict",
