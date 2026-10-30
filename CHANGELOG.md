@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.8.0](https://github.com/googleapis/python-aiplatform/compare/v2.7.0...v2.8.0) (2026-10-30)
+
+
+### Features
+
+* GenAI SDK client(evals) - Add StepBasedLLMMetric for multi-step LLM-judge metrics over agent traces. ([954c90d](https://github.com/googleapis/python-aiplatform/commit/954c90dc49e0d63c2f5c6f318165d019aa7b7ba0))
+
+
+### Bug Fixes
+
+* Fail open on any error resolving the project ID in the ADK framework. ([2ec72e8](https://github.com/googleapis/python-aiplatform/commit/2ec72e8a4524d9a9c24acc8f24296094cb8669b3))
+
 ## [2.7.0](https://github.com/googleapis/python-aiplatform/compare/v2.6.0...v2.7.0) (2026-10-28)
 
 
