@@ -24,6 +24,7 @@ import uuid
 
 import cloudpickle
 from google import auth
+from google.api_core import exceptions as api_exceptions
 from google.api_core import operation as ga_operation
 from google.auth import credentials as auth_credentials
 from google.auth.transport import mtls
@@ -1645,6 +1646,48 @@ class TestAdkApp:
         app = adk_template.AdkApp(agent=_TEST_AGENT)
         assert app._get_project_id(None) is None
         get_project_id_mock.assert_not_called()
+
+    @pytest.mark.parametrize(
+        "error",
+        [
+            api_exceptions.PermissionDenied("denied"),
+            api_exceptions.Unauthenticated("unauthenticated"),
+            # b/561814776: gRPC UNKNOWN, seen when an Agent Gateway terminates
+            # the HTTP/2 stream to cloudresourcemanager.
+            api_exceptions.Unknown("Stream removed"),
+            api_exceptions.DeadlineExceeded("deadline exceeded"),
+            RuntimeError("something unexpected"),
+        ],
+    )
+    def test_project_id_fails_open_on_lookup_error(
+        self,
+        get_project_id_mock: mock.Mock,
+        error: Exception,
+    ):
+        """A failed lookup falls back to the project number instead of raising.
+
+        _get_project_id() runs from set_up() on the cold-start path, so an
+        escaping exception kills the worker over a lookup nothing depends on.
+        """
+        app = adk_template.AdkApp(agent=_TEST_AGENT)
+        get_project_id_mock.side_effect = error
+
+        assert app._get_project_id(_TEST_PROJECT_NUMBER) == _TEST_PROJECT_NUMBER
+        get_project_id_mock.assert_called_once_with(_TEST_PROJECT_NUMBER)
+
+    def test_project_id_fails_open_when_lookup_module_is_missing(self):
+        """b/579673015: google-cloud-aiplatform is not installed.
+
+        The failed import used to leave `exceptions` unbound, so the except
+        clause itself raised UnboundLocalError and set_up() failed.
+        """
+        app = adk_template.AdkApp(agent=_TEST_AGENT)
+        with mock.patch.dict(
+            sys.modules, {"google.cloud.aiplatform.aiplatform.utils": None}
+        ):
+            assert (
+                app._get_project_id(_TEST_PROJECT_NUMBER) == _TEST_PROJECT_NUMBER
+            )
 
     @pytest.mark.usefixtures("caplog")
     def test_enable_tracing(
