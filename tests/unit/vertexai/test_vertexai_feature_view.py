@@ -221,6 +221,25 @@ def test_init_with_fv_id_and_no_fos_id_raises_error(get_fv_mock):
         FeatureView(_TEST_FV1_ID)
 
 
+def test_init_with_fv_id_uses_the_given_project_and_location(get_fv_mock):
+    aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
+    FeatureView(
+        name=_TEST_FV1_ID,
+        feature_online_store_id=_TEST_BIGTABLE_FOS1_ID,
+        project="other-project",
+        location="europe-west4",
+    )
+
+    get_fv_mock.assert_called_once_with(
+        name=(
+            "projects/other-project/locations/europe-west4/"
+            f"featureOnlineStores/{_TEST_BIGTABLE_FOS1_ID}/featureViews/{_TEST_FV1_ID}"
+        ),
+        retry=base._DEFAULT_RETRY,
+    )
+
+
 def test_init_with_fv_id(get_fv_mock):
     aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
 

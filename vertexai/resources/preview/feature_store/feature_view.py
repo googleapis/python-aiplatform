@@ -106,6 +106,8 @@ class FeatureView(base.VertexAiResourceNounWithFutureManager):
                 resource_noun=FeatureOnlineStore._resource_noun,
                 parse_resource_name_method=FeatureOnlineStore._parse_resource_name,
                 format_resource_name_method=FeatureOnlineStore._format_resource_name,
+                project=project,
+                location=location,
             )
 
             feature_view = f"{feature_online_store_path}/featureViews/{name}"

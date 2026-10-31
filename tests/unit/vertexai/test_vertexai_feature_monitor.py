@@ -181,6 +181,27 @@ def test_init_with_feature_monitor_path_and_fg_id_raises_error():
         )
 
 
+def test_init_with_feature_monitor_id_uses_the_given_project_and_location(
+    get_feature_monitor_mock,
+):
+    aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
+    FeatureMonitor(
+        _TEST_FG1_FM1_ID,
+        feature_group_id=_TEST_FG1_ID,
+        project="other-project",
+        location="europe-west4",
+    )
+
+    get_feature_monitor_mock.assert_called_once_with(
+        name=(
+            "projects/other-project/locations/europe-west4/"
+            f"featureGroups/{_TEST_FG1_ID}/featureMonitors/{_TEST_FG1_FM1_ID}"
+        ),
+        retry=base._DEFAULT_RETRY,
+    )
+
+
 def test_init_with_feature_monitor_id(get_feature_monitor_mock):
     aiplatform.init(
         project=_TEST_PROJECT,
