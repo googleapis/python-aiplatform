@@ -1585,3 +1585,87 @@ class TestMetadataUtils:
         assert kwargs["execution"].display_name == _TEST_DISPLAY_NAME
         assert kwargs["execution"].description == _TEST_DESCRIPTION
         assert kwargs["execution"].metadata == _TEST_UPDATED_METADATA
+
+
+class TestMetadataSchemaReloadUsesCallerSettings:
+    """The reload after create must use the project, location and credentials given."""
+
+    SETTINGS = {
+        "project": "other-project",
+        "location": "europe-west4",
+        "credentials": mock.sentinel.credentials,
+    }
+
+    def test_artifact_create_reloads_with_caller_settings(
+        self, base_artifact_init_with_resouce_name_mock
+    ):
+        class TestArtifact(base_artifact.BaseArtifactSchema):
+            schema_title = _TEST_SCHEMA_TITLE
+
+        with mock.patch(
+            "google.cloud.aiplatform.metadata.artifact.Artifact.create",
+            return_value=mock.Mock(resource_name=_TEST_ARTIFACT_NAME),
+        ):
+            TestArtifact().create(metadata_store_id="store", **self.SETTINGS)
+
+        base_artifact_init_with_resouce_name_mock.assert_called_once_with(
+            artifact_name=_TEST_ARTIFACT_NAME,
+            metadata_store_id="store",
+            **self.SETTINGS,
+        )
+
+    def test_execution_create_reloads_with_caller_settings(
+        self, base_execution_init_with_resouce_name_mock
+    ):
+        class TestExecution(base_execution.BaseExecutionSchema):
+            schema_title = _TEST_SCHEMA_TITLE
+
+        with mock.patch(
+            "google.cloud.aiplatform.metadata.execution.Execution.create",
+            return_value=mock.Mock(resource_name=_TEST_EXECUTION_NAME),
+        ):
+            TestExecution().create(metadata_store_id="store", **self.SETTINGS)
+
+        base_execution_init_with_resouce_name_mock.assert_called_once_with(
+            execution_name=_TEST_EXECUTION_NAME,
+            metadata_store_id="store",
+            **self.SETTINGS,
+        )
+
+    def test_start_execution_reloads_with_caller_settings(
+        self, base_execution_init_with_resouce_name_mock
+    ):
+        class TestExecution(base_execution.BaseExecutionSchema):
+            schema_title = _TEST_SCHEMA_TITLE
+
+        with mock.patch(
+            "google.cloud.aiplatform.metadata.metadata."
+            "_ExperimentTracker.start_execution",
+            return_value=mock.Mock(resource_name=_TEST_EXECUTION_NAME),
+        ):
+            TestExecution(metadata=_TEST_UPDATED_METADATA).start_execution(
+                **self.SETTINGS
+            )
+
+        base_execution_init_with_resouce_name_mock.assert_called_once_with(
+            execution_name=_TEST_EXECUTION_NAME,
+            **self.SETTINGS,
+        )
+
+    def test_context_create_reloads_with_caller_settings(
+        self, base_context_init_with_resouce_name_mock
+    ):
+        class TestContext(base_context.BaseContextSchema):
+            schema_title = _TEST_SCHEMA_TITLE
+
+        with mock.patch(
+            "google.cloud.aiplatform.metadata.context.Context.create",
+            return_value=mock.Mock(resource_name=_TEST_CONTEXT_NAME),
+        ):
+            TestContext().create(metadata_store_id="store", **self.SETTINGS)
+
+        base_context_init_with_resouce_name_mock.assert_called_once_with(
+            context_name=_TEST_CONTEXT_NAME,
+            metadata_store_id="store",
+            **self.SETTINGS,
+        )
