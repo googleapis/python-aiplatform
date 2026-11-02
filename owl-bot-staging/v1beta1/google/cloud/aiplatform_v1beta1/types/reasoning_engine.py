@@ -265,6 +265,10 @@ class ReasoningEngineSpec(proto.Message):
                 Developer Connect.
 
                 This field is a member of `oneof`_ ``source``.
+            git_source (google.cloud.aiplatform_v1beta1.types.ReasoningEngineSpec.SourceCodeSpec.GitSource):
+                Source code is in a public Git repository.
+
+                This field is a member of `oneof`_ ``source``.
             python_spec (google.cloud.aiplatform_v1beta1.types.ReasoningEngineSpec.SourceCodeSpec.PythonSpec):
                 Configuration for a Python application.
 
@@ -357,6 +361,36 @@ class ReasoningEngineSpec(proto.Message):
                 message='ReasoningEngineSpec.SourceCodeSpec.DeveloperConnectConfig',
             )
 
+        class GitSource(proto.Message):
+            r"""Specifies source code to be fetched from a public Git
+            repository.
+
+            Attributes:
+                url (str):
+                    Required. The HTTPS URL of the public Git
+                    repository to clone.
+                dir_ (str):
+                    Optional. Directory, relative to the source
+                    root, in which to run the build.
+                revision (str):
+                    Required. The revision to fetch from the Git
+                    repository: a branch, a tag, or a full commit
+                    SHA. Abbreviated commit SHAs are not supported.
+            """
+
+            url: str = proto.Field(
+                proto.STRING,
+                number=1,
+            )
+            dir_: str = proto.Field(
+                proto.STRING,
+                number=2,
+            )
+            revision: str = proto.Field(
+                proto.STRING,
+                number=3,
+            )
+
         class PythonSpec(proto.Message):
             r"""Specification for running a Python application from source.
 
@@ -412,6 +446,12 @@ class ReasoningEngineSpec(proto.Message):
             number=3,
             oneof='source',
             message='ReasoningEngineSpec.SourceCodeSpec.DeveloperConnectSource',
+        )
+        git_source: 'ReasoningEngineSpec.SourceCodeSpec.GitSource' = proto.Field(
+            proto.MESSAGE,
+            number=6,
+            oneof='source',
+            message='ReasoningEngineSpec.SourceCodeSpec.GitSource',
         )
         python_spec: 'ReasoningEngineSpec.SourceCodeSpec.PythonSpec' = proto.Field(
             proto.MESSAGE,
