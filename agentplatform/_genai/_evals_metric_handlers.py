@@ -846,6 +846,66 @@ class LLMMetricHandler(MetricHandler[types.LLMMetric]):
             return _default_aggregate_scores(self.metric.name, eval_case_metric_results)
 
 
+class StepBasedLLMMetricHandler(LLMMetricHandler):
+    """Metric handler for step-based LLM metrics."""
+
+    @override
+    def get_metric_result(
+        self, eval_case: types.EvalCase, response_index: int
+    ) -> types.EvalCaseMetricResult:
+        """Evaluates one case with the step-based LLM metric."""
+        try:
+            response_content = _get_response_from_eval_case(
+                eval_case, response_index, self.metric_name
+            )
+            if not response_content and not getattr(eval_case, "agent_data", None):
+                raise ValueError(
+                    f"Response content missing for candidate {response_index}."
+                )
+
+            # Joined so dataset columns referenced by any step reach other_data.
+            prompt_templates = "\n".join(
+                step.prompt_template or "" for step in self.metric.steps or []
+            )
+            instance = _build_evaluation_instance(
+                eval_case, response_content, prompt_template=prompt_templates
+            )
+            api_response = _call_with_retry(
+                lambda: self.module._evaluate_instances(
+                    metrics=[self.metric],
+                    instance=instance,
+                    allow_cross_region_model=self.allow_cross_region_model,
+                ),
+                self.metric_name,
+            )
+
+            if api_response and api_response.metric_results:
+                result = api_response.metric_results[0]
+                error_msg = None
+                if result.error and getattr(result.error, "code"):
+                    error_msg = f"Error in metric result: {result.error}"
+                return types.EvalCaseMetricResult(
+                    metric_name=self.metric_name,
+                    score=result.score,
+                    explanation=result.explanation,
+                    error_message=error_msg,
+                )
+            return types.EvalCaseMetricResult(
+                metric_name=self.metric_name,
+                error_message="Metric results missing in API response.",
+            )
+        except Exception as e:  # pylint: disable=broad-exception-caught
+            logger.error(
+                "Error processing metric %s for case %s.",
+                self.metric_name,
+                eval_case.eval_case_id,
+                exc_info=True,
+            )
+            return types.EvalCaseMetricResult(
+                metric_name=self.metric_name, error_message=str(e)
+            )
+
+
 class CustomMetricHandler(MetricHandler[types.Metric]):
     """Metric handler for custom metrics."""
 
@@ -1375,6 +1435,7 @@ _METRIC_HANDLER_MAPPING = [
         lambda m: getattr(m, "metric_resource_name", None) is not None,
         RegisteredMetricHandler,
     ),
+    (lambda m: getattr(m, "steps", None), StepBasedLLMMetricHandler),
     (
         lambda m: m.name in ComputationMetricHandler.SUPPORTED_COMPUTATION_METRICS,
         ComputationMetricHandler,
@@ -1395,6 +1456,7 @@ MetricHandlerType = TypeVar(
     ComputationMetricHandler,
     TranslationMetricHandler,
     LLMMetricHandler,
+    StepBasedLLMMetricHandler,
     CustomMetricHandler,
     CustomCodeExecutionMetricHandler,
     PredefinedMetricHandler,
