@@ -263,6 +263,12 @@ def t_metric_for_registry(
             "evaluation_function": metric.custom_function
         }
 
+    # Step-based LLM metric
+    elif getv(metric, ["steps"]):
+        metric_payload_item["step_based_llm_metric_spec"] = _step_based_llm_metric_spec(
+            metric
+        )
+
     # LLM-based metric
     elif (hasattr(metric, "prompt_template") and metric.prompt_template) or (
         hasattr(metric, "rubric_group_name") and metric.rubric_group_name

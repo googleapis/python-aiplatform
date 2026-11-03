@@ -12350,6 +12350,17 @@ class TestStepBasedLLMMetric:
         assert spec["preprocessor"] == {"code_config": {"code": self._PREPROCESS_CODE}}
         assert "autorater_config" not in spec["steps"][0]
 
+    def test_t_metric_for_registry_builds_step_based_spec(self):
+        metric = self._metric()
+
+        payload = _transformers.t_metric_for_registry(metric)
+
+        assert payload == {
+            "step_based_llm_metric_spec": _transformers.t_metrics([metric])[0][
+                "step_based_llm_metric_spec"
+            ]
+        }
+
     @pytest.mark.parametrize(
         "steps,error",
         [
