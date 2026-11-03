@@ -5347,6 +5347,124 @@ class TestRunAgentInternal:
         assert "Failed to parse agent run response" in response_content
         assert not result_df["intermediate_events"][0]
 
+    def _policy_agent_events(self, *events):
+        return [
+            {
+                "id": "1",
+                "author": "orchestrator",
+                "content": {
+                    "role": "model",
+                    "parts": [
+                        {"text": "Transferring you to the policy agent."},
+                        {
+                            "function_call": {
+                                "name": "transfer_to_agent",
+                                "args": {"agent_name": "policy_agent"},
+                            }
+                        },
+                    ],
+                },
+            },
+            {
+                "id": "2",
+                "author": "orchestrator",
+                "content": {
+                    "role": "user",
+                    "parts": [
+                        {
+                            "function_response": {
+                                "name": "transfer_to_agent",
+                                "response": {},
+                            }
+                        }
+                    ],
+                },
+            },
+            {
+                "id": "3",
+                "author": "policy_agent",
+                "content": {
+                    "role": "model",
+                    "parts": [
+                        {"text": "I should look up the policy.", "thought": True},
+                        {"function_call": {"name": "lookup_policy", "args": {}}},
+                    ],
+                },
+            },
+            {
+                "id": "4",
+                "author": "policy_agent",
+                "content": {
+                    "role": "user",
+                    "parts": [
+                        {
+                            "function_response": {
+                                "name": "lookup_policy",
+                                "response": {"covered": True},
+                            }
+                        }
+                    ],
+                },
+            },
+            *events,
+        ]
+
+    @mock.patch.object(_evals_common, "_run_agent")
+    def test_run_agent_internal_multi_agent_trace_without_final_text(
+        self, mock_run_agent
+    ):
+        mock_run_agent.return_value = [self._policy_agent_events()]
+        result_df = _evals_common._run_agent_internal(
+            api_client=mock.Mock(),
+            runtime=mock.Mock(),
+            agent=None,
+            prompt_dataset=pd.DataFrame({"prompt": ["prompt1"]}),
+        )
+
+        assert result_df["response"][0] == ""
+        assert [e["event_id"] for e in result_df["intermediate_events"][0]] == [
+            "1",
+            "2",
+            "3",
+            "4",
+        ]
+        assert len(result_df["agent_data"][0]["turns"][0]["events"]) == 4
+
+    @mock.patch.object(_evals_common, "_run_agent")
+    def test_run_agent_internal_multi_agent_trace_with_final_text(self, mock_run_agent):
+        mock_run_agent.return_value = [
+            self._policy_agent_events(
+                {
+                    "id": "5",
+                    "author": "policy_agent",
+                    "content": {
+                        "role": "model",
+                        "parts": [
+                            {"text": "The policy covers it.", "thought": True},
+                            {"text": "Your policy covers this."},
+                        ],
+                    },
+                },
+                {"id": "6", "author": None, "content": {"parts": []}},
+            )
+        ]
+        result_df = _evals_common._run_agent_internal(
+            api_client=mock.Mock(),
+            runtime=mock.Mock(),
+            agent=None,
+            prompt_dataset=pd.DataFrame({"prompt": ["prompt1"]}),
+        )
+
+        assert result_df["response"][0] == "Your policy covers this."
+        assert [e["event_id"] for e in result_df["intermediate_events"][0]] == [
+            "1",
+            "2",
+            "3",
+            "4",
+            "6",
+        ]
+        assert len(result_df["agent_data"][0]["turns"][0]["events"]) == 6
+
 
 class TestIsMultiTurnAgentSimulation:
     """Unit tests for the _is_multi_turn_agent_simulation function."""
