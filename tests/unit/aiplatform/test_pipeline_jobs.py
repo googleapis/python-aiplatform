@@ -2415,6 +2415,46 @@ class TestPipelineJob:
 
         assert mock_pipeline_v1beta1_service_create.call_count == 1
 
+    @pytest.mark.parametrize("job_spec", [_TEST_PIPELINE_SPEC_JSON])
+    @pytest.mark.parametrize("enable_preflight_validations", [True, False])
+    @pytest.mark.parametrize("sync", [True, False])
+    @mock.patch.object(pipeline_jobs, "_JOB_WAIT_TIME", 0.05)
+    @mock.patch.object(pipeline_jobs, "_LOG_WAIT_TIME", 0.05)
+    def test_run_v1beta1_pipeline_job_passes_preflight_validations(
+        self,
+        mock_load_yaml_and_json,
+        job_spec,
+        mock_pipeline_v1beta1_service_create,
+        mock_pipeline_service_get,
+        enable_preflight_validations,
+        sync,
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_GCS_BUCKET_NAME,
+            location=_TEST_LOCATION,
+            credentials=_TEST_CREDENTIALS,
+        )
+
+        job = preview_pipeline_jobs._PipelineJob(
+            display_name=_TEST_PIPELINE_JOB_DISPLAY_NAME,
+            template_path=_TEST_TEMPLATE_PATH,
+            job_id=_TEST_PIPELINE_JOB_ID,
+        )
+
+        # run() comes from the GA PipelineJob and passes
+        # enable_preflight_validations on to submit()
+        job.run(sync=sync, enable_preflight_validations=enable_preflight_validations)
+
+        if not sync:
+            job.wait()
+
+        assert mock_pipeline_v1beta1_service_create.call_count == 1
+        request = mock_pipeline_v1beta1_service_create.call_args.kwargs["request"]
+        assert (
+            request.pipeline_job.preflight_validations is enable_preflight_validations
+        )
+
     @pytest.mark.usefixtures(
         "mock_pipeline_v1beta1_service_create",
     )
