@@ -448,13 +448,39 @@ class LayoutParserConfig:
 
 @dataclasses.dataclass
 class LlmParserConfig:
-    """Configuration for the Document AI Layout Parser Processor.
+    """Configuration for the LLM Parser.
 
     Attributes:
         model_name (str):
-            The full resource name of a Vertex AI model. Format:
-            -  `projects/{project_id}/locations/{location}/publishers/google/models/{model_id}`
-            -  `projects/{project_id}/locations/{location}/models/{model_id}`
+            The Gemini model used for parsing. Format must be one of:
+            -  `projects/{project}/locations/{location}/publishers/google/models/{model}`
+            -  `publishers/google/models/{model}`
+            -  `{model}`, for example `gemini-3.8-flash`
+            The first format calls the model in `{location}`; the others call
+            it in the RAG corpus' region.
+            Supported models:
+            -  `gemini-3.8-flash` (recommended)
+            -  `gemini-4-argon` (Gemini 4.0 Pro)
+            -  `gemini-3.5-flash`
+            -  `gemini-3.5-flash-lite`
+            -  `gemini-3.1-flash-lite`
+            -  `gemini-2.5-flash-lite`, `gemini-2.5-flash` and
+               `gemini-2.5-pro`, until they retire on March 31, 2027.
+            Gemini 3.x and later models are served from the `global`, `us`
+            and `eu` locations, so a regional location is replaced by the
+            multi-region of its jurisdiction: `us-*` regions by `us`; the EU
+            member state regions `europe-central2`, `europe-north1`,
+            `europe-southwest1`, `europe-west1`, `europe-west3`,
+            `europe-west4`, `europe-west8`, `europe-west9` and `europe-west12`
+            by `eu`; and any other region, including `europe-west2` (London)
+            and `europe-west6` (Zurich), by `global`. The exception is a
+            model that is also served in that region, which stays there:
+            -  `gemini-3.5-flash`: `asia-northeast1`, `asia-south1`,
+               `asia-southeast1`, `australia-southeast1`, `europe-west2`,
+               `europe-west3` and `northamerica-northeast1`
+            -  `gemini-3.5-flash-lite`: `asia-south1`
+            -  `gemini-4-argon`: `asia-southeast1` and `europe-west2`
+            Gemini 2.x models are called in the region as given.
         max_parsing_requests_per_min (int):
             The maximum number of requests the job is allowed to make to the
             Vertex AI model per minute. Consult
