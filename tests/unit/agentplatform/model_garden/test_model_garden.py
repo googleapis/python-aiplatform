@@ -70,6 +70,7 @@ _TEST_PARTNER_MODEL_FULL_RESOURCE_NAME = "publishers/ai21/models/jamba-large-1.6
 _TEST_PARTNER_MODEL_SIMPLIFIED_RESOURCE_NAME = "ai21/jamba-large-1.6@001"
 
 _TEST_GCS_URI = "gs://some-bucket/some-model"
+_TEST_SERVICE_ACCOUNT = "deployed-model@test-project.iam.gserviceaccount.com"
 _TEST_ENDPOINT_NAME = "projects/test-project/locations/us-central1/endpoints/1234567890"
 _TEST_MODEL_NAME = "projects/test-project/locations/us-central1/models/9876543210"
 _TEST_IMAGE_URI = "us-docker.pkg.dev/vertex-ai/vertex-vision-model-garden-dockers/pytorch-vllm-serve:20241202_0916_RC00"
@@ -653,6 +654,26 @@ class TestModelGardenPartnerModel:
             )
         )
 
+    def test_deploy_with_service_account_success(self, deploy_mock):
+        """Tests deploying a model with a service account."""
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+        model = model_garden.PartnerModel(
+            model_name=_TEST_PARTNER_MODEL_FULL_RESOURCE_NAME
+        )
+        model.deploy(service_account=_TEST_SERVICE_ACCOUNT)
+        deploy_mock.assert_called_once_with(
+            types.DeployRequest(
+                publisher_model_name=_TEST_PARTNER_MODEL_FULL_RESOURCE_NAME,
+                destination=f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}",
+                deploy_config=types.DeployRequest.DeployConfig(
+                    service_account=_TEST_SERVICE_ACCOUNT
+                ),
+            )
+        )
+
 
 @pytest.mark.usefixtures(
     "google_auth_mock",
@@ -981,6 +1002,24 @@ class TestModelGardenOpenModel:
                 destination=f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}",
                 deploy_config=types.DeployRequest.DeployConfig(
                     system_labels={"test-key": "test-value"}
+                ),
+            )
+        )
+
+    def test_deploy_with_service_account_success(self, deploy_mock):
+        """Tests deploying a model with a service account."""
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+        model = model_garden.OpenModel(model_name=_TEST_MODEL_FULL_RESOURCE_NAME)
+        model.deploy(service_account=_TEST_SERVICE_ACCOUNT)
+        deploy_mock.assert_called_once_with(
+            types.DeployRequest(
+                publisher_model_name=_TEST_MODEL_FULL_RESOURCE_NAME,
+                destination=f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}",
+                deploy_config=types.DeployRequest.DeployConfig(
+                    service_account=_TEST_SERVICE_ACCOUNT
                 ),
             )
         )
@@ -1714,6 +1753,29 @@ class TestModelGardenCustomModel:
                         max_replica_count=1,
                     ),
                     system_labels={"test-key": "test-value"},
+                ),
+            )
+        )
+
+    def test_deploy_custom_model_with_service_account_success(self, deploy_mock):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+        model = model_garden_preview.CustomModel(gcs_uri=_TEST_GCS_URI)
+        model.deploy(service_account=_TEST_SERVICE_ACCOUNT)
+        deploy_mock.assert_called_once_with(
+            types.DeployRequest(
+                destination=f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}",
+                custom_model=types.DeployRequest.CustomModel(
+                    gcs_uri=_TEST_GCS_URI,
+                ),
+                deploy_config=types.DeployRequest.DeployConfig(
+                    dedicated_resources=types.DedicatedResources(
+                        min_replica_count=1,
+                        max_replica_count=1,
+                    ),
+                    service_account=_TEST_SERVICE_ACCOUNT,
                 ),
             )
         )

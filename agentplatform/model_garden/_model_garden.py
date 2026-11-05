@@ -462,6 +462,7 @@ class OpenModel:
         serving_container_health_probe_timeout_seconds: Optional[int] = None,
         enable_private_service_connect: bool = False,
         psc_project_allow_list: Optional[Sequence[str]] = None,
+        service_account: Optional[str] = None,
     ) -> aiplatform.Endpoint:
         """Deploys an Open Model to an endpoint.
 
@@ -601,6 +602,9 @@ class OpenModel:
             connect.
             psc_project_allow_list (Sequence[str]): The list of projects that are
             allowed to access the endpoint over private service connect.
+            service_account (str): Optional. The service account that the
+              deployed model runs as. The caller must have the
+              `iam.serviceAccounts.actAs` permission on this service account.
 
         Returns:
             endpoint (aiplatform.Endpoint):
@@ -682,6 +686,9 @@ class OpenModel:
 
         if system_labels:
             request.deploy_config.system_labels = system_labels
+
+        if service_account:
+            request.deploy_config.service_account = service_account
 
         if serving_container_spec:
             if not serving_container_spec.image_uri:
@@ -1126,6 +1133,7 @@ class CustomModel:
         enable_private_service_connect: bool = False,
         psc_project_allow_list: Optional[List[str]] = None,
         deploy_request_timeout: Optional[float] = None,
+        service_account: Optional[str] = None,
     ) -> aiplatform.Endpoint:
         """Deploys a Custom Model to an endpoint.
 
@@ -1174,6 +1182,9 @@ class CustomModel:
               access the endpoint over private service connect.
             deploy_request_timeout: The timeout for the deploy request. Default is 2
               hours.
+            service_account (str): Optional. The service account that the
+              deployed model runs as. The caller must have the
+              `iam.serviceAccounts.actAs` permission on this service account.
 
         Returns:
             endpoint (aiplatform.Endpoint):
@@ -1194,6 +1205,7 @@ class CustomModel:
             enable_private_service_connect=enable_private_service_connect,
             psc_project_allow_list=psc_project_allow_list,
             deploy_request_timeout=deploy_request_timeout,
+            service_account=service_account,
         )
 
     def _deploy_model_registry_model(self) -> aiplatform.Endpoint:
@@ -1218,6 +1230,7 @@ class CustomModel:
         endpoint_display_name: Optional[str] = None,
         model_display_name: Optional[str] = None,
         deploy_request_timeout: Optional[float] = None,
+        service_account: Optional[str] = None,
     ) -> aiplatform.Endpoint:
         """Deploys a Custom Model to an endpoint.
 
@@ -1268,6 +1281,9 @@ class CustomModel:
               access the endpoint over private service connect.
             deploy_request_timeout: The timeout for the deploy request. Default is 2
               hours.
+            service_account (str): Optional. The service account that the
+              deployed model runs as. The caller must have the
+              `iam.serviceAccounts.actAs` permission on this service account.
 
         Returns:
             endpoint (aiplatform.Endpoint):
@@ -1296,6 +1312,8 @@ class CustomModel:
             request.model_config.model_display_name = model_display_name
         if system_labels:
             request.deploy_config.system_labels = system_labels
+        if service_account:
+            request.deploy_config.service_account = service_account
 
         if enable_private_service_connect and psc_project_allow_list:
             request.endpoint_config.private_service_connect_config = (
@@ -1407,6 +1425,7 @@ class PartnerModel:
         endpoint_display_name: Optional[str] = None,
         model_display_name: Optional[str] = None,
         deploy_request_timeout: Optional[float] = None,
+        service_account: Optional[str] = None,
     ) -> aiplatform.Endpoint:
         """Deploys an Open Model to an endpoint.
 
@@ -1439,6 +1458,9 @@ class PartnerModel:
             model_display_name: The display name of the uploaded model.
             deploy_request_timeout: The timeout for the deploy request. Default is 2
               hours.
+            service_account (str): Optional. The service account that the
+              deployed model runs as. The caller must have the
+              `iam.serviceAccounts.actAs` permission on this service account.
 
         Returns:
             endpoint (aiplatform.Endpoint):
@@ -1468,6 +1490,9 @@ class PartnerModel:
                 max_replica_count=max_replica_count,
             )
             request.deploy_config.dedicated_resources = dedicated_resources
+
+        if service_account:
+            request.deploy_config.service_account = service_account
 
         _LOGGER.info(f"Deploying model: {self._model_name}")
 

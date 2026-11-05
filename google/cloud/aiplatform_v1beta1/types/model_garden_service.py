@@ -457,6 +457,17 @@ class DeployRequest(proto.Message):
                 Optional. System labels for Model Garden
                 deployments. These labels are managed by Google
                 and for tracking purposes only.
+            service_account (str):
+                Optional. The service account that the
+                container of the deployed model runs as. Specify
+                the email address of the service account. If not
+                specified, the container runs as a service
+                account that has no access to the resource
+                project.
+
+                Users deploying the model must have the
+                ``iam.serviceAccounts.actAs`` permission on this
+                service account.
         """
 
         dedicated_resources: machine_resources.DedicatedResources = proto.Field(
@@ -472,6 +483,10 @@ class DeployRequest(proto.Message):
             proto.STRING,
             proto.STRING,
             number=3,
+        )
+        service_account: str = proto.Field(
+            proto.STRING,
+            number=5,
         )
 
     publisher_model_name: str = proto.Field(

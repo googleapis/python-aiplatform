@@ -9061,6 +9061,42 @@ ReasoningEngineSpecSourceCodeSpecPythonSpecOrDict = Union[
 ]
 
 
+class ReasoningEngineSpecSourceCodeSpecGitSource(_common.BaseModel):
+    """Specifies source code to be fetched from a public Git repository."""
+
+    dir: Optional[str] = Field(
+        default=None,
+        description="""Optional. Directory, relative to the source root, in which to run the build.""",
+    )
+    revision: Optional[str] = Field(
+        default=None,
+        description="""Required. The revision to fetch from the Git repository: a branch, a tag, or a full commit SHA. Abbreviated commit SHAs are not supported.""",
+    )
+    url: Optional[str] = Field(
+        default=None,
+        description="""Required. The HTTPS URL of the public Git repository to clone.""",
+    )
+
+
+class ReasoningEngineSpecSourceCodeSpecGitSourceDict(TypedDict, total=False):
+    """Specifies source code to be fetched from a public Git repository."""
+
+    dir: Optional[str]
+    """Optional. Directory, relative to the source root, in which to run the build."""
+
+    revision: Optional[str]
+    """Required. The revision to fetch from the Git repository: a branch, a tag, or a full commit SHA. Abbreviated commit SHAs are not supported."""
+
+    url: Optional[str]
+    """Required. The HTTPS URL of the public Git repository to clone."""
+
+
+ReasoningEngineSpecSourceCodeSpecGitSourceOrDict = Union[
+    ReasoningEngineSpecSourceCodeSpecGitSource,
+    ReasoningEngineSpecSourceCodeSpecGitSourceDict,
+]
+
+
 class ReasoningEngineSpecSourceCodeSpec(_common.BaseModel):
     """Specification for deploying from source code."""
 
@@ -9085,6 +9121,9 @@ class ReasoningEngineSpecSourceCodeSpec(_common.BaseModel):
     python_spec: Optional[ReasoningEngineSpecSourceCodeSpecPythonSpec] = Field(
         default=None, description="""Configuration for a Python application."""
     )
+    git_source: Optional[ReasoningEngineSpecSourceCodeSpecGitSource] = Field(
+        default=None, description="""Source code is in a public Git repository."""
+    )
 
 
 class ReasoningEngineSpecSourceCodeSpecDict(TypedDict, total=False):
@@ -9108,6 +9147,9 @@ class ReasoningEngineSpecSourceCodeSpecDict(TypedDict, total=False):
 
     python_spec: Optional[ReasoningEngineSpecSourceCodeSpecPythonSpecDict]
     """Configuration for a Python application."""
+
+    git_source: Optional[ReasoningEngineSpecSourceCodeSpecGitSourceDict]
+    """Source code is in a public Git repository."""
 
 
 ReasoningEngineSpecSourceCodeSpecOrDict = Union[
@@ -21498,6 +21540,28 @@ SchemaPromptInstancePromptExecutionOrDict = Union[
 ]
 
 
+class SchemaPromptSpecPromptMessageOutputConfig(_common.BaseModel):
+    """Configuration for persisting output assets to external storage."""
+
+    output_uri_prefix: Optional[str] = Field(
+        default=None,
+        description="""Optional. The Cloud Storage URI prefix or directory where generated media assets should be written (e.g. `gs://my-bucket/prefix/`).""",
+    )
+
+
+class SchemaPromptSpecPromptMessageOutputConfigDict(TypedDict, total=False):
+    """Configuration for persisting output assets to external storage."""
+
+    output_uri_prefix: Optional[str]
+    """Optional. The Cloud Storage URI prefix or directory where generated media assets should be written (e.g. `gs://my-bucket/prefix/`)."""
+
+
+SchemaPromptSpecPromptMessageOutputConfigOrDict = Union[
+    SchemaPromptSpecPromptMessageOutputConfig,
+    SchemaPromptSpecPromptMessageOutputConfigDict,
+]
+
+
 class SchemaPromptSpecPromptMessage(_common.BaseModel):
     """Represents a prompt message."""
 
@@ -21528,6 +21592,10 @@ class SchemaPromptSpecPromptMessage(_common.BaseModel):
         default=None, description=""""""
     )
     model: Optional[str] = Field(default=None, description="""The model name.""")
+    output_config: Optional[SchemaPromptSpecPromptMessageOutputConfig] = Field(
+        default=None,
+        description="""Optional. Configuration for persisting output assets to external storage.""",
+    )
 
 
 class SchemaPromptSpecPromptMessageDict(TypedDict, total=False):
@@ -21556,6 +21624,9 @@ class SchemaPromptSpecPromptMessageDict(TypedDict, total=False):
 
     model: Optional[str]
     """The model name."""
+
+    output_config: Optional[SchemaPromptSpecPromptMessageOutputConfigDict]
+    """Optional. Configuration for persisting output assets to external storage."""
 
 
 SchemaPromptSpecPromptMessageOrDict = Union[
