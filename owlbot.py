@@ -65,6 +65,7 @@ for library in s.get_staging_dirs(default_version):
             ".pre-commit-config.yaml",
             "setup.py",
             "README.rst",
+            "CONTRIBUTING.rst",
             "docs/index.rst",
             "docs/summary_overview.md",
             f"docs/definition_{library.name}/services.rst",
@@ -134,12 +135,17 @@ if has_generator_updates:
             ".github/PULL_REQUEST_TEMPLATE.md",
             ".github/workflows",  # exclude gh actions as credentials are needed for tests
             "README.rst",
+            "CONTRIBUTING.rst",
             ".github/release-please.yml",  # use release please manifest
             "noxfile.py",
             "testing",
             "docs/conf.py",
         ],
     )  # the microgenerator has a good coveragerc file
+
+    # This package requires Python 3.10 or later. Generated configuration
+    # must not advertise Python 2 compatibility.
+    s.replace("setup.cfg", r"^universal[ \t]*=[ \t]*1[ \t]*$", "universal = 0")
 
     python.py_samples(skip_readmes=True)
 
