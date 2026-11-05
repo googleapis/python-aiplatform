@@ -356,7 +356,14 @@ class LlmRanker:
 
     Attributes:
         model_name: The model name used for ranking. Only Gemini models are
-            supported for now.
+            supported for now. We recommend `gemini-3.8-flash`. Either pass a
+            model ID (for example, `gemini-3.8-flash`) or a full model resource
+            name (`projects/{project}/locations/{location}/publishers/google/models/{model}`).
+            Gemini 3.x and later models are only served from the `global`, `us`
+            and `eu` locations. For a model ID, calls for a corpus in a `us-*`
+            region are routed to `us`, `europe-*` to `eu`, and any other region
+            to `global`. For a full resource name, the location in the name is
+            used and must be `global`, `us` or `eu` for Gemini 3.x and later.
     """
 
     model_name: Optional[str] = None
