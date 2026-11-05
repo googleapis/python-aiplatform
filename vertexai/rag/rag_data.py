@@ -550,7 +550,17 @@ def import_files(
     response = rag.import_files(
         corpus_name="projects/my-project/locations/us-central1/ragCorpora/my-corpus-1",
         paths=paths,
-        parser=parser,
+        layout_parser=parser,
+    )
+
+    # LLM Parser example.
+    llm_parser = LlmParserConfig(
+        model_name="projects/my-project/locations/us-central1/publishers/google/models/gemini-3.8-flash",
+    )
+    response = rag.import_files(
+        corpus_name="projects/my-project/locations/us-central1/ragCorpora/my-corpus-1",
+        paths=paths,
+        llm_parser=llm_parser,
     )
 
     ```
@@ -593,9 +603,12 @@ def import_files(
             exist - if it does not exist, it will be created. If it does exist,
             the schema will be checked and the partial failures will be appended
             to the table.
-        parser: Document parser to use. Should be either None (default parser),
-            or a LayoutParserConfig (to parse documents using a Document AI
-            Layout Parser processor).
+        layout_parser: Configuration for the Document AI Layout Parser Processor
+            to use for document parsing. Optional.
+            If not None, llm_parser must be None.
+        llm_parser: Configuration for the LLM Parser to use for document
+            parsing. Optional. See LlmParserConfig for supported models.
+            If not None, layout_parser must be None.
     Returns:
         ImportRagFilesResponse.
     """
@@ -722,7 +735,17 @@ async def import_files_async(
     response = rag.import_files_async(
         corpus_name="projects/my-project/locations/us-central1/ragCorpora/my-corpus-1",
         paths=paths,
-        parser=parser,
+        layout_parser=parser,
+    )
+
+    # LLM Parser example.
+    llm_parser = LlmParserConfig(
+        model_name="projects/my-project/locations/us-central1/publishers/google/models/gemini-3.8-flash",
+    )
+    response = rag.import_files_async(
+        corpus_name="projects/my-project/locations/us-central1/ragCorpora/my-corpus-1",
+        paths=paths,
+        llm_parser=llm_parser,
     )
 
     # Get the result.
@@ -767,9 +790,12 @@ async def import_files_async(
             exist - if it does not exist, it will be created. If it does exist,
             the schema will be checked and the partial failures will be appended
             to the table.
-        parser: Document parser to use. Should be either None (default parser),
-            or a LayoutParserConfig (to parse documents using a Document AI
-            Layout Parser processor).
+        layout_parser: Configuration for the Document AI Layout Parser Processor
+            to use for document parsing. Optional.
+            If not None, llm_parser must be None.
+        llm_parser: Configuration for the LLM Parser to use for document
+            parsing. Optional. See LlmParserConfig for supported models.
+            If not None, layout_parser must be None.
     Returns:
         operation_async.AsyncOperation.
     """
