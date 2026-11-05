@@ -209,7 +209,7 @@ def _reconcile_model_name(model_name: str, project: str, location: str) -> str:
     else:
         raise ValueError(
             "model_name must be either a Model Garden model ID or a full resource name."
-            f"recieved model_name {model_name}"
+            f"received model_name {model_name}"
         )
 
 
@@ -1162,7 +1162,7 @@ class _GenerativeModel:
                 is incomplete due to going over the max token limit.
                 If set to `False`, the chat session history will always
                 accumulate the request and response messages even if the
-                reponse if blocked or incomplete. This can result in an unusable
+                response if blocked or incomplete. This can result in an unusable
                 chat session state.
 
         Returns:
@@ -1797,7 +1797,7 @@ class GenerationConfig:
             max_output_tokens: The maximum number of output tokens to generate per message.
             stop_sequences: A list of stop sequences.
             presence_penalty: Positive values penalize tokens that have appeared in the generated text,
-                thus increasing the possibility of generating more diversed topics. Range: [-2.0, 2.0]
+                thus increasing the possibility of generating more diverse topics. Range: [-2.0, 2.0]
             frequency_penalty: Positive values penalize tokens that repeatedly appear in the generated
                 text, thus decreasing the possibility of repeating the same content. Range: [-2.0, 2.0]
             response_mime_type: Output response mimetype of the generated

@@ -731,7 +731,7 @@ class FeatureOnlineStoreClientWithOverride(ClientWithOverride):
 class FeatureRegistryClientWithOverride(ClientWithOverride):
     """Adds function override for client classes to support new Feature Store.
 
-    `feature_path()` and `parse_feature_path()` are overriden here to compensate
+    `feature_path()` and `parse_feature_path()` are overridden here to compensate
     for the auto-generated GAPIC class which only supports Feature Store
     Legacy's feature paths.
     """
