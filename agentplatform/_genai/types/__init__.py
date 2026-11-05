@@ -1807,6 +1807,9 @@ from .common import ReasoningEngineSpecSourceCodeSpecDeveloperConnectSource
 from .common import ReasoningEngineSpecSourceCodeSpecDeveloperConnectSourceDict
 from .common import ReasoningEngineSpecSourceCodeSpecDeveloperConnectSourceOrDict
 from .common import ReasoningEngineSpecSourceCodeSpecDict
+from .common import ReasoningEngineSpecSourceCodeSpecGitSource
+from .common import ReasoningEngineSpecSourceCodeSpecGitSourceDict
+from .common import ReasoningEngineSpecSourceCodeSpecGitSourceOrDict
 from .common import ReasoningEngineSpecSourceCodeSpecImageSpec
 from .common import ReasoningEngineSpecSourceCodeSpecImageSpecDict
 from .common import ReasoningEngineSpecSourceCodeSpecImageSpecOrDict
@@ -2090,6 +2093,9 @@ from .common import SchemaPromptSpecPartListOrDict
 from .common import SchemaPromptSpecPromptMessage
 from .common import SchemaPromptSpecPromptMessageDict
 from .common import SchemaPromptSpecPromptMessageOrDict
+from .common import SchemaPromptSpecPromptMessageOutputConfig
+from .common import SchemaPromptSpecPromptMessageOutputConfigDict
+from .common import SchemaPromptSpecPromptMessageOutputConfigOrDict
 from .common import SchemaPromptSpecReferenceSentencePair
 from .common import SchemaPromptSpecReferenceSentencePairDict
 from .common import SchemaPromptSpecReferenceSentencePairList
@@ -2995,6 +3001,9 @@ __all__ = [
     "ReasoningEngineSpecSourceCodeSpecPythonSpec",
     "ReasoningEngineSpecSourceCodeSpecPythonSpecDict",
     "ReasoningEngineSpecSourceCodeSpecPythonSpecOrDict",
+    "ReasoningEngineSpecSourceCodeSpecGitSource",
+    "ReasoningEngineSpecSourceCodeSpecGitSourceDict",
+    "ReasoningEngineSpecSourceCodeSpecGitSourceOrDict",
     "ReasoningEngineSpecSourceCodeSpec",
     "ReasoningEngineSpecSourceCodeSpecDict",
     "ReasoningEngineSpecSourceCodeSpecOrDict",
@@ -3772,6 +3781,9 @@ __all__ = [
     "SchemaPromptInstancePromptExecution",
     "SchemaPromptInstancePromptExecutionDict",
     "SchemaPromptInstancePromptExecutionOrDict",
+    "SchemaPromptSpecPromptMessageOutputConfig",
+    "SchemaPromptSpecPromptMessageOutputConfigDict",
+    "SchemaPromptSpecPromptMessageOutputConfigOrDict",
     "SchemaPromptSpecPromptMessage",
     "SchemaPromptSpecPromptMessageDict",
     "SchemaPromptSpecPromptMessageOrDict",
