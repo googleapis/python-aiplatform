@@ -9759,6 +9759,10 @@ class CreateRuntimeConfig(_common.BaseModel):
           subdirectory and the path must be added to `extra_packages`.
       """,
     )
+    git_source: Optional[ReasoningEngineSpecSourceCodeSpecGitSource] = Field(
+        default=None,
+        description="""Specifies the public Git repository to fetch the source code from. This includes the URL, revision, and directory to use.""",
+    )
 
 
 class CreateRuntimeConfigDict(TypedDict, total=False):
@@ -9899,6 +9903,9 @@ class CreateRuntimeConfigDict(TypedDict, total=False):
           The scripts must be located in the `installation_scripts`
           subdirectory and the path must be added to `extra_packages`.
       """
+
+    git_source: Optional[ReasoningEngineSpecSourceCodeSpecGitSourceDict]
+    """Specifies the public Git repository to fetch the source code from. This includes the URL, revision, and directory to use."""
 
 
 CreateRuntimeConfigOrDict = Union[CreateRuntimeConfig, CreateRuntimeConfigDict]
@@ -10420,6 +10427,10 @@ class UpdateRuntimeConfig(_common.BaseModel):
           subdirectory and the path must be added to `extra_packages`.
       """,
     )
+    git_source: Optional[ReasoningEngineSpecSourceCodeSpecGitSource] = Field(
+        default=None,
+        description="""Specifies the public Git repository to fetch the source code from. This includes the URL, revision, and directory to use.""",
+    )
     update_mask: Optional[str] = Field(
         default=None,
         description="""The update mask to apply. For the `FieldMask` definition, see
@@ -10569,6 +10580,9 @@ class UpdateRuntimeConfigDict(TypedDict, total=False):
           The scripts must be located in the `installation_scripts`
           subdirectory and the path must be added to `extra_packages`.
       """
+
+    git_source: Optional[ReasoningEngineSpecSourceCodeSpecGitSourceDict]
+    """Specifies the public Git repository to fetch the source code from. This includes the URL, revision, and directory to use."""
 
     update_mask: Optional[str]
     """The update mask to apply. For the `FieldMask` definition, see
@@ -33290,6 +33304,10 @@ class AgentRuntimeConfig(_common.BaseModel):
       replaces the deployed card; pass `{}` to remove it. The service sets
       the card's `url` to the runtime's A2A endpoint.""",
     )
+    git_source: Optional[ReasoningEngineSpecSourceCodeSpecGitSource] = Field(
+        default=None,
+        description="""Specifies the public Git repository to fetch the source code from. This includes the URL, revision, and directory to use.""",
+    )
 
 
 class AgentRuntimeConfigDict(TypedDict, total=False):
@@ -33488,6 +33506,9 @@ class AgentRuntimeConfigDict(TypedDict, total=False):
       has an `agent_card`, this value is used instead. On `update()`, it
       replaces the deployed card; pass `{}` to remove it. The service sets
       the card's `url` to the runtime's A2A endpoint."""
+
+    git_source: Optional[ReasoningEngineSpecSourceCodeSpecGitSourceDict]
+    """Specifies the public Git repository to fetch the source code from. This includes the URL, revision, and directory to use."""
 
 
 AgentRuntimeConfigOrDict = Union[AgentRuntimeConfig, AgentRuntimeConfigDict]
