@@ -482,19 +482,19 @@ class ModelMonitor(base.VertexAiResourceNounWithFutureManager):
                 data form the dataset.
             tabular_objective_spec (objective.TabularObjective):
                 Optional. The default tabular monitoring objective spec for
-                the model monitor. It can be overriden in the ModelMonitoringJob
+                the model monitor. It can be overridden in the ModelMonitoringJob
                 objective spec.
             output_spec (output.OutputSpec):
                 Optional. The default monitoring metrics/logs export spec, it
-                can be overriden in the ModelMonitoringJob output spec.
+                can be overridden in the ModelMonitoringJob output spec.
                 If not specified, a default Google Cloud Storage bucket will be
                 created under your project.
             notification_spec (notification.NotificationSpec):
                 Optional. The default notification spec for monitoring result.
-                It can be overriden in the ModelMonitoringJob notification spec.
+                It can be overridden in the ModelMonitoringJob notification spec.
             explanation_spec (explanation.ExplanationSpec):
                 Optional. The default explanation spec for feature attribution
-                monitoring. It can be overriden in the ModelMonitoringJob
+                monitoring. It can be overridden in the ModelMonitoringJob
                 explanation spec.
             project (str):
                 Optional. Project to retrieve model monitor from. If not set,
@@ -608,17 +608,17 @@ class ModelMonitor(base.VertexAiResourceNounWithFutureManager):
                 extract data form the dataset.
             tabular_objective_spec (objective.TabularObjective):
                 Optional. The default tabular monitoring objective spec for
-                the model monitor. It can be overriden in the ModelMonitoringJob
+                the model monitor. It can be overridden in the ModelMonitoringJob
                 objective spec.
             output_spec (output.OutputSpec):
                 Optional. The default monitoring metrics/logs export spec, it
-                can be overriden in the ModelMonitoringJob output spec.
+                can be overridden in the ModelMonitoringJob output spec.
             notification_spec (notification.NotificationSpec):
                 Optional. The default notification spec for monitoring result.
-                It can be overriden in the ModelMonitoringJob notification spec.
+                It can be overridden in the ModelMonitoringJob notification spec.
             explanation_spec (explanation.ExplanationSpec):
                 Optional. The default explanation spec for feature attribution
-                monitoring. It can be overriden in the ModelMonitoringJob
+                monitoring. It can be overridden in the ModelMonitoringJob
                 explanation spec.
 
         Returns:
