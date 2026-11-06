@@ -14311,7 +14311,7 @@ class RagFileParsingConfigLlmParser(_common.BaseModel):
     )
     model_name: Optional[str] = Field(
         default=None,
-        description="""The name of a LLM model used for parsing. Format: * `projects/{project_id}/locations/{location}/publishers/{publisher}/models/{model}`""",
+        description="""The name of a LLM model used for parsing. Format: * `projects/{project_id}/locations/{location}/publishers/{publisher}/models/{model}`. Supported models: `gemini-3.8-flash` (recommended), `gemini-4-argon` (Gemini 4.0 Pro), `gemini-3.5-flash`, `gemini-3.5-flash-lite`, `gemini-3.1-flash-lite`, and `gemini-2.5-flash-lite`, `gemini-2.5-flash` and `gemini-2.5-pro` until they retire on March 31, 2027. Gemini 3.x and later models are served from the `global`, `us` and `eu` locations, so a regional location is replaced by the multi-region of its jurisdiction: `us-*` regions by `us`; the EU member state regions `europe-central2`, `europe-north1`, `europe-southwest1`, `europe-west1`, `europe-west3`, `europe-west4`, `europe-west8`, `europe-west9` and `europe-west12` by `eu`; and any other region, including `europe-west2` (London) and `europe-west6` (Zurich), by `global`. The exception is a model that is also served in that region, which stays there: `gemini-3.5-flash` in `asia-northeast1`, `asia-south1`, `asia-southeast1`, `australia-southeast1`, `europe-west2`, `europe-west3` and `northamerica-northeast1`; `gemini-3.5-flash-lite` in `asia-south1`; and `gemini-4-argon` in `asia-southeast1` and `europe-west2`. Gemini 2.x models are called in the region as given.""",
     )
 
 
@@ -14328,7 +14328,7 @@ class RagFileParsingConfigLlmParserDict(TypedDict, total=False):
     """The maximum number of requests the job is allowed to make to the LLM model per minute. Consult https://cloud.google.com/vertex-ai/generative-ai/docs/quotas and your document size to set an appropriate value here. If unspecified, a default value of 5000 QPM would be used."""
 
     model_name: Optional[str]
-    """The name of a LLM model used for parsing. Format: * `projects/{project_id}/locations/{location}/publishers/{publisher}/models/{model}`"""
+    """The name of a LLM model used for parsing. Format: * `projects/{project_id}/locations/{location}/publishers/{publisher}/models/{model}`. Supported models: `gemini-3.8-flash` (recommended), `gemini-4-argon` (Gemini 4.0 Pro), `gemini-3.5-flash`, `gemini-3.5-flash-lite`, `gemini-3.1-flash-lite`, and `gemini-2.5-flash-lite`, `gemini-2.5-flash` and `gemini-2.5-pro` until they retire on March 31, 2027. Gemini 3.x and later models are served from the `global`, `us` and `eu` locations, so a regional location is replaced by the multi-region of its jurisdiction: `us-*` regions by `us`; the EU member state regions `europe-central2`, `europe-north1`, `europe-southwest1`, `europe-west1`, `europe-west3`, `europe-west4`, `europe-west8`, `europe-west9` and `europe-west12` by `eu`; and any other region, including `europe-west2` (London) and `europe-west6` (Zurich), by `global`. The exception is a model that is also served in that region, which stays there: `gemini-3.5-flash` in `asia-northeast1`, `asia-south1`, `asia-southeast1`, `australia-southeast1`, `europe-west2`, `europe-west3` and `northamerica-northeast1`; `gemini-3.5-flash-lite` in `asia-south1`; and `gemini-4-argon` in `asia-southeast1` and `europe-west2`. Gemini 2.x models are called in the region as given."""
 
 
 RagFileParsingConfigLlmParserOrDict = Union[
