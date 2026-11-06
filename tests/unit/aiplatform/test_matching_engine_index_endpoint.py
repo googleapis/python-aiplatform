@@ -323,6 +323,9 @@ _TEST_READ_INDEX_DATAPOINTS_RESPONSE = [
             gca_index_v1beta1.IndexDatapoint.NumericRestriction(
                 namespace="double_ns", value_double=2.5
             ),
+            gca_index_v1beta1.IndexDatapoint.NumericRestriction(
+                namespace="zero_int_ns", value_int=0
+            ),
         ],
         sparse_embedding=gca_index_v1beta1.IndexDatapoint.SparseEmbedding(
             values=[0.5, 0.25],
@@ -879,6 +882,10 @@ def index_endpoint_batch_get_embeddings_mock():
                             match_service_pb2.NumericNamespace(
                                 name="double_ns", value_double=2.5
                             ),
+                            match_service_pb2.NumericNamespace(
+                                name="zero_int_ns", value_int=0
+                            ),
+                            match_service_pb2.NumericNamespace(name="no_value_ns"),
                         ],
                         sparse_embedding=match_service_pb2.SparseEmbedding(
                             float_val=[0.5, 0.25],

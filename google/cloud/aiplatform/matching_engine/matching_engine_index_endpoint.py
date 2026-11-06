@@ -1968,19 +1968,30 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                             crowding_attribute=str(embedding.crowding_attribute)
                         )
                     )
-                for numeric_restrict in embedding.numeric_restricts:
-                    numeric_restriction = (
-                        gca_index_v1beta1.IndexDatapoint.NumericRestriction(
-                            namespace=numeric_restrict.name
+                for restrict in embedding.numeric_restricts:
+                    restrict_value_type = restrict.WhichOneof("Value")
+                    if restrict_value_type == "value_int":
+                        numeric_restriction = (
+                            gca_index_v1beta1.IndexDatapoint.NumericRestriction(
+                                namespace=restrict.name, value_int=restrict.value_int
+                            )
                         )
-                    )
-                    value_type = numeric_restrict.WhichOneof("Value")
-                    if value_type:
-                        setattr(
-                            numeric_restriction,
-                            value_type,
-                            getattr(numeric_restrict, value_type),
+                    elif restrict_value_type == "value_float":
+                        numeric_restriction = (
+                            gca_index_v1beta1.IndexDatapoint.NumericRestriction(
+                                namespace=restrict.name,
+                                value_float=restrict.value_float,
+                            )
                         )
+                    elif restrict_value_type == "value_double":
+                        numeric_restriction = (
+                            gca_index_v1beta1.IndexDatapoint.NumericRestriction(
+                                namespace=restrict.name,
+                                value_double=restrict.value_double,
+                            )
+                        )
+                    else:
+                        continue
                     index_datapoint.numeric_restricts.append(numeric_restriction)
                 if embedding.HasField("sparse_embedding"):
                     index_datapoint.sparse_embedding = (
