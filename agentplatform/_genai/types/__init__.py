@@ -73,6 +73,7 @@ from .common import _DeleteSandboxEnvironmentTemplateRequestParameters
 from .common import _DeleteServingProfileRequestParameters
 from .common import _DeleteSkillRequestParameters
 from .common import _DeployRequestParameters
+from .common import _DetectContentParameters
 from .common import _EvaluateInstancesRequestParameters
 from .common import _ExecuteCodeRuntimeSandboxRequestParameters
 from .common import _ExportPublisherModelRequestParameters
@@ -212,6 +213,7 @@ from .common import AgentServerMode
 from .common import AggregatedMetricResult
 from .common import AggregatedMetricResultDict
 from .common import AggregatedMetricResultOrDict
+from .common import AiGeneratedLikelihood
 from .common import AnalysisConfig
 from .common import AnalysisConfigDict
 from .common import AnalysisConfigOrDict
@@ -288,6 +290,15 @@ from .common import BleuResultsOrDict
 from .common import BlurBaselineConfig
 from .common import BlurBaselineConfigDict
 from .common import BlurBaselineConfigOrDict
+from .common import C2paResult
+from .common import C2paResultDict
+from .common import C2paResultManifest
+from .common import C2paResultManifestAction
+from .common import C2paResultManifestCreationType
+from .common import C2paResultManifestDict
+from .common import C2paResultManifestOrDict
+from .common import C2paResultOrDict
+from .common import C2paResultOutcome
 from .common import CancelQueryJobResult
 from .common import CancelQueryJobResultDict
 from .common import CancelQueryJobResultOrDict
@@ -592,6 +603,12 @@ from .common import DeployRequestModelConfigOrDict
 from .common import DeployResponse
 from .common import DeployResponseDict
 from .common import DeployResponseOrDict
+from .common import DetectContentConfig
+from .common import DetectContentConfigDict
+from .common import DetectContentConfigOrDict
+from .common import DetectContentResponse
+from .common import DetectContentResponseDict
+from .common import DetectContentResponseOrDict
 from .common import DirectUploadSource
 from .common import DirectUploadSourceDict
 from .common import DirectUploadSourceOrDict
@@ -4393,6 +4410,18 @@ __all__ = [
     "GetServingProfileOperationConfig",
     "GetServingProfileOperationConfigDict",
     "GetServingProfileOperationConfigOrDict",
+    "DetectContentConfig",
+    "DetectContentConfigDict",
+    "DetectContentConfigOrDict",
+    "C2paResultManifest",
+    "C2paResultManifestDict",
+    "C2paResultManifestOrDict",
+    "C2paResult",
+    "C2paResultDict",
+    "C2paResultOrDict",
+    "DetectContentResponse",
+    "DetectContentResponseDict",
+    "DetectContentResponseOrDict",
     "PromptOptimizerConfig",
     "PromptOptimizerConfigDict",
     "PromptOptimizerConfigOrDict",
@@ -4558,6 +4587,10 @@ __all__ = [
     "GenerateMemoriesResponseGeneratedMemoryAction",
     "RagFileState",
     "SkillRevisionState",
+    "AiGeneratedLikelihood",
+    "C2paResultOutcome",
+    "C2paResultManifestCreationType",
+    "C2paResultManifestAction",
     "PromptOptimizerMethod",
     "OptimizationMethod",
     "PromptData",
@@ -4756,6 +4789,7 @@ __all__ = [
     "_ListServingProfilesRequestParameters",
     "_DeleteServingProfileRequestParameters",
     "_GetServingProfileOperationParameters",
+    "_DetectContentParameters",
     "evals",
     "agent_engines",
     "prompts",
