@@ -1607,6 +1607,7 @@ class Runtimes(_api_module.BaseModule):
             agent
             or config.source_packages
             or config.developer_connect_source
+            or config.git_source
             or config.agent_config_source
             or config.container_spec
         ):
@@ -1860,6 +1861,9 @@ class Runtimes(_api_module.BaseModule):
             developer_connect_source = json.loads(
                 developer_connect_source.model_dump_json()
             )
+        git_source = config.git_source
+        if git_source is not None:
+            git_source = json.loads(git_source.model_dump_json(exclude_none=True))
         agent_config_source = config.agent_config_source
         if agent_config_source is not None:
             agent_config_source = json.loads(agent_config_source.model_dump_json())
@@ -1900,6 +1904,7 @@ class Runtimes(_api_module.BaseModule):
             class_methods=config.class_methods,
             source_packages=config.source_packages,
             developer_connect_source=developer_connect_source,
+            git_source=git_source,
             entrypoint_module=config.entrypoint_module,
             entrypoint_object=config.entrypoint_object,
             requirements_file=config.requirements_file,
@@ -1969,6 +1974,9 @@ class Runtimes(_api_module.BaseModule):
         developer_connect_source: Optional[
             types.ReasoningEngineSpecSourceCodeSpecDeveloperConnectConfigDict
         ] = None,
+        git_source: Optional[
+            types.ReasoningEngineSpecSourceCodeSpecGitSourceDict
+        ] = None,
         class_methods: Optional[Sequence[dict[str, Any]]] = None,
         entrypoint_module: Optional[str] = None,
         entrypoint_object: Optional[str] = None,
@@ -2000,10 +2008,13 @@ class Runtimes(_api_module.BaseModule):
             source_code_spec["developer_connect_source"] = {
                 "config": developer_connect_source
             }
+        elif git_source:
+            update_masks.append("spec.source_code_spec.git_source")
+            source_code_spec["git_source"] = git_source
         elif not agent_config_source:
             raise ValueError(
                 "Please specify one of `source_packages`, `developer_connect_source`, "
-                "or `agent_config_source`."
+                "`git_source`, or `agent_config_source`."
             )
         if class_methods is not None:
             update_masks.append("spec.class_methods")
@@ -2019,8 +2030,8 @@ class Runtimes(_api_module.BaseModule):
         elif image_spec is None:
             raise ValueError(
                 "`class_methods` must be specified if `source_packages`, "
-                "`developer_connect_source`, or `agent_config_source` is "
-                "specified without a Dockerfile or `image_spec`."
+                "`developer_connect_source`, `git_source`, or `agent_config_source` "
+                "is specified without a Dockerfile or `image_spec`."
             )
         if image_spec is not None:
             if entrypoint_module or entrypoint_object or requirements_file:
@@ -2077,13 +2088,13 @@ class Runtimes(_api_module.BaseModule):
 
         if not entrypoint_module:
             raise ValueError(
-                "`entrypoint_module` must be specified if `source_packages` or `developer_connect_source` is specified."
+                "`entrypoint_module` must be specified if `source_packages`, `developer_connect_source`, or `git_source` is specified."
             )
         update_masks.append("spec.source_code_spec.python_spec.entrypoint_module")
         python_spec["entrypoint_module"] = entrypoint_module
         if not entrypoint_object:
             raise ValueError(
-                "`entrypoint_object` must be specified if `source_packages` or `developer_connect_source` is specified."
+                "`entrypoint_object` must be specified if `source_packages`, `developer_connect_source`, or `git_source` is specified."
             )
         update_masks.append("spec.source_code_spec.python_spec.entrypoint_object")
         python_spec["entrypoint_object"] = entrypoint_object
@@ -2215,6 +2226,9 @@ class Runtimes(_api_module.BaseModule):
         developer_connect_source: Optional[
             types.ReasoningEngineSpecSourceCodeSpecDeveloperConnectConfigDict
         ] = None,
+        git_source: Optional[
+            types.ReasoningEngineSpecSourceCodeSpecGitSourceDict
+        ] = None,
         entrypoint_module: Optional[str] = None,
         entrypoint_object: Optional[str] = None,
         requirements_file: Optional[str] = None,
@@ -2284,9 +2298,18 @@ class Runtimes(_api_module.BaseModule):
                     "do not specify `agent` in `runtimes.create()` or "
                     "`runtimes.update()`."
                 )
-        elif source_packages and developer_connect_source:
+            if git_source:
+                raise ValueError(
+                    "If you have provided `git_source` in `config`, please "
+                    "do not specify `agent` in `runtimes.create()` or "
+                    "`runtimes.update()`."
+                )
+        elif (
+            sum(map(bool, (source_packages, developer_connect_source, git_source))) > 1
+        ):
             raise ValueError(
-                "Please specify only one of `source_packages` or `developer_connect_source` in `config`."
+                "Please specify only one of `source_packages`, "
+                "`developer_connect_source`, or `git_source` in `config`."
             )
 
         if container_spec:
@@ -2296,10 +2319,11 @@ class Runtimes(_api_module.BaseModule):
                     "do not specify `agent` in `runtimes.create()` or "
                     "`runtimes.update()`."
                 )
-            if source_packages or developer_connect_source:
+            if source_packages or developer_connect_source or git_source:
                 raise ValueError(
                     "If you have provided `container_spec` in `config`, please "
-                    "do not specify `source_packages` or `developer_connect_source` in `config`."
+                    "do not specify `source_packages`, `developer_connect_source`, or "
+                    "`git_source` in `config`."
                 )
 
         runtime_spec: Any = None
@@ -2323,6 +2347,7 @@ class Runtimes(_api_module.BaseModule):
         elif (
             source_packages
             or developer_connect_source
+            or git_source
             or image_spec
             or agent_config_source
         ):
@@ -2332,6 +2357,7 @@ class Runtimes(_api_module.BaseModule):
                 update_masks=update_masks,
                 source_packages=source_packages,
                 developer_connect_source=developer_connect_source,
+                git_source=git_source,
                 class_methods=class_methods,
                 entrypoint_module=entrypoint_module,
                 entrypoint_object=entrypoint_object,
@@ -2373,7 +2399,7 @@ class Runtimes(_api_module.BaseModule):
                 "`max_instances`, `resource_limits`, `container_concurrency`, or "
                 "`keep_alive_probe`, you must also provide the `agent` variable or "
                 "the source code options (`source_packages`, "
-                "`developer_connect_source` or `agent_config_source`)."
+                "`developer_connect_source`, `git_source` or `agent_config_source`)."
             )
 
         if runtime_spec is not None:
@@ -2672,6 +2698,9 @@ class Runtimes(_api_module.BaseModule):
             developer_connect_source = json.loads(
                 developer_connect_source.model_dump_json()
             )
+        git_source = config.git_source
+        if git_source is not None:
+            git_source = json.loads(git_source.model_dump_json(exclude_none=True))
         agent_config_source = config.agent_config_source
         if agent_config_source is not None:
             agent_config_source = json.loads(agent_config_source.model_dump_json())
@@ -2721,6 +2750,7 @@ class Runtimes(_api_module.BaseModule):
             class_methods=config.class_methods,
             source_packages=config.source_packages,
             developer_connect_source=developer_connect_source,
+            git_source=git_source,
             entrypoint_module=config.entrypoint_module,
             entrypoint_object=config.entrypoint_object,
             requirements_file=config.requirements_file,

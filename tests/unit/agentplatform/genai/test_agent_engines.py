@@ -469,6 +469,11 @@ _TEST_AGENT_ENGINE_QUERY_SCHEMA = _runtimes_utils._generate_schema(
 _TEST_AGENT_ENGINE_QUERY_SCHEMA[_TEST_MODE_KEY_IN_SCHEMA] = _TEST_STANDARD_API_MODE
 _TEST_PYTHON_VERSION = f"{sys.version_info.major}.{sys.version_info.minor}"
 _TEST_PYTHON_VERSION_OVERRIDE = "3.11"
+_TEST_GIT_SOURCE = {
+    "url": "https://github.com/test-owner/test-repo.git",
+    "dir": "agent",
+    "revision": "main",
+}
 _TEST_AGENT_ENGINE_FRAMEWORK = _runtimes_utils._DEFAULT_AGENT_FRAMEWORK
 _TEST_AGENT_ENGINE_CLASS_METHOD_1 = {
     "description": "Runs the engine.",
@@ -1202,6 +1207,97 @@ class TestRuntimeHelpers:
                 == _TEST_AGENT_ENGINE_IDENTITY_TYPE_SERVICE_ACCOUNT
             )
             assert "keep_alive_probe" not in config["spec"].get("deployment_spec", {})
+
+    def test_create_runtime_config_with_git_source(self):
+        config = self.client.runtimes._create_config(
+            mode="create",
+            git_source=_TEST_GIT_SOURCE,
+            entrypoint_module="main",
+            entrypoint_object="app",
+            class_methods=_TEST_AGENT_ENGINE_CLASS_METHODS,
+            python_version=_TEST_PYTHON_VERSION_OVERRIDE,
+        )
+        # Unlike `developer_connect_source`, `git_source` is serialized flat:
+        # the proto has no wrapper message around it.
+        assert config["spec"]["source_code_spec"] == {
+            "git_source": _TEST_GIT_SOURCE,
+            "python_spec": {
+                "version": _TEST_PYTHON_VERSION_OVERRIDE,
+                "entrypoint_module": "main",
+                "entrypoint_object": "app",
+            },
+        }
+
+    def test_update_runtime_config_with_git_source(self):
+        config = self.client.runtimes._create_config(
+            mode="update",
+            git_source=_TEST_GIT_SOURCE,
+            entrypoint_module="main",
+            entrypoint_object="app",
+            class_methods=_TEST_AGENT_ENGINE_CLASS_METHODS,
+            python_version=_TEST_PYTHON_VERSION_OVERRIDE,
+        )
+        assert config["spec"]["source_code_spec"] == {
+            "git_source": _TEST_GIT_SOURCE,
+            "python_spec": {
+                "version": _TEST_PYTHON_VERSION_OVERRIDE,
+                "entrypoint_module": "main",
+                "entrypoint_object": "app",
+            },
+        }
+        assert config["update_mask"] == ",".join(
+            [
+                "spec.source_code_spec.git_source",
+                "spec.class_methods",
+                "spec.source_code_spec.python_spec.version",
+                "spec.source_code_spec.python_spec.entrypoint_module",
+                "spec.source_code_spec.python_spec.entrypoint_object",
+                "spec.agent_framework",
+            ]
+        )
+
+    def test_create_runtime_config_with_git_source_requires_entrypoint(self):
+        with pytest.raises(ValueError, match="`entrypoint_module` must be specified"):
+            self.client.runtimes._create_config(
+                mode="create",
+                git_source=_TEST_GIT_SOURCE,
+                entrypoint_object="app",
+                class_methods=_TEST_AGENT_ENGINE_CLASS_METHODS,
+            )
+
+    def test_create_runtime_config_with_git_source_and_others_raises(self):
+        def create_config_with_git_source(**other_source_kwargs):
+            return self.client.runtimes._create_config(
+                mode="create",
+                git_source=_TEST_GIT_SOURCE,
+                entrypoint_module="main",
+                entrypoint_object="app",
+                class_methods=_TEST_AGENT_ENGINE_CLASS_METHODS,
+                **other_source_kwargs,
+            )
+
+        with pytest.raises(ValueError) as excinfo:
+            create_config_with_git_source(agent=self.test_agent)
+        assert "`git_source`" in str(excinfo.value)
+
+        with pytest.raises(ValueError) as excinfo:
+            create_config_with_git_source(source_packages=["."])
+        assert "`git_source`" in str(excinfo.value)
+
+        with pytest.raises(ValueError) as excinfo:
+            create_config_with_git_source(
+                developer_connect_source={
+                    "git_repository_link": "projects/p/locations/l/connections/c/gitRepositoryLinks/r",
+                    "revision": "main",
+                },
+            )
+        assert "`git_source`" in str(excinfo.value)
+
+        with pytest.raises(ValueError) as excinfo:
+            create_config_with_git_source(
+                container_spec={"image_uri": "gcr.io/test-project/test-image"},
+            )
+        assert "`git_source`" in str(excinfo.value)
 
     @mock.patch.object(
         _runtimes_utils,
@@ -2422,6 +2518,7 @@ class TestRuntime:
                 class_methods=None,
                 source_packages=None,
                 developer_connect_source=None,
+                git_source=None,
                 entrypoint_module=None,
                 entrypoint_object=None,
                 requirements_file=None,
@@ -2530,6 +2627,7 @@ class TestRuntime:
                 class_methods=None,
                 source_packages=None,
                 developer_connect_source=None,
+                git_source=None,
                 entrypoint_module=None,
                 entrypoint_object=None,
                 requirements_file=None,
@@ -2637,6 +2735,7 @@ class TestRuntime:
                 class_methods=None,
                 source_packages=None,
                 developer_connect_source=None,
+                git_source=None,
                 entrypoint_module=None,
                 entrypoint_object=None,
                 requirements_file=None,
@@ -2813,6 +2912,7 @@ class TestRuntime:
                 class_methods=_TEST_AGENT_ENGINE_CLASS_METHODS,
                 source_packages=None,
                 developer_connect_source=None,
+                git_source=None,
                 entrypoint_module=None,
                 entrypoint_object=None,
                 requirements_file=None,
@@ -2914,6 +3014,7 @@ class TestRuntime:
                 class_methods=None,
                 source_packages=None,
                 developer_connect_source=None,
+                git_source=None,
                 entrypoint_module=None,
                 entrypoint_object=None,
                 requirements_file=None,
@@ -3003,6 +3104,65 @@ class TestRuntime:
             assert (
                 f"runtime=client.runtimes.get("
                 f"name='{_TEST_AGENT_ENGINE_RESOURCE_NAME}')" in caplog.text
+            )
+
+    @mock.patch.object(_runtimes_utils, "_await_operation")
+    @mock.patch.object(
+        _runtimes_utils,
+        "_get_reasoning_engine_id",
+        return_value=_TEST_RESOURCE_ID,
+    )
+    def test_create_runtime_git_source(
+        self, mock_get_reasoning_engine_id, mock_await_operation
+    ):
+        mock_await_operation.return_value = _genai_types.RuntimeOperation(
+            response=_genai_types.ReasoningEngine(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                spec=_TEST_AGENT_ENGINE_SPEC,
+            )
+        )
+        git_source = {"url": _TEST_GIT_SOURCE["url"], "revision": "main"}
+        with mock.patch.object(
+            self.client.runtimes._api_client, "request"
+        ) as request_mock:
+            request_mock.return_value = genai_types.HttpResponse(body="")
+            self.client.runtimes.create(
+                config=_genai_types.AgentRuntimeConfig(
+                    git_source=git_source,
+                    entrypoint_module="main",
+                    entrypoint_object="app",
+                    class_methods=_TEST_AGENT_ENGINE_CLASS_METHODS,
+                ),
+            )
+            body = request_mock.call_args.args[2]
+            # No "dir": null for the field the caller left out.
+            assert body["spec"]["source_code_spec"]["git_source"] == git_source
+
+    @mock.patch.object(_runtimes_utils, "_await_operation")
+    def test_update_runtime_git_source(self, mock_await_operation):
+        mock_await_operation.return_value = _genai_types.RuntimeOperation(
+            response=_genai_types.ReasoningEngine(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                spec=_TEST_AGENT_ENGINE_SPEC,
+            )
+        )
+        with mock.patch.object(
+            self.client.runtimes._api_client, "request"
+        ) as request_mock:
+            request_mock.return_value = genai_types.HttpResponse(body="")
+            self.client.runtimes.update(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                config=_genai_types.AgentRuntimeConfig(
+                    git_source=_TEST_GIT_SOURCE,
+                    entrypoint_module="main",
+                    entrypoint_object="app",
+                    class_methods=_TEST_AGENT_ENGINE_CLASS_METHODS,
+                ),
+            )
+            body = request_mock.call_args.args[2]
+            assert body["spec"]["source_code_spec"]["git_source"] == _TEST_GIT_SOURCE
+            assert body["_query"]["updateMask"].startswith(
+                "spec.source_code_spec.git_source,"
             )
 
     @mock.patch.object(_runtimes_utils, "_prepare")
