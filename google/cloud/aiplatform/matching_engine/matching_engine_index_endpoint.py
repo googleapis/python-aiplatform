@@ -1968,6 +1968,29 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                             crowding_attribute=str(embedding.crowding_attribute)
                         )
                     )
+                for numeric_restrict in embedding.numeric_restricts:
+                    numeric_restriction = (
+                        gca_index_v1beta1.IndexDatapoint.NumericRestriction(
+                            namespace=numeric_restrict.name
+                        )
+                    )
+                    value_type = numeric_restrict.WhichOneof("Value")
+                    if value_type:
+                        setattr(
+                            numeric_restriction,
+                            value_type,
+                            getattr(numeric_restrict, value_type),
+                        )
+                    index_datapoint.numeric_restricts.append(numeric_restriction)
+                if embedding.HasField("sparse_embedding"):
+                    index_datapoint.sparse_embedding = (
+                        gca_index_v1beta1.IndexDatapoint.SparseEmbedding(
+                            values=list(embedding.sparse_embedding.float_val),
+                            dimensions=list(embedding.sparse_embedding.dimension),
+                        )
+                    )
+                if embedding.HasField("embedding_metadata"):
+                    index_datapoint.embedding_metadata = embedding.embedding_metadata
                 response.append(index_datapoint)
             return response
 
