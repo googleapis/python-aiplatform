@@ -1631,6 +1631,42 @@ class TestPipelineJob:
         "job_spec",
         [_TEST_PIPELINE_SPEC_JSON, _TEST_PIPELINE_SPEC_YAML, _TEST_PIPELINE_JOB],
     )
+    def test_submit_raises_when_pipeline_bucket_belongs_to_another_project(
+        self,
+        mock_pipeline_service_create,
+        mock_pipeline_service_get,
+        job_spec,
+        mock_load_yaml_and_json,
+    ):
+        job = pipeline_jobs.PipelineJob(
+            display_name=_TEST_PIPELINE_JOB_DISPLAY_NAME,
+            template_path=_TEST_TEMPLATE_PATH,
+            job_id=_TEST_PIPELINE_JOB_ID,
+            parameter_values=_TEST_PIPELINE_PARAMETER_VALUES,
+            enable_caching=True,
+            project=_TEST_PROJECT,
+            pipeline_root=_TEST_GCS_OUTPUT_DIRECTORY,
+            location=_TEST_LOCATION,
+            credentials=_TEST_CREDENTIALS,
+        )
+
+        with mock.patch.object(
+            gcs_utils,
+            "create_gcs_bucket_for_pipeline_artifacts_if_it_does_not_exist",
+            side_effect=gcs_utils.BucketOwnershipError("not owned"),
+        ):
+            with pytest.raises(gcs_utils.BucketOwnershipError):
+                job.submit(
+                    service_account=_TEST_SERVICE_ACCOUNT,
+                    network=_TEST_NETWORK,
+                )
+
+        mock_pipeline_service_create.assert_not_called()
+
+    @pytest.mark.parametrize(
+        "job_spec",
+        [_TEST_PIPELINE_SPEC_JSON, _TEST_PIPELINE_SPEC_YAML, _TEST_PIPELINE_JOB],
+    )
     def test_done_method_pipeline_service(
         self,
         mock_pipeline_service_create,
