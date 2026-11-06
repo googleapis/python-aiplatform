@@ -313,6 +313,25 @@ _TEST_READ_INDEX_DATAPOINTS_RESPONSE = [
                 deny_list=["token_2"],
             )
         ],
+        numeric_restricts=[
+            gca_index_v1beta1.IndexDatapoint.NumericRestriction(
+                namespace="int_ns", value_int=1
+            ),
+            gca_index_v1beta1.IndexDatapoint.NumericRestriction(
+                namespace="float_ns", value_float=1.5
+            ),
+            gca_index_v1beta1.IndexDatapoint.NumericRestriction(
+                namespace="double_ns", value_double=2.5
+            ),
+            gca_index_v1beta1.IndexDatapoint.NumericRestriction(
+                namespace="zero_int_ns", value_int=0
+            ),
+        ],
+        sparse_embedding=gca_index_v1beta1.IndexDatapoint.SparseEmbedding(
+            values=[0.5, 0.25],
+            dimensions=[4, 7],
+        ),
+        embedding_metadata={"key": "value"},
     ),
     gca_index_v1beta1.IndexDatapoint(
         datapoint_id="2",
@@ -853,6 +872,28 @@ def index_endpoint_batch_get_embeddings_mock():
                                 deny_tokens=["token_2"],
                             )
                         ],
+                        numeric_restricts=[
+                            match_service_pb2.NumericNamespace(
+                                name="int_ns", value_int=1
+                            ),
+                            match_service_pb2.NumericNamespace(
+                                name="float_ns", value_float=1.5
+                            ),
+                            match_service_pb2.NumericNamespace(
+                                name="double_ns", value_double=2.5
+                            ),
+                            match_service_pb2.NumericNamespace(
+                                name="zero_int_ns", value_int=0
+                            ),
+                            match_service_pb2.NumericNamespace(name="no_value_ns"),
+                        ],
+                        sparse_embedding=match_service_pb2.SparseEmbedding(
+                            float_val=[0.5, 0.25],
+                            dimension=[4, 7],
+                        ),
+                        embedding_metadata=struct_pb2.Struct(
+                            fields={"key": struct_pb2.Value(string_value="value")}
+                        ),
                     ),
                     match_service_pb2.Embedding(
                         id="2",

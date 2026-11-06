@@ -1968,6 +1968,40 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                             crowding_attribute=str(embedding.crowding_attribute)
                         )
                     )
+                for restrict in embedding.numeric_restricts:
+                    restrict_value_type = restrict.WhichOneof("Value")
+                    if restrict_value_type == "value_int":
+                        numeric_restriction = (
+                            gca_index_v1beta1.IndexDatapoint.NumericRestriction(
+                                namespace=restrict.name, value_int=restrict.value_int
+                            )
+                        )
+                    elif restrict_value_type == "value_float":
+                        numeric_restriction = (
+                            gca_index_v1beta1.IndexDatapoint.NumericRestriction(
+                                namespace=restrict.name,
+                                value_float=restrict.value_float,
+                            )
+                        )
+                    elif restrict_value_type == "value_double":
+                        numeric_restriction = (
+                            gca_index_v1beta1.IndexDatapoint.NumericRestriction(
+                                namespace=restrict.name,
+                                value_double=restrict.value_double,
+                            )
+                        )
+                    else:
+                        continue
+                    index_datapoint.numeric_restricts.append(numeric_restriction)
+                if embedding.HasField("sparse_embedding"):
+                    index_datapoint.sparse_embedding = (
+                        gca_index_v1beta1.IndexDatapoint.SparseEmbedding(
+                            values=list(embedding.sparse_embedding.float_val),
+                            dimensions=list(embedding.sparse_embedding.dimension),
+                        )
+                    )
+                if embedding.HasField("embedding_metadata"):
+                    index_datapoint.embedding_metadata = embedding.embedding_metadata
                 response.append(index_datapoint)
             return response
 
