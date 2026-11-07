@@ -243,7 +243,7 @@ class State(_common.CaseInSensitiveEnum):
 
 
 class MemoryType(_common.CaseInSensitiveEnum):
-    """The type of the memory."""
+    """Represents the type of the memory. If not set, the `NATURAL_LANGUAGE_COLLECTION` type is used. If `STRUCTURED_COLLECTION` or `STRUCTURED_PROFILE` is used, then `structured_data` must be provided."""
 
     MEMORY_TYPE_UNSPECIFIED = "MEMORY_TYPE_UNSPECIFIED"
     """Represents an unspecified memory type. This value should not be used."""
@@ -490,14 +490,14 @@ class QuotaState(_common.CaseInSensitiveEnum):
 
 
 class FeedbackType(_common.CaseInSensitiveEnum):
-    """The type of the feedback."""
+    """The coarse-grained type of feedback provided by the user. Must be set to a value other than `FEEDBACK_TYPE_UNSPECIFIED`."""
 
     FEEDBACK_TYPE_UNSPECIFIED = "FEEDBACK_TYPE_UNSPECIFIED"
-    """Default value."""
+    """This is the default value meaning the type has not been set."""
     THUMBS_UP = "THUMBS_UP"
-    """Indicates positive feedback (e.g., a "thumbs up")."""
+    """Indicates positive feedback."""
     THUMBS_DOWN = "THUMBS_DOWN"
-    """Indicates a thumbs down feedback (e.g., a "thumbs down")."""
+    """Indicates negative feedback."""
 
 
 class Encoding(_common.CaseInSensitiveEnum):
@@ -4264,7 +4264,7 @@ DeleteEvaluationSetOperationOrDict = Union[
 
 
 class BleuInstance(_common.BaseModel):
-    """Bleu instance."""
+    """Spec for bleu instance."""
 
     prediction: Optional[str] = Field(
         default=None, description="""Required. Output of the evaluated model."""
@@ -4276,7 +4276,7 @@ class BleuInstance(_common.BaseModel):
 
 
 class BleuInstanceDict(TypedDict, total=False):
-    """Bleu instance."""
+    """Spec for bleu instance."""
 
     prediction: Optional[str]
     """Required. Output of the evaluated model."""
@@ -4311,7 +4311,7 @@ BleuInputOrDict = Union[BleuInput, BleuInputDict]
 
 
 class ExactMatchInstance(_common.BaseModel):
-    """Exact match instance."""
+    """Spec for exact match instance."""
 
     prediction: Optional[str] = Field(
         default=None, description="""Required. Output of the evaluated model."""
@@ -4323,7 +4323,7 @@ class ExactMatchInstance(_common.BaseModel):
 
 
 class ExactMatchInstanceDict(TypedDict, total=False):
-    """Exact match instance."""
+    """Spec for exact match instance."""
 
     prediction: Optional[str]
     """Required. Output of the evaluated model."""
@@ -4336,13 +4336,13 @@ ExactMatchInstanceOrDict = Union[ExactMatchInstance, ExactMatchInstanceDict]
 
 
 class ExactMatchSpec(_common.BaseModel):
-    """Spec for exact match metric."""
+    """Spec for exact match metric - returns 1 if prediction and reference exactly matches, otherwise 0."""
 
     pass
 
 
 class ExactMatchSpecDict(TypedDict, total=False):
-    """Spec for exact match metric."""
+    """Spec for exact match metric - returns 1 if prediction and reference exactly matches, otherwise 0."""
 
     pass
 
@@ -4373,7 +4373,7 @@ ExactMatchInputOrDict = Union[ExactMatchInput, ExactMatchInputDict]
 
 
 class RougeInstance(_common.BaseModel):
-    """Rouge instance."""
+    """Spec for rouge instance."""
 
     prediction: Optional[str] = Field(
         default=None, description="""Required. Output of the evaluated model."""
@@ -4385,7 +4385,7 @@ class RougeInstance(_common.BaseModel):
 
 
 class RougeInstanceDict(TypedDict, total=False):
-    """Rouge instance."""
+    """Spec for rouge instance."""
 
     prediction: Optional[str]
     """Required. Output of the evaluated model."""
@@ -4535,7 +4535,7 @@ PairwiseMetricInputOrDict = Union[PairwiseMetricInput, PairwiseMetricInputDict]
 
 
 class ToolCallValidInstance(_common.BaseModel):
-    """Tool call valid instance."""
+    """Spec for tool call valid instance."""
 
     prediction: Optional[str] = Field(
         default=None, description="""Required. Output of the evaluated model."""
@@ -4547,7 +4547,7 @@ class ToolCallValidInstance(_common.BaseModel):
 
 
 class ToolCallValidInstanceDict(TypedDict, total=False):
-    """Tool call valid instance."""
+    """Spec for tool call valid instance."""
 
     prediction: Optional[str]
     """Required. Output of the evaluated model."""
@@ -4599,7 +4599,7 @@ ToolCallValidInputOrDict = Union[ToolCallValidInput, ToolCallValidInputDict]
 
 
 class ToolNameMatchInstance(_common.BaseModel):
-    """Tool name match instance."""
+    """Spec for tool name match instance."""
 
     prediction: Optional[str] = Field(
         default=None, description="""Required. Output of the evaluated model."""
@@ -4611,7 +4611,7 @@ class ToolNameMatchInstance(_common.BaseModel):
 
 
 class ToolNameMatchInstanceDict(TypedDict, total=False):
-    """Tool name match instance."""
+    """Spec for tool name match instance."""
 
     prediction: Optional[str]
     """Required. Output of the evaluated model."""
@@ -4663,7 +4663,7 @@ ToolNameMatchInputOrDict = Union[ToolNameMatchInput, ToolNameMatchInputDict]
 
 
 class ToolParameterKeyMatchInstance(_common.BaseModel):
-    """Tool parameter key match instance."""
+    """Spec for tool parameter key match instance."""
 
     prediction: Optional[str] = Field(
         default=None, description="""Required. Output of the evaluated model."""
@@ -4675,7 +4675,7 @@ class ToolParameterKeyMatchInstance(_common.BaseModel):
 
 
 class ToolParameterKeyMatchInstanceDict(TypedDict, total=False):
-    """Tool parameter key match instance."""
+    """Spec for tool parameter key match instance."""
 
     prediction: Optional[str]
     """Required. Output of the evaluated model."""
@@ -4735,7 +4735,7 @@ ToolParameterKeyMatchInputOrDict = Union[
 
 
 class ToolParameterKVMatchInstance(_common.BaseModel):
-    """Tool parameter kv match instance."""
+    """Spec for tool parameter key value match instance."""
 
     prediction: Optional[str] = Field(
         default=None, description="""Required. Output of the evaluated model."""
@@ -4747,7 +4747,7 @@ class ToolParameterKVMatchInstance(_common.BaseModel):
 
 
 class ToolParameterKVMatchInstanceDict(TypedDict, total=False):
-    """Tool parameter kv match instance."""
+    """Spec for tool parameter key value match instance."""
 
     prediction: Optional[str]
     """Required. Output of the evaluated model."""
@@ -4762,7 +4762,7 @@ ToolParameterKVMatchInstanceOrDict = Union[
 
 
 class ToolParameterKVMatchSpec(_common.BaseModel):
-    """Spec for tool parameter kv match metric."""
+    """Spec for tool parameter key value match metric."""
 
     use_strict_string_match: Optional[bool] = Field(
         default=None,
@@ -4771,7 +4771,7 @@ class ToolParameterKVMatchSpec(_common.BaseModel):
 
 
 class ToolParameterKVMatchSpecDict(TypedDict, total=False):
-    """Spec for tool parameter kv match metric."""
+    """Spec for tool parameter key value match metric."""
 
     use_strict_string_match: Optional[bool]
     """Optional. Whether to use STRICT string match on parameter values."""
@@ -17430,8 +17430,7 @@ class SandboxEnvironment(_common.BaseModel):
 
     expire_time: Optional[datetime.datetime] = Field(
         default=None,
-        description="""Expiration time of the sandbox environment.
-      """,
+        description="""Optional. Timestamp in UTC of when this SandboxEnvironment is considered expired. This is *always* provided on output, regardless of what `expiration` was sent on input.""",
     )
     connection_info: Optional[SandboxEnvironmentConnectionInfo] = Field(
         default=None,
@@ -17486,8 +17485,7 @@ class SandboxEnvironmentDict(TypedDict, total=False):
     """A sandbox environment."""
 
     expire_time: Optional[datetime.datetime]
-    """Expiration time of the sandbox environment.
-      """
+    """Optional. Timestamp in UTC of when this SandboxEnvironment is considered expired. This is *always* provided on output, regardless of what `expiration` was sent on input."""
 
     connection_info: Optional[SandboxEnvironmentConnectionInfoDict]
     """Output only. The connection information of the SandboxEnvironment."""
@@ -19003,12 +19001,11 @@ class SandboxEnvironmentSnapshot(_common.BaseModel):
 
     display_name: Optional[str] = Field(
         default=None,
-        description="""The display name of the sandbox environment snapshot.""",
+        description="""Required. The display name of the SandboxEnvironmentSnapshot.""",
     )
     expire_time: Optional[datetime.datetime] = Field(
         default=None,
-        description="""Expiration time of the sandbox environment snapshot.
-      """,
+        description="""Optional. Timestamp in UTC of when this SandboxEnvironmentSnapshot is considered expired. This is *always* provided on output, regardless of what `expiration` was sent on input.""",
     )
     create_time: Optional[datetime.datetime] = Field(
         default=None,
@@ -19056,11 +19053,10 @@ class SandboxEnvironmentSnapshotDict(TypedDict, total=False):
     """A sandbox environment snapshot."""
 
     display_name: Optional[str]
-    """The display name of the sandbox environment snapshot."""
+    """Required. The display name of the SandboxEnvironmentSnapshot."""
 
     expire_time: Optional[datetime.datetime]
-    """Expiration time of the sandbox environment snapshot.
-      """
+    """Optional. Timestamp in UTC of when this SandboxEnvironmentSnapshot is considered expired. This is *always* provided on output, regardless of what `expiration` was sent on input."""
 
     create_time: Optional[datetime.datetime]
     """Output only. The timestamp when this SandboxEnvironmentSnapshot was created."""
@@ -20419,7 +20415,8 @@ class GeminiExample(_common.BaseModel):
     """Represents a Gemini example."""
 
     model: Optional[str] = Field(
-        default=None, description="""The model used to generate the Gemini example."""
+        default=None,
+        description="""Optional. The fully qualified name of the publisher model or tuned model endpoint to use. Publisher model format: `projects/{project}/locations/{location}/publishers/&#42;/models/*` Tuned model endpoint format: `projects/{project}/locations/{location}/endpoints/{endpoint}`""",
     )
     contents: Optional[list[genai_types.Content]] = Field(
         default=None, description="""Contents of the Gemini example."""
@@ -20428,7 +20425,8 @@ class GeminiExample(_common.BaseModel):
         default=None, description="""System instruction for the Gemini example."""
     )
     cached_content: Optional[str] = Field(
-        default=None, description="""Cached content for the Gemini example."""
+        default=None,
+        description="""Optional. The name of the cached content used as context to serve the prediction. Note: only used in explicit caching, where users can have control over caching (e.g. what content to cache) and enjoy guaranteed cost savings. Format: `projects/{project}/locations/{location}/cachedContents/{cachedContent}`""",
     )
     tools: Optional[list[genai_types.Tool]] = Field(
         default=None, description="""Tools for the Gemini example."""
@@ -20452,7 +20450,7 @@ class GeminiExampleDict(TypedDict, total=False):
     """Represents a Gemini example."""
 
     model: Optional[str]
-    """The model used to generate the Gemini example."""
+    """Optional. The fully qualified name of the publisher model or tuned model endpoint to use. Publisher model format: `projects/{project}/locations/{location}/publishers/&#42;/models/*` Tuned model endpoint format: `projects/{project}/locations/{location}/endpoints/{endpoint}`"""
 
     contents: Optional[list[genai_types.Content]]
     """Contents of the Gemini example."""
@@ -20461,7 +20459,7 @@ class GeminiExampleDict(TypedDict, total=False):
     """System instruction for the Gemini example."""
 
     cached_content: Optional[str]
-    """Cached content for the Gemini example."""
+    """Optional. The name of the cached content used as context to serve the prediction. Note: only used in explicit caching, where users can have control over caching (e.g. what content to cache) and enjoy guaranteed cost savings. Format: `projects/{project}/locations/{location}/cachedContents/{cachedContent}`"""
 
     tools: Optional[list[genai_types.Tool]]
     """Tools for the Gemini example."""
@@ -20516,7 +20514,7 @@ class GeminiRequestReadConfig(_common.BaseModel):
     )
     assembled_request_column_name: Optional[str] = Field(
         default=None,
-        description="""Column name in the underlying BigQuery table that contains already fully assembled Gemini requests.""",
+        description="""Optional. Column name in the dataset table that contains already fully assembled Gemini requests.""",
     )
 
     @classmethod
@@ -20613,7 +20611,7 @@ class GeminiRequestReadConfigDict(TypedDict, total=False):
     """Gemini request template with placeholders."""
 
     assembled_request_column_name: Optional[str]
-    """Column name in the underlying BigQuery table that contains already fully assembled Gemini requests."""
+    """Optional. Column name in the dataset table that contains already fully assembled Gemini requests."""
 
 
 GeminiRequestReadConfigOrDict = Union[

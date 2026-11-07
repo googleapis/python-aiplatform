@@ -47,29 +47,22 @@ class AgentConfig(_common.BaseModel):
     )
     agent_type: Optional[str] = Field(
         default=None,
-        description="""The type or class of the agent (e.g., "LlmAgent", "RouterAgent",
-      "ToolUseAgent"). Useful for the autorater to understand the expected
-      behavior of the agent.""",
+        description="""Optional. The type or class of the agent (e.g., "LlmAgent", "RouterAgent", "ToolUseAgent"). Useful for the autorater to understand the expected behavior of the agent.""",
     )
     description: Optional[str] = Field(
         default=None,
-        description="""A high-level description of the agent's role and responsibilities.
-      Critical for evaluating if the agent is routing tasks correctly.""",
+        description="""Optional. A high-level description of the agent's role and responsibilities. Critical for evaluating if the agent is routing tasks correctly.""",
     )
     instruction: Optional[str] = Field(
         default=None,
-        description="""The instructions for the LLM model, guiding the agent's behavior.
-      Can be static or dynamic. Dynamic instructions can contain placeholders
-      like {variable_name} that will be resolved at runtime using the
-      `AgentEvent.state_delta` field.""",
+        description="""Optional. Provides instructions for the LLM model, guiding the agent's behavior. Can be static or dynamic. Dynamic instructions can contain placeholders like {variable_name} that will be resolved at runtime using the `AgentEvent.state_delta` field.""",
     )
     tools: Optional[list[genai_types.Tool]] = Field(
         default=None, description="""The list of tools available to this agent."""
     )
     sub_agents: Optional[list[str]] = Field(
         default=None,
-        description="""The list of valid agent IDs that this agent can delegate to.
-      This defines the directed edges in the multi-agent system graph topology.""",
+        description="""Optional. The list of valid agent IDs that this agent can delegate to. This defines the directed edges in the multi-agent system graph topology.""",
     )
 
     @staticmethod
@@ -174,26 +167,19 @@ class AgentConfigDict(TypedDict, total=False):
       the `sub_agents` field. It must be unique within the `agents` map."""
 
     agent_type: Optional[str]
-    """The type or class of the agent (e.g., "LlmAgent", "RouterAgent",
-      "ToolUseAgent"). Useful for the autorater to understand the expected
-      behavior of the agent."""
+    """Optional. The type or class of the agent (e.g., "LlmAgent", "RouterAgent", "ToolUseAgent"). Useful for the autorater to understand the expected behavior of the agent."""
 
     description: Optional[str]
-    """A high-level description of the agent's role and responsibilities.
-      Critical for evaluating if the agent is routing tasks correctly."""
+    """Optional. A high-level description of the agent's role and responsibilities. Critical for evaluating if the agent is routing tasks correctly."""
 
     instruction: Optional[str]
-    """The instructions for the LLM model, guiding the agent's behavior.
-      Can be static or dynamic. Dynamic instructions can contain placeholders
-      like {variable_name} that will be resolved at runtime using the
-      `AgentEvent.state_delta` field."""
+    """Optional. Provides instructions for the LLM model, guiding the agent's behavior. Can be static or dynamic. Dynamic instructions can contain placeholders like {variable_name} that will be resolved at runtime using the `AgentEvent.state_delta` field."""
 
     tools: Optional[list[genai_types.Tool]]
     """The list of tools available to this agent."""
 
     sub_agents: Optional[list[str]]
-    """The list of valid agent IDs that this agent can delegate to.
-      This defines the directed edges in the multi-agent system graph topology."""
+    """Optional. The list of valid agent IDs that this agent can delegate to. This defines the directed edges in the multi-agent system graph topology."""
 
 
 AgentConfigOrDict = Union[AgentConfig, AgentConfigDict]
@@ -211,12 +197,11 @@ class AgentEvent(_common.BaseModel):
         default=None, description="""The content of the event."""
     )
     event_time: Optional[datetime.datetime] = Field(
-        default=None, description="""The timestamp when the event occurred."""
+        default=None, description="""Optional. The timestamp when the event occurred."""
     )
     state_delta: Optional[dict[str, Any]] = Field(
         default=None,
-        description="""The change in the session state caused by this event.
-      This is a key-value map of fields that were modified or added by the event.""",
+        description="""Optional. The change in the session state caused by this event. This is a key-value map of fields that were modified or added by the event.""",
     )
     active_tools: Optional[list[genai_types.Tool]] = Field(
         default=None,
@@ -236,11 +221,10 @@ class AgentEventDict(TypedDict, total=False):
     """The content of the event."""
 
     event_time: Optional[datetime.datetime]
-    """The timestamp when the event occurred."""
+    """Optional. The timestamp when the event occurred."""
 
     state_delta: Optional[dict[str, Any]]
-    """The change in the session state caused by this event.
-      This is a key-value map of fields that were modified or added by the event."""
+    """Optional. The change in the session state caused by this event. This is a key-value map of fields that were modified or added by the event."""
 
     active_tools: Optional[list[genai_types.Tool]]
     """The list of tools that were active/available to the agent at the
@@ -258,11 +242,12 @@ class ConversationTurn(_common.BaseModel):
         description="""The 0-based index of the turn in the conversation sequence.""",
     )
     turn_id: Optional[str] = Field(
-        default=None, description="""A unique identifier for the turn."""
+        default=None,
+        description="""Optional. A unique identifier for the turn. Useful for referencing specific turns across systems.""",
     )
     events: Optional[list[AgentEvent]] = Field(
         default=None,
-        description="""The list of events that occurred during this turn.""",
+        description="""Optional. The list of events that occurred during this turn.""",
     )
 
 
@@ -273,10 +258,10 @@ class ConversationTurnDict(TypedDict, total=False):
     """The 0-based index of the turn in the conversation sequence."""
 
     turn_id: Optional[str]
-    """A unique identifier for the turn."""
+    """Optional. A unique identifier for the turn. Useful for referencing specific turns across systems."""
 
     events: Optional[list[AgentEventDict]]
-    """The list of events that occurred during this turn."""
+    """Optional. The list of events that occurred during this turn."""
 
 
 ConversationTurnOrDict = Union[ConversationTurn, ConversationTurnDict]
@@ -287,15 +272,11 @@ class AgentData(_common.BaseModel):
 
     agents: Optional[dict[str, AgentConfig]] = Field(
         default=None,
-        description="""A map containing the static configurations for each agent in the system.
-      Key: agent_id (matches the `author` field in events).
-      Value: The static configuration of the agent.""",
+        description="""Optional. A map containing the static configurations for each agent in the system. Key: agent_id (matches the `author` field in events). Value: The static configuration of the agent.""",
     )
     turns: Optional[list[ConversationTurn]] = Field(
         default=None,
-        description="""A chronological list of conversation turns.
-      Each turn represents a logical execution cycle (e.g., User Input -> Agent
-      Response).""",
+        description="""Optional. A chronological list of conversation turns. Each turn represents a logical execution cycle (e.g., User Input -> Agent Response).""",
     )
 
     @classmethod
@@ -415,14 +396,10 @@ class AgentDataDict(TypedDict, total=False):
     """Represents data specific to multi-turn agent evaluations."""
 
     agents: Optional[dict[str, AgentConfigDict]]
-    """A map containing the static configurations for each agent in the system.
-      Key: agent_id (matches the `author` field in events).
-      Value: The static configuration of the agent."""
+    """Optional. A map containing the static configurations for each agent in the system. Key: agent_id (matches the `author` field in events). Value: The static configuration of the agent."""
 
     turns: Optional[list[ConversationTurnDict]]
-    """A chronological list of conversation turns.
-      Each turn represents a logical execution cycle (e.g., User Input -> Agent
-      Response)."""
+    """Optional. A chronological list of conversation turns. Each turn represents a logical execution cycle (e.g., User Input -> Agent Response)."""
 
 
 AgentDataOrDict = Union[AgentData, AgentDataDict]
