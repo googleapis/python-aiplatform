@@ -62,6 +62,8 @@ _TVertexAiServiceClientWithOverride = TypeVar(
 
 _TOP_GOOGLE_CONSTRUCTOR_METHOD_TAG = "top_google_constructor_method"
 
+_ENFORCE_BUCKET_OWNERSHIP_ENV_VAR = "GOOGLE_CLOUD_AIPLATFORM_ENFORCE_BUCKET_OWNERSHIP"
+
 
 class _Product(enum.Enum):
     """Notebook product types."""
@@ -133,6 +135,7 @@ class _Config:
         self._request_metadata = None
         self._resource_type = None
         self._async_rest_credentials = None
+        self._enforce_bucket_ownership = None
 
     def init(
         self,
@@ -153,6 +156,7 @@ class _Config:
         api_key: Optional[str] = None,
         api_transport: Optional[str] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = None,
+        enforce_bucket_ownership: Optional[bool] = None,
     ):
         """Updates common initialization parameters with provided options.
 
@@ -220,6 +224,13 @@ class _Config:
                 beta state (preview).
             request_metadata:
                 Optional. Additional gRPC metadata to send with every client request.
+            enforce_bucket_ownership (bool):
+                Optional. If True, raise an error when an existing GCS bucket
+                that the SDK writes pipeline artifacts to is not owned by the
+                project, or when its owner cannot be verified. If False or not
+                set, only a warning is shown. Can also be enabled with the
+                GOOGLE_CLOUD_AIPLATFORM_ENFORCE_BUCKET_OWNERSHIP=true
+                environment variable.
         Raises:
             ValueError:
                 If experiment_description is provided but experiment is not.
@@ -287,6 +298,8 @@ class _Config:
             self._request_metadata = request_metadata
         if api_key is not None:
             self._api_key = api_key
+        if enforce_bucket_ownership is not None:
+            self._enforce_bucket_ownership = enforce_bucket_ownership
         self._resource_type = None
 
         # Finally, perform secondary state updates
@@ -387,6 +400,15 @@ class _Config:
     def staging_bucket(self) -> Optional[str]:
         """Default staging bucket, if provided."""
         return self._staging_bucket
+
+    @property
+    def enforce_bucket_ownership(self) -> bool:
+        """Whether to raise an error for a GCS bucket owned by another project."""
+        if self._enforce_bucket_ownership is not None:
+            return self._enforce_bucket_ownership
+        return os.environ.get(
+            _ENFORCE_BUCKET_OWNERSHIP_ENV_VAR, ""
+        ).strip().lower() in ("1", "true", "yes")
 
     @property
     def credentials(self) -> Optional[auth_credentials.Credentials]:

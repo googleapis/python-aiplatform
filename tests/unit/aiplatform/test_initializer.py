@@ -138,6 +138,24 @@ class TestInit:
         initializer.global_config.init(service_account=_TEST_SERVICE_ACCOUNT)
         assert initializer.global_config.service_account == _TEST_SERVICE_ACCOUNT
 
+    def test_enforce_bucket_ownership_defaults_to_false(self):
+        with patch.dict(
+            os.environ, {initializer._ENFORCE_BUCKET_OWNERSHIP_ENV_VAR: ""}
+        ):
+            assert initializer.global_config.enforce_bucket_ownership is False
+
+    def test_init_enforce_bucket_ownership_sets_enforce_bucket_ownership(self):
+        initializer.global_config.init(enforce_bucket_ownership=True)
+        assert initializer.global_config.enforce_bucket_ownership is True
+
+    def test_enforce_bucket_ownership_from_env_var(self):
+        with patch.dict(
+            os.environ, {initializer._ENFORCE_BUCKET_OWNERSHIP_ENV_VAR: "true"}
+        ):
+            assert initializer.global_config.enforce_bucket_ownership is True
+            initializer.global_config.init(enforce_bucket_ownership=False)
+            assert initializer.global_config.enforce_bucket_ownership is False
+
     @patch.object(_experiment_tracker, "set_experiment")
     def test_init_experiment_sets_experiment(self, set_experiment_mock):
         initializer.global_config.init(experiment=_TEST_EXPERIMENT)
