@@ -235,10 +235,12 @@ llama_index_testing_extra_require = list(
     )
 )
 
-tokenization_extra_require = ["sentencepiece >= 0.2.0"]
+# sentencepiece 0.2.3 ships protobuf 7.x generated code, which fails to import
+# with older protobuf runtimes (e.g. the protobuf <= 5.29.4 used in testing).
+tokenization_extra_require = ["sentencepiece >= 0.2.0, < 0.2.3"]
 tokenization_testing_extra_require = [
     # sentencepiece has no Python 3.15 wheels yet and fails to build from source.
-    "sentencepiece >= 0.2.0; python_version<'3.15'",
+    "sentencepiece >= 0.2.0, < 0.2.3; python_version<'3.15'",
     "nltk",
 ]
 
