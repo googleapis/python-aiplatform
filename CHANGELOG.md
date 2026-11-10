@@ -1,5 +1,24 @@
 # Changelog
 
+## [2.8.0](https://github.com/googleapis/python-aiplatform/compare/v2.7.0...v2.8.0) (2026-11-10)
+
+
+### Features
+
+* Add service_account parameter to Model Garden deploy methods. ([8779d73](https://github.com/googleapis/python-aiplatform/commit/8779d73cfb486fcc02046b6ca2df8a6e3cca0636))
+* GenAI SDK client(evals) - Add StepBasedLLMMetric for multi-step LLM-judge metrics over agent traces. ([954c90d](https://github.com/googleapis/python-aiplatform/commit/954c90dc49e0d63c2f5c6f318165d019aa7b7ba0))
+* GenAI SDK client(evals) - Support StepBasedLLMMetric in create_evaluation_metric. ([84df3a7](https://github.com/googleapis/python-aiplatform/commit/84df3a766b38d2674b335c42dcb803d63bf15f69))
+* Support `git_source` in `client.runtimes` for deploying from public Git repositories ([affc088](https://github.com/googleapis/python-aiplatform/commit/affc0885ccdb29bb37ea2365c14e12f7da698437))
+* Update discovery doc ([720b112](https://github.com/googleapis/python-aiplatform/commit/720b112c4339775c6a3802183a8c3d167362f39a))
+
+
+### Bug Fixes
+
+* Cap sentencepiece below 0.2.3 in the tokenization extras ([bb5ff02](https://github.com/googleapis/python-aiplatform/commit/bb5ff029fdb96b5dd7183f72277bcbf866fe818e))
+* Fail open on any error resolving the project ID in the ADK framework. ([2ec72e8](https://github.com/googleapis/python-aiplatform/commit/2ec72e8a4524d9a9c24acc8f24296094cb8669b3))
+* GenAI Client(evals) - Handle agent traces that end without a text event in run_inference ([d62419a](https://github.com/googleapis/python-aiplatform/commit/d62419abd1d402a25eb271b51e2d947882d6c136))
+* Warn when the pipeline output bucket is not owned by the project, and add `aiplatform.init(enforce_bucket_ownership=True)` to raise an error instead ([27ee0dc](https://github.com/googleapis/python-aiplatform/commit/27ee0dcb317a3e35879d85a4193a9fac79a77c05))
+
 ## [2.7.0](https://github.com/googleapis/python-aiplatform/compare/v2.6.0...v2.7.0) (2026-10-28)
 
 
