@@ -25,7 +25,7 @@ import logging
 import os
 import pathlib
 import tempfile
-from typing import Optional, TYPE_CHECKING
+from typing import Optional, Tuple, TYPE_CHECKING
 import warnings
 
 from google.auth import credentials as auth_credentials
@@ -63,6 +63,45 @@ if _GCS_VERSION < Version("3.0.0"):
 _DEFAULT_STAGING_BUCKET_SALT = str(uuid.uuid4())
 
 
+class BucketOwnershipError(ValueError):
+    """Raised when a GCS bucket does not belong to the expected project."""
+
+
+def _get_bucket_project_numbers(
+    bucket: storage.Bucket,
+    expected_project: str,
+    client: storage.Client,
+) -> Tuple[Optional[str], Optional[str]]:
+    """Gets the project number of a GCS bucket and of the expected project.
+
+    Args:
+        bucket: The GCS bucket to check.
+        expected_project: The project ID that should own the bucket.
+        client: Storage client instance.
+
+    Returns:
+        A tuple of the bucket's project number and the expected project's
+        number. Each value is None if it could not be retrieved.
+    """
+    bucket_project_number = None
+    expected_project_number = None
+    try:
+        bucket.reload(client=client)
+        if bucket.project_number is not None:
+            bucket_project_number = str(bucket.project_number)
+    except Exception:
+        pass
+    try:
+        expected_project_number = str(
+            resource_manager_utils.get_project_number(
+                expected_project, credentials=getattr(client, "_credentials", None)
+            )
+        )
+    except Exception:
+        pass
+    return bucket_project_number, expected_project_number
+
+
 def _verify_bucket_ownership(
     bucket: storage.Bucket,
     expected_project: str,
@@ -81,15 +120,70 @@ def _verify_bucket_ownership(
     Returns:
         True if the bucket belongs to the expected project, False otherwise.
     """
-    try:
-        bucket.reload(client=client)
-        bucket_project_number = str(bucket.project_number)
-        expected_project_number = str(
-            resource_manager_utils.get_project_number(expected_project)
+    bucket_project_number, expected_project_number = _get_bucket_project_numbers(
+        bucket, expected_project, client
+    )
+    return (
+        bucket_project_number is not None
+        and bucket_project_number == expected_project_number
+    )
+
+
+def _check_pipeline_bucket_ownership(
+    bucket: storage.Bucket,
+    expected_project: str,
+    client: storage.Client,
+    is_sdk_generated: bool = False,
+) -> None:
+    """Warns, or raises, if a bucket is not owned by the project.
+
+    Args:
+        bucket: The existing GCS bucket for pipeline artifacts.
+        expected_project: The project ID that should own the bucket.
+        client: Storage client instance.
+        is_sdk_generated: Whether the SDK generated the bucket name. A
+            generated name can be predictable, so a mismatch always raises.
+
+    Raises:
+        BucketOwnershipError: If the bucket is not owned by `expected_project`,
+            or its owner cannot be verified, and either `is_sdk_generated` is
+            True or `aiplatform.init(enforce_bucket_ownership=True)` is set.
+    """
+    bucket_project_number, expected_project_number = _get_bucket_project_numbers(
+        bucket, expected_project, client
+    )
+    if bucket_project_number is not None and (
+        bucket_project_number == expected_project_number
+    ):
+        return
+
+    if bucket_project_number is None or expected_project_number is None:
+        message = (
+            f'Could not verify that GCS bucket "{bucket.name}" is owned by '
+            f'project "{expected_project}".'
         )
-        return bucket_project_number == expected_project_number
-    except Exception:
-        return False
+    else:
+        message = (
+            f'GCS bucket "{bucket.name}" is owned by project number '
+            f'"{bucket_project_number}", not by project "{expected_project}" '
+            f'(project number "{expected_project_number}").'
+        )
+    message += (
+        " Pipeline artifacts will be written to this bucket. If you do not "
+        "own this bucket, other users may be able to read or modify the "
+        "artifacts. Use a bucket owned by your project, for example by "
+        "passing pipeline_root or by setting "
+        "aiplatform.init(staging_bucket='gs://your-bucket')."
+    )
+
+    if is_sdk_generated or initializer.global_config.enforce_bucket_ownership:
+        raise BucketOwnershipError(message)
+    warnings.warn(
+        f"{message} To raise an error instead, set "
+        "aiplatform.init(enforce_bucket_ownership=True).",
+        UserWarning,
+        stacklevel=2,
+    )
 
 
 def blob_from_uri(uri: str, client: storage.Client) -> storage.Blob:
@@ -335,12 +429,12 @@ def create_gcs_bucket_for_pipeline_artifacts_if_it_does_not_exist(
     service_account = service_account or initializer.global_config.service_account
     credentials = credentials or initializer.global_config.credentials
 
+    default_output_artifacts_gcs_dir = generate_gcs_directory_for_pipeline_artifacts(
+        project=project,
+        location=location,
+    )
     output_artifacts_gcs_dir = (
-        output_artifacts_gcs_dir
-        or generate_gcs_directory_for_pipeline_artifacts(
-            project=project,
-            location=location,
-        )
+        output_artifacts_gcs_dir or default_output_artifacts_gcs_dir
     )
 
     # Creating the bucket if needed
@@ -377,13 +471,21 @@ def create_gcs_bucket_for_pipeline_artifacts_if_it_does_not_exist(
             f"serviceAccount:{service_account}"
         )
         pipelines_bucket.set_iam_policy(bucket_iam_policy)
-    elif not _verify_bucket_ownership(pipelines_bucket, project, storage_client):
-        raise ValueError(
-            f'Output artifacts bucket "{pipelines_bucket.name}" exists but does '
-            f'not belong to project "{project}". This may indicate a '
-            f"bucket squatting attack. Please provide an explicit "
-            f"output_artifacts_gcs_dir parameter or configure one via "
-            f"aiplatform.init(output_artifacts_gcs_dir='gs://your-bucket')."
+    else:
+        # PipelineJob generates its default pipeline_root before calling this
+        # function, so compare bucket names instead of checking for None.
+        is_sdk_generated = (
+            pipelines_bucket.name
+            == bucket_from_uri(
+                uri=default_output_artifacts_gcs_dir,
+                client=storage_client,
+            ).name
+        )
+        _check_pipeline_bucket_ownership(
+            pipelines_bucket,
+            project,
+            storage_client,
+            is_sdk_generated=is_sdk_generated,
         )
     return output_artifacts_gcs_dir
 

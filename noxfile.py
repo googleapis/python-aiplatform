@@ -45,6 +45,7 @@ DOCS_DEPENDENCIES = (
     "sphinx==5.0.2",
     "alabaster",
     "google-cloud-aiplatform[evaluation]",
+    "litellm==1.106.6",
     "recommonmark",
 )
 
@@ -57,6 +58,7 @@ DOCFX_DEPENDENCIES = (
     "sphinxcontrib-serializinghtml==1.1.5",
     "alabaster",
     "google-cloud-aiplatform[evaluation]",
+    "litellm==1.106.6",
     "recommonmark",
 )
 

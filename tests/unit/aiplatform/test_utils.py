@@ -23,6 +23,7 @@ import os
 import re
 import tempfile
 import textwrap
+import warnings
 from typing import Callable, Dict, Optional, Tuple
 from unittest import mock
 from unittest.mock import patch
@@ -641,6 +642,177 @@ class TestGcsUtils:
         assert mock_get_project_number.called
         assert output.startswith("gs://test-project-vertex-pipelines-us-central1-")
         assert output.endswith("/output_artifacts/")
+
+    @pytest.mark.parametrize(
+        "project_numbers, expected_message",
+        [
+            (("111", "222"), 'owned by project number "111"'),
+            ((None, "222"), "Could not verify"),
+            (("111", None), "Could not verify"),
+        ],
+    )
+    @patch.object(storage.Bucket, "exists", return_value=True)
+    @patch.object(storage, "Client")
+    def test_create_gcs_bucket_for_pipeline_artifacts_warns_for_foreign_bucket(
+        self,
+        mock_storage_client,
+        mock_bucket_exists,
+        project_numbers,
+        expected_message,
+    ):
+        with patch.object(
+            gcs_utils, "_get_bucket_project_numbers", return_value=project_numbers
+        ), patch.object(
+            gcs_utils.initializer.global_config, "_enforce_bucket_ownership", None
+        ), patch.dict(
+            os.environ,
+            {"GOOGLE_CLOUD_AIPLATFORM_ENFORCE_BUCKET_OWNERSHIP": ""},
+        ):
+            with pytest.warns(UserWarning, match=expected_message):
+                output = gcs_utils.create_gcs_bucket_for_pipeline_artifacts_if_it_does_not_exist(
+                    output_artifacts_gcs_dir="gs://shared-bucket/output_artifacts/",
+                    project="test-project",
+                    location="us-central1",
+                )
+        assert output == "gs://shared-bucket/output_artifacts/"
+        mock_storage_client.return_value.create_bucket.assert_not_called()
+
+    @pytest.mark.parametrize(
+        "project_numbers",
+        [("111", "222"), (None, "222"), ("111", None)],
+    )
+    @patch.object(storage.Bucket, "exists", return_value=True)
+    @patch.object(storage, "Client")
+    def test_create_gcs_bucket_for_pipeline_artifacts_raises_in_strict_mode(
+        self, mock_storage_client, mock_bucket_exists, project_numbers
+    ):
+        with patch.object(
+            gcs_utils, "_get_bucket_project_numbers", return_value=project_numbers
+        ), patch.object(
+            gcs_utils.initializer.global_config, "_enforce_bucket_ownership", True
+        ):
+            with pytest.raises(gcs_utils.BucketOwnershipError):
+                gcs_utils.create_gcs_bucket_for_pipeline_artifacts_if_it_does_not_exist(
+                    output_artifacts_gcs_dir="gs://squatted-bucket/output_artifacts/",
+                    project="test-project",
+                    location="us-central1",
+                )
+        mock_storage_client.return_value.create_bucket.assert_not_called()
+
+    @pytest.mark.parametrize("project_numbers", [("111", "222"), (None, "222")])
+    @pytest.mark.parametrize("pass_generated_dir", [False, True])
+    @patch.object(storage.Bucket, "exists", return_value=True)
+    @patch.object(storage, "Client")
+    def test_create_gcs_bucket_for_pipeline_artifacts_raises_for_generated_name(
+        self,
+        mock_storage_client,
+        mock_bucket_exists,
+        pass_generated_dir,
+        project_numbers,
+    ):
+        # PipelineJob passes the generated directory explicitly, so both the
+        # implicit (None) and explicit generated directory must raise.
+        output_artifacts_gcs_dir = (
+            gcs_utils.generate_gcs_directory_for_pipeline_artifacts(
+                project="test-project", location="us-central1"
+            )
+            if pass_generated_dir
+            else None
+        )
+        with patch.object(
+            gcs_utils, "_get_bucket_project_numbers", return_value=project_numbers
+        ), patch.object(
+            gcs_utils.initializer.global_config, "_enforce_bucket_ownership", None
+        ), patch.dict(
+            os.environ,
+            {"GOOGLE_CLOUD_AIPLATFORM_ENFORCE_BUCKET_OWNERSHIP": ""},
+        ):
+            with pytest.raises(gcs_utils.BucketOwnershipError):
+                gcs_utils.create_gcs_bucket_for_pipeline_artifacts_if_it_does_not_exist(
+                    output_artifacts_gcs_dir=output_artifacts_gcs_dir,
+                    project="test-project",
+                    location="us-central1",
+                )
+        mock_storage_client.return_value.create_bucket.assert_not_called()
+
+    @patch.object(storage.Bucket, "exists", return_value=True)
+    @patch.object(storage, "Client")
+    def test_create_gcs_bucket_for_pipeline_artifacts_raises_with_env_var(
+        self, mock_storage_client, mock_bucket_exists
+    ):
+        with patch.object(
+            gcs_utils, "_get_bucket_project_numbers", return_value=("111", "222")
+        ), patch.object(
+            gcs_utils.initializer.global_config, "_enforce_bucket_ownership", None
+        ), patch.dict(
+            os.environ,
+            {"GOOGLE_CLOUD_AIPLATFORM_ENFORCE_BUCKET_OWNERSHIP": "true"},
+        ):
+            with pytest.raises(gcs_utils.BucketOwnershipError):
+                gcs_utils.create_gcs_bucket_for_pipeline_artifacts_if_it_does_not_exist(
+                    output_artifacts_gcs_dir="gs://squatted-bucket/output_artifacts/",
+                    project="test-project",
+                    location="us-central1",
+                )
+
+    @pytest.mark.parametrize(
+        "bucket_project_number, expected_bucket_project_number",
+        [(111, "111"), (None, None)],
+    )
+    def test_get_bucket_project_numbers(
+        self, bucket_project_number, expected_bucket_project_number
+    ):
+        mock_client = mock.Mock(spec=storage.Client)
+        mock_client._credentials = mock.sentinel.credentials
+        mock_bucket = mock.Mock(spec=storage.Bucket)
+        mock_bucket.project_number = bucket_project_number
+        with patch.object(
+            gcs_utils.resource_manager_utils,
+            "get_project_number",
+            return_value=222,
+        ) as mock_get_project_number:
+            result = gcs_utils._get_bucket_project_numbers(
+                mock_bucket, "test-project", mock_client
+            )
+        assert result == (expected_bucket_project_number, "222")
+        mock_bucket.reload.assert_called_once_with(client=mock_client)
+        mock_get_project_number.assert_called_once_with(
+            "test-project", credentials=mock.sentinel.credentials
+        )
+
+    def test_get_bucket_project_numbers_lookup_failures(self):
+        mock_client = mock.Mock(spec=storage.Client)
+        mock_client._credentials = None
+        mock_bucket = mock.Mock(spec=storage.Bucket)
+        mock_bucket.reload.side_effect = Exception("403 Forbidden")
+        with patch.object(
+            gcs_utils.resource_manager_utils,
+            "get_project_number",
+            side_effect=Exception("permission denied"),
+        ):
+            result = gcs_utils._get_bucket_project_numbers(
+                mock_bucket, "test-project", mock_client
+            )
+        assert result == (None, None)
+
+    @patch.object(storage.Bucket, "exists", return_value=True)
+    @patch.object(storage, "Client")
+    def test_create_gcs_bucket_for_pipeline_artifacts_owned_bucket_no_warning(
+        self, mock_storage_client, mock_bucket_exists
+    ):
+        with patch.object(
+            gcs_utils, "_get_bucket_project_numbers", return_value=("111", "111")
+        ), patch.object(
+            gcs_utils.initializer.global_config, "_enforce_bucket_ownership", True
+        ):
+            with warnings.catch_warnings():
+                warnings.simplefilter("error")
+                output = gcs_utils.create_gcs_bucket_for_pipeline_artifacts_if_it_does_not_exist(
+                    output_artifacts_gcs_dir="gs://my-bucket/output_artifacts/",
+                    project="test-project",
+                    location="us-central1",
+                )
+        assert output == "gs://my-bucket/output_artifacts/"
 
     def test_download_from_gcs_dir(
         self, mock_storage_client_list_blobs, mock_storage_blob_download_to_filename

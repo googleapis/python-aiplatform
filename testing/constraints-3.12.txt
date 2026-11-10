@@ -13,3 +13,5 @@ ipython==8.22.2 # Pinned to unbreak TypeAliasType import error
 google-adk==0.0.2
 google-genai>=1.10.0
 google-vizier==0.1.21
+sentencepiece<0.2.3 # 0.2.3 ships protobuf 7 gencode, which fails with protobuf<=5.29.4 on Python<3.14
+litellm==1.106.6

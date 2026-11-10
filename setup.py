@@ -186,11 +186,9 @@ evaluation_extra_require = [
     "jsonschema",
     "ruamel.yaml",
     "pyyaml",
-    "litellm>=1.83.7, <1.97.0; python_version<'3.14'",
-    # litellm does not support Python 3.15 yet (Requires-Python <3.15).
-    "litellm>=1.93.0, <1.97.0; python_version=='3.14'",
-    # For LiteLLM tests. Lower bound: CVE-2026-35030 plus 4 follow-on
-    # advisories patched in 1.83.7. Upper bound <1.97.0 for stable interface only.
+    # Lower bound >=1.106.5 includes security advisory patches; litellm
+    # requires Python <3.15. Exact version is pinned in CI constraints.
+    "litellm>=1.106.5, <1.107.0; python_version<'3.15'",
 ]
 
 langchain_extra_require = [
@@ -235,10 +233,12 @@ llama_index_testing_extra_require = list(
     )
 )
 
-tokenization_extra_require = ["sentencepiece >= 0.2.0"]
+# sentencepiece 0.2.3 ships protobuf 7.x generated code, which fails to import
+# with older protobuf runtimes (e.g. the protobuf <= 5.29.4 used in testing).
+tokenization_extra_require = ["sentencepiece >= 0.2.0, < 0.2.3"]
 tokenization_testing_extra_require = [
     # sentencepiece has no Python 3.15 wheels yet and fails to build from source.
-    "sentencepiece >= 0.2.0; python_version<'3.15'",
+    "sentencepiece >= 0.2.0, < 0.2.3; python_version<'3.15'",
     "nltk",
 ]
 
