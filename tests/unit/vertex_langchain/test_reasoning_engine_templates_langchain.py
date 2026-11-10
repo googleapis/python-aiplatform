@@ -279,13 +279,6 @@ class TestLangchainAgent:
             enable_tracing=True,
         )
         assert agent._instrumentor is None
-        # TODO(b/384730642): Re-enable this test once the parent issue is fixed.
-        # agent.set_up()
-        # assert agent._instrumentor is not None
-        # assert (
-        #     "enable_tracing=True but proceeding with tracing disabled"
-        #     not in caplog.text
-        # )
 
     @pytest.mark.usefixtures("caplog")
     def test_enable_tracing_warning(self, caplog, langchain_instrumentor_none_mock):
@@ -296,9 +289,6 @@ class TestLangchainAgent:
             enable_tracing=True,
         )
         assert agent._instrumentor is None
-        # TODO(b/384730642): Re-enable this test once the parent issue is fixed.
-        # agent.set_up()
-        # assert "enable_tracing=True but proceeding with tracing disabled" in caplog.text
 
     def test_tracing_setup(
         self,
