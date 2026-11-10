@@ -468,6 +468,9 @@ class PipelineJob(
                 location=self.location,
                 credentials=self.credentials,
             )
+        except gcs_utils.BucketOwnershipError:
+            # Raised only in strict mode: aiplatform.init(enforce_bucket_ownership=True).
+            raise
         except:  # noqa: E722
             _LOGGER.exception(
                 "Error when trying to get or create a GCS bucket for the pipeline output artifacts"

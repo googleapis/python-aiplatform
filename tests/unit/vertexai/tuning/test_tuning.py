@@ -286,10 +286,10 @@ class TestgenerativeModelTuning:
     )
     @mock.patch.object(
         target=gcs_utils,
-        attribute="_verify_bucket_ownership",
+        attribute="_get_bucket_project_numbers",
         # Override bucket ownership check to allow tests to use a non-existent
         # bucket.
-        new=lambda *args, **kwargs: True,
+        new=lambda *args, **kwargs: ("123", "123"),
     )
     def test_genai_tuning_service_distillation_distill_model(self):
         distillation_train = _distillation.distill_model
