@@ -15,3 +15,4 @@ google-vizier==0.1.21
 google-adk==0.0.2
 pyarrow<26.0.0 # 26.0.0 needs NumPy 2 at import; tensorflow 2.14 keeps NumPy 1.x on Python 3.11
 sentencepiece<0.2.3 # 0.2.3 ships protobuf 7 gencode, which fails with protobuf<=5.29.4 on Python<3.14
+litellm==1.106.6
