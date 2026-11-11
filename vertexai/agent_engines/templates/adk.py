@@ -1166,7 +1166,10 @@ class AdkApp:
                 ),
             )
 
-        if custom_instrumentor and self._tracing_enabled():
+        if (
+            custom_instrumentor
+            and self._tmpl_attrs.get("enable_tracing") is not False
+        ):
             self._tmpl_attrs["instrumentor"] = custom_instrumentor(self.project_id())
 
         if not custom_instrumentor:

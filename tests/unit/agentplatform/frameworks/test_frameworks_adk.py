@@ -1583,25 +1583,25 @@ class TestAdkApp:
             ("1.16.0", False, False, False),
             ("1.16.0", False, True, False),
             ("1.16.0", False, None, False),
-            ("1.16.0", True, False, False),
+            ("1.16.0", True, False, True),
             ("1.16.0", True, True, True),
             ("1.16.0", True, None, True),
-            ("1.16.0", None, False, False),
-            ("1.16.0", None, True, False),
-            ("1.16.0", None, None, False),
-            ("1.16.0", None, "unspecified", False),
+            ("1.16.0", None, False, True),
+            ("1.16.0", None, True, True),
+            ("1.16.0", None, None, True),
+            ("1.16.0", None, "unspecified", True),
             ("1.16.0", False, "unspecified", False),
             ("1.16.0", True, "unspecified", True),
             ("1.17.0", False, False, False),
             ("1.17.0", False, True, False),
             ("1.17.0", False, None, False),
-            ("1.17.0", True, False, False),
+            ("1.17.0", True, False, True),
             ("1.17.0", True, True, True),
             ("1.17.0", True, None, True),
-            ("1.17.0", None, False, False),
+            ("1.17.0", None, False, True),
             ("1.17.0", None, True, True),
-            ("1.17.0", None, None, False),
-            ("1.17.0", None, "unspecified", False),
+            ("1.17.0", None, None, True),
+            ("1.17.0", None, "unspecified", True),
             ("1.17.0", False, "unspecified", False),
             ("1.17.0", True, "unspecified", True),
         ],
@@ -1613,6 +1613,7 @@ class TestAdkApp:
         enable_tracing: Optional[bool],
         enable_telemetry: Optional[bool],
         want_custom_instrumentor_called: bool,
+        default_instrumentor_builder_mock: mock.Mock,
         get_project_id_mock: mock.Mock,
         warn_if_telemetry_api_disabled_mock: mock.Mock,
         adk_version_mock: mock.Mock,
@@ -1634,6 +1635,7 @@ class TestAdkApp:
         app.set_up()
 
         # Assert
+        default_instrumentor_builder_mock.assert_not_called()
         if want_custom_instrumentor_called:
             custom_instrumentor.assert_called_once_with(_TEST_PROJECT)
         else:

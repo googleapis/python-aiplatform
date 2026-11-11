@@ -469,6 +469,69 @@ class TestAdkApp:
             is credential_service_builder
         )
 
+    def test_initialization_and_clone_with_app(
+        self,
+        default_instrumentor_builder_mock: mock.Mock,
+    ):
+        from google.adk.apps import App
+
+        adk_app = App(
+            name="custom_app",
+            root_agent=Agent(name=_TEST_AGENT_NAME, model=_TEST_MODEL),
+        )
+        custom_instrumentor = mock.Mock(return_value="custom_instrumentor_instance")
+        app = reasoning_engines.AdkApp(
+            app=adk_app,
+            instrumentor_builder=custom_instrumentor,
+        )
+        assert app._app_name() == "custom_app"
+        app.set_up()
+        assert app._tmpl_attrs.get("runner") is not None
+        assert (
+            app._tmpl_attrs.get("instrumentor")
+            == "custom_instrumentor_instance"
+        )
+        custom_instrumentor.assert_called_once_with(_TEST_PROJECT_ID)
+        default_instrumentor_builder_mock.assert_not_called()
+
+        app_clone = app.clone()
+        assert app_clone._app_name() == "custom_app"
+        assert (
+            app_clone._tmpl_attrs.get("instrumentor_builder")
+            is custom_instrumentor
+        )
+        app_clone.set_up()
+        assert app_clone._tmpl_attrs.get("runner") is not None
+
+    def test_initialization_with_app_validation_errors(self):
+        from google.adk.apps import App
+
+        test_agent = Agent(name=_TEST_AGENT_NAME, model=_TEST_MODEL)
+        adk_app = App(name="custom_app", root_agent=test_agent)
+
+        with pytest.raises(
+            ValueError, match="One of `agent` or `app` must be provided."
+        ):
+            reasoning_engines.AdkApp()
+
+        with pytest.raises(
+            ValueError,
+            match="When app is provided, app_name should not be provided",
+        ):
+            reasoning_engines.AdkApp(app=adk_app, app_name="other_name")
+
+        with pytest.raises(
+            ValueError,
+            match="When app is provided, agent should not be provided.",
+        ):
+            reasoning_engines.AdkApp(app=adk_app, agent=test_agent)
+
+        with pytest.raises(
+            ValueError,
+            match="When app is provided, plugins should not be provided",
+        ):
+            reasoning_engines.AdkApp(app=adk_app, plugins=["test_plugin"])
+
     def test_register_operations(self):
         app = reasoning_engines.AdkApp(
             agent=Agent(name=_TEST_AGENT_NAME, model=_TEST_MODEL),
@@ -1348,6 +1411,69 @@ class TestAdkApp:
             enable_tracing=want_tracing_setup,
             enable_logging=want_logging_setup,
         )
+
+    @pytest.mark.parametrize(
+        "adk_version,enable_tracing,enable_telemetry,want_custom_instrumentor_called",
+        [
+            ("1.16.0", False, False, False),
+            ("1.16.0", False, True, False),
+            ("1.16.0", False, None, False),
+            ("1.16.0", True, False, True),
+            ("1.16.0", True, True, True),
+            ("1.16.0", True, None, True),
+            ("1.16.0", None, False, True),
+            ("1.16.0", None, True, True),
+            ("1.16.0", None, None, True),
+            ("1.16.0", None, "unspecified", True),
+            ("1.16.0", False, "unspecified", False),
+            ("1.16.0", True, "unspecified", True),
+            ("1.17.0", False, False, False),
+            ("1.17.0", False, True, False),
+            ("1.17.0", False, None, False),
+            ("1.17.0", True, False, True),
+            ("1.17.0", True, True, True),
+            ("1.17.0", True, None, True),
+            ("1.17.0", None, False, True),
+            ("1.17.0", None, True, True),
+            ("1.17.0", None, None, True),
+            ("1.17.0", None, "unspecified", True),
+            ("1.17.0", False, "unspecified", False),
+            ("1.17.0", True, "unspecified", True),
+        ],
+    )
+    @mock.patch.dict(os.environ)
+    def test_custom_instrumentor_enablement(
+        self,
+        adk_version: str,
+        enable_tracing: Optional[bool],
+        enable_telemetry: Optional[bool],
+        want_custom_instrumentor_called: bool,
+        default_instrumentor_builder_mock: mock.Mock,
+        adk_version_mock: mock.Mock,
+    ):
+        # Arrange
+        adk_version_mock.return_value = adk_version
+        if enable_telemetry is not None:
+            os.environ["GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY"] = str(
+                enable_telemetry
+            )
+        custom_instrumentor = mock.Mock()
+        app = reasoning_engines.AdkApp(
+            agent=_TEST_AGENT,
+            enable_tracing=enable_tracing,
+            instrumentor_builder=custom_instrumentor,
+        )
+        app._warn_if_telemetry_api_disabled = lambda: None
+
+        # Act
+        app.set_up()
+
+        # Assert
+        default_instrumentor_builder_mock.assert_not_called()
+        if want_custom_instrumentor_called:
+            custom_instrumentor.assert_called_once_with(_TEST_PROJECT_ID)
+        else:
+            custom_instrumentor.assert_not_called()
 
     @mock.patch.dict(
         os.environ,
