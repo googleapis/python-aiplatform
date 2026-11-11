@@ -1243,8 +1243,12 @@ class AdkApp:
         """Streams responses asynchronously from the ADK application.
 
         Args:
-            message (str):
-                Required. The message to stream responses for.
+            message (Union[str, Dict[str, Any]]):
+                Required. The message to stream responses for. Either a text
+                string or a dictionary representing a
+                `google.genai.types.Content` object (for example,
+                `content.model_dump(exclude_none=True, mode="json")` for
+                multimodal inputs).
             user_id (str):
                 Required. The ID of the user.
             session_id (str):
@@ -1260,6 +1264,10 @@ class AdkApp:
 
         Yields:
             Event dictionaries asynchronously.
+
+        Raises:
+            TypeError: If message is not a string or a dictionary representing
+                a Content object.
         """
         from vertexai.agent_engines import _utils
         from google.genai import types

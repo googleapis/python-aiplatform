@@ -675,6 +675,63 @@ class TestAdkApp:
             events.append(event)
         assert len(events) == 1
 
+    @pytest.mark.asyncio
+    async def test_async_stream_query_with_multimodal_content(self):
+        """Tests async_stream_query with a multimodal Content dictionary."""
+        # pylint: disable=protected-access
+        app = reasoning_engines.AdkApp(
+            agent=Agent(name=_TEST_AGENT_NAME, model=_TEST_MODEL)
+        )
+        assert app._tmpl_attrs.get("runner") is None
+        app.set_up()
+        runner_kwargs = {}
+
+        async def run_async(**kwargs):
+            runner_kwargs.update(kwargs)
+            async for event in _MockRunner().run_async():
+                yield event
+
+        app._tmpl_attrs["runner"] = mock.Mock(run_async=run_async)
+        video_message = {
+            "role": "user",
+            "parts": [
+                {
+                    "file_data": {
+                        "file_uri": (
+                            "gs://cloud-samples-data/generative-ai/video/pixel8.mp4"
+                        ),
+                        "mime_type": "video/mp4",
+                    },
+                },
+                {
+                    "text": "Describe the attached media in 5 words!",
+                },
+            ],
+        }
+        events = []
+        async for event in app.async_stream_query(
+            user_id=_TEST_USER_ID,
+            message=video_message,
+        ):
+            events.append(event)
+        assert len(events) == 1
+        assert runner_kwargs["new_message"] == types.Content(
+            role="user",
+            parts=[
+                types.Part(
+                    file_data=types.FileData(
+                        file_uri=(
+                            "gs://cloud-samples-data/generative-ai/video/pixel8.mp4"
+                        ),
+                        mime_type="video/mp4",
+                    ),
+                ),
+                types.Part(
+                    text="Describe the attached media in 5 words!",
+                ),
+            ],
+        )
+
     def test_streaming_agent_run_with_events(self):
         app = reasoning_engines.AdkApp(
             agent=Agent(name=_TEST_AGENT_NAME, model=_TEST_MODEL)

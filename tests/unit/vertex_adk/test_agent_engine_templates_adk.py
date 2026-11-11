@@ -774,6 +774,87 @@ class TestAdkApp:
         assert len(events) == 1
 
     @pytest.mark.asyncio
+    @pytest.mark.usefixtures(
+        "default_instrumentor_builder_mock", "get_project_id_mock"
+    )
+    async def test_async_stream_query_with_multimodal_content(self):
+        """Tests async_stream_query with a multimodal Content dictionary."""
+        # pylint: disable=protected-access
+        app = agent_engines.AdkApp(agent=_TEST_AGENT)
+        assert app._tmpl_attrs.get("runner") is None
+        app.set_up()
+        runner_kwargs = {}
+
+        async def run_async(**kwargs):
+            runner_kwargs.update(kwargs)
+            async for event in _MockRunner().run_async():
+                yield event
+
+        app._tmpl_attrs["runner"] = mock.Mock(run_async=run_async)
+        video_message = {
+            "role": "user",
+            "parts": [
+                {
+                    "file_data": {
+                        "file_uri": (
+                            "gs://cloud-samples-data/generative-ai/video/pixel8.mp4"
+                        ),
+                        "mime_type": "video/mp4",
+                    },
+                },
+                {
+                    "text": "Describe the attached media in 5 words!",
+                },
+            ],
+        }
+        events = []
+        async for event in app.async_stream_query(
+            user_id=_TEST_USER_ID,
+            message=video_message,
+        ):
+            events.append(event)
+        assert len(events) == 1
+        expected_content = types.Content(
+            role="user",
+            parts=[
+                types.Part(
+                    file_data=types.FileData(
+                        file_uri=(
+                            "gs://cloud-samples-data/generative-ai/video/pixel8.mp4"
+                        ),
+                        mime_type="video/mp4",
+                    ),
+                ),
+                types.Part(
+                    text="Describe the attached media in 5 words!",
+                ),
+            ],
+        )
+        assert runner_kwargs["new_message"] == expected_content
+
+        # Also verify the REST / requests JSON payload round-trips through
+        # StreamQueryReasoningEngineRequest into async_stream_query.
+        rest_request = aip_types.StreamQueryReasoningEngineRequest.from_json(
+            json.dumps({
+                "class_method": "async_stream_query",
+                "input": {
+                    "user_id": _TEST_USER_ID,
+                    "message": video_message,
+                },
+            })
+        )
+        assert rest_request.class_method == "async_stream_query"
+        runner_kwargs.clear()
+        rest_events = [
+            event
+            async for event in getattr(app, rest_request.class_method)(
+                **_utils.to_dict(rest_request)["input"]
+            )
+        ]
+        assert len(rest_events) == 1
+        assert runner_kwargs["new_message"] == expected_content
+
+    @pytest.mark.asyncio
     async def test_streaming_agent_run_with_events(
         self,
         default_instrumentor_builder_mock: mock.Mock,
