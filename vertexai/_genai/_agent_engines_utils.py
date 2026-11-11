@@ -1796,7 +1796,8 @@ def _wrap_a2a_operation_v03(
                         f"Bearer {self.api_client._api_client._credentials.token}"
                     )
                 },
-                timeout=(
+                timeout=kwargs.pop("timeout", None)
+                or (
                     self.api_client._api_client._http_options.timeout / 1000.0
                     if self.api_client._api_client._http_options.timeout
                     else None
@@ -1911,7 +1912,8 @@ def _wrap_a2a_operation_v10(
                         f"Bearer {self.api_client._api_client._credentials.token}"
                     )
                 },
-                timeout=(
+                timeout=kwargs.pop("timeout", None)
+                or (
                     self.api_client._api_client._http_options.timeout / 1000.0
                     if self.api_client._api_client._http_options.timeout
                     else None

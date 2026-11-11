@@ -13,6 +13,7 @@
 # limitations under the License.
 #
 
+import asyncio
 import os
 import sys
 import tempfile
@@ -379,3 +380,170 @@ class TestA2aPublicCardRoutes:
             body = resp.json()
             assert body["name"] == "Test"
             assert body["skills"][0]["id"] == "hello_world"
+
+
+class TestWrapA2aOperationTimeout:
+    """Verifies default and per-call timeout handling in _wrap_a2a_operation."""
+
+    # pylint: disable=protected-access
+
+    def test_legacy_wrap_a2a_operation_timeout(self):
+        """_agent_engines._wrap_a2a_operation defaults to None and accepts per-call timeout."""
+        agent_card_json = '{"name": "Test Agent", "version": "1.0.0"}'
+        wrapped = _agent_engines._wrap_a2a_operation(
+            "on_message_send", agent_card_json
+        )
+        fake_engine = mock.MagicMock()
+        fake_engine.resource_name = _TEST_AGENT_ENGINE_RESOURCE_NAME
+
+        async def _empty_stream():
+            if False:  # pylint: disable=using-constant-test
+                yield None
+
+        mock_a2a_client = mock.MagicMock()
+        mock_a2a_client.send_message.side_effect = lambda msg: _empty_stream()
+        mock_factory = mock.MagicMock()
+        mock_factory.create.return_value = mock_a2a_client
+        mock_card = mock.MagicMock()
+        mock_card.supported_interfaces = []
+        mock_card.capabilities.streaming = False
+
+        with (
+            mock.patch.object(
+                _agent_engines.httpx, "AsyncClient"
+            ) as mock_async_client,
+            mock.patch.object(
+                _agent_engines, "AgentCard", return_value=mock_card
+            ),
+            mock.patch.object(_agent_engines, "AgentInterface"),
+            mock.patch.object(_agent_engines, "TransportProtocol"),
+            mock.patch.object(_agent_engines, "ClientConfig"),
+            mock.patch.object(
+                _agent_engines, "ClientFactory", return_value=mock_factory
+            ),
+            mock.patch.object(_agent_engines, "Message") as mock_message,
+        ):
+            asyncio.run(wrapped(fake_engine, message_id="m1"))
+            mock_async_client.assert_called_once()
+            assert mock_async_client.call_args.kwargs["timeout"] is None
+            mock_message.assert_called_once_with(message_id="m1")
+
+            mock_async_client.reset_mock()
+            mock_message.reset_mock()
+            mock_card.supported_interfaces = []
+
+            asyncio.run(wrapped(fake_engine, message_id="m2", timeout=120.0))
+            mock_async_client.assert_called_once()
+            assert mock_async_client.call_args.kwargs["timeout"] == 120.0
+            mock_message.assert_called_once_with(message_id="m2")
+
+    def test_genai_wrap_a2a_operation_v03_per_call_timeout(self):
+        """_wrap_a2a_operation_v03 pops per-call timeout and overrides http_options.timeout."""
+        # pylint: disable=g-import-not-at-top
+        from vertexai._genai import _agent_engines_utils
+
+        # pylint: enable=g-import-not-at-top
+        agent_card_json = '{"name": "Test Agent", "version": "1.0.0"}'
+        wrapped = _agent_engines_utils._wrap_a2a_operation_v03(
+            "on_message_send", agent_card_json
+        )
+        fake_engine = mock.MagicMock()
+        fake_engine.api_resource.name = _TEST_AGENT_ENGINE_RESOURCE_NAME
+        fake_engine.api_client._api_client._http_options.base_url = (
+            "https://us-central1-aiplatform.googleapis.com"
+        )
+        fake_engine.api_client._api_client._http_options.api_version = "v1beta1"
+        fake_engine.api_client._api_client._http_options.timeout = 30000
+        fake_engine.api_client._api_client._credentials.token = "fake-token"
+
+        async def _empty_stream():
+            if False:  # pylint: disable=using-constant-test
+                yield None
+
+        mock_a2a_client = mock.MagicMock()
+        mock_a2a_client.send_message.side_effect = lambda msg: _empty_stream()
+        mock_factory = mock.MagicMock()
+        mock_factory.create.return_value = mock_a2a_client
+        mock_card = mock.MagicMock()
+        mock_card.preferred_transport = None
+        mock_card.capabilities.streaming = False
+
+        with (
+            mock.patch.object(
+                _agent_engines_utils.httpx, "AsyncClient"
+            ) as mock_async_client,
+            mock.patch.object(
+                _agent_engines_utils, "AgentCard", return_value=mock_card
+            ),
+            mock.patch.object(_agent_engines_utils, "TransportProtocol"),
+            mock.patch.object(_agent_engines_utils, "ClientConfig"),
+            mock.patch.object(
+                _agent_engines_utils, "ClientFactory", return_value=mock_factory
+            ),
+            mock.patch.object(_agent_engines_utils, "Message") as mock_message,
+        ):
+            asyncio.run(wrapped(fake_engine, messageId="m1"))
+            mock_async_client.assert_called_once()
+            assert mock_async_client.call_args.kwargs["timeout"] == 30.0
+            mock_message.assert_called_once_with(messageId="m1")
+
+            mock_async_client.reset_mock()
+            mock_message.reset_mock()
+
+            asyncio.run(wrapped(fake_engine, messageId="m2", timeout=120.0))
+            mock_async_client.assert_called_once()
+            assert mock_async_client.call_args.kwargs["timeout"] == 120.0
+            mock_message.assert_called_once_with(messageId="m2")
+
+    def test_genai_wrap_a2a_operation_v10_per_call_timeout(self):
+        """_wrap_a2a_operation_v10 pops per-call timeout and overrides http_options.timeout."""
+        # pylint: disable=g-import-not-at-top
+        from vertexai._genai import _agent_engines_utils
+
+        # pylint: enable=g-import-not-at-top
+        agent_card_json = (
+            '{"name": "Test Agent", "version": "1.0.0", '
+            '"supportedInterfaces": [{"url": "http://localhost:8080/a2a/rest/", '
+            '"protocolBinding": "HTTP+JSON", "protocolVersion": "1.0"}]}'
+        )
+        wrapped = _agent_engines_utils._wrap_a2a_operation_v10(
+            "on_message_send", agent_card_json
+        )
+        fake_engine = mock.MagicMock()
+        fake_engine.api_resource.name = _TEST_AGENT_ENGINE_RESOURCE_NAME
+        fake_engine.api_client._api_client._http_options.base_url = (
+            "https://us-central1-aiplatform.googleapis.com"
+        )
+        fake_engine.api_client._api_client._http_options.api_version = "v1beta1"
+        fake_engine.api_client._api_client._http_options.timeout = 30000
+        fake_engine.api_client._api_client._credentials.token = "fake-token"
+
+        async def _empty_stream():
+            if False:  # pylint: disable=using-constant-test
+                yield None
+
+        mock_a2a_client = mock.MagicMock()
+        mock_a2a_client.send_message.side_effect = (
+            lambda req, context=None: _empty_stream()
+        )
+        mock_factory = mock.MagicMock()
+        mock_factory.create.return_value = mock_a2a_client
+
+        with (
+            mock.patch.object(
+                _agent_engines_utils.httpx, "AsyncClient"
+            ) as mock_async_client,
+            mock.patch.object(_agent_engines_utils, "ClientConfig"),
+            mock.patch.object(
+                _agent_engines_utils, "ClientFactory", return_value=mock_factory
+            ),
+        ):
+            asyncio.run(wrapped(fake_engine, request="req1"))
+            mock_async_client.assert_called_once()
+            assert mock_async_client.call_args.kwargs["timeout"] == 30.0
+
+            mock_async_client.reset_mock()
+
+            asyncio.run(wrapped(fake_engine, request="req2", timeout=120.0))
+            mock_async_client.assert_called_once()
+            assert mock_async_client.call_args.kwargs["timeout"] == 120.0

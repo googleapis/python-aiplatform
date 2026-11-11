@@ -83,6 +83,21 @@ async def test_timeout_is_set(client):
     mock_async_client_factory.assert_called_once()
     assert mock_async_client_factory.call_args.kwargs["timeout"] == 99.0
 
+    with mock.patch(
+        "httpx.AsyncClient", spec=httpx.AsyncClient
+    ) as mock_async_client_factory:
+        mock_async_client_instance = mock_async_client_factory.return_value
+        mock_async_client_instance.post.return_value = mock_response
+        mock_async_client_instance.send.return_value = mock_response
+
+        try:
+            await runtime.on_message_send(**message_data, timeout=45.0)
+        except a2a_errors.A2AClientHTTPError as e:
+            assert e.status_code == 401
+
+    mock_async_client_factory.assert_called_once()
+    assert mock_async_client_factory.call_args.kwargs["timeout"] == 45.0
+
 
 pytestmark = pytest_helper.setup(
     file=__file__,

@@ -1858,6 +1858,8 @@ def _wrap_a2a_operation(method_name: str, agent_card: str) -> Callable[..., list
         url = f"https://{initializer.global_config.api_endpoint}/v1beta1/{self.resource_name}/a2a"
         a2a_agent_card.supported_interfaces[0].url = url
 
+        timeout = kwargs.pop("timeout", None)
+
         # Using a2a client, inject the auth token from the global config.
         config = ClientConfig(
             supported_transports=[
@@ -1869,7 +1871,8 @@ def _wrap_a2a_operation(method_name: str, agent_card: str) -> Callable[..., list
                     "Authorization": (
                         f"Bearer {initializer.global_config.credentials.token}"
                     )
-                }
+                },
+                timeout=timeout,
             ),
         )
         factory = ClientFactory(config)
