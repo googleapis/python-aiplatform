@@ -431,11 +431,12 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
                 extra_packages=[
                     "./user_src_dir/main.py", # a single file
                     "./user_src_dir/user_code", # a directory
+                    "./installation_scripts/install_package.sh",
                     ...
                 ],
                 build_options={
                     "installation_scripts": [
-                        "./user_src_dir/installation_scripts/install_package.sh",
+                        "./installation_scripts/install_package.sh",
                         ...
                     ],
                 },
@@ -471,8 +472,10 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
                 - installation_scripts:
                     Optional. The paths to the installation scripts to be
                     executed in the Docker image.
-                    The scripts must be located in the `installation_scripts`
-                    subdirectory and the path must be added to `extra_packages`.
+                    Because `extra_packages` preserves paths relative to the
+                    current working directory when archiving, the scripts must
+                    be located in `./installation_scripts/` at the root of the
+                    working directory and included in `extra_packages`.
             service_account (str):
                 Optional. The service account to be used for the Agent Engine.
                 If not specified, the default reasoning engine service agent
@@ -741,8 +744,10 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
                 - installation_scripts:
                     Optional. The paths to the installation scripts to be
                     executed in the Docker image.
-                    The scripts must be located in the `installation_scripts`
-                    subdirectory and the path must be added to `extra_packages`.
+                    Because `extra_packages` preserves paths relative to the
+                    current working directory when archiving, the scripts must
+                    be located in `./installation_scripts/` at the root of the
+                    working directory and included in `extra_packages`.
             service_account (str):
                 Optional. The service account to be used for the Agent Engine.
                 If not specified, the default reasoning engine service agent
@@ -1242,12 +1247,8 @@ def _validate_extra_packages_or_raise(
     build_options: Optional[Dict[str, Sequence[str]]] = None,
 ) -> Sequence[str]:
     """Tries to validates the extra packages."""
+    del build_options
     extra_packages = extra_packages or []
-    if build_options and _BUILD_OPTIONS_INSTALLATION in build_options:
-        _utils.validate_installation_scripts_or_raise(
-            script_paths=build_options[_BUILD_OPTIONS_INSTALLATION],
-            extra_packages=extra_packages,
-        )
     for extra_package in extra_packages:
         if not os.path.exists(extra_package):
             raise FileNotFoundError(
@@ -1332,6 +1333,8 @@ def _upload_extra_packages(
     tar_fileobj = io.BytesIO()
     with tarfile.open(fileobj=tar_fileobj, mode="w|gz") as tar:
         for file in extra_packages:
+            # Note: tar.add(file) preserves each path relative to the current
+            # working directory in the archive (extracted into /code).
             tar.add(file)
     tar_fileobj.seek(0)
     blob = gcs_bucket.blob(f"{gcs_dir_name}/{_EXTRA_PACKAGES_FILE}")

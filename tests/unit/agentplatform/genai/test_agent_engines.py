@@ -1645,6 +1645,37 @@ class TestRuntimeHelpers:
             build_options=build_options,
         )
 
+    @pytest.mark.parametrize(
+        "packages, script_paths",
+        [
+            (
+                [
+                    "installation_scripts/install.sh",
+                    "installation_scripts/swp-CA.crt",
+                ],
+                ["installation_scripts/install.sh"],
+            ),
+            (
+                ["installation_scripts"],
+                ["installation_scripts/install.sh"],
+            ),
+            (
+                ["./installation_scripts/install.sh"],
+                ["./installation_scripts/install.sh"],
+            ),
+        ],
+    )
+    def test_validate_packages_or_raise_with_installation_scripts(
+        self, packages, script_paths
+    ):
+        """Tests packages validation with installation_scripts."""
+        with mock.patch("os.path.exists", return_value=True):
+            got = _runtimes_utils._validate_packages_or_raise(  # pylint: disable=protected-access
+                packages=packages,
+                build_options={"installation_scripts": script_paths},
+            )
+        assert got == packages
+
     @mock.patch.object(_runtimes_utils, "_prepare")
     def test_update_runtime_config_full(self, mock_prepare):
         config = self.client.runtimes._create_config(

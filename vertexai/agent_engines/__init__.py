@@ -121,11 +121,12 @@ def create(
             extra_packages=[
                 "./user_src_dir/main.py", # a single file
                 "./user_src_dir/user_code", # a directory
+                "./installation_scripts/install_package.sh",
                 ...
             ],
             build_options={
-                "installation": [
-                    "./user_src_dir/installation_scripts/install_package.sh",
+                "installation_scripts": [
+                    "./installation_scripts/install_package.sh",
                     ...
                 ],
             },

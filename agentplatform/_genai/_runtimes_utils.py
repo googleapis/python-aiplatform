@@ -1322,6 +1322,8 @@ def _upload_extra_packages(
     tar_fileobj = io.BytesIO()
     with tarfile.open(fileobj=tar_fileobj, mode="w|gz") as tar:
         for file in extra_packages:
+            # Note: tar.add(file) preserves each path relative to the current
+            # working directory in the archive (extracted into /code).
             tar.add(file)
     tar_fileobj.seek(0)
     blob = gcs_bucket.blob(f"{gcs_dir_name}/{_EXTRA_PACKAGES_FILE}")
@@ -1360,76 +1362,12 @@ def _validate_packages_or_raise(
     build_options: Optional[Dict[str, Sequence[str]]] = None,
 ) -> Sequence[str]:
     """Tries to validates the packages."""
+    del build_options
     packages = packages or []
-    if build_options and _INSTALLATION_SUBDIR in build_options:
-        _validate_installation_scripts_or_raise(
-            script_paths=build_options[_INSTALLATION_SUBDIR],
-            packages=packages,
-        )
     for package in packages:
         if not os.path.exists(package):
             raise FileNotFoundError(f"Package specified but not found: {package=}")
     return packages
-
-
-def _validate_installation_scripts_or_raise(
-    *,
-    script_paths: Sequence[str],
-    packages: Sequence[str],
-) -> None:
-    """Validates the installation scripts' path explicitly provided by the user.
-
-    Args:
-        script_paths (Sequence[str]):
-            Required. The paths to the installation scripts.
-        packages (Sequence[str]):
-            Required. The user-provided packages.
-
-    Raises:
-        ValueError: If a user-defined script is not under the expected
-            subdirectory, or not in `packages`, or if a package is
-            in the installation scripts subdirectory, but is not specified as an
-            installation script.
-    """
-    for script_path in script_paths:
-        if not script_path.startswith(_INSTALLATION_SUBDIR):
-            logger.warning(
-                f"User-defined installation script '{script_path}' is not in "
-                f"the expected '{_INSTALLATION_SUBDIR}' subdirectory. "
-                f"Ensure it is placed in '{_INSTALLATION_SUBDIR}' within your "
-                f"'extra_packages' or 'source_packages'."
-            )
-            raise ValueError(
-                f"Required installation script '{script_path}' "
-                f"is not under '{_INSTALLATION_SUBDIR}'"
-            )
-
-        if script_path not in packages:
-            logger.warning(
-                f"User-defined installation script '{script_path}' is not in "
-                f"'extra_packages' or 'source_packages'. Ensure it is added to "
-                f"'extra_packages' or 'source_packages'."
-            )
-            raise ValueError(
-                f"User-defined installation script '{script_path}' "
-                f"does not exist in 'extra_packages' or 'source_packages'."
-            )
-
-    for package in packages:
-        if package.startswith(_INSTALLATION_SUBDIR) and package not in script_paths:
-            logger.warning(
-                f"Package '{package}' is in the installation "
-                "scripts subdirectory, but is not specified as an installation "
-                "script in `build_options`. "
-                "Ensure it is added to installation_scripts for "
-                "automatic execution."
-            )
-            raise ValueError(
-                f"Package '{package}' is in the installation "
-                "scripts subdirectory, but is not specified as an installation "
-                "script in `build_options`."
-            )
-    return
 
 
 def _validate_staging_bucket_or_raise(*, staging_bucket: str) -> str:
