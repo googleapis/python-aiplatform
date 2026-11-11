@@ -13,6 +13,9 @@
 # limitations under the License.
 #
 import importlib
+from unittest import mock
+from unittest.mock import patch
+
 from google.api_core import operation as ga_operation
 from agentplatform.preview import rag
 from agentplatform.preview.rag.utils._gapic_utils import (
@@ -34,8 +37,6 @@ from google.cloud.aiplatform_v1beta1 import (
     ListRagMetadataResponse,
 )
 from google.cloud import aiplatform
-import mock
-from unittest.mock import patch
 import pytest
 import test_rag_constants_preview
 

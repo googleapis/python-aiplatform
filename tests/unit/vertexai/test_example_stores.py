@@ -15,6 +15,8 @@
 #
 import importlib
 import json
+from unittest import mock
+
 from google import auth
 from google.auth import credentials as auth_credentials
 from google.cloud import aiplatform
@@ -27,7 +29,6 @@ from vertexai.example_stores._example_stores import (
 )
 from google.protobuf import json_format
 
-import mock
 import pytest
 
 TEST_PROJECT = "test-project"
