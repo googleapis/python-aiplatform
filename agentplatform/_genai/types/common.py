@@ -385,6 +385,17 @@ class SandboxEnvironmentTemplateState(_common.CaseInSensitiveEnum):
     """Sandbox has failed to provision."""
 
 
+class UpdateStrategy(_common.CaseInSensitiveEnum):
+    """The strategy for updating warm pool instances when the template is updated."""
+
+    UPDATE_STRATEGY_UNSPECIFIED = "UPDATE_STRATEGY_UNSPECIFIED"
+    """Unspecified update strategy. Defaults to ON_REPLENISH."""
+    ON_REPLENISH = "ON_REPLENISH"
+    """Existing warm pool pods are left running and new pods use the updated template as the warm pool is replenished."""
+    RECREATE = "RECREATE"
+    """Existing warm pool pods are recreated immediately with the updated template."""
+
+
 class PostSnapshotAction(_common.CaseInSensitiveEnum):
     """Input only. Action to take on the source SandboxEnvironment after the snapshot is taken. This field is only used in CreateSandboxEnvironmentSnapshotRequest and it is not stored in the resource."""
 
@@ -18532,6 +18543,35 @@ SandboxEnvironmentTemplatePersistentDiskConfigOrDict = Union[
 ]
 
 
+class SandboxEnvironmentTemplateWarmPoolConfig(_common.BaseModel):
+    """Configuration for a warm pool of sandbox instances."""
+
+    target_instance_count: Optional[int] = Field(
+        default=None,
+        description="""Optional. The target number of pre-warmed instances to maintain.""",
+    )
+    update_strategy: Optional[UpdateStrategy] = Field(
+        default=None,
+        description="""Optional. The strategy for updating warm pool instances when the template is updated.""",
+    )
+
+
+class SandboxEnvironmentTemplateWarmPoolConfigDict(TypedDict, total=False):
+    """Configuration for a warm pool of sandbox instances."""
+
+    target_instance_count: Optional[int]
+    """Optional. The target number of pre-warmed instances to maintain."""
+
+    update_strategy: Optional[UpdateStrategy]
+    """Optional. The strategy for updating warm pool instances when the template is updated."""
+
+
+SandboxEnvironmentTemplateWarmPoolConfigOrDict = Union[
+    SandboxEnvironmentTemplateWarmPoolConfig,
+    SandboxEnvironmentTemplateWarmPoolConfigDict,
+]
+
+
 class SandboxEnvironmentTemplate(_common.BaseModel):
     """A sandbox environment template."""
 
@@ -18587,6 +18627,10 @@ class SandboxEnvironmentTemplate(_common.BaseModel):
             description="""Optional. Configuration for attaching a persistent disk (PD) to each SandboxEnvironment created from this template. When unset (or when `enabled` is `false`), sandboxes created from this template are not backed by a persistent disk and rely on ephemeral storage only. See PersistentDiskConfig for details.""",
         )
     )
+    warm_pool_config: Optional[SandboxEnvironmentTemplateWarmPoolConfig] = Field(
+        default=None,
+        description="""Optional. The configuration for the warm pool of this template.""",
+    )
 
 
 class SandboxEnvironmentTemplateDict(TypedDict, total=False):
@@ -18628,6 +18672,9 @@ class SandboxEnvironmentTemplateDict(TypedDict, total=False):
 
     persistent_disk_config: Optional[SandboxEnvironmentTemplatePersistentDiskConfigDict]
     """Optional. Configuration for attaching a persistent disk (PD) to each SandboxEnvironment created from this template. When unset (or when `enabled` is `false`), sandboxes created from this template are not backed by a persistent disk and rely on ephemeral storage only. See PersistentDiskConfig for details."""
+
+    warm_pool_config: Optional[SandboxEnvironmentTemplateWarmPoolConfigDict]
+    """Optional. The configuration for the warm pool of this template."""
 
 
 SandboxEnvironmentTemplateOrDict = Union[
@@ -26080,6 +26127,10 @@ class DeployRequestDeployConfig(_common.BaseModel):
         default=None,
         description="""Optional. System labels for Model Garden deployments. These labels are managed by Google and for tracking purposes only.""",
     )
+    service_account: Optional[str] = Field(
+        default=None,
+        description="""Optional. The service account that the container of the deployed model runs as. Specify the email address of the service account. If not specified, the container runs as a service account that has no access to the resource project. Users deploying the model must have the `iam.serviceAccounts.actAs` permission on this service account.""",
+    )
 
 
 class DeployRequestDeployConfigDict(TypedDict, total=False):
@@ -26093,6 +26144,9 @@ class DeployRequestDeployConfigDict(TypedDict, total=False):
 
     system_labels: Optional[dict[str, str]]
     """Optional. System labels for Model Garden deployments. These labels are managed by Google and for tracking purposes only."""
+
+    service_account: Optional[str]
+    """Optional. The service account that the container of the deployed model runs as. Specify the email address of the service account. If not specified, the container runs as a service account that has no access to the resource project. Users deploying the model must have the `iam.serviceAccounts.actAs` permission on this service account."""
 
 
 DeployRequestDeployConfigOrDict = Union[

@@ -2050,6 +2050,9 @@ from .common import SandboxEnvironmentTemplateResourceRequirements
 from .common import SandboxEnvironmentTemplateResourceRequirementsDict
 from .common import SandboxEnvironmentTemplateResourceRequirementsOrDict
 from .common import SandboxEnvironmentTemplateState
+from .common import SandboxEnvironmentTemplateWarmPoolConfig
+from .common import SandboxEnvironmentTemplateWarmPoolConfigDict
+from .common import SandboxEnvironmentTemplateWarmPoolConfigOrDict
 from .common import SandboxState
 from .common import SavedQuery
 from .common import SavedQueryDict
@@ -2368,6 +2371,7 @@ from .common import UpdateServingProfileConfigOrDict
 from .common import UpdateSkillConfig
 from .common import UpdateSkillConfigDict
 from .common import UpdateSkillConfigOrDict
+from .common import UpdateStrategy
 from .common import UploadRagFileConfig
 from .common import UploadRagFileConfigDict
 from .common import UploadRagFileConfigOrDict
@@ -3619,6 +3623,9 @@ __all__ = [
     "SandboxEnvironmentTemplatePersistentDiskConfig",
     "SandboxEnvironmentTemplatePersistentDiskConfigDict",
     "SandboxEnvironmentTemplatePersistentDiskConfigOrDict",
+    "SandboxEnvironmentTemplateWarmPoolConfig",
+    "SandboxEnvironmentTemplateWarmPoolConfigDict",
+    "SandboxEnvironmentTemplateWarmPoolConfigOrDict",
     "SandboxEnvironmentTemplate",
     "SandboxEnvironmentTemplateDict",
     "SandboxEnvironmentTemplateOrDict",
@@ -4526,6 +4533,7 @@ __all__ = [
     "DefaultContainerCategory",
     "PscAutomationState",
     "SandboxEnvironmentTemplateState",
+    "UpdateStrategy",
     "PostSnapshotAction",
     "Framework",
     "SkillSource",
