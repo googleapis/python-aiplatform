@@ -478,6 +478,55 @@ class TestAdkApp:
         assert app._tmpl_attrs.get("memory_service") is not None
         assert app._tmpl_attrs.get("credential_service") is not None
 
+    @pytest.mark.usefixtures(
+        "default_instrumentor_builder_mock",
+        "get_project_id_mock",
+    )
+    def test_set_up_with_artifact_service_builder_callable(self):
+        """Tests set_up with a callable artifact_service_builder."""
+        from google.adk.artifacts.in_memory_artifact_service import (  # pylint: disable=g-import-not-at-top
+            InMemoryArtifactService,
+        )
+
+        artifact_service = InMemoryArtifactService()
+        app = adk_template.AdkApp(
+            agent=_TEST_AGENT,
+            artifact_service_builder=lambda: artifact_service,
+        )
+        app.set_up()
+        assert (
+            app._tmpl_attrs.get("artifact_service")  # pylint: disable=protected-access
+            is artifact_service
+        )
+
+    @pytest.mark.usefixtures(
+        "default_instrumentor_builder_mock",
+        "get_project_id_mock",
+    )
+    def test_set_up_with_artifact_service_instance(self):
+        """Tests set_up with a BaseArtifactService instance."""
+        from google.adk.artifacts.in_memory_artifact_service import (  # pylint: disable=g-import-not-at-top
+            InMemoryArtifactService,
+        )
+
+        class _CallableArtifactService(InMemoryArtifactService):
+
+            def __call__(self):
+                raise AssertionError(
+                    "BaseArtifactService instance should not be called"
+                )
+
+        artifact_service = _CallableArtifactService()
+        app = adk_template.AdkApp(
+            agent=_TEST_AGENT,
+            artifact_service_builder=artifact_service,
+        )
+        app.set_up()
+        assert (
+            app._tmpl_attrs.get("artifact_service")  # pylint: disable=protected-access
+            is artifact_service
+        )
+
     def test_clone(
         self,
         default_instrumentor_builder_mock: mock.Mock,

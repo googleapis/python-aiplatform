@@ -876,7 +876,9 @@ class AdkApp:
         plugins: Optional[List["BasePlugin"]] = None,
         enable_tracing: Optional[bool] = None,
         session_service_builder: Optional[Callable[..., "BaseSessionService"]] = None,
-        artifact_service_builder: Optional[Callable[..., "BaseArtifactService"]] = None,
+        artifact_service_builder: Optional[
+            Union["BaseArtifactService", Callable[..., "BaseArtifactService"]]
+        ] = None,
         memory_service_builder: Optional[Callable[..., "BaseMemoryService"]] = None,
         credential_service_builder: Optional[
             Callable[..., "BaseCredentialService"]
@@ -907,8 +909,10 @@ class AdkApp:
                 when running locally and VertexAiSessionService when running
                 on Agent Engine.
             artifact_service_builder (Callable[..., BaseArtifactService]):
-                Optional. A callable that returns an ADK artifact service.
-                Defaults to a callable that returns InMemoryArtifactService.
+                Optional. An ADK artifact service instance or a callable that
+                returns an ADK artifact service (for example,
+                `lambda: GcsArtifactService(bucket_name='...')`). Defaults to a
+                callable that returns InMemoryArtifactService.
             memory_service_builder (Callable[..., BaseMemoryService]):
                 Optional. A callable that returns an ADK memory service.
                 Defaults to a callable that returns InMemoryMemoryService
@@ -1117,6 +1121,9 @@ class AdkApp:
         import os
         from google.adk.runners import Runner
         from google.adk.sessions.in_memory_session_service import InMemorySessionService
+        from google.adk.artifacts.base_artifact_service import (  # pylint: disable=g-import-not-at-top
+            BaseArtifactService,
+        )
         from google.adk.artifacts.in_memory_artifact_service import (
             InMemoryArtifactService,
         )
@@ -1207,8 +1214,14 @@ class AdkApp:
                 self._tmpl_attrs["app_name"] = _DEFAULT_APP_NAME
 
         artifact_service_builder = self._tmpl_attrs.get("artifact_service_builder")
-        if artifact_service_builder:
-            self._tmpl_attrs["artifact_service"] = artifact_service_builder()
+        if isinstance(artifact_service_builder, BaseArtifactService):
+            self._tmpl_attrs["artifact_service"] = artifact_service_builder
+        elif artifact_service_builder:
+            self._tmpl_attrs["artifact_service"] = (
+                artifact_service_builder()
+                if callable(artifact_service_builder)
+                else artifact_service_builder
+            )
         else:
             self._tmpl_attrs["artifact_service"] = InMemoryArtifactService()
 
