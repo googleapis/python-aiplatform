@@ -243,7 +243,7 @@ class State(_common.CaseInSensitiveEnum):
 
 
 class MemoryType(_common.CaseInSensitiveEnum):
-    """The type of the memory."""
+    """Represents the type of the memory. If not set, the `NATURAL_LANGUAGE_COLLECTION` type is used. If `STRUCTURED_COLLECTION` or `STRUCTURED_PROFILE` is used, then `structured_data` must be provided."""
 
     MEMORY_TYPE_UNSPECIFIED = "MEMORY_TYPE_UNSPECIFIED"
     """Represents an unspecified memory type. This value should not be used."""
@@ -430,7 +430,7 @@ class SkillSource(_common.CaseInSensitiveEnum):
 
 
 class SkillState(_common.CaseInSensitiveEnum):
-    """State of the Skill."""
+    """Output only. The state of the Skill."""
 
     STATE_UNSPECIFIED = "STATE_UNSPECIFIED"
     """The state of the Skill is unspecified."""
@@ -501,14 +501,14 @@ class QuotaState(_common.CaseInSensitiveEnum):
 
 
 class FeedbackType(_common.CaseInSensitiveEnum):
-    """The type of the feedback."""
+    """The coarse-grained type of feedback provided by the user. Must be set to a value other than `FEEDBACK_TYPE_UNSPECIFIED`."""
 
     FEEDBACK_TYPE_UNSPECIFIED = "FEEDBACK_TYPE_UNSPECIFIED"
-    """Default value."""
+    """This is the default value meaning the type has not been set."""
     THUMBS_UP = "THUMBS_UP"
-    """Indicates positive feedback (e.g., a "thumbs up")."""
+    """Indicates positive feedback."""
     THUMBS_DOWN = "THUMBS_DOWN"
-    """Indicates a thumbs down feedback (e.g., a "thumbs down")."""
+    """Indicates negative feedback."""
 
 
 class Encoding(_common.CaseInSensitiveEnum):
@@ -675,13 +675,13 @@ class ServingProfileScope(_common.CaseInSensitiveEnum):
     """The specific API this ServingProfile applies to."""
 
     SERVING_PROFILE_SCOPE_UNSPECIFIED = "SERVING_PROFILE_SCOPE_UNSPECIFIED"
-    """Unspecified scope."""
+    """Default value. This value is unused. When users create a ServingProfile, they must choose a scope."""
     GEMINI_LIVE = "GEMINI_LIVE"
-    """Scope for Gemini Live."""
+    """The scope for Gemini Live."""
     INTERACTIONS_API = "INTERACTIONS_API"
-    """Scope for Interactions API."""
+    """The scope for Interactions API."""
     RESPONSE_API = "RESPONSE_API"
-    """Scope for Response API."""
+    """The scope for Response API."""
 
 
 class EvaluationExperimentMergeStrategy(_common.CaseInSensitiveEnum):
