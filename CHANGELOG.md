@@ -1,5 +1,26 @@
 # Changelog
 
+## [2.9.0](https://github.com/googleapis/python-aiplatform/compare/v2.8.0...v2.9.0) (2026-11-12)
+
+
+### Features
+
+* Add missing enum values to FinishReason and ReinforcementTuningThinkingLevel ([73a1a09](https://github.com/googleapis/python-aiplatform/commit/73a1a09c2db0384b80b56672efe9b06633075a6a))
+* Update discovery doc ([9b3f296](https://github.com/googleapis/python-aiplatform/commit/9b3f2968516aad039a70339a68a2bf4427e879fe))
+
+
+### Bug Fixes
+
+* Allow litellm&lt;1.110.0 in evaluation extra, excluding 1.107.0 ([10814f7](https://github.com/googleapis/python-aiplatform/commit/10814f7d99a59c1592ea7cbab747e60a38fe584d))
+* Migrate usage of mock to unittest.mock ([dcf3026](https://github.com/googleapis/python-aiplatform/commit/dcf30265b70721d3cf6accbd4a12c4e84e118c07))
+* Remove brittle client-side installation_scripts path validation in Agent Engine SDK ([74d17cc](https://github.com/googleapis/python-aiplatform/commit/74d17cc6ddc0b815082bf2600b85d86cef546289))
+* Support per-call timeout in Agent Engine A2A operations ([d309536](https://github.com/googleapis/python-aiplatform/commit/d30953657dbb1441f617a3365b49b658c53b96b5))
+
+
+### Documentation
+
+* Update `AdkApp.async_stream_query` docstring for multimodal `message` dicts and add unit tests. ([1b1f8fc](https://github.com/googleapis/python-aiplatform/commit/1b1f8fc092afd6d02bc93f69daedfa343c36d4fc))
+
 ## [2.8.0](https://github.com/googleapis/python-aiplatform/compare/v2.7.0...v2.8.0) (2026-11-10)
 
 
