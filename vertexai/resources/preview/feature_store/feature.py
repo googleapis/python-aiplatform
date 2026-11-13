@@ -105,6 +105,8 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
                 resource_noun=FeatureGroup._resource_noun,
                 parse_resource_name_method=FeatureGroup._parse_resource_name,
                 format_resource_name_method=FeatureGroup._format_resource_name,
+                project=project,
+                location=location,
             )
 
             feature = f"{feature_group_path}/features/{name}"
