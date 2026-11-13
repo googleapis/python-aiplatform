@@ -18,61 +18,17 @@
 import functools
 import json
 import logging
-from typing import Any, Iterator, Optional, Union
+from typing import Iterator, Optional
 from urllib.parse import urlencode
 
 from google.genai import _api_module
 from google.genai import _common
-from google.genai._common import get_value_by_path as getv
-from google.genai._common import set_value_by_path as setv
 from google.genai.pagers import AsyncPager, Pager
 
+from . import _converters
 from . import types
 
 logger = logging.getLogger("agentplatform_genai.memoryrevisions")
-
-
-def _GetMemoryRevisionRequestParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    return to_object
-
-
-def _ListMemoryRevisionsConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-
-    if getv(from_object, ["page_size"]) is not None:
-        setv(parent_object, ["_query", "pageSize"], getv(from_object, ["page_size"]))
-
-    if getv(from_object, ["page_token"]) is not None:
-        setv(parent_object, ["_query", "pageToken"], getv(from_object, ["page_token"]))
-
-    if getv(from_object, ["filter"]) is not None:
-        setv(parent_object, ["_query", "filter"], getv(from_object, ["filter"]))
-
-    return to_object
-
-
-def _ListMemoryRevisionsRequestParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["config"]) is not None:
-        _ListMemoryRevisionsConfig_to_vertex(getv(from_object, ["config"]), to_object)
-
-    return to_object
 
 
 class MemoryRevisions(_api_module.BaseModule):
@@ -105,7 +61,7 @@ class MemoryRevisions(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetMemoryRevisionRequestParameters_to_vertex(
+            request_dict = _converters._GetMemoryRevisionRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -189,7 +145,7 @@ class MemoryRevisions(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _ListMemoryRevisionsRequestParameters_to_vertex(
+            request_dict = _converters._ListMemoryRevisionsRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -298,7 +254,7 @@ class AsyncMemoryRevisions(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetMemoryRevisionRequestParameters_to_vertex(
+            request_dict = _converters._GetMemoryRevisionRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -384,7 +340,7 @@ class AsyncMemoryRevisions(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _ListMemoryRevisionsRequestParameters_to_vertex(
+            request_dict = _converters._ListMemoryRevisionsRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
