@@ -197,7 +197,13 @@ class BaseArtifactSchema(artifact.Artifact):
         )
 
         # Reinstantiate this class using the newly created resource.
-        self._init_with_resource_name(artifact_name=new_artifact_instance.resource_name)
+        self._init_with_resource_name(
+            artifact_name=new_artifact_instance.resource_name,
+            metadata_store_id=metadata_store_id,
+            project=project,
+            location=location,
+            credentials=credentials,
+        )
         return self
 
     @classmethod
