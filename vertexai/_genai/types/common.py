@@ -9025,7 +9025,12 @@ class CreateAgentEngineConfig(_common.BaseModel):
         default=None,
         description="""Optional. Specifies the configuration for keep-alive probe.
       Contains configuration on a specified endpoint that a deployment host
-      should use to keep the container alive based on the probe settings.""",
+      should use to keep the container alive based on the probe settings. Pass
+      an empty `KeepAliveProbe` (`{}`) to enable the default probe
+      (`max_seconds=3600`), which is supported for `AdkApp`
+      (`agent_framework='google-adk'`) deployments. Custom `http_get` and
+      `max_seconds` settings are only supported when deploying from a custom
+      container (`container_spec`) or Dockerfile (`image_spec`).""",
     )
 
 
@@ -9166,7 +9171,12 @@ class CreateAgentEngineConfigDict(TypedDict, total=False):
     keep_alive_probe: Optional[KeepAliveProbeDict]
     """Optional. Specifies the configuration for keep-alive probe.
       Contains configuration on a specified endpoint that a deployment host
-      should use to keep the container alive based on the probe settings."""
+      should use to keep the container alive based on the probe settings. Pass
+      an empty `KeepAliveProbe` (`{}`) to enable the default probe
+      (`max_seconds=3600`), which is supported for `AdkApp`
+      (`agent_framework='google-adk'`) deployments. Custom `http_get` and
+      `max_seconds` settings are only supported when deploying from a custom
+      container (`container_spec`) or Dockerfile (`image_spec`)."""
 
 
 CreateAgentEngineConfigOrDict = Union[
@@ -9692,7 +9702,12 @@ class UpdateAgentEngineConfig(_common.BaseModel):
         default=None,
         description="""Optional. Specifies the configuration for keep-alive probe.
       Contains configuration on a specified endpoint that a deployment host
-      should use to keep the container alive based on the probe settings.""",
+      should use to keep the container alive based on the probe settings. Pass
+      an empty `KeepAliveProbe` (`{}`) to enable the default probe
+      (`max_seconds=3600`), which is supported for `AdkApp`
+      (`agent_framework='google-adk'`) deployments. Custom `http_get` and
+      `max_seconds` settings are only supported when deploying from a custom
+      container (`container_spec`) or Dockerfile (`image_spec`).""",
     )
     update_mask: Optional[str] = Field(
         default=None,
@@ -9842,7 +9857,12 @@ class UpdateAgentEngineConfigDict(TypedDict, total=False):
     keep_alive_probe: Optional[KeepAliveProbeDict]
     """Optional. Specifies the configuration for keep-alive probe.
       Contains configuration on a specified endpoint that a deployment host
-      should use to keep the container alive based on the probe settings."""
+      should use to keep the container alive based on the probe settings. Pass
+      an empty `KeepAliveProbe` (`{}`) to enable the default probe
+      (`max_seconds=3600`), which is supported for `AdkApp`
+      (`agent_framework='google-adk'`) deployments. Custom `http_get` and
+      `max_seconds` settings are only supported when deploying from a custom
+      container (`container_spec`) or Dockerfile (`image_spec`)."""
 
     update_mask: Optional[str]
     """The update mask to apply. For the `FieldMask` definition, see
@@ -20503,7 +20523,12 @@ class AgentEngineConfig(_common.BaseModel):
         default=None,
         description="""Optional. Specifies the configuration for keep-alive probe.
       Contains configuration on a specified endpoint that a deployment host
-      should use to keep the container alive based on the probe settings.""",
+      should use to keep the container alive based on the probe settings. Pass
+      an empty `KeepAliveProbe` (`{}`) to enable the default probe
+      (`max_seconds=3600`), which is supported for `AdkApp`
+      (`agent_framework='google-adk'`) deployments. Custom `http_get` and
+      `max_seconds` settings are only supported when deploying from a custom
+      container (`container_spec`) or Dockerfile (`image_spec`).""",
     )
     traffic_config: Optional[ReasoningEngineTrafficConfig] = Field(
         default=None, description="""The traffic config for the Agent Engine."""
@@ -20694,7 +20719,12 @@ class AgentEngineConfigDict(TypedDict, total=False):
     keep_alive_probe: Optional[KeepAliveProbeDict]
     """Optional. Specifies the configuration for keep-alive probe.
       Contains configuration on a specified endpoint that a deployment host
-      should use to keep the container alive based on the probe settings."""
+      should use to keep the container alive based on the probe settings. Pass
+      an empty `KeepAliveProbe` (`{}`) to enable the default probe
+      (`max_seconds=3600`), which is supported for `AdkApp`
+      (`agent_framework='google-adk'`) deployments. Custom `http_get` and
+      `max_seconds` settings are only supported when deploying from a custom
+      container (`container_spec`) or Dockerfile (`image_spec`)."""
 
     traffic_config: Optional[ReasoningEngineTrafficConfigDict]
     """The traffic config for the Agent Engine."""
