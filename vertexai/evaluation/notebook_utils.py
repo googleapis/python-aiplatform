@@ -16,6 +16,7 @@
 #
 """Python functions which run only within a Jupyter or Colab notebook."""
 
+import html as html_lib
 import random
 import string
 import sys
@@ -153,7 +154,9 @@ def display_explanations(
 
     for _, row in df.iterrows():
         for col in df.columns:
-            display(HTML(f"<div style='{style}'><h4>{col}:</h4>{row[col]}</div>"))
+            safe_col = html_lib.escape(str(col))
+            safe_val = html_lib.escape(str(row[col]))
+            display(HTML(f"<div style='{style}'><h4>{safe_col}:</h4>{safe_val}</div>"))
         display(HTML("<hr>"))
 
 
