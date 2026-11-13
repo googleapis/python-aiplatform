@@ -4275,7 +4275,7 @@ DeleteEvaluationSetOperationOrDict = Union[
 
 
 class BleuInstance(_common.BaseModel):
-    """Bleu instance."""
+    """Spec for bleu instance."""
 
     prediction: Optional[str] = Field(
         default=None, description="""Required. Output of the evaluated model."""
@@ -4287,7 +4287,7 @@ class BleuInstance(_common.BaseModel):
 
 
 class BleuInstanceDict(TypedDict, total=False):
-    """Bleu instance."""
+    """Spec for bleu instance."""
 
     prediction: Optional[str]
     """Required. Output of the evaluated model."""
@@ -4321,70 +4321,8 @@ class BleuInputDict(TypedDict, total=False):
 BleuInputOrDict = Union[BleuInput, BleuInputDict]
 
 
-class ExactMatchInstance(_common.BaseModel):
-    """Exact match instance."""
-
-    prediction: Optional[str] = Field(
-        default=None, description="""Required. Output of the evaluated model."""
-    )
-    reference: Optional[str] = Field(
-        default=None,
-        description="""Required. Ground truth used to compare against the prediction.""",
-    )
-
-
-class ExactMatchInstanceDict(TypedDict, total=False):
-    """Exact match instance."""
-
-    prediction: Optional[str]
-    """Required. Output of the evaluated model."""
-
-    reference: Optional[str]
-    """Required. Ground truth used to compare against the prediction."""
-
-
-ExactMatchInstanceOrDict = Union[ExactMatchInstance, ExactMatchInstanceDict]
-
-
-class ExactMatchSpec(_common.BaseModel):
-    """Spec for exact match metric."""
-
-    pass
-
-
-class ExactMatchSpecDict(TypedDict, total=False):
-    """Spec for exact match metric."""
-
-    pass
-
-
-ExactMatchSpecOrDict = Union[ExactMatchSpec, ExactMatchSpecDict]
-
-
-class ExactMatchInput(_common.BaseModel):
-
-    instances: Optional[list[ExactMatchInstance]] = Field(
-        default=None, description="""Required. Repeated exact match instances."""
-    )
-    metric_spec: Optional[ExactMatchSpec] = Field(
-        default=None, description="""Required. Spec for exact match metric."""
-    )
-
-
-class ExactMatchInputDict(TypedDict, total=False):
-
-    instances: Optional[list[ExactMatchInstanceDict]]
-    """Required. Repeated exact match instances."""
-
-    metric_spec: Optional[ExactMatchSpecDict]
-    """Required. Spec for exact match metric."""
-
-
-ExactMatchInputOrDict = Union[ExactMatchInput, ExactMatchInputDict]
-
-
 class RougeInstance(_common.BaseModel):
-    """Rouge instance."""
+    """Spec for rouge instance."""
 
     prediction: Optional[str] = Field(
         default=None, description="""Required. Output of the evaluated model."""
@@ -4396,7 +4334,7 @@ class RougeInstance(_common.BaseModel):
 
 
 class RougeInstanceDict(TypedDict, total=False):
-    """Rouge instance."""
+    """Spec for rouge instance."""
 
     prediction: Optional[str]
     """Required. Output of the evaluated model."""
@@ -4545,282 +4483,6 @@ class PairwiseMetricInputDict(TypedDict, total=False):
 PairwiseMetricInputOrDict = Union[PairwiseMetricInput, PairwiseMetricInputDict]
 
 
-class ToolCallValidInstance(_common.BaseModel):
-    """Tool call valid instance."""
-
-    prediction: Optional[str] = Field(
-        default=None, description="""Required. Output of the evaluated model."""
-    )
-    reference: Optional[str] = Field(
-        default=None,
-        description="""Required. Ground truth used to compare against the prediction.""",
-    )
-
-
-class ToolCallValidInstanceDict(TypedDict, total=False):
-    """Tool call valid instance."""
-
-    prediction: Optional[str]
-    """Required. Output of the evaluated model."""
-
-    reference: Optional[str]
-    """Required. Ground truth used to compare against the prediction."""
-
-
-ToolCallValidInstanceOrDict = Union[ToolCallValidInstance, ToolCallValidInstanceDict]
-
-
-class ToolCallValidSpec(_common.BaseModel):
-    """Spec for tool call valid metric."""
-
-    pass
-
-
-class ToolCallValidSpecDict(TypedDict, total=False):
-    """Spec for tool call valid metric."""
-
-    pass
-
-
-ToolCallValidSpecOrDict = Union[ToolCallValidSpec, ToolCallValidSpecDict]
-
-
-class ToolCallValidInput(_common.BaseModel):
-    """Tool call valid input."""
-
-    instances: Optional[list[ToolCallValidInstance]] = Field(
-        default=None, description="""Required. Repeated tool call valid instances."""
-    )
-    metric_spec: Optional[ToolCallValidSpec] = Field(
-        default=None, description="""Required. Spec for tool call valid metric."""
-    )
-
-
-class ToolCallValidInputDict(TypedDict, total=False):
-    """Tool call valid input."""
-
-    instances: Optional[list[ToolCallValidInstanceDict]]
-    """Required. Repeated tool call valid instances."""
-
-    metric_spec: Optional[ToolCallValidSpecDict]
-    """Required. Spec for tool call valid metric."""
-
-
-ToolCallValidInputOrDict = Union[ToolCallValidInput, ToolCallValidInputDict]
-
-
-class ToolNameMatchInstance(_common.BaseModel):
-    """Tool name match instance."""
-
-    prediction: Optional[str] = Field(
-        default=None, description="""Required. Output of the evaluated model."""
-    )
-    reference: Optional[str] = Field(
-        default=None,
-        description="""Required. Ground truth used to compare against the prediction.""",
-    )
-
-
-class ToolNameMatchInstanceDict(TypedDict, total=False):
-    """Tool name match instance."""
-
-    prediction: Optional[str]
-    """Required. Output of the evaluated model."""
-
-    reference: Optional[str]
-    """Required. Ground truth used to compare against the prediction."""
-
-
-ToolNameMatchInstanceOrDict = Union[ToolNameMatchInstance, ToolNameMatchInstanceDict]
-
-
-class ToolNameMatchSpec(_common.BaseModel):
-    """Spec for tool name match metric."""
-
-    pass
-
-
-class ToolNameMatchSpecDict(TypedDict, total=False):
-    """Spec for tool name match metric."""
-
-    pass
-
-
-ToolNameMatchSpecOrDict = Union[ToolNameMatchSpec, ToolNameMatchSpecDict]
-
-
-class ToolNameMatchInput(_common.BaseModel):
-    """Tool name match input."""
-
-    instances: Optional[list[ToolNameMatchInstance]] = Field(
-        default=None, description="""Required. Repeated tool name match instances."""
-    )
-    metric_spec: Optional[ToolNameMatchSpec] = Field(
-        default=None, description="""Required. Spec for tool name match metric."""
-    )
-
-
-class ToolNameMatchInputDict(TypedDict, total=False):
-    """Tool name match input."""
-
-    instances: Optional[list[ToolNameMatchInstanceDict]]
-    """Required. Repeated tool name match instances."""
-
-    metric_spec: Optional[ToolNameMatchSpecDict]
-    """Required. Spec for tool name match metric."""
-
-
-ToolNameMatchInputOrDict = Union[ToolNameMatchInput, ToolNameMatchInputDict]
-
-
-class ToolParameterKeyMatchInstance(_common.BaseModel):
-    """Tool parameter key match instance."""
-
-    prediction: Optional[str] = Field(
-        default=None, description="""Required. Output of the evaluated model."""
-    )
-    reference: Optional[str] = Field(
-        default=None,
-        description="""Required. Ground truth used to compare against the prediction.""",
-    )
-
-
-class ToolParameterKeyMatchInstanceDict(TypedDict, total=False):
-    """Tool parameter key match instance."""
-
-    prediction: Optional[str]
-    """Required. Output of the evaluated model."""
-
-    reference: Optional[str]
-    """Required. Ground truth used to compare against the prediction."""
-
-
-ToolParameterKeyMatchInstanceOrDict = Union[
-    ToolParameterKeyMatchInstance, ToolParameterKeyMatchInstanceDict
-]
-
-
-class ToolParameterKeyMatchSpec(_common.BaseModel):
-    """Spec for tool parameter key match metric."""
-
-    pass
-
-
-class ToolParameterKeyMatchSpecDict(TypedDict, total=False):
-    """Spec for tool parameter key match metric."""
-
-    pass
-
-
-ToolParameterKeyMatchSpecOrDict = Union[
-    ToolParameterKeyMatchSpec, ToolParameterKeyMatchSpecDict
-]
-
-
-class ToolParameterKeyMatchInput(_common.BaseModel):
-    """Tool parameter key match input."""
-
-    instances: Optional[list[ToolParameterKeyMatchInstance]] = Field(
-        default=None,
-        description="""Required. Repeated tool parameter key match instances.""",
-    )
-    metric_spec: Optional[ToolParameterKeyMatchSpec] = Field(
-        default=None,
-        description="""Required. Spec for tool parameter key match metric.""",
-    )
-
-
-class ToolParameterKeyMatchInputDict(TypedDict, total=False):
-    """Tool parameter key match input."""
-
-    instances: Optional[list[ToolParameterKeyMatchInstanceDict]]
-    """Required. Repeated tool parameter key match instances."""
-
-    metric_spec: Optional[ToolParameterKeyMatchSpecDict]
-    """Required. Spec for tool parameter key match metric."""
-
-
-ToolParameterKeyMatchInputOrDict = Union[
-    ToolParameterKeyMatchInput, ToolParameterKeyMatchInputDict
-]
-
-
-class ToolParameterKVMatchInstance(_common.BaseModel):
-    """Tool parameter kv match instance."""
-
-    prediction: Optional[str] = Field(
-        default=None, description="""Required. Output of the evaluated model."""
-    )
-    reference: Optional[str] = Field(
-        default=None,
-        description="""Required. Ground truth used to compare against the prediction.""",
-    )
-
-
-class ToolParameterKVMatchInstanceDict(TypedDict, total=False):
-    """Tool parameter kv match instance."""
-
-    prediction: Optional[str]
-    """Required. Output of the evaluated model."""
-
-    reference: Optional[str]
-    """Required. Ground truth used to compare against the prediction."""
-
-
-ToolParameterKVMatchInstanceOrDict = Union[
-    ToolParameterKVMatchInstance, ToolParameterKVMatchInstanceDict
-]
-
-
-class ToolParameterKVMatchSpec(_common.BaseModel):
-    """Spec for tool parameter kv match metric."""
-
-    use_strict_string_match: Optional[bool] = Field(
-        default=None,
-        description="""Optional. Whether to use STRICT string match on parameter values.""",
-    )
-
-
-class ToolParameterKVMatchSpecDict(TypedDict, total=False):
-    """Spec for tool parameter kv match metric."""
-
-    use_strict_string_match: Optional[bool]
-    """Optional. Whether to use STRICT string match on parameter values."""
-
-
-ToolParameterKVMatchSpecOrDict = Union[
-    ToolParameterKVMatchSpec, ToolParameterKVMatchSpecDict
-]
-
-
-class ToolParameterKVMatchInput(_common.BaseModel):
-    """Tool parameter kv match input."""
-
-    instances: Optional[list[ToolParameterKVMatchInstance]] = Field(
-        default=None,
-        description="""Required. Repeated tool parameter key value match instances.""",
-    )
-    metric_spec: Optional[ToolParameterKVMatchSpec] = Field(
-        default=None,
-        description="""Required. Spec for tool parameter key value match metric.""",
-    )
-
-
-class ToolParameterKVMatchInputDict(TypedDict, total=False):
-    """Tool parameter kv match input."""
-
-    instances: Optional[list[ToolParameterKVMatchInstanceDict]]
-    """Required. Repeated tool parameter key value match instances."""
-
-    metric_spec: Optional[ToolParameterKVMatchSpecDict]
-    """Required. Spec for tool parameter key value match metric."""
-
-
-ToolParameterKVMatchInputOrDict = Union[
-    ToolParameterKVMatchInput, ToolParameterKVMatchInputDict
-]
-
-
 class MapInstance(_common.BaseModel):
     """Instance data specified as a map."""
 
@@ -4922,6 +4584,346 @@ class EvaluateInstancesConfigDict(TypedDict, total=False):
 
 EvaluateInstancesConfigOrDict = Union[
     EvaluateInstancesConfig, EvaluateInstancesConfigDict
+]
+
+
+class ExactMatchInstance(_common.BaseModel):
+    """Spec for exact match instance."""
+
+    prediction: Optional[str] = Field(
+        default=None, description="""Required. Output of the evaluated model."""
+    )
+    reference: Optional[str] = Field(
+        default=None,
+        description="""Required. Ground truth used to compare against the prediction.""",
+    )
+
+
+class ExactMatchInstanceDict(TypedDict, total=False):
+    """Spec for exact match instance."""
+
+    prediction: Optional[str]
+    """Required. Output of the evaluated model."""
+
+    reference: Optional[str]
+    """Required. Ground truth used to compare against the prediction."""
+
+
+ExactMatchInstanceOrDict = Union[ExactMatchInstance, ExactMatchInstanceDict]
+
+
+class ExactMatchSpec(_common.BaseModel):
+    """Spec for exact match metric - returns 1 if prediction and reference exactly matches, otherwise 0."""
+
+    pass
+
+
+class ExactMatchSpecDict(TypedDict, total=False):
+    """Spec for exact match metric - returns 1 if prediction and reference exactly matches, otherwise 0."""
+
+    pass
+
+
+ExactMatchSpecOrDict = Union[ExactMatchSpec, ExactMatchSpecDict]
+
+
+class ExactMatchInput(_common.BaseModel):
+    """Input for exact match metric."""
+
+    instances: Optional[list[ExactMatchInstance]] = Field(
+        default=None, description="""Required. Repeated exact match instances."""
+    )
+    metric_spec: Optional[ExactMatchSpec] = Field(
+        default=None, description="""Required. Spec for exact match metric."""
+    )
+
+
+class ExactMatchInputDict(TypedDict, total=False):
+    """Input for exact match metric."""
+
+    instances: Optional[list[ExactMatchInstanceDict]]
+    """Required. Repeated exact match instances."""
+
+    metric_spec: Optional[ExactMatchSpecDict]
+    """Required. Spec for exact match metric."""
+
+
+ExactMatchInputOrDict = Union[ExactMatchInput, ExactMatchInputDict]
+
+
+class ToolCallValidInstance(_common.BaseModel):
+    """Spec for tool call valid instance."""
+
+    prediction: Optional[str] = Field(
+        default=None, description="""Required. Output of the evaluated model."""
+    )
+    reference: Optional[str] = Field(
+        default=None,
+        description="""Required. Ground truth used to compare against the prediction.""",
+    )
+
+
+class ToolCallValidInstanceDict(TypedDict, total=False):
+    """Spec for tool call valid instance."""
+
+    prediction: Optional[str]
+    """Required. Output of the evaluated model."""
+
+    reference: Optional[str]
+    """Required. Ground truth used to compare against the prediction."""
+
+
+ToolCallValidInstanceOrDict = Union[ToolCallValidInstance, ToolCallValidInstanceDict]
+
+
+class ToolCallValidSpec(_common.BaseModel):
+    """Spec for tool call valid metric."""
+
+    pass
+
+
+class ToolCallValidSpecDict(TypedDict, total=False):
+    """Spec for tool call valid metric."""
+
+    pass
+
+
+ToolCallValidSpecOrDict = Union[ToolCallValidSpec, ToolCallValidSpecDict]
+
+
+class ToolCallValidInput(_common.BaseModel):
+    """Input for tool call valid metric."""
+
+    instances: Optional[list[ToolCallValidInstance]] = Field(
+        default=None, description="""Required. Repeated tool call valid instances."""
+    )
+    metric_spec: Optional[ToolCallValidSpec] = Field(
+        default=None, description="""Required. Spec for tool call valid metric."""
+    )
+
+
+class ToolCallValidInputDict(TypedDict, total=False):
+    """Input for tool call valid metric."""
+
+    instances: Optional[list[ToolCallValidInstanceDict]]
+    """Required. Repeated tool call valid instances."""
+
+    metric_spec: Optional[ToolCallValidSpecDict]
+    """Required. Spec for tool call valid metric."""
+
+
+ToolCallValidInputOrDict = Union[ToolCallValidInput, ToolCallValidInputDict]
+
+
+class ToolNameMatchInstance(_common.BaseModel):
+    """Spec for tool name match instance."""
+
+    prediction: Optional[str] = Field(
+        default=None, description="""Required. Output of the evaluated model."""
+    )
+    reference: Optional[str] = Field(
+        default=None,
+        description="""Required. Ground truth used to compare against the prediction.""",
+    )
+
+
+class ToolNameMatchInstanceDict(TypedDict, total=False):
+    """Spec for tool name match instance."""
+
+    prediction: Optional[str]
+    """Required. Output of the evaluated model."""
+
+    reference: Optional[str]
+    """Required. Ground truth used to compare against the prediction."""
+
+
+ToolNameMatchInstanceOrDict = Union[ToolNameMatchInstance, ToolNameMatchInstanceDict]
+
+
+class ToolNameMatchSpec(_common.BaseModel):
+    """Spec for tool name match metric."""
+
+    pass
+
+
+class ToolNameMatchSpecDict(TypedDict, total=False):
+    """Spec for tool name match metric."""
+
+    pass
+
+
+ToolNameMatchSpecOrDict = Union[ToolNameMatchSpec, ToolNameMatchSpecDict]
+
+
+class ToolNameMatchInput(_common.BaseModel):
+    """Input for tool name match metric."""
+
+    instances: Optional[list[ToolNameMatchInstance]] = Field(
+        default=None, description="""Required. Repeated tool name match instances."""
+    )
+    metric_spec: Optional[ToolNameMatchSpec] = Field(
+        default=None, description="""Required. Spec for tool name match metric."""
+    )
+
+
+class ToolNameMatchInputDict(TypedDict, total=False):
+    """Input for tool name match metric."""
+
+    instances: Optional[list[ToolNameMatchInstanceDict]]
+    """Required. Repeated tool name match instances."""
+
+    metric_spec: Optional[ToolNameMatchSpecDict]
+    """Required. Spec for tool name match metric."""
+
+
+ToolNameMatchInputOrDict = Union[ToolNameMatchInput, ToolNameMatchInputDict]
+
+
+class ToolParameterKeyMatchInstance(_common.BaseModel):
+    """Spec for tool parameter key match instance."""
+
+    prediction: Optional[str] = Field(
+        default=None, description="""Required. Output of the evaluated model."""
+    )
+    reference: Optional[str] = Field(
+        default=None,
+        description="""Required. Ground truth used to compare against the prediction.""",
+    )
+
+
+class ToolParameterKeyMatchInstanceDict(TypedDict, total=False):
+    """Spec for tool parameter key match instance."""
+
+    prediction: Optional[str]
+    """Required. Output of the evaluated model."""
+
+    reference: Optional[str]
+    """Required. Ground truth used to compare against the prediction."""
+
+
+ToolParameterKeyMatchInstanceOrDict = Union[
+    ToolParameterKeyMatchInstance, ToolParameterKeyMatchInstanceDict
+]
+
+
+class ToolParameterKeyMatchSpec(_common.BaseModel):
+    """Spec for tool parameter key match metric."""
+
+    pass
+
+
+class ToolParameterKeyMatchSpecDict(TypedDict, total=False):
+    """Spec for tool parameter key match metric."""
+
+    pass
+
+
+ToolParameterKeyMatchSpecOrDict = Union[
+    ToolParameterKeyMatchSpec, ToolParameterKeyMatchSpecDict
+]
+
+
+class ToolParameterKeyMatchInput(_common.BaseModel):
+    """Input for tool parameter key match metric."""
+
+    instances: Optional[list[ToolParameterKeyMatchInstance]] = Field(
+        default=None,
+        description="""Required. Repeated tool parameter key match instances.""",
+    )
+    metric_spec: Optional[ToolParameterKeyMatchSpec] = Field(
+        default=None,
+        description="""Required. Spec for tool parameter key match metric.""",
+    )
+
+
+class ToolParameterKeyMatchInputDict(TypedDict, total=False):
+    """Input for tool parameter key match metric."""
+
+    instances: Optional[list[ToolParameterKeyMatchInstanceDict]]
+    """Required. Repeated tool parameter key match instances."""
+
+    metric_spec: Optional[ToolParameterKeyMatchSpecDict]
+    """Required. Spec for tool parameter key match metric."""
+
+
+ToolParameterKeyMatchInputOrDict = Union[
+    ToolParameterKeyMatchInput, ToolParameterKeyMatchInputDict
+]
+
+
+class ToolParameterKVMatchInstance(_common.BaseModel):
+    """Spec for tool parameter key value match instance."""
+
+    prediction: Optional[str] = Field(
+        default=None, description="""Required. Output of the evaluated model."""
+    )
+    reference: Optional[str] = Field(
+        default=None,
+        description="""Required. Ground truth used to compare against the prediction.""",
+    )
+
+
+class ToolParameterKVMatchInstanceDict(TypedDict, total=False):
+    """Spec for tool parameter key value match instance."""
+
+    prediction: Optional[str]
+    """Required. Output of the evaluated model."""
+
+    reference: Optional[str]
+    """Required. Ground truth used to compare against the prediction."""
+
+
+ToolParameterKVMatchInstanceOrDict = Union[
+    ToolParameterKVMatchInstance, ToolParameterKVMatchInstanceDict
+]
+
+
+class ToolParameterKVMatchSpec(_common.BaseModel):
+    """Spec for tool parameter key value match metric."""
+
+    use_strict_string_match: Optional[bool] = Field(
+        default=None,
+        description="""Optional. Whether to use STRICT string match on parameter values.""",
+    )
+
+
+class ToolParameterKVMatchSpecDict(TypedDict, total=False):
+    """Spec for tool parameter key value match metric."""
+
+    use_strict_string_match: Optional[bool]
+    """Optional. Whether to use STRICT string match on parameter values."""
+
+
+ToolParameterKVMatchSpecOrDict = Union[
+    ToolParameterKVMatchSpec, ToolParameterKVMatchSpecDict
+]
+
+
+class ToolParameterKVMatchInput(_common.BaseModel):
+    """Input for tool parameter key value match metric."""
+
+    instances: Optional[list[ToolParameterKVMatchInstance]] = Field(
+        default=None,
+        description="""Required. Repeated tool parameter key value match instances.""",
+    )
+    metric_spec: Optional[ToolParameterKVMatchSpec] = Field(
+        default=None,
+        description="""Required. Spec for tool parameter key value match metric.""",
+    )
+
+
+class ToolParameterKVMatchInputDict(TypedDict, total=False):
+    """Input for tool parameter key value match metric."""
+
+    instances: Optional[list[ToolParameterKVMatchInstanceDict]]
+    """Required. Repeated tool parameter key value match instances."""
+
+    metric_spec: Optional[ToolParameterKVMatchSpecDict]
+    """Required. Spec for tool parameter key value match metric."""
+
+
+ToolParameterKVMatchInputOrDict = Union[
+    ToolParameterKVMatchInput, ToolParameterKVMatchInputDict
 ]
 
 
@@ -7929,7 +7931,7 @@ MemoryBankCustomizationConfigGenerateMemoriesExampleConversationSourceOrDict = U
 
 
 class MemoryTopicId(_common.BaseModel):
-    """The topic ID for a memory."""
+    """A memory topic identifier. This will be used to label a Memory and to restrict which topics are eligible for generation or retrieval."""
 
     custom_memory_topic_label: Optional[str] = Field(
         default=None,
@@ -7941,7 +7943,7 @@ class MemoryTopicId(_common.BaseModel):
 
 
 class MemoryTopicIdDict(TypedDict, total=False):
-    """The topic ID for a memory."""
+    """A memory topic identifier. This will be used to label a Memory and to restrict which topics are eligible for generation or retrieval."""
 
     custom_memory_topic_label: Optional[str]
     """Optional. Represents the custom memory topic label."""
@@ -8131,7 +8133,7 @@ MemoryBankCustomizationConfigConsolidationConfigOrDict = Union[
 
 
 class MemoryBankCustomizationConfig(_common.BaseModel):
-    """Represents configuration for organizing natural language memories."""
+    """Represents configuration for organizing natural language memories for a particular scope."""
 
     enable_third_person_memories: Optional[bool] = Field(
         default=None,
@@ -8164,7 +8166,7 @@ class MemoryBankCustomizationConfig(_common.BaseModel):
 
 
 class MemoryBankCustomizationConfigDict(TypedDict, total=False):
-    """Represents configuration for organizing natural language memories."""
+    """Represents configuration for organizing natural language memories for a particular scope."""
 
     enable_third_person_memories: Optional[bool]
     """Optional. Indicates whether the memories will be generated in the third person (i.e. "The user generates memories with Memory Bank."). By default, the memories will be generated in the first person (i.e. "I generate memories with Memory Bank.")"""
@@ -12395,42 +12397,6 @@ class DeleteMemoryOperationDict(TypedDict, total=False):
 DeleteMemoryOperationOrDict = Union[DeleteMemoryOperation, DeleteMemoryOperationDict]
 
 
-class GenerateMemoriesRequestVertexSessionSource(_common.BaseModel):
-    """The vertex session source for generating memories."""
-
-    end_time: Optional[datetime.datetime] = Field(
-        default=None,
-        description="""Optional. End time (exclusive) of the time range. If not set, the end time is unbounded.""",
-    )
-    session: Optional[str] = Field(
-        default=None,
-        description="""Required. The resource name of the Session to generate memories for. Format: `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/sessions/{session}`""",
-    )
-    start_time: Optional[datetime.datetime] = Field(
-        default=None,
-        description="""Optional. Time range to define which session events should be used to generate memories. Start time (inclusive) of the time range. If not set, the start time is unbounded.""",
-    )
-
-
-class GenerateMemoriesRequestVertexSessionSourceDict(TypedDict, total=False):
-    """The vertex session source for generating memories."""
-
-    end_time: Optional[datetime.datetime]
-    """Optional. End time (exclusive) of the time range. If not set, the end time is unbounded."""
-
-    session: Optional[str]
-    """Required. The resource name of the Session to generate memories for. Format: `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/sessions/{session}`"""
-
-    start_time: Optional[datetime.datetime]
-    """Optional. Time range to define which session events should be used to generate memories. Start time (inclusive) of the time range. If not set, the start time is unbounded."""
-
-
-GenerateMemoriesRequestVertexSessionSourceOrDict = Union[
-    GenerateMemoriesRequestVertexSessionSource,
-    GenerateMemoriesRequestVertexSessionSourceDict,
-]
-
-
 class GenerateMemoriesRequestDirectContentsSourceEvent(_common.BaseModel):
 
     content: Optional[genai_types.Content] = Field(
@@ -12470,63 +12436,6 @@ class GenerateMemoriesRequestDirectContentsSourceDict(TypedDict, total=False):
 GenerateMemoriesRequestDirectContentsSourceOrDict = Union[
     GenerateMemoriesRequestDirectContentsSource,
     GenerateMemoriesRequestDirectContentsSourceDict,
-]
-
-
-class GenerateMemoriesRequestDirectMemoriesSourceDirectMemory(_common.BaseModel):
-    """A direct memory to upload to Memory Bank."""
-
-    fact: Optional[str] = Field(
-        default=None,
-        description="""Required. The fact to consolidate with existing memories.""",
-    )
-    topics: Optional[list[MemoryTopicId]] = Field(
-        default=None,
-        description="""Optional. The topics that the consolidated memories should be associated with.""",
-    )
-
-
-class GenerateMemoriesRequestDirectMemoriesSourceDirectMemoryDict(
-    TypedDict, total=False
-):
-    """A direct memory to upload to Memory Bank."""
-
-    fact: Optional[str]
-    """Required. The fact to consolidate with existing memories."""
-
-    topics: Optional[list[MemoryTopicIdDict]]
-    """Optional. The topics that the consolidated memories should be associated with."""
-
-
-GenerateMemoriesRequestDirectMemoriesSourceDirectMemoryOrDict = Union[
-    GenerateMemoriesRequestDirectMemoriesSourceDirectMemory,
-    GenerateMemoriesRequestDirectMemoriesSourceDirectMemoryDict,
-]
-
-
-class GenerateMemoriesRequestDirectMemoriesSource(_common.BaseModel):
-    """The direct memories source for generating memories."""
-
-    direct_memories: Optional[
-        list[GenerateMemoriesRequestDirectMemoriesSourceDirectMemory]
-    ] = Field(
-        default=None,
-        description="""Required. The direct memories to upload to Memory Bank. At most 5 direct memories are allowed per request.""",
-    )
-
-
-class GenerateMemoriesRequestDirectMemoriesSourceDict(TypedDict, total=False):
-    """The direct memories source for generating memories."""
-
-    direct_memories: Optional[
-        list[GenerateMemoriesRequestDirectMemoriesSourceDirectMemoryDict]
-    ]
-    """Required. The direct memories to upload to Memory Bank. At most 5 direct memories are allowed per request."""
-
-
-GenerateMemoriesRequestDirectMemoriesSourceOrDict = Union[
-    GenerateMemoriesRequestDirectMemoriesSource,
-    GenerateMemoriesRequestDirectMemoriesSourceDict,
 ]
 
 
@@ -12619,6 +12528,99 @@ class GenerateMemoriesConfigDict(TypedDict, total=False):
 
 
 GenerateMemoriesConfigOrDict = Union[GenerateMemoriesConfig, GenerateMemoriesConfigDict]
+
+
+class GenerateMemoriesRequestVertexSessionSource(_common.BaseModel):
+    """Defines an Agent Engine Session from which to generate the memories. If `scope` is not provided, the scope will be extracted from the Session (i.e. {"user_id": sesison.user_id})."""
+
+    end_time: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Optional. End time (exclusive) of the time range. If not set, the end time is unbounded.""",
+    )
+    session: Optional[str] = Field(
+        default=None,
+        description="""Required. The resource name of the Session to generate memories for. Format: `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/sessions/{session}`""",
+    )
+    start_time: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Optional. Time range to define which session events should be used to generate memories. Start time (inclusive) of the time range. If not set, the start time is unbounded.""",
+    )
+
+
+class GenerateMemoriesRequestVertexSessionSourceDict(TypedDict, total=False):
+    """Defines an Agent Engine Session from which to generate the memories. If `scope` is not provided, the scope will be extracted from the Session (i.e. {"user_id": sesison.user_id})."""
+
+    end_time: Optional[datetime.datetime]
+    """Optional. End time (exclusive) of the time range. If not set, the end time is unbounded."""
+
+    session: Optional[str]
+    """Required. The resource name of the Session to generate memories for. Format: `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/sessions/{session}`"""
+
+    start_time: Optional[datetime.datetime]
+    """Optional. Time range to define which session events should be used to generate memories. Start time (inclusive) of the time range. If not set, the start time is unbounded."""
+
+
+GenerateMemoriesRequestVertexSessionSourceOrDict = Union[
+    GenerateMemoriesRequestVertexSessionSource,
+    GenerateMemoriesRequestVertexSessionSourceDict,
+]
+
+
+class GenerateMemoriesRequestDirectMemoriesSourceDirectMemory(_common.BaseModel):
+    """A direct memory to upload to Memory Bank."""
+
+    fact: Optional[str] = Field(
+        default=None,
+        description="""Required. The fact to consolidate with existing memories.""",
+    )
+    topics: Optional[list[MemoryTopicId]] = Field(
+        default=None,
+        description="""Optional. The topics that the consolidated memories should be associated with.""",
+    )
+
+
+class GenerateMemoriesRequestDirectMemoriesSourceDirectMemoryDict(
+    TypedDict, total=False
+):
+    """A direct memory to upload to Memory Bank."""
+
+    fact: Optional[str]
+    """Required. The fact to consolidate with existing memories."""
+
+    topics: Optional[list[MemoryTopicIdDict]]
+    """Optional. The topics that the consolidated memories should be associated with."""
+
+
+GenerateMemoriesRequestDirectMemoriesSourceDirectMemoryOrDict = Union[
+    GenerateMemoriesRequestDirectMemoriesSourceDirectMemory,
+    GenerateMemoriesRequestDirectMemoriesSourceDirectMemoryDict,
+]
+
+
+class GenerateMemoriesRequestDirectMemoriesSource(_common.BaseModel):
+    """Defines a direct source of memories that should be uploaded to Memory Bank with consolidation."""
+
+    direct_memories: Optional[
+        list[GenerateMemoriesRequestDirectMemoriesSourceDirectMemory]
+    ] = Field(
+        default=None,
+        description="""Required. The direct memories to upload to Memory Bank. At most 5 direct memories are allowed per request.""",
+    )
+
+
+class GenerateMemoriesRequestDirectMemoriesSourceDict(TypedDict, total=False):
+    """Defines a direct source of memories that should be uploaded to Memory Bank with consolidation."""
+
+    direct_memories: Optional[
+        list[GenerateMemoriesRequestDirectMemoriesSourceDirectMemoryDict]
+    ]
+    """Required. The direct memories to upload to Memory Bank. At most 5 direct memories are allowed per request."""
+
+
+GenerateMemoriesRequestDirectMemoriesSourceOrDict = Union[
+    GenerateMemoriesRequestDirectMemoriesSource,
+    GenerateMemoriesRequestDirectMemoriesSourceDict,
+]
 
 
 class _GenerateMemoriesRequestParameters(_common.BaseModel):
@@ -12997,64 +12999,6 @@ _GetGenerateMemoriesOperationParametersOrDict = Union[
 ]
 
 
-class RetrieveMemoriesRequestSimilaritySearchParams(_common.BaseModel):
-    """The parameters for semantic similarity search based retrieval."""
-
-    search_query: Optional[str] = Field(
-        default=None,
-        description="""Required. Query to use for similarity search retrieval. If provided, then the parent ReasoningEngine must have ReasoningEngineContextSpec.MemoryBankConfig.SimilaritySearchConfig set.""",
-    )
-    top_k: Optional[int] = Field(
-        default=None,
-        description="""Optional. The maximum number of memories to return. The service may return fewer than this value. If unspecified, at most 3 memories will be returned. The maximum value is 100; values above 100 will be coerced to 100.""",
-    )
-
-
-class RetrieveMemoriesRequestSimilaritySearchParamsDict(TypedDict, total=False):
-    """The parameters for semantic similarity search based retrieval."""
-
-    search_query: Optional[str]
-    """Required. Query to use for similarity search retrieval. If provided, then the parent ReasoningEngine must have ReasoningEngineContextSpec.MemoryBankConfig.SimilaritySearchConfig set."""
-
-    top_k: Optional[int]
-    """Optional. The maximum number of memories to return. The service may return fewer than this value. If unspecified, at most 3 memories will be returned. The maximum value is 100; values above 100 will be coerced to 100."""
-
-
-RetrieveMemoriesRequestSimilaritySearchParamsOrDict = Union[
-    RetrieveMemoriesRequestSimilaritySearchParams,
-    RetrieveMemoriesRequestSimilaritySearchParamsDict,
-]
-
-
-class RetrieveMemoriesRequestSimpleRetrievalParams(_common.BaseModel):
-    """The parameters for simple (non-similarity search) retrieval."""
-
-    page_size: Optional[int] = Field(
-        default=None,
-        description="""Optional. The maximum number of memories to return. The service may return fewer than this value. If unspecified, at most 3 memories will be returned. The maximum value is 100; values above 100 will be coerced to 100.""",
-    )
-    page_token: Optional[str] = Field(
-        default=None,
-        description="""Optional. A page token, received from a previous `RetrieveMemories` call. Provide this to retrieve the subsequent page.""",
-    )
-
-
-class RetrieveMemoriesRequestSimpleRetrievalParamsDict(TypedDict, total=False):
-    """The parameters for simple (non-similarity search) retrieval."""
-
-    page_size: Optional[int]
-    """Optional. The maximum number of memories to return. The service may return fewer than this value. If unspecified, at most 3 memories will be returned. The maximum value is 100; values above 100 will be coerced to 100."""
-
-    page_token: Optional[str]
-    """Optional. A page token, received from a previous `RetrieveMemories` call. Provide this to retrieve the subsequent page."""
-
-
-RetrieveMemoriesRequestSimpleRetrievalParamsOrDict = Union[
-    RetrieveMemoriesRequestSimpleRetrievalParams,
-    RetrieveMemoriesRequestSimpleRetrievalParamsDict,
-]
-
-
 class MemoryFilter(_common.BaseModel):
     """Filter to apply when retrieving memories."""
 
@@ -13094,7 +13038,7 @@ MemoryFilterOrDict = Union[MemoryFilter, MemoryFilterDict]
 
 
 class MemoryConjunctionFilter(_common.BaseModel):
-    """The conjunction filter for memories."""
+    """A conjunction of filters that will be combined using AND logic."""
 
     filters: Optional[list[MemoryFilter]] = Field(
         default=None,
@@ -13103,7 +13047,7 @@ class MemoryConjunctionFilter(_common.BaseModel):
 
 
 class MemoryConjunctionFilterDict(TypedDict, total=False):
-    """The conjunction filter for memories."""
+    """A conjunction of filters that will be combined using AND logic."""
 
     filters: Optional[list[MemoryFilterDict]]
     """Represents filters that will be combined using AND logic."""
@@ -13197,6 +13141,64 @@ class RetrieveMemoriesConfigDict(TypedDict, total=False):
 
 
 RetrieveMemoriesConfigOrDict = Union[RetrieveMemoriesConfig, RetrieveMemoriesConfigDict]
+
+
+class RetrieveMemoriesRequestSimilaritySearchParams(_common.BaseModel):
+    """Parameters for semantic similarity search based retrieval."""
+
+    search_query: Optional[str] = Field(
+        default=None,
+        description="""Required. Query to use for similarity search retrieval. If provided, then the parent ReasoningEngine must have ReasoningEngineContextSpec.MemoryBankConfig.SimilaritySearchConfig set.""",
+    )
+    top_k: Optional[int] = Field(
+        default=None,
+        description="""Optional. The maximum number of memories to return. The service may return fewer than this value. If unspecified, at most 3 memories will be returned. The maximum value is 100; values above 100 will be coerced to 100.""",
+    )
+
+
+class RetrieveMemoriesRequestSimilaritySearchParamsDict(TypedDict, total=False):
+    """Parameters for semantic similarity search based retrieval."""
+
+    search_query: Optional[str]
+    """Required. Query to use for similarity search retrieval. If provided, then the parent ReasoningEngine must have ReasoningEngineContextSpec.MemoryBankConfig.SimilaritySearchConfig set."""
+
+    top_k: Optional[int]
+    """Optional. The maximum number of memories to return. The service may return fewer than this value. If unspecified, at most 3 memories will be returned. The maximum value is 100; values above 100 will be coerced to 100."""
+
+
+RetrieveMemoriesRequestSimilaritySearchParamsOrDict = Union[
+    RetrieveMemoriesRequestSimilaritySearchParams,
+    RetrieveMemoriesRequestSimilaritySearchParamsDict,
+]
+
+
+class RetrieveMemoriesRequestSimpleRetrievalParams(_common.BaseModel):
+    """Parameters for simple (non-similarity search) retrieval."""
+
+    page_size: Optional[int] = Field(
+        default=None,
+        description="""Optional. The maximum number of memories to return. The service may return fewer than this value. If unspecified, at most 3 memories will be returned. The maximum value is 100; values above 100 will be coerced to 100.""",
+    )
+    page_token: Optional[str] = Field(
+        default=None,
+        description="""Optional. A page token, received from a previous `RetrieveMemories` call. Provide this to retrieve the subsequent page.""",
+    )
+
+
+class RetrieveMemoriesRequestSimpleRetrievalParamsDict(TypedDict, total=False):
+    """Parameters for simple (non-similarity search) retrieval."""
+
+    page_size: Optional[int]
+    """Optional. The maximum number of memories to return. The service may return fewer than this value. If unspecified, at most 3 memories will be returned. The maximum value is 100; values above 100 will be coerced to 100."""
+
+    page_token: Optional[str]
+    """Optional. A page token, received from a previous `RetrieveMemories` call. Provide this to retrieve the subsequent page."""
+
+
+RetrieveMemoriesRequestSimpleRetrievalParamsOrDict = Union[
+    RetrieveMemoriesRequestSimpleRetrievalParams,
+    RetrieveMemoriesRequestSimpleRetrievalParamsDict,
+]
 
 
 class _RetrieveMemoriesRequestParameters(_common.BaseModel):
@@ -17194,110 +17196,6 @@ class UploadRagFileResponseDict(TypedDict, total=False):
 UploadRagFileResponseOrDict = Union[UploadRagFileResponse, UploadRagFileResponseDict]
 
 
-class SandboxEnvironmentSpecCodeExecutionEnvironment(_common.BaseModel):
-    """The code execution environment with customized settings."""
-
-    code_language: Optional[Language] = Field(
-        default=None,
-        description="""The coding language supported in this environment.""",
-    )
-    machine_config: Optional[MachineConfig] = Field(
-        default=None,
-        description="""The machine config of the code execution environment.""",
-    )
-
-
-class SandboxEnvironmentSpecCodeExecutionEnvironmentDict(TypedDict, total=False):
-    """The code execution environment with customized settings."""
-
-    code_language: Optional[Language]
-    """The coding language supported in this environment."""
-
-    machine_config: Optional[MachineConfig]
-    """The machine config of the code execution environment."""
-
-
-SandboxEnvironmentSpecCodeExecutionEnvironmentOrDict = Union[
-    SandboxEnvironmentSpecCodeExecutionEnvironment,
-    SandboxEnvironmentSpecCodeExecutionEnvironmentDict,
-]
-
-
-class SandboxEnvironmentSpecComputerUseEnvironment(_common.BaseModel):
-    """The computer use environment with customized settings."""
-
-    pass
-
-
-class SandboxEnvironmentSpecComputerUseEnvironmentDict(TypedDict, total=False):
-    """The computer use environment with customized settings."""
-
-    pass
-
-
-SandboxEnvironmentSpecComputerUseEnvironmentOrDict = Union[
-    SandboxEnvironmentSpecComputerUseEnvironment,
-    SandboxEnvironmentSpecComputerUseEnvironmentDict,
-]
-
-
-class SandboxEnvironmentSpecShellEnvironment(_common.BaseModel):
-    """The shell environment."""
-
-    pass
-
-
-class SandboxEnvironmentSpecShellEnvironmentDict(TypedDict, total=False):
-    """The shell environment."""
-
-    pass
-
-
-SandboxEnvironmentSpecShellEnvironmentOrDict = Union[
-    SandboxEnvironmentSpecShellEnvironment, SandboxEnvironmentSpecShellEnvironmentDict
-]
-
-
-class SandboxEnvironmentSpec(_common.BaseModel):
-    """The specification of a sandbox environment."""
-
-    code_execution_environment: Optional[
-        SandboxEnvironmentSpecCodeExecutionEnvironment
-    ] = Field(default=None, description="""Optional. The code execution environment.""")
-    computer_use_environment: Optional[SandboxEnvironmentSpecComputerUseEnvironment] = (
-        Field(default=None, description="""Optional. The computer use environment.""")
-    )
-    shell_environment: Optional[SandboxEnvironmentSpecShellEnvironment] = Field(
-        default=None,
-        description="""Optional. The shell environment for executing shell commands and scripts.""",
-    )
-    use_gke_td: Optional[bool] = Field(
-        default=None,
-        description="""Optional. Immutable. Whether to provision the SandboxEnvironment via the GKE TD pool. Immutable.""",
-    )
-
-
-class SandboxEnvironmentSpecDict(TypedDict, total=False):
-    """The specification of a sandbox environment."""
-
-    code_execution_environment: Optional[
-        SandboxEnvironmentSpecCodeExecutionEnvironmentDict
-    ]
-    """Optional. The code execution environment."""
-
-    computer_use_environment: Optional[SandboxEnvironmentSpecComputerUseEnvironmentDict]
-    """Optional. The computer use environment."""
-
-    shell_environment: Optional[SandboxEnvironmentSpecShellEnvironmentDict]
-    """Optional. The shell environment for executing shell commands and scripts."""
-
-    use_gke_td: Optional[bool]
-    """Optional. Immutable. Whether to provision the SandboxEnvironment via the GKE TD pool. Immutable."""
-
-
-SandboxEnvironmentSpecOrDict = Union[SandboxEnvironmentSpec, SandboxEnvironmentSpecDict]
-
-
 class CreateRuntimeSandboxConfig(_common.BaseModel):
     """Config for creating a Sandbox."""
 
@@ -17367,6 +17265,110 @@ class CreateRuntimeSandboxConfigDict(TypedDict, total=False):
 CreateRuntimeSandboxConfigOrDict = Union[
     CreateRuntimeSandboxConfig, CreateRuntimeSandboxConfigDict
 ]
+
+
+class SandboxEnvironmentSpecCodeExecutionEnvironment(_common.BaseModel):
+    """The code execution environment with customized settings."""
+
+    code_language: Optional[Language] = Field(
+        default=None,
+        description="""The coding language supported in this environment.""",
+    )
+    machine_config: Optional[MachineConfig] = Field(
+        default=None,
+        description="""The machine config of the code execution environment.""",
+    )
+
+
+class SandboxEnvironmentSpecCodeExecutionEnvironmentDict(TypedDict, total=False):
+    """The code execution environment with customized settings."""
+
+    code_language: Optional[Language]
+    """The coding language supported in this environment."""
+
+    machine_config: Optional[MachineConfig]
+    """The machine config of the code execution environment."""
+
+
+SandboxEnvironmentSpecCodeExecutionEnvironmentOrDict = Union[
+    SandboxEnvironmentSpecCodeExecutionEnvironment,
+    SandboxEnvironmentSpecCodeExecutionEnvironmentDict,
+]
+
+
+class SandboxEnvironmentSpecComputerUseEnvironment(_common.BaseModel):
+    """The computer use environment with customized settings."""
+
+    pass
+
+
+class SandboxEnvironmentSpecComputerUseEnvironmentDict(TypedDict, total=False):
+    """The computer use environment with customized settings."""
+
+    pass
+
+
+SandboxEnvironmentSpecComputerUseEnvironmentOrDict = Union[
+    SandboxEnvironmentSpecComputerUseEnvironment,
+    SandboxEnvironmentSpecComputerUseEnvironmentDict,
+]
+
+
+class SandboxEnvironmentSpecShellEnvironment(_common.BaseModel):
+    """The shell environment."""
+
+    pass
+
+
+class SandboxEnvironmentSpecShellEnvironmentDict(TypedDict, total=False):
+    """The shell environment."""
+
+    pass
+
+
+SandboxEnvironmentSpecShellEnvironmentOrDict = Union[
+    SandboxEnvironmentSpecShellEnvironment, SandboxEnvironmentSpecShellEnvironmentDict
+]
+
+
+class SandboxEnvironmentSpec(_common.BaseModel):
+    """The specification of a SandboxEnvironment."""
+
+    code_execution_environment: Optional[
+        SandboxEnvironmentSpecCodeExecutionEnvironment
+    ] = Field(default=None, description="""Optional. The code execution environment.""")
+    computer_use_environment: Optional[SandboxEnvironmentSpecComputerUseEnvironment] = (
+        Field(default=None, description="""Optional. The computer use environment.""")
+    )
+    shell_environment: Optional[SandboxEnvironmentSpecShellEnvironment] = Field(
+        default=None,
+        description="""Optional. The shell environment for executing shell commands and scripts.""",
+    )
+    use_gke_td: Optional[bool] = Field(
+        default=None,
+        description="""Optional. Immutable. Whether to provision the SandboxEnvironment via the GKE TD pool. Immutable.""",
+    )
+
+
+class SandboxEnvironmentSpecDict(TypedDict, total=False):
+    """The specification of a SandboxEnvironment."""
+
+    code_execution_environment: Optional[
+        SandboxEnvironmentSpecCodeExecutionEnvironmentDict
+    ]
+    """Optional. The code execution environment."""
+
+    computer_use_environment: Optional[SandboxEnvironmentSpecComputerUseEnvironmentDict]
+    """Optional. The computer use environment."""
+
+    shell_environment: Optional[SandboxEnvironmentSpecShellEnvironmentDict]
+    """Optional. The shell environment for executing shell commands and scripts."""
+
+    use_gke_td: Optional[bool]
+    """Optional. Immutable. Whether to provision the SandboxEnvironment via the GKE TD pool. Immutable."""
+
+
+SandboxEnvironmentSpecOrDict = Union[SandboxEnvironmentSpec, SandboxEnvironmentSpecDict]
 
 
 class _CreateRuntimeSandboxRequestParameters(_common.BaseModel):
@@ -17690,6 +17692,26 @@ DeleteRuntimeSandboxOperationOrDict = Union[
 ]
 
 
+class ExecuteCodeRuntimeSandboxConfig(_common.BaseModel):
+    """Config for executing code in an Agent Runtime sandbox."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class ExecuteCodeRuntimeSandboxConfigDict(TypedDict, total=False):
+    """Config for executing code in an Agent Runtime sandbox."""
+
+    http_options: Optional[genai_types.HttpOptions]
+    """Used to override HTTP request options."""
+
+
+ExecuteCodeRuntimeSandboxConfigOrDict = Union[
+    ExecuteCodeRuntimeSandboxConfig, ExecuteCodeRuntimeSandboxConfigDict
+]
+
+
 class Metadata(_common.BaseModel):
     """Metadata for a chunk."""
 
@@ -17710,7 +17732,7 @@ MetadataOrDict = Union[Metadata, MetadataDict]
 
 
 class Chunk(_common.BaseModel):
-    """A chunk of data."""
+    """Container for bytes-encoded data such as video frame, audio sample, or a complete binary/text data."""
 
     data: Optional[bytes] = Field(
         default=None, description="""Required. The data in the chunk."""
@@ -17726,7 +17748,7 @@ class Chunk(_common.BaseModel):
 
 
 class ChunkDict(TypedDict, total=False):
-    """A chunk of data."""
+    """Container for bytes-encoded data such as video frame, audio sample, or a complete binary/text data."""
 
     data: Optional[bytes]
     """Required. The data in the chunk."""
@@ -17739,26 +17761,6 @@ class ChunkDict(TypedDict, total=False):
 
 
 ChunkOrDict = Union[Chunk, ChunkDict]
-
-
-class ExecuteCodeRuntimeSandboxConfig(_common.BaseModel):
-    """Config for executing code in an Agent Runtime sandbox."""
-
-    http_options: Optional[genai_types.HttpOptions] = Field(
-        default=None, description="""Used to override HTTP request options."""
-    )
-
-
-class ExecuteCodeRuntimeSandboxConfigDict(TypedDict, total=False):
-    """Config for executing code in an Agent Runtime sandbox."""
-
-    http_options: Optional[genai_types.HttpOptions]
-    """Used to override HTTP request options."""
-
-
-ExecuteCodeRuntimeSandboxConfigOrDict = Union[
-    ExecuteCodeRuntimeSandboxConfig, ExecuteCodeRuntimeSandboxConfigDict
-]
 
 
 class _ExecuteCodeRuntimeSandboxRequestParameters(_common.BaseModel):
@@ -20056,60 +20058,6 @@ _UpdateRuntimeSessionRequestParametersOrDict = Union[
 ]
 
 
-class EventActions(_common.BaseModel):
-    """Actions are parts of events that are executed by the agent."""
-
-    artifact_delta: Optional[dict[str, int]] = Field(
-        default=None,
-        description="""Optional. Indicates that the event is updating an artifact. key is the filename, value is the version.""",
-    )
-    escalate: Optional[bool] = Field(
-        default=None,
-        description="""Optional. The agent is escalating to a higher level agent.""",
-    )
-    requested_auth_configs: Optional[dict[str, Any]] = Field(
-        default=None,
-        description="""Optional. Will only be set by a tool response indicating tool request euc. Struct key is the function call id since one function call response (from model) could correspond to multiple function calls. Struct value is the required auth config, which can be another struct.""",
-    )
-    skip_summarization: Optional[bool] = Field(
-        default=None,
-        description="""Optional. If true, it won't call model to summarize function response. Only used for function_response event.""",
-    )
-    state_delta: Optional[dict[str, Any]] = Field(
-        default=None,
-        description="""Optional. Indicates that the event is updating the state with the given delta.""",
-    )
-    transfer_agent: Optional[str] = Field(
-        default=None,
-        description="""Optional. If set, the event transfers to the specified agent.""",
-    )
-
-
-class EventActionsDict(TypedDict, total=False):
-    """Actions are parts of events that are executed by the agent."""
-
-    artifact_delta: Optional[dict[str, int]]
-    """Optional. Indicates that the event is updating an artifact. key is the filename, value is the version."""
-
-    escalate: Optional[bool]
-    """Optional. The agent is escalating to a higher level agent."""
-
-    requested_auth_configs: Optional[dict[str, Any]]
-    """Optional. Will only be set by a tool response indicating tool request euc. Struct key is the function call id since one function call response (from model) could correspond to multiple function calls. Struct value is the required auth config, which can be another struct."""
-
-    skip_summarization: Optional[bool]
-    """Optional. If true, it won't call model to summarize function response. Only used for function_response event."""
-
-    state_delta: Optional[dict[str, Any]]
-    """Optional. Indicates that the event is updating the state with the given delta."""
-
-    transfer_agent: Optional[str]
-    """Optional. If set, the event transfers to the specified agent."""
-
-
-EventActionsOrDict = Union[EventActions, EventActionsDict]
-
-
 class EventMetadata(_common.BaseModel):
     """Metadata relating to a LLM response event."""
 
@@ -20180,6 +20128,60 @@ class EventMetadataDict(TypedDict, total=False):
 
 
 EventMetadataOrDict = Union[EventMetadata, EventMetadataDict]
+
+
+class EventActions(_common.BaseModel):
+    """Actions are parts of events that are executed by the agent."""
+
+    artifact_delta: Optional[dict[str, int]] = Field(
+        default=None,
+        description="""Optional. Indicates that the event is updating an artifact. key is the filename, value is the version.""",
+    )
+    escalate: Optional[bool] = Field(
+        default=None,
+        description="""Optional. The agent is escalating to a higher level agent.""",
+    )
+    requested_auth_configs: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Optional. Will only be set by a tool response indicating tool request euc. Struct key is the function call id since one function call response (from model) could correspond to multiple function calls. Struct value is the required auth config, which can be another struct.""",
+    )
+    skip_summarization: Optional[bool] = Field(
+        default=None,
+        description="""Optional. If true, it won't call model to summarize function response. Only used for function_response event.""",
+    )
+    state_delta: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Optional. Indicates that the event is updating the state with the given delta.""",
+    )
+    transfer_agent: Optional[str] = Field(
+        default=None,
+        description="""Optional. If set, the event transfers to the specified agent.""",
+    )
+
+
+class EventActionsDict(TypedDict, total=False):
+    """Actions are parts of events that are executed by the agent."""
+
+    artifact_delta: Optional[dict[str, int]]
+    """Optional. Indicates that the event is updating an artifact. key is the filename, value is the version."""
+
+    escalate: Optional[bool]
+    """Optional. The agent is escalating to a higher level agent."""
+
+    requested_auth_configs: Optional[dict[str, Any]]
+    """Optional. Will only be set by a tool response indicating tool request euc. Struct key is the function call id since one function call response (from model) could correspond to multiple function calls. Struct value is the required auth config, which can be another struct."""
+
+    skip_summarization: Optional[bool]
+    """Optional. If true, it won't call model to summarize function response. Only used for function_response event."""
+
+    state_delta: Optional[dict[str, Any]]
+    """Optional. Indicates that the event is updating the state with the given delta."""
+
+    transfer_agent: Optional[str]
+    """Optional. If set, the event transfers to the specified agent."""
+
+
+EventActionsOrDict = Union[EventActions, EventActionsDict]
 
 
 class AppendRuntimeSessionEventConfig(_common.BaseModel):
@@ -21469,6 +21471,24 @@ _UpdateMultimodalDatasetParametersOrDict = Union[
 ]
 
 
+class CreateDatasetConfig(_common.BaseModel):
+    """Config for creating a dataset resource to store prompts."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class CreateDatasetConfigDict(TypedDict, total=False):
+    """Config for creating a dataset resource to store prompts."""
+
+    http_options: Optional[genai_types.HttpOptions]
+    """Used to override HTTP request options."""
+
+
+CreateDatasetConfigOrDict = Union[CreateDatasetConfig, CreateDatasetConfigDict]
+
+
 class SchemaPredictParamsGroundingConfigSourceEntry(_common.BaseModel):
     """Single source entry for the grounding checking."""
 
@@ -22191,7 +22211,7 @@ SchemaPromptApiSchemaOrDict = Union[SchemaPromptApiSchema, SchemaPromptApiSchema
 
 
 class SchemaTextPromptDatasetMetadata(_common.BaseModel):
-    """Represents the text prompt dataset metadata."""
+    """The metadata of Datasets that contain Text Prompt data."""
 
     candidate_count: Optional[int] = Field(
         default=None, description="""Number of candidates."""
@@ -22261,7 +22281,7 @@ class SchemaTextPromptDatasetMetadata(_common.BaseModel):
 
 
 class SchemaTextPromptDatasetMetadataDict(TypedDict, total=False):
-    """Represents the text prompt dataset metadata."""
+    """The metadata of Datasets that contain Text Prompt data."""
 
     candidate_count: Optional[int]
     """Number of candidates."""
@@ -22321,24 +22341,6 @@ class SchemaTextPromptDatasetMetadataDict(TypedDict, total=False):
 SchemaTextPromptDatasetMetadataOrDict = Union[
     SchemaTextPromptDatasetMetadata, SchemaTextPromptDatasetMetadataDict
 ]
-
-
-class CreateDatasetConfig(_common.BaseModel):
-    """Config for creating a dataset resource to store prompts."""
-
-    http_options: Optional[genai_types.HttpOptions] = Field(
-        default=None, description="""Used to override HTTP request options."""
-    )
-
-
-class CreateDatasetConfigDict(TypedDict, total=False):
-    """Config for creating a dataset resource to store prompts."""
-
-    http_options: Optional[genai_types.HttpOptions]
-    """Used to override HTTP request options."""
-
-
-CreateDatasetConfigOrDict = Union[CreateDatasetConfig, CreateDatasetConfigDict]
 
 
 class _CreateDatasetParameters(_common.BaseModel):
