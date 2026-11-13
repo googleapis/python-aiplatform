@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.10.0](https://github.com/googleapis/python-aiplatform/compare/v2.9.0...v2.10.0) (2026-11-13)
+
+
+### Features
+
+* Support security_schemes, security, and kwargs in create_agent_card ([f419026](https://github.com/googleapis/python-aiplatform/commit/f4190261b2e2701c4ddb223f1985c36377f907a1))
+
+
+### Documentation
+
+* Update Model Garden samples and README to the Gen AI SDK client ([83bb6ce](https://github.com/googleapis/python-aiplatform/commit/83bb6ce8c91921f21cd1e4d17828e3701eff6762))
+
 ## [2.9.0](https://github.com/googleapis/python-aiplatform/compare/v2.8.0...v2.9.0) (2026-11-12)
 
 
