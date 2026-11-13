@@ -547,3 +547,163 @@ class TestWrapA2aOperationTimeout:
             asyncio.run(wrapped(fake_engine, request="req2", timeout=120.0))
             mock_async_client.assert_called_once()
             assert mock_async_client.call_args.kwargs["timeout"] == 120.0
+
+
+class TestCreateAgentCard:
+    """Tests for create_agent_card security_schemes, security, and kwargs support."""
+
+    def test_create_agent_card_with_security_and_kwargs(self):
+        """Verifies create_agent_card forwards security_schemes, security, and kwargs."""
+        # pylint: disable=g-import-not-at-top
+        from a2a import types as a2a_types
+        from vertexai.agent_engines.templates import (
+            a2a as a2a_template,
+        )
+
+        # pylint: enable=g-import-not-at-top
+        skill = a2a_types.AgentSkill(
+            id="hello_world",
+            name="Returns hello world",
+            description="just returns hello world",
+            tags=["hello world"],
+            examples=["hi"],
+        )
+        security_schemes = {
+            "bearer_auth": a2a_types.SecurityScheme(
+                http_auth_security_scheme=a2a_types.HTTPAuthSecurityScheme(
+                    scheme="Bearer",
+                    bearer_format="JWT",
+                )
+            )
+        }
+        security = [{"bearer_auth": ["read", "write"]}]
+
+        card = a2a_template.create_agent_card(
+            agent_name="Secure Agent",
+            description="An agent with security schemes",
+            skills=[skill],
+            security_schemes=security_schemes,
+            security=security,
+            documentation_url="https://example.com/docs",
+        )
+
+        assert card.name == "Secure Agent"
+        assert card.documentation_url == "https://example.com/docs"
+        assert "bearer_auth" in card.security_schemes
+        assert (
+            card.security_schemes[
+                "bearer_auth"
+            ].http_auth_security_scheme.scheme
+            == "Bearer"
+        )
+        assert len(card.security_requirements) == 1
+        assert list(
+            card.security_requirements[0].schemes["bearer_auth"].list
+        ) == ["read", "write"]
+
+    def test_create_agent_card_with_security_requirement_proto(self):
+        """Verifies create_agent_card accepts SecurityRequirement, StringList, and wrapper dicts."""
+        # pylint: disable=g-import-not-at-top
+        from a2a import types as a2a_types
+        from vertexai.agent_engines.templates import (
+            a2a as a2a_template,
+        )
+
+        # pylint: enable=g-import-not-at-top
+        skill = a2a_types.AgentSkill(
+            id="hello_world",
+            name="Returns hello world",
+            description="just returns hello world",
+            tags=["hello world"],
+            examples=["hi"],
+        )
+        security = [
+            a2a_types.SecurityRequirement(
+                schemes={"bearer_auth": a2a_types.StringList(list=["read"])}
+            ),
+            {"oauth2": a2a_types.StringList(list=["write"])},
+            {"schemes": {"api_key": ["admin"]}},
+            {"schemes": ["custom_scope"]},
+        ]
+
+        card = a2a_template.create_agent_card(
+            agent_name="Secure Agent",
+            description="An agent with security requirements",
+            skills=[skill],
+            security=security,
+        )
+
+        assert len(card.security_requirements) == 4
+        assert list(
+            card.security_requirements[0].schemes["bearer_auth"].list
+        ) == ["read"]
+        assert list(
+            card.security_requirements[1].schemes["oauth2"].list
+        ) == ["write"]
+        assert list(
+            card.security_requirements[2].schemes["api_key"].list
+        ) == ["admin"]
+        assert list(
+            card.security_requirements[3].schemes["schemes"].list
+        ) == ["custom_scope"]
+
+    def test_create_agent_card_with_v03_agent_card_fallback(self, monkeypatch):
+        """Verifies create_agent_card falls back to security key for non-proto AgentCard."""
+        # pylint: disable=g-import-not-at-top
+        from vertexai.agent_engines.templates import (
+            a2a as a2a_template,
+        )
+
+        # pylint: enable=g-import-not-at-top
+        mock_a2a_types = mock.MagicMock()
+        del mock_a2a_types.AgentCard.DESCRIPTOR
+        mock_a2a_types.AgentCard.side_effect = lambda **kw: kw
+        monkeypatch.setitem(sys.modules, "a2a.types", mock_a2a_types)
+
+        security = [{"oauth2": ["openid"]}]
+        card = a2a_template.create_agent_card(
+            agent_name="Fallback Agent",
+            description="Fallback description",
+            skills=[mock.MagicMock()],
+            security=security,
+        )
+        assert card["security"] == security
+
+    def test_preview_create_agent_card_with_security_and_kwargs(
+        self, monkeypatch
+    ):
+        """Verifies preview create_agent_card forwards security_schemes, security, and kwargs."""
+        # pylint: disable=g-import-not-at-top
+        from vertexai.preview.reasoning_engines.templates import (
+            a2a as preview_a2a_template,
+        )
+
+        # pylint: enable=g-import-not-at-top
+        mock_a2a_types = mock.MagicMock()
+        mock_a2a_types.AgentCard.side_effect = lambda **kw: kw
+        monkeypatch.setitem(sys.modules, "a2a.types", mock_a2a_types)
+
+        security_schemes = {"oauth2": {"type": "oauth2"}}
+        security = [{"oauth2": ["openid"]}]
+
+        card = preview_a2a_template.create_agent_card(
+            agent_name="Preview Secure Agent",
+            description="Preview agent description",
+            skills=[mock.MagicMock()],
+            security_schemes=security_schemes,
+            security=security,
+            documentation_url="https://example.com/preview-docs",
+        )
+
+        assert card["name"] == "Preview Secure Agent"
+        assert card["security_schemes"] == security_schemes
+        assert card["security"] == security
+        assert card["documentation_url"] == "https://example.com/preview-docs"
+
+        basic_card = preview_a2a_template.create_agent_card(
+            agent_name="Preview Basic Agent",
+            description="Preview basic description",
+            skills=[mock.MagicMock()],
+        )
+        assert "security_schemes" not in basic_card
+        assert "security" not in basic_card

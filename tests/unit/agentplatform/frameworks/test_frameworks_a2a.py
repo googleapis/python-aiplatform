@@ -190,3 +190,102 @@ class TestA2aPublicCardRoutes:
             body = resp.json()
             assert body["name"] == "Test"
             assert body["skills"][0]["id"] == "hello_world"
+
+
+class TestCreateAgentCard:
+    """Tests for create_agent_card security_schemes, security, and kwargs support."""
+
+    def test_create_agent_card_with_security_and_kwargs(self):
+        """Verifies create_agent_card forwards security_schemes, security, and kwargs."""
+        # pylint: disable=g-import-not-at-top
+        from a2a import types as a2a_types
+
+        # pylint: enable=g-import-not-at-top
+        security_schemes = {
+            "bearer_auth": a2a_types.SecurityScheme(
+                http_auth_security_scheme=a2a_types.HTTPAuthSecurityScheme(
+                    scheme="Bearer",
+                    bearer_format="JWT",
+                )
+            )
+        }
+        security = [{"bearer_auth": ["read"]}]
+
+        card = create_agent_card(
+            agent_name="Secure Agent",
+            description="An agent with security schemes",
+            skills=[_TEST_SKILL],
+            security_schemes=security_schemes,
+            security=security,
+            documentation_url="https://example.com/docs",
+        )
+
+        assert card.name == "Secure Agent"
+        assert card.documentation_url == "https://example.com/docs"
+        assert "bearer_auth" in card.security_schemes
+        assert (
+            card.security_schemes[
+                "bearer_auth"
+            ].http_auth_security_scheme.scheme
+            == "Bearer"
+        )
+        assert len(card.security_requirements) == 1
+        assert list(
+            card.security_requirements[0].schemes["bearer_auth"].list
+        ) == ["read"]
+
+    def test_create_agent_card_with_security_requirement_proto(self):
+        """Verifies create_agent_card accepts SecurityRequirement, StringList, and wrapper dicts."""
+        # pylint: disable=g-import-not-at-top
+        from a2a import types as a2a_types
+
+        # pylint: enable=g-import-not-at-top
+        security = [
+            a2a_types.SecurityRequirement(
+                schemes={"bearer_auth": a2a_types.StringList(list=["read"])}
+            ),
+            {"oauth2": a2a_types.StringList(list=["write"])},
+            {"schemes": {"api_key": ["admin"]}},
+            {"schemes": ["custom_scope"]},
+        ]
+
+        card = create_agent_card(
+            agent_name="Secure Agent",
+            description="An agent with security requirements",
+            skills=[_TEST_SKILL],
+            security=security,
+        )
+
+        assert len(card.security_requirements) == 4
+        assert list(
+            card.security_requirements[0].schemes["bearer_auth"].list
+        ) == ["read"]
+        assert list(
+            card.security_requirements[1].schemes["oauth2"].list
+        ) == ["write"]
+        assert list(
+            card.security_requirements[2].schemes["api_key"].list
+        ) == ["admin"]
+        assert list(
+            card.security_requirements[3].schemes["schemes"].list
+        ) == ["custom_scope"]
+
+    def test_create_agent_card_with_v03_agent_card_fallback(self, monkeypatch):
+        """Verifies create_agent_card falls back to security key for non-proto AgentCard."""
+        # pylint: disable=g-import-not-at-top
+        import sys
+
+        # pylint: enable=g-import-not-at-top
+        mock_a2a_types = mock.MagicMock()
+        del mock_a2a_types.AgentCard.DESCRIPTOR
+        mock_a2a_types.AgentCard.side_effect = lambda **kw: kw
+        monkeypatch.setitem(sys.modules, "a2a.types", mock_a2a_types)
+
+        security = [{"oauth2": ["openid"]}]
+        card = create_agent_card(
+            agent_name="Fallback Agent",
+            description="Fallback description",
+            skills=[_TEST_SKILL],
+            security=security,
+        )
+        assert card["security"] == security

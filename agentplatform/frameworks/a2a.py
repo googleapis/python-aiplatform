@@ -111,6 +111,9 @@ def create_agent_card(
     default_input_modes: Optional[List[str]] = None,
     default_output_modes: Optional[List[str]] = None,
     streaming: bool = False,
+    security_schemes: Optional[Dict[str, Any]] = None,
+    security: Optional[List[Any]] = None,
+    **kwargs: Any,
 ) -> "AgentCard":
     """Creates an AgentCard object.
 
@@ -132,6 +135,11 @@ def create_agent_card(
           default to ["application/json"].
         streaming (bool): Whether to enable streaming for the agent. Defaults to
           False.
+        security_schemes (Optional[Dict[str, Any]]): A dictionary of security
+          schemes available to authorize requests.
+        security (Optional[List[Any]]): A list of security requirements that
+          apply to agent interactions.
+        **kwargs (Any): Additional keyword arguments forwarded to AgentCard.
 
     Returns:
         AgentCard: A fully constructed AgentCard object.
@@ -150,24 +158,58 @@ def create_agent_card(
 
     # If no dictionary, use the individual parameters.
     elif agent_name and description and skills:
-        return AgentCard(
-            name=agent_name,
-            description=description,
-            version="1.0.0",
-            default_input_modes=default_input_modes or ["text/plain"],
-            default_output_modes=default_output_modes or ["application/json"],
-            capabilities=AgentCapabilities(
+        card_kwargs: dict[str, Any] = {
+            "name": agent_name,
+            "description": description,
+            "version": "1.0.0",
+            "default_input_modes": default_input_modes or ["text/plain"],
+            "default_output_modes": default_output_modes or ["application/json"],
+            "capabilities": AgentCapabilities(
                 streaming=streaming, extended_agent_card=True
             ),
-            skills=skills,
-            supported_interfaces=[
+            "skills": skills,
+            "supported_interfaces": [
                 AgentInterface(
                     url="http://localhost:9999/",
                     protocol_binding=TransportProtocol.HTTP_JSON,
                     protocol_version=PROTOCOL_VERSION_CURRENT,
                 )
             ],
-        )
+        }
+        if security_schemes is not None:
+            card_kwargs["security_schemes"] = security_schemes
+        if security is not None:
+            descriptor = getattr(AgentCard, "DESCRIPTOR", None)
+            fields = getattr(descriptor, "fields_by_name", ())
+            if "security_requirements" in fields:
+                from a2a.types import SecurityRequirement
+                from a2a.types import StringList
+
+                security_requirements = []
+                for req in security:
+                    if isinstance(req, Mapping):
+                        schemes = req.get("schemes")
+                        if len(req) != 1 or not isinstance(schemes, Mapping):
+                            schemes = req
+                        security_requirements.append(
+                            SecurityRequirement(
+                                schemes={
+                                    k: (
+                                        StringList(list=v)
+                                        if isinstance(v, (list, tuple))
+                                        else v
+                                    )
+                                    for k, v in schemes.items()
+                                }
+                            )
+                        )
+                    else:
+                        security_requirements.append(req)
+                card_kwargs["security_requirements"] = security_requirements
+            else:
+                card_kwargs["security"] = security
+        card_kwargs.update(kwargs)
+        return AgentCard(**card_kwargs)
 
     # Raise an error if insufficient data is provided.
     else:
