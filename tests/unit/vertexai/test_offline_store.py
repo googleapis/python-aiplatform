@@ -293,6 +293,7 @@ def create_mock_feature(
 def expected_sql_for_one_feature(
     feature_name: str,
     bq_column_name: str,
+    bq_table: str = "my.table",
 ):
     return f"""WITH
   entity_df_without_row_num AS (
@@ -311,7 +312,7 @@ def expected_sql_for_one_feature(
       customer_id,
       {bq_column_name} AS {feature_name},
       feature_timestamp
-    FROM my.table
+    FROM `{bq_table}`
   ),
 
   # Features with PITL
@@ -340,10 +341,16 @@ JOIN fake__my_feature_pitl USING (row_num)
 
 
 @pytest.mark.parametrize(
-    "feature_name, bq_column_name",
+    "feature_name, bq_column_name, bq_uri, bq_table",
     [
-        ("my_feature", "my_feature"),
-        ("my_feature", "bq_col_name"),
+        ("my_feature", "my_feature", "bq://my.table", "my.table"),
+        ("my_feature", "bq_col_name", "bq://my.table", "my.table"),
+        (
+            "my_feature",
+            "my_feature",
+            "bq://my-proj-5bb0.dataset.table",
+            "my-proj-5bb0.dataset.table",
+        ),
     ],
 )
 def test_one_feature_same_and_different_bq_col_name(
@@ -371,7 +378,7 @@ def test_one_feature_same_and_different_bq_col_name(
     mock_session.return_value.read_gbq_query.return_value = "SOME SQL QUERY OUTPUT"
 
     mock_fg.return_value = create_mock_fg(
-        name="fake", entity_id_cols=["customer_id"], bq_uri="bq://my.table"
+        name="fake", entity_id_cols=["customer_id"], bq_uri=bq_uri
     )
     mock_feature = mock.MagicMock()
     mock_feature.return_value = create_mock_feature(
@@ -388,7 +395,7 @@ def test_one_feature_same_and_different_bq_col_name(
         bigframes.BigQueryOptions(project=None, location=None),
     )
     mock_session.return_value.read_gbq_query.assert_called_once_with(
-        expected_sql_for_one_feature(feature_name, bq_column_name),
+        expected_sql_for_one_feature(feature_name, bq_column_name, bq_table),
         index_col=bigframes.enums.DefaultIndexKind.NULL,
     )
 

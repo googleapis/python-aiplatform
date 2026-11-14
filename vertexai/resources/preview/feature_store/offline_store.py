@@ -127,7 +127,7 @@ def _feature_to_data_source(
         f'  {", ".join(entity_id_columns)},\n'
         f"  {gbq_column} AS {column_name},\n"
         f"  {timestamp_column}\n"
-        f"FROM {fully_qualified_table}"
+        f"FROM `{fully_qualified_table}`"
     )
 
     return impl.DataSource(
