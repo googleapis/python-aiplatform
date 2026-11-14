@@ -14741,3 +14741,65 @@ class TestImportEvaluationSet:
                 gcs_source=gcs_source,
                 cloud_trace_source=cloud_trace_source,
             )
+
+
+class TestGetEvaluationSet:
+
+    def setup_method(self, method):
+        self.mock_api_client = mock.MagicMock()
+        self.mock_api_client.vertexai = True
+        self.mock_response = mock.MagicMock()
+        self.mock_api_client.request.return_value = self.mock_response
+
+    def test_get_evaluation_set_parses_harbor_dataset(self):
+        self.mock_response.body = json.dumps(
+            {
+                "name": "projects/123/locations/us-central1/evaluationSets/456",
+                "harborDataset": {"gcsUri": "gs://bucket/dataset"},
+            }
+        )
+        evals_module = evals.Evals(api_client_=self.mock_api_client)
+
+        evaluation_set = evals_module.get_evaluation_set(
+            name="projects/123/locations/us-central1/evaluationSets/456"
+        )
+
+        assert evaluation_set.harbor_dataset == (
+            agentplatform_genai_types.HarborDataset(gcs_uri="gs://bucket/dataset")
+        )
+
+
+class TestGetEvaluationItem:
+
+    def setup_method(self, method):
+        self.mock_api_client = mock.MagicMock()
+        self.mock_api_client.vertexai = True
+        self.mock_response = mock.MagicMock()
+        self.mock_api_client.request.return_value = self.mock_response
+
+    def test_get_evaluation_item_parses_harbor_task(self):
+        self.mock_response.body = json.dumps(
+            {
+                "name": "projects/123/locations/us-central1/evaluationItems/789",
+                "evaluationItemType": "HARBOR_TASK",
+                "harborTask": {
+                    "dataset": "my-org/my-dataset",
+                    "task": "task-1",
+                    "gcsUri": "gs://bucket/dataset/task-1",
+                },
+            }
+        )
+        evals_module = evals.Evals(api_client_=self.mock_api_client)
+
+        evaluation_item = evals_module.get_evaluation_item(
+            name="projects/123/locations/us-central1/evaluationItems/789"
+        )
+
+        assert evaluation_item.evaluation_item_type == (
+            agentplatform_genai_types.EvaluationItemType.HARBOR_TASK
+        )
+        assert evaluation_item.harbor_task == agentplatform_genai_types.HarborTask(
+            dataset="my-org/my-dataset",
+            task="task-1",
+            gcs_uri="gs://bucket/dataset/task-1",
+        )
