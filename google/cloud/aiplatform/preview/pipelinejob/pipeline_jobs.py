@@ -438,6 +438,8 @@ class _PipelineJob(
         reserved_ip_ranges: Optional[List[str]] = None,
         create_request_timeout: Optional[float] = None,
         job_id: Optional[str] = None,
+        *,
+        enable_preflight_validations: Optional[bool] = False,
     ) -> None:
         """Run this configured PipelineJob.
 
@@ -464,6 +466,8 @@ class _PipelineJob(
                 Optional. The ID to use for the PipelineJob, which will become the final
                 component of the PipelineJob name. If not provided, an ID will be
                 automatically generated.
+            enable_preflight_validations (bool):
+                Optional. Whether to enable preflight validations for the PipelineJob.
         """
         network = network or initializer.global_config.network
         service_account = service_account or initializer.global_config.service_account
@@ -474,6 +478,9 @@ class _PipelineJob(
 
         if network:
             gca_resouce.network = network
+
+        if enable_preflight_validations:
+            gca_resouce.preflight_validations = True
 
         if reserved_ip_ranges:
             gca_resouce.reserved_ip_ranges = reserved_ip_ranges
