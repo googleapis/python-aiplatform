@@ -100,7 +100,7 @@ class Execution(resource._Resource):
         metadata_store_id: str = "default",
         project: Optional[str] = None,
         location: Optional[str] = None,
-        credentials=Optional[auth_credentials.Credentials],
+        credentials: Optional[auth_credentials.Credentials] = None,
     ) -> "Execution":
         """
         Creates a new Metadata Execution.
@@ -149,6 +149,11 @@ class Execution(resource._Resource):
                 "aiplatform.metadata.execution.Execution.create"
             )
 
+        if metadata_store_id == "default":
+            metadata_store._MetadataStore.ensure_default_metadata_store_exists(
+                project=project, location=location, credentials=credentials
+            )
+
         return cls._create(
             resource_id=resource_id,
             schema_title=schema_title,
@@ -178,7 +183,7 @@ class Execution(resource._Resource):
         metadata_store_id: str = "default",
         project: Optional[str] = None,
         location: Optional[str] = None,
-        credentials=Optional[auth_credentials.Credentials],
+        credentials: Optional[auth_credentials.Credentials] = None,
     ) -> "Execution":
         """
         Creates a new Metadata Execution.
