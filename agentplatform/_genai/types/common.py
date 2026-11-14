@@ -810,6 +810,130 @@ class SkillRevisionState(_common.CaseInSensitiveEnum):
     """The Skill Revision is being deleted."""
 
 
+class AiGeneratedLikelihood(_common.CaseInSensitiveEnum):
+    """Categorical likelihood that the content was generated or modified by AI."""
+
+    AI_GENERATED_LIKELIHOOD_UNSPECIFIED = "AI_GENERATED_LIKELIHOOD_UNSPECIFIED"
+    """Default unspecified likelihood."""
+    VERY_LOW = "VERY_LOW"
+    """Very low likelihood that the content is AI-generated or AI-modified."""
+    LOW = "LOW"
+    """Low likelihood that the content is AI-generated or AI-modified."""
+    MEDIUM = "MEDIUM"
+    """Medium likelihood that the content is AI-generated or AI-modified."""
+    HIGH = "HIGH"
+    """High likelihood that the content is AI-generated or AI-modified."""
+    VERY_HIGH = "VERY_HIGH"
+    """Very high likelihood that the content is AI-generated or AI-modified."""
+
+
+class C2paResultOutcome(_common.CaseInSensitiveEnum):
+    """Outcome of C2PA Content Credentials verification."""
+
+    OUTCOME_UNSPECIFIED = "OUTCOME_UNSPECIFIED"
+    """Default unspecified outcome."""
+    VALID_MANIFEST = "VALID_MANIFEST"
+    """Valid C2PA Content Credentials manifest detected and verified."""
+    NOT_DETECTED = "NOT_DETECTED"
+    """No C2PA Content Credentials manifest found in the media."""
+    INVALID_MANIFEST = "INVALID_MANIFEST"
+    """C2PA manifest was found but failed cryptographic or structural validation."""
+    UNSUPPORTED_FORMAT = "UNSUPPORTED_FORMAT"
+    """Media format is not supported for C2PA extraction."""
+
+
+class C2paResultManifestCreationType(_common.CaseInSensitiveEnum):
+    """IPTC Digital Source Type creation classification recorded in the C2PA manifest."""
+
+    CREATION_TYPE_UNSPECIFIED = "CREATION_TYPE_UNSPECIFIED"
+    """Default unspecified creation type."""
+    MEDIA_OF_UNKNOWN_PROVENANCE = "MEDIA_OF_UNKNOWN_PROVENANCE"
+    """Media of unknown provenance."""
+    BLANK_FILE = "BLANK_FILE"
+    """Blank file."""
+    REAL_LIFE_CAPTURE = "REAL_LIFE_CAPTURE"
+    """Real-life capture (e.g., camera or microphone)."""
+    REAL_LIFE_CAPTURE_WITH_IN_LINE_NON_GENAI_ENHANCEMENTS = (
+        "REAL_LIFE_CAPTURE_WITH_IN_LINE_NON_GENAI_ENHANCEMENTS"
+    )
+    """Real-life capture with in-line non-GenAI enhancements."""
+    REAL_LIFE_STITCHED_CAPTURE = "REAL_LIFE_STITCHED_CAPTURE"
+    """Real-life stitched capture (e.g., panorama)."""
+    PARTLY_GENAI_CREATION = "PARTLY_GENAI_CREATION"
+    """Partly GenAI creation."""
+    FULLY_GENAI_CREATION = "FULLY_GENAI_CREATION"
+    """Fully GenAI creation."""
+    NON_GENAI_DIGITAL_CREATION = "NON_GENAI_DIGITAL_CREATION"
+    """Non-GenAI digital creation."""
+    COMPOSITION_WHICH_MAY_CONTAIN_GENAI_CONTENT = (
+        "COMPOSITION_WHICH_MAY_CONTAIN_GENAI_CONTENT"
+    )
+    """Composition which may contain GenAI content."""
+    DIGITAL_ART_WHICH_MAY_CONTAIN_GENAI_CONTENT = (
+        "DIGITAL_ART_WHICH_MAY_CONTAIN_GENAI_CONTENT"
+    )
+    """Digital art which may contain GenAI content."""
+    SCREEN_CAPTURE_WHICH_MAY_CONTAIN_GENAI_CONTENT = (
+        "SCREEN_CAPTURE_WHICH_MAY_CONTAIN_GENAI_CONTENT"
+    )
+    """Screen capture which may contain GenAI content."""
+
+
+class C2paResultManifestAction(_common.CaseInSensitiveEnum):
+    """C2PA edit action recorded in the manifest history."""
+
+    ACTION_UNSPECIFIED = "ACTION_UNSPECIFIED"
+    """Default unspecified action."""
+    ADJUSTED_COLOR_USING_GENAI_TOOLS = "ADJUSTED_COLOR_USING_GENAI_TOOLS"
+    """Adjusted color using GenAI tools."""
+    ADJUSTED_COLOR_USING_NON_GENAI_TOOLS = "ADJUSTED_COLOR_USING_NON_GENAI_TOOLS"
+    """Adjusted color using non-GenAI tools."""
+    ADJUSTED_COLOR_USING_TOOLS_POSSIBLY_POWERED_BY_GENAI = (
+        "ADJUSTED_COLOR_USING_TOOLS_POSSIBLY_POWERED_BY_GENAI"
+    )
+    """Adjusted color using tools possibly powered by GenAI."""
+    CHANGED_ORIENTATION = "CHANGED_ORIENTATION"
+    """Changed orientation."""
+    CROPPED_USING_GENAI_TOOLS = "CROPPED_USING_GENAI_TOOLS"
+    """Cropped using GenAI tools."""
+    CROPPED_USING_NON_GENAI_TOOLS = "CROPPED_USING_NON_GENAI_TOOLS"
+    """Cropped using non-GenAI tools."""
+    CROPPED_USING_TOOLS_POSSIBLY_POWERED_BY_GENAI = (
+        "CROPPED_USING_TOOLS_POSSIBLY_POWERED_BY_GENAI"
+    )
+    """Cropped using tools possibly powered by GenAI."""
+    DELETED_CONTENT_USING_GENAI_TOOLS = "DELETED_CONTENT_USING_GENAI_TOOLS"
+    """Deleted content using GenAI tools."""
+    DELETED_CONTENT_USING_NON_GENAI_TOOLS = "DELETED_CONTENT_USING_NON_GENAI_TOOLS"
+    """Deleted content using non-GenAI tools."""
+    DELETED_CONTENT_USING_TOOLS_POSSIBLY_POWERED_BY_GENAI = (
+        "DELETED_CONTENT_USING_TOOLS_POSSIBLY_POWERED_BY_GENAI"
+    )
+    """Deleted content using tools possibly powered by GenAI."""
+    EDITED_USING_GENAI_TOOLS = "EDITED_USING_GENAI_TOOLS"
+    """Edited using GenAI tools."""
+    EDITED_USING_NON_GENAI_TOOLS = "EDITED_USING_NON_GENAI_TOOLS"
+    """Edited using non-GenAI tools."""
+    EDITED_USING_TOOLS_POSSIBLY_POWERED_BY_GENAI = (
+        "EDITED_USING_TOOLS_POSSIBLY_POWERED_BY_GENAI"
+    )
+    """Edited using tools possibly powered by GenAI."""
+    EDITED_METADATA = "EDITED_METADATA"
+    """Edited metadata."""
+    ENHANCED_WITHOUT_CHANGING_CONTENT = "ENHANCED_WITHOUT_CHANGING_CONTENT"
+    """Enhanced without changing content."""
+    STYLIZED_USING_GENAI_FILTERS = "STYLIZED_USING_GENAI_FILTERS"
+    """Stylized using GenAI filters."""
+    STYLIZED_USING_NON_GENAI_FILTERS = "STYLIZED_USING_NON_GENAI_FILTERS"
+    """Stylized using non-GenAI filters."""
+    STYLIZED_USING_FILTERS_POSSIBLY_POWERED_BY_GENAI = (
+        "STYLIZED_USING_FILTERS_POSSIBLY_POWERED_BY_GENAI"
+    )
+    """Stylized using filters possibly powered by GenAI."""
+    REMOVED_SENSITIVE_METADATA = "REMOVED_SENSITIVE_METADATA"
+    """Removed sensitive metadata."""
+
+
 class PromptOptimizerMethod(_common.CaseInSensitiveEnum):
     """The method for data driven prompt optimization."""
 
@@ -31100,6 +31224,190 @@ class _GetServingProfileOperationParametersDict(TypedDict, total=False):
 _GetServingProfileOperationParametersOrDict = Union[
     _GetServingProfileOperationParameters, _GetServingProfileOperationParametersDict
 ]
+
+
+class DetectContentConfig(_common.BaseModel):
+    """Config for detecting AI-generated content."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class DetectContentConfigDict(TypedDict, total=False):
+    """Config for detecting AI-generated content."""
+
+    http_options: Optional[genai_types.HttpOptions]
+    """Used to override HTTP request options."""
+
+
+DetectContentConfigOrDict = Union[DetectContentConfig, DetectContentConfigDict]
+
+
+class _DetectContentParameters(_common.BaseModel):
+    """Parameters for the detect_content method."""
+
+    model: Optional[str] = Field(
+        default=None,
+        description="""The name of the publisher model requested to serve the prediction.
+      Format: ``ai-content-detection``,
+      ``ai-content-detection@{version}``,
+      ``publishers/google/models/ai-content-detection``, or
+      ``projects/{project}/locations/{location}/publishers/{publisher}/models/{model}``.""",
+    )
+    content: Optional[genai_types.ContentUnion] = Field(
+        default=None,
+        description="""Required. The image to analyze. Must contain exactly one
+      ``inline_data`` part with ``mime_type`` ``image/jpeg``, ``image/png``,
+      or ``image/webp``, at most 20 MiB.""",
+    )
+    config: Optional[DetectContentConfig] = Field(
+        default=None, description="""Configuration that contains optional parameters."""
+    )
+
+
+class _DetectContentParametersDict(TypedDict, total=False):
+    """Parameters for the detect_content method."""
+
+    model: Optional[str]
+    """The name of the publisher model requested to serve the prediction.
+      Format: ``ai-content-detection``,
+      ``ai-content-detection@{version}``,
+      ``publishers/google/models/ai-content-detection``, or
+      ``projects/{project}/locations/{location}/publishers/{publisher}/models/{model}``."""
+
+    content: Optional[genai_types.ContentUnionDict]
+    """Required. The image to analyze. Must contain exactly one
+      ``inline_data`` part with ``mime_type`` ``image/jpeg``, ``image/png``,
+      or ``image/webp``, at most 20 MiB."""
+
+    config: Optional[DetectContentConfigDict]
+    """Configuration that contains optional parameters."""
+
+
+_DetectContentParametersOrDict = Union[
+    _DetectContentParameters, _DetectContentParametersDict
+]
+
+
+class C2paResultManifest(_common.BaseModel):
+    """Verified C2PA manifest metadata extracted from the media."""
+
+    creation_types: Optional[list[C2paResultManifestCreationType]] = Field(
+        default=None,
+        description="""Output only. Creation types asserted in the C2PA manifest.""",
+    )
+    actions: Optional[list[C2paResultManifestAction]] = Field(
+        default=None,
+        description="""Output only. Actions recorded in the C2PA manifest.""",
+    )
+    signer_organization: Optional[str] = Field(
+        default=None,
+        description="""Output only. Organization of the entity that signed the C2PA manifest.""",
+    )
+    signer_common_name: Optional[str] = Field(
+        default=None,
+        description="""Output only. Common name of the certificate that signed the C2PA manifest.""",
+    )
+    claim_generator: Optional[str] = Field(
+        default=None,
+        description="""Output only. Claim generator software or hardware recorded in the C2PA manifest.""",
+    )
+    sign_time: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Output only. Timestamp when the C2PA manifest was signed.""",
+    )
+
+
+class C2paResultManifestDict(TypedDict, total=False):
+    """Verified C2PA manifest metadata extracted from the media."""
+
+    creation_types: Optional[list[C2paResultManifestCreationType]]
+    """Output only. Creation types asserted in the C2PA manifest."""
+
+    actions: Optional[list[C2paResultManifestAction]]
+    """Output only. Actions recorded in the C2PA manifest."""
+
+    signer_organization: Optional[str]
+    """Output only. Organization of the entity that signed the C2PA manifest."""
+
+    signer_common_name: Optional[str]
+    """Output only. Common name of the certificate that signed the C2PA manifest."""
+
+    claim_generator: Optional[str]
+    """Output only. Claim generator software or hardware recorded in the C2PA manifest."""
+
+    sign_time: Optional[datetime.datetime]
+    """Output only. Timestamp when the C2PA manifest was signed."""
+
+
+C2paResultManifestOrDict = Union[C2paResultManifest, C2paResultManifestDict]
+
+
+class C2paResult(_common.BaseModel):
+    """C2PA Content Credentials verification result for a media part."""
+
+    outcome: Optional[C2paResultOutcome] = Field(
+        default=None,
+        description="""Output only. Verification outcome for C2PA Content Credentials.""",
+    )
+    manifest: Optional[C2paResultManifest] = Field(
+        default=None,
+        description="""Output only. Verified C2PA manifest details, populated when outcome is VALID_MANIFEST.""",
+    )
+
+
+class C2paResultDict(TypedDict, total=False):
+    """C2PA Content Credentials verification result for a media part."""
+
+    outcome: Optional[C2paResultOutcome]
+    """Output only. Verification outcome for C2PA Content Credentials."""
+
+    manifest: Optional[C2paResultManifestDict]
+    """Output only. Verified C2PA manifest details, populated when outcome is VALID_MANIFEST."""
+
+
+C2paResultOrDict = Union[C2paResult, C2paResultDict]
+
+
+class DetectContentResponse(_common.BaseModel):
+    """Response message for PredictionService.DetectContent."""
+
+    ai_generated_likelihood: Optional[AiGeneratedLikelihood] = Field(
+        default=None,
+        description="""Output only. Categorical likelihood that the content was generated or modified by AI.""",
+    )
+    c2pa: Optional[list[C2paResult]] = Field(
+        default=None,
+        description="""Output only. C2PA Content Credentials verification results.""",
+    )
+    response_id: Optional[str] = Field(
+        default=None,
+        description="""Output only. Unique identifier for the detection response.""",
+    )
+    model_version: Optional[str] = Field(
+        default=None,
+        description="""Output only. Version of the detection pipeline that produced the verdict (for example, ``ai-content-detection@001``).""",
+    )
+
+
+class DetectContentResponseDict(TypedDict, total=False):
+    """Response message for PredictionService.DetectContent."""
+
+    ai_generated_likelihood: Optional[AiGeneratedLikelihood]
+    """Output only. Categorical likelihood that the content was generated or modified by AI."""
+
+    c2pa: Optional[list[C2paResultDict]]
+    """Output only. C2PA Content Credentials verification results."""
+
+    response_id: Optional[str]
+    """Output only. Unique identifier for the detection response."""
+
+    model_version: Optional[str]
+    """Output only. Version of the detection pipeline that produced the verdict (for example, ``ai-content-detection@001``)."""
+
+
+DetectContentResponseOrDict = Union[DetectContentResponse, DetectContentResponseDict]
 
 
 class PromptOptimizerConfig(_common.BaseModel):
