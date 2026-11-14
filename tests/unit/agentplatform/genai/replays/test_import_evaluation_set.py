@@ -21,6 +21,12 @@ import pytest
 
 
 _GCS_OUTPUT_PREFIX = "gs://agent-eval-datasets/eval-import-replay/output/"
+# The Harbor tests are recorded against autopush, which serves the Harbor import.
+_AUTOPUSH_BASE_URL = "https://us-central1-autopush-aiplatform.sandbox.googleapis.com/"
+_HARBOR_DATASET_GCS_URI = (
+    "gs://agent-eval-fishfood/harbor-swebench-verified-mini/import/"
+    "swebench-verified-mini"
+)
 
 
 def test_import_eval_set(client):
@@ -38,6 +44,55 @@ def test_import_eval_set(client):
     assert isinstance(operation, types.ImportEvaluationSetOperation)
     assert operation.name is not None
     assert "/operations/" in operation.name
+
+
+def test_import_eval_set_from_harbor_dataset(client):
+    """Tests import_evaluation_set(wait=True) from a Harbor dataset."""
+    client._api_client._http_options.base_url = _AUTOPUSH_BASE_URL
+
+    operation = client.evals.import_evaluation_set(
+        evaluation_set=types.EvaluationSet(display_name="replay-test-harbor-set"),
+        harbor_dataset=types.HarborDataset(gcs_uri=_HARBOR_DATASET_GCS_URI),
+        wait=True,
+    )
+    evaluation_set = client.evals.get_evaluation_set(
+        name=operation.response.evaluation_set
+    )
+
+    assert isinstance(operation, types.ImportEvaluationSetOperation)
+    assert operation.done
+    assert "/evaluationSets/" in evaluation_set.name
+    assert evaluation_set.display_name == "replay-test-harbor-set"
+    assert evaluation_set.harbor_dataset.gcs_uri == _HARBOR_DATASET_GCS_URI
+
+
+def test_import_eval_set_overwrite_harbor_dataset(client):
+    """Tests import_evaluation_set() with ImportMode.OVERWRITE."""
+    client._api_client._http_options.base_url = _AUTOPUSH_BASE_URL
+    harbor_dataset = types.HarborDataset(gcs_uri=_HARBOR_DATASET_GCS_URI)
+    operation = client.evals.import_evaluation_set(
+        evaluation_set=types.EvaluationSet(
+            display_name="replay-test-harbor-overwrite-set"
+        ),
+        harbor_dataset=harbor_dataset,
+        wait=True,
+    )
+    evaluation_set = client.evals.get_evaluation_set(
+        name=operation.response.evaluation_set
+    )
+
+    overwrite_operation = client.evals.import_evaluation_set(
+        evaluation_set=types.EvaluationSet(name=evaluation_set.name),
+        harbor_dataset=harbor_dataset,
+        import_mode=types.ImportMode.OVERWRITE,
+        wait=True,
+    )
+    overwritten_set = client.evals.get_evaluation_set(
+        name=overwrite_operation.response.evaluation_set
+    )
+
+    assert overwrite_operation.response.evaluation_set == evaluation_set.name
+    assert overwritten_set.harbor_dataset.gcs_uri == _HARBOR_DATASET_GCS_URI
 
 
 pytest_plugins = ("pytest_asyncio",)
@@ -59,6 +114,27 @@ async def test_import_eval_set_async(client):
     assert isinstance(operation, types.ImportEvaluationSetOperation)
     assert operation.name is not None
     assert "/operations/" in operation.name
+
+
+@pytest.mark.asyncio
+async def test_import_eval_set_from_harbor_dataset_async(client):
+    """Tests import_evaluation_set(wait=True) on the async client."""
+    client._api_client._http_options.base_url = _AUTOPUSH_BASE_URL
+
+    operation = await client.aio.evals.import_evaluation_set(
+        evaluation_set=types.EvaluationSet(display_name="replay-test-harbor-set"),
+        harbor_dataset=types.HarborDataset(gcs_uri=_HARBOR_DATASET_GCS_URI),
+        wait=True,
+    )
+    evaluation_set = await client.aio.evals.get_evaluation_set(
+        name=operation.response.evaluation_set
+    )
+
+    assert isinstance(operation, types.ImportEvaluationSetOperation)
+    assert operation.done
+    assert "/evaluationSets/" in evaluation_set.name
+    assert evaluation_set.display_name == "replay-test-harbor-set"
+    assert evaluation_set.harbor_dataset.gcs_uri == _HARBOR_DATASET_GCS_URI
 
 
 pytestmark = pytest_helper.setup(

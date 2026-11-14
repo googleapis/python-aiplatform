@@ -64,12 +64,30 @@ import pytest
 
 _TEST_PROJECT = "test-project"
 _TEST_LOCATION = "us-central1"
+_IMPORT_OPERATION_NAME = "projects/123/locations/us-central1/operations/789"
+_IMPORTED_EVALUATION_SET_NAME = "projects/123/locations/us-central1/evaluationSets/456"
+_DONE_IMPORT_OPERATION = {
+    "name": _IMPORT_OPERATION_NAME,
+    "done": True,
+    "response": {
+        "@type": (
+            "type.googleapis.com/google.cloud.aiplatform.v1beta1"
+            ".ImportEvaluationSetResponse"
+        ),
+        "evaluationSet": _IMPORTED_EVALUATION_SET_NAME,
+    },
+}
 
 
 _evals_common = _genai.evals._evals_common
 _evals_utils = _genai._evals_utils
 
 pytestmark = pytest.mark.usefixtures("google_auth_mock")
+
+
+def _http_responses(*bodies: dict[str, object]) -> list[mock.MagicMock]:
+    """Returns mock HTTP responses with the given JSON bodies, in order."""
+    return [mock.MagicMock(body=json.dumps(body)) for body in bodies]
 
 
 class TestDropEmptyColumns:
@@ -14612,6 +14630,17 @@ class TestImportEvaluationSet:
         self.mock_response.body = json.dumps({"name": "operations/123"})
         self.mock_api_client.request.return_value = self.mock_response
 
+    def _import_from_harbor_dataset(self, evals_module, **kwargs):
+        return evals_module.import_evaluation_set(
+            evaluation_set=agentplatform_genai_types.EvaluationSet(
+                display_name="harbor_set"
+            ),
+            harbor_dataset=agentplatform_genai_types.HarborDataset(
+                gcs_uri="gs://bucket/dataset"
+            ),
+            **kwargs,
+        )
+
     def _import(self, evals_module):
         return evals_module.import_evaluation_set(
             evaluation_set=agentplatform_genai_types.EvaluationSet(
@@ -14741,3 +14770,308 @@ class TestImportEvaluationSet:
                 gcs_source=gcs_source,
                 cloud_trace_source=cloud_trace_source,
             )
+
+    def test_import_evaluation_set_sends_harbor_dataset_without_gcs_destination(
+        self,
+    ):
+        evals_module = evals.Evals(api_client_=self.mock_api_client)
+
+        self._import_from_harbor_dataset(evals_module)
+
+        request_body = self.mock_api_client.request.call_args[0][2]
+        assert request_body["harborDataset"] == {"gcs_uri": "gs://bucket/dataset"}
+        assert "gcsDestination" not in request_body
+
+    def test_import_evaluation_set_sends_import_mode_and_target_name(self):
+        evals_module = evals.Evals(api_client_=self.mock_api_client)
+
+        evals_module.import_evaluation_set(
+            evaluation_set=agentplatform_genai_types.EvaluationSet(
+                name=_IMPORTED_EVALUATION_SET_NAME
+            ),
+            harbor_dataset=agentplatform_genai_types.HarborDataset(
+                gcs_uri="gs://bucket/dataset"
+            ),
+            import_mode=agentplatform_genai_types.ImportMode.OVERWRITE,
+        )
+
+        request_body = self.mock_api_client.request.call_args[0][2]
+        assert request_body["importMode"] == "OVERWRITE"
+        assert request_body["evaluationSet"] == {"name": _IMPORTED_EVALUATION_SET_NAME}
+
+    def test_import_evaluation_set_rejects_gcs_destination_with_harbor_dataset(self):
+        evals_module = evals.Evals(api_client_=self.mock_api_client)
+
+        with pytest.raises(ValueError, match="gcs_destination must not be set"):
+            self._import_from_harbor_dataset(
+                evals_module,
+                gcs_destination=genai_types.GcsDestination(
+                    output_uri_prefix="gs://bucket/output/"
+                ),
+            )
+
+        self.mock_api_client.request.assert_not_called()
+
+    def test_import_evaluation_set_requires_gcs_destination_without_harbor_dataset(
+        self,
+    ):
+        evals_module = evals.Evals(api_client_=self.mock_api_client)
+
+        with pytest.raises(ValueError, match="gcs_destination is required"):
+            evals_module.import_evaluation_set(
+                evaluation_set=agentplatform_genai_types.EvaluationSet(
+                    display_name="imported_set"
+                ),
+                cloud_trace_source=agentplatform_genai_types.EvaluationSetCloudTraceSource(
+                    project_id="test-project"
+                ),
+            )
+
+        self.mock_api_client.request.assert_not_called()
+
+    def test_import_evaluation_set_rejects_harbor_dataset_with_another_source(self):
+        evals_module = evals.Evals(api_client_=self.mock_api_client)
+
+        with pytest.raises(ValueError, match="Exactly one of"):
+            self._import_from_harbor_dataset(
+                evals_module,
+                cloud_trace_source=agentplatform_genai_types.EvaluationSetCloudTraceSource(
+                    project_id="test-project"
+                ),
+            )
+
+        self.mock_api_client.request.assert_not_called()
+
+    def test_import_evaluation_set_wait_returns_completed_operation(self):
+        self.mock_api_client.request.side_effect = _http_responses(
+            {"name": _IMPORT_OPERATION_NAME},
+            _DONE_IMPORT_OPERATION,
+        )
+        evals_module = evals.Evals(api_client_=self.mock_api_client)
+
+        operation = self._import_from_harbor_dataset(evals_module, wait=True)
+
+        assert isinstance(
+            operation, agentplatform_genai_types.ImportEvaluationSetOperation
+        )
+        assert operation.done
+        assert operation.response.evaluation_set == _IMPORTED_EVALUATION_SET_NAME
+
+    def test_import_evaluation_set_wait_does_not_get_evaluation_set(self):
+        self.mock_api_client.request.side_effect = _http_responses(
+            {"name": _IMPORT_OPERATION_NAME},
+            _DONE_IMPORT_OPERATION,
+        )
+        evals_module = evals.Evals(api_client_=self.mock_api_client)
+
+        self._import_from_harbor_dataset(evals_module, wait=True)
+
+        requests = [
+            call.args[:2] for call in self.mock_api_client.request.call_args_list
+        ]
+        assert requests == [
+            ("post", "evaluationSets:import"),
+            ("get", _IMPORT_OPERATION_NAME),
+        ]
+
+    @mock.patch("time.sleep", return_value=None)
+    def test_import_evaluation_set_wait_polls_until_operation_is_done(self, mock_sleep):
+        self.mock_api_client.request.side_effect = _http_responses(
+            {"name": _IMPORT_OPERATION_NAME},
+            {"name": _IMPORT_OPERATION_NAME},
+            _DONE_IMPORT_OPERATION,
+        )
+        evals_module = evals.Evals(api_client_=self.mock_api_client)
+
+        operation = self._import_from_harbor_dataset(evals_module, wait=True)
+
+        assert operation.done
+        mock_sleep.assert_called_once_with(5)
+
+    def test_import_evaluation_set_wait_raises_when_operation_fails(self):
+        self.mock_api_client.request.side_effect = _http_responses(
+            {"name": _IMPORT_OPERATION_NAME},
+            {
+                "name": _IMPORT_OPERATION_NAME,
+                "done": True,
+                "error": {"code": 3, "message": "dataset.toml was not found"},
+            },
+        )
+        evals_module = evals.Evals(api_client_=self.mock_api_client)
+
+        with pytest.raises(
+            RuntimeError, match=r"operations/789 failed: .*dataset\.toml was not found"
+        ):
+            self._import_from_harbor_dataset(evals_module, wait=True)
+
+    def test_import_evaluation_set_wait_raises_without_evaluation_set(self):
+        self.mock_api_client.request.side_effect = _http_responses(
+            {"name": _IMPORT_OPERATION_NAME},
+            {"name": _IMPORT_OPERATION_NAME, "done": True},
+        )
+        evals_module = evals.Evals(api_client_=self.mock_api_client)
+
+        with pytest.raises(RuntimeError, match="returned no evaluation set"):
+            self._import_from_harbor_dataset(evals_module, wait=True)
+
+    def test_import_evaluation_set_wait_logs_failed_items(self, caplog):
+        self.mock_api_client.request.side_effect = _http_responses(
+            {"name": _IMPORT_OPERATION_NAME},
+            {
+                "name": _IMPORT_OPERATION_NAME,
+                "done": True,
+                "metadata": {
+                    "importedItemCount": "1",
+                    "failedItemCount": "1",
+                    "partialFailures": [
+                        {"code": 3, "message": "task-2 has no task.toml"}
+                    ],
+                },
+                "response": {"evaluationSet": _IMPORTED_EVALUATION_SET_NAME},
+            },
+        )
+        evals_module = evals.Evals(api_client_=self.mock_api_client)
+
+        with caplog.at_level("WARNING", logger=evals.logger.name):
+            self._import_from_harbor_dataset(evals_module, wait=True)
+
+        assert "Failed to import 1 item(s)" in caplog.text
+        assert "task-2 has no task.toml" in caplog.text
+
+
+class TestAsyncImportEvaluationSet:
+
+    def setup_method(self, method):
+        self.mock_api_client = mock.MagicMock()
+        self.mock_api_client.vertexai = True
+        self.mock_api_client.async_request = mock.AsyncMock()
+
+    @pytest.mark.asyncio
+    async def test_async_import_evaluation_set_sends_harbor_dataset_and_import_mode(
+        self,
+    ):
+        self.mock_api_client.async_request.side_effect = _http_responses(
+            {"name": _IMPORT_OPERATION_NAME}
+        )
+        async_evals_module = evals.AsyncEvals(api_client_=self.mock_api_client)
+
+        await async_evals_module.import_evaluation_set(
+            evaluation_set=agentplatform_genai_types.EvaluationSet(
+                name=_IMPORTED_EVALUATION_SET_NAME
+            ),
+            harbor_dataset=agentplatform_genai_types.HarborDataset(
+                gcs_uri="gs://bucket/dataset"
+            ),
+            import_mode=agentplatform_genai_types.ImportMode.OVERWRITE,
+        )
+
+        request_body = self.mock_api_client.async_request.call_args[0][2]
+        assert request_body["harborDataset"] == {"gcs_uri": "gs://bucket/dataset"}
+        assert request_body["importMode"] == "OVERWRITE"
+
+    @pytest.mark.asyncio
+    async def test_async_import_evaluation_set_wait_returns_completed_operation(
+        self,
+    ):
+        self.mock_api_client.async_request.side_effect = _http_responses(
+            {"name": _IMPORT_OPERATION_NAME},
+            _DONE_IMPORT_OPERATION,
+        )
+        async_evals_module = evals.AsyncEvals(api_client_=self.mock_api_client)
+
+        operation = await async_evals_module.import_evaluation_set(
+            evaluation_set=agentplatform_genai_types.EvaluationSet(
+                display_name="harbor_set"
+            ),
+            harbor_dataset=agentplatform_genai_types.HarborDataset(
+                gcs_uri="gs://bucket/dataset"
+            ),
+            wait=True,
+        )
+
+        assert operation.done
+        assert operation.response.evaluation_set == _IMPORTED_EVALUATION_SET_NAME
+        assert self.mock_api_client.async_request.call_count == 2
+
+    @pytest.mark.asyncio
+    async def test_async_import_evaluation_set_rejects_gcs_destination_with_harbor_dataset(
+        self,
+    ):
+        async_evals_module = evals.AsyncEvals(api_client_=self.mock_api_client)
+
+        with pytest.raises(ValueError, match="gcs_destination must not be set"):
+            await async_evals_module.import_evaluation_set(
+                evaluation_set=agentplatform_genai_types.EvaluationSet(
+                    display_name="harbor_set"
+                ),
+                gcs_destination=genai_types.GcsDestination(
+                    output_uri_prefix="gs://bucket/output/"
+                ),
+                harbor_dataset=agentplatform_genai_types.HarborDataset(
+                    gcs_uri="gs://bucket/dataset"
+                ),
+            )
+
+        self.mock_api_client.async_request.assert_not_called()
+
+
+class TestGetEvaluationSet:
+
+    def setup_method(self, method):
+        self.mock_api_client = mock.MagicMock()
+        self.mock_api_client.vertexai = True
+        self.mock_response = mock.MagicMock()
+        self.mock_api_client.request.return_value = self.mock_response
+
+    def test_get_evaluation_set_parses_harbor_dataset(self):
+        self.mock_response.body = json.dumps(
+            {
+                "name": "projects/123/locations/us-central1/evaluationSets/456",
+                "harborDataset": {"gcsUri": "gs://bucket/dataset"},
+            }
+        )
+        evals_module = evals.Evals(api_client_=self.mock_api_client)
+
+        evaluation_set = evals_module.get_evaluation_set(
+            name="projects/123/locations/us-central1/evaluationSets/456"
+        )
+
+        assert evaluation_set.harbor_dataset == (
+            agentplatform_genai_types.HarborDataset(gcs_uri="gs://bucket/dataset")
+        )
+
+
+class TestGetEvaluationItem:
+
+    def setup_method(self, method):
+        self.mock_api_client = mock.MagicMock()
+        self.mock_api_client.vertexai = True
+        self.mock_response = mock.MagicMock()
+        self.mock_api_client.request.return_value = self.mock_response
+
+    def test_get_evaluation_item_parses_harbor_task(self):
+        self.mock_response.body = json.dumps(
+            {
+                "name": "projects/123/locations/us-central1/evaluationItems/789",
+                "evaluationItemType": "HARBOR_TASK",
+                "harborTask": {
+                    "dataset": "my-org/my-dataset",
+                    "task": "task-1",
+                    "gcsUri": "gs://bucket/dataset/task-1",
+                },
+            }
+        )
+        evals_module = evals.Evals(api_client_=self.mock_api_client)
+
+        evaluation_item = evals_module.get_evaluation_item(
+            name="projects/123/locations/us-central1/evaluationItems/789"
+        )
+
+        assert evaluation_item.evaluation_item_type == (
+            agentplatform_genai_types.EvaluationItemType.HARBOR_TASK
+        )
+        assert evaluation_item.harbor_task == agentplatform_genai_types.HarborTask(
+            dataset="my-org/my-dataset",
+            task="task-1",
+            gcs_uri="gs://bucket/dataset/task-1",
+        )
