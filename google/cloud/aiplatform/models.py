@@ -889,8 +889,12 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 not provided, Vertex AI will generate a value for this
                 ID.
 
-                This value should be 1-10 characters, and valid
-                characters are /[0-9]/. When using HTTP/JSON, this field
+                This value can contain lowercase letters, digits, and hyphens.
+                If the first character is a letter, the last character must be
+                a letter or digit and the value can be up to 63 characters. If
+                the first character is a digit, all characters must be digits,
+                with no leading zeros, and the value can be up to 10 characters.
+                When using HTTP/JSON, this field
                 is populated based on a query string argument, such as
                 ``?endpoint_id=12345``. This is the fallback for fields
                 that are not included in either the URI or the body.
@@ -1049,8 +1053,12 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 not provided, Vertex AI will generate a value for this
                 ID.
 
-                This value should be 1-10 characters, and valid
-                characters are /[0-9]/. When using HTTP/JSON, this field
+                This value can contain lowercase letters, digits, and hyphens.
+                If the first character is a letter, the last character must be
+                a letter or digit and the value can be up to 63 characters. If
+                the first character is a digit, all characters must be digits,
+                with no leading zeros, and the value can be up to 10 characters.
+                When using HTTP/JSON, this field
                 is populated based on a query string argument, such as
                 ``?endpoint_id=12345``. This is the fallback for fields
                 that are not included in either the URI or the body.
