@@ -21,7 +21,6 @@ from typing import Any
 from google.genai._common import get_value_by_path as getv
 
 from . import _evals_constant
-from . import _evals_data_converters
 from . import types
 
 _METRIC_RES_NAME_RE = r"^projects/[^/]+/locations/[^/]+/evaluationMetrics/[^/]+$"
@@ -485,6 +484,8 @@ def t_inline_results(
                     else:
                         prompt_payload["agent_data"] = agent_data
                 elif prompt:
+                    from . import _evals_data_converters
+
                     text = _evals_data_converters._get_content_text(
                         prompt
                     )  # pylint: disable=protected-access

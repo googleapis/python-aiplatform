@@ -19,15 +19,14 @@ import importlib
 import json
 import logging
 import typing
-from typing import Any, AsyncIterator, Iterator, Optional, Union
+from typing import AsyncIterator, Iterator, Optional
 from urllib.parse import urlencode
 
 from google.genai import _api_module
 from google.genai import _common
-from google.genai._common import get_value_by_path as getv
-from google.genai._common import set_value_by_path as setv
 from google.genai.pagers import AsyncPager, Pager
 
+from . import _converters
 from . import _memory_bank_utils
 from . import types
 
@@ -38,594 +37,6 @@ if typing.TYPE_CHECKING:
 
 
 logger = logging.getLogger("agentplatform_genai.memorybanks")
-
-
-def _CreateMemoryBankConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-
-    if getv(from_object, ["display_name"]) is not None:
-        setv(parent_object, ["displayName"], getv(from_object, ["display_name"]))
-
-    if getv(from_object, ["description"]) is not None:
-        setv(parent_object, ["description"], getv(from_object, ["description"]))
-
-    if getv(from_object, ["encryption_spec"]) is not None:
-        setv(parent_object, ["encryptionSpec"], getv(from_object, ["encryption_spec"]))
-
-    return to_object
-
-
-def _CreateMemoryBankRequestParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["memory_bank_config"]) is not None:
-        setv(
-            to_object,
-            ["context_spec", "memory_bank_config"],
-            _ReasoningEngineContextSpecMemoryBankConfig_to_vertex(
-                getv(from_object, ["memory_bank_config"]), to_object
-            ),
-        )
-
-    if getv(from_object, ["config"]) is not None:
-        _CreateMemoryBankConfig_to_vertex(getv(from_object, ["config"]), to_object)
-
-    return to_object
-
-
-def _DeleteMemoryBankRequestParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["force"]) is not None:
-        setv(to_object, ["force"], getv(from_object, ["force"]))
-
-    return to_object
-
-
-def _GetMemoryBankOperationParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["operation_name"]) is not None:
-        setv(
-            to_object, ["_url", "operationName"], getv(from_object, ["operation_name"])
-        )
-
-    return to_object
-
-
-def _GetMemoryBankRequestParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    return to_object
-
-
-def _IngestEventsConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-
-    if getv(from_object, ["force_flush"]) is not None:
-        setv(parent_object, ["forceFlush"], getv(from_object, ["force_flush"]))
-
-    if getv(from_object, ["revision_labels"]) is not None:
-        setv(parent_object, ["revisionLabels"], getv(from_object, ["revision_labels"]))
-
-    if getv(from_object, ["revision_expire_time"]) is not None:
-        setv(
-            parent_object,
-            ["revisionExpireTime"],
-            getv(from_object, ["revision_expire_time"]),
-        )
-
-    if getv(from_object, ["revision_ttl"]) is not None:
-        setv(parent_object, ["revisionTtl"], getv(from_object, ["revision_ttl"]))
-
-    if getv(from_object, ["disable_memory_revisions"]) is not None:
-        setv(
-            parent_object,
-            ["disableMemoryRevisions"],
-            getv(from_object, ["disable_memory_revisions"]),
-        )
-
-    if getv(from_object, ["metadata"]) is not None:
-        setv(
-            parent_object,
-            ["metadata"],
-            {k: v for k, v in getv(from_object, ["metadata"]).items()},
-        )
-
-    if getv(from_object, ["metadata_merge_strategy"]) is not None:
-        setv(
-            parent_object,
-            ["metadataMergeStrategy"],
-            getv(from_object, ["metadata_merge_strategy"]),
-        )
-
-    return to_object
-
-
-def _IngestEventsRequestParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["stream_id"]) is not None:
-        setv(to_object, ["streamId"], getv(from_object, ["stream_id"]))
-
-    if getv(from_object, ["direct_contents_source"]) is not None:
-        setv(
-            to_object,
-            ["directContentsSource"],
-            getv(from_object, ["direct_contents_source"]),
-        )
-
-    if getv(from_object, ["scope"]) is not None:
-        setv(to_object, ["scope"], getv(from_object, ["scope"]))
-
-    if getv(from_object, ["generation_trigger_config"]) is not None:
-        setv(
-            to_object,
-            ["generationTriggerConfig"],
-            getv(from_object, ["generation_trigger_config"]),
-        )
-
-    if getv(from_object, ["config"]) is not None:
-        _IngestEventsConfig_to_vertex(getv(from_object, ["config"]), to_object)
-
-    return to_object
-
-
-def _ListMemoryBanksConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-
-    if getv(from_object, ["page_size"]) is not None:
-        setv(parent_object, ["_query", "pageSize"], getv(from_object, ["page_size"]))
-
-    if getv(from_object, ["page_token"]) is not None:
-        setv(parent_object, ["_query", "pageToken"], getv(from_object, ["page_token"]))
-
-    return to_object
-
-
-def _ListMemoryBanksRequestParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["config"]) is not None:
-        _ListMemoryBanksConfig_to_vertex(getv(from_object, ["config"]), to_object)
-
-    return to_object
-
-
-def _ListReasoningEnginesResponse_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["sdkHttpResponse"]) is not None:
-        setv(to_object, ["sdk_http_response"], getv(from_object, ["sdkHttpResponse"]))
-
-    if getv(from_object, ["nextPageToken"]) is not None:
-        setv(to_object, ["next_page_token"], getv(from_object, ["nextPageToken"]))
-
-    if getv(from_object, ["reasoningEngines"]) is not None:
-        setv(
-            to_object,
-            ["reasoning_engines"],
-            [
-                _ReasoningEngine_from_vertex(item, to_object)
-                for item in getv(from_object, ["reasoningEngines"])
-            ],
-        )
-
-    return to_object
-
-
-def _ManagedSemanticMemoryConfig_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["generationConfig"]) is not None:
-        setv(to_object, ["generation_config"], getv(from_object, ["generationConfig"]))
-
-    if getv(from_object, ["ttlConfig"]) is not None:
-        setv(to_object, ["ttl_config"], getv(from_object, ["ttlConfig"]))
-
-    if getv(from_object, ["disableMemoryRevisions"]) is not None:
-        setv(
-            to_object,
-            ["disable_memory_revisions"],
-            getv(from_object, ["disableMemoryRevisions"]),
-        )
-
-    if getv(from_object, ["similaritySearchConfig"]) is not None:
-        setv(
-            to_object,
-            ["similarity_search_config"],
-            getv(from_object, ["similaritySearchConfig"]),
-        )
-
-    if getv(from_object, ["unstructuredMemoryConfigs"]) is not None:
-        setv(
-            to_object,
-            ["unstructured_memory_configs"],
-            [item for item in getv(from_object, ["unstructuredMemoryConfigs"])],
-        )
-
-    if getv(from_object, ["structuredMemoryConfigs"]) is not None:
-        setv(
-            to_object,
-            ["structured_memory_configs"],
-            [
-                _StructuredMemoryConfig_from_vertex(item, to_object)
-                for item in getv(from_object, ["structuredMemoryConfigs"])
-            ],
-        )
-
-    return to_object
-
-
-def _MemoryBankOperation_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["metadata"]) is not None:
-        setv(to_object, ["metadata"], getv(from_object, ["metadata"]))
-
-    if getv(from_object, ["done"]) is not None:
-        setv(to_object, ["done"], getv(from_object, ["done"]))
-
-    if getv(from_object, ["error"]) is not None:
-        setv(to_object, ["error"], getv(from_object, ["error"]))
-
-    if getv(from_object, ["response"]) is not None:
-        setv(
-            to_object,
-            ["response"],
-            _MemoryBank_from_vertex(getv(from_object, ["response"]), to_object),
-        )
-
-    return to_object
-
-
-def _MemoryBank_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["managedSemanticMemoryConfig"]) is not None:
-        setv(
-            to_object,
-            ["managed_semantic_memory_config"],
-            _ManagedSemanticMemoryConfig_from_vertex(
-                getv(from_object, ["managedSemanticMemoryConfig"]), to_object
-            ),
-        )
-
-    if getv(from_object, ["displayName"]) is not None:
-        setv(to_object, ["display_name"], getv(from_object, ["displayName"]))
-
-    if getv(from_object, ["description"]) is not None:
-        setv(to_object, ["description"], getv(from_object, ["description"]))
-
-    if getv(from_object, ["createTime"]) is not None:
-        setv(to_object, ["create_time"], getv(from_object, ["createTime"]))
-
-    if getv(from_object, ["updateTime"]) is not None:
-        setv(to_object, ["update_time"], getv(from_object, ["updateTime"]))
-
-    if getv(from_object, ["encryptionSpec"]) is not None:
-        setv(to_object, ["encryption_spec"], getv(from_object, ["encryptionSpec"]))
-
-    return to_object
-
-
-def _ReasoningEngineContextSpecMemoryBankConfig_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["customizationConfigs"]) is not None:
-        setv(
-            to_object,
-            ["customization_configs"],
-            [item for item in getv(from_object, ["customizationConfigs"])],
-        )
-
-    if getv(from_object, ["disableMemoryRevisions"]) is not None:
-        setv(
-            to_object,
-            ["disable_memory_revisions"],
-            getv(from_object, ["disableMemoryRevisions"]),
-        )
-
-    if getv(from_object, ["generationConfig"]) is not None:
-        setv(to_object, ["generation_config"], getv(from_object, ["generationConfig"]))
-
-    if getv(from_object, ["similaritySearchConfig"]) is not None:
-        setv(
-            to_object,
-            ["similarity_search_config"],
-            getv(from_object, ["similaritySearchConfig"]),
-        )
-
-    if getv(from_object, ["ttlConfig"]) is not None:
-        setv(to_object, ["ttl_config"], getv(from_object, ["ttlConfig"]))
-
-    if getv(from_object, ["structuredMemoryConfigs"]) is not None:
-        setv(
-            to_object,
-            ["structured_memory_configs"],
-            [
-                _StructuredMemoryConfig_from_vertex(item, to_object)
-                for item in getv(from_object, ["structuredMemoryConfigs"])
-            ],
-        )
-
-    return to_object
-
-
-def _ReasoningEngineContextSpecMemoryBankConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["customization_configs"]) is not None:
-        setv(
-            to_object,
-            ["customizationConfigs"],
-            [item for item in getv(from_object, ["customization_configs"])],
-        )
-
-    if getv(from_object, ["disable_memory_revisions"]) is not None:
-        setv(
-            to_object,
-            ["disableMemoryRevisions"],
-            getv(from_object, ["disable_memory_revisions"]),
-        )
-
-    if getv(from_object, ["generation_config"]) is not None:
-        setv(to_object, ["generationConfig"], getv(from_object, ["generation_config"]))
-
-    if getv(from_object, ["similarity_search_config"]) is not None:
-        setv(
-            to_object,
-            ["similaritySearchConfig"],
-            getv(from_object, ["similarity_search_config"]),
-        )
-
-    if getv(from_object, ["ttl_config"]) is not None:
-        setv(to_object, ["ttlConfig"], getv(from_object, ["ttl_config"]))
-
-    if getv(from_object, ["structured_memory_configs"]) is not None:
-        setv(
-            to_object,
-            ["structuredMemoryConfigs"],
-            [
-                _StructuredMemoryConfig_to_vertex(item, to_object)
-                for item in getv(from_object, ["structured_memory_configs"])
-            ],
-        )
-
-    return to_object
-
-
-def _ReasoningEngineContextSpec_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["memoryBankConfig"]) is not None:
-        setv(
-            to_object,
-            ["memory_bank_config"],
-            _ReasoningEngineContextSpecMemoryBankConfig_from_vertex(
-                getv(from_object, ["memoryBankConfig"]), to_object
-            ),
-        )
-
-    return to_object
-
-
-def _ReasoningEngine_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["encryptionSpec"]) is not None:
-        setv(to_object, ["encryption_spec"], getv(from_object, ["encryptionSpec"]))
-
-    if getv(from_object, ["contextSpec"]) is not None:
-        setv(
-            to_object,
-            ["context_spec"],
-            _ReasoningEngineContextSpec_from_vertex(
-                getv(from_object, ["contextSpec"]), to_object
-            ),
-        )
-
-    if getv(from_object, ["createTime"]) is not None:
-        setv(to_object, ["create_time"], getv(from_object, ["createTime"]))
-
-    if getv(from_object, ["description"]) is not None:
-        setv(to_object, ["description"], getv(from_object, ["description"]))
-
-    if getv(from_object, ["displayName"]) is not None:
-        setv(to_object, ["display_name"], getv(from_object, ["displayName"]))
-
-    if getv(from_object, ["etag"]) is not None:
-        setv(to_object, ["etag"], getv(from_object, ["etag"]))
-
-    if getv(from_object, ["labels"]) is not None:
-        setv(to_object, ["labels"], getv(from_object, ["labels"]))
-
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["spec"]) is not None:
-        setv(to_object, ["spec"], getv(from_object, ["spec"]))
-
-    if getv(from_object, ["updateTime"]) is not None:
-        setv(to_object, ["update_time"], getv(from_object, ["updateTime"]))
-
-    if getv(from_object, ["trafficConfig"]) is not None:
-        setv(to_object, ["traffic_config"], getv(from_object, ["trafficConfig"]))
-
-    if getv(from_object, ["revisionGarbageCollectionStrategy"]) is not None:
-        setv(
-            to_object,
-            ["revision_garbage_collection_strategy"],
-            getv(from_object, ["revisionGarbageCollectionStrategy"]),
-        )
-
-    return to_object
-
-
-def _StructuredMemoryConfig_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["schemaConfigs"]) is not None:
-        setv(
-            to_object,
-            ["schema_configs"],
-            [
-                _StructuredMemorySchemaConfig_from_vertex(item, to_object)
-                for item in getv(from_object, ["schemaConfigs"])
-            ],
-        )
-
-    if getv(from_object, ["scopeKeys"]) is not None:
-        setv(to_object, ["scope_keys"], getv(from_object, ["scopeKeys"]))
-
-    return to_object
-
-
-def _StructuredMemoryConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["schema_configs"]) is not None:
-        setv(
-            to_object,
-            ["schemaConfigs"],
-            [
-                _StructuredMemorySchemaConfig_to_vertex(item, to_object)
-                for item in getv(from_object, ["schema_configs"])
-            ],
-        )
-
-    if getv(from_object, ["scope_keys"]) is not None:
-        setv(to_object, ["scopeKeys"], getv(from_object, ["scope_keys"]))
-
-    return to_object
-
-
-def _StructuredMemorySchemaConfig_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["schema"]) is not None:
-        setv(to_object, ["memory_schema"], getv(from_object, ["schema"]))
-
-    if getv(from_object, ["id"]) is not None:
-        setv(to_object, ["id"], getv(from_object, ["id"]))
-
-    if getv(from_object, ["memoryType"]) is not None:
-        setv(to_object, ["memory_type"], getv(from_object, ["memoryType"]))
-
-    return to_object
-
-
-def _StructuredMemorySchemaConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["memory_schema"]) is not None:
-        setv(to_object, ["schema"], getv(from_object, ["memory_schema"]))
-
-    if getv(from_object, ["id"]) is not None:
-        setv(to_object, ["id"], getv(from_object, ["id"]))
-
-    if getv(from_object, ["memory_type"]) is not None:
-        setv(to_object, ["memoryType"], getv(from_object, ["memory_type"]))
-
-    return to_object
-
-
-def _UpdateMemoryBankConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-
-    if getv(from_object, ["display_name"]) is not None:
-        setv(parent_object, ["displayName"], getv(from_object, ["display_name"]))
-
-    if getv(from_object, ["description"]) is not None:
-        setv(parent_object, ["description"], getv(from_object, ["description"]))
-
-    return to_object
-
-
-def _UpdateMemoryBankRequestParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["memory_bank_config"]) is not None:
-        setv(
-            to_object,
-            ["context_spec", "memory_bank_config"],
-            _ReasoningEngineContextSpecMemoryBankConfig_to_vertex(
-                getv(from_object, ["memory_bank_config"]), to_object
-            ),
-        )
-
-    if getv(from_object, ["config"]) is not None:
-        _UpdateMemoryBankConfig_to_vertex(getv(from_object, ["config"]), to_object)
-
-    return to_object
 
 
 class MemoryBanks(_api_module.BaseModule):
@@ -653,7 +64,9 @@ class MemoryBanks(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _CreateMemoryBankRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._CreateMemoryBankRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "reasoningEngines".format_map(request_url_dict)
@@ -681,7 +94,7 @@ class MemoryBanks(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         if self._api_client.vertexai:
-            response_dict = _MemoryBankOperation_from_vertex(response_dict)
+            response_dict = _converters._MemoryBankOperation_from_vertex(response_dict)
 
         return_value = types.MemoryBankOperation._from_response(
             response=response_dict,
@@ -732,7 +145,9 @@ class MemoryBanks(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _UpdateMemoryBankRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._UpdateMemoryBankRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}".format_map(request_url_dict)
@@ -760,7 +175,7 @@ class MemoryBanks(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         if self._api_client.vertexai:
-            response_dict = _MemoryBankOperation_from_vertex(response_dict)
+            response_dict = _converters._MemoryBankOperation_from_vertex(response_dict)
 
         return_value = types.MemoryBankOperation._from_response(
             response=response_dict,
@@ -809,7 +224,9 @@ class MemoryBanks(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _DeleteMemoryBankRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._DeleteMemoryBankRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}".format_map(request_url_dict)
@@ -878,7 +295,9 @@ class MemoryBanks(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetMemoryBankRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._GetMemoryBankRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}".format_map(request_url_dict)
@@ -906,7 +325,7 @@ class MemoryBanks(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         if self._api_client.vertexai:
-            response_dict = _ReasoningEngine_from_vertex(response_dict)
+            response_dict = _converters._ReasoningEngine_from_vertex(response_dict)
 
         return_value = types.ReasoningEngine._from_response(
             response=response_dict,
@@ -965,7 +384,9 @@ class MemoryBanks(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _IngestEventsRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._IngestEventsRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}/memories:ingestEvents".format_map(request_url_dict)
@@ -1033,7 +454,9 @@ class MemoryBanks(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _ListMemoryBanksRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._ListMemoryBanksRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "reasoningEngines".format_map(request_url_dict)
@@ -1061,7 +484,9 @@ class MemoryBanks(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         if self._api_client.vertexai:
-            response_dict = _ListReasoningEnginesResponse_from_vertex(response_dict)
+            response_dict = _converters._ListReasoningEnginesResponse_from_vertex(
+                response_dict
+            )
 
         return_value = types.ListReasoningEnginesResponse._from_response(
             response=response_dict,
@@ -1104,7 +529,9 @@ class MemoryBanks(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetMemoryBankOperationParameters_to_vertex(parameter_model)
+            request_dict = _converters._GetMemoryBankOperationParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{operationName}".format_map(request_url_dict)
@@ -1132,7 +559,7 @@ class MemoryBanks(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         if self._api_client.vertexai:
-            response_dict = _MemoryBankOperation_from_vertex(response_dict)
+            response_dict = _converters._MemoryBankOperation_from_vertex(response_dict)
 
         return_value = types.MemoryBankOperation._from_response(
             response=response_dict,
@@ -1428,7 +855,9 @@ class AsyncMemoryBanks(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _CreateMemoryBankRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._CreateMemoryBankRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "reasoningEngines".format_map(request_url_dict)
@@ -1458,7 +887,7 @@ class AsyncMemoryBanks(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         if self._api_client.vertexai:
-            response_dict = _MemoryBankOperation_from_vertex(response_dict)
+            response_dict = _converters._MemoryBankOperation_from_vertex(response_dict)
 
         return_value = types.MemoryBankOperation._from_response(
             response=response_dict,
@@ -1509,7 +938,9 @@ class AsyncMemoryBanks(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _UpdateMemoryBankRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._UpdateMemoryBankRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}".format_map(request_url_dict)
@@ -1539,7 +970,7 @@ class AsyncMemoryBanks(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         if self._api_client.vertexai:
-            response_dict = _MemoryBankOperation_from_vertex(response_dict)
+            response_dict = _converters._MemoryBankOperation_from_vertex(response_dict)
 
         return_value = types.MemoryBankOperation._from_response(
             response=response_dict,
@@ -1588,7 +1019,9 @@ class AsyncMemoryBanks(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _DeleteMemoryBankRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._DeleteMemoryBankRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}".format_map(request_url_dict)
@@ -1659,7 +1092,9 @@ class AsyncMemoryBanks(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetMemoryBankRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._GetMemoryBankRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}".format_map(request_url_dict)
@@ -1689,7 +1124,7 @@ class AsyncMemoryBanks(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         if self._api_client.vertexai:
-            response_dict = _ReasoningEngine_from_vertex(response_dict)
+            response_dict = _converters._ReasoningEngine_from_vertex(response_dict)
 
         return_value = types.ReasoningEngine._from_response(
             response=response_dict,
@@ -1748,7 +1183,9 @@ class AsyncMemoryBanks(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _IngestEventsRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._IngestEventsRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}/memories:ingestEvents".format_map(request_url_dict)
@@ -1818,7 +1255,9 @@ class AsyncMemoryBanks(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _ListMemoryBanksRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._ListMemoryBanksRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "reasoningEngines".format_map(request_url_dict)
@@ -1848,7 +1287,9 @@ class AsyncMemoryBanks(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         if self._api_client.vertexai:
-            response_dict = _ListReasoningEnginesResponse_from_vertex(response_dict)
+            response_dict = _converters._ListReasoningEnginesResponse_from_vertex(
+                response_dict
+            )
 
         return_value = types.ListReasoningEnginesResponse._from_response(
             response=response_dict,
@@ -1891,7 +1332,9 @@ class AsyncMemoryBanks(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetMemoryBankOperationParameters_to_vertex(parameter_model)
+            request_dict = _converters._GetMemoryBankOperationParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{operationName}".format_map(request_url_dict)
@@ -1921,7 +1364,7 @@ class AsyncMemoryBanks(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         if self._api_client.vertexai:
-            response_dict = _MemoryBankOperation_from_vertex(response_dict)
+            response_dict = _converters._MemoryBankOperation_from_vertex(response_dict)
 
         return_value = types.MemoryBankOperation._from_response(
             response=response_dict,

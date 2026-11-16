@@ -19,230 +19,19 @@ import asyncio
 import json
 import logging
 import time
-from typing import Any, Optional, Union
+from typing import Any, Optional
 from urllib.parse import urlencode
 
 from google.genai import _api_module
 from google.genai import _common
 from google.genai import types as genai_types
-from google.genai._common import get_value_by_path as getv
-from google.genai._common import set_value_by_path as setv
 import pandas as pd
 
+from . import _converters
 from . import _datasets_utils
 from . import types
 
 logger = logging.getLogger("agentplatform_genai.datasets")
-
-
-def _AssembleDatasetParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["gemini_request_read_config"]) is not None:
-        setv(
-            to_object,
-            ["geminiRequestReadConfig"],
-            getv(from_object, ["gemini_request_read_config"]),
-        )
-
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
-    return to_object
-
-
-def _AssessDatasetParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["gemini_request_read_config"]) is not None:
-        setv(
-            to_object,
-            ["geminiRequestReadConfig"],
-            getv(from_object, ["gemini_request_read_config"]),
-        )
-
-    if getv(from_object, ["tuning_resource_usage_assessment_config"]) is not None:
-        setv(
-            to_object,
-            ["tuningResourceUsageAssessmentConfig"],
-            getv(from_object, ["tuning_resource_usage_assessment_config"]),
-        )
-
-    if getv(from_object, ["tuning_validation_assessment_config"]) is not None:
-        setv(
-            to_object,
-            ["tuningValidationAssessmentConfig"],
-            getv(from_object, ["tuning_validation_assessment_config"]),
-        )
-
-    if (
-        getv(from_object, ["batch_prediction_resource_usage_assessment_config"])
-        is not None
-    ):
-        setv(
-            to_object,
-            ["batchPredictionResourceUsageAssessmentConfig"],
-            getv(from_object, ["batch_prediction_resource_usage_assessment_config"]),
-        )
-
-    if getv(from_object, ["batch_prediction_validation_assessment_config"]) is not None:
-        setv(
-            to_object,
-            ["batchPredictionValidationAssessmentConfig"],
-            getv(from_object, ["batch_prediction_validation_assessment_config"]),
-        )
-
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
-    return to_object
-
-
-def _CreateMultimodalDatasetParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["display_name"]) is not None:
-        setv(to_object, ["displayName"], getv(from_object, ["display_name"]))
-
-    if getv(from_object, ["metadata_schema_uri"]) is not None:
-        setv(
-            to_object, ["metadataSchemaUri"], getv(from_object, ["metadata_schema_uri"])
-        )
-
-    if getv(from_object, ["metadata"]) is not None:
-        setv(to_object, ["metadata"], getv(from_object, ["metadata"]))
-
-    if getv(from_object, ["description"]) is not None:
-        setv(to_object, ["description"], getv(from_object, ["description"]))
-
-    if getv(from_object, ["encryption_spec"]) is not None:
-        setv(to_object, ["encryptionSpec"], getv(from_object, ["encryption_spec"]))
-
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
-    return to_object
-
-
-def _DeleteMultimodalDatasetRequestParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
-    return to_object
-
-
-def _GetMultimodalDatasetOperationParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["dataset_id"]) is not None:
-        setv(to_object, ["_url", "dataset_id"], getv(from_object, ["dataset_id"]))
-
-    if getv(from_object, ["operation_id"]) is not None:
-        setv(to_object, ["_url", "operation_id"], getv(from_object, ["operation_id"]))
-
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
-    return to_object
-
-
-def _GetMultimodalDatasetParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
-    return to_object
-
-
-def _ListMultimodalDatasetsConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-
-    if getv(from_object, ["page_size"]) is not None:
-        setv(parent_object, ["_query", "pageSize"], getv(from_object, ["page_size"]))
-
-    if getv(from_object, ["page_token"]) is not None:
-        setv(parent_object, ["_query", "pageToken"], getv(from_object, ["page_token"]))
-
-    if getv(from_object, ["filter"]) is not None:
-        setv(parent_object, ["_query", "filter"], getv(from_object, ["filter"]))
-
-    return to_object
-
-
-def _ListMultimodalDatasetsRequestParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["config"]) is not None:
-        setv(
-            to_object,
-            ["config"],
-            _ListMultimodalDatasetsConfig_to_vertex(
-                getv(from_object, ["config"]), to_object
-            ),
-        )
-
-    return to_object
-
-
-def _UpdateMultimodalDatasetParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["display_name"]) is not None:
-        setv(to_object, ["displayName"], getv(from_object, ["display_name"]))
-
-    if getv(from_object, ["metadata"]) is not None:
-        setv(to_object, ["metadata"], getv(from_object, ["metadata"]))
-
-    if getv(from_object, ["description"]) is not None:
-        setv(to_object, ["description"], getv(from_object, ["description"]))
-
-    if getv(from_object, ["encryption_spec"]) is not None:
-        setv(to_object, ["encryptionSpec"], getv(from_object, ["encryption_spec"]))
-
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
-    return to_object
 
 
 class Datasets(_api_module.BaseModule):
@@ -272,7 +61,9 @@ class Datasets(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _AssembleDatasetParameters_to_vertex(parameter_model)
+            request_dict = _converters._AssembleDatasetParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}:assemble".format_map(request_url_dict)
@@ -364,7 +155,9 @@ class Datasets(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _AssessDatasetParameters_to_vertex(parameter_model)
+            request_dict = _converters._AssessDatasetParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}:assess".format_map(request_url_dict)
@@ -446,7 +239,9 @@ class Datasets(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _CreateMultimodalDatasetParameters_to_vertex(parameter_model)
+            request_dict = _converters._CreateMultimodalDatasetParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "datasets".format_map(request_url_dict)
@@ -515,8 +310,10 @@ class Datasets(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _DeleteMultimodalDatasetRequestParameters_to_vertex(
-                parameter_model
+            request_dict = (
+                _converters._DeleteMultimodalDatasetRequestParameters_to_vertex(
+                    parameter_model
+                )
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
@@ -589,7 +386,9 @@ class Datasets(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetMultimodalDatasetParameters_to_vertex(parameter_model)
+            request_dict = _converters._GetMultimodalDatasetParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}".format_map(request_url_dict)
@@ -663,8 +462,10 @@ class Datasets(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetMultimodalDatasetOperationParameters_to_vertex(
-                parameter_model
+            request_dict = (
+                _converters._GetMultimodalDatasetOperationParameters_to_vertex(
+                    parameter_model
+                )
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
@@ -735,8 +536,10 @@ class Datasets(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _ListMultimodalDatasetsRequestParameters_to_vertex(
-                parameter_model
+            request_dict = (
+                _converters._ListMultimodalDatasetsRequestParameters_to_vertex(
+                    parameter_model
+                )
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
@@ -817,7 +620,9 @@ class Datasets(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _UpdateMultimodalDatasetParameters_to_vertex(parameter_model)
+            request_dict = _converters._UpdateMultimodalDatasetParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}".format_map(request_url_dict)
@@ -1664,7 +1469,9 @@ class AsyncDatasets(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _AssembleDatasetParameters_to_vertex(parameter_model)
+            request_dict = _converters._AssembleDatasetParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}:assemble".format_map(request_url_dict)
@@ -1758,7 +1565,9 @@ class AsyncDatasets(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _AssessDatasetParameters_to_vertex(parameter_model)
+            request_dict = _converters._AssessDatasetParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}:assess".format_map(request_url_dict)
@@ -1842,7 +1651,9 @@ class AsyncDatasets(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _CreateMultimodalDatasetParameters_to_vertex(parameter_model)
+            request_dict = _converters._CreateMultimodalDatasetParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "datasets".format_map(request_url_dict)
@@ -1913,8 +1724,10 @@ class AsyncDatasets(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _DeleteMultimodalDatasetRequestParameters_to_vertex(
-                parameter_model
+            request_dict = (
+                _converters._DeleteMultimodalDatasetRequestParameters_to_vertex(
+                    parameter_model
+                )
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
@@ -1989,7 +1802,9 @@ class AsyncDatasets(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetMultimodalDatasetParameters_to_vertex(parameter_model)
+            request_dict = _converters._GetMultimodalDatasetParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}".format_map(request_url_dict)
@@ -2065,8 +1880,10 @@ class AsyncDatasets(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetMultimodalDatasetOperationParameters_to_vertex(
-                parameter_model
+            request_dict = (
+                _converters._GetMultimodalDatasetOperationParameters_to_vertex(
+                    parameter_model
+                )
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
@@ -2139,8 +1956,10 @@ class AsyncDatasets(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _ListMultimodalDatasetsRequestParameters_to_vertex(
-                parameter_model
+            request_dict = (
+                _converters._ListMultimodalDatasetsRequestParameters_to_vertex(
+                    parameter_model
+                )
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
@@ -2223,7 +2042,9 @@ class AsyncDatasets(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _UpdateMultimodalDatasetParameters_to_vertex(parameter_model)
+            request_dict = _converters._UpdateMultimodalDatasetParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}".format_map(request_url_dict)

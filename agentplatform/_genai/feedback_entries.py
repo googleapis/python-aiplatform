@@ -20,15 +20,14 @@ import importlib
 import json
 import logging
 import typing
-from typing import Any, AsyncIterator, Iterator, Optional, Union
+from typing import AsyncIterator, Iterator, Optional
 from urllib.parse import urlencode
 
 from google.genai import _api_module
 from google.genai import _common
-from google.genai._common import get_value_by_path as getv
-from google.genai._common import set_value_by_path as setv
 from google.genai.pagers import AsyncPager, Pager
 
+from . import _converters
 from . import _runtimes_utils
 from . import types
 
@@ -41,181 +40,6 @@ if typing.TYPE_CHECKING:
 logger = logging.getLogger("agentplatform_genai.feedbackentries")
 
 logger.setLevel(logging.INFO)
-
-
-def _CreateRuntimeFeedbackEntryConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-
-    if getv(from_object, ["feedback_labels"]) is not None:
-        setv(parent_object, ["feedbackLabels"], getv(from_object, ["feedback_labels"]))
-
-    if getv(from_object, ["feedback_text"]) is not None:
-        setv(parent_object, ["feedbackText"], getv(from_object, ["feedback_text"]))
-
-    if getv(from_object, ["user_id"]) is not None:
-        setv(parent_object, ["userId"], getv(from_object, ["user_id"]))
-
-    if getv(from_object, ["source"]) is not None:
-        setv(parent_object, ["source"], getv(from_object, ["source"]))
-
-    if getv(from_object, ["custom_metadata"]) is not None:
-        setv(parent_object, ["customMetadata"], getv(from_object, ["custom_metadata"]))
-
-    return to_object
-
-
-def _CreateRuntimeFeedbackEntryRequestParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["_url", "parent"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["feedback_type"]) is not None:
-        setv(to_object, ["feedbackType"], getv(from_object, ["feedback_type"]))
-
-    if getv(from_object, ["session_id"]) is not None:
-        setv(to_object, ["sessionId"], getv(from_object, ["session_id"]))
-
-    if getv(from_object, ["event_id"]) is not None:
-        setv(to_object, ["eventId"], getv(from_object, ["event_id"]))
-
-    if getv(from_object, ["config"]) is not None:
-        _CreateRuntimeFeedbackEntryConfig_to_vertex(
-            getv(from_object, ["config"]), to_object
-        )
-
-    return to_object
-
-
-def _DeleteRuntimeFeedbackEntryRequestParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    return to_object
-
-
-def _GetRuntimeFeedbackOperationParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["operation_name"]) is not None:
-        setv(
-            to_object, ["_url", "operationName"], getv(from_object, ["operation_name"])
-        )
-
-    return to_object
-
-
-def _GetRuntimeFeedbackRequestParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    return to_object
-
-
-def _ListRuntimeFeedbackEntriesConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-
-    if getv(from_object, ["page_size"]) is not None:
-        setv(parent_object, ["_query", "pageSize"], getv(from_object, ["page_size"]))
-
-    if getv(from_object, ["page_token"]) is not None:
-        setv(parent_object, ["_query", "pageToken"], getv(from_object, ["page_token"]))
-
-    if getv(from_object, ["filter"]) is not None:
-        setv(parent_object, ["_query", "filter"], getv(from_object, ["filter"]))
-
-    if getv(from_object, ["order_by"]) is not None:
-        setv(parent_object, ["_query", "orderBy"], getv(from_object, ["order_by"]))
-
-    return to_object
-
-
-def _ListRuntimeFeedbackEntriesRequestParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["parent"]) is not None:
-        setv(to_object, ["_url", "parent"], getv(from_object, ["parent"]))
-
-    if getv(from_object, ["config"]) is not None:
-        _ListRuntimeFeedbackEntriesConfig_to_vertex(
-            getv(from_object, ["config"]), to_object
-        )
-
-    return to_object
-
-
-def _UpdateRuntimeFeedbackEntryConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-
-    if getv(from_object, ["update_mask"]) is not None:
-        setv(
-            parent_object, ["_query", "updateMask"], getv(from_object, ["update_mask"])
-        )
-
-    if getv(from_object, ["feedback_type"]) is not None:
-        setv(parent_object, ["feedbackType"], getv(from_object, ["feedback_type"]))
-
-    if getv(from_object, ["session_id"]) is not None:
-        setv(parent_object, ["sessionId"], getv(from_object, ["session_id"]))
-
-    if getv(from_object, ["event_id"]) is not None:
-        setv(parent_object, ["eventId"], getv(from_object, ["event_id"]))
-
-    if getv(from_object, ["feedback_labels"]) is not None:
-        setv(parent_object, ["feedbackLabels"], getv(from_object, ["feedback_labels"]))
-
-    if getv(from_object, ["feedback_text"]) is not None:
-        setv(parent_object, ["feedbackText"], getv(from_object, ["feedback_text"]))
-
-    if getv(from_object, ["user_id"]) is not None:
-        setv(parent_object, ["userId"], getv(from_object, ["user_id"]))
-
-    if getv(from_object, ["source"]) is not None:
-        setv(parent_object, ["source"], getv(from_object, ["source"]))
-
-    if getv(from_object, ["custom_metadata"]) is not None:
-        setv(parent_object, ["customMetadata"], getv(from_object, ["custom_metadata"]))
-
-    return to_object
-
-
-def _UpdateRuntimeFeedbackEntryRequestParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["config"]) is not None:
-        _UpdateRuntimeFeedbackEntryConfig_to_vertex(
-            getv(from_object, ["config"]), to_object
-        )
-
-    return to_object
 
 
 class FeedbackEntries(_api_module.BaseModule):
@@ -243,8 +67,10 @@ class FeedbackEntries(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _CreateRuntimeFeedbackEntryRequestParameters_to_vertex(
-                parameter_model
+            request_dict = (
+                _converters._CreateRuntimeFeedbackEntryRequestParameters_to_vertex(
+                    parameter_model
+                )
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
@@ -313,8 +139,10 @@ class FeedbackEntries(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _DeleteRuntimeFeedbackEntryRequestParameters_to_vertex(
-                parameter_model
+            request_dict = (
+                _converters._DeleteRuntimeFeedbackEntryRequestParameters_to_vertex(
+                    parameter_model
+                )
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
@@ -397,7 +225,7 @@ class FeedbackEntries(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetRuntimeFeedbackRequestParameters_to_vertex(
+            request_dict = _converters._GetRuntimeFeedbackRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -467,8 +295,10 @@ class FeedbackEntries(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _ListRuntimeFeedbackEntriesRequestParameters_to_vertex(
-                parameter_model
+            request_dict = (
+                _converters._ListRuntimeFeedbackEntriesRequestParameters_to_vertex(
+                    parameter_model
+                )
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
@@ -551,8 +381,10 @@ class FeedbackEntries(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _UpdateRuntimeFeedbackEntryRequestParameters_to_vertex(
-                parameter_model
+            request_dict = (
+                _converters._UpdateRuntimeFeedbackEntryRequestParameters_to_vertex(
+                    parameter_model
+                )
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
@@ -621,7 +453,7 @@ class FeedbackEntries(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetRuntimeFeedbackOperationParameters_to_vertex(
+            request_dict = _converters._GetRuntimeFeedbackOperationParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -691,7 +523,7 @@ class FeedbackEntries(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetRuntimeFeedbackOperationParameters_to_vertex(
+            request_dict = _converters._GetRuntimeFeedbackOperationParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -948,8 +780,10 @@ class AsyncFeedbackEntries(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _CreateRuntimeFeedbackEntryRequestParameters_to_vertex(
-                parameter_model
+            request_dict = (
+                _converters._CreateRuntimeFeedbackEntryRequestParameters_to_vertex(
+                    parameter_model
+                )
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
@@ -1020,8 +854,10 @@ class AsyncFeedbackEntries(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _DeleteRuntimeFeedbackEntryRequestParameters_to_vertex(
-                parameter_model
+            request_dict = (
+                _converters._DeleteRuntimeFeedbackEntryRequestParameters_to_vertex(
+                    parameter_model
+                )
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
@@ -1106,7 +942,7 @@ class AsyncFeedbackEntries(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetRuntimeFeedbackRequestParameters_to_vertex(
+            request_dict = _converters._GetRuntimeFeedbackRequestParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -1178,8 +1014,10 @@ class AsyncFeedbackEntries(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _ListRuntimeFeedbackEntriesRequestParameters_to_vertex(
-                parameter_model
+            request_dict = (
+                _converters._ListRuntimeFeedbackEntriesRequestParameters_to_vertex(
+                    parameter_model
+                )
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
@@ -1264,8 +1102,10 @@ class AsyncFeedbackEntries(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _UpdateRuntimeFeedbackEntryRequestParameters_to_vertex(
-                parameter_model
+            request_dict = (
+                _converters._UpdateRuntimeFeedbackEntryRequestParameters_to_vertex(
+                    parameter_model
+                )
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
@@ -1336,7 +1176,7 @@ class AsyncFeedbackEntries(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetRuntimeFeedbackOperationParameters_to_vertex(
+            request_dict = _converters._GetRuntimeFeedbackOperationParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")
@@ -1408,7 +1248,7 @@ class AsyncFeedbackEntries(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetRuntimeFeedbackOperationParameters_to_vertex(
+            request_dict = _converters._GetRuntimeFeedbackOperationParameters_to_vertex(
                 parameter_model
             )
             request_url_dict = request_dict.get("_url")

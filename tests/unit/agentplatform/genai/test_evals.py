@@ -32,6 +32,7 @@ from google.cloud import aiplatform
 import agentplatform
 from google.cloud.aiplatform import initializer as aiplatform_initializer
 from agentplatform import _genai
+from agentplatform._genai import _converters
 from agentplatform._genai import _evals_builtin_tools
 from agentplatform._genai import _evals_data_converters
 from agentplatform._genai import _evals_metric_handlers
@@ -12549,7 +12550,7 @@ class TestStepBasedLLMMetric:
 
         spec = resolved[0].metric_config.step_based_llm_metric_spec
         assert [step.step_id for step in spec.steps] == ["extract", "judge"]
-        api_metric = evals._EvaluationRunMetric_to_vertex(resolved[0])
+        api_metric = _converters._EvaluationRunMetric_to_vertex(resolved[0])
         assert api_metric["metricConfig"]["stepBasedLlmMetricSpec"] is spec
 
     def test_metric_dict_coerces_to_step_based_handler(self):

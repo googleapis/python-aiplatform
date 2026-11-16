@@ -17,110 +17,19 @@
 
 import json
 import logging
-from typing import Any, Optional, Union
+from typing import Any, Optional
 from urllib.parse import urlencode
 
 from google.genai import _api_module
 from google.genai import _common
 from google.genai import types as genai_types
-from google.genai._common import get_value_by_path as getv
-from google.genai._common import set_value_by_path as setv
 
+from . import _converters
 from . import _operations_utils
 from . import _transformers as t
 from . import types
 
 logger = logging.getLogger("agentplatform_genai.endpoints")
-
-
-def _DeleteEndpointRequestParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(
-            to_object,
-            ["_url", "name"],
-            t.t_strict_endpoint(getv(from_object, ["name"])),
-        )
-
-    return to_object
-
-
-def _GetEndpointOperationParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["operation_name"]) is not None:
-        setv(
-            to_object, ["_url", "operationName"], getv(from_object, ["operation_name"])
-        )
-
-    return to_object
-
-
-def _GetEndpointParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(
-            to_object,
-            ["_url", "name"],
-            t.t_strict_endpoint(getv(from_object, ["name"])),
-        )
-
-    return to_object
-
-
-def _PredictConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-
-    if getv(from_object, ["parameters"]) is not None:
-        setv(parent_object, ["parameters"], getv(from_object, ["parameters"]))
-
-    return to_object
-
-
-def _PredictParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["_url", "endpoint"], t.t_endpoint(getv(from_object, ["name"])))
-
-    if getv(from_object, ["instances"]) is not None:
-        setv(to_object, ["instances"], getv(from_object, ["instances"]))
-
-    if getv(from_object, ["config"]) is not None:
-        _PredictConfig_to_vertex(getv(from_object, ["config"]), to_object)
-
-    return to_object
-
-
-def _UndeployModelRequestParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(
-            to_object,
-            ["_url", "endpoint"],
-            t.t_strict_endpoint(getv(from_object, ["name"])),
-        )
-
-    if getv(from_object, ["deployed_model_id"]) is not None:
-        setv(to_object, ["deployed_model_id"], getv(from_object, ["deployed_model_id"]))
-
-    return to_object
 
 
 class Endpoints(_api_module.BaseModule):
@@ -150,7 +59,9 @@ class Endpoints(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _UndeployModelRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._UndeployModelRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{endpoint}:undeployModel".format_map(request_url_dict)
@@ -224,7 +135,7 @@ class Endpoints(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _PredictParameters_to_vertex(parameter_model)
+            request_dict = _converters._PredictParameters_to_vertex(parameter_model)
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{endpoint}:predict".format_map(request_url_dict)
@@ -293,7 +204,9 @@ class Endpoints(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _DeleteEndpointRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._DeleteEndpointRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}".format_map(request_url_dict)
@@ -362,7 +275,7 @@ class Endpoints(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetEndpointParameters_to_vertex(parameter_model)
+            request_dict = _converters._GetEndpointParameters_to_vertex(parameter_model)
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}".format_map(request_url_dict)
@@ -430,7 +343,9 @@ class Endpoints(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetEndpointOperationParameters_to_vertex(parameter_model)
+            request_dict = _converters._GetEndpointOperationParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{operationName}".format_map(request_url_dict)
@@ -658,7 +573,9 @@ class AsyncEndpoints(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _UndeployModelRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._UndeployModelRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{endpoint}:undeployModel".format_map(request_url_dict)
@@ -734,7 +651,7 @@ class AsyncEndpoints(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _PredictParameters_to_vertex(parameter_model)
+            request_dict = _converters._PredictParameters_to_vertex(parameter_model)
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{endpoint}:predict".format_map(request_url_dict)
@@ -805,7 +722,9 @@ class AsyncEndpoints(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _DeleteEndpointRequestParameters_to_vertex(parameter_model)
+            request_dict = _converters._DeleteEndpointRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}".format_map(request_url_dict)
@@ -876,7 +795,7 @@ class AsyncEndpoints(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetEndpointParameters_to_vertex(parameter_model)
+            request_dict = _converters._GetEndpointParameters_to_vertex(parameter_model)
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}".format_map(request_url_dict)
@@ -946,7 +865,9 @@ class AsyncEndpoints(_api_module.BaseModule):
                 "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
-            request_dict = _GetEndpointOperationParameters_to_vertex(parameter_model)
+            request_dict = _converters._GetEndpointOperationParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{operationName}".format_map(request_url_dict)
