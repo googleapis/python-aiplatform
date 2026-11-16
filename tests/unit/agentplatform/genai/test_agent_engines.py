@@ -28,19 +28,19 @@ from urllib.parse import urlencode
 
 from google import auth
 from google.auth import credentials as auth_credentials
-from google.cloud import aiplatform
 import agentplatform
-from google.cloud.aiplatform import initializer
-from agentplatform.frameworks import adk
+from google.cloud import aiplatform
 from agentplatform._genai import _runtimes_utils
 from agentplatform._genai import runtimes
 from agentplatform._genai import types as _genai_types
+from agentplatform.frameworks import adk
+from google.cloud.aiplatform import initializer
 from google.genai import client as genai_client
 from google.genai import errors as genai_errors
 from google.genai import types as genai_types
-from google.api import httpbody_pb2
 import pytest
 
+from google.api import httpbody_pb2
 
 _TEST_AGENT_FRAMEWORK = "google-adk"
 GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY = (
@@ -364,9 +364,7 @@ _TEST_DEFAULT_STREAM_METHOD_NAME = _runtimes_utils._DEFAULT_STREAM_METHOD_NAME
 _TEST_DEFAULT_ASYNC_STREAM_METHOD_NAME = (
     _runtimes_utils._DEFAULT_ASYNC_STREAM_METHOD_NAME
 )
-_TEST_DEFAULT_BIDI_STREAM_METHOD_NAME = (
-    _runtimes_utils._DEFAULT_BIDI_STREAM_METHOD_NAME
-)
+_TEST_DEFAULT_BIDI_STREAM_METHOD_NAME = _runtimes_utils._DEFAULT_BIDI_STREAM_METHOD_NAME
 _TEST_CAPITALIZE_ENGINE_METHOD_DOCSTRING = "Runs the engine."
 _TEST_STREAM_METHOD_DOCSTRING = "Runs the stream engine."
 _TEST_ASYNC_STREAM_METHOD_DOCSTRING = "Runs the async stream engine."
@@ -652,11 +650,9 @@ _TEST_AGENT_ENGINE_ASYNC_STREAM_QUERY_SCHEMA = _runtimes_utils._generate_schema(
 _TEST_AGENT_ENGINE_ASYNC_STREAM_QUERY_SCHEMA[_TEST_MODE_KEY_IN_SCHEMA] = (
     _TEST_ASYNC_STREAM_API_MODE
 )
-_TEST_AGENT_ENGINE_CUSTOM_ASYNC_STREAM_QUERY_SCHEMA = (
-    _runtimes_utils._generate_schema(
-        OperationRegistrableEngine().custom_async_stream_method,
-        schema_name=_TEST_CUSTOM_ASYNC_STREAM_METHOD_NAME,
-    )
+_TEST_AGENT_ENGINE_CUSTOM_ASYNC_STREAM_QUERY_SCHEMA = _runtimes_utils._generate_schema(
+    OperationRegistrableEngine().custom_async_stream_method,
+    schema_name=_TEST_CUSTOM_ASYNC_STREAM_METHOD_NAME,
 )
 _TEST_AGENT_ENGINE_CUSTOM_ASYNC_STREAM_QUERY_SCHEMA[_TEST_MODE_KEY_IN_SCHEMA] = (
     _TEST_ASYNC_STREAM_API_MODE
@@ -668,11 +664,9 @@ _TEST_AGENT_ENGINE_BIDI_STREAM_QUERY_SCHEMA = _runtimes_utils._generate_schema(
 _TEST_AGENT_ENGINE_BIDI_STREAM_QUERY_SCHEMA[_TEST_MODE_KEY_IN_SCHEMA] = (
     _TEST_BIDI_STREAM_API_MODE
 )
-_TEST_AGENT_ENGINE_CUSTOM_BIDI_STREAM_QUERY_SCHEMA = (
-    _runtimes_utils._generate_schema(
-        OperationRegistrableEngine().custom_bidi_stream_method,
-        schema_name=_TEST_CUSTOM_BIDI_STREAM_METHOD_NAME,
-    )
+_TEST_AGENT_ENGINE_CUSTOM_BIDI_STREAM_QUERY_SCHEMA = _runtimes_utils._generate_schema(
+    OperationRegistrableEngine().custom_bidi_stream_method,
+    schema_name=_TEST_CUSTOM_BIDI_STREAM_METHOD_NAME,
 )
 _TEST_AGENT_ENGINE_CUSTOM_BIDI_STREAM_QUERY_SCHEMA[_TEST_MODE_KEY_IN_SCHEMA] = (
     _TEST_BIDI_STREAM_API_MODE
@@ -1771,9 +1765,7 @@ class TestRuntimeHelpers:
         )
 
     @mock.patch.object(_runtimes_utils, "_prepare")
-    def test_update_runtime_config_without_agent_card_omits_mask(
-        self, mock_prepare
-    ):
+    def test_update_runtime_config_without_agent_card_omits_mask(self, mock_prepare):
         config = self.client.runtimes._create_config(
             mode="update",
             agent=self.test_agent,
@@ -2130,9 +2122,7 @@ class TestRuntimeHelpers:
 
     def test_yield_parsed_json_from_httpbody_non_json_content_type(self):
         body = httpbody_pb2.HttpBody(content_type="text/plain", data=b"hello")
-        assert list(_runtimes_utils._yield_parsed_json_from_httpbody(body)) == [
-            body
-        ]
+        assert list(_runtimes_utils._yield_parsed_json_from_httpbody(body)) == [body]
 
     def test_create_base64_encoded_tarball(self):
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -3198,9 +3188,7 @@ class TestRuntime:
 
     @mock.patch.object(_runtimes_utils, "_prepare")
     @mock.patch.object(_runtimes_utils, "_await_operation")
-    def test_update_runtime_extra_packages(
-        self, mock_await_operation, mock_prepare
-    ):
+    def test_update_runtime_extra_packages(self, mock_await_operation, mock_prepare):
         mock_await_operation.return_value = _genai_types.RuntimeOperation(
             response=_genai_types.ReasoningEngine(
                 name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
@@ -3263,9 +3251,7 @@ class TestRuntime:
             )
 
     @mock.patch.object(_runtimes_utils, "_await_operation")
-    def test_update_runtime_deployment_config_without_agent(
-        self, mock_await_operation
-    ):
+    def test_update_runtime_deployment_config_without_agent(self, mock_await_operation):
         mock_await_operation.return_value = _genai_types.RuntimeOperation(
             response=_genai_types.ReasoningEngine(
                 name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
@@ -3411,9 +3397,7 @@ class TestRuntime:
 
     @mock.patch.object(_runtimes_utils, "_prepare")
     @mock.patch.object(_runtimes_utils, "_await_operation")
-    def test_update_runtime_env_vars(
-        self, mock_await_operation, mock_prepare, caplog
-    ):
+    def test_update_runtime_env_vars(self, mock_await_operation, mock_prepare, caplog):
         mock_await_operation.return_value = _genai_types.RuntimeOperation(
             response=_genai_types.ReasoningEngine(
                 name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
@@ -4225,9 +4209,7 @@ class TestRuntime:
         ],
         ids=["default", "http_options_instance", "http_options_dict"],
     )
-    def test_query_runtime_async_stream(
-        self, http_options_arg, expected_http_options
-    ):
+    def test_query_runtime_async_stream(self, http_options_arg, expected_http_options):
         """Async streaming query: forwards http_options to the HTTP layer (or None)."""
         kwargs = {"query": _TEST_QUERY_PROMPT}
         if http_options_arg is not _UNSET_HTTP_OPTIONS:
@@ -4766,15 +4748,439 @@ class TestAsyncRuntime:
     def teardown_method(self):
         initializer.global_pool.shutdown(wait=True)
 
+    def test_get_runtime(self):
+        with mock.patch.object(
+            self.client.aio.runtimes._api_client, "async_request"
+        ) as request_mock:
+            request_mock.return_value = genai_types.HttpResponse(
+                body=json.dumps(
+                    {
+                        "name": _TEST_AGENT_ENGINE_RESOURCE_NAME,
+                        "spec": {
+                            "classMethods": [
+                                _TEST_AGENT_ENGINE_CLASS_METHOD_1,
+                                _TEST_AGENT_ENGINE_CLASS_METHOD_ASYNC_QUERY,
+                            ]
+                        },
+                    }
+                )
+            )
+            runtime = asyncio.run(
+                self.client.aio.runtimes.get(name=_TEST_AGENT_ENGINE_RESOURCE_NAME)
+            )
+            request_mock.assert_called_with(
+                "get",
+                _TEST_AGENT_ENGINE_RESOURCE_NAME,
+                {"_url": {"name": _TEST_AGENT_ENGINE_RESOURCE_NAME}},
+                None,
+            )
+            assert isinstance(runtime, _genai_types.Runtime)
+            assert runtime.api_resource.name == _TEST_AGENT_ENGINE_RESOURCE_NAME
+            assert callable(runtime.query)
+            assert callable(runtime.async_query)
+
+    def test_get_runtime_and_async_query(self):
+        with mock.patch.object(
+            self.client.aio.runtimes._api_client, "async_request"
+        ) as request_mock:
+            request_mock.side_effect = [
+                genai_types.HttpResponse(
+                    body=json.dumps(
+                        {
+                            "name": _TEST_AGENT_ENGINE_RESOURCE_NAME,
+                            "spec": {
+                                "classMethods": [
+                                    _TEST_AGENT_ENGINE_CLASS_METHOD_ASYNC_QUERY,
+                                ]
+                            },
+                        }
+                    )
+                ),
+                genai_types.HttpResponse(body=json.dumps({"output": "RESULT"})),
+            ]
+
+            async def get_and_query():
+                runtime = await self.client.aio.runtimes.get(
+                    name=_TEST_AGENT_ENGINE_RESOURCE_NAME
+                )
+                return await runtime.async_query(query=_TEST_QUERY_PROMPT)
+
+            output = asyncio.run(get_and_query())
+            assert output == "RESULT"
+            request_mock.assert_called_with(
+                "post",
+                f"{_TEST_AGENT_ENGINE_RESOURCE_NAME}:query",
+                {
+                    "_url": {"name": _TEST_AGENT_ENGINE_RESOURCE_NAME},
+                    "classMethod": "async_query",
+                    "input": {"query": _TEST_QUERY_PROMPT},
+                },
+                None,
+            )
+
+    def test_list_runtime(self):
+        with mock.patch.object(
+            self.client.aio.runtimes._api_client, "async_request"
+        ) as request_mock:
+            request_mock.return_value = genai_types.HttpResponse(
+                body=json.dumps(
+                    {"reasoningEngines": [{"name": _TEST_AGENT_ENGINE_RESOURCE_NAME}]}
+                )
+            )
+            expected_query_params = {"filter": _TEST_AGENT_ENGINE_LIST_FILTER}
+
+            async def collect_runtimes():
+                return [
+                    item
+                    async for item in self.client.aio.runtimes.list(
+                        config=expected_query_params
+                    )
+                ]
+
+            items = asyncio.run(collect_runtimes())
+            assert len(items) == 1
+            assert isinstance(items[0], _genai_types.Runtime)
+            assert items[0].api_resource.name == _TEST_AGENT_ENGINE_RESOURCE_NAME
+            request_mock.assert_called_with(
+                "get",
+                f"reasoningEngines?{urlencode(expected_query_params)}",
+                {"_query": expected_query_params},
+                None,
+            )
+
+    @mock.patch.object(_runtimes_utils, "_prepare")
+    @mock.patch.object(_runtimes_utils, "_await_async_operation")
+    @mock.patch.object(
+        _runtimes_utils,
+        "_get_reasoning_engine_id",
+        return_value=_TEST_RESOURCE_ID,
+    )
+    def test_create_runtime(
+        self,
+        mock_get_reasoning_engine_id,
+        mock_await_async_operation,
+        mock_prepare,
+    ):
+        mock_await_async_operation.return_value = _genai_types.RuntimeOperation(
+            response=_genai_types.ReasoningEngine(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                spec=_TEST_AGENT_ENGINE_SPEC,
+            )
+        )
+        with mock.patch.object(
+            self.client.aio.runtimes._api_client, "async_request"
+        ) as request_mock:
+            request_mock.return_value = genai_types.HttpResponse(
+                body=json.dumps({"name": _TEST_AGENT_ENGINE_OPERATION_NAME})
+            )
+            created_runtime = asyncio.run(
+                self.client.aio.runtimes.create(
+                    agent=self.test_agent,
+                    config=_genai_types.AgentRuntimeConfig(
+                        display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+                        staging_bucket=_TEST_STAGING_BUCKET,
+                    ),
+                )
+            )
+            assert isinstance(created_runtime, _genai_types.Runtime)
+            assert created_runtime.api_resource.name == _TEST_AGENT_ENGINE_RESOURCE_NAME
+            assert callable(created_runtime.query)
+            mock_await_async_operation.assert_called_once()
+            request_mock.assert_called_once()
+            assert request_mock.call_args[0][0] == "post"
+            assert request_mock.call_args[0][1] == "reasoningEngines"
+
+    @mock.patch.object(_runtimes_utils, "_prepare")
+    @mock.patch.object(_runtimes_utils, "_await_async_operation")
+    @mock.patch.object(
+        _runtimes_utils,
+        "_get_reasoning_engine_id",
+        return_value=_TEST_RESOURCE_ID,
+    )
+    def test_create_runtime_error(
+        self,
+        mock_get_reasoning_engine_id,
+        mock_await_async_operation,
+        mock_prepare,
+    ):
+        mock_await_async_operation.return_value = _genai_types.RuntimeOperation(
+            error=_TEST_AGENT_ENGINE_ERROR,
+        )
+        with mock.patch.object(
+            self.client.aio.runtimes._api_client, "async_request"
+        ) as request_mock:
+            request_mock.return_value = genai_types.HttpResponse(body="")
+            with pytest.raises(genai_errors.APIError) as excinfo:
+                asyncio.run(
+                    self.client.aio.runtimes.create(
+                        agent=self.test_agent,
+                        config=_genai_types.AgentRuntimeConfig(
+                            display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+                            staging_bucket=_TEST_STAGING_BUCKET,
+                        ),
+                    )
+                )
+            assert excinfo.value.code == _TEST_AGENT_ENGINE_ERROR["code"]
+            assert excinfo.value.message == _TEST_AGENT_ENGINE_ERROR["message"]
+
+    @mock.patch.object(_runtimes_utils, "_await_async_operation")
+    def test_update_runtime(self, mock_await_async_operation):
+        mock_await_async_operation.return_value = _genai_types.RuntimeOperation(
+            response=_genai_types.ReasoningEngine(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                spec=_TEST_AGENT_ENGINE_SPEC,
+            )
+        )
+        with mock.patch.object(
+            self.client.aio.runtimes._api_client, "async_request"
+        ) as request_mock:
+            request_mock.return_value = genai_types.HttpResponse(
+                body=json.dumps({"name": _TEST_AGENT_ENGINE_OPERATION_NAME})
+            )
+            updated_runtime = asyncio.run(
+                self.client.aio.runtimes.update(
+                    name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                    config=_genai_types.AgentRuntimeConfig(
+                        description=_TEST_AGENT_ENGINE_DESCRIPTION,
+                    ),
+                )
+            )
+            assert isinstance(updated_runtime, _genai_types.Runtime)
+            assert updated_runtime.api_resource.name == _TEST_AGENT_ENGINE_RESOURCE_NAME
+            mock_await_async_operation.assert_called_once()
+            request_mock.assert_called_once_with(
+                "patch",
+                f"{_TEST_AGENT_ENGINE_RESOURCE_NAME}?updateMask=description",
+                {
+                    "_url": {"name": _TEST_AGENT_ENGINE_RESOURCE_NAME},
+                    "_query": {"updateMask": "description"},
+                    "description": _TEST_AGENT_ENGINE_DESCRIPTION,
+                },
+                None,
+            )
+
+    @mock.patch.object(_runtimes_utils, "_await_async_operation")
+    def test_update_runtime_error(self, mock_await_async_operation):
+        mock_await_async_operation.return_value = _genai_types.RuntimeOperation(
+            error=_TEST_AGENT_ENGINE_ERROR,
+        )
+        with mock.patch.object(
+            self.client.aio.runtimes._api_client, "async_request"
+        ) as request_mock:
+            request_mock.return_value = genai_types.HttpResponse(body="")
+            with pytest.raises(genai_errors.APIError) as excinfo:
+                asyncio.run(
+                    self.client.aio.runtimes.update(
+                        name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                        config=_genai_types.AgentRuntimeConfig(
+                            description=_TEST_AGENT_ENGINE_DESCRIPTION,
+                        ),
+                    )
+                )
+            assert excinfo.value.code == _TEST_AGENT_ENGINE_ERROR["code"]
+            assert excinfo.value.message == _TEST_AGENT_ENGINE_ERROR["message"]
+
+    def test_check_query_job_runtime(self):
+        with mock.patch.object(
+            self.client.aio.runtimes._api_client, "async_request"
+        ) as request_mock:
+            request_mock.return_value = genai_types.HttpResponse(
+                headers={},
+                body=(
+                    '{"done": true, "name": '
+                    '"projects/123/locations/us-central1/reasoningEngines/456/operations/789", '
+                    '"response": {"output_gcs_uri": "gs://my-output-bucket/output.json"}}'
+                ),
+            )
+            with mock.patch("google.cloud.storage.Client") as mock_storage_client:
+                mock_bucket = mock.Mock()
+                mock_blob = mock.Mock()
+                mock_blob.exists.return_value = True
+                mock_blob.download_as_string.return_value = b'{"success": true}'
+                mock_bucket.blob.return_value = mock_blob
+                mock_storage_client.return_value.bucket.return_value = mock_bucket
+
+                result = asyncio.run(
+                    self.client.aio.runtimes.check_query_job(
+                        name="projects/123/locations/us-central1/reasoningEngines/456/operations/789",
+                        config={"retrieve_result": True},
+                    )
+                )
+
+                assert result == _genai_types.CheckQueryJobResult(
+                    operation_name="projects/123/locations/us-central1/reasoningEngines/456/operations/789",
+                    status="SUCCESS",
+                    output_gcs_uri="gs://my-output-bucket/output.json",
+                    result='{"success": true}',
+                )
+                request_mock.assert_called_once_with(
+                    "get",
+                    "projects/123/locations/us-central1/reasoningEngines/456/operations/789",
+                    {},
+                )
+
+    @mock.patch("google.cloud.storage.Client")
+    def test_run_query_job_runtime(self, mock_storage_client):
+        with mock.patch.object(
+            self.client.aio.runtimes._api_client, "async_request"
+        ) as request_mock:
+            request_mock.return_value = genai_types.HttpResponse(
+                body='{"name": "projects/123/locations/us-central1/reasoningEngines/456/operations/789"}'
+            )
+            mock_bucket = mock.Mock()
+            mock_bucket.exists.return_value = True
+            mock_blob = mock.Mock()
+            mock_bucket.blob.return_value = mock_blob
+            mock_storage_client.return_value.bucket.return_value = mock_bucket
+
+            result = asyncio.run(
+                self.client.aio.runtimes.run_query_job(
+                    name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                    config={
+                        "query": _TEST_QUERY_PROMPT,
+                        "output_gcs_uri": "gs://my-input-bucket/path/output.json",
+                    },
+                )
+            )
+            mock_blob.upload_from_string.assert_called_once_with(_TEST_QUERY_PROMPT)
+            assert result == _genai_types.RunQueryJobResult(
+                job_name="projects/123/locations/us-central1/reasoningEngines/456/operations/789",
+                input_gcs_uri="gs://my-input-bucket/path/output_input.json",
+                output_gcs_uri="gs://my-input-bucket/path/output.json",
+            )
+
+    @mock.patch("google.cloud.storage.Client")
+    @mock.patch("uuid.uuid4")
+    def test_run_query_job_runtime_dotted_bucket_no_slash(
+        self, mock_uuid, mock_storage_client
+    ):
+        mock_uuid.return_value.hex = "b92b9b89-4585-4146-8ee5-22fe99802a8e"
+        with mock.patch.object(
+            self.client.aio.runtimes._api_client, "async_request"
+        ) as request_mock:
+            request_mock.return_value = genai_types.HttpResponse(
+                body='{"name": "projects/123/locations/us-central1/reasoningEngines/456/operations/789"}'
+            )
+            mock_bucket = mock.Mock()
+            mock_bucket.exists.return_value = True
+            mock_blob = mock.Mock()
+            mock_bucket.blob.return_value = mock_blob
+            mock_storage_client.return_value.bucket.return_value = mock_bucket
+
+            result = asyncio.run(
+                self.client.aio.runtimes.run_query_job(
+                    name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                    config={
+                        "query": _TEST_QUERY_PROMPT,
+                        "output_gcs_uri": "gs://my.company.bucket",
+                    },
+                )
+            )
+            mock_storage_client.return_value.bucket.assert_called_once_with(
+                "my.company.bucket"
+            )
+            mock_bucket.blob.assert_called_once_with(
+                "b92b9b89-4585-4146-8ee5-22fe99802a8e_input.json"
+            )
+            assert result == _genai_types.RunQueryJobResult(
+                job_name="projects/123/locations/us-central1/reasoningEngines/456/operations/789",
+                input_gcs_uri="gs://my.company.bucket/b92b9b89-4585-4146-8ee5-22fe99802a8e_input.json",
+                output_gcs_uri="gs://my.company.bucket/b92b9b89-4585-4146-8ee5-22fe99802a8e_output.json",
+            )
+
+    @pytest.mark.parametrize(
+        "invalid_uri, expected_match",
+        [
+            ("my-bucket/output.json", "`output_gcs_uri` must start with 'gs://'."),
+            ("gs://", "`output_gcs_uri` must include a GCS bucket name."),
+            ("gs:///output.json", "`output_gcs_uri` must include a GCS bucket name."),
+        ],
+    )
+    def test_run_query_job_runtime_invalid_gcs_uri(self, invalid_uri, expected_match):
+        with pytest.raises(ValueError, match=expected_match):
+            asyncio.run(
+                self.client.aio.runtimes.run_query_job(
+                    name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                    config={
+                        "query": _TEST_QUERY_PROMPT,
+                        "output_gcs_uri": invalid_uri,
+                    },
+                )
+            )
+
+    @mock.patch.object(_runtimes_utils, "_prepare")
+    @mock.patch.object(_runtimes_utils, "_await_async_operation")
+    @mock.patch.object(
+        _runtimes_utils,
+        "_get_reasoning_engine_id",
+        return_value=_TEST_RESOURCE_ID,
+    )
+    def test_create_runtime_deprecated_runtime_arg(
+        self,
+        mock_get_reasoning_engine_id,
+        mock_await_async_operation,
+        mock_prepare,
+    ):
+        mock_await_async_operation.return_value = _genai_types.RuntimeOperation(
+            response=_genai_types.ReasoningEngine(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                spec=_TEST_AGENT_ENGINE_SPEC,
+            )
+        )
+        with mock.patch.object(
+            self.client.aio.runtimes._api_client, "async_request"
+        ) as request_mock:
+            request_mock.return_value = genai_types.HttpResponse(
+                body=json.dumps({"name": _TEST_AGENT_ENGINE_OPERATION_NAME})
+            )
+            with pytest.warns(DeprecationWarning, match="deprecated"):
+                created_runtime = asyncio.run(
+                    self.client.aio.runtimes.create(
+                        runtime=self.test_agent,
+                        config=_genai_types.AgentRuntimeConfig(
+                            display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+                            staging_bucket=_TEST_STAGING_BUCKET,
+                        ),
+                    )
+                )
+            assert isinstance(created_runtime, _genai_types.Runtime)
+
+    @mock.patch.object(_runtimes_utils, "_prepare")
+    @mock.patch.object(_runtimes_utils, "_await_async_operation")
+    def test_update_runtime_deprecated_runtime_arg(
+        self, mock_await_async_operation, mock_prepare
+    ):
+        mock_await_async_operation.return_value = _genai_types.RuntimeOperation(
+            response=_genai_types.ReasoningEngine(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                spec=_TEST_AGENT_ENGINE_SPEC,
+            )
+        )
+        with mock.patch.object(
+            self.client.aio.runtimes._api_client, "async_request"
+        ) as request_mock:
+            request_mock.return_value = genai_types.HttpResponse(
+                body=json.dumps({"name": _TEST_AGENT_ENGINE_OPERATION_NAME})
+            )
+            with pytest.warns(DeprecationWarning, match="deprecated"):
+                updated_runtime = asyncio.run(
+                    self.client.aio.runtimes.update(
+                        name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                        runtime=self.test_agent,
+                        config=_genai_types.AgentRuntimeConfig(
+                            staging_bucket=_TEST_STAGING_BUCKET,
+                        ),
+                    )
+                )
+            assert isinstance(updated_runtime, _genai_types.Runtime)
+
     def test_delete_runtime(self):
         with mock.patch.object(
             self.client.aio.runtimes._api_client, "async_request"
         ) as request_mock:
             request_mock.return_value = genai_types.HttpResponse(body="")
             asyncio.run(
-                self.client.aio.runtimes.delete(
-                    name=_TEST_AGENT_ENGINE_RESOURCE_NAME
-                )
+                self.client.aio.runtimes.delete(name=_TEST_AGENT_ENGINE_RESOURCE_NAME)
             )
             request_mock.assert_called_with(
                 "delete",
@@ -4799,4 +5205,262 @@ class TestAsyncRuntime:
                 _TEST_AGENT_ENGINE_RESOURCE_NAME,
                 {"_url": {"name": _TEST_AGENT_ENGINE_RESOURCE_NAME}, "force": True},
                 None,
+            )
+
+    def test_get_runtime_and_async_stream_query(self):
+        async def mock_async_generator():
+            yield genai_types.HttpResponse(body=b'data: {"output": "CHUNK"}\n\n')
+
+        with (
+            mock.patch.object(
+                self.client.aio.runtimes._api_client, "async_request"
+            ) as get_request_mock,
+            mock.patch.object(
+                self.client.aio.runtimes._api_client, "async_request_streamed"
+            ) as stream_request_mock,
+        ):
+            get_request_mock.return_value = genai_types.HttpResponse(
+                body=json.dumps(
+                    {
+                        "name": _TEST_AGENT_ENGINE_RESOURCE_NAME,
+                        "spec": {
+                            "classMethods": [
+                                _TEST_AGENT_ENGINE_CLASS_METHOD_ASYNC_STREAM_QUERY,
+                            ]
+                        },
+                    }
+                )
+            )
+            stream_request_mock.return_value = mock_async_generator()
+
+            async def get_and_stream():
+                runtime = await self.client.aio.runtimes.get(
+                    name=_TEST_AGENT_ENGINE_RESOURCE_NAME
+                )
+                return [
+                    chunk
+                    async for chunk in runtime.async_stream_query(
+                        query=_TEST_QUERY_PROMPT
+                    )
+                ]
+
+            chunks = asyncio.run(get_and_stream())
+            assert chunks == [{"output": "CHUNK"}]
+
+    @mock.patch.object(runtimes.Runtimes, "_register_api_methods")
+    @mock.patch.object(_runtimes_utils, "_await_async_operation")
+    @mock.patch.object(
+        _runtimes_utils,
+        "_get_reasoning_engine_id",
+        return_value=_TEST_RESOURCE_ID,
+    )
+    def test_create_runtime_lightweight(
+        self,
+        mock_get_reasoning_engine_id,
+        mock_await_async_operation,
+        mock_register_api_methods,
+    ):
+        mock_await_async_operation.return_value = _genai_types.RuntimeOperation(
+            response=_genai_types.ReasoningEngine(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+            )
+        )
+        with mock.patch.object(
+            self.client.aio.runtimes._api_client, "async_request"
+        ) as request_mock:
+            request_mock.return_value = genai_types.HttpResponse(
+                body=json.dumps({"name": _TEST_AGENT_ENGINE_OPERATION_NAME})
+            )
+            created_runtime = asyncio.run(
+                self.client.aio.runtimes.create(
+                    config=_genai_types.AgentRuntimeConfig(
+                        display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+                    ),
+                )
+            )
+            assert isinstance(created_runtime, _genai_types.Runtime)
+            assert created_runtime.api_resource.name == _TEST_AGENT_ENGINE_RESOURCE_NAME
+            assert (
+                mock_await_async_operation.call_args.kwargs["poll_interval_seconds"]
+                == 1
+            )
+            mock_register_api_methods.assert_not_called()
+
+    @mock.patch.object(_runtimes_utils, "_await_async_operation")
+    @mock.patch.object(
+        _runtimes_utils,
+        "_get_reasoning_engine_id",
+        return_value=_TEST_RESOURCE_ID,
+    )
+    def test_create_runtime_converts_image_spec_and_container_spec(
+        self,
+        mock_get_reasoning_engine_id,
+        mock_await_async_operation,
+    ):
+        mock_await_async_operation.return_value = _genai_types.RuntimeOperation(
+            response=_genai_types.ReasoningEngine(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                spec=_TEST_AGENT_ENGINE_SPEC,
+            )
+        )
+        with (
+            mock.patch.object(
+                self.client.aio.runtimes._api_client, "async_request"
+            ) as request_mock,
+            mock.patch.object(
+                runtimes.Runtimes, "_create_config", return_value={}
+            ) as create_config_mock,
+        ):
+            request_mock.return_value = genai_types.HttpResponse(
+                body=json.dumps({"name": _TEST_AGENT_ENGINE_OPERATION_NAME})
+            )
+            asyncio.run(
+                self.client.aio.runtimes.create(
+                    config=_genai_types.AgentRuntimeConfig(
+                        display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+                        container_spec={"image_uri": "gcr.io/my-project/my-image"},
+                    ),
+                )
+            )
+            assert isinstance(
+                create_config_mock.call_args.kwargs["container_spec"], dict
+            )
+
+    def test_check_query_job_runtime_running(self):
+        with mock.patch.object(
+            self.client.aio.runtimes._api_client, "async_request"
+        ) as request_mock:
+            request_mock.return_value = genai_types.HttpResponse(
+                headers={},
+                body=(
+                    '{"done": false, "name": '
+                    '"projects/123/locations/us-central1/reasoningEngines/456/operations/789", '
+                    '"response": {"output_gcs_uri": "gs://my-output-bucket/output.json"}}'
+                ),
+            )
+            result = asyncio.run(
+                self.client.aio.runtimes.check_query_job(
+                    name="projects/123/locations/us-central1/reasoningEngines/456/operations/789",
+                    config={"retrieve_result": True},
+                )
+            )
+            assert result == _genai_types.CheckQueryJobResult(
+                operation_name="projects/123/locations/us-central1/reasoningEngines/456/operations/789",
+                status="RUNNING",
+                output_gcs_uri="gs://my-output-bucket/output.json",
+                result=None,
+            )
+
+    def test_check_query_job_runtime_failed(self):
+        with mock.patch.object(
+            self.client.aio.runtimes._api_client, "async_request"
+        ) as request_mock:
+            request_mock.return_value = genai_types.HttpResponse(
+                headers={},
+                body='{"done": true, "error": {"message": "Job failed with errors."}}',
+            )
+            result = asyncio.run(
+                self.client.aio.runtimes.check_query_job(
+                    name="projects/123/locations/us-central1/reasoningEngines/456/operations/789",
+                    config={"retrieve_result": True},
+                )
+            )
+            assert result == _genai_types.CheckQueryJobResult(
+                operation_name="projects/123/locations/us-central1/reasoningEngines/456/operations/789",
+                status="FAILED",
+                output_gcs_uri=None,
+                result="{'message': 'Job failed with errors.'}",
+            )
+
+    def test_check_query_job_runtime_no_retrieve(self):
+        with mock.patch.object(
+            self.client.aio.runtimes._api_client, "async_request"
+        ) as request_mock:
+            request_mock.return_value = genai_types.HttpResponse(
+                headers={},
+                body=(
+                    '{"done": true, "name": '
+                    '"projects/123/locations/us-central1/reasoningEngines/456/operations/789", '
+                    '"response": {"output_gcs_uri": "gs://my-output-bucket/output.json"}}'
+                ),
+            )
+            result = asyncio.run(
+                self.client.aio.runtimes.check_query_job(
+                    name="projects/123/locations/us-central1/reasoningEngines/456/operations/789",
+                    config={"retrieve_result": False},
+                )
+            )
+            assert result == _genai_types.CheckQueryJobResult(
+                operation_name="projects/123/locations/us-central1/reasoningEngines/456/operations/789",
+                status="SUCCESS",
+                output_gcs_uri="gs://my-output-bucket/output.json",
+                result=None,
+            )
+
+    def test_check_query_job_runtime_blob_not_exists(self):
+        with mock.patch.object(
+            self.client.aio.runtimes._api_client, "async_request"
+        ) as request_mock:
+            request_mock.return_value = genai_types.HttpResponse(
+                headers={},
+                body=(
+                    '{"done": true, "name": '
+                    '"projects/123/locations/us-central1/reasoningEngines/456/operations/789", '
+                    '"response": {"output_gcs_uri": "gs://my-output-bucket/output.json"}}'
+                ),
+            )
+            with mock.patch("google.cloud.storage.Client") as mock_storage_client:
+                mock_bucket = mock.Mock()
+                mock_blob = mock.Mock()
+                mock_blob.exists.return_value = False
+                mock_bucket.blob.return_value = mock_blob
+                mock_storage_client.return_value.bucket.return_value = mock_bucket
+
+                with pytest.raises(
+                    ValueError,
+                    match="Failed to retrieve blob results for gs://my-output-bucket/output.json",
+                ):
+                    asyncio.run(
+                        self.client.aio.runtimes.check_query_job(
+                            name="projects/123/locations/us-central1/reasoningEngines/456/operations/789",
+                            config={"retrieve_result": True},
+                        )
+                    )
+
+    @mock.patch("google.cloud.storage.Client")
+    @mock.patch("uuid.uuid4")
+    def test_run_query_job_runtime_directory_and_bucket_create(
+        self, mock_uuid, mock_storage_client
+    ):
+        mock_uuid.return_value.hex = "b92b9b89-4585-4146-8ee5-22fe99802a8e"
+        with mock.patch.object(
+            self.client.aio.runtimes._api_client, "async_request"
+        ) as request_mock:
+            request_mock.return_value = genai_types.HttpResponse(
+                body='{"name": "projects/123/locations/us-central1/reasoningEngines/456/operations/789"}'
+            )
+            mock_bucket = mock.Mock()
+            mock_bucket.exists.return_value = False
+            mock_blob = mock.Mock()
+            mock_bucket.blob.return_value = mock_blob
+            mock_storage_client.return_value.bucket.return_value = mock_bucket
+
+            result = asyncio.run(
+                self.client.aio.runtimes.run_query_job(
+                    name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                    config={
+                        "query": _TEST_QUERY_PROMPT,
+                        "output_gcs_uri": "gs://my-input-bucket/path/",
+                    },
+                )
+            )
+            mock_bucket.create.assert_called_once()
+            mock_bucket.blob.assert_called_once_with(
+                "path/b92b9b89-4585-4146-8ee5-22fe99802a8e_input.json"
+            )
+            mock_blob.upload_from_string.assert_called_once_with(_TEST_QUERY_PROMPT)
+            assert result == _genai_types.RunQueryJobResult(
+                job_name="projects/123/locations/us-central1/reasoningEngines/456/operations/789",
+                input_gcs_uri="gs://my-input-bucket/path/b92b9b89-4585-4146-8ee5-22fe99802a8e_input.json",
+                output_gcs_uri="gs://my-input-bucket/path/b92b9b89-4585-4146-8ee5-22fe99802a8e_output.json",
             )
