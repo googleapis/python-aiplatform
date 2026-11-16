@@ -9680,7 +9680,12 @@ class CreateRuntimeConfig(_common.BaseModel):
         default=None,
         description="""Optional. Specifies the configuration for keep-alive probe.
       Contains configuration on a specified endpoint that a deployment host
-      should use to keep the container alive based on the probe settings.""",
+      should use to keep the container alive based on the probe settings. Pass
+      an empty `KeepAliveProbe` (`{}`) to enable the default probe
+      (`max_seconds=3600`), which is supported for `AdkApp`
+      (`agent_framework='google-adk'`) deployments. Custom `http_get` and
+      `max_seconds` settings are only supported when deploying from a custom
+      container (`container_spec`) or Dockerfile (`image_spec`).""",
     )
     encryption_spec: Optional[genai_types.EncryptionSpec] = Field(
         default=None,
@@ -9835,7 +9840,12 @@ class CreateRuntimeConfigDict(TypedDict, total=False):
     keep_alive_probe: Optional[KeepAliveProbeDict]
     """Optional. Specifies the configuration for keep-alive probe.
       Contains configuration on a specified endpoint that a deployment host
-      should use to keep the container alive based on the probe settings."""
+      should use to keep the container alive based on the probe settings. Pass
+      an empty `KeepAliveProbe` (`{}`) to enable the default probe
+      (`max_seconds=3600`), which is supported for `AdkApp`
+      (`agent_framework='google-adk'`) deployments. Custom `http_get` and
+      `max_seconds` settings are only supported when deploying from a custom
+      container (`container_spec`) or Dockerfile (`image_spec`)."""
 
     encryption_spec: Optional[genai_types.EncryptionSpec]
     """The encryption spec to be used for the Agent Runtime."""
@@ -10348,7 +10358,12 @@ class UpdateRuntimeConfig(_common.BaseModel):
         default=None,
         description="""Optional. Specifies the configuration for keep-alive probe.
       Contains configuration on a specified endpoint that a deployment host
-      should use to keep the container alive based on the probe settings.""",
+      should use to keep the container alive based on the probe settings. Pass
+      an empty `KeepAliveProbe` (`{}`) to enable the default probe
+      (`max_seconds=3600`), which is supported for `AdkApp`
+      (`agent_framework='google-adk'`) deployments. Custom `http_get` and
+      `max_seconds` settings are only supported when deploying from a custom
+      container (`container_spec`) or Dockerfile (`image_spec`).""",
     )
     encryption_spec: Optional[genai_types.EncryptionSpec] = Field(
         default=None,
@@ -10512,7 +10527,12 @@ class UpdateRuntimeConfigDict(TypedDict, total=False):
     keep_alive_probe: Optional[KeepAliveProbeDict]
     """Optional. Specifies the configuration for keep-alive probe.
       Contains configuration on a specified endpoint that a deployment host
-      should use to keep the container alive based on the probe settings."""
+      should use to keep the container alive based on the probe settings. Pass
+      an empty `KeepAliveProbe` (`{}`) to enable the default probe
+      (`max_seconds=3600`), which is supported for `AdkApp`
+      (`agent_framework='google-adk'`) deployments. Custom `http_get` and
+      `max_seconds` settings are only supported when deploying from a custom
+      container (`container_spec`) or Dockerfile (`image_spec`)."""
 
     encryption_spec: Optional[genai_types.EncryptionSpec]
     """The encryption spec to be used for the Agent Runtime."""
@@ -33231,7 +33251,12 @@ class AgentRuntimeConfig(_common.BaseModel):
         default=None,
         description="""Optional. Specifies the configuration for keep-alive probe.
       Contains configuration on a specified endpoint that a deployment host
-      should use to keep the container alive based on the probe settings.""",
+      should use to keep the container alive based on the probe settings. Pass
+      an empty `KeepAliveProbe` (`{}`) to enable the default probe
+      (`max_seconds=3600`), which is supported for `AdkApp`
+      (`agent_framework='google-adk'`) deployments. Custom `http_get` and
+      `max_seconds` settings are only supported when deploying from a custom
+      container (`container_spec`) or Dockerfile (`image_spec`).""",
     )
     encryption_spec: Optional[genai_types.EncryptionSpec] = Field(
         default=None,
@@ -33447,7 +33472,12 @@ class AgentRuntimeConfigDict(TypedDict, total=False):
     keep_alive_probe: Optional[KeepAliveProbeDict]
     """Optional. Specifies the configuration for keep-alive probe.
       Contains configuration on a specified endpoint that a deployment host
-      should use to keep the container alive based on the probe settings."""
+      should use to keep the container alive based on the probe settings. Pass
+      an empty `KeepAliveProbe` (`{}`) to enable the default probe
+      (`max_seconds=3600`), which is supported for `AdkApp`
+      (`agent_framework='google-adk'`) deployments. Custom `http_get` and
+      `max_seconds` settings are only supported when deploying from a custom
+      container (`container_spec`) or Dockerfile (`image_spec`)."""
 
     encryption_spec: Optional[genai_types.EncryptionSpec]
     """The encryption spec to be used for the Agent Runtime."""
