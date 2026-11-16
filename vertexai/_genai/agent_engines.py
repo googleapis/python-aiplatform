@@ -2358,6 +2358,7 @@ class AgentEngines(_api_module.BaseModule):
             update_masks.append("traffic_config")
             config["traffic_config"] = traffic_config
 
+        caller_provided_env_vars = env_vars is not None
         if agent_framework == "google-adk":
             env_vars = _agent_engines_utils._add_telemetry_enablement_env(env_vars)
 
@@ -2462,33 +2463,42 @@ class AgentEngines(_api_module.BaseModule):
             or container_concurrency is not None
             or keep_alive_probe is not None
         )
-        if agent_engine_spec is None and is_deployment_spec_updated:
+        has_code_or_container_spec = agent_engine_spec is not None
+        if (
+            mode == "create"
+            and not has_code_or_container_spec
+            and is_deployment_spec_updated
+        ):
             raise ValueError(
-                "To update `env_vars`, `psc_interface_config`, `min_instances`, "
+                "To set `env_vars`, `psc_interface_config`, `min_instances`, "
                 "`max_instances`, `resource_limits`, `container_concurrency`, or "
                 "`keep_alive_probe`, you must also provide the `agent` variable or "
                 "the source code options (`source_packages`, "
                 "`developer_connect_source` or `agent_config_source`)."
             )
 
-        if agent_engine_spec is not None:
-            if is_deployment_spec_updated:
-                (
-                    deployment_spec,
-                    deployment_update_masks,
-                ) = self._generate_deployment_spec_or_raise(
-                    env_vars=env_vars,
-                    psc_interface_config=psc_interface_config,
-                    agent_gateway_config=agent_gateway_config,
-                    min_instances=min_instances,
-                    max_instances=max_instances,
-                    resource_limits=resource_limits,
-                    container_concurrency=container_concurrency,
-                    keep_alive_probe=keep_alive_probe,
-                )
+        if is_deployment_spec_updated:
+            (
+                deployment_spec,
+                deployment_update_masks,
+            ) = self._generate_deployment_spec_or_raise(
+                env_vars=env_vars,
+                caller_provided_env_vars=caller_provided_env_vars,
+                psc_interface_config=psc_interface_config,
+                agent_gateway_config=agent_gateway_config,
+                min_instances=min_instances,
+                max_instances=max_instances,
+                resource_limits=resource_limits,
+                container_concurrency=container_concurrency,
+                keep_alive_probe=keep_alive_probe,
+            )
+            if deployment_update_masks:
+                if agent_engine_spec is None:
+                    agent_engine_spec = {}
                 update_masks.extend(deployment_update_masks)
                 agent_engine_spec["deployment_spec"] = deployment_spec
 
+        if has_code_or_container_spec:
             if agent_server_mode:
                 if not agent_engine_spec.get("deployment_spec"):
                     agent_engine_spec["deployment_spec"] = (
@@ -2564,6 +2574,7 @@ class AgentEngines(_api_module.BaseModule):
         self,
         *,
         env_vars: Optional[dict[str, Union[str, Any]]] = None,
+        caller_provided_env_vars: bool = True,
         psc_interface_config: Optional[types.PscInterfaceConfigDict] = None,
         agent_gateway_config: Optional[
             types.ReasoningEngineSpecDeploymentSpecAgentGatewayConfigDict
@@ -2576,9 +2587,10 @@ class AgentEngines(_api_module.BaseModule):
     ) -> Tuple[dict[str, Any], Sequence[str]]:
         deployment_spec: dict[str, Any] = {}
         update_masks = []
-        if env_vars:
+        if env_vars is not None:
             deployment_spec["env"] = []
-            deployment_spec["secret_env"] = []
+            if caller_provided_env_vars:
+                deployment_spec["secret_env"] = []
             if isinstance(env_vars, dict):
                 self._update_deployment_spec_with_env_vars_dict_or_raise(
                     deployment_spec=deployment_spec,
@@ -2586,9 +2598,9 @@ class AgentEngines(_api_module.BaseModule):
                 )
             else:
                 raise TypeError(f"env_vars must be a dict, but got {type(env_vars)}.")
-            if deployment_spec.get("env"):
+            if caller_provided_env_vars or deployment_spec.get("env"):
                 update_masks.append("spec.deployment_spec.env")
-            if deployment_spec.get("secret_env"):
+            if caller_provided_env_vars or deployment_spec.get("secret_env"):
                 update_masks.append("spec.deployment_spec.secret_env")
         if psc_interface_config:
             deployment_spec["psc_interface_config"] = psc_interface_config

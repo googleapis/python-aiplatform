@@ -3252,16 +3252,162 @@ class TestRuntime:
 
     @mock.patch.object(_runtimes_utils, "_prepare")
     @mock.patch.object(_runtimes_utils, "_await_operation")
-    def test_update_runtime_deployment_config_without_agent_raises(
+    def test_create_runtime_deployment_config_without_agent_raises(
         self, mock_await_operation, mock_prepare
     ):
-        with pytest.raises(ValueError, match="To update `env_vars`"):
-            self.client.runtimes.update(
-                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+        with pytest.raises(ValueError, match="To set `env_vars`"):
+            self.client.runtimes.create(
                 config=_genai_types.AgentRuntimeConfig(
                     env_vars=_TEST_AGENT_ENGINE_ENV_VARS_INPUT
                 ),
             )
+
+    @mock.patch.object(_runtimes_utils, "_await_operation")
+    def test_update_runtime_deployment_config_without_agent(
+        self, mock_await_operation
+    ):
+        mock_await_operation.return_value = _genai_types.RuntimeOperation(
+            response=_genai_types.ReasoningEngine(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                spec=_TEST_AGENT_ENGINE_SPEC,
+            )
+        )
+        with mock.patch.object(
+            self.client.runtimes._api_client, "request"
+        ) as request_mock:
+            request_mock.return_value = genai_types.HttpResponse(body="")
+            self.client.runtimes.update(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                config=_genai_types.AgentRuntimeConfig(
+                    env_vars=_TEST_AGENT_ENGINE_ENV_VARS_INPUT,
+                ),
+            )
+            update_mask = ",".join(
+                [
+                    "spec.deployment_spec.env",
+                    "spec.deployment_spec.secret_env",
+                ]
+            )
+            query_params = {"updateMask": update_mask}
+            request_mock.assert_called_with(
+                "patch",
+                f"{_TEST_AGENT_ENGINE_RESOURCE_NAME}?{urlencode(query_params)}",
+                {
+                    "_url": {"name": _TEST_AGENT_ENGINE_RESOURCE_NAME},
+                    "spec": {
+                        "deployment_spec": _TEST_AGENT_ENGINE_SPEC.get(
+                            "deployment_spec"
+                        ),
+                    },
+                    "_query": {"updateMask": update_mask},
+                },
+                None,
+            )
+
+    @mock.patch.object(_runtimes_utils, "_await_operation")
+    def test_update_runtime_clear_secret_env(self, mock_await_operation):
+        mock_await_operation.return_value = _genai_types.RuntimeOperation(
+            response=_genai_types.ReasoningEngine(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                spec=_TEST_AGENT_ENGINE_SPEC,
+            )
+        )
+        with mock.patch.object(
+            self.client.runtimes._api_client, "request"
+        ) as request_mock:
+            request_mock.return_value = genai_types.HttpResponse(body="")
+            self.client.runtimes.update(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                config=_genai_types.AgentRuntimeConfig(
+                    env_vars={"TEST_ENV_VAR": "TEST_ENV_VAR_VALUE"},
+                ),
+            )
+            update_mask = ",".join(
+                [
+                    "spec.deployment_spec.env",
+                    "spec.deployment_spec.secret_env",
+                ]
+            )
+            query_params = {"updateMask": update_mask}
+            request_mock.assert_called_with(
+                "patch",
+                f"{_TEST_AGENT_ENGINE_RESOURCE_NAME}?{urlencode(query_params)}",
+                {
+                    "_url": {"name": _TEST_AGENT_ENGINE_RESOURCE_NAME},
+                    "spec": {
+                        "deployment_spec": {
+                            "env": [
+                                {
+                                    "name": "TEST_ENV_VAR",
+                                    "value": "TEST_ENV_VAR_VALUE",
+                                }
+                            ],
+                            "secret_env": [],
+                        },
+                    },
+                    "_query": {"updateMask": update_mask},
+                },
+                None,
+            )
+
+    @mock.patch.object(_runtimes_utils, "_await_operation")
+    def test_update_runtime_clear_all_env_vars(self, mock_await_operation):
+        mock_await_operation.return_value = _genai_types.RuntimeOperation(
+            response=_genai_types.ReasoningEngine(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                spec=_TEST_AGENT_ENGINE_SPEC,
+            )
+        )
+        with mock.patch.object(
+            self.client.runtimes._api_client, "request"
+        ) as request_mock:
+            request_mock.return_value = genai_types.HttpResponse(body="")
+            self.client.runtimes.update(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                config=_genai_types.AgentRuntimeConfig(env_vars={}),
+            )
+            update_mask = ",".join(
+                [
+                    "spec.deployment_spec.env",
+                    "spec.deployment_spec.secret_env",
+                ]
+            )
+            query_params = {"updateMask": update_mask}
+            request_mock.assert_called_with(
+                "patch",
+                f"{_TEST_AGENT_ENGINE_RESOURCE_NAME}?{urlencode(query_params)}",
+                {
+                    "_url": {"name": _TEST_AGENT_ENGINE_RESOURCE_NAME},
+                    "spec": {
+                        "deployment_spec": {
+                            "env": [],
+                            "secret_env": [],
+                        },
+                    },
+                    "_query": {"updateMask": update_mask},
+                },
+                None,
+            )
+
+    def test_update_runtime_adk_framework_without_env_vars_preserves_env(self):
+        config = self.client.runtimes._create_config(
+            mode="update",
+            agent_framework="google-adk",
+            display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+        )
+        assert "secret_env" not in config["spec"]["deployment_spec"]
+        assert "spec.deployment_spec.secret_env" not in config["update_mask"]
+        assert "spec.deployment_spec.env" in config["update_mask"]
+
+    def test_update_runtime_empty_deployment_field_without_mask_omits_spec(
+        self,
+    ):
+        config = self.client.runtimes._create_config(
+            mode="update",
+            psc_interface_config={},
+        )
+        assert "spec" not in config
+        assert "update_mask" not in config
 
     @mock.patch.object(_runtimes_utils, "_prepare")
     @mock.patch.object(_runtimes_utils, "_await_operation")
