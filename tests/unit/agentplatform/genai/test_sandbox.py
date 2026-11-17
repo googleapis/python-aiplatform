@@ -13,6 +13,7 @@
 # limitations under the License.
 #
 
+import asyncio
 import importlib
 import json
 import os
@@ -22,6 +23,8 @@ from google import auth
 from google.auth import credentials as auth_credentials
 import agentplatform
 from google.cloud import aiplatform
+from agentplatform._genai import _runtimes_utils
+from agentplatform._genai import sandbox_snapshots
 from agentplatform._genai import sandbox_templates
 from agentplatform._genai import sandboxes
 from agentplatform._genai import types as agentplatform_types
@@ -552,6 +555,69 @@ class TestSandbox:
                 command="echo hello",
             )
 
+    @mock.patch.object(sandboxes.Sandboxes, "_create")
+    @mock.patch.object(sandbox_templates.SandboxTemplates, "create")
+    def test_sync_backwards_compatibility(
+        self, mock_template_create, mock_create
+    ):
+        """Preserves existing sync Sandboxes behavior for callers."""
+        mock_template_operation = mock.Mock()
+        mock_template_operation.response.name = (
+            _TEST_SANDBOX_TEMPLATE_RESOURCE_NAME
+        )
+        mock_template_create.return_value = mock_template_operation
+        mock_create.return_value = mock.Mock()
+
+        config = agentplatform_types.CreateRuntimeSandboxConfig(
+            wait_for_completion=False
+        )
+        self.client.sandboxes.create(
+            name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+            spec={"shell_environment": {}},
+            config=config,
+        )
+        assert (
+            config.sandbox_environment_template
+            == _TEST_SANDBOX_TEMPLATE_RESOURCE_NAME
+        )
+
+        mock_sandbox = mock.Mock()
+        mock_sandbox.connection_info.load_balancer_ip = None
+        mock_sandbox.connection_info.load_balancer_hostname = (
+            "test-us-central1.example.vertexai.goog"
+        )
+        mock_sandbox.connection_info.routing_token = "test_routing_token"
+        mock_response = mock.Mock()
+        mock_response.text = ""
+        mock_response.headers = {}
+
+        with (
+            mock.patch.object(
+                sandboxes.requests, "request", return_value=mock_response
+            ),
+            mock.patch.object(
+                sandboxes.Sandboxes,
+                "generate_access_token",
+                return_value="test_token",
+            ),
+        ):
+            caller_headers = {"X-Custom": "value"}
+            self.client.sandboxes.send_command(
+                http_method="POST",
+                access_token="test_token",
+                sandbox_environment=mock_sandbox,
+                headers=caller_headers,
+                request_dict={"key": "val"},
+            )
+            assert caller_headers["Authorization"] == "Bearer test_token"
+
+            with pytest.raises(json.JSONDecodeError):
+                self.client.sandboxes.generate_browser_ws_headers(
+                    sandbox_environment=mock_sandbox,
+                    service_account_email=_TEST_SERVICE_ACCOUNT_EMAIL,
+                    timeout=3600,
+                )
+
 
 @pytest.mark.usefixtures("google_auth_mock")
 class TestSandboxTemplates:
@@ -826,3 +892,605 @@ def test_generate_access_token_uses_mtls_endpoint_when_enabled(
         f"https://{expected_host}/v1/projects/-/serviceAccounts/"
         f"{_TEST_SERVICE_ACCOUNT_EMAIL}:signJwt"
     )
+
+
+@pytest.mark.usefixtures("google_auth_mock")
+class TestAsyncSandbox:
+
+    def setup_method(self):
+        importlib.reload(initializer)
+        importlib.reload(aiplatform)
+        importlib.reload(agentplatform)
+        os.environ[_TEST_AGENT_ENGINE_ENV_KEY] = _TEST_AGENT_ENGINE_ENV_VALUE
+        self.client = agentplatform.Client(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            credentials=_TEST_CREDENTIALS,
+        )
+
+    def teardown_method(self):
+        initializer.global_pool.shutdown(wait=True)
+
+    def test_templates_and_snapshots_properties(self):
+        assert isinstance(
+            self.client.aio.sandboxes.templates,
+            sandbox_templates.AsyncSandboxTemplates,
+        )
+        assert isinstance(
+            self.client.aio.sandboxes.snapshots,
+            sandbox_snapshots.AsyncSandboxSnapshots,
+        )
+
+    @mock.patch.object(
+        sandboxes.AsyncSandboxes, "_create", new_callable=mock.AsyncMock
+    )
+    def test_create_with_shell_environment_and_existing_template(
+        self, mock_create
+    ):
+        mock_operation = mock.Mock()
+        mock_create.return_value = mock_operation
+
+        result = asyncio.run(
+            self.client.aio.sandboxes.create(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                spec={"shell_environment": {}},
+                config={
+                    "sandbox_environment_template": (
+                        _TEST_SANDBOX_TEMPLATE_RESOURCE_NAME
+                    ),
+                    "wait_for_completion": False,
+                },
+            )
+        )
+
+        assert result is mock_operation
+        mock_create.assert_awaited_once()
+        _, kwargs = mock_create.call_args
+        assert kwargs["name"] == _TEST_AGENT_ENGINE_RESOURCE_NAME
+        assert (
+            kwargs["config"].sandbox_environment_template
+            == _TEST_SANDBOX_TEMPLATE_RESOURCE_NAME
+        )
+
+    @mock.patch.object(
+        sandboxes.AsyncSandboxes, "_create", new_callable=mock.AsyncMock
+    )
+    @mock.patch.object(
+        sandbox_templates.AsyncSandboxTemplates,
+        "create",
+        new_callable=mock.AsyncMock,
+    )
+    def test_create_with_shell_environment_creates_template_when_absent(
+        self, mock_template_create, mock_create
+    ):
+        mock_template_operation = mock.Mock()
+        mock_template_operation.response.name = (
+            _TEST_SANDBOX_TEMPLATE_RESOURCE_NAME
+        )
+        mock_template_create.return_value = mock_template_operation
+        mock_create.return_value = mock.Mock()
+
+        asyncio.run(
+            self.client.aio.sandboxes.create(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                spec={"shell_environment": {}},
+                config={"wait_for_completion": False},
+            )
+        )
+
+        mock_template_create.assert_awaited_once()
+        mock_create.assert_awaited_once()
+        _, create_kwargs = mock_create.call_args
+        assert (
+            create_kwargs["config"].sandbox_environment_template
+            == _TEST_SANDBOX_TEMPLATE_RESOURCE_NAME
+        )
+
+    @mock.patch.object(
+        sandboxes.AsyncSandboxes, "_create", new_callable=mock.AsyncMock
+    )
+    @mock.patch.object(
+        sandbox_templates.AsyncSandboxTemplates,
+        "create",
+        new_callable=mock.AsyncMock,
+    )
+    def test_create_with_computer_use_and_snapshot_or_config_model(
+        self, mock_template_create, mock_create
+    ):
+        mock_template_operation = mock.Mock()
+        mock_template_operation.response.name = (
+            _TEST_SANDBOX_TEMPLATE_RESOURCE_NAME
+        )
+        mock_template_create.return_value = mock_template_operation
+        mock_create.return_value = mock.Mock()
+
+        shared_config = agentplatform_types.CreateRuntimeSandboxConfig(
+            wait_for_completion=False
+        )
+        asyncio.run(
+            self.client.aio.sandboxes.create(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                spec={"computer_use_environment": {}},
+                config=shared_config,
+            )
+        )
+        assert shared_config.sandbox_environment_template is None
+        mock_template_create.assert_awaited_once()
+
+        mock_template_create.reset_mock()
+        asyncio.run(
+            self.client.aio.sandboxes.create(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                spec={"computer_use_environment": {}},
+                config={
+                    "sandbox_environment_snapshot": "snap-1",
+                    "wait_for_completion": False,
+                },
+            )
+        )
+        mock_template_create.assert_not_awaited()
+
+    @mock.patch.object(
+        sandboxes.AsyncSandboxes, "get", new_callable=mock.AsyncMock
+    )
+    @mock.patch.object(
+        _runtimes_utils, "_await_async_operation", new_callable=mock.AsyncMock
+    )
+    @mock.patch.object(
+        sandboxes.AsyncSandboxes, "_create", new_callable=mock.AsyncMock
+    )
+    def test_create_waits_for_completion_and_refreshes(
+        self, mock_create, mock_await_op, mock_get
+    ):
+        pending_op = agentplatform_types.RuntimeSandboxOperation(
+            name=f"{_TEST_AGENT_ENGINE_RESOURCE_NAME}/operations/1",
+            done=False,
+        )
+        completed_op = agentplatform_types.RuntimeSandboxOperation(
+            name=f"{_TEST_AGENT_ENGINE_RESOURCE_NAME}/operations/1",
+            done=True,
+            response=agentplatform_types.SandboxEnvironment(
+                name=_TEST_SANDBOX_RESOURCE_NAME
+            ),
+        )
+        refreshed_sandbox = agentplatform_types.SandboxEnvironment(
+            name=_TEST_SANDBOX_RESOURCE_NAME,
+            display_name="refreshed-sandbox",
+        )
+        mock_create.return_value = pending_op
+        mock_await_op.return_value = completed_op
+        mock_get.return_value = refreshed_sandbox
+
+        result = asyncio.run(
+            self.client.aio.sandboxes.create(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                spec={
+                    "code_execution_environment": {
+                        "machineConfig": "MACHINE_CONFIG_VCPU4_RAM4GIB"
+                    }
+                },
+                config={"wait_for_completion": True},
+            )
+        )
+
+        mock_await_op.assert_awaited_once()
+        mock_get.assert_awaited_once_with(name=_TEST_SANDBOX_RESOURCE_NAME)
+        assert result.response == refreshed_sandbox
+
+    @mock.patch.object(
+        sandboxes.AsyncSandboxes, "_create", new_callable=mock.AsyncMock
+    )
+    def test_create_without_spec_template_or_snapshot_raises(self, mock_create):
+        with pytest.raises(ValueError, match="must be provided"):
+            asyncio.run(
+                self.client.aio.sandboxes.create(
+                    name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                    spec=None,
+                )
+            )
+        mock_create.assert_not_awaited()
+
+    @mock.patch.object(
+        sandboxes.AsyncSandboxes, "_list", new_callable=mock.AsyncMock
+    )
+    def test_list_sandboxes(self, mock_list):
+        sandbox_item = agentplatform_types.SandboxEnvironment(
+            name=_TEST_SANDBOX_RESOURCE_NAME
+        )
+        mock_list.return_value = (
+            agentplatform_types.ListRuntimeSandboxesResponse(
+                sandbox_environments=[sandbox_item]
+            )
+        )
+
+        async def run_list():
+            pager = await self.client.aio.sandboxes.list(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME
+            )
+            return [item async for item in pager]
+
+        items = asyncio.run(run_list())
+        assert items == [sandbox_item]
+        mock_list.assert_awaited_once_with(
+            name=_TEST_AGENT_ENGINE_RESOURCE_NAME, config=None
+        )
+
+    @mock.patch.object(
+        sandboxes.AsyncSandboxes, "_get", new_callable=mock.AsyncMock
+    )
+    def test_get_and_delete_sandbox(self, mock_get):
+        expected = agentplatform_types.SandboxEnvironment(
+            name=_TEST_SANDBOX_RESOURCE_NAME
+        )
+        mock_get.return_value = expected
+
+        got = asyncio.run(
+            self.client.aio.sandboxes.get(name=_TEST_SANDBOX_RESOURCE_NAME)
+        )
+        assert got == expected
+        mock_get.assert_awaited_once_with(
+            name=_TEST_SANDBOX_RESOURCE_NAME, config=None
+        )
+
+        with mock.patch.object(
+            sandboxes.AsyncSandboxes, "_delete", new_callable=mock.AsyncMock
+        ) as mock_delete:
+            delete_op = agentplatform_types.DeleteRuntimeSandboxOperation(
+                name=f"{_TEST_SANDBOX_RESOURCE_NAME}/operations/del-1"
+            )
+            mock_delete.return_value = delete_op
+            got_del = asyncio.run(
+                self.client.aio.sandboxes.delete(
+                    name=_TEST_SANDBOX_RESOURCE_NAME
+                )
+            )
+            assert got_del == delete_op
+            mock_delete.assert_awaited_once_with(
+                name=_TEST_SANDBOX_RESOURCE_NAME, config=None
+            )
+
+    @mock.patch.object(
+        sandboxes.AsyncSandboxes, "get", new_callable=mock.AsyncMock
+    )
+    @mock.patch.object(
+        _runtimes_utils, "_await_async_operation", new_callable=mock.AsyncMock
+    )
+    @mock.patch.object(
+        sandboxes.AsyncSandboxes, "_pause", new_callable=mock.AsyncMock
+    )
+    @mock.patch.object(
+        sandboxes.AsyncSandboxes, "_resume", new_callable=mock.AsyncMock
+    )
+    def test_pause_and_resume_sandbox(
+        self, mock_resume, mock_pause, mock_await_op, mock_get
+    ):
+        op_response = agentplatform_types.SandboxEnvironment(
+            name=_TEST_SANDBOX_RESOURCE_NAME
+        )
+        mock_pause.return_value = agentplatform_types.RuntimeSandboxOperation(
+            name="op-pause", done=False
+        )
+        mock_resume.return_value = agentplatform_types.RuntimeSandboxOperation(
+            name="op-resume", done=False
+        )
+        mock_await_op.return_value = (
+            agentplatform_types.RuntimeSandboxOperation(
+                name="op-done", done=True, response=op_response
+            )
+        )
+        refreshed = agentplatform_types.SandboxEnvironment(
+            name=_TEST_SANDBOX_RESOURCE_NAME, display_name="refreshed"
+        )
+        mock_get.return_value = refreshed
+
+        pause_res = asyncio.run(
+            self.client.aio.sandboxes.pause(name=_TEST_SANDBOX_RESOURCE_NAME)
+        )
+        assert pause_res.response == refreshed
+
+        resume_res = asyncio.run(
+            self.client.aio.sandboxes.resume(name=_TEST_SANDBOX_RESOURCE_NAME)
+        )
+        assert resume_res.response == refreshed
+        assert mock_await_op.await_count == 2
+        assert mock_get.await_count == 2
+
+        empty_name_op = agentplatform_types.RuntimeSandboxOperation(
+            name="op-empty",
+            done=True,
+            response=agentplatform_types.SandboxEnvironment(name=""),
+        )
+        mock_await_op.return_value = empty_name_op
+        asyncio.run(
+            self.client.aio.sandboxes.pause(name=_TEST_SANDBOX_RESOURCE_NAME)
+        )
+        asyncio.run(
+            self.client.aio.sandboxes.resume(name=_TEST_SANDBOX_RESOURCE_NAME)
+        )
+        assert mock_get.await_count == 2
+
+    @mock.patch.object(
+        sandboxes.AsyncSandboxes, "_execute_code", new_callable=mock.AsyncMock
+    )
+    def test_execute_code_and_execute_bash(self, mock_execute_code):
+        mock_execute_code.return_value = (
+            agentplatform_types.ExecuteSandboxEnvironmentResponse(
+                outputs=[
+                    agentplatform_types.Chunk(
+                        mime_type=None,
+                        data=b"hello",
+                        metadata={"attributes": {"file_name": b"out.txt"}},
+                    )
+                ]
+            )
+        )
+
+        code_res = asyncio.run(
+            self.client.aio.sandboxes.execute_code(
+                name=_TEST_SANDBOX_RESOURCE_NAME,
+                input_data={
+                    "code": "x = 1 + 1",
+                    "files": [
+                        {
+                            "name": "in.txt",
+                            "mimeType": "text/plain",
+                            "content": b"abc",
+                        }
+                    ],
+                },
+            )
+        )
+        assert code_res.outputs[0].mime_type == "text/plain"
+
+        expected_bash = {
+            "stdout": "hello\n",
+            "stderr": "",
+            "returncode": 0,
+            "duration_ms": 5,
+        }
+        mock_execute_code.return_value = TestSandbox._exec_response(
+            expected_bash
+        )
+        bash_res = asyncio.run(
+            self.client.aio.sandboxes.execute_bash(
+                name=_TEST_SANDBOX_RESOURCE_NAME,
+                command="echo hello",
+                cwd="/tmp",
+                timeout=10,
+            )
+        )
+        assert bash_res == expected_bash
+
+        mock_execute_code.return_value = (
+            agentplatform_types.ExecuteSandboxEnvironmentResponse(outputs=[])
+        )
+        with pytest.raises(ValueError, match="returned no output"):
+            asyncio.run(
+                self.client.aio.sandboxes.execute_bash(
+                    name=_TEST_SANDBOX_RESOURCE_NAME,
+                    command="echo hello",
+                )
+            )
+
+    @mock.patch.object(sandboxes.Sandboxes, "generate_access_token")
+    @mock.patch.object(sandboxes.requests, "request")
+    def test_send_command_and_generate_browser_ws_headers(
+        self, mock_request, mock_generate_access_token
+    ):
+        mock_generate_access_token.return_value = "test_token"
+        mock_sandbox = mock.Mock()
+        mock_sandbox.connection_info.load_balancer_ip = None
+        mock_sandbox.connection_info.load_balancer_hostname = (
+            "test-us-central1.example.vertexai.goog"
+        )
+        mock_sandbox.connection_info.routing_token = "test_routing_token"
+        mock_response = mock.Mock()
+        mock_response.text = '{"endpoint": "test/endpoint"}'
+        mock_response.headers = {}
+        mock_request.return_value = mock_response
+
+        ws_url, headers = asyncio.run(
+            self.client.aio.sandboxes.generate_browser_ws_headers(
+                sandbox_environment=mock_sandbox,
+                service_account_email=_TEST_SERVICE_ACCOUNT_EMAIL,
+                timeout=3600,
+            )
+        )
+        assert (
+            ws_url
+            == "wss://test-us-central1.example.vertexai.goog/test/endpoint"
+        )
+        assert (
+            headers["Sec-WebSocket-Protocol"]
+            == "v1.stream, test_token, test_routing_token, 9222"
+        )
+
+        mock_response.text = ""
+        with pytest.raises(
+            ValueError, match="Failed to get the websocket endpoint."
+        ):
+            asyncio.run(
+                self.client.aio.sandboxes.generate_browser_ws_headers(
+                    sandbox_environment=mock_sandbox,
+                    service_account_email=_TEST_SERVICE_ACCOUNT_EMAIL,
+                    timeout=3600,
+                )
+            )
+
+        caller_headers = {"X-Custom": "value"}
+        asyncio.run(
+            self.client.aio.sandboxes.send_command(
+                http_method="POST",
+                access_token="test_token",
+                sandbox_environment=mock_sandbox,
+                headers=caller_headers,
+                request_dict={"key": "val"},
+            )
+        )
+        assert caller_headers == {"X-Custom": "value"}
+
+    @mock.patch.object(
+        sandbox_templates.AsyncSandboxTemplates,
+        "_get",
+        new_callable=mock.AsyncMock,
+    )
+    @mock.patch.object(
+        _runtimes_utils, "_await_async_operation", new_callable=mock.AsyncMock
+    )
+    @mock.patch.object(
+        sandbox_templates.AsyncSandboxTemplates,
+        "_create",
+        new_callable=mock.AsyncMock,
+    )
+    @mock.patch.object(
+        sandbox_templates.AsyncSandboxTemplates,
+        "_list",
+        new_callable=mock.AsyncMock,
+    )
+    @mock.patch.object(
+        sandbox_templates.AsyncSandboxTemplates,
+        "_delete",
+        new_callable=mock.AsyncMock,
+    )
+    def test_async_sandbox_templates_crud(
+        self,
+        mock_delete,
+        mock_list,
+        mock_create,
+        mock_await_op,
+        mock_get,
+    ):
+        template_obj = agentplatform_types.SandboxEnvironmentTemplate(
+            name=_TEST_SANDBOX_TEMPLATE_RESOURCE_NAME
+        )
+        mock_create.return_value = (
+            agentplatform_types.SandboxEnvironmentTemplateOperation(
+                name="op-tmpl", done=False
+            )
+        )
+        mock_await_op.return_value = (
+            agentplatform_types.SandboxEnvironmentTemplateOperation(
+                name="op-tmpl", done=True, response=template_obj
+            )
+        )
+        mock_get.return_value = template_obj
+        mock_list.return_value = (
+            agentplatform_types.ListSandboxEnvironmentTemplatesResponse(
+                sandbox_environment_templates=[template_obj]
+            )
+        )
+        del_op = agentplatform_types.DeleteSandboxEnvironmentTemplateOperation(
+            name="op-del-tmpl"
+        )
+        mock_delete.return_value = del_op
+
+        created = asyncio.run(
+            self.client.aio.sandboxes.templates.create(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                display_name="test-tmpl",
+                config={"wait_for_completion": True},
+            )
+        )
+        assert created.response == template_obj
+        mock_get.assert_awaited_once_with(
+            name=_TEST_SANDBOX_TEMPLATE_RESOURCE_NAME, config=None
+        )
+
+        async def collect_templates():
+            pager = await self.client.aio.sandboxes.templates.list(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME
+            )
+            return [item async for item in pager]
+
+        assert asyncio.run(collect_templates()) == [template_obj]
+        assert (
+            asyncio.run(
+                self.client.aio.sandboxes.templates.delete(
+                    name=_TEST_SANDBOX_TEMPLATE_RESOURCE_NAME
+                )
+            )
+            == del_op
+        )
+
+    @mock.patch.object(
+        sandbox_snapshots.AsyncSandboxSnapshots,
+        "_get",
+        new_callable=mock.AsyncMock,
+    )
+    @mock.patch.object(
+        _runtimes_utils, "_await_async_operation", new_callable=mock.AsyncMock
+    )
+    @mock.patch.object(
+        sandbox_snapshots.AsyncSandboxSnapshots,
+        "_create",
+        new_callable=mock.AsyncMock,
+    )
+    @mock.patch.object(
+        sandbox_snapshots.AsyncSandboxSnapshots,
+        "_list",
+        new_callable=mock.AsyncMock,
+    )
+    @mock.patch.object(
+        sandbox_snapshots.AsyncSandboxSnapshots,
+        "_delete",
+        new_callable=mock.AsyncMock,
+    )
+    def test_async_sandbox_snapshots_crud(
+        self,
+        mock_delete,
+        mock_list,
+        mock_create,
+        mock_await_op,
+        mock_get,
+    ):
+        snapshot_name = (
+            f"{_TEST_AGENT_ENGINE_RESOURCE_NAME}"
+            "/sandboxEnvironmentSnapshots/snap-1"
+        )
+        snapshot_obj = agentplatform_types.SandboxEnvironmentSnapshot(
+            name=snapshot_name
+        )
+        mock_create.return_value = (
+            agentplatform_types.RuntimeSandboxSnapshotOperation(
+                name="op-snap", done=False
+            )
+        )
+        mock_await_op.return_value = (
+            agentplatform_types.RuntimeSandboxSnapshotOperation(
+                name="op-snap", done=True, response=snapshot_obj
+            )
+        )
+        mock_get.return_value = snapshot_obj
+        mock_list.return_value = (
+            agentplatform_types.ListSandboxEnvironmentSnapshotsResponse(
+                sandbox_environment_snapshots=[snapshot_obj]
+            )
+        )
+        del_op = agentplatform_types.DeleteSandboxEnvironmentSnapshotOperation(
+            name="op-del-snap"
+        )
+        mock_delete.return_value = del_op
+
+        created = asyncio.run(
+            self.client.aio.sandboxes.snapshots.create(
+                source_sandbox_environment_name=_TEST_SANDBOX_RESOURCE_NAME,
+                config={"wait_for_completion": True},
+            )
+        )
+        assert created.response == snapshot_obj
+        mock_get.assert_awaited_once_with(name=snapshot_name, config=None)
+
+        async def collect_snapshots():
+            pager = await self.client.aio.sandboxes.snapshots.list(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME
+            )
+            return [item async for item in pager]
+
+        assert asyncio.run(collect_snapshots()) == [snapshot_obj]
+        assert (
+            asyncio.run(
+                self.client.aio.sandboxes.snapshots.delete(name=snapshot_name)
+            )
+            == del_op
+        )
+
