@@ -653,20 +653,10 @@ def _eval_case_to_agent_data(
     return types.evals.AgentData(agents=agents_map, turns=turns)
 
 
-def _build_evaluation_instance(
-    eval_case: types.EvalCase,
-    response_content: Optional[genai_types.Content],
-    prompt_instance_data: Optional[types.evals.InstanceData] = None,
-    prompt_template: Optional[str] = None,
-) -> types.EvaluationInstance:
-    """Builds a unified EvaluationInstance. Multi-turn logic is handled by the caller."""
-    extracted_prompt = _get_prompt_from_eval_case(eval_case)
-
-    # 1. Use caller-provided prompt data (multi-turn) or default to simple content
-    if prompt_instance_data is None:
-        prompt_instance_data = _content_to_instance_data(extracted_prompt)
-
-    # 2. Collect placeholders for other_data
+def _build_other_data(
+    eval_case: types.EvalCase, prompt_template: Optional[str] = None
+) -> Optional[types.MapInstance]:
+    """Collects context, custom EvalCase fields and template-referenced fields."""
     other_data_map: dict[str, Any] = {}
     if hasattr(eval_case, "context") and eval_case.context:
         if isinstance(eval_case.context, str):
@@ -680,15 +670,28 @@ def _build_evaluation_instance(
                 )
             )
 
-    # 3. Extract custom variables from LLMMetric templates
+    standard_fields = {"prompt", "response", "reference", "context", "agent_data"}
+    for name, val in (eval_case.model_extra or {}).items():
+        if name not in standard_fields and not _evals_common._is_missing(val):
+            other_data_map[name] = types.evals.InstanceData(
+                contents=types.evals.InstanceDataContents(
+                    contents=_value_to_content_list(val)
+                )
+            )
+
+    # Template variables can also reference schema fields such as
+    # conversation_history.
     if prompt_template:
         template_vars = types.PromptTemplate(text=prompt_template).variables
-        standard_fields = {"prompt", "response", "reference", "context", "agent_data"}
         for full_path in template_vars:
             # Extract the root variable (e.g. 'metadata' from 'metadata.user_id')
             root_var = full_path.split(".")[0].split("[")[0]
 
-            if root_var not in standard_fields and hasattr(eval_case, root_var):
+            if (
+                root_var not in standard_fields
+                and root_var not in other_data_map
+                and hasattr(eval_case, root_var)
+            ):
                 val = getattr(eval_case, root_var)
                 # Add the root object to other_data so the backend can traverse it
                 other_data_map[root_var] = types.evals.InstanceData(
@@ -696,6 +699,22 @@ def _build_evaluation_instance(
                         contents=_value_to_content_list(val)
                     )
                 )
+
+    return types.MapInstance(map_instance=other_data_map) if other_data_map else None
+
+
+def _build_evaluation_instance(
+    eval_case: types.EvalCase,
+    response_content: Optional[genai_types.Content],
+    prompt_instance_data: Optional[types.evals.InstanceData] = None,
+    prompt_template: Optional[str] = None,
+) -> types.EvaluationInstance:
+    """Builds a unified EvaluationInstance. Multi-turn logic is handled by the caller."""
+    extracted_prompt = _get_prompt_from_eval_case(eval_case)
+
+    # 1. Use caller-provided prompt data (multi-turn) or default to simple content
+    if prompt_instance_data is None:
+        prompt_instance_data = _content_to_instance_data(extracted_prompt)
 
     # An interactions data source is mutually exclusive with agent_data: when
     # set, the backend fetches the interaction + Gemini Agent config and parses
@@ -716,9 +735,7 @@ def _build_evaluation_instance(
             else None
         ),
         rubric_groups=eval_case.rubric_groups,
-        other_data=(
-            types.MapInstance(map_instance=other_data_map) if other_data_map else None
-        ),
+        other_data=_build_other_data(eval_case, prompt_template),
         agent_data=agent_data,
         interactions_data_source=interactions_data_source,
     )
@@ -1229,6 +1246,7 @@ class CustomCodeExecutionMetricHandler(MetricHandler[types.Metric]):
             prompt=prompt_instance_data,
             response=_content_to_instance_data(response_content),
             reference=reference_instance_data,
+            other_data=_build_other_data(eval_case),
             agent_data=_eval_case_to_agent_data(eval_case),
         )
 
@@ -1346,6 +1364,7 @@ class RegisteredMetricHandler(MetricHandler[types.Metric]):
             response=_content_to_instance_data(response_content),
             reference=reference_instance_data,
             rubric_groups=eval_case.rubric_groups,
+            other_data=_build_other_data(eval_case),
             agent_data=_eval_case_to_agent_data(eval_case),
         )
 
