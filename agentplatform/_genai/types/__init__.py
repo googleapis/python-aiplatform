@@ -101,6 +101,7 @@ from .common import _GetExampleStoreOperationParameters
 from .common import _GetExampleStoreParameters
 from .common import _GetExportPublisherModelOperationParameters
 from .common import _GetGenerateMemoriesOperationParameters
+from .common import _GetImportEvaluationSetOperationParameters
 from .common import _GetImportFilesOperationParameters
 from .common import _GetMemoryBankOperationParameters
 from .common import _GetMemoryBankRequestParameters
@@ -938,6 +939,9 @@ from .common import GetExampleStoreOperationConfigOrDict
 from .common import GetExportPublisherModelOperationConfig
 from .common import GetExportPublisherModelOperationConfigDict
 from .common import GetExportPublisherModelOperationConfigOrDict
+from .common import GetImportEvaluationSetOperationConfig
+from .common import GetImportEvaluationSetOperationConfigDict
+from .common import GetImportEvaluationSetOperationConfigOrDict
 from .common import GetImportFilesOperationConfig
 from .common import GetImportFilesOperationConfigDict
 from .common import GetImportFilesOperationConfigOrDict
@@ -1028,6 +1032,12 @@ from .common import GoogleDriveSourceOrDict
 from .common import GoogleDriveSourceResourceId
 from .common import GoogleDriveSourceResourceIdDict
 from .common import GoogleDriveSourceResourceIdOrDict
+from .common import HarborDataset
+from .common import HarborDatasetDict
+from .common import HarborDatasetOrDict
+from .common import HarborTask
+from .common import HarborTaskDict
+from .common import HarborTaskOrDict
 from .common import IdentityType
 from .common import Importance
 from .common import ImportDataFormat
@@ -1037,6 +1047,10 @@ from .common import ImportEvaluationSetConfigOrDict
 from .common import ImportEvaluationSetOperation
 from .common import ImportEvaluationSetOperationDict
 from .common import ImportEvaluationSetOperationOrDict
+from .common import ImportEvaluationSetResponse
+from .common import ImportEvaluationSetResponseDict
+from .common import ImportEvaluationSetResponseOrDict
+from .common import ImportMode
 from .common import ImportRagFilesConfig
 from .common import ImportRagFilesConfigDict
 from .common import ImportRagFilesConfigOrDict
@@ -2438,6 +2452,9 @@ __all__ = [
     "EvaluationItemResult",
     "EvaluationItemResultDict",
     "EvaluationItemResultOrDict",
+    "HarborTask",
+    "HarborTaskDict",
+    "HarborTaskOrDict",
     "EvaluationItem",
     "EvaluationItemDict",
     "EvaluationItemOrDict",
@@ -2591,6 +2608,9 @@ __all__ = [
     "CreateEvaluationSetConfig",
     "CreateEvaluationSetConfigDict",
     "CreateEvaluationSetConfigOrDict",
+    "HarborDataset",
+    "HarborDatasetDict",
+    "HarborDatasetOrDict",
     "EvaluationSet",
     "EvaluationSetDict",
     "EvaluationSetOrDict",
@@ -2807,9 +2827,15 @@ __all__ = [
     "ImportEvaluationSetConfig",
     "ImportEvaluationSetConfigDict",
     "ImportEvaluationSetConfigOrDict",
+    "ImportEvaluationSetResponse",
+    "ImportEvaluationSetResponseDict",
+    "ImportEvaluationSetResponseOrDict",
     "ImportEvaluationSetOperation",
     "ImportEvaluationSetOperationDict",
     "ImportEvaluationSetOperationOrDict",
+    "GetImportEvaluationSetOperationConfig",
+    "GetImportEvaluationSetOperationConfigDict",
+    "GetImportEvaluationSetOperationConfigOrDict",
     "ListEvaluationExperimentsConfig",
     "ListEvaluationExperimentsConfigDict",
     "ListEvaluationExperimentsConfigOrDict",
@@ -4561,6 +4587,7 @@ __all__ = [
     "SamplingMethod",
     "EvaluationRunState",
     "ImportDataFormat",
+    "ImportMode",
     "OptimizeTarget",
     "MemoryMetadataMergeStrategy",
     "GenerateMemoriesResponseGeneratedMemoryAction",
@@ -4609,6 +4636,7 @@ __all__ = [
     "_GetEvaluationSetParameters",
     "_GetEvaluationItemParameters",
     "_ImportEvaluationSetParameters",
+    "_GetImportEvaluationSetOperationParameters",
     "_ListEvaluationExperimentsParameters",
     "_ListEvaluationMetricsParameters",
     "_ListEvaluationSetsParameters",

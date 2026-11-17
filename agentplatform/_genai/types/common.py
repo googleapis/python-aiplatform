@@ -704,6 +704,8 @@ class EvaluationItemType(_common.CaseInSensitiveEnum):
     """The EvaluationItem is a request to evaluate."""
     RESULT = "RESULT"
     """The EvaluationItem is the result of evaluation."""
+    HARBOR_TASK = "HARBOR_TASK"
+    """The EvaluationItem is a Harbor task. Only `import_evaluation_set` creates items of this type, from a Harbor dataset."""
 
 
 class SamplingMethod(_common.CaseInSensitiveEnum):
@@ -743,6 +745,17 @@ class ImportDataFormat(_common.CaseInSensitiveEnum):
     """Unspecified data format."""
     JSONL = "JSONL"
     """JSONL format where each line is a JSON-encoded EvaluationItem."""
+
+
+class ImportMode(_common.CaseInSensitiveEnum):
+    """The mode of an evaluation set import."""
+
+    IMPORT_MODE_UNSPECIFIED = "IMPORT_MODE_UNSPECIFIED"
+    """Creates a new EvaluationSet. 'evaluation_set.name' is ignored."""
+    OVERWRITE = "OVERWRITE"
+    """Replaces the items of the EvaluationSet named by
+      'evaluation_set.name'. Supported only for 'harbor_dataset', into an
+      EvaluationSet that was imported from a Harbor dataset."""
 
 
 class OptimizeTarget(_common.CaseInSensitiveEnum):
@@ -1252,6 +1265,39 @@ class EvaluationItemResultDict(TypedDict, total=False):
 EvaluationItemResultOrDict = Union[EvaluationItemResult, EvaluationItemResultDict]
 
 
+class HarborTask(_common.BaseModel):
+    """Represents a Harbor task."""
+
+    dataset: Optional[str] = Field(
+        default=None,
+        description="""Required. Harbor dataset name this task belongs to, in `org/name` format without a version, e.g. "my-org/swebench-verified".""",
+    )
+    task: Optional[str] = Field(
+        default=None,
+        description="""Required. The Harbor task name, e.g. "django__django-15098".""",
+    )
+    gcs_uri: Optional[str] = Field(
+        default=None,
+        description="""The GCS folder containing the Harbor task, e.g. "gs://BUCKET/PATH".""",
+    )
+
+
+class HarborTaskDict(TypedDict, total=False):
+    """Represents a Harbor task."""
+
+    dataset: Optional[str]
+    """Required. Harbor dataset name this task belongs to, in `org/name` format without a version, e.g. "my-org/swebench-verified"."""
+
+    task: Optional[str]
+    """Required. The Harbor task name, e.g. "django__django-15098"."""
+
+    gcs_uri: Optional[str]
+    """The GCS folder containing the Harbor task, e.g. "gs://BUCKET/PATH"."""
+
+
+HarborTaskOrDict = Union[HarborTask, HarborTaskDict]
+
+
 class EvaluationItem(_common.BaseModel):
     """EvaluationItem is a single evaluation request or result.
 
@@ -1289,6 +1335,10 @@ class EvaluationItem(_common.BaseModel):
     )
     error: Optional[genai_types.GoogleRpcStatus] = Field(
         default=None, description="""Error for the evaluation item."""
+    )
+    harbor_task: Optional[HarborTask] = Field(
+        default=None,
+        description="""Output only. The Harbor task. Set when `evaluation_item_type` is `HARBOR_TASK`.""",
     )
 
     # TODO(b/448806531): Remove all the overridden _from_response methods once the
@@ -1343,6 +1393,9 @@ class EvaluationItemDict(TypedDict, total=False):
 
     error: Optional[genai_types.GoogleRpcStatus]
     """Error for the evaluation item."""
+
+    harbor_task: Optional[HarborTaskDict]
+    """Output only. The Harbor task. Set when `evaluation_item_type` is `HARBOR_TASK`."""
 
 
 EvaluationItemOrDict = Union[EvaluationItem, EvaluationItemDict]
@@ -3958,6 +4011,25 @@ _CreateEvaluationSetParametersOrDict = Union[
 ]
 
 
+class HarborDataset(_common.BaseModel):
+    """Metadata for a Harbor dataset."""
+
+    gcs_uri: Optional[str] = Field(
+        default=None,
+        description="""Optional. The GCS folder containing the Harbor dataset, e.g. "gs://BUCKET/PATH".""",
+    )
+
+
+class HarborDatasetDict(TypedDict, total=False):
+    """Metadata for a Harbor dataset."""
+
+    gcs_uri: Optional[str]
+    """Optional. The GCS folder containing the Harbor dataset, e.g. "gs://BUCKET/PATH"."""
+
+
+HarborDatasetOrDict = Union[HarborDataset, HarborDatasetDict]
+
+
 class EvaluationSet(_common.BaseModel):
     """Represents an evaluation set."""
 
@@ -3985,6 +4057,10 @@ class EvaluationSet(_common.BaseModel):
         description="""Customer-managed encryption key spec for this EvaluationSet.
       If set, this EvaluationSet will be secured by this key.""",
     )
+    harbor_dataset: Optional[HarborDataset] = Field(
+        default=None,
+        description="""Output only. The Harbor dataset that the items of this evaluation set were imported from.""",
+    )
 
 
 class EvaluationSetDict(TypedDict, total=False):
@@ -4011,6 +4087,9 @@ class EvaluationSetDict(TypedDict, total=False):
     encryption_spec: Optional[genai_types.EncryptionSpec]
     """Customer-managed encryption key spec for this EvaluationSet.
       If set, this EvaluationSet will be secured by this key."""
+
+    harbor_dataset: Optional[HarborDatasetDict]
+    """Output only. The Harbor dataset that the items of this evaluation set were imported from."""
 
 
 EvaluationSetOrDict = Union[EvaluationSet, EvaluationSetDict]
@@ -6345,7 +6424,8 @@ class _ImportEvaluationSetParameters(_common.BaseModel):
     gcs_destination: Optional[genai_types.GcsDestination] = Field(
         default=None,
         description="""The Cloud Storage location where the resulting EvaluationItem
-      payloads will be stored.""",
+      payloads will be stored. Required for every source except
+      'harbor_dataset', which must not set it.""",
     )
     gcs_source: Optional[EvaluationSetGcsSource] = Field(
         default=None, description="""Google Cloud Storage location."""
@@ -6356,6 +6436,17 @@ class _ImportEvaluationSetParameters(_common.BaseModel):
     cloud_trace_source: Optional[EvaluationSetCloudTraceSource] = Field(
         default=None,
         description="""Source for loading data directly from Cloud Trace.""",
+    )
+    harbor_dataset: Optional[HarborDataset] = Field(
+        default=None,
+        description="""A Harbor dataset in Cloud Storage. 'gcs_destination' must not be
+      set with this source.""",
+    )
+    import_mode: Optional[ImportMode] = Field(
+        default=None,
+        description="""The mode of the import. If set, 'evaluation_set.name' selects an
+      existing EvaluationSet to import into, and its other fields are
+      ignored.""",
     )
     config: Optional[ImportEvaluationSetConfig] = Field(
         default=None, description=""""""
@@ -6372,7 +6463,8 @@ class _ImportEvaluationSetParametersDict(TypedDict, total=False):
 
     gcs_destination: Optional[genai_types.GcsDestination]
     """The Cloud Storage location where the resulting EvaluationItem
-      payloads will be stored."""
+      payloads will be stored. Required for every source except
+      'harbor_dataset', which must not set it."""
 
     gcs_source: Optional[EvaluationSetGcsSourceDict]
     """Google Cloud Storage location."""
@@ -6383,12 +6475,41 @@ class _ImportEvaluationSetParametersDict(TypedDict, total=False):
     cloud_trace_source: Optional[EvaluationSetCloudTraceSourceDict]
     """Source for loading data directly from Cloud Trace."""
 
+    harbor_dataset: Optional[HarborDatasetDict]
+    """A Harbor dataset in Cloud Storage. 'gcs_destination' must not be
+      set with this source."""
+
+    import_mode: Optional[ImportMode]
+    """The mode of the import. If set, 'evaluation_set.name' selects an
+      existing EvaluationSet to import into, and its other fields are
+      ignored."""
+
     config: Optional[ImportEvaluationSetConfigDict]
     """"""
 
 
 _ImportEvaluationSetParametersOrDict = Union[
     _ImportEvaluationSetParameters, _ImportEvaluationSetParametersDict
+]
+
+
+class ImportEvaluationSetResponse(_common.BaseModel):
+    """Response of an evaluation set import."""
+
+    evaluation_set: Optional[str] = Field(
+        default=None, description="""The resource name of the EvaluationSet."""
+    )
+
+
+class ImportEvaluationSetResponseDict(TypedDict, total=False):
+    """Response of an evaluation set import."""
+
+    evaluation_set: Optional[str]
+    """The resource name of the EvaluationSet."""
+
+
+ImportEvaluationSetResponseOrDict = Union[
+    ImportEvaluationSetResponse, ImportEvaluationSetResponseDict
 ]
 
 
@@ -6411,6 +6532,10 @@ class ImportEvaluationSetOperation(_common.BaseModel):
         default=None,
         description="""The error result of the operation in case of failure or cancellation.""",
     )
+    response: Optional[ImportEvaluationSetResponse] = Field(
+        default=None,
+        description="""The result of the import. Set when the operation succeeds.""",
+    )
 
 
 class ImportEvaluationSetOperationDict(TypedDict, total=False):
@@ -6428,9 +6553,59 @@ class ImportEvaluationSetOperationDict(TypedDict, total=False):
     error: Optional[dict[str, Any]]
     """The error result of the operation in case of failure or cancellation."""
 
+    response: Optional[ImportEvaluationSetResponseDict]
+    """The result of the import. Set when the operation succeeds."""
+
 
 ImportEvaluationSetOperationOrDict = Union[
     ImportEvaluationSetOperation, ImportEvaluationSetOperationDict
+]
+
+
+class GetImportEvaluationSetOperationConfig(_common.BaseModel):
+    """Config for getting an evaluation set import operation."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class GetImportEvaluationSetOperationConfigDict(TypedDict, total=False):
+    """Config for getting an evaluation set import operation."""
+
+    http_options: Optional[genai_types.HttpOptions]
+    """Used to override HTTP request options."""
+
+
+GetImportEvaluationSetOperationConfigOrDict = Union[
+    GetImportEvaluationSetOperationConfig, GetImportEvaluationSetOperationConfigDict
+]
+
+
+class _GetImportEvaluationSetOperationParameters(_common.BaseModel):
+    """Parameters for getting an evaluation set import operation."""
+
+    operation_name: Optional[str] = Field(
+        default=None, description="""The server-assigned name for the operation."""
+    )
+    config: Optional[GetImportEvaluationSetOperationConfig] = Field(
+        default=None, description="""Used to override the default configuration."""
+    )
+
+
+class _GetImportEvaluationSetOperationParametersDict(TypedDict, total=False):
+    """Parameters for getting an evaluation set import operation."""
+
+    operation_name: Optional[str]
+    """The server-assigned name for the operation."""
+
+    config: Optional[GetImportEvaluationSetOperationConfigDict]
+    """Used to override the default configuration."""
+
+
+_GetImportEvaluationSetOperationParametersOrDict = Union[
+    _GetImportEvaluationSetOperationParameters,
+    _GetImportEvaluationSetOperationParametersDict,
 ]
 
 

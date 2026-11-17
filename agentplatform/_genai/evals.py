@@ -30,6 +30,7 @@ import pandas as pd
 
 from . import _evals_common
 from . import _evals_utils
+from . import _operations_utils
 from . import _transformers as t
 from . import types
 from .types import evals as evals_types
@@ -901,6 +902,19 @@ def _GetEvaluationSetParameters_to_vertex(
     return to_object
 
 
+def _GetImportEvaluationSetOperationParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["operation_name"]) is not None:
+        setv(
+            to_object, ["_url", "operationName"], getv(from_object, ["operation_name"])
+        )
+
+    return to_object
+
+
 def _ImportEvaluationSetParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
@@ -920,6 +934,12 @@ def _ImportEvaluationSetParameters_to_vertex(
 
     if getv(from_object, ["cloud_trace_source"]) is not None:
         setv(to_object, ["cloudTraceSource"], getv(from_object, ["cloud_trace_source"]))
+
+    if getv(from_object, ["harbor_dataset"]) is not None:
+        setv(to_object, ["harborDataset"], getv(from_object, ["harbor_dataset"]))
+
+    if getv(from_object, ["import_mode"]) is not None:
+        setv(to_object, ["importMode"], getv(from_object, ["import_mode"]))
 
     if getv(from_object, ["config"]) is not None:
         setv(to_object, ["config"], getv(from_object, ["config"]))
@@ -2661,10 +2681,12 @@ class Evals(_api_module.BaseModule):
         self,
         *,
         evaluation_set: types.EvaluationSetOrDict,
-        gcs_destination: genai_types.GcsDestinationOrDict,
+        gcs_destination: Optional[genai_types.GcsDestinationOrDict] = None,
         gcs_source: Optional[types.EvaluationSetGcsSourceOrDict] = None,
         inline_source: Optional[types.EvaluationSetInlineSourceOrDict] = None,
         cloud_trace_source: Optional[types.EvaluationSetCloudTraceSourceOrDict] = None,
+        harbor_dataset: Optional[types.HarborDatasetOrDict] = None,
+        import_mode: Optional[types.ImportMode] = None,
         config: Optional[types.ImportEvaluationSetConfigOrDict] = None,
     ) -> types.ImportEvaluationSetOperation:
         """
@@ -2677,6 +2699,8 @@ class Evals(_api_module.BaseModule):
             gcs_source=gcs_source,
             inline_source=inline_source,
             cloud_trace_source=cloud_trace_source,
+            harbor_dataset=harbor_dataset,
+            import_mode=import_mode,
             config=config,
         )
 
@@ -2710,6 +2734,76 @@ class Evals(_api_module.BaseModule):
         request_dict = _common.encode_unserializable_types(request_dict)
 
         response = self._api_client.request("post", path, request_dict, http_options)
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.ImportEvaluationSetOperation._from_response(
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    def _get_import_evaluation_set_operation(
+        self,
+        *,
+        operation_name: str,
+        config: Optional[types.GetImportEvaluationSetOperationConfigOrDict] = None,
+    ) -> types.ImportEvaluationSetOperation:
+        parameter_model = types._GetImportEvaluationSetOperationParameters(
+            operation_name=operation_name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
+        else:
+            request_dict = _GetImportEvaluationSetOperationParameters_to_vertex(
+                parameter_model
+            )
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{operationName}".format_map(request_url_dict)
+            else:
+                path = "{operationName}"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = self._api_client.request("get", path, request_dict, http_options)
 
         response_dict = {} if not response.body else json.loads(response.body)
 
@@ -3046,6 +3140,10 @@ class Evals(_api_module.BaseModule):
 
         self._api_client._verify_response(return_value)
         return return_value
+
+    # Polling for `import_evaluation_set(wait=True)`.
+    _IMPORT_EVALUATION_SET_POLL_INTERVAL_SECONDS = 5
+    _IMPORT_EVALUATION_SET_TIMEOUT_SECONDS = 30 * 60
 
     def evaluate_instances(
         self,
@@ -3982,60 +4080,154 @@ class Evals(_api_module.BaseModule):
             name = name.split("/")[-1]
         self._delete_evaluation_set(name=name, config=config)
 
+    @staticmethod
+    def _validate_import_evaluation_set_sources(
+        *,
+        gcs_destination: object,
+        gcs_source: object,
+        inline_source: object,
+        cloud_trace_source: object,
+        harbor_dataset: object,
+    ) -> None:
+        """Checks the source and the destination of an import.
+
+        Shared by the sync and async surfaces.
+
+        Raises:
+          ValueError: If not exactly one source is set, or if `gcs_destination`
+            does not match the source.
+        """
+        sources = (gcs_source, inline_source, cloud_trace_source, harbor_dataset)
+        if sum(source is not None for source in sources) != 1:
+            raise ValueError(
+                "Exactly one of gcs_source, inline_source, cloud_trace_source, or"
+                " harbor_dataset must be provided."
+            )
+        if harbor_dataset is not None and gcs_destination is not None:
+            raise ValueError("gcs_destination must not be set with harbor_dataset.")
+        if harbor_dataset is None and gcs_destination is None:
+            raise ValueError(
+                "gcs_destination is required unless harbor_dataset is provided."
+            )
+
+    @staticmethod
+    def _check_completed_import_operation(
+        operation: types.ImportEvaluationSetOperation,
+    ) -> None:
+        """Checks the result of a completed import operation.
+
+        Shared by the sync and async surfaces. Logs a warning if some items failed
+        to import.
+
+        Raises:
+          RuntimeError: If the operation failed, or completed without an
+            EvaluationSet.
+        """
+        if operation.error:
+            raise RuntimeError(
+                f"Import operation {operation.name} failed: {operation.error}"
+            )
+        response = operation.response
+        if response is None or not response.evaluation_set:
+            raise RuntimeError(
+                "The import operation completed but returned no evaluation set:"
+                f" {operation!r}"
+            )
+        metadata = operation.metadata or {}
+        failed_item_count = int(metadata.get("failedItemCount", 0))
+        if failed_item_count:
+            logger.warning(
+                "Failed to import %d item(s) into %s. Partial failures: %s",
+                failed_item_count,
+                response.evaluation_set,
+                metadata.get("partialFailures"),
+            )
+
     def import_evaluation_set(
         self,
         *,
         evaluation_set: types.EvaluationSetOrDict,
-        gcs_destination: genai_types.GcsDestinationOrDict,
+        gcs_destination: Optional[genai_types.GcsDestinationOrDict] = None,
         gcs_source: Optional[types.EvaluationSetGcsSourceOrDict] = None,
         inline_source: Optional[types.EvaluationSetInlineSourceOrDict] = None,
         cloud_trace_source: Optional[types.EvaluationSetCloudTraceSourceOrDict] = None,
+        harbor_dataset: Optional[types.HarborDatasetOrDict] = None,
+        import_mode: Optional[types.ImportMode] = None,
+        wait: bool = False,
         config: Optional[types.ImportEvaluationSetConfigOrDict] = None,
     ) -> types.ImportEvaluationSetOperation:
         """Imports data into an EvaluationSet.
 
-        This is a long-running operation that imports data from a source (such as
-        OpenTelemetry traces) into a managed EvaluationSet.
+        This starts a long-running operation that imports data from a source (such
+        as OpenTelemetry traces or a Harbor dataset) into a managed EvaluationSet.
+        Exactly one of ``gcs_source``, ``inline_source``, ``cloud_trace_source``,
+        or ``harbor_dataset`` must be provided.
 
         Args:
           evaluation_set: The EvaluationSet to create. Used to specify
             ``display_name`` and ``metadata``. The ``evaluation_items`` field is
-            ignored and populated by the import process.
+            ignored and populated by the import process. If ``import_mode`` is
+            set, ``name`` selects the existing EvaluationSet to import into, in the
+            form
+            ``projects/{project}/locations/{location}/evaluationSets/{evaluation_set}``,
+            and the other fields are ignored.
           gcs_destination: The Cloud Storage location where the resulting
-            EvaluationItem payloads will be stored.
-          gcs_source: The Cloud Storage source of the input data. Exactly one of
-            ``gcs_source``, ``inline_source``, or ``cloud_trace_source`` must be
-            provided.
-          inline_source: The inline source for small payloads (< 4MB). Exactly one
-            of ``gcs_source``, ``inline_source``, or ``cloud_trace_source`` must be
-            provided.
+            EvaluationItem payloads will be stored. Required for every source
+            except ``harbor_dataset``, which must not set it.
+          gcs_source: The Cloud Storage source of the input data.
+          inline_source: The inline source for small payloads (< 4MB).
           cloud_trace_source: The Cloud Trace source for loading traces directly
-            from Cloud Trace. Exactly one of ``gcs_source``, ``inline_source``, or
-            ``cloud_trace_source`` must be provided.
+            from Cloud Trace.
+          harbor_dataset: A Harbor dataset in Cloud Storage. The import creates one
+            EvaluationItem of type ``HARBOR_TASK`` for each task in the
+            ``dataset.toml`` file of the dataset.
+          import_mode: The mode of the import. ``ImportMode.OVERWRITE`` replaces
+            the items of the EvaluationSet named by ``evaluation_set.name``. It is
+            supported only for ``harbor_dataset``, into an EvaluationSet that was
+            imported from a Harbor dataset.
+          wait: If True, waits until the import finishes and returns the completed
+            operation. ``operation.response.evaluation_set`` is the name of the
+            imported EvaluationSet. If False, returns the operation when the import
+            starts.
           config: The optional configuration for the import operation.
 
         Returns:
-          The long-running operation for the import.
+          The long-running operation for the import. If ``wait`` is True, the
+          operation is done and succeeded.
+
+        Raises:
+          ValueError: If the sources or ``gcs_destination`` are not valid.
+          RuntimeError: If ``wait`` is True and the import fails.
+          TimeoutError: If ``wait`` is True and the import does not finish in 30
+            minutes. The error names the operation.
         """
-        if (
-            sum(
-                source is not None
-                for source in (gcs_source, inline_source, cloud_trace_source)
-            )
-            != 1
-        ):
-            raise ValueError(
-                "Exactly one of gcs_source, inline_source, or cloud_trace_source"
-                " must be provided."
-            )
-        return self._import_evaluation_set(
+        Evals._validate_import_evaluation_set_sources(
+            gcs_destination=gcs_destination,
+            gcs_source=gcs_source,
+            inline_source=inline_source,
+            cloud_trace_source=cloud_trace_source,
+            harbor_dataset=harbor_dataset,
+        )
+        operation = self._import_evaluation_set(
             evaluation_set=evaluation_set,
             gcs_destination=gcs_destination,
             gcs_source=gcs_source,
             inline_source=inline_source,
             cloud_trace_source=cloud_trace_source,
+            harbor_dataset=harbor_dataset,
+            import_mode=import_mode,
             config=config,
         )
+        if not wait:
+            return operation
+        operation = _operations_utils.await_operation(
+            operation_name=operation.name,
+            get_operation_fn=self._get_import_evaluation_set_operation,
+            poll_interval=Evals._IMPORT_EVALUATION_SET_POLL_INTERVAL_SECONDS,
+            timeout_seconds=Evals._IMPORT_EVALUATION_SET_TIMEOUT_SECONDS,
+        )
+        Evals._check_completed_import_operation(operation)
+        return operation
 
     def generate_conversation_scenarios(
         self,
@@ -5693,10 +5885,12 @@ class AsyncEvals(_api_module.BaseModule):
         self,
         *,
         evaluation_set: types.EvaluationSetOrDict,
-        gcs_destination: genai_types.GcsDestinationOrDict,
+        gcs_destination: Optional[genai_types.GcsDestinationOrDict] = None,
         gcs_source: Optional[types.EvaluationSetGcsSourceOrDict] = None,
         inline_source: Optional[types.EvaluationSetInlineSourceOrDict] = None,
         cloud_trace_source: Optional[types.EvaluationSetCloudTraceSourceOrDict] = None,
+        harbor_dataset: Optional[types.HarborDatasetOrDict] = None,
+        import_mode: Optional[types.ImportMode] = None,
         config: Optional[types.ImportEvaluationSetConfigOrDict] = None,
     ) -> types.ImportEvaluationSetOperation:
         """
@@ -5709,6 +5903,8 @@ class AsyncEvals(_api_module.BaseModule):
             gcs_source=gcs_source,
             inline_source=inline_source,
             cloud_trace_source=cloud_trace_source,
+            harbor_dataset=harbor_dataset,
+            import_mode=import_mode,
             config=config,
         )
 
@@ -5743,6 +5939,78 @@ class AsyncEvals(_api_module.BaseModule):
 
         response = await self._api_client.async_request(
             "post", path, request_dict, http_options
+        )
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.ImportEvaluationSetOperation._from_response(
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    async def _get_import_evaluation_set_operation(
+        self,
+        *,
+        operation_name: str,
+        config: Optional[types.GetImportEvaluationSetOperationConfigOrDict] = None,
+    ) -> types.ImportEvaluationSetOperation:
+        parameter_model = types._GetImportEvaluationSetOperationParameters(
+            operation_name=operation_name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
+        else:
+            request_dict = _GetImportEvaluationSetOperationParameters_to_vertex(
+                parameter_model
+            )
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{operationName}".format_map(request_url_dict)
+            else:
+                path = "{operationName}"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = await self._api_client.async_request(
+            "get", path, request_dict, http_options
         )
 
         response_dict = {} if not response.body else json.loads(response.body)
@@ -6633,57 +6901,87 @@ class AsyncEvals(_api_module.BaseModule):
         self,
         *,
         evaluation_set: types.EvaluationSetOrDict,
-        gcs_destination: genai_types.GcsDestinationOrDict,
+        gcs_destination: Optional[genai_types.GcsDestinationOrDict] = None,
         gcs_source: Optional[types.EvaluationSetGcsSourceOrDict] = None,
         inline_source: Optional[types.EvaluationSetInlineSourceOrDict] = None,
         cloud_trace_source: Optional[types.EvaluationSetCloudTraceSourceOrDict] = None,
+        harbor_dataset: Optional[types.HarborDatasetOrDict] = None,
+        import_mode: Optional[types.ImportMode] = None,
+        wait: bool = False,
         config: Optional[types.ImportEvaluationSetConfigOrDict] = None,
     ) -> types.ImportEvaluationSetOperation:
         """Imports data into an EvaluationSet.
 
-        This is a long-running operation that imports data from a source (such as
-        OpenTelemetry traces) into a managed EvaluationSet.
+        This starts a long-running operation that imports data from a source (such
+        as OpenTelemetry traces or a Harbor dataset) into a managed EvaluationSet.
+        Exactly one of ``gcs_source``, ``inline_source``, ``cloud_trace_source``,
+        or ``harbor_dataset`` must be provided.
 
         Args:
           evaluation_set: The EvaluationSet to create. Used to specify
             ``display_name`` and ``metadata``. The ``evaluation_items`` field is
-            ignored and populated by the import process.
+            ignored and populated by the import process. If ``import_mode`` is
+            set, ``name`` selects the existing EvaluationSet to import into, in the
+            form
+            ``projects/{project}/locations/{location}/evaluationSets/{evaluation_set}``,
+            and the other fields are ignored.
           gcs_destination: The Cloud Storage location where the resulting
-            EvaluationItem payloads will be stored.
-          gcs_source: The Cloud Storage source of the input data. Exactly one of
-            ``gcs_source``, ``inline_source``, or ``cloud_trace_source`` must be
-            provided.
-          inline_source: The inline source for small payloads (< 4MB). Exactly one
-            of ``gcs_source``, ``inline_source``, or ``cloud_trace_source`` must be
-            provided.
+            EvaluationItem payloads will be stored. Required for every source
+            except ``harbor_dataset``, which must not set it.
+          gcs_source: The Cloud Storage source of the input data.
+          inline_source: The inline source for small payloads (< 4MB).
           cloud_trace_source: The Cloud Trace source for loading traces directly
-            from Cloud Trace. Exactly one of ``gcs_source``, ``inline_source``, or
-            ``cloud_trace_source`` must be provided.
+            from Cloud Trace.
+          harbor_dataset: A Harbor dataset in Cloud Storage. The import creates one
+            EvaluationItem of type ``HARBOR_TASK`` for each task in the
+            ``dataset.toml`` file of the dataset.
+          import_mode: The mode of the import. ``ImportMode.OVERWRITE`` replaces
+            the items of the EvaluationSet named by ``evaluation_set.name``. It is
+            supported only for ``harbor_dataset``, into an EvaluationSet that was
+            imported from a Harbor dataset.
+          wait: If True, waits until the import finishes and returns the completed
+            operation. ``operation.response.evaluation_set`` is the name of the
+            imported EvaluationSet. If False, returns the operation when the import
+            starts.
           config: The optional configuration for the import operation.
 
         Returns:
-          The long-running operation for the import.
+          The long-running operation for the import. If ``wait`` is True, the
+          operation is done and succeeded.
+
+        Raises:
+          ValueError: If the sources or ``gcs_destination`` are not valid.
+          RuntimeError: If ``wait`` is True and the import fails.
+          TimeoutError: If ``wait`` is True and the import does not finish in 30
+            minutes. The error names the operation.
         """
-        if (
-            sum(
-                source is not None
-                for source in (gcs_source, inline_source, cloud_trace_source)
-            )
-            != 1
-        ):
-            raise ValueError(
-                "Exactly one of gcs_source, inline_source, or cloud_trace_source"
-                " must be provided."
-            )
-        result = await self._import_evaluation_set(
+        Evals._validate_import_evaluation_set_sources(
+            gcs_destination=gcs_destination,
+            gcs_source=gcs_source,
+            inline_source=inline_source,
+            cloud_trace_source=cloud_trace_source,
+            harbor_dataset=harbor_dataset,
+        )
+        operation = await self._import_evaluation_set(
             evaluation_set=evaluation_set,
             gcs_destination=gcs_destination,
             gcs_source=gcs_source,
             inline_source=inline_source,
             cloud_trace_source=cloud_trace_source,
+            harbor_dataset=harbor_dataset,
+            import_mode=import_mode,
             config=config,
         )
-        return result
+        if not wait:
+            return operation
+        operation = await _operations_utils.await_operation_async(
+            operation_name=operation.name,
+            get_operation_fn=self._get_import_evaluation_set_operation,
+            poll_interval=Evals._IMPORT_EVALUATION_SET_POLL_INTERVAL_SECONDS,
+            timeout_seconds=Evals._IMPORT_EVALUATION_SET_TIMEOUT_SECONDS,
+        )
+        Evals._check_completed_import_operation(operation)
+        return operation
 
     async def generate_conversation_scenarios(
         self,
