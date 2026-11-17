@@ -4255,6 +4255,190 @@ class TestRuntime:
             )
 
     @pytest.mark.parametrize(
+        "error_frame, expected_error_cls, expected_code, expected_message",
+        [
+            (
+                {
+                    "code": 429,
+                    "message": "429 RESOURCE_EXHAUSTED",
+                    "errorCode": "429",
+                    "errorMessage": "429 RESOURCE_EXHAUSTED",
+                },
+                genai_errors.ClientError,
+                429,
+                "429 RESOURCE_EXHAUSTED",
+            ),
+            (
+                {
+                    "code": 498,
+                    "message": "boom",
+                    "errorCode": "498",
+                    "errorMessage": "boom",
+                },
+                genai_errors.ClientError,
+                498,
+                "boom",
+            ),
+            (
+                {
+                    "code": 503,
+                    "message": "Service unavailable",
+                    "errorCode": "503",
+                    "errorMessage": "Service unavailable",
+                },
+                genai_errors.ServerError,
+                503,
+                "Service unavailable",
+            ),
+            (
+                {
+                    "errorCode": "PERMISSION_DENIED",
+                    "errorMessage": "Egress request is not authorized.",
+                },
+                genai_errors.ClientError,
+                403,
+                "Egress request is not authorized.",
+            ),
+            (
+                {
+                    "code": "CUSTOM_ERROR",
+                    "message": "custom error",
+                    "errorCode": "CUSTOM_ERROR",
+                    "errorMessage": "custom error",
+                },
+                genai_errors.ClientError,
+                498,
+                "custom error",
+            ),
+        ],
+    )
+    def test_query_runtime_stream_raises_on_error_frame(
+        self, error_frame, expected_error_cls, expected_code, expected_message
+    ):
+        """Streaming query raises APIError on a terminal server error frame."""
+        # pylint: disable=protected-access
+        partial_event = {
+            "content": {"parts": [{"text": "partial answer"}]},
+            "author": "demo",
+        }
+        with mock.patch.object(
+            self.client.runtimes._api_client, "request_streamed"
+        ) as request_mock:
+            request_mock.return_value = [
+                genai_types.HttpResponse(body=json.dumps(partial_event)),
+                genai_types.HttpResponse(body=json.dumps(error_frame)),
+            ]
+            agent = self.client.runtimes._register_api_methods(
+                runtime=_genai_types.Runtime(
+                    api_client=self.client.runtimes,
+                    api_resource=_genai_types.ReasoningEngine(
+                        name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                        spec=_genai_types.ReasoningEngineSpec(
+                            class_methods=[
+                                _TEST_AGENT_ENGINE_CLASS_METHOD_STREAM_QUERY,
+                            ]
+                        ),
+                    ),
+                )
+            )
+            stream = agent.stream_query(query=_TEST_QUERY_PROMPT)
+            assert next(stream) == partial_event
+            with pytest.raises(expected_error_cls) as exc_info:
+                next(stream)
+            assert exc_info.value.code == expected_code
+            assert exc_info.value.message == expected_message
+
+    def test_query_runtime_async_stream_raises_on_error_frame(self):
+        """Async streaming query raises APIError on a terminal server error frame."""
+        # pylint: disable=protected-access
+        partial_event = {
+            "content": {"parts": [{"text": "partial answer"}]},
+            "author": "demo",
+        }
+        error_frame = {
+            "code": 429,
+            "message": "429 RESOURCE_EXHAUSTED",
+            "errorCode": "429",
+            "errorMessage": "429 RESOURCE_EXHAUSTED",
+        }
+
+        async def mock_async_generator():
+            """Yields a partial event followed by a terminal error frame."""
+            yield genai_types.HttpResponse(body=json.dumps(partial_event))
+            yield genai_types.HttpResponse(body=json.dumps(error_frame))
+
+        with mock.patch.object(
+            self.client.runtimes._api_client, "async_request_streamed"
+        ) as request_mock:
+            request_mock.return_value = mock_async_generator()
+            agent = self.client.runtimes._register_api_methods(
+                runtime=_genai_types.Runtime(
+                    api_client=self.client.runtimes,
+                    api_resource=_genai_types.ReasoningEngine(
+                        name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                        spec=_genai_types.ReasoningEngineSpec(
+                            class_methods=[
+                                _TEST_AGENT_ENGINE_CLASS_METHOD_ASYNC_STREAM_QUERY,
+                            ]
+                        ),
+                    ),
+                )
+            )
+
+            yielded = []
+
+            async def consume():
+                """Drains the async stream into `yielded`."""
+                async for event in agent.async_stream_query(
+                    query=_TEST_QUERY_PROMPT
+                ):
+                    yielded.append(event)
+
+            with pytest.raises(genai_errors.ClientError) as exc_info:
+                asyncio.run(consume())
+            assert yielded == [partial_event]
+            assert exc_info.value.code == 429
+            assert exc_info.value.message == "429 RESOURCE_EXHAUSTED"
+
+    def test_query_runtime_stream_yields_non_terminal_events(self):
+        """Streaming query yields in-run ADK error events and zero-code frames."""
+        # pylint: disable=protected-access
+        events = [
+            {
+                "error_code": "NOT_FOUND",
+                "error_message": "model not found",
+                "author": "demo",
+            },
+            {"message": "normal message"},
+            {
+                "code": 0,
+                "message": "ok",
+                "errorCode": "0",
+                "errorMessage": "",
+            },
+        ]
+        with mock.patch.object(
+            self.client.runtimes._api_client, "request_streamed"
+        ) as request_mock:
+            request_mock.return_value = [
+                genai_types.HttpResponse(body=json.dumps(e)) for e in events
+            ]
+            agent = self.client.runtimes._register_api_methods(
+                runtime=_genai_types.Runtime(
+                    api_client=self.client.runtimes,
+                    api_resource=_genai_types.ReasoningEngine(
+                        name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                        spec=_genai_types.ReasoningEngineSpec(
+                            class_methods=[
+                                _TEST_AGENT_ENGINE_CLASS_METHOD_STREAM_QUERY,
+                            ]
+                        ),
+                    ),
+                )
+            )
+            assert list(agent.stream_query(query=_TEST_QUERY_PROMPT)) == events
+
+    @pytest.mark.parametrize(
         "test_case_name, test_class_methods_spec, want_operation_schema_api_modes",
         [
             (

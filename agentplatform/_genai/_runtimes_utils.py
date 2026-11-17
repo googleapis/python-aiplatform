@@ -1666,6 +1666,54 @@ def _wrap_async_query_operation(
     return _method
 
 
+_STREAM_ERROR_FRAME_KEYS = frozenset(
+    {"code", "message", "errorCode", "errorMessage"}
+)
+_DEFAULT_STREAM_ERROR_CODE = 498
+
+
+def _raise_for_stream_error_frame(frame: Any) -> None:
+    """Raises an APIError if `frame` is a terminal server error frame.
+
+    When an agent raises during `stream_query` or `async_stream_query` after the
+    HTTP 200 response headers have been sent, or when a chunk fails to
+    JSON-encode, the Agent Runtime server emits a terminal JSON object whose
+    top-level keys are a subset of `{"code", "message", "errorCode",
+    "errorMessage"}` with a non-zero `errorCode`. In-run ADK error events carry
+    `error_code` alongside other event fields (`author`, `invocation_id`, etc.)
+    and are left untouched so recoverable mid-stream agent errors are still
+    yielded normally.
+
+    Args:
+        frame: A parsed stream frame to inspect.
+    """
+    if not isinstance(frame, dict) or not frame:
+        return
+    if not frame.keys() <= _STREAM_ERROR_FRAME_KEYS:
+        return
+    error_code = frame.get("errorCode")
+    if not error_code or str(error_code) == "0":
+        return
+
+    raw_code = frame.get("code", error_code)
+    status_code = _DEFAULT_STREAM_ERROR_CODE
+    if isinstance(raw_code, int) and not isinstance(raw_code, bool):
+        status_code = raw_code
+    else:
+        try:
+            status_code = int(str(raw_code))
+        except (TypeError, ValueError):
+            if str(error_code) == "PERMISSION_DENIED":
+                status_code = 403
+
+    response_json = (
+        frame
+        if "message" in frame
+        else {"message": frame.get("errorMessage"), **frame}
+    )
+    google_genai_errors.APIError.raise_error(status_code, response_json, None)
+
+
 def _wrap_stream_query_operation(*, method_name: str) -> Callable[..., Iterator[Any]]:
     """Wraps an Agent Runtime method, creating a callable for `stream_query` API.
 
@@ -1703,6 +1751,7 @@ def _wrap_stream_query_operation(*, method_name: str) -> Callable[..., Iterator[
         ):
             for line in _yield_parsed_json(http_response=http_response):
                 if line is not None:
+                    _raise_for_stream_error_frame(line)
                     yield line
 
     return _method
@@ -1747,6 +1796,7 @@ def _wrap_async_stream_query_operation(
         ):
             for line in _yield_parsed_json(http_response=http_response):
                 if line is not None:
+                    _raise_for_stream_error_frame(line)
                     yield line
 
     return _method
