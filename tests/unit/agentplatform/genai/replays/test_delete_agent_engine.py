@@ -44,8 +44,7 @@ pytest_plugins = ("pytest_asyncio",)
 @pytest.mark.asyncio
 async def test_agent_engine_delete_async(client, caplog):
     caplog.set_level(logging.INFO)
-    # TODO(b/431785750): use async methods for create() when available
-    runtime = client.runtimes.create()
+    runtime = await client.aio.runtimes.create()
     operation = await client.aio.runtimes.delete(
         name=runtime.api_resource.name
     )
