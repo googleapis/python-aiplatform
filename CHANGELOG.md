@@ -1,5 +1,26 @@
 # Changelog
 
+## [2.10.0](https://github.com/googleapis/python-aiplatform/compare/v2.9.0...v2.10.0) (2026-11-17)
+
+
+### Features
+
+* **agentplatform:** Add async `create`, `get`, `list`, `update`, `check_query_job`, and `run_query_job` methods to `AsyncRuntimes` ([aef3811](https://github.com/googleapis/python-aiplatform/commit/aef381171c3a6d321f66151ae04296bea1c4b293))
+* **agentplatform:** Add public async methods to `AsyncSandboxes`, `AsyncSandboxTemplates`, and `AsyncSandboxSnapshots` ([b5310fe](https://github.com/googleapis/python-aiplatform/commit/b5310fe4c4c41beb6fa5530848211169689dcc7f))
+* Support security_schemes, security, and kwargs in create_agent_card ([f419026](https://github.com/googleapis/python-aiplatform/commit/f4190261b2e2701c4ddb223f1985c36377f907a1))
+
+
+### Bug Fixes
+
+* Allow clearing `env_vars` / `secret_env` and updating `deployment_spec` without `agent` or source options in `runtimes.update()` and `agent_engines.update()` ([24030fe](https://github.com/googleapis/python-aiplatform/commit/24030fe291cdec4017ae1601babba5ee1b377d72))
+* GenAI Client(evals) - Fill the history variable of LLMMetric templates from conversation_history ([25f383a](https://github.com/googleapis/python-aiplatform/commit/25f383a579420e5eb05396abd2726e5e77308336))
+
+
+### Documentation
+
+* Clarify empty keep_alive_probe opt-in for managed AdkApp deployments ([2f2430a](https://github.com/googleapis/python-aiplatform/commit/2f2430aa9096589c51fc48b8fe2755902f85dc4d))
+* Update Model Garden samples and README to the Gen AI SDK client ([83bb6ce](https://github.com/googleapis/python-aiplatform/commit/83bb6ce8c91921f21cd1e4d17828e3701eff6762))
+
 ## [2.9.0](https://github.com/googleapis/python-aiplatform/compare/v2.8.0...v2.9.0) (2026-11-12)
 
 
