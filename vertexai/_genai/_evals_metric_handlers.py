@@ -685,9 +685,15 @@ def _build_evaluation_instance(
         for full_path in template_vars:
             # Extract the root variable (e.g. 'metadata' from 'metadata.user_id')
             root_var = full_path.split(".")[0].split("[")[0]
+            field = root_var
+            if root_var == "history" and not hasattr(eval_case, "history"):
+                field = "conversation_history"
 
-            if root_var not in standard_fields and hasattr(eval_case, root_var):
-                val = getattr(eval_case, root_var)
+            if root_var not in standard_fields and hasattr(eval_case, field):
+                val = getattr(eval_case, field)
+                if field == "conversation_history" and not val:
+                    other_data_map[root_var] = types.evals.InstanceData(text="")
+                    continue
                 # Add the root object to other_data so the backend can traverse it
                 other_data_map[root_var] = types.evals.InstanceData(
                     contents=types.evals.InstanceDataContents(

@@ -7351,6 +7351,65 @@ class TestBuildEvaluationInstance:
             == "System instructions here."
         )
 
+    def test_build_evaluation_instance_history_uses_conversation_history(self):
+        eval_case = agentplatform_genai_types.EvalCase(
+            prompt=genai_types.Content(parts=[genai_types.Part(text="Next")]),
+            responses=[
+                agentplatform_genai_types.ResponseCandidate(
+                    response=genai_types.Content(parts=[genai_types.Part(text="Hi")])
+                )
+            ],
+            conversation_history=[
+                agentplatform_genai_types.evals.Message(
+                    content=genai_types.Content(
+                        parts=[genai_types.Part(text="Turn 1 user")], role="user"
+                    )
+                ),
+                agentplatform_genai_types.evals.Message(
+                    content=genai_types.Content(
+                        parts=[genai_types.Part(text="Turn 1 model")], role="model"
+                    )
+                ),
+            ],
+        )
+
+        instance = _evals_metric_handlers._build_evaluation_instance(
+            eval_case,
+            eval_case.responses[0].response,
+            prompt_template="{history}{prompt}{response}",
+        )
+
+        assert (
+            instance.other_data.map_instance["history"]
+            .contents.contents[0]
+            .parts[0]
+            .text
+            == "user: Turn 1 user\nmodel: Turn 1 model"
+        )
+
+    @pytest.mark.parametrize("variable", ["history", "conversation_history"])
+    @pytest.mark.parametrize("conversation_history", [None, []])
+    def test_build_evaluation_instance_empty_history_is_empty_text(
+        self, variable, conversation_history
+    ):
+        eval_case = agentplatform_genai_types.EvalCase(
+            prompt=genai_types.Content(parts=[genai_types.Part(text="Hello")]),
+            responses=[
+                agentplatform_genai_types.ResponseCandidate(
+                    response=genai_types.Content(parts=[genai_types.Part(text="Hi")])
+                )
+            ],
+            conversation_history=conversation_history,
+        )
+
+        instance = _evals_metric_handlers._build_evaluation_instance(
+            eval_case,
+            eval_case.responses[0].response,
+            prompt_template=f"{{{variable}}}{{prompt}}{{response}}",
+        )
+
+        assert instance.other_data.map_instance[variable].text == ""
+
     @pytest.mark.parametrize(
         "context",
         [["Passage one.", "Passage two."], {"source": "doc-1", "text": "Passage."}],
