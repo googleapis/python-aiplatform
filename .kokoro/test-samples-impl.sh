@@ -36,27 +36,30 @@ env | grep KOKORO
 # `virtualenv==20.26.6` is added for Python 3.7 compatibility
 python3 -m pip install --upgrade --quiet nox virtualenv==20.26.6
 
-# Use secrets acessor service account to get secrets
-if [[ -f "${KOKORO_GFILE_DIR}/secrets_viewer_service_account.json" ]]; then
-    gcloud auth activate-service-account \
-	   --key-file="${KOKORO_GFILE_DIR}/secrets_viewer_service_account.json" \
-	   --project="cloud-devrel-kokoro-resources"
+# Lint needs no credentials.
+if [[ "${RUN_TESTS_SESSION}" != "lint" ]]; then
+  # Use secrets acessor service account to get secrets
+  if [[ -f "${KOKORO_GFILE_DIR}/secrets_viewer_service_account.json" ]]; then
+      gcloud auth activate-service-account \
+          --key-file="${KOKORO_GFILE_DIR}/secrets_viewer_service_account.json" \
+          --project="cloud-devrel-kokoro-resources"
+  fi
+
+  # This script will create 3 files:
+  # - testing/test-env.sh
+  # - testing/service-account.json
+  # - testing/client-secrets.json
+  ./scripts/decrypt-secrets.sh
+
+  source ./testing/test-env.sh
+  export GOOGLE_APPLICATION_CREDENTIALS=$(pwd)/testing/service-account.json
+
+  # For cloud-run session, we activate the service account for gcloud sdk.
+  gcloud auth activate-service-account \
+         --key-file "${GOOGLE_APPLICATION_CREDENTIALS}"
+
+  export GOOGLE_CLIENT_SECRETS=$(pwd)/testing/client-secrets.json
 fi
-
-# This script will create 3 files:
-# - testing/test-env.sh
-# - testing/service-account.json
-# - testing/client-secrets.json
-./scripts/decrypt-secrets.sh
-
-source ./testing/test-env.sh
-export GOOGLE_APPLICATION_CREDENTIALS=$(pwd)/testing/service-account.json
-
-# For cloud-run session, we activate the service account for gcloud sdk.
-gcloud auth activate-service-account \
-       --key-file "${GOOGLE_APPLICATION_CREDENTIALS}"
-
-export GOOGLE_CLIENT_SECRETS=$(pwd)/testing/client-secrets.json
 
 echo -e "\n******************** TESTING PROJECTS ********************"
 
@@ -82,7 +85,7 @@ for file in samples/**/requirements.txt; do
 
     # If this is a periodic build, send the test log to the FlakyBot.
     # See https://github.com/googleapis/repo-automation-bots/tree/main/packages/flakybot.
-    if [[ $KOKORO_BUILD_ARTIFACTS_SUBDIR = *"periodic"* ]]; then
+    if [[ $KOKORO_BUILD_ARTIFACTS_SUBDIR = *"periodic"* && -f $KOKORO_GFILE_DIR/linux_amd64/flakybot ]]; then
       chmod +x $KOKORO_GFILE_DIR/linux_amd64/flakybot
       $KOKORO_GFILE_DIR/linux_amd64/flakybot
     fi
@@ -98,6 +101,6 @@ done
 cd "$ROOT"
 
 # Workaround for Kokoro permissions issue: delete secrets
-rm testing/{test-env.sh,client-secrets.json,service-account.json}
+rm -f testing/{test-env.sh,client-secrets.json,service-account.json}
 
 exit "$RTN"
