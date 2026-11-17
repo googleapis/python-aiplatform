@@ -15,13 +15,13 @@
 """Tests for vertex_rag.retrieval."""
 
 import importlib
+from unittest import mock
 
 from google.cloud import aiplatform
 from agentplatform import rag
 from google.cloud.aiplatform_v1 import VertexRagServiceAsyncClient
 from google.cloud.aiplatform_v1 import VertexRagServiceClient
 import test_rag_constants as tc
-import mock
 import pytest
 
 

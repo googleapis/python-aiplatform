@@ -16,6 +16,7 @@
 #
 
 import importlib
+from unittest import mock
 
 from google.api_core import exceptions
 from google.api_core import operation
@@ -29,7 +30,6 @@ from google.cloud.aiplatform.vertex_ray.bigquery_datasink import (
 import test_constants as tc
 from google.cloud.bigquery import job
 from google.cloud.bigquery_storage_v1.types import stream as gcbqs_stream
-import mock
 import pytest
 import pyarrow as pa
 import ray

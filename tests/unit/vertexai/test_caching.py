@@ -20,7 +20,8 @@ from contextlib import redirect_stdout
 import datetime
 import io
 import json
-import mock
+from unittest import mock
+
 import pytest
 from vertexai.caching import CachedContent
 from google.cloud.aiplatform import initializer

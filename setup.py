@@ -186,9 +186,10 @@ evaluation_extra_require = [
     "jsonschema",
     "ruamel.yaml",
     "pyyaml",
-    # Lower bound >=1.106.5 includes security advisory patches; litellm
-    # requires Python <3.15. Exact version is pinned in CI constraints.
-    "litellm>=1.106.5, <1.107.0; python_version<'3.15'",
+    # Lower bound >=1.106.5 includes security advisory patches; 1.107.0 was
+    # compromised; litellm requires Python <3.15. Exact version is pinned in
+    # CI constraints.
+    "litellm>=1.106.5, !=1.107.0, <1.110.0; python_version<'3.15'",
 ]
 
 langchain_extra_require = [

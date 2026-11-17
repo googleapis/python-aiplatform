@@ -15,6 +15,7 @@
 import copy
 import importlib
 import re
+from unittest import mock
 
 from google.api_core import operation as ga_operation
 from google.cloud import aiplatform
@@ -28,7 +29,6 @@ from google.cloud.aiplatform_v1beta1.services.persistent_resource_service import
 )
 from google.cloud.aiplatform_v1beta1.types import persistent_resource_service
 import test_constants as tc
-import mock
 import pytest
 
 from google.protobuf import field_mask_pb2  # type: ignore

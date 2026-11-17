@@ -80,9 +80,9 @@ evaluation = [
     "pandas >= 1.0.0",
     "tqdm >= 4.23.0",
     "pyyaml",
-    # Lower bound >=1.106.5 includes security advisory patches; litellm
-    # requires Python <3.15.
-    "litellm >= 1.106.5, < 1.107.0; python_version < '3.15'",
+    # Lower bound >=1.106.5 includes security advisory patches; 1.107.0 was
+    # compromised; litellm requires Python <3.15.
+    "litellm >= 1.106.5, != 1.107.0, < 1.110.0; python_version < '3.15'",
     "google-cloud-storage >= 1.32.0, < 4.0.0",
 ]
 bigquery = [

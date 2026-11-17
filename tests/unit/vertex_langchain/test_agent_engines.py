@@ -4137,111 +4137,48 @@ class TestRequirements:
 
 
 class TestValidateInstallationScripts:
-    # pytest does not allow absl.testing.parameterized.named_parameters.
-    @pytest.mark.parametrize(
-        "name, script_paths, extra_packages",
-        [
-            (
-                "valid_script_in_subdir_and_extra_packages",
-                [f"{_utils._INSTALLATION_SUBDIR}/script.sh"],
-                [f"{_utils._INSTALLATION_SUBDIR}/script.sh"],
-            ),
-            (
-                "multiple_valid_scripts",
-                [
-                    f"{_utils._INSTALLATION_SUBDIR}/script1.sh",
-                    f"{_utils._INSTALLATION_SUBDIR}/script2.sh",
-                ],
-                [
-                    f"{_utils._INSTALLATION_SUBDIR}/script1.sh",
-                    f"{_utils._INSTALLATION_SUBDIR}/script2.sh",
-                ],
-            ),
-            ("empty_script_paths_and_extra_packages", [], []),
-        ],
-    )
-    def test_validate_installation_scripts(self, name, script_paths, extra_packages):
-        _utils.validate_installation_scripts_or_raise(
-            script_paths=script_paths, extra_packages=extra_packages
-        )
 
     @pytest.mark.parametrize(
-        "name, script_paths, extra_packages, error_message",
+        "script_paths, extra_packages",
         [
             (
-                "script_not_in_subdir",
-                ["script.sh"],
-                ["script.sh"],
-                (
-                    f"Required installation script 'script.sh' is not under"
-                    f" '{_utils._INSTALLATION_SUBDIR}'"
-                ),
+                [f"{_TEST_INSTALLATION_SUBDIR}/script.sh"],
+                [f"{_TEST_INSTALLATION_SUBDIR}/script.sh"],
             ),
             (
-                "script_not_in_extra_packages",
-                [f"{_utils._INSTALLATION_SUBDIR}/script.sh"],
-                [],
-                (
-                    "User-defined installation script "
-                    f"'{_utils._INSTALLATION_SUBDIR}/script.sh'"
-                    " does not exist in `extra_packages`"
-                ),
-            ),
-            (
-                "extra_package_in_subdir_but_not_script",
-                [],
-                [f"{_utils._INSTALLATION_SUBDIR}/script.sh"],
-                (
-                    f"Extra package '{_utils._INSTALLATION_SUBDIR}/script.sh' "
-                    "is in the installation scripts subdirectory, but is not "
-                    "specified as an installation script."
-                ),
-            ),
-            (
-                "one_valid_one_invalid_script_not_in_subdir",
-                [f"{_utils._INSTALLATION_SUBDIR}/script1.sh", "script2.sh"],
-                [f"{_utils._INSTALLATION_SUBDIR}/script1.sh", "script2.sh"],
-                (
-                    f"Required installation script 'script2.sh' is not under"
-                    f" '{_utils._INSTALLATION_SUBDIR}'"
-                ),
-            ),
-            (
-                "one_valid_one_invalid_script_not_in_extra_packages",
                 [
-                    f"{_utils._INSTALLATION_SUBDIR}/script1.sh",
-                    f"{_utils._INSTALLATION_SUBDIR}/script2.sh",
+                    f"{_TEST_INSTALLATION_SUBDIR}/script1.sh",
+                    f"{_TEST_INSTALLATION_SUBDIR}/script2.sh",
                 ],
-                [f"{_utils._INSTALLATION_SUBDIR}/script1.sh"],
-                (
-                    "User-defined installation script "
-                    f"'{_utils._INSTALLATION_SUBDIR}/script2.sh' "
-                    "does not exist in `extra_packages`"
-                ),
+                [
+                    f"{_TEST_INSTALLATION_SUBDIR}/script1.sh",
+                    f"{_TEST_INSTALLATION_SUBDIR}/script2.sh",
+                ],
             ),
             (
-                "one_valid_one_invalid_extra_package_in_subdir",
-                [f"{_utils._INSTALLATION_SUBDIR}/script1.sh"],
+                [f"{_TEST_INSTALLATION_SUBDIR}/install.sh"],
                 [
-                    f"{_utils._INSTALLATION_SUBDIR}/script1.sh",
-                    f"{_utils._INSTALLATION_SUBDIR}/script2.sh",
+                    f"{_TEST_INSTALLATION_SUBDIR}/install.sh",
+                    f"{_TEST_INSTALLATION_SUBDIR}/swp-CA.crt",
                 ],
-                (
-                    f"Extra package '{_utils._INSTALLATION_SUBDIR}/script2.sh' "
-                    "is in the installation scripts subdirectory, but is not "
-                    "specified as an installation script."
-                ),
             ),
+            (
+                [f"{_TEST_INSTALLATION_SUBDIR}/install.sh"],
+                [_TEST_INSTALLATION_SUBDIR],
+            ),
+            (
+                [f"./{_TEST_INSTALLATION_SUBDIR}/install.sh"],
+                [f"./{_TEST_INSTALLATION_SUBDIR}/install.sh"],
+            ),
+            ([], []),
         ],
     )
-    def test_validate_installation_scripts_raises_error(
-        self,
-        name,
-        script_paths,
-        extra_packages,
-        error_message,
-    ):
-        with pytest.raises(ValueError, match=error_message):
-            _utils.validate_installation_scripts_or_raise(
-                script_paths=script_paths, extra_packages=extra_packages
+    def test_validate_installation_scripts(self, script_paths, extra_packages):
+        """Tests extra_packages validation with installation_scripts."""
+        with mock.patch("os.path.exists", return_value=True):
+            got = _agent_engines._validate_extra_packages_or_raise(  # pylint: disable=protected-access
+                extra_packages=extra_packages,
+                build_options={_TEST_BUILD_OPTIONS_INSTALLATION: script_paths},
             )
+        assert got == extra_packages
+

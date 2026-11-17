@@ -16,7 +16,7 @@
 set -eo pipefail
 
 if [[ -z "${PROJECT_ROOT:-}" ]]; then
-    PROJECT_ROOT="github/python-aiplatform"
+    PROJECT_ROOT="$(dirname "$0")/.."
 fi
 
 cd "${PROJECT_ROOT}"
@@ -28,10 +28,14 @@ export PYTHONUNBUFFERED=1
 env | grep KOKORO
 
 # Setup service account credentials.
-export GOOGLE_APPLICATION_CREDENTIALS=${KOKORO_GFILE_DIR}/service-account.json
+if [[ -f "${KOKORO_GFILE_DIR}/service-account.json" ]]; then
+  export GOOGLE_APPLICATION_CREDENTIALS=${KOKORO_GFILE_DIR}/service-account.json
+fi
 
 # Setup project id.
-export PROJECT_ID=$(cat "${KOKORO_GFILE_DIR}/project-id.json")
+if [[ -f "${KOKORO_GFILE_DIR}/project-id.json" ]]; then
+  export PROJECT_ID=$(cat "${KOKORO_GFILE_DIR}/project-id.json")
+fi
 
 # Remove old nox
 python3 -m pip uninstall --yes --quiet nox-automation
@@ -48,7 +52,7 @@ python3 -m nox --version
 # See https://github.com/googleapis/repo-automation-bots/tree/main/packages/flakybot.
 cleanup() {
   rm -rf .nox
-  if [[ $KOKORO_BUILD_ARTIFACTS_SUBDIR = *"continuous"* ]]; then
+  if [[ $KOKORO_BUILD_ARTIFACTS_SUBDIR = *"continuous"* && -f $KOKORO_GFILE_DIR/linux_amd64/flakybot ]]; then
     chmod +x $KOKORO_GFILE_DIR/linux_amd64/flakybot
     $KOKORO_GFILE_DIR/linux_amd64/flakybot
   fi

@@ -24,21 +24,23 @@ set -eo pipefail
 # Enables `**` to include files nested inside sub-folders
 shopt -s globstar
 
+cd "$(dirname "$0")/.."
+
 # Run periodic samples tests at latest release
 if [[ $KOKORO_BUILD_ARTIFACTS_SUBDIR = *"periodic"* ]]; then
     # preserving the test runner implementation.
-    cp .kokoro/test-samples-impl.sh "${TMPDIR}/test-samples-impl.sh"
+    cp .kokoro/test-samples-impl.sh "${TMPDIR:-/tmp}/test-samples-impl.sh"
     echo "--- IMPORTANT IMPORTANT IMPORTANT ---"
     echo "Now we rewind the repo back to the latest release..."
+    # The checkout may be owned by another user, which git otherwise refuses.
+    git config --global --add safe.directory "$(pwd)"
     LATEST_RELEASE=$(git describe --abbrev=0 --tags)
     git checkout $LATEST_RELEASE
     echo "The current head is: "
     echo $(git rev-parse --verify HEAD)
     echo "--- IMPORTANT IMPORTANT IMPORTANT ---"
-    # move back the test runner implementation if there's no file.
-    if [ ! -f .kokoro/test-samples-impl.sh ]; then
-	cp "${TMPDIR}/test-samples-impl.sh" .kokoro/test-samples-impl.sh
-    fi
+    # move back the current test runner implementation.
+    cp "${TMPDIR:-/tmp}/test-samples-impl.sh" .kokoro/test-samples-impl.sh
 fi
 
 exec .kokoro/test-samples-impl.sh

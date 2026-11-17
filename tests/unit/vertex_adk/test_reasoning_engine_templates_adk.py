@@ -675,6 +675,63 @@ class TestAdkApp:
             events.append(event)
         assert len(events) == 1
 
+    @pytest.mark.asyncio
+    async def test_async_stream_query_with_multimodal_content(self):
+        """Tests async_stream_query with a multimodal Content dictionary."""
+        # pylint: disable=protected-access
+        app = reasoning_engines.AdkApp(
+            agent=Agent(name=_TEST_AGENT_NAME, model=_TEST_MODEL)
+        )
+        assert app._tmpl_attrs.get("runner") is None
+        app.set_up()
+        runner_kwargs = {}
+
+        async def run_async(**kwargs):
+            runner_kwargs.update(kwargs)
+            async for event in _MockRunner().run_async():
+                yield event
+
+        app._tmpl_attrs["runner"] = mock.Mock(run_async=run_async)
+        video_message = {
+            "role": "user",
+            "parts": [
+                {
+                    "file_data": {
+                        "file_uri": (
+                            "gs://cloud-samples-data/generative-ai/video/pixel8.mp4"
+                        ),
+                        "mime_type": "video/mp4",
+                    },
+                },
+                {
+                    "text": "Describe the attached media in 5 words!",
+                },
+            ],
+        }
+        events = []
+        async for event in app.async_stream_query(
+            user_id=_TEST_USER_ID,
+            message=video_message,
+        ):
+            events.append(event)
+        assert len(events) == 1
+        assert runner_kwargs["new_message"] == types.Content(
+            role="user",
+            parts=[
+                types.Part(
+                    file_data=types.FileData(
+                        file_uri=(
+                            "gs://cloud-samples-data/generative-ai/video/pixel8.mp4"
+                        ),
+                        mime_type="video/mp4",
+                    ),
+                ),
+                types.Part(
+                    text="Describe the attached media in 5 words!",
+                ),
+            ],
+        )
+
     def test_streaming_agent_run_with_events(self):
         app = reasoning_engines.AdkApp(
             agent=Agent(name=_TEST_AGENT_NAME, model=_TEST_MODEL)
@@ -1458,13 +1515,6 @@ class TestAdkApp:
             enable_tracing=True,
         )
         assert app._tmpl_attrs.get("instrumentor") is None
-        # TODO(b/384730642): Re-enable this test once the parent issue is fixed.
-        # agent.set_up()
-        # assert agent._tmpl_attrs.get("instrumentor") is not None
-        # assert (
-        #     "enable_tracing=True but proceeding with tracing disabled"
-        #     not in caplog.text
-        # )
 
     @pytest.mark.usefixtures("caplog")
     def test_enable_tracing_warning(self, caplog):
@@ -1473,28 +1523,6 @@ class TestAdkApp:
             enable_tracing=True,
         )
         assert app._tmpl_attrs.get("instrumentor") is None
-        # TODO(b/384730642): Re-enable this test once the parent issue is fixed.
-        # app.set_up()
-        # assert "enable_tracing=True but proceeding with tracing disabled" in caplog.text
-
-    # TODO(b/384730642): Re-enable this test once the parent issue is fixed.
-    # @pytest.mark.parametrize(
-    #     "enable_tracing,want_warning",
-    #     [
-    #         (True, False),
-    #         (False, True),
-    #         (None, False),
-    #     ],
-    # )
-    # @pytest.mark.usefixtures("caplog")
-    # def test_tracing_disabled_warning(self, enable_tracing, want_warning, caplog):
-    #     app = reasoning_engines.AdkApp(
-    #         agent=Agent(name=_TEST_AGENT_NAME, model=_TEST_MODEL),
-    #         enable_tracing=enable_tracing
-    #     )
-    #     assert (
-    #         "[WARNING] Your 'enable_tracing=False' setting" in caplog.text
-    #     ) == want_warning
 
 
 def test_dump_event_for_json():

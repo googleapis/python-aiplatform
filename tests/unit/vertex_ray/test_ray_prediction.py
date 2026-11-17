@@ -19,6 +19,7 @@
 import importlib
 import pickle
 import tempfile
+from unittest import mock
 
 from google.cloud import aiplatform
 from google.cloud.aiplatform.vertex_ray.predict import (
@@ -37,7 +38,6 @@ from google.cloud.aiplatform.utils import gcs_utils
 import test_constants as tc
 import test_prediction_utils
 
-import mock
 import numpy as np
 import pytest
 import ray

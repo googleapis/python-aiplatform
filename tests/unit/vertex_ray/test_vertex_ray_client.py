@@ -13,11 +13,11 @@
 # limitations under the License.
 #
 import importlib
+from unittest import mock
 
 from google.cloud import aiplatform
 from google.cloud.aiplatform import vertex_ray
 import test_constants as tc
-import mock
 import pytest
 import ray
 

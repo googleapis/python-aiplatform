@@ -13,6 +13,8 @@
 # limitations under the License.
 #
 
+from unittest import mock
+
 from google import auth
 from google.api_core import exceptions
 from google.api_core import operation as ga_operation
@@ -32,7 +34,6 @@ from google.cloud.aiplatform_v1beta1.types.persistent_resource_service import (
     DeletePersistentResourceRequest,
 )
 import test_constants as tc
-import mock
 import pytest
 
 
