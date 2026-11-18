@@ -2124,6 +2124,15 @@ class TestRuntimeHelpers:
         body = httpbody_pb2.HttpBody(content_type="text/plain", data=b"hello")
         assert list(_runtimes_utils._yield_parsed_json_from_httpbody(body)) == [body]
 
+    def test_module_loads_without_httpx(self):
+        """Only A2A operations use httpx, so the module loads without it."""
+        spec = importlib.util.find_spec(_runtimes_utils.__name__)
+        module = importlib.util.module_from_spec(spec)
+        # A None entry in sys.modules makes `import httpx` raise ImportError.
+        with mock.patch.dict(sys.modules, {"httpx": None}):
+            spec.loader.exec_module(module)
+        assert module.httpx is None
+
     def test_create_base64_encoded_tarball(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             test_file_path = os.path.join(tmpdir, "test_file.txt")

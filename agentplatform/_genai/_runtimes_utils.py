@@ -47,8 +47,6 @@ from typing import (
     Union,
 )
 
-import httpx
-
 import proto
 
 from google.api_core import exceptions
@@ -111,6 +109,12 @@ else:
     except (ImportError, AttributeError):
         _SpecifierSet: type[Any] = Any  # type: ignore[no-redef]
 
+
+try:
+    import httpx  # pylint: disable=g-import-not-at-top
+except ImportError:
+    # Only A2A operations use httpx, and a2a-sdk requires it.
+    httpx = None  # type: ignore[assignment]
 
 try:
     from a2a.types import AgentCard

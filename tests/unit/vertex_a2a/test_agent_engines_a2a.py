@@ -14,6 +14,7 @@
 #
 
 import asyncio
+import importlib.util
 import os
 import sys
 import tempfile
@@ -547,6 +548,29 @@ class TestWrapA2aOperationTimeout:
             asyncio.run(wrapped(fake_engine, request="req2", timeout=120.0))
             mock_async_client.assert_called_once()
             assert mock_async_client.call_args.kwargs["timeout"] == 120.0
+
+
+def _load_module_without_httpx(module):
+    """Executes a fresh copy of the module as if httpx were not installed."""
+    spec = importlib.util.find_spec(module.__name__)
+    fresh_module = importlib.util.module_from_spec(spec)
+    # A None entry in sys.modules makes `import httpx` raise ImportError.
+    with mock.patch.dict(sys.modules, {"httpx": None}):
+        spec.loader.exec_module(fresh_module)
+    return fresh_module
+
+
+class TestOptionalHttpxImport:
+    """Verifies that the Agent Engine modules load when httpx is not installed."""
+
+    def test_agent_engines_loads_without_httpx(self):
+        assert _load_module_without_httpx(_agent_engines).httpx is None
+
+    def test_agent_engines_utils_loads_without_httpx(self):
+        # pylint: disable=g-import-not-at-top
+        from vertexai._genai import _agent_engines_utils
+
+        assert _load_module_without_httpx(_agent_engines_utils).httpx is None
 
 
 class TestCreateAgentCard:
