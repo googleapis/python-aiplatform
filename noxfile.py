@@ -208,7 +208,7 @@ def install_unittest_dependencies(session, *constraints):
         session.install("-e", ".", *constraints)
 
 
-def default(session):
+def default(session, include_gapic=True):
     # Install all test dependencies, then install this package in-place.
 
     constraints_path = str(
@@ -216,11 +216,13 @@ def default(session):
     )
     install_unittest_dependencies(session, "-c", constraints_path)
 
+    gapic_ignore = [] if include_gapic else ["--ignore=tests/unit/gapic"]
+
     # Run py.test against the unit tests.
     session.run(
         "py.test",
         "-n",
-        "auto",  # Use all available CPU cores
+        "logical",  # Use all available CPUs, including hyperthreads
         "--quiet",
         "--durations=50",
         # Disable the warnings plugin entirely to reduce JUnit XML size.
@@ -240,6 +242,7 @@ def default(session):
         "--ignore=tests/unit/vertexai/genai/replays",
         "--ignore=tests/unit/agentplatform/genai/replays",
         "--ignore=tests/unit/agentplatform/frameworks",
+        *gapic_ignore,
         os.path.join("tests", "unit"),
         *session.posargs,
     )
@@ -262,6 +265,36 @@ def unit(session):
 
     # Then run the default full test suite
     default(session)
+
+
+@nox.session(python=UNIT_TEST_PYTHON_VERSIONS)
+def unit_no_gapic(session):
+    """Run the unit test suite except the generated GAPIC client tests."""
+    default(session, include_gapic=False)
+
+
+@nox.session(python=UNIT_TEST_PYTHON_VERSIONS)
+def unit_gapic(session):
+    """Run only the generated GAPIC client tests."""
+    constraints_path = str(
+        CURRENT_DIRECTORY / "testing" / f"constraints-{session.python}.txt"
+    )
+    install_unittest_dependencies(session, "-c", constraints_path)
+
+    session.run(
+        "py.test",
+        "-n",
+        "logical",  # Use all available CPUs, including hyperthreads
+        "--quiet",
+        "--durations=50",
+        "-p",
+        "no:warnings",
+        "-o",
+        "junit_log_passing_tests=False",
+        f"--junitxml=unit_gapic_{session.python}_sponge_log.xml",
+        os.path.join("tests", "unit", "gapic"),
+        *session.posargs,
+    )
 
 
 @nox.session(python=["3.10", "3.11"])
