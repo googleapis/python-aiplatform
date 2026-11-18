@@ -423,14 +423,20 @@ def time_sleep_mock():
 
 @pytest.fixture
 def initializer_mock():
-    global_config = initializer.global_config
-    type(global_config).project = mock.PropertyMock(return_value=_TEST_PROJECT)
+    with mock.patch.object(
+        type(initializer.global_config), "project", new_callable=mock.PropertyMock
+    ) as initializer_mock:
+        initializer_mock.return_value = _TEST_PROJECT
+        yield initializer_mock
 
 
 @pytest.fixture
 def initializer_project_none_mock():
-    global_config = initializer.global_config
-    type(global_config).project = mock.PropertyMock(side_effect=GoogleAuthError)
+    with mock.patch.object(
+        type(initializer.global_config), "project", new_callable=mock.PropertyMock
+    ) as initializer_project_none_mock:
+        initializer_project_none_mock.side_effect = GoogleAuthError
+        yield initializer_project_none_mock
 
 
 def get_docker_container_mock():
