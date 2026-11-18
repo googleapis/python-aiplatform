@@ -2133,6 +2133,159 @@ class TestRuntimeHelpers:
             spec.loader.exec_module(module)
         assert module.httpx is None
 
+    @pytest.mark.parametrize(
+        "payload, expected_exc, expected_code, expected_status, expected_msg",
+        [
+            (
+                (
+                    '{"code": 429, "message": "Quota exceeded",'
+                    ' "errorCode": "429", "errorMessage": "Quota exceeded"}'
+                ),
+                genai_errors.ClientError,
+                429,
+                None,
+                "Quota exceeded",
+            ),
+            (
+                (
+                    '{"code": 498, "message": "Bad input",'
+                    ' "errorCode": "498", "errorMessage": "Bad input"}'
+                ),
+                genai_errors.ClientError,
+                498,
+                None,
+                "Bad input",
+            ),
+            (
+                (
+                    'data: {"errorCode": "PERMISSION_DENIED",'
+                    ' "errorMessage": "Egress denied"}\n\n'
+                ),
+                genai_errors.ClientError,
+                403,
+                "PERMISSION_DENIED",
+                "Egress denied",
+            ),
+            (
+                (
+                    '{"errorCode": "StatusCode.RESOURCE_EXHAUSTED",'
+                    ' "errorMessage": "Rate limited"}'
+                ),
+                genai_errors.ClientError,
+                429,
+                "RESOURCE_EXHAUSTED",
+                "Rate limited",
+            ),
+            (
+                (
+                    '{"code": 1, "message": "Cancelled",'
+                    ' "errorCode": "1", "errorMessage": "Cancelled"}'
+                ),
+                genai_errors.ServerError,
+                500,
+                "1",
+                "Cancelled",
+            ),
+            (
+                (
+                    '{"code": 500, "message": "Internal",'
+                    ' "errorCode": null, "errorMessage": "Internal"}'
+                ),
+                genai_errors.ServerError,
+                500,
+                None,
+                "Internal",
+            ),
+            (
+                (
+                    '{"code": null, "message": "Unknown",'
+                    ' "errorCode": "None", "errorMessage": "Unknown"}'
+                ),
+                genai_errors.ServerError,
+                500,
+                None,
+                "Unknown",
+            ),
+        ],
+    )
+    def test_yield_parsed_json_raises_on_stream_error_frame(
+        self,
+        payload,
+        expected_exc,
+        expected_code,
+        expected_status,
+        expected_msg,
+    ):
+        """Tests that terminal stream error frames raise APIError."""
+        response = genai_types.HttpResponse(body=payload)
+        with pytest.raises(expected_exc) as exc_info:
+            # pylint: disable=protected-access
+            list(_runtimes_utils._yield_parsed_json(response))
+        assert exc_info.value.code == expected_code
+        assert exc_info.value.status == expected_status
+        assert exc_info.value.message == expected_msg
+
+    def test_yield_parsed_json_yields_prior_chunks_before_error_frame(self):
+        """Tests that chunks preceding a mid-stream error are still yielded."""
+        response = genai_types.HttpResponse(
+            body=(
+                '{"output": "partial"}\n'
+                '{"code": 429, "message": "Quota exceeded",'
+                ' "errorCode": "429", "errorMessage": "Quota exceeded"}'
+            )
+        )
+        # pylint: disable=protected-access
+        gen = _runtimes_utils._yield_parsed_json(response)
+        assert next(gen) == {"output": "partial"}
+        with pytest.raises(genai_errors.ClientError) as exc_info:
+            next(gen)
+        assert exc_info.value.code == 429
+
+    @pytest.mark.parametrize(
+        "payload",
+        [
+            {
+                "id": "evt-1",
+                "author": "agent",
+                "error_code": "SAFETY",
+                "error_message": "Blocked",
+            },
+            {
+                "id": "evt-2",
+                "author": "agent",
+                "errorCode": "SAFETY",
+                "errorMessage": "Blocked",
+            },
+            {"errorCode": "0", "errorMessage": ""},
+            {"errorCode": "OK", "errorMessage": ""},
+            {"errorCode": None, "errorMessage": None},
+            {"errorCode": "200", "errorMessage": "ok"},
+            {"code": "return 1", "message": "Python snippet"},
+            {"code": 429, "message": "No errorCode key"},
+        ],
+    )
+    def test_yield_parsed_json_ignores_non_error_frames(self, payload):
+        """Tests that ADK events and non-error frames are yielded unchanged."""
+        response = genai_types.HttpResponse(body=json.dumps(payload))
+        # pylint: disable=protected-access
+        assert list(_runtimes_utils._yield_parsed_json(response)) == [payload]
+
+    def test_yield_parsed_json_from_httpbody_raises_on_error_frame(self):
+        """Tests that HttpBody terminal stream error frames raise APIError."""
+        body = httpbody_pb2.HttpBody(
+            content_type="text/event-stream",
+            data=(
+                b'data: {"errorCode": "PERMISSION_DENIED",'
+                b' "errorMessage": "Egress denied"}\n\n'
+            ),
+        )
+        with pytest.raises(genai_errors.ClientError) as exc_info:
+            # pylint: disable=protected-access
+            list(_runtimes_utils._yield_parsed_json_from_httpbody(body))
+        assert exc_info.value.code == 403
+        assert exc_info.value.status == "PERMISSION_DENIED"
+        assert exc_info.value.message == "Egress denied"
+
     def test_create_base64_encoded_tarball(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             test_file_path = os.path.join(tmpdir, "test_file.txt")
@@ -5255,6 +5408,96 @@ class TestAsyncRuntime:
 
             chunks = asyncio.run(get_and_stream())
             assert chunks == [{"output": "CHUNK"}]
+
+    def test_get_runtime_and_async_stream_query_raises_on_midstream_error(self):
+        """Tests that async_stream_query raises APIError on mid-stream error."""
+
+        async def mock_async_generator():
+            yield genai_types.HttpResponse(body='data: {"output": "CHUNK"}\n\n')
+            yield genai_types.HttpResponse(
+                body=(
+                    'data: {"code": 429, "message": "Quota exceeded",'
+                    ' "errorCode": "429", "errorMessage": "Quota exceeded"}\n\n'
+                )
+            )
+
+        # pylint: disable=protected-access
+        api_client = self.client.aio.runtimes._api_client
+        class_methods = [_TEST_AGENT_ENGINE_CLASS_METHOD_ASYNC_STREAM_QUERY]
+        with (
+            mock.patch.object(api_client, "async_request") as get_request_mock,
+            mock.patch.object(
+                api_client, "async_request_streamed"
+            ) as stream_request_mock,
+        ):
+            get_request_mock.return_value = genai_types.HttpResponse(
+                body=json.dumps(
+                    {
+                        "name": _TEST_AGENT_ENGINE_RESOURCE_NAME,
+                        "spec": {"classMethods": class_methods},
+                    }
+                )
+            )
+            stream_request_mock.return_value = mock_async_generator()
+
+            received = []
+
+            async def get_and_stream():
+                runtime = await self.client.aio.runtimes.get(
+                    name=_TEST_AGENT_ENGINE_RESOURCE_NAME
+                )
+                stream = runtime.async_stream_query(query=_TEST_QUERY_PROMPT)
+                async for chunk in stream:
+                    received.append(chunk)
+
+            with pytest.raises(genai_errors.ClientError) as exc_info:
+                asyncio.run(get_and_stream())
+            assert received == [{"output": "CHUNK"}]
+            assert exc_info.value.code == 429
+            assert exc_info.value.message == "Quota exceeded"
+
+    def test_get_runtime_and_stream_query_raises_on_midstream_error(self):
+        """Tests that stream_query raises APIError on mid-stream error."""
+
+        def mock_stream_generator():
+            yield genai_types.HttpResponse(body='{"output": "CHUNK"}\n')
+            yield genai_types.HttpResponse(
+                body=(
+                    '{"errorCode": "PERMISSION_DENIED",'
+                    ' "errorMessage": "Egress request is not authorized."}\n'
+                )
+            )
+
+        # pylint: disable=protected-access
+        api_client = self.client.runtimes._api_client
+        with (
+            mock.patch.object(api_client, "request") as get_request_mock,
+            mock.patch.object(api_client, "request_streamed") as stream_mock,
+        ):
+            get_request_mock.return_value = genai_types.HttpResponse(
+                body=json.dumps(
+                    {
+                        "name": _TEST_AGENT_ENGINE_RESOURCE_NAME,
+                        "spec": {
+                            "classMethods": [
+                                _TEST_AGENT_ENGINE_CLASS_METHOD_STREAM_QUERY,
+                            ]
+                        },
+                    }
+                )
+            )
+            stream_mock.return_value = mock_stream_generator()
+
+            name = _TEST_AGENT_ENGINE_RESOURCE_NAME
+            runtime = self.client.runtimes.get(name=name)
+            received = []
+            with pytest.raises(genai_errors.ClientError) as exc_info:
+                for chunk in runtime.stream_query(query=_TEST_QUERY_PROMPT):
+                    received.append(chunk)
+            assert received == [{"output": "CHUNK"}]
+            assert exc_info.value.code == 403
+            assert exc_info.value.status == "PERMISSION_DENIED"
+            assert exc_info.value.message == "Egress request is not authorized."
 
     @mock.patch.object(runtimes.Runtimes, "_register_api_methods")
     @mock.patch.object(_runtimes_utils, "_await_async_operation")

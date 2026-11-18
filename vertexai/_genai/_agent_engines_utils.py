@@ -1997,6 +1997,62 @@ def _strip_sse_framing(line: str) -> str:
     return payload[1:] if payload.startswith(" ") else payload
 
 
+_STREAM_ERROR_KEYS = frozenset({"code", "message", "errorCode", "errorMessage"})
+_STREAM_ERROR_STATUS_CODES = {
+    "INVALID_ARGUMENT": 400,
+    "UNAUTHENTICATED": 401,
+    "PERMISSION_DENIED": 403,
+    "NOT_FOUND": 404,
+    "RESOURCE_EXHAUSTED": 429,
+    "UNAVAILABLE": 503,
+    "DEADLINE_EXCEEDED": 504,
+}
+
+
+def _raise_for_stream_error(parsed: Any) -> None:
+    """Raises `APIError` if `parsed` is a terminal stream error frame."""
+    if (
+        not isinstance(parsed, dict)
+        or "errorCode" not in parsed
+        or ("errorMessage" not in parsed and "message" not in parsed)
+        or not parsed.keys() <= _STREAM_ERROR_KEYS
+    ):
+        return
+    raw_code = parsed["errorCode"]
+    if raw_code is None or (isinstance(raw_code, str) and not raw_code.strip()):
+        raw_code = parsed.get("code")
+    if isinstance(raw_code, bool) or not raw_code:
+        return
+    raw_str = str(raw_code).strip()
+    upper = raw_str.upper().removeprefix("STATUSCODE.")
+    if upper in ("", "0", "OK"):
+        return
+    status: Optional[str] = None
+    if upper in _STREAM_ERROR_STATUS_CODES:
+        status_code, status = _STREAM_ERROR_STATUS_CODES[upper], upper
+    elif raw_str.isascii() and raw_str.isdigit():
+        num = int(raw_str)
+        if num == 0 or 200 <= num < 300:
+            return
+        if 400 <= num < 600:
+            status_code = num
+        else:
+            status_code, status = 500, raw_str
+    else:
+        status_code = 500
+        if upper != "NONE":
+            status = upper
+    message = parsed.get("errorMessage") or parsed.get("message") or ""
+    error_body: dict[str, Any] = {"code": status_code, "message": str(message)}
+    if status:
+        error_body["status"] = status
+    google_genai_errors.APIError.raise_error(
+        status_code,
+        {"error": error_body},
+        None,
+    )
+
+
 def _yield_parsed_json(http_response: google_genai_types.HttpResponse) -> Iterator[Any]:
     """Converts the body of the HTTP Response message to JSON format.
 
@@ -2006,6 +2062,10 @@ def _yield_parsed_json(http_response: google_genai_types.HttpResponse) -> Iterat
 
     Yields:
         Any: A JSON object or line of the original body or None.
+
+    Raises:
+        google.genai.errors.APIError: If the stream emits a terminal error
+            frame.
     """
     if not http_response.body:
         yield None
@@ -2021,6 +2081,7 @@ def _yield_parsed_json(http_response: google_genai_types.HttpResponse) -> Iterat
                 line = json.loads(line)
             except Exception as e:
                 logger.warning(f"failed to parse json: {line}. Exception: {e}")
+            _raise_for_stream_error(line)
             yield line
 
 
