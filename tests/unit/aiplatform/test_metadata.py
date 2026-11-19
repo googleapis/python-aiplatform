@@ -2258,7 +2258,16 @@ class TestExperiments:
         experiment_run_list[0].update_state(gca_execution.Execution.State.FAILED)
 
 
+@pytest.mark.usefixtures("google_auth_mock")
 class TestTensorboard:
+    def setup_method(self):
+        reload(initializer)
+        reload(metadata)
+        reload(aiplatform)
+
+    def teardown_method(self):
+        initializer.global_pool.shutdown(wait=True)
+
     def test_get_or_create_default_tb_with_existing_default(
         self, list_default_tensorboard_mock
     ):

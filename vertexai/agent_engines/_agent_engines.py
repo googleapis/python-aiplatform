@@ -47,7 +47,6 @@ from google.cloud.aiplatform_v1 import types as aip_types
 from google.cloud.aiplatform_v1.types import reasoning_engine_service
 from vertexai.agent_engines import _utils
 from vertexai._genai import _agent_engines_utils
-import httpx
 import proto
 
 from google.protobuf import field_mask_pb2
@@ -115,6 +114,12 @@ try:
     ADKAgent = BaseAgent
 except (ImportError, AttributeError):
     ADKAgent = None
+
+try:
+    import httpx  # pylint: disable=g-import-not-at-top
+except ImportError:
+    # Only A2A operations use httpx, and a2a-sdk requires it.
+    httpx = None  # type: ignore[assignment]
 
 try:
     from a2a.types import (

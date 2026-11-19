@@ -17,6 +17,7 @@
 
 import pytest
 import copy
+import threading
 
 from unittest import mock
 from importlib import reload
@@ -907,29 +908,49 @@ class TestBatchPredictionJob:
             timeout=None,
         )
 
-    @mock.patch.object(jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(jobs, "_JOB_WAIT_TIME", 0.05)
     @mock.patch.object(jobs, "_LOG_WAIT_TIME", 0.05)
-    @pytest.mark.usefixtures("get_batch_prediction_job_mock")
     def test_batch_predict_job_done_create(self, create_batch_prediction_job_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
 
-        # Make SDK batch_predict method call
-        batch_prediction_job = jobs.BatchPredictionJob.create(
-            model_name=_TEST_MODEL_NAME,
-            job_display_name=_TEST_BATCH_PREDICTION_JOB_DISPLAY_NAME,
-            gcs_source=_TEST_BATCH_PREDICTION_GCS_SOURCE,
-            gcs_destination_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX,
-            sync=False,
-            service_account=_TEST_SERVICE_ACCOUNT,
-        )
+        # The job stays running until the test lets it finish, so the
+        # background polling thread cannot complete it early.
+        job_finished = threading.Event()
 
-        batch_prediction_job.wait_for_resource_creation()
+        def get_batch_prediction_job(*args, **kwargs):
+            return gca_batch_prediction_job_compat.BatchPredictionJob(
+                name=_TEST_BATCH_PREDICTION_JOB_NAME,
+                display_name=_TEST_DISPLAY_NAME,
+                state=(
+                    _TEST_JOB_STATE_SUCCESS
+                    if job_finished.is_set()
+                    else _TEST_JOB_STATE_RUNNING
+                ),
+            )
 
-        assert batch_prediction_job.done() is False
+        with patch.object(
+            _TEST_API_CLIENT,
+            "get_batch_prediction_job",
+            side_effect=get_batch_prediction_job,
+        ):
+            # Make SDK batch_predict method call
+            batch_prediction_job = jobs.BatchPredictionJob.create(
+                model_name=_TEST_MODEL_NAME,
+                job_display_name=_TEST_BATCH_PREDICTION_JOB_DISPLAY_NAME,
+                gcs_source=_TEST_BATCH_PREDICTION_GCS_SOURCE,
+                gcs_destination_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX,
+                sync=False,
+                service_account=_TEST_SERVICE_ACCOUNT,
+            )
 
-        batch_prediction_job.wait()
+            batch_prediction_job.wait_for_resource_creation()
 
-        assert batch_prediction_job.done() is True
+            assert batch_prediction_job.done() is False
+
+            job_finished.set()
+            batch_prediction_job.wait()
+
+            assert batch_prediction_job.done() is True
 
     @mock.patch.object(jobs, "_JOB_WAIT_TIME", 0.05)
     @mock.patch.object(jobs, "_LOG_WAIT_TIME", 0.05)

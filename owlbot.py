@@ -109,25 +109,22 @@ if has_generator_updates:
         excludes=[
             ".coveragerc",
             ".pre-commit-config.yaml",
-            ".kokoro/continuous/common.cfg",
-            ".kokoro/presubmit/presubmit.cfg",
-            ".kokoro/continuous/prerelease-deps.cfg",
-            ".kokoro/presubmit/prerelease-deps.cfg",
+            # CI build configs live in Piper under .kokoro/ci (b/576300120), so
+            # don't recreate the old job configs or overwrite the scripts the
+            # new jobs run.
+            ".kokoro/continuous/**",
+            ".kokoro/presubmit/**",
+            ".kokoro/samples/**",
             ".kokoro/docs/docs-presubmit.cfg",
             ".kokoro/build.sh",
+            ".kokoro/test-samples.sh",
+            ".kokoro/test-samples-impl.sh",
+            ".kokoro/test-samples-against-head.sh",
+            ".kokoro/trampoline.sh",
+            ".kokoro/populate-secrets.sh",
             ".kokoro/release.sh",
-            ".kokoro/release/common.cfg",
+            ".kokoro/release/**",
             ".kokoro/requirements*",
-            # exclude sample configs so they are tested against main
-            # instead of pypi
-            ".kokoro/samples/lint/**",
-            ".kokoro/samples/python3.7/**",
-            ".kokoro/samples/python3.8/**",
-            ".kokoro/samples/python3.9/**",
-            ".kokoro/samples/python3.10/**",
-            ".kokoro/samples/python3.11/**",
-            ".kokoro/samples/python3.12/**",
-            ".kokoro/samples/python3.13/**",
             ".github/auto-label.yaml",
             ".github/blunderbuss.yml",
             ".github/CODEOWNERS",
@@ -144,24 +141,5 @@ if has_generator_updates:
     python.py_samples(skip_readmes=True)
 
     python.configure_previous_major_version_branches()
-
-    # Update samples config to use `ucaip-sample-tests` project
-    s.replace(
-        ".kokoro/samples/python3.*/common.cfg",
-        """env_vars: {
-        key: "BUILD_SPECIFIC_GCLOUD_PROJECT"
-        value: "python-docs-samples-tests-.*?"
-        }""",
-        """env_vars: {
-        key: "BUILD_SPECIFIC_GCLOUD_PROJECT"
-        value: "ucaip-sample-tests"
-    }""",
-    )
-
-    s.replace(
-        ".kokoro/test-samples-impl.sh",
-        "python3.9",
-        "python3",
-    )
 
     s.shell.run(["nox", "-s", "blacken"], hide_output=False)

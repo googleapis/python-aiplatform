@@ -7351,6 +7351,65 @@ class TestBuildEvaluationInstance:
             == "System instructions here."
         )
 
+    def test_build_evaluation_instance_history_uses_conversation_history(self):
+        eval_case = agentplatform_genai_types.EvalCase(
+            prompt=genai_types.Content(parts=[genai_types.Part(text="Next")]),
+            responses=[
+                agentplatform_genai_types.ResponseCandidate(
+                    response=genai_types.Content(parts=[genai_types.Part(text="Hi")])
+                )
+            ],
+            conversation_history=[
+                agentplatform_genai_types.evals.Message(
+                    content=genai_types.Content(
+                        parts=[genai_types.Part(text="Turn 1 user")], role="user"
+                    )
+                ),
+                agentplatform_genai_types.evals.Message(
+                    content=genai_types.Content(
+                        parts=[genai_types.Part(text="Turn 1 model")], role="model"
+                    )
+                ),
+            ],
+        )
+
+        instance = _evals_metric_handlers._build_evaluation_instance(
+            eval_case,
+            eval_case.responses[0].response,
+            prompt_template="{history}{prompt}{response}",
+        )
+
+        assert (
+            instance.other_data.map_instance["history"]
+            .contents.contents[0]
+            .parts[0]
+            .text
+            == "user: Turn 1 user\nmodel: Turn 1 model"
+        )
+
+    @pytest.mark.parametrize("variable", ["history", "conversation_history"])
+    @pytest.mark.parametrize("conversation_history", [None, []])
+    def test_build_evaluation_instance_empty_history_is_empty_text(
+        self, variable, conversation_history
+    ):
+        eval_case = agentplatform_genai_types.EvalCase(
+            prompt=genai_types.Content(parts=[genai_types.Part(text="Hello")]),
+            responses=[
+                agentplatform_genai_types.ResponseCandidate(
+                    response=genai_types.Content(parts=[genai_types.Part(text="Hi")])
+                )
+            ],
+            conversation_history=conversation_history,
+        )
+
+        instance = _evals_metric_handlers._build_evaluation_instance(
+            eval_case,
+            eval_case.responses[0].response,
+            prompt_template=f"{{{variable}}}{{prompt}}{{response}}",
+        )
+
+        assert instance.other_data.map_instance[variable].text == ""
+
     @pytest.mark.parametrize(
         "context",
         [["Passage one.", "Passage two."], {"source": "doc-1", "text": "Passage."}],
@@ -14741,3 +14800,65 @@ class TestImportEvaluationSet:
                 gcs_source=gcs_source,
                 cloud_trace_source=cloud_trace_source,
             )
+
+
+class TestGetEvaluationSet:
+
+    def setup_method(self, method):
+        self.mock_api_client = mock.MagicMock()
+        self.mock_api_client.vertexai = True
+        self.mock_response = mock.MagicMock()
+        self.mock_api_client.request.return_value = self.mock_response
+
+    def test_get_evaluation_set_parses_harbor_dataset(self):
+        self.mock_response.body = json.dumps(
+            {
+                "name": "projects/123/locations/us-central1/evaluationSets/456",
+                "harborDataset": {"gcsUri": "gs://bucket/dataset"},
+            }
+        )
+        evals_module = evals.Evals(api_client_=self.mock_api_client)
+
+        evaluation_set = evals_module.get_evaluation_set(
+            name="projects/123/locations/us-central1/evaluationSets/456"
+        )
+
+        assert evaluation_set.harbor_dataset == (
+            agentplatform_genai_types.HarborDataset(gcs_uri="gs://bucket/dataset")
+        )
+
+
+class TestGetEvaluationItem:
+
+    def setup_method(self, method):
+        self.mock_api_client = mock.MagicMock()
+        self.mock_api_client.vertexai = True
+        self.mock_response = mock.MagicMock()
+        self.mock_api_client.request.return_value = self.mock_response
+
+    def test_get_evaluation_item_parses_harbor_task(self):
+        self.mock_response.body = json.dumps(
+            {
+                "name": "projects/123/locations/us-central1/evaluationItems/789",
+                "evaluationItemType": "HARBOR_TASK",
+                "harborTask": {
+                    "dataset": "my-org/my-dataset",
+                    "task": "task-1",
+                    "gcsUri": "gs://bucket/dataset/task-1",
+                },
+            }
+        )
+        evals_module = evals.Evals(api_client_=self.mock_api_client)
+
+        evaluation_item = evals_module.get_evaluation_item(
+            name="projects/123/locations/us-central1/evaluationItems/789"
+        )
+
+        assert evaluation_item.evaluation_item_type == (
+            agentplatform_genai_types.EvaluationItemType.HARBOR_TASK
+        )
+        assert evaluation_item.harbor_task == agentplatform_genai_types.HarborTask(
+            dataset="my-org/my-dataset",
+            task="task-1",
+            gcs_uri="gs://bucket/dataset/task-1",
+        )

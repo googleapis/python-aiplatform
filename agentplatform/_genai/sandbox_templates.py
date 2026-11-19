@@ -25,7 +25,7 @@ from google.genai import _api_module
 from google.genai import _common
 from google.genai._common import get_value_by_path as getv
 from google.genai._common import set_value_by_path as setv
-from google.genai.pagers import Pager
+from google.genai.pagers import AsyncPager, Pager
 
 from . import _runtimes_utils
 from . import types
@@ -1093,3 +1093,110 @@ class AsyncSandboxTemplates(_api_module.BaseModule):
 
         self._api_client._verify_response(return_value)
         return return_value
+
+    async def create(
+        self,
+        *,
+        name: str,
+        display_name: str,
+        config: Optional[types.CreateSandboxEnvironmentTemplateConfigOrDict] = None,
+        poll_interval_seconds: float = 0.1,
+    ) -> types.SandboxEnvironmentTemplateOperation:
+        """Creates a new sandbox template in the Agent Runtime asynchronously.
+
+        Args:
+            name (str):
+                Required. The name of the agent runtime to create sandbox template for.
+                projects/{project}/locations/{location}/reasoningEngines/{resource_id}
+            display_name (str):
+                Required. The display name of the sandbox template.
+            config (CreateSandboxEnvironmentTemplateConfig):
+                Optional. The configuration for the sandbox template.
+            poll_interval_seconds (float):
+                Optional. Seconds to wait between polling for operation status. Defaults to 0.1.
+
+        Returns:
+            SandboxEnvironmentTemplateOperation: The operation for creating the sandbox template.
+        """
+        operation = await self._create(
+            name=name,
+            display_name=display_name,
+            config=config,
+        )
+        if config is None:
+            config = types.CreateSandboxEnvironmentTemplateConfig()
+        elif isinstance(config, dict):
+            config = types.CreateSandboxEnvironmentTemplateConfig.model_validate(config)
+        if config.wait_for_completion:
+            if not operation.done:
+                operation = await _runtimes_utils._await_async_operation(
+                    operation_name=operation.name,
+                    get_operation_fn=self.get_sandbox_environment_template_operation,
+                    poll_interval_seconds=poll_interval_seconds,
+                )
+            # We need to make a call to get the sandbox template because the operation
+            # response might not contain the relevant fields.
+            if not operation.response:
+                raise ValueError("Error retrieving sandbox template.")
+            operation.response = await self.get(name=operation.response.name)
+        return operation
+
+    async def list(
+        self,
+        *,
+        name: str,
+        config: Optional[types.ListSandboxEnvironmentTemplatesConfigOrDict] = None,
+    ) -> AsyncPager[types.SandboxEnvironmentTemplate]:
+        """Lists Agent Runtime sandbox templates asynchronously.
+
+        Args:
+            name (str):
+                Required. The name of the agent runtime to list sandbox templates for.
+                projects/{project}/locations/{location}/reasoningEngines/{resource_id}
+            config (ListSandboxEnvironmentTemplatesConfig):
+                Optional. The configuration for the sandbox templates to list.
+
+        Returns:
+            AsyncPager[SandboxEnvironmentTemplate]: An async pager of agent runtime sandbox templates.
+        """
+        return AsyncPager(
+            "sandbox_environment_templates",
+            functools.partial(self._list, name=name),
+            await self._list(name=name, config=config),
+            config,
+        )
+
+    async def get(
+        self,
+        *,
+        name: str,
+        config: Optional[types.GetSandboxEnvironmentTemplateConfigOrDict] = None,
+    ) -> types.SandboxEnvironmentTemplate:
+        """Gets a sandbox template in the Agent Runtime asynchronously.
+
+        Args:
+          name (str):
+              Required. A fully-qualified resource name or ID such as
+              projects/{project}/locations/{location}/reasoningEngines/{resource_id}/sandboxEnvironmentTemplates/{sandbox_template_id}
+              or a shortened name such as "reasoningEngines/{resource_id}/sandboxEnvironmentTemplates/{sandbox_template_id}".
+          config (GetSandboxEnvironmentTemplateConfigOrDict):
+              Optional. The configuration for the sandbox template to get.
+        """
+        return await self._get(name=name, config=config)
+
+    async def delete(
+        self,
+        *,
+        name: str,
+        config: Optional[types.DeleteSandboxEnvironmentTemplateConfigOrDict] = None,
+    ) -> types.DeleteSandboxEnvironmentTemplateOperation:
+        """Deletes a sandbox template in the Agent Runtime asynchronously.
+
+        Args:
+            name (str):
+                Required. The name of the sandbox template to delete.
+                Format: projects/{project}/locations/{location}/reasoningEngines/{resource_id}/sandboxEnvironmentTemplates/{sandbox_template_id}
+            config (DeleteSandboxEnvironmentTemplateConfig):
+                Optional. Configuration for the delete operation.
+        """
+        return await self._delete(name=name, config=config)

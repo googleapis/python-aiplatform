@@ -302,6 +302,9 @@ class FutureManager(metaclass=abc.ABCMeta):
         future = self.__latest_future
         if future:
             futures.wait([future], return_when=futures.FIRST_EXCEPTION)
+            # The future's done callback may not have run yet, so record its
+            # exception here rather than relying on the callback.
+            self._complete_future(future)
 
         self._raise_future_exception()
 

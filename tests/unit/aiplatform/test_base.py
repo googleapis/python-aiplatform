@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+from concurrent import futures
 from importlib import reload
 import logging
 import pytest
@@ -203,6 +204,17 @@ class TestFutureManager:
         assert isinstance(a, _TestClass)
         assert isinstance(b, _TestClassDownStream)
         assert isinstance(c, _TestClass)
+
+    def test_wait_raises_before_done_callback_runs(self):
+        a = _TestClass._empty_constructor()
+        future = futures.Future()
+        future.set_exception(RuntimeError("Mock fail"))
+        # Simulate a failed future whose done callback has not run yet.
+        a._FutureManager__latest_future = future
+
+        with pytest.raises(RuntimeError, match="Mock fail"):
+            a.wait()
+        assert a._latest_future is None
 
 
 class TestLogger:

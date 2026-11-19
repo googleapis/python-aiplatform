@@ -25,7 +25,7 @@ from google.genai import _api_module
 from google.genai import _common
 from google.genai._common import get_value_by_path as getv
 from google.genai._common import set_value_by_path as setv
-from google.genai.pagers import Pager
+from google.genai.pagers import AsyncPager, Pager
 
 from . import _runtimes_utils
 from . import types
@@ -1013,3 +1013,106 @@ class AsyncSandboxSnapshots(_api_module.BaseModule):
 
         self._api_client._verify_response(return_value)
         return return_value
+
+    async def create(
+        self,
+        *,
+        source_sandbox_environment_name: str,
+        config: Optional[types.CreateRuntimeSandboxSnapshotConfigOrDict] = None,
+        poll_interval_seconds: float = 0.1,
+    ) -> types.RuntimeSandboxSnapshotOperation:
+        """Snapshots an existing sandbox environment asynchronously.
+
+        Args:
+            source_sandbox_environment_name (str):
+                Required. The name of the sandbox environment to snapshot.
+                projects/{project}/locations/{location}/reasoningEngines/{resource_id}/sandboxEnvironments/{sandbox_environment_id}
+            config (CreateRuntimeSandboxSnapshotConfig):
+                Optional. The configuration for the sandbox snapshot.
+            poll_interval_seconds (float):
+                Optional. Seconds to wait between polling for operation status. Defaults to 0.1.
+
+        Returns:
+            RuntimeSandboxSnapshotOperation: The operation for creating the sandbox snapshot.
+        """
+        operation = await self._create(
+            source_sandbox_environment_name=source_sandbox_environment_name,
+            config=config,
+        )
+        if config is None:
+            config = types.CreateRuntimeSandboxSnapshotConfig()
+        elif isinstance(config, dict):
+            config = types.CreateRuntimeSandboxSnapshotConfig.model_validate(config)
+        if config.wait_for_completion:
+            if not operation.done:
+                operation = await _runtimes_utils._await_async_operation(
+                    operation_name=operation.name,
+                    get_operation_fn=self.get_sandbox_snapshot_operation,
+                    poll_interval_seconds=poll_interval_seconds,
+                )
+            # We need to make a call to get the sandbox snapshot because the operation
+            # response might not contain the relevant fields.
+            if not operation.response:
+                raise ValueError("Error retrieving sandbox snapshot.")
+            operation.response = await self.get(name=operation.response.name)
+        return operation
+
+    async def list(
+        self,
+        *,
+        name: str,
+        config: Optional[types.ListSandboxEnvironmentSnapshotsConfigOrDict] = None,
+    ) -> AsyncPager[types.SandboxEnvironmentSnapshot]:
+        """Lists Agent Runtime sandbox snapshots asynchronously.
+
+        Args:
+            name (str):
+                Required. The name of the agent runtime to list sandbox snapshots for.
+                projects/{project}/locations/{location}/reasoningEngines/{resource_id}
+            config (ListSandboxEnvironmentSnapshotsConfig):
+                Optional. The configuration for the sandbox snapshots to list.
+
+        Returns:
+            AsyncPager[SandboxEnvironmentSnapshot]: An async pager of agent runtime sandbox snapshots.
+        """
+        return AsyncPager(
+            "sandbox_environment_snapshots",
+            functools.partial(self._list, name=name),
+            await self._list(name=name, config=config),
+            config,
+        )
+
+    async def get(
+        self,
+        *,
+        name: str,
+        config: Optional[types.GetSandboxEnvironmentSnapshotConfigOrDict] = None,
+    ) -> types.SandboxEnvironmentSnapshot:
+        """Gets a sandbox snapshot in the Agent Runtime asynchronously.
+
+        Args:
+          name (str):
+              Required. A fully-qualified resource name or ID such as
+              projects/{project}/locations/{location}/reasoningEngines/{resource_id}/sandboxEnvironmentSnapshots/{snapshot_id}
+              or a shortened name such as "reasoningEngines/{resource_id}/sandboxEnvironmentSnapshots/{snapshot_id}".
+          config (GetSandboxEnvironmentSnapshotConfigOrDict):
+              Optional. The configuration for the sandbox snapshot to get.
+        """
+        return await self._get(name=name, config=config)
+
+    async def delete(
+        self,
+        *,
+        name: str,
+        config: Optional[types.DeleteSandboxEnvironmentSnapshotConfigOrDict] = None,
+    ) -> types.DeleteSandboxEnvironmentSnapshotOperation:
+        """Deletes a sandbox snapshot in the Agent Runtime asynchronously.
+
+        Args:
+            name (str):
+                Required. The name of the sandbox snapshot to delete.
+                Format: projects/{project}/locations/{location}/reasoningEngines/{resource_id}/sandboxEnvironmentSnapshots/{snapshot_id}
+            config (DeleteSandboxEnvironmentSnapshotConfigOrDict):
+                Optional. Configuration for the delete operation.
+        """
+        return await self._delete(name=name, config=config)

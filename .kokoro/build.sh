@@ -21,6 +21,11 @@ fi
 
 cd "${PROJECT_ROOT}"
 
+# The genai-sdk Kokoro containers start with a low open-file limit, and the
+# parallel unit tests open many event loops.
+ulimit -n "$(ulimit -Hn)" 2>/dev/null || ulimit -n 65536 2>/dev/null || true
+echo "Open file limit: $(ulimit -n)"
+
 # Disable buffering, so that the logs stream through.
 export PYTHONUNBUFFERED=1
 

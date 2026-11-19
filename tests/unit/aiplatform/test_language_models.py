@@ -4874,6 +4874,8 @@ class TestLanguageModels:
 class TestLanguageModelEvaluation:
     def setup_method(self):
         from google.cloud.aiplatform import pipeline_jobs
+        reload(initializer)
+        reload(aiplatform)
         self._job_wait_patcher = mock.patch.object(pipeline_jobs, "_JOB_WAIT_TIME", 0.05)
         self._log_wait_patcher = mock.patch.object(pipeline_jobs, "_LOG_WAIT_TIME", 0.05)
         self._job_wait_patcher.start()

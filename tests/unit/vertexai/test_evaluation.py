@@ -2668,17 +2668,19 @@ class TestEvaluationUtils:
             utils.RateLimiter(0)
 
     def test_admit(self):
-        rate_limiter = utils.RateLimiter(rate=2)
+        with mock.patch.object(utils, "time") as mock_time:
+            mock_time.time.return_value = 100.0
+            rate_limiter = utils.RateLimiter(rate=2)
 
-        assert rate_limiter._admit() == 0
+            assert rate_limiter._admit() == 0
 
-        time.sleep(0.1)
-        delay = rate_limiter._admit()
-        assert delay == pytest.approx(0.4, 0.01)
+            mock_time.time.return_value = 100.1
+            delay = rate_limiter._admit()
+            assert delay == pytest.approx(0.4)
 
-        time.sleep(0.5)
-        delay = rate_limiter._admit()
-        assert delay == 0
+            mock_time.time.return_value = 100.6
+            delay = rate_limiter._admit()
+            assert delay == 0
 
     def test_sleep_and_advance(self):
         rate_limiter = utils.RateLimiter(rate=2)
