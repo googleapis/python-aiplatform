@@ -1028,6 +1028,12 @@ from .common import GoogleDriveSourceOrDict
 from .common import GoogleDriveSourceResourceId
 from .common import GoogleDriveSourceResourceIdDict
 from .common import GoogleDriveSourceResourceIdOrDict
+from .common import HarborDataset
+from .common import HarborDatasetDict
+from .common import HarborDatasetOrDict
+from .common import HarborTask
+from .common import HarborTaskDict
+from .common import HarborTaskOrDict
 from .common import IdentityType
 from .common import Importance
 from .common import ImportDataFormat
@@ -2438,6 +2444,9 @@ __all__ = [
     "EvaluationItemResult",
     "EvaluationItemResultDict",
     "EvaluationItemResultOrDict",
+    "HarborTask",
+    "HarborTaskDict",
+    "HarborTaskOrDict",
     "EvaluationItem",
     "EvaluationItemDict",
     "EvaluationItemOrDict",
@@ -2591,6 +2600,9 @@ __all__ = [
     "CreateEvaluationSetConfig",
     "CreateEvaluationSetConfigDict",
     "CreateEvaluationSetConfigOrDict",
+    "HarborDataset",
+    "HarborDatasetDict",
+    "HarborDatasetOrDict",
     "EvaluationSet",
     "EvaluationSetDict",
     "EvaluationSetOrDict",

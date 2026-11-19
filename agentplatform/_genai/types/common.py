@@ -704,6 +704,8 @@ class EvaluationItemType(_common.CaseInSensitiveEnum):
     """The EvaluationItem is a request to evaluate."""
     RESULT = "RESULT"
     """The EvaluationItem is the result of evaluation."""
+    HARBOR_TASK = "HARBOR_TASK"
+    """The EvaluationItem is a Harbor task. Only `import_evaluation_set` creates items of this type, from a Harbor dataset."""
 
 
 class SamplingMethod(_common.CaseInSensitiveEnum):
@@ -1252,6 +1254,39 @@ class EvaluationItemResultDict(TypedDict, total=False):
 EvaluationItemResultOrDict = Union[EvaluationItemResult, EvaluationItemResultDict]
 
 
+class HarborTask(_common.BaseModel):
+    """Represents a Harbor task."""
+
+    dataset: Optional[str] = Field(
+        default=None,
+        description="""Required. Harbor dataset name this task belongs to, in `org/name` format without a version, e.g. "my-org/swebench-verified".""",
+    )
+    task: Optional[str] = Field(
+        default=None,
+        description="""Required. The Harbor task name, e.g. "django__django-15098".""",
+    )
+    gcs_uri: Optional[str] = Field(
+        default=None,
+        description="""The GCS folder containing the Harbor task, e.g. "gs://BUCKET/PATH".""",
+    )
+
+
+class HarborTaskDict(TypedDict, total=False):
+    """Represents a Harbor task."""
+
+    dataset: Optional[str]
+    """Required. Harbor dataset name this task belongs to, in `org/name` format without a version, e.g. "my-org/swebench-verified"."""
+
+    task: Optional[str]
+    """Required. The Harbor task name, e.g. "django__django-15098"."""
+
+    gcs_uri: Optional[str]
+    """The GCS folder containing the Harbor task, e.g. "gs://BUCKET/PATH"."""
+
+
+HarborTaskOrDict = Union[HarborTask, HarborTaskDict]
+
+
 class EvaluationItem(_common.BaseModel):
     """EvaluationItem is a single evaluation request or result.
 
@@ -1289,6 +1324,10 @@ class EvaluationItem(_common.BaseModel):
     )
     error: Optional[genai_types.GoogleRpcStatus] = Field(
         default=None, description="""Error for the evaluation item."""
+    )
+    harbor_task: Optional[HarborTask] = Field(
+        default=None,
+        description="""Output only. The Harbor task. Set when `evaluation_item_type` is `HARBOR_TASK`.""",
     )
 
     # TODO(b/448806531): Remove all the overridden _from_response methods once the
@@ -1343,6 +1382,9 @@ class EvaluationItemDict(TypedDict, total=False):
 
     error: Optional[genai_types.GoogleRpcStatus]
     """Error for the evaluation item."""
+
+    harbor_task: Optional[HarborTaskDict]
+    """Output only. The Harbor task. Set when `evaluation_item_type` is `HARBOR_TASK`."""
 
 
 EvaluationItemOrDict = Union[EvaluationItem, EvaluationItemDict]
@@ -3958,6 +4000,25 @@ _CreateEvaluationSetParametersOrDict = Union[
 ]
 
 
+class HarborDataset(_common.BaseModel):
+    """Metadata for a Harbor dataset."""
+
+    gcs_uri: Optional[str] = Field(
+        default=None,
+        description="""Optional. The GCS folder containing the Harbor dataset, e.g. "gs://BUCKET/PATH".""",
+    )
+
+
+class HarborDatasetDict(TypedDict, total=False):
+    """Metadata for a Harbor dataset."""
+
+    gcs_uri: Optional[str]
+    """Optional. The GCS folder containing the Harbor dataset, e.g. "gs://BUCKET/PATH"."""
+
+
+HarborDatasetOrDict = Union[HarborDataset, HarborDatasetDict]
+
+
 class EvaluationSet(_common.BaseModel):
     """Represents an evaluation set."""
 
@@ -3985,6 +4046,10 @@ class EvaluationSet(_common.BaseModel):
         description="""Customer-managed encryption key spec for this EvaluationSet.
       If set, this EvaluationSet will be secured by this key.""",
     )
+    harbor_dataset: Optional[HarborDataset] = Field(
+        default=None,
+        description="""Output only. The Harbor dataset that the items of this evaluation set were imported from.""",
+    )
 
 
 class EvaluationSetDict(TypedDict, total=False):
@@ -4011,6 +4076,9 @@ class EvaluationSetDict(TypedDict, total=False):
     encryption_spec: Optional[genai_types.EncryptionSpec]
     """Customer-managed encryption key spec for this EvaluationSet.
       If set, this EvaluationSet will be secured by this key."""
+
+    harbor_dataset: Optional[HarborDatasetDict]
+    """Output only. The Harbor dataset that the items of this evaluation set were imported from."""
 
 
 EvaluationSetOrDict = Union[EvaluationSet, EvaluationSetDict]
