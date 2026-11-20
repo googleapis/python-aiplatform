@@ -447,45 +447,66 @@ class AG2Agent:
         *,
         input: Union[str, Mapping[str, Any]],
         max_turns: Optional[int] = None,
-        **kwargs: Any,
+        msg_to: str = "agent",
+        clear_history: bool = False,
+        summary_method: Optional[str] = "last_msg",
+        user_input: Optional[bool] = None,
     ) -> Dict[str, Any]:
         """Queries the Agent with the given input.
 
         Args:
             input (Union[str, Mapping[str, Any]]):
-                Required. The input to be passed to the Agent.
+                Required. The input to be passed to the Agent. If it is a
+                mapping, only its `content` field is used.
             max_turns (int):
                 Optional. The maximum number of turns to run the agent for.
                 If not provided, the agent will run indefinitely.
                 If `max_turns` is a `float`, it will be converted to `int`
                 through rounding.
-            **kwargs:
-                Optional. Any additional keyword arguments to be passed to the
-                `.run()` method of the corresponding runnable.
-                Details of the kwargs can be found in
-                https://docs.ag2.ai/docs/api-reference/autogen/ConversableAgent#run.
-                The `user_input` parameter defaults to `False`, and should not
-                be passed through `kwargs`.
+            msg_to (str):
+                Optional. Which agent receives the message and replies first.
+                Must be "agent" or "user". Defaults to "agent".
+            clear_history (bool):
+                Optional. Whether to clear the chat history before running.
+                Defaults to `False`.
+            summary_method (str):
+                Optional. The method used to summarize the chat, e.g.
+                "last_msg" or "reflection_with_llm". Defaults to "last_msg".
+            user_input (bool):
+                Deprecated and ignored. `user_input` is always `False`.
+
+            Other `.run()` arguments are not supported. Configure the runnable
+            at construction time instead.
 
         Returns:
             The output of querying the Agent with the given input.
         """
         if isinstance(input, str):
             input = {"content": input}
+        elif isinstance(input, Mapping):
+            # Only the message content is supported. Other message fields
+            # (e.g. `tool_calls`, `role`) are dropped.
+            input = {"content": input.get("content")}
+        else:
+            raise TypeError(
+                f"`input` must be a string or a mapping, got {type(input)}."
+            )
+
+        if msg_to not in ("agent", "user"):
+            raise ValueError(f"`msg_to` must be 'agent' or 'user', got {msg_to!r}.")
 
         if max_turns and isinstance(max_turns, float):
             # Supporting auto-conversion float to int.
             max_turns = round(max_turns)
 
-        if "user_input" in kwargs:
+        if user_input is not None:
             from google.cloud.aiplatform import base
 
             _LOGGER = base.Logger(__name__)
             _LOGGER.warning(
-                "The `user_input` parameter should not be passed through"
-                "kwargs. The `user_input` defaults to `False`."
+                "The `user_input` parameter is ignored. The `user_input` "
+                "defaults to `False`."
             )
-            kwargs.pop("user_input")
 
         if not self._tmpl_attrs.get("runnable"):
             self.set_up()
@@ -495,7 +516,9 @@ class AG2Agent:
             user_input=False,
             tools=self._tmpl_attrs.get("ag2_tool_objects"),
             max_turns=max_turns,
-            **kwargs,
+            msg_to=msg_to,
+            clear_history=clear_history,
+            summary_method=summary_method,
         )
 
         from vertexai.agent_engines import _utils
