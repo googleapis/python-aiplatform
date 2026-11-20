@@ -1,5 +1,29 @@
 # Changelog
 
+## [3.0.0](https://github.com/googleapis/python-aiplatform/compare/v2.10.0...v3.0.0) (2026-11-20)
+
+
+### ⚠ BREAKING CHANGES
+
+* Restrict `AG2Agent.query` to its declared arguments.
+
+### Features
+
+* GenAI Client(evals) - Add Harbor dataset and task types to evaluation sets and items ([b90054b](https://github.com/googleapis/python-aiplatform/commit/b90054b377ba75bc0e361e7484654924758a8fd0))
+
+
+### Bug Fixes
+
+* Make httpx an optional import so Agent Engine modules load when httpx is not installed ([e87ca39](https://github.com/googleapis/python-aiplatform/commit/e87ca393ca578a3cf4d0f608806fd9bb5b8ee4da))
+* Raise API errors on mid-stream Agent Engine stream_query error frames ([99fd15c](https://github.com/googleapis/python-aiplatform/commit/99fd15c9bbf0d4b38100377fd50fb45f0bd87ff0))
+* Raise background task errors reliably from wait() ([8c47418](https://github.com/googleapis/python-aiplatform/commit/8c474189f813105f512e782beb477870a7d4533b))
+* Restrict `AG2Agent.query` to its declared arguments. ([acaa5a1](https://github.com/googleapis/python-aiplatform/commit/acaa5a1e6e86b0d6a6195eac922ef2c68f948ede))
+
+
+### Documentation
+
+* Update Agent Engine secret_env and runtime identity security guidance ([f1068d9](https://github.com/googleapis/python-aiplatform/commit/f1068d9ed22cb1468b6ae588b8e2d0a61826507e))
+
 ## [2.10.0](https://github.com/googleapis/python-aiplatform/compare/v2.9.0...v2.10.0) (2026-11-17)
 
 
