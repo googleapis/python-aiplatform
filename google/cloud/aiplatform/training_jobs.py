@@ -1659,10 +1659,12 @@ class _CustomTrainingJob(_TrainingJob):
             or restart_job_on_worker_restart
             or disable_retries
             or scheduling_strategy
-            or max_wait_duration
+            or max_wait_duration is not None
         ):
             timeout = f"{timeout}s" if timeout else None
-            max_wait_duration = f"{max_wait_duration}s" if max_wait_duration else None
+            max_wait_duration = (
+                f"{max_wait_duration}s" if max_wait_duration is not None else None
+            )
             scheduling = {
                 "timeout": timeout,
                 "restart_job_on_worker_restart": restart_job_on_worker_restart,
