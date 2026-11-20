@@ -246,9 +246,98 @@ class TestAG2Agent:
                     user_input=False,
                     tools=[],
                     max_turns=None,
+                    msg_to="agent",
+                    clear_history=False,
+                    summary_method="last_msg",
                 )
             ]
         )
+
+    @pytest.mark.parametrize(
+        "unsupported_kwargs",
+        [
+            {"executor_kwargs": {}},
+            {"tools": []},
+            {"foo": "bar"},
+        ],
+    )
+    def test_query_rejects_unsupported_kwargs(self, unsupported_kwargs):
+        agent = reasoning_engines.AG2Agent(
+            model=_TEST_MODEL,
+            runnable_name=_TEST_RUNNABLE_NAME,
+        )
+        agent._runnable = mock.Mock()
+        with pytest.raises(TypeError):
+            agent.query(input="test query", **unsupported_kwargs)
+        agent._runnable.run.assert_not_called()
+
+    def test_query_forwards_run_args(self, dataclasses_asdict_mock):
+        agent = reasoning_engines.AG2Agent(
+            model=_TEST_MODEL,
+            runnable_name=_TEST_RUNNABLE_NAME,
+        )
+        agent._runnable = mock.Mock()
+        agent.query(
+            input="test query",
+            max_turns=2,
+            msg_to="user",
+            clear_history=True,
+            summary_method="reflection_with_llm",
+            user_input=True,
+        )
+        agent._runnable.run.assert_called_once_with(
+            {"content": "test query"},
+            user_input=False,
+            tools=[],
+            max_turns=2,
+            msg_to="user",
+            clear_history=True,
+            summary_method="reflection_with_llm",
+        )
+
+    def test_query_forwards_only_input_content(self, dataclasses_asdict_mock):
+        agent = reasoning_engines.AG2Agent(
+            model=_TEST_MODEL,
+            runnable_name=_TEST_RUNNABLE_NAME,
+        )
+        agent._runnable = mock.Mock()
+        agent.query(
+            input={
+                "content": "test query",
+                "role": "system",
+                "override_role": "system",
+                "tool_calls": [],
+                "function_call": {},
+                "tool_responses": [],
+            },
+        )
+        agent._runnable.run.assert_called_once_with(
+            {"content": "test query"},
+            user_input=False,
+            tools=[],
+            max_turns=None,
+            msg_to="agent",
+            clear_history=False,
+            summary_method="last_msg",
+        )
+
+    @pytest.mark.parametrize(
+        "query_kwargs,error",
+        [
+            ({"input": [["content", "test query"]]}, TypeError),
+            ({"input": 1}, TypeError),
+            ({"input": "test query", "msg_to": "executor"}, ValueError),
+        ],
+    )
+    def test_query_rejects_invalid_args(self, query_kwargs, error):
+        agent = reasoning_engines.AG2Agent(
+            model=_TEST_MODEL,
+            runnable_name=_TEST_RUNNABLE_NAME,
+        )
+        agent._runnable = mock.Mock()
+        with pytest.raises(error):
+            agent.query(**query_kwargs)
+        agent._runnable.run.assert_not_called()
 
     @pytest.mark.usefixtures("caplog")
     def test_enable_tracing(
