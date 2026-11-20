@@ -470,7 +470,14 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
                 Agent Engine. If it is a list of strings, each string should be
                 a valid key to `os.environ`. If it is a dictionary, the keys are
                 the environment variable names, and the values are the
-                corresponding values.
+                corresponding values (strings or `SecretRef` entries for Secret
+                Manager secrets). When referencing Secret Manager secrets, grant
+                `roles/secretmanager.secretAccessor` on the specific secret to
+                an isolated `AGENT_IDENTITY` (create the Agent Engine first
+                without secrets, grant access to
+                `principal://{effective_identity}`, then update) or a dedicated
+                custom `service_account`; avoid granting secret access to the
+                shared default Reasoning Engine Service Agent.
             build_options (Dict[str, Sequence[str]]):
                 Optional. The build options for the Agent Engine.
                 The following keys are supported:
@@ -483,17 +490,29 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
                     working directory and included in `extra_packages`.
             service_account (str):
                 Optional. The service account to be used for the Agent Engine.
-                If not specified, the default reasoning engine service agent
-                service account will be used.
+                If not specified and `identity_type` is not `AGENT_IDENTITY`,
+                the default Vertex AI Reasoning Engine Service Agent,
+                `service-{project_number}@gcp-sa-aiplatform-re.iam.gserviceaccount.com`,
+                will be used. WARNING: That default service agent is shared
+                across all Agent Engines in the project that do not specify an
+                isolated identity or custom service account, so any principal
+                with permission to deploy or update agents in the project can
+                access permissions or secrets granted to it. Use
+                `identity_type="AGENT_IDENTITY"` (restricting
+                `aiplatform.reasoningEngines.update` access on the engine) or a
+                dedicated custom `service_account` for sensitive resources such
+                as Secret Manager secrets.
             identity_type (Union[str, aip_types.ReasoningEngineSpec.IdentityType]):
                 Optional. The identity type to be used by the Agent Engine at
                 runtime. Set it to `AGENT_IDENTITY` to run the Agent Engine
                 under a resource-scoped workload identity with no default
                 project permissions, instead of the shared Reasoning Engine
-                Service Agent. `service_account` must not be specified when
-                `AGENT_IDENTITY` is used. If not specified, `service_account`
-                is used if set, otherwise the default Reasoning Engine Service
-                Agent is used.
+                Service Agent. Restrict `aiplatform.reasoningEngines.update`
+                permissions on `AGENT_IDENTITY` engines because any principal
+                permitted to update the engine can run code as its identity.
+                `service_account` must not be specified when `AGENT_IDENTITY` is
+                used. If not specified, `service_account` is used if set,
+                otherwise the default Reasoning Engine Service Agent is used.
             psc_interface_config (aip_types.PscInterfaceConfig):
                 Optional. The Private Service Connect interface config for the
                 Agent Engine.
@@ -742,7 +761,12 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
                 Agent Engine. If it is a list of strings, each string should be
                 a valid key to `os.environ`. If it is a dictionary, the keys are
                 the environment variable names, and the values are the
-                corresponding values.
+                corresponding values (strings or `SecretRef` entries for Secret
+                Manager secrets). When referencing Secret Manager secrets, grant
+                `roles/secretmanager.secretAccessor` on the specific secret to
+                an isolated `AGENT_IDENTITY` or a dedicated custom
+                `service_account`; avoid granting secret access to the shared
+                default Reasoning Engine Service Agent.
             build_options (Dict[str, Sequence[str]]):
                 Optional. The build options for the Agent Engine.
                 The following keys are supported:
@@ -755,16 +779,22 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
                     working directory and included in `extra_packages`.
             service_account (str):
                 Optional. The service account to be used for the Agent Engine.
-                If not specified, the default reasoning engine service agent
-                service account will be used.
+                If not specified, the existing service account is used.
+                Avoid granting sensitive permissions or Secret Manager secrets
+                to the shared default Reasoning Engine Service Agent; prefer
+                `identity_type="AGENT_IDENTITY"` (restricting
+                `aiplatform.reasoningEngines.update` access) or a dedicated
+                custom `service_account`.
             identity_type (Union[str, aip_types.ReasoningEngineSpec.IdentityType]):
                 Optional. The identity type to be used by the Agent Engine at
                 runtime. Set it to `AGENT_IDENTITY` to run the Agent Engine
                 under a resource-scoped workload identity with no default
                 project permissions, instead of the shared Reasoning Engine
-                Service Agent. `service_account` must not be specified when
-                `AGENT_IDENTITY` is used. If not specified, the existing
-                identity type will be used.
+                Service Agent. Restrict `aiplatform.reasoningEngines.update`
+                permissions on `AGENT_IDENTITY` engines because any principal
+                permitted to update the engine can run code as its identity.
+                `service_account` must not be specified when `AGENT_IDENTITY` is
+                used. If not specified, the existing identity type will be used.
             psc_interface_config (aip_types.PscInterfaceConfig):
                 Optional. The Private Service Connect interface config for the
                 Agent Engine.

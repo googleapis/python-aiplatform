@@ -234,17 +234,31 @@ class ReasoningEngine(base.VertexAiResourceNounWithFutureManager):
                 Optional. The set of extra user-provided packages (if any).
             service_account (str):
                 Optional. The service account that the Reasoning Engine runs
-                as. If not specified, the default Reasoning Engine Service
-                Agent in the project will be used.
+                as. If not specified and `identity_type` is not
+                `AGENT_IDENTITY`, the default Vertex AI Reasoning Engine
+                Service Agent,
+                `service-{project_number}@gcp-sa-aiplatform-re.iam.gserviceaccount.com`,
+                will be used. WARNING: That default service agent is shared
+                across all Reasoning Engines in the project that do not specify
+                an isolated identity or custom service account, so any
+                principal with permission to deploy or update engines in the
+                project can access permissions or secrets granted to it. Use
+                `identity_type="AGENT_IDENTITY"` (restricting
+                `aiplatform.reasoningEngines.update` access on the engine) or a
+                dedicated custom `service_account` for sensitive resources such
+                as Secret Manager secrets.
             identity_type (Union[str, aip_types.ReasoningEngineSpec.IdentityType]):
                 Optional. The identity type to be used by the Reasoning Engine
                 at runtime. Set it to `AGENT_IDENTITY` to run the Reasoning
                 Engine under a resource-scoped workload identity with no
                 default project permissions, instead of the shared Reasoning
-                Engine Service Agent. `service_account` must not be specified
-                when `AGENT_IDENTITY` is used. If not specified,
-                `service_account` is used if set, otherwise the default
-                Reasoning Engine Service Agent is used.
+                Engine Service Agent. Restrict
+                `aiplatform.reasoningEngines.update` permissions on
+                `AGENT_IDENTITY` engines because any principal permitted to
+                update the engine can run code as its identity.
+                `service_account` must not be specified when `AGENT_IDENTITY`
+                is used. If not specified, `service_account` is used if set,
+                otherwise the default Reasoning Engine Service Agent is used.
 
         Returns:
             ReasoningEngine: The Reasoning Engine that was created.
@@ -423,15 +437,23 @@ class ReasoningEngine(base.VertexAiResourceNounWithFutureManager):
             service_account (str):
                 Optional. The service account that the Reasoning Engine runs
                 as. If not specified, the existing service account will be
-                used.
+                used. Avoid granting sensitive permissions or Secret Manager
+                secrets to the shared default Reasoning Engine Service Agent;
+                prefer `identity_type="AGENT_IDENTITY"` (restricting
+                `aiplatform.reasoningEngines.update` access) or a dedicated
+                custom `service_account`.
             identity_type (Union[str, aip_types.ReasoningEngineSpec.IdentityType]):
                 Optional. The identity type to be used by the Reasoning Engine
                 at runtime. Set it to `AGENT_IDENTITY` to run the Reasoning
                 Engine under a resource-scoped workload identity with no
                 default project permissions, instead of the shared Reasoning
-                Engine Service Agent. `service_account` must not be specified
-                when `AGENT_IDENTITY` is used. If not specified, the existing
-                identity type will be used.
+                Engine Service Agent. Restrict
+                `aiplatform.reasoningEngines.update` permissions on
+                `AGENT_IDENTITY` engines because any principal permitted to
+                update the engine can run code as its identity.
+                `service_account` must not be specified when `AGENT_IDENTITY`
+                is used. If not specified, the existing identity type will be
+                used.
 
         Returns:
             ReasoningEngine: The Reasoning Engine that was updated.
