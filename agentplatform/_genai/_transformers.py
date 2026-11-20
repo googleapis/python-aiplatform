@@ -19,6 +19,7 @@ import re
 from typing import Any
 
 from google.genai._common import get_value_by_path as getv
+from google.genai._transformers import t_content, t_model  # noqa: F401
 
 from . import _evals_constant
 from . import _evals_data_converters

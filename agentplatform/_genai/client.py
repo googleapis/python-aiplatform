@@ -65,6 +65,9 @@ if TYPE_CHECKING:
     from agentplatform._genai import (
         serving_profiles as serving_profiles_module,
     )
+    from agentplatform._genai import (
+        detections as detections_module,
+    )
 
 
 _GENAI_MODULES_TELEMETRY_HEADER = "vertex-genai-modules"
@@ -117,6 +120,7 @@ class AsyncClient:
         self._sandboxes: Optional[ModuleType] = None
         self._memory_banks: Optional[ModuleType] = None
         self._serving_profiles: Optional[ModuleType] = None
+        self._detections: Optional[ModuleType] = None
 
     @property
     @_common.experimental_warning(
@@ -303,6 +307,17 @@ class AsyncClient:
             )
         return self._serving_profiles.AsyncServingProfiles(self._api_client)  # type: ignore[no-any-return]
 
+    @property
+    def detections(
+        self,
+    ) -> "detections_module.AsyncDetections":
+        if self._detections is None:
+            self._detections = importlib.import_module(
+                ".detections",
+                __package__,
+            )
+        return self._detections.AsyncDetections(self._api_client)  # type: ignore[no-any-return]
+
     async def aclose(self) -> None:
         """Closes the async client explicitly.
 
@@ -416,6 +431,7 @@ class Client:
         self._sandboxes: Optional[ModuleType] = None
         self._memory_banks: Optional[ModuleType] = None
         self._serving_profiles: Optional[ModuleType] = None
+        self._detections: Optional[ModuleType] = None
 
     @property
     def evals(self) -> "evals_module.Evals":
@@ -624,3 +640,12 @@ class Client:
                 __package__,
             )
         return self._serving_profiles.ServingProfiles(self._api_client)  # type: ignore[no-any-return]
+
+    @property
+    def detections(self) -> "detections_module.Detections":
+        if self._detections is None:
+            self._detections = importlib.import_module(
+                ".detections",
+                __package__,
+            )
+        return self._detections.Detections(self._api_client)  # type: ignore[no-any-return]
