@@ -16,6 +16,7 @@
 #
 
 from importlib import reload
+from unittest import mock
 from unittest.mock import patch
 
 import pytest
@@ -28,6 +29,7 @@ from google.cloud.aiplatform.compat.types import event as gca_event
 from google.cloud.aiplatform.metadata import artifact
 from google.cloud.aiplatform.metadata import context
 from google.cloud.aiplatform.metadata import execution
+from google.cloud.aiplatform.metadata import metadata_store
 from google.cloud.aiplatform.metadata import utils as metadata_utils
 from google.cloud.aiplatform_v1 import (
     MetadataServiceClient,
@@ -49,6 +51,9 @@ _TEST_LOCATION = "us-central1"
 _TEST_METADATA_STORE = "test-metadata-store"
 _TEST_ALT_LOCATION = "europe-west4"
 _TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/metadataStores/{_TEST_METADATA_STORE}"
+_TEST_DEFAULT_PARENT = (
+    f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/metadataStores/default"
+)
 
 # resource attributes
 _TEST_DISPLAY_NAME = "test-display-name"
@@ -748,6 +753,57 @@ class TestExecution:
         get_execution_mock.assert_called_once_with(
             name=_TEST_EXECUTION_NAME, retry=base._DEFAULT_RETRY
         )
+
+    def test_create_execution_uses_default_credentials_and_metadata_store(self):
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        api_client = mock.Mock()
+        api_client.create_execution.return_value = GapicExecution(
+            name=f"{_TEST_DEFAULT_PARENT}/executions/{_TEST_EXECUTION_ID}",
+            display_name=_TEST_DISPLAY_NAME,
+            schema_title=_TEST_SCHEMA_TITLE,
+            schema_version=_TEST_SCHEMA_VERSION,
+            description=_TEST_DESCRIPTION,
+            metadata=_TEST_METADATA,
+            state=GapicExecution.State.RUNNING,
+        )
+
+        with patch.object(
+            metadata_store._MetadataStore, "ensure_default_metadata_store_exists"
+        ) as ensure_metadata_store_mock, patch.object(
+            execution.Execution, "_instantiate_client", return_value=api_client
+        ) as instantiate_client_mock:
+            my_execution = execution.Execution.create(
+                resource_id=_TEST_EXECUTION_ID,
+                schema_title=_TEST_SCHEMA_TITLE,
+                display_name=_TEST_DISPLAY_NAME,
+                schema_version=_TEST_SCHEMA_VERSION,
+                description=_TEST_DESCRIPTION,
+                metadata=_TEST_METADATA,
+            )
+
+        ensure_metadata_store_mock.assert_called_once_with(
+            project=None, location=None, credentials=None
+        )
+        assert instantiate_client_mock.call_args_list[0] == mock.call(
+            location=None,
+            credentials=None,
+            appended_user_agent=[
+                "sdk_command/aiplatform.metadata.execution.Execution.create"
+            ],
+        )
+        api_client.create_execution.assert_called_once_with(
+            parent=_TEST_DEFAULT_PARENT,
+            execution_id=_TEST_EXECUTION_ID,
+            execution=GapicExecution(
+                schema_title=_TEST_SCHEMA_TITLE,
+                schema_version=_TEST_SCHEMA_VERSION,
+                display_name=_TEST_DISPLAY_NAME,
+                description=_TEST_DESCRIPTION,
+                metadata=_TEST_METADATA,
+                state=GapicExecution.State.RUNNING,
+            ),
+        )
+        assert my_execution._gca_resource == api_client.create_execution.return_value
 
     def test_get_or_create_execution(
         self, get_execution_for_get_or_create_mock, create_execution_mock
