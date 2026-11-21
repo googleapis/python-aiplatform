@@ -26,14 +26,17 @@ from google.auth import credentials as auth_credentials
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
+from google.cloud.aiplatform.preview import models as preview_models
 
 from google.cloud.aiplatform.compat.services import (
     deployment_resource_pool_service_client,
+    deployment_resource_pool_service_client_v1beta1,
 )
 
 from google.cloud.aiplatform.compat.types import (
     deployed_model_ref as gca_deployed_model_ref,
     deployment_resource_pool as gca_deployment_resource_pool,
+    deployment_resource_pool_v1beta1 as gca_deployment_resource_pool_v1beta1,
     deployment_resource_pool_service as gca_deployment_resource_pool_service,
     endpoint as gca_endpoint,
     machine_resources as gca_machine_resources,
@@ -215,6 +218,20 @@ def query_deployed_models_mock():
         yield query_deployed_models_mock
 
 
+@pytest.fixture()
+def preview_get_drp_mock():
+    with mock.patch.object(
+        deployment_resource_pool_service_client_v1beta1.DeploymentResourcePoolServiceClient,
+        "get_deployment_resource_pool",
+    ) as preview_get_drp_mock:
+        preview_get_drp_mock.return_value = (
+            gca_deployment_resource_pool_v1beta1.DeploymentResourcePool(
+                name=_TEST_DRP_NAME,
+            )
+        )
+        yield preview_get_drp_mock
+
+
 @pytest.mark.usefixtures("google_auth_mock")
 class TestDeploymentResourcePool:
     def setup_method(self):
@@ -346,4 +363,51 @@ class TestDeploymentResourcePool:
         dm_refs = test_drp.query_deployed_models()
 
         assert len(dm_refs) == 2
+        assert [dm_ref.deployed_model_id for dm_ref in dm_refs] == [
+            _TEST_ID_2,
+            _TEST_ID_3,
+        ]
+        query_deployed_models_mock.assert_called_once()
+
+    @pytest.mark.usefixtures("get_drp_mock")
+    def test_query_deployed_models_with_several_refs_in_one_page(
+        self, query_deployed_models_mock
+    ):
+        query_deployed_models_mock.return_value.pages = [
+            gca_deployment_resource_pool_service.QueryDeployedModelsResponse(
+                deployed_model_refs=[
+                    gca_deployed_model_ref.DeployedModelRef(
+                        endpoint=_TEST_ID,
+                        deployed_model_id=_TEST_ID_2,
+                    ),
+                    gca_deployed_model_ref.DeployedModelRef(
+                        endpoint=_TEST_ID,
+                        deployed_model_id=_TEST_ID_3,
+                    ),
+                ],
+                total_deployed_model_count=2,
+                total_endpoint_count=1,
+            ),
+        ]
+        test_drp = aiplatform.DeploymentResourcePool(
+            deployment_resource_pool_name=_TEST_DRP_NAME
+        )
+        dm_refs = test_drp.query_deployed_models()
+
+        assert [dm_ref.deployed_model_id for dm_ref in dm_refs] == [
+            _TEST_ID_2,
+            _TEST_ID_3,
+        ]
+
+    @pytest.mark.usefixtures("preview_get_drp_mock")
+    def test_preview_query_deployed_models(self, query_deployed_models_mock):
+        test_drp = preview_models.DeploymentResourcePool(
+            deployment_resource_pool_name=_TEST_DRP_NAME
+        )
+        dm_refs = test_drp.query_deployed_models()
+
+        assert [dm_ref.deployed_model_id for dm_ref in dm_refs] == [
+            _TEST_ID_2,
+            _TEST_ID_3,
+        ]
         query_deployed_models_mock.assert_called_once()
