@@ -157,6 +157,25 @@ def test_init_with_feature_id(get_feature_mock):
     )
 
 
+def test_init_with_feature_id_uses_the_given_project_and_location(get_feature_mock):
+    aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
+    Feature(
+        name=_TEST_FG1_F1_ID,
+        feature_group_id=_TEST_FG1_ID,
+        project="other-project",
+        location="europe-west4",
+    )
+
+    get_feature_mock.assert_called_once_with(
+        name=(
+            "projects/other-project/locations/europe-west4/"
+            f"featureGroups/{_TEST_FG1_ID}/features/{_TEST_FG1_F1_ID}"
+        ),
+        retry=base._DEFAULT_RETRY,
+    )
+
+
 def test_init_with_feature_id_for_explicit_version_column(
     get_feature_with_version_column_mock,
 ):
