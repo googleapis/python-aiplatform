@@ -224,9 +224,14 @@ class _StreamRunRequest:
         )
         # The authorizations of the user, keyed by authorization ID.
 
-        self.user_id: Optional[str] = kwargs.get("user_id") or kwargs.get(
-            "userId", _DEFAULT_USER_ID
-        )
+        if kwargs.get("user_id") is not None:
+            self.user_id: Optional[str] = kwargs["user_id"]
+        elif kwargs.get("userId") is not None:
+            self.user_id = kwargs["userId"]
+        elif "user_id" in kwargs or "userId" in kwargs:
+            self.user_id = None
+        else:
+            self.user_id = _DEFAULT_USER_ID
         # The user ID.
 
         self.session_id: Optional[str] = kwargs.get("session_id") or kwargs.get(
@@ -570,6 +575,12 @@ def _run_coroutine_on_thread(coroutine_fn: Callable[[], Awaitable[Any]]) -> Any:
     if "error" in outcome:
         raise outcome["error"]
     return outcome.get("result")
+
+
+def _validate_user_id(user_id: Any) -> None:
+    """Validates that user_id is a non-empty string."""
+    if not isinstance(user_id, str) or not user_id.strip():
+        raise ValueError("user_id must be a non-empty string.")
 
 
 def _validate_run_config(run_config: Optional[Dict[str, Any]]):
@@ -1343,6 +1354,7 @@ class AdkApp:
         from vertexai.agent_engines import _utils
         from google.genai import types
 
+        _validate_user_id(user_id)
         if isinstance(message, Dict):
             content = types.Content.model_validate(message)
         elif isinstance(message, str):
@@ -1468,6 +1480,7 @@ class AdkApp:
         from vertexai.agent_engines import _utils
         from google.genai import types
 
+        _validate_user_id(user_id)
         if isinstance(message, Dict):
             content = types.Content.model_validate(message)
         elif isinstance(message, str):
@@ -1525,6 +1538,7 @@ class AdkApp:
         from google.genai.errors import ClientError
 
         request = _StreamRunRequest(**json.loads(request_json))
+        _validate_user_id(request.user_id)
         if not any(
             self._tmpl_attrs.get(service)
             for service in (
@@ -1659,6 +1673,7 @@ class AdkApp:
         Raises:
             RuntimeError: If the session is not found.
         """
+        _validate_user_id(user_id)
         if not self._tmpl_attrs.get("session_service"):
             self.set_up()
         session = await self._tmpl_attrs.get("session_service").get_session(
@@ -1713,6 +1728,7 @@ class AdkApp:
         Returns:
             ListSessionsResponse: The list of sessions.
         """
+        _validate_user_id(user_id)
         if not self._tmpl_attrs.get("session_service"):
             self.set_up()
         return await self._tmpl_attrs.get("session_service").list_sessions(
@@ -1769,6 +1785,7 @@ class AdkApp:
         Returns:
             Session: The newly created session instance.
         """
+        _validate_user_id(user_id)
         if not self._tmpl_attrs.get("session_service"):
             self.set_up()
         session = await self._tmpl_attrs.get("session_service").create_session(
@@ -1829,6 +1846,7 @@ class AdkApp:
                 Optional. Additional keyword arguments to pass to the
                 session service.
         """
+        _validate_user_id(user_id)
         if not self._tmpl_attrs.get("session_service"):
             self.set_up()
         await self._tmpl_attrs.get("session_service").delete_session(
@@ -1868,11 +1886,19 @@ class AdkApp:
     async def async_add_session_to_memory(self, *, session: Dict[str, Any]):
         """Generates memories.
 
+        Always reloads the canonical session from `session_service` (ignoring
+        caller-supplied `events` and `app_name`).
+
         Args:
             session (Dict[str, Any]):
                 Required. The session to use for generating memories. It should
                 be a dictionary representing an ADK Session object, e.g.
                 session.model_dump(mode="json").
+
+        Raises:
+            TypeError: If session is not a Session object or dictionary.
+            ValueError: If session.user_id is not a non-empty string.
+            RuntimeError: If the session is not found in session_service.
         """
         from google.adk.sessions.session import Session
 
@@ -1880,12 +1906,12 @@ class AdkApp:
             session = Session.model_validate(session)
         elif not isinstance(session, Session):
             raise TypeError("session must be a Session object.")
-        if not session.events:
-            # Get the latest version of the session in case it was updated.
-            session = await self.async_get_session(
-                user_id=session.user_id,
-                session_id=session.id,
-            )
+        # Always fetch the canonical session from the session service rather
+        # than trusting caller-supplied events or app_name.
+        session = await self.async_get_session(
+            user_id=session.user_id,
+            session_id=session.id,
+        )
         if not self._tmpl_attrs.get("memory_service"):
             self.set_up()
         return await self._tmpl_attrs.get("memory_service").add_session_to_memory(
@@ -1902,6 +1928,7 @@ class AdkApp:
         Returns:
             A SearchMemoryResponse containing the matching memories.
         """
+        _validate_user_id(user_id)
         if not self._tmpl_attrs.get("memory_service"):
             self.set_up()
         return await self._tmpl_attrs.get("memory_service").search_memory(

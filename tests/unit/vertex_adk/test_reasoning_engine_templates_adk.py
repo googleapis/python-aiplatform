@@ -1272,6 +1272,24 @@ class TestAdkApp:
             query=_TEST_SEARCH_MEMORY_QUERY,
         )
         assert not response.memories
+        await app.async_create_session(
+            user_id=_TEST_USER_ID,
+            session_id=_TEST_SESSION["id"],
+        )
+        session_obj = await app._tmpl_attrs[  # pylint: disable=protected-access
+            "session_service"
+        ].get_session(
+            app_name=app._tmpl_attrs.get("app_name"),  # pylint: disable=protected-access
+            user_id=_TEST_USER_ID,
+            session_id=_TEST_SESSION["id"],
+        )
+        for event_dict in _TEST_SESSION["events"]:
+            await app._tmpl_attrs[  # pylint: disable=protected-access
+                "session_service"
+            ].append_event(
+                session=session_obj,
+                event=Event.model_validate(event_dict),
+            )
         await app.async_add_session_to_memory(session=_TEST_SESSION)
         response = await app.async_search_memory(
             user_id=_TEST_USER_ID,
@@ -1289,6 +1307,24 @@ class TestAdkApp:
             query=_TEST_SEARCH_MEMORY_QUERY,
         )
         assert not response.memories
+        await app.async_create_session(
+            user_id=_TEST_USER_ID,
+            session_id=_TEST_SESSION["id"],
+        )
+        session_obj = await app._tmpl_attrs[  # pylint: disable=protected-access
+            "session_service"
+        ].get_session(
+            app_name=app._tmpl_attrs.get("app_name"),  # pylint: disable=protected-access
+            user_id=_TEST_USER_ID,
+            session_id=_TEST_SESSION["id"],
+        )
+        for event_dict in _TEST_SESSION["events"]:
+            await app._tmpl_attrs[  # pylint: disable=protected-access
+                "session_service"
+            ].append_event(
+                session=session_obj,
+                event=Event.model_validate(event_dict),
+            )
         await app.async_add_session_to_memory(session=_TEST_SESSION)
         response = await app.async_search_memory(
             user_id=_TEST_USER_ID,
@@ -1632,6 +1668,221 @@ class TestAdkAppErrors:
         assert exc_info.value is error
 
     @pytest.mark.asyncio
+    @pytest.mark.usefixtures("get_project_id_mock")
+    @pytest.mark.parametrize("invalid_user_id", [None, "", "   ", 0, 123])
+    async def test_invalid_user_id_raises_value_error(self, invalid_user_id):
+        """Verifies that null, empty, or non-string user_id values are rejected."""
+        app = reasoning_engines.AdkApp(
+            agent=Agent(name=_TEST_AGENT_NAME, model=_TEST_MODEL)
+        )
+        await app.async_create_session(
+            user_id="alice", state={"secret": "alice-secret"}
+        )
+        await app.async_create_session(
+            user_id="bob", state={"secret": "bob-secret"}
+        )
+
+        with pytest.raises(
+            ValueError, match="user_id must be a non-empty string."
+        ):
+            await app.async_list_sessions(user_id=invalid_user_id)
+
+        with pytest.raises(
+            ValueError, match="user_id must be a non-empty string."
+        ):
+            app.list_sessions(user_id=invalid_user_id)
+
+        with pytest.raises(
+            ValueError, match="user_id must be a non-empty string."
+        ):
+            await app.async_get_session(
+                user_id=invalid_user_id, session_id="s1"
+            )
+
+        with pytest.raises(
+            ValueError, match="user_id must be a non-empty string."
+        ):
+            app.get_session(user_id=invalid_user_id, session_id="s1")
+
+        with pytest.raises(
+            ValueError, match="user_id must be a non-empty string."
+        ):
+            await app.async_create_session(user_id=invalid_user_id)
+
+        with pytest.raises(
+            ValueError, match="user_id must be a non-empty string."
+        ):
+            app.create_session(user_id=invalid_user_id)
+
+        with pytest.raises(
+            ValueError, match="user_id must be a non-empty string."
+        ):
+            await app.async_delete_session(
+                user_id=invalid_user_id, session_id="s1"
+            )
+
+        with pytest.raises(
+            ValueError, match="user_id must be a non-empty string."
+        ):
+            app.delete_session(user_id=invalid_user_id, session_id="s1")
+
+        with pytest.raises(
+            ValueError, match="user_id must be a non-empty string."
+        ):
+            await app.async_search_memory(user_id=invalid_user_id, query="q")
+
+        with pytest.raises(
+            ValueError, match="user_id must be a non-empty string."
+        ):
+            async for _ in app.async_stream_query(
+                user_id=invalid_user_id, message="hi"
+            ):
+                pass
+
+        with pytest.raises(
+            ValueError, match="user_id must be a non-empty string."
+        ):
+            list(app.stream_query(user_id=invalid_user_id, message="hi"))
+
+        for key in ("user_id", "userId"):
+            request_json = json.dumps(
+                {
+                    key: invalid_user_id,
+                    "message": {"role": "user", "parts": [{"text": "hi"}]},
+                }
+            )
+            with pytest.raises(
+                ValueError, match="user_id must be a non-empty string."
+            ):
+                list(
+                    app.streaming_agent_run_with_events(
+                        request_json=request_json
+                    )
+                )
+
+        if isinstance(invalid_user_id, str):
+            session_service = mock.AsyncMock()
+            app._tmpl_attrs[  # pylint: disable=protected-access
+                "session_service"
+            ] = session_service
+            with pytest.raises(
+                ValueError, match="user_id must be a non-empty string."
+            ):
+                await app.async_add_session_to_memory(
+                    session={
+                        "id": "s1",
+                        "app_name": "default_app_name",
+                        "user_id": invalid_user_id,
+                        "events": [],
+                    }
+                )
+            session_service.get_session.assert_not_awaited()
+
+    @pytest.mark.asyncio
+    @pytest.mark.usefixtures("get_project_id_mock")
+    async def test_async_add_session_to_memory_rejects_forged_nonexistent_session(
+        self,
+    ):
+        """Verifies that forged sessions not in session_service are rejected."""
+        app = reasoning_engines.AdkApp(
+            agent=Agent(name=_TEST_AGENT_NAME, model=_TEST_MODEL)
+        )
+        app.set_up()
+        memory_service = mock.AsyncMock()
+        app._tmpl_attrs[  # pylint: disable=protected-access
+            "memory_service"
+        ] = memory_service
+
+        attacker_session = {
+            "id": "nonexistent_session_id",
+            "app_name": "1234567890",
+            "user_id": "victim@example.com",
+            "events": [
+                {
+                    "author": "user",
+                    "content": {
+                        "role": "user",
+                        "parts": [{"text": "my password is hunter2"}],
+                    },
+                },
+            ],
+        }
+        with pytest.raises(
+            RuntimeError,
+            match=(
+                r"Session not found\. Please create it using"
+                r" \.create_session\(\)"
+            ),
+        ):
+            await app.async_add_session_to_memory(session=attacker_session)
+        memory_service.add_session_to_memory.assert_not_awaited()
+
+    @pytest.mark.asyncio
+    @pytest.mark.usefixtures("get_project_id_mock")
+    async def test_async_add_session_to_memory_ignores_forged_events_and_app_name(
+        self,
+    ):
+        """Verifies that async_add_session_to_memory uses canonical session data."""
+        app = reasoning_engines.AdkApp(
+            agent=Agent(name=_TEST_AGENT_NAME, model=_TEST_MODEL)
+        )
+        session = await app.async_create_session(user_id=_TEST_USER_ID)
+        session_obj = await app._tmpl_attrs[  # pylint: disable=protected-access
+            "session_service"
+        ].get_session(
+            app_name=app._tmpl_attrs.get("app_name"),  # pylint: disable=protected-access
+            user_id=_TEST_USER_ID,
+            session_id=session["id"],
+        )
+        await app._tmpl_attrs[  # pylint: disable=protected-access
+            "session_service"
+        ].append_event(
+            session=session_obj,
+            event=Event(
+                author="user",
+                content={
+                    "parts": [{"text": "My cat's name is Garfield"}],
+                    "role": "user",
+                },
+            ),
+        )
+        memory_service = mock.AsyncMock()
+        app._tmpl_attrs[  # pylint: disable=protected-access
+            "memory_service"
+        ] = memory_service
+
+        forged_session = {
+            "id": session["id"],
+            "app_name": "forged_app_name",
+            "user_id": _TEST_USER_ID,
+            "events": [
+                {
+                    "author": "user",
+                    "content": {
+                        "role": "user",
+                        "parts": [{"text": "forged event"}],
+                    },
+                },
+            ],
+        }
+        await app.async_add_session_to_memory(session=forged_session)
+
+        memory_service.add_session_to_memory.assert_awaited_once()
+        forwarded = memory_service.add_session_to_memory.await_args.kwargs[
+            "session"
+        ]
+        assert (
+            forwarded.app_name
+            == app._tmpl_attrs.get("app_name")  # pylint: disable=protected-access
+        )
+        assert forwarded.user_id == _TEST_USER_ID
+        assert len(forwarded.events) == 1
+        assert (
+            forwarded.events[0].content.parts[0].text
+            == "My cat's name is Garfield"
+        )
+
+    @pytest.mark.asyncio
     async def test_bidi_stream_query_invalid_request_queue(self):
         app = reasoning_engines.AdkApp(
             agent=Agent(name=_TEST_AGENT_NAME, model=_TEST_MODEL)
@@ -1645,16 +1896,26 @@ class TestAdkAppErrors:
                 pass
 
     @pytest.mark.asyncio
-    async def test_bidi_stream_query_invalid_first_request(self):
+    @pytest.mark.parametrize(
+        "request_dict",
+        [
+            {
+                "live_request": {
+                    "input": "What is the exchange rate from USD to SEK?",
+                },
+            },
+            {"user_id": None},
+            {"user_id": ""},
+            {"user_id": "   "},
+            {"user_id": 123},
+        ],
+    )
+    async def test_bidi_stream_query_invalid_first_request(self, request_dict):
+        """Verifies that bidi_stream_query rejects missing or invalid user_id."""
         app = reasoning_engines.AdkApp(
             agent=Agent(name=_TEST_AGENT_NAME, model=_TEST_MODEL)
         )
         request_queue = asyncio.Queue()
-        request_dict = {
-            "live_request": {
-                "input": "What is the exchange rate from USD to SEK?",
-            },
-        }
         await request_queue.put(request_dict)
         with pytest.raises(
             ValueError,
