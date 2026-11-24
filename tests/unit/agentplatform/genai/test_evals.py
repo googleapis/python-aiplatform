@@ -2577,6 +2577,75 @@ class TestEvalsVisualization:
         mock_logger.error.assert_called_once()
         assert "Serialization Error" in mock_logger.error.call_args[0][0]
 
+    @pytest.mark.parametrize(
+        "visualization_module",
+        [_evals_visualization, vertexai_evals_visualization],
+        ids=["agent_platform", "vertexai"],
+    )
+    def test_html_reports_use_unique_ids_and_scoped_styles(self, visualization_module):
+        eval_payload = json.dumps(
+            {
+                "summary_metrics": [{"metric_name": "m1", "mean_score": 1.0}],
+                "eval_case_results": [],
+                "metadata": {"dataset": []},
+            }
+        )
+        dataset_payload = json.dumps([{"prompt": "hi", "response": "hello"}])
+        loss_payload = json.dumps({"results": []})
+
+        checks = [
+            (
+                visualization_module.get_evaluation_html,
+                eval_payload,
+                r'id="(vertex-eval-root-[^"]+)"',
+                [r'id="(summary-section-[^"]+)"', r'id="(details-section-[^"]+)"'],
+            ),
+            (
+                visualization_module.get_comparison_html,
+                eval_payload,
+                r'id="(vertex-eval-comp-root-[^"]+)"',
+                [r'id="(summary-section-[^"]+)"', r'id="(details-section-[^"]+)"'],
+            ),
+            (
+                visualization_module.get_inference_html,
+                dataset_payload,
+                r'id="(vertex-eval-inf-root-[^"]+)"',
+                [r'id="(results-table-[^"]+)"'],
+            ),
+            (
+                visualization_module.get_loss_analysis_html,
+                loss_payload,
+                r'id="(vertex-eval-loss-root-[^"]+)"',
+                [r'id="(loss-analysis-root-[^"]+)"'],
+            ),
+        ]
+
+        for fn, payload, root_pattern, container_patterns in checks:
+            first_html = fn(payload)
+            second_html = fn(payload)
+
+            root_1 = re.search(root_pattern, first_html)
+            root_2 = re.search(root_pattern, second_html)
+            assert root_1 and root_2
+            assert root_1.group(1) != root_2.group(1)
+
+            for pattern in container_patterns:
+                id_1 = re.search(pattern, first_html)
+                id_2 = re.search(pattern, second_html)
+                assert id_1 and id_2
+                assert id_1.group(1) != id_2.group(1)
+                assert f"document.getElementById('{id_1.group(1)}')" in first_html
+                assert f"document.getElementById('{id_2.group(1)}')" in second_html
+
+            assert f"#{root_1.group(1)} {{" in first_html
+            assert "\n        body {" not in first_html
+            assert "\n        body{" not in first_html
+            assert "var vizData_vertex_eval_sdk" not in first_html
+            assert "(function()" in first_html
+            assert "_runWhenReady" in first_html
+            assert "DOMPurify !== 'undefined' ? DOMPurify.sanitize(s)" in first_html
+            assert "DOMPurify !== 'undefined' ? _sanitize(s)" not in first_html
+
 
 class TestEvalsRunInference:
     """Unit tests for the Evals run_inference method."""
