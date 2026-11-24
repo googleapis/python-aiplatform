@@ -2181,8 +2181,8 @@ class Prompts(_api_module.BaseModule):
             raise ValueError("Config path is required.")
 
         _OPTIMIZER_METHOD_TO_CONTAINER_URI = {
-            types.PromptOptimizerMethod.VAPO: "us-docker.pkg.dev/vertex-ai/cair/vaipo:preview_v1_0",
-            types.PromptOptimizerMethod.OPTIMIZATION_TARGET_GEMINI_NANO: "us-docker.pkg.dev/vertex-ai/cair/vaipo:preview_android_v1_0",
+            types.PromptOptimizerMethod.VAPO: "us-docker.pkg.dev/vertex-ai-restricted/builtin-algorithm/apd:preview_v1_0",
+            types.PromptOptimizerMethod.OPTIMIZATION_TARGET_GEMINI_NANO: "us-docker.pkg.dev/vertex-ai-restricted/builtin-algorithm/apd:preview_android_v1_0",
         }
         container_uri = _OPTIMIZER_METHOD_TO_CONTAINER_URI.get(method)
         if not container_uri:
@@ -4307,8 +4307,8 @@ class AsyncPrompts(_api_module.BaseModule):
             raise ValueError("Config path is required.")
 
         _OPTIMIZER_METHOD_TO_CONTAINER_URI = {
-            types.PromptOptimizerMethod.VAPO: "us-docker.pkg.dev/vertex-ai/cair/vaipo:preview_v1_0",
-            types.PromptOptimizerMethod.OPTIMIZATION_TARGET_GEMINI_NANO: "us-docker.pkg.dev/vertex-ai/cair/vaipo:preview_android_v1_0",
+            types.PromptOptimizerMethod.VAPO: "us-docker.pkg.dev/vertex-ai-restricted/builtin-algorithm/apd:preview_v1_0",
+            types.PromptOptimizerMethod.OPTIMIZATION_TARGET_GEMINI_NANO: "us-docker.pkg.dev/vertex-ai-restricted/builtin-algorithm/apd:preview_android_v1_0",
         }
         container_uri = _OPTIMIZER_METHOD_TO_CONTAINER_URI.get(method)
         if not container_uri:
