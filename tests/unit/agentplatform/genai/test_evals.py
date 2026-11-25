@@ -66,6 +66,17 @@ _TEST_PROJECT = "test-project"
 _TEST_LOCATION = "us-central1"
 _IMPORT_OPERATION_NAME = "projects/123/locations/us-central1/operations/789"
 _IMPORTED_EVALUATION_SET_NAME = "projects/123/locations/us-central1/evaluationSets/456"
+_DONE_IMPORT_OPERATION = {
+    "name": _IMPORT_OPERATION_NAME,
+    "done": True,
+    "response": {
+        "@type": (
+            "type.googleapis.com/google.cloud.aiplatform.v1beta1"
+            ".ImportEvaluationSetResponse"
+        ),
+        "evaluationSet": _IMPORTED_EVALUATION_SET_NAME,
+    },
+}
 
 
 _evals_common = _genai.evals._evals_common
@@ -14890,6 +14901,44 @@ class TestImportEvaluationSet:
 
         self.mock_api_client.request.assert_not_called()
 
+    def test_get_import_evaluation_set_operation_gets_operation_name(self):
+        self.mock_response.body = json.dumps(_DONE_IMPORT_OPERATION)
+        evals_module = evals.Evals(api_client_=self.mock_api_client)
+
+        evals_module.get_import_evaluation_set_operation(
+            operation_name=_IMPORT_OPERATION_NAME
+        )
+
+        self.mock_api_client.request.assert_called_once()
+        call_args = self.mock_api_client.request.call_args
+        assert call_args[0][0] == "get"
+        assert call_args[0][1] == _IMPORT_OPERATION_NAME
+
+    def test_get_import_evaluation_set_operation_returns_imported_set(self):
+        self.mock_response.body = json.dumps(_DONE_IMPORT_OPERATION)
+        evals_module = evals.Evals(api_client_=self.mock_api_client)
+
+        operation = evals_module.get_import_evaluation_set_operation(
+            operation_name=_IMPORT_OPERATION_NAME
+        )
+
+        assert isinstance(
+            operation, agentplatform_genai_types.ImportEvaluationSetOperation
+        )
+        assert operation.done
+        assert operation.response.evaluation_set == _IMPORTED_EVALUATION_SET_NAME
+
+    def test_get_import_evaluation_set_operation_returns_running_operation(self):
+        self.mock_response.body = json.dumps({"name": _IMPORT_OPERATION_NAME})
+        evals_module = evals.Evals(api_client_=self.mock_api_client)
+
+        operation = evals_module.get_import_evaluation_set_operation(
+            operation_name=_IMPORT_OPERATION_NAME
+        )
+
+        assert not operation.done
+        assert operation.response is None
+
 
 class TestAsyncImportEvaluationSet:
 
@@ -14941,6 +14990,25 @@ class TestAsyncImportEvaluationSet:
             )
 
         self.mock_api_client.async_request.assert_not_called()
+
+    @pytest.mark.asyncio
+    async def test_async_get_import_evaluation_set_operation_returns_imported_set(
+        self,
+    ):
+        self.mock_api_client.async_request.side_effect = _http_responses(
+            _DONE_IMPORT_OPERATION
+        )
+        async_evals_module = evals.AsyncEvals(api_client_=self.mock_api_client)
+
+        operation = await async_evals_module.get_import_evaluation_set_operation(
+            operation_name=_IMPORT_OPERATION_NAME
+        )
+
+        call_args = self.mock_api_client.async_request.call_args
+        assert call_args[0][0] == "get"
+        assert call_args[0][1] == _IMPORT_OPERATION_NAME
+        assert operation.done
+        assert operation.response.evaluation_set == _IMPORTED_EVALUATION_SET_NAME
 
 
 class TestGetEvaluationSet:

@@ -6491,6 +6491,26 @@ _ImportEvaluationSetParametersOrDict = Union[
 ]
 
 
+class ImportEvaluationSetResponse(_common.BaseModel):
+    """Response of an evaluation set import."""
+
+    evaluation_set: Optional[str] = Field(
+        default=None, description="""The resource name of the EvaluationSet."""
+    )
+
+
+class ImportEvaluationSetResponseDict(TypedDict, total=False):
+    """Response of an evaluation set import."""
+
+    evaluation_set: Optional[str]
+    """The resource name of the EvaluationSet."""
+
+
+ImportEvaluationSetResponseOrDict = Union[
+    ImportEvaluationSetResponse, ImportEvaluationSetResponseDict
+]
+
+
 class ImportEvaluationSetOperation(_common.BaseModel):
     """Operation for importing an evaluation set."""
 
@@ -6510,6 +6530,10 @@ class ImportEvaluationSetOperation(_common.BaseModel):
         default=None,
         description="""The error result of the operation in case of failure or cancellation.""",
     )
+    response: Optional[ImportEvaluationSetResponse] = Field(
+        default=None,
+        description="""The result of the import. Set when the operation succeeds.""",
+    )
 
 
 class ImportEvaluationSetOperationDict(TypedDict, total=False):
@@ -6527,9 +6551,59 @@ class ImportEvaluationSetOperationDict(TypedDict, total=False):
     error: Optional[dict[str, Any]]
     """The error result of the operation in case of failure or cancellation."""
 
+    response: Optional[ImportEvaluationSetResponseDict]
+    """The result of the import. Set when the operation succeeds."""
+
 
 ImportEvaluationSetOperationOrDict = Union[
     ImportEvaluationSetOperation, ImportEvaluationSetOperationDict
+]
+
+
+class GetImportEvaluationSetOperationConfig(_common.BaseModel):
+    """Config for getting an evaluation set import operation."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class GetImportEvaluationSetOperationConfigDict(TypedDict, total=False):
+    """Config for getting an evaluation set import operation."""
+
+    http_options: Optional[genai_types.HttpOptions]
+    """Used to override HTTP request options."""
+
+
+GetImportEvaluationSetOperationConfigOrDict = Union[
+    GetImportEvaluationSetOperationConfig, GetImportEvaluationSetOperationConfigDict
+]
+
+
+class _GetImportEvaluationSetOperationParameters(_common.BaseModel):
+    """Parameters for getting an evaluation set import operation."""
+
+    operation_name: Optional[str] = Field(
+        default=None, description="""The server-assigned name for the operation."""
+    )
+    config: Optional[GetImportEvaluationSetOperationConfig] = Field(
+        default=None, description="""Used to override the default configuration."""
+    )
+
+
+class _GetImportEvaluationSetOperationParametersDict(TypedDict, total=False):
+    """Parameters for getting an evaluation set import operation."""
+
+    operation_name: Optional[str]
+    """The server-assigned name for the operation."""
+
+    config: Optional[GetImportEvaluationSetOperationConfigDict]
+    """Used to override the default configuration."""
+
+
+_GetImportEvaluationSetOperationParametersOrDict = Union[
+    _GetImportEvaluationSetOperationParameters,
+    _GetImportEvaluationSetOperationParametersDict,
 ]
 
 

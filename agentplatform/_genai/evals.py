@@ -901,6 +901,19 @@ def _GetEvaluationSetParameters_to_vertex(
     return to_object
 
 
+def _GetImportEvaluationSetOperationParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["operation_name"]) is not None:
+        setv(
+            to_object, ["_url", "operationName"], getv(from_object, ["operation_name"])
+        )
+
+    return to_object
+
+
 def _ImportEvaluationSetParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
@@ -2720,6 +2733,80 @@ class Evals(_api_module.BaseModule):
         request_dict = _common.encode_unserializable_types(request_dict)
 
         response = self._api_client.request("post", path, request_dict, http_options)
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.ImportEvaluationSetOperation._from_response(
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    def get_import_evaluation_set_operation(
+        self,
+        *,
+        operation_name: str,
+        config: Optional[types.GetImportEvaluationSetOperationConfigOrDict] = None,
+    ) -> types.ImportEvaluationSetOperation:
+        """
+        Gets the status of an import_evaluation_set operation.
+        """
+
+        parameter_model = types._GetImportEvaluationSetOperationParameters(
+            operation_name=operation_name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
+        else:
+            request_dict = _GetImportEvaluationSetOperationParameters_to_vertex(
+                parameter_model
+            )
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{operationName}".format_map(request_url_dict)
+            else:
+                path = "{operationName}"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = self._api_client.request("get", path, request_dict, http_options)
 
         response_dict = {} if not response.body else json.loads(response.body)
 
@@ -5799,6 +5886,82 @@ class AsyncEvals(_api_module.BaseModule):
 
         response = await self._api_client.async_request(
             "post", path, request_dict, http_options
+        )
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.ImportEvaluationSetOperation._from_response(
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    async def get_import_evaluation_set_operation(
+        self,
+        *,
+        operation_name: str,
+        config: Optional[types.GetImportEvaluationSetOperationConfigOrDict] = None,
+    ) -> types.ImportEvaluationSetOperation:
+        """
+        Gets the status of an import_evaluation_set operation.
+        """
+
+        parameter_model = types._GetImportEvaluationSetOperationParameters(
+            operation_name=operation_name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
+        else:
+            request_dict = _GetImportEvaluationSetOperationParameters_to_vertex(
+                parameter_model
+            )
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{operationName}".format_map(request_url_dict)
+            else:
+                path = "{operationName}"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = await self._api_client.async_request(
+            "get", path, request_dict, http_options
         )
 
         response_dict = {} if not response.body else json.loads(response.body)

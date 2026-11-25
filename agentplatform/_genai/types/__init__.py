@@ -101,6 +101,7 @@ from .common import _GetExampleStoreOperationParameters
 from .common import _GetExampleStoreParameters
 from .common import _GetExportPublisherModelOperationParameters
 from .common import _GetGenerateMemoriesOperationParameters
+from .common import _GetImportEvaluationSetOperationParameters
 from .common import _GetImportFilesOperationParameters
 from .common import _GetMemoryBankOperationParameters
 from .common import _GetMemoryBankRequestParameters
@@ -938,6 +939,9 @@ from .common import GetExampleStoreOperationConfigOrDict
 from .common import GetExportPublisherModelOperationConfig
 from .common import GetExportPublisherModelOperationConfigDict
 from .common import GetExportPublisherModelOperationConfigOrDict
+from .common import GetImportEvaluationSetOperationConfig
+from .common import GetImportEvaluationSetOperationConfigDict
+from .common import GetImportEvaluationSetOperationConfigOrDict
 from .common import GetImportFilesOperationConfig
 from .common import GetImportFilesOperationConfigDict
 from .common import GetImportFilesOperationConfigOrDict
@@ -1043,6 +1047,9 @@ from .common import ImportEvaluationSetConfigOrDict
 from .common import ImportEvaluationSetOperation
 from .common import ImportEvaluationSetOperationDict
 from .common import ImportEvaluationSetOperationOrDict
+from .common import ImportEvaluationSetResponse
+from .common import ImportEvaluationSetResponseDict
+from .common import ImportEvaluationSetResponseOrDict
 from .common import ImportMode
 from .common import ImportRagFilesConfig
 from .common import ImportRagFilesConfigDict
@@ -2820,9 +2827,15 @@ __all__ = [
     "ImportEvaluationSetConfig",
     "ImportEvaluationSetConfigDict",
     "ImportEvaluationSetConfigOrDict",
+    "ImportEvaluationSetResponse",
+    "ImportEvaluationSetResponseDict",
+    "ImportEvaluationSetResponseOrDict",
     "ImportEvaluationSetOperation",
     "ImportEvaluationSetOperationDict",
     "ImportEvaluationSetOperationOrDict",
+    "GetImportEvaluationSetOperationConfig",
+    "GetImportEvaluationSetOperationConfigDict",
+    "GetImportEvaluationSetOperationConfigOrDict",
     "ListEvaluationExperimentsConfig",
     "ListEvaluationExperimentsConfigDict",
     "ListEvaluationExperimentsConfigOrDict",
@@ -4623,6 +4636,7 @@ __all__ = [
     "_GetEvaluationSetParameters",
     "_GetEvaluationItemParameters",
     "_ImportEvaluationSetParameters",
+    "_GetImportEvaluationSetOperationParameters",
     "_ListEvaluationExperimentsParameters",
     "_ListEvaluationMetricsParameters",
     "_ListEvaluationSetsParameters",
