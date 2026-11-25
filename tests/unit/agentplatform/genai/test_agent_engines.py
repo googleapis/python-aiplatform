@@ -2124,6 +2124,124 @@ class TestRuntimeHelpers:
         body = httpbody_pb2.HttpBody(content_type="text/plain", data=b"hello")
         assert list(_runtimes_utils._yield_parsed_json_from_httpbody(body)) == [body]
 
+    def test_create_origin_pinned_auth_enforces_origin_pinning(self):
+        """Tests that _create_origin_pinned_auth pins tokens to origin and path."""
+        target_url = (
+            "https://us-central1-aiplatform.googleapis.com/v1beta1/"
+            f"{_TEST_AGENT_ENGINE_RESOURCE_NAME}/a2a"
+        )
+        # pylint: disable=protected-access
+        auth_fn, event_hooks = _runtimes_utils._create_origin_pinned_auth(
+            target_url, "pinned-token"
+        )
+        hook_fn = event_hooks["request"][0]
+
+        class _FakeRequest:
+
+            def __init__(self, url, headers=None):
+                self.url = url
+                self.headers = dict(headers or {})
+
+        same_origin_req = _FakeRequest(f"{target_url}/extendedAgentCard")
+        auth_fn(same_origin_req)
+        assert same_origin_req.headers["Authorization"] == "Bearer pinned-token"
+
+        same_origin_hook_req = _FakeRequest(
+            "https://us-central1-aiplatform.googleapis.com:443/v1beta1/"
+            f"{_TEST_AGENT_ENGINE_RESOURCE_NAME}/a2a/message:send"
+        )
+        asyncio.run(hook_fn(same_origin_hook_req))
+        assert same_origin_hook_req.headers["Authorization"] == "Bearer pinned-token"
+
+        for bad_url in (
+            "https://attacker.example.com/a2a/extendedAgentCard",
+            (
+                "http://us-central1-aiplatform.googleapis.com/v1beta1/"
+                f"{_TEST_AGENT_ENGINE_RESOURCE_NAME}/a2a"
+            ),
+            (
+                "https://us-central1-aiplatform.googleapis.com:8443/v1beta1/"
+                f"{_TEST_AGENT_ENGINE_RESOURCE_NAME}/a2a"
+            ),
+            (
+                "https://us-central1-aiplatform.googleapis.com/v1beta1/"
+                "projects/other/locations/us-central1/reasoningEngines/999/a2a"
+            ),
+            f"{target_url}/../../../../v1/projects/victim/endpoints",
+            f"{target_url}/%2e%2e/other",
+        ):
+            bad_req = _FakeRequest(
+                bad_url, headers={"Authorization": "Bearer pinned-token"}
+            )
+            with pytest.raises(ValueError, match="does not match expected origin"):
+                auth_fn(bad_req)
+            assert "Authorization" not in bad_req.headers
+
+            bad_hook_req = _FakeRequest(
+                bad_url, headers={"Authorization": "Bearer pinned-token"}
+            )
+            with pytest.raises(ValueError, match="does not match expected origin"):
+                asyncio.run(hook_fn(bad_hook_req))
+            assert "Authorization" not in bad_hook_req.headers
+
+    def test_wrap_a2a_operation_canonicalizes_interfaces_and_clears_tenant(
+        self,
+    ):
+        """Tests _wrap_a2a_operation interface canonicalization and tenant clearing."""
+        # pylint: disable=protected-access
+        target_url = (
+            "https://us-central1-aiplatform.googleapis.com/v1beta1/"
+            f"{_TEST_AGENT_ENGINE_RESOURCE_NAME}/a2a"
+        )
+        fake_runtime = mock.MagicMock()
+        fake_runtime.api_resource.name = _TEST_AGENT_ENGINE_RESOURCE_NAME
+        fake_runtime.api_client._api_client._http_options.base_url = (
+            "https://us-central1-aiplatform.googleapis.com/"
+        )
+        fake_runtime.api_client._api_client._http_options.api_version = "v1beta1"
+        fake_runtime.api_client._api_client._http_options.timeout = 30000
+        fake_runtime.api_client._api_client._credentials.token = "runtime-token"
+
+        iface0 = mock.MagicMock()
+        iface0.url = "https://unused.invalid/a2a"
+        iface0.tenant = "../../../../v1beta1/projects/victim/reasoningEngines/1#"
+        iface1 = mock.MagicMock()
+        iface1.url = "https://attacker.example.com/a2a"
+        mock_card = mock.MagicMock()
+        mock_card.supported_interfaces = [iface0, iface1]
+
+        mock_a2a_client = mock.MagicMock()
+        mock_a2a_client.get_extended_agent_card = mock.AsyncMock(return_value=mock_card)
+        mock_factory = mock.MagicMock()
+        mock_factory.create.return_value = mock_a2a_client
+        mock_httpx = mock.MagicMock()
+
+        wrapped = _runtimes_utils._wrap_a2a_operation(
+            "on_get_extended_agent_card", '{"name": "shared-agent"}'
+        )
+        with (
+            mock.patch.object(_runtimes_utils, "AgentCard", return_value=mock_card),
+            mock.patch.object(_runtimes_utils.json_format, "ParseDict"),
+            mock.patch.object(_runtimes_utils, "TransportProtocol") as mock_tp,
+            mock.patch.object(_runtimes_utils, "ClientConfig"),
+            mock.patch.object(
+                _runtimes_utils, "ClientFactory", return_value=mock_factory
+            ),
+            mock.patch.object(_runtimes_utils, "httpx", mock_httpx),
+        ):
+            iface0.protocol_binding = mock_tp.HTTP_JSON
+            iface1.protocol_binding = mock_tp.HTTP_JSON
+            asyncio.run(wrapped(fake_runtime, request="req"))
+
+        assert len(mock_card.supported_interfaces) == 1
+        assert mock_card.supported_interfaces[0].url == target_url
+        assert not mock_card.supported_interfaces[0].tenant
+        mock_httpx.AsyncClient.assert_called_once()
+        call_kwargs = mock_httpx.AsyncClient.call_args.kwargs
+        assert "headers" not in call_kwargs
+        assert callable(call_kwargs["auth"])
+        assert "request" in call_kwargs["event_hooks"]
+
     def test_module_loads_without_httpx(self):
         """Only A2A operations use httpx, so the module loads without it."""
         spec = importlib.util.find_spec(_runtimes_utils.__name__)

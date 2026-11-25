@@ -46,6 +46,7 @@ from typing import (
     TypedDict,
     Union,
 )
+import urllib.parse
 
 import proto
 
@@ -1756,6 +1757,61 @@ def _wrap_async_stream_query_operation(
     return _method
 
 
+def _get_url_origin(url: str) -> tuple[str, str, Optional[int]]:
+    """Returns the normalized `(scheme, hostname, port)` origin of `url`."""
+    try:
+        parsed = urllib.parse.urlsplit(str(url))
+        port = parsed.port
+    except ValueError:
+        return ("", "", None)
+    scheme = parsed.scheme.lower()
+    hostname = (parsed.hostname or "").lower()
+    if port is None:
+        if scheme == "https":
+            port = 443
+        elif scheme == "http":
+            port = 80
+    return (scheme, hostname, port)
+
+
+def _create_origin_pinned_auth(
+    target_url: str, token: Any
+) -> tuple[Callable[[Any], Any], dict[str, list[Callable[[Any], Any]]]]:
+    """Creates an httpx auth callable and request event hook pinned to `target_url`."""
+    expected_origin = _get_url_origin(target_url)
+    expected_path = urllib.parse.urlsplit(str(target_url)).path.rstrip("/")
+
+    def _pin_request_credentials(request: Any) -> Any:
+        request_url = str(request.url)
+        request_origin = _get_url_origin(request_url)
+        raw_path = urllib.parse.urlsplit(request_url).path
+        unquoted_segments = urllib.parse.unquote(raw_path).split("/")
+        path_matches = (
+            bool(expected_path)
+            and ".." not in unquoted_segments
+            and (raw_path == expected_path or raw_path.startswith(expected_path + "/"))
+        )
+        if (
+            not expected_origin[0]
+            or not expected_origin[1]
+            or request_origin != expected_origin
+            or not path_matches
+        ):
+            request.headers.pop("Authorization", None)
+            raise ValueError(
+                f"Outbound A2A request URL {request_url!r} does not match "
+                f"expected origin {expected_origin} and path prefix "
+                f"{expected_path!r}."
+            )
+        request.headers["Authorization"] = f"Bearer {token}"
+        return request
+
+    async def _on_request(request: Any) -> None:
+        _pin_request_credentials(request)
+
+    return _pin_request_credentials, {"request": [_on_request]}
+
+
 def _wrap_a2a_operation(method_name: str, agent_card: str) -> Callable[..., list[Any]]:
     """Wraps an Agent Runtime method, creating a callable for A2A API.
 
@@ -1802,8 +1858,14 @@ def _wrap_a2a_operation(method_name: str, agent_card: str) -> Callable[..., list
 
         base_url = self.api_client._api_client._http_options.base_url.rstrip("/")
         api_version = self.api_client._api_client._http_options.api_version
-        a2a_agent_card.supported_interfaces[0].url = (
-            f"{base_url}/{api_version}/{self.api_resource.name}/a2a"
+        target_url = f"{base_url}/{api_version}/{self.api_resource.name}/a2a"
+        a2a_agent_card.supported_interfaces[0].url = target_url
+        a2a_agent_card.supported_interfaces[0].tenant = ""
+        del a2a_agent_card.supported_interfaces[1:]
+
+        auth, event_hooks = _create_origin_pinned_auth(
+            target_url,
+            self.api_client._api_client._credentials.token,  # pylint: disable=protected-access
         )
 
         config = ClientConfig(
@@ -1812,11 +1874,8 @@ def _wrap_a2a_operation(method_name: str, agent_card: str) -> Callable[..., list
             ],
             use_client_preference=True,
             httpx_client=httpx.AsyncClient(
-                headers={
-                    "Authorization": (
-                        f"Bearer {self.api_client._api_client._credentials.token}"
-                    )
-                },
+                auth=auth,
+                event_hooks=event_hooks,
                 timeout=kwargs.pop("timeout", None)
                 or (
                     self.api_client._api_client._http_options.timeout / 1000.0

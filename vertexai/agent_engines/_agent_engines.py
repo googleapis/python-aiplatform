@@ -37,6 +37,7 @@ from typing import (
     Tuple,
     Union,
 )
+import urllib.parse
 
 from google.api_core import exceptions
 from google.cloud import storage
@@ -1808,6 +1809,61 @@ def _wrap_bidi_stream_query_operation(
         )
 
 
+def _get_url_origin(url: str) -> Tuple[str, str, Optional[int]]:
+    """Returns the normalized `(scheme, hostname, port)` origin of `url`."""
+    try:
+        parsed = urllib.parse.urlsplit(str(url))
+        port = parsed.port
+    except ValueError:
+        return ("", "", None)
+    scheme = parsed.scheme.lower()
+    hostname = (parsed.hostname or "").lower()
+    if port is None:
+        if scheme == "https":
+            port = 443
+        elif scheme == "http":
+            port = 80
+    return (scheme, hostname, port)
+
+
+def _create_origin_pinned_auth(
+    target_url: str, token: Any
+) -> Tuple[Callable[[Any], Any], Dict[str, List[Callable[[Any], Any]]]]:
+    """Creates an httpx auth callable and request event hook pinned to `target_url`."""
+    expected_origin = _get_url_origin(target_url)
+    expected_path = urllib.parse.urlsplit(str(target_url)).path.rstrip("/")
+
+    def _pin_request_credentials(request: Any) -> Any:
+        request_url = str(request.url)
+        request_origin = _get_url_origin(request_url)
+        raw_path = urllib.parse.urlsplit(request_url).path
+        unquoted_segments = urllib.parse.unquote(raw_path).split("/")
+        path_matches = (
+            bool(expected_path)
+            and ".." not in unquoted_segments
+            and (raw_path == expected_path or raw_path.startswith(expected_path + "/"))
+        )
+        if (
+            not expected_origin[0]
+            or not expected_origin[1]
+            or request_origin != expected_origin
+            or not path_matches
+        ):
+            request.headers.pop("Authorization", None)
+            raise ValueError(
+                f"Outbound A2A request URL {request_url!r} does not match "
+                f"expected origin {expected_origin} and path prefix "
+                f"{expected_path!r}."
+            )
+        request.headers["Authorization"] = f"Bearer {token}"
+        return request
+
+    async def _on_request(request: Any) -> None:
+        _pin_request_credentials(request)
+
+    return _pin_request_credentials, {"request": [_on_request]}
+
+
 def _wrap_a2a_operation(method_name: str, agent_card: str) -> Callable[..., list]:
     """Wraps an Agent Engine method, creating a callable for A2A API.
 
@@ -1890,10 +1946,22 @@ def _wrap_a2a_operation(method_name: str, agent_card: str) -> Callable[..., list
 
         # agent_card is set on the class_methods before set_up is invoked.
         # Ensure that the agent_card url is set correctly before the client is created.
-        url = f"https://{initializer.global_config.api_endpoint}/v1beta1/{self.resource_name}/a2a"
+        api_endpoint = (
+            initializer.global_config.api_endpoint
+            or initializer.global_config.get_client_options().api_endpoint
+        )
+        url = f"https://{api_endpoint}/v1beta1/{self.resource_name}/a2a"
         a2a_agent_card.supported_interfaces[0].url = url
+        if getattr(a2a_agent_card.supported_interfaces[0], "tenant", None):
+            a2a_agent_card.supported_interfaces[0].tenant = ""
+        del a2a_agent_card.supported_interfaces[1:]
+        if getattr(a2a_agent_card, "additional_interfaces", None):
+            a2a_agent_card.additional_interfaces = []
 
         timeout = kwargs.pop("timeout", None)
+        auth, event_hooks = _create_origin_pinned_auth(
+            url, initializer.global_config.credentials.token
+        )
 
         # Using a2a client, inject the auth token from the global config.
         config = ClientConfig(
@@ -1902,11 +1970,8 @@ def _wrap_a2a_operation(method_name: str, agent_card: str) -> Callable[..., list
             ],
             use_client_preference=True,
             httpx_client=httpx.AsyncClient(
-                headers={
-                    "Authorization": (
-                        f"Bearer {initializer.global_config.credentials.token}"
-                    )
-                },
+                auth=auth,
+                event_hooks=event_hooks,
                 timeout=timeout,
             ),
         )

@@ -731,3 +731,312 @@ class TestCreateAgentCard:
         )
         assert "security_schemes" not in basic_card
         assert "security" not in basic_card
+
+
+class TestWrapA2aSecurity:
+    """Verifies single-interface canonicalization and outbound credential origin pinning."""
+
+    # pylint: disable=protected-access,g-import-not-at-top
+
+    _MULTI_INTERFACE_CARD_JSON = (
+        '{"name": "shared-validation-agent", '
+        '"description": "Shared Runtime A2A metadata validation", '
+        '"version": "1.0.0", '
+        '"capabilities": {"extendedAgentCard": true}, '
+        '"defaultInputModes": ["text"], '
+        '"defaultOutputModes": ["text"], '
+        '"supportedInterfaces": ['
+        '{"url": "https://unused.invalid/a2a", '
+        '"protocolBinding": "HTTP+JSON", "protocolVersion": "1.1", '
+        '"tenant": "../../../../../../../v1beta1/projects/victim/'
+        'locations/us-central1/reasoningEngines/999#"}, '
+        '{"url": "https://attacker.example.com/a2a", '
+        '"protocolBinding": "HTTP+JSON", "protocolVersion": "1.0"}'
+        "]}"
+    )
+
+    _EXPECTED_URL = (
+        f"https://us-central1-aiplatform.googleapis.com/v1beta1/"
+        f"{_TEST_AGENT_ENGINE_RESOURCE_NAME}/a2a"
+    )
+
+    def _make_fake_engine(self):
+        """Creates a mocked Agent Engine with configured HTTP options."""
+        fake_engine = mock.MagicMock()
+        fake_engine.resource_name = _TEST_AGENT_ENGINE_RESOURCE_NAME
+        fake_engine.api_resource.name = _TEST_AGENT_ENGINE_RESOURCE_NAME
+        fake_engine.api_client._api_client._http_options.base_url = (
+            "https://us-central1-aiplatform.googleapis.com/"
+        )
+        fake_engine.api_client._api_client._http_options.api_version = "v1beta1"
+        fake_engine.api_client._api_client._http_options.timeout = 30000
+        fake_engine.api_client._api_client._credentials.token = "secret-bearer-token"
+        return fake_engine
+
+    @pytest.mark.parametrize(
+        "module_getter",
+        [
+            lambda: __import__(
+                "google.cloud.aiplatform.vertexai._genai._agent_engines_utils",
+                fromlist=["_agent_engines_utils"],
+            ),
+            lambda: __import__(
+                "google.cloud.aiplatform.agentplatform._genai._runtimes_utils",
+                fromlist=["_runtimes_utils"],
+            ),
+        ],
+    )
+    def test_v10_canonicalizes_single_interface_clears_tenant_and_pins_credentials(
+        self, module_getter
+    ):
+        """v1.0 _wrap_a2a_operation drops extra interfaces, clears tenant, and pins auth."""
+        import httpx
+        from a2a.types import GetExtendedAgentCardRequest
+
+        mod = module_getter()
+        wrap_fn = getattr(
+            mod, "_wrap_a2a_operation_v10", getattr(mod, "_wrap_a2a_operation")
+        )
+        wrapped = wrap_fn("on_get_extended_agent_card", self._MULTI_INTERFACE_CARD_JSON)
+        fake_engine = self._make_fake_engine()
+
+        captured_requests = []
+
+        async def _handler(request: httpx.Request) -> httpx.Response:
+            captured_requests.append(request)
+            return httpx.Response(
+                200,
+                json={
+                    "name": "shared-validation-agent",
+                    "description": "ok",
+                    "version": "1.0.0",
+                },
+            )
+
+        real_async_client = httpx.AsyncClient
+
+        def _client_with_mock_transport(**kwargs):
+            kwargs["transport"] = httpx.MockTransport(_handler)
+            return real_async_client(**kwargs)
+
+        with mock.patch.object(
+            mod.httpx, "AsyncClient", side_effect=_client_with_mock_transport
+        ) as mock_async_client:
+            asyncio.run(wrapped(fake_engine, request=GetExtendedAgentCardRequest()))
+            mock_async_client.assert_called_once()
+            call_kwargs = mock_async_client.call_args.kwargs
+            assert "headers" not in call_kwargs
+            assert callable(call_kwargs["auth"])
+            assert "request" in call_kwargs["event_hooks"]
+
+        assert len(captured_requests) == 1
+        sent_req = captured_requests[0]
+        assert str(sent_req.url) == f"{self._EXPECTED_URL}/extendedAgentCard"
+        assert sent_req.headers["Authorization"] == "Bearer secret-bearer-token"
+
+    def test_legacy_agent_engines_canonicalizes_single_interface_and_pins_auth(
+        self,
+    ):
+        """_agent_engines._wrap_a2a_operation drops extra interfaces and pins auth."""
+        import httpx
+
+        fake_engine = self._make_fake_engine()
+        mock_card = mock.MagicMock()
+        iface0 = mock.MagicMock()
+        iface0.url = "https://unused.invalid/a2a"
+        iface0.tenant = "../../victim"
+        iface1 = mock.MagicMock()
+        iface1.url = "https://attacker.example.com/a2a"
+        mock_card.supported_interfaces = [iface0, iface1]
+        mock_card.additional_interfaces = [mock.MagicMock()]
+        mock_card.capabilities.streaming = False
+
+        mock_a2a_client = mock.MagicMock()
+        mock_a2a_client.get_card = mock.AsyncMock(return_value=mock_card)
+        mock_factory = mock.MagicMock()
+        mock_factory.create.return_value = mock_a2a_client
+
+        wrapped = _agent_engines._wrap_a2a_operation(
+            "handle_authenticated_agent_card", '{"name": "Test"}'
+        )
+        test_creds = mock.MagicMock(spec=auth_credentials.AnonymousCredentials())
+        test_creds.token = "legacy-secret-token"
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            credentials=test_creds,
+            staging_bucket=_TEST_STAGING_BUCKET,
+        )
+        with (
+            mock.patch.object(_agent_engines, "AgentCard", return_value=mock_card),
+            mock.patch.object(_agent_engines, "TransportProtocol") as mock_tp,
+            mock.patch.object(_agent_engines, "ClientConfig"),
+            mock.patch.object(
+                _agent_engines, "ClientFactory", return_value=mock_factory
+            ),
+            mock.patch.object(_agent_engines.httpx, "AsyncClient") as mock_async_client,
+        ):
+            iface0.protocol_binding = mock_tp.HTTP_JSON
+            iface1.protocol_binding = mock_tp.HTTP_JSON
+            asyncio.run(wrapped(fake_engine))
+
+        assert len(mock_card.supported_interfaces) == 1
+        assert mock_card.supported_interfaces[0].url == self._EXPECTED_URL
+        assert not mock_card.supported_interfaces[0].tenant
+        assert not mock_card.additional_interfaces
+
+        call_kwargs = mock_async_client.call_args.kwargs
+        assert "headers" not in call_kwargs
+        auth_fn = call_kwargs["auth"]
+        good_req = httpx.Request("GET", f"{self._EXPECTED_URL}/v1/card")
+        auth_fn(good_req)
+        assert good_req.headers["Authorization"] == "Bearer legacy-secret-token"
+
+        bad_req = httpx.Request(
+            "GET",
+            "https://attacker.example.com/a2a/v1/card",
+            headers={"Authorization": "Bearer legacy-secret-token"},
+        )
+        with pytest.raises(ValueError, match="does not match expected origin"):
+            auth_fn(bad_req)
+        assert "Authorization" not in bad_req.headers
+
+    def test_v03_canonicalizes_additional_interfaces_and_pins_auth(self):
+        """_wrap_a2a_operation_v03 clears additional_interfaces and pins outbound auth."""
+        import httpx
+        from vertexai._genai import _agent_engines_utils
+
+        fake_engine = self._make_fake_engine()
+        mock_card = mock.MagicMock()
+        mock_card.preferred_transport = None
+        mock_card.additional_interfaces = [mock.MagicMock()]
+        mock_card.capabilities.streaming = False
+
+        mock_a2a_client = mock.MagicMock()
+        mock_a2a_client.get_card = mock.AsyncMock(return_value=mock_card)
+        mock_factory = mock.MagicMock()
+        mock_factory.create.return_value = mock_a2a_client
+
+        wrapped = _agent_engines_utils._wrap_a2a_operation_v03(
+            "handle_authenticated_agent_card", '{"name": "Test"}'
+        )
+        with (
+            mock.patch.object(
+                _agent_engines_utils, "AgentCard", return_value=mock_card
+            ),
+            mock.patch.object(_agent_engines_utils, "TransportProtocol") as mock_tp,
+            mock.patch.object(_agent_engines_utils, "ClientConfig"),
+            mock.patch.object(
+                _agent_engines_utils, "ClientFactory", return_value=mock_factory
+            ),
+            mock.patch.object(
+                _agent_engines_utils.httpx, "AsyncClient"
+            ) as mock_async_client,
+        ):
+            asyncio.run(wrapped(fake_engine))
+
+        assert mock_card.preferred_transport == mock_tp.http_json
+        assert not mock_card.additional_interfaces
+        assert mock_card.url == self._EXPECTED_URL
+
+        call_kwargs = mock_async_client.call_args.kwargs
+        assert "headers" not in call_kwargs
+        auth_fn = call_kwargs["auth"]
+        good_req = httpx.Request("GET", f"{self._EXPECTED_URL}/v1/card")
+        auth_fn(good_req)
+        assert good_req.headers["Authorization"] == "Bearer secret-bearer-token"
+
+        bad_req = httpx.Request("GET", "https://attacker.example.com/v1/card")
+        with pytest.raises(ValueError, match="does not match expected origin"):
+            auth_fn(bad_req)
+        assert "Authorization" not in bad_req.headers
+
+    @pytest.mark.parametrize(
+        "module_getter",
+        [
+            lambda: _agent_engines,
+            lambda: __import__(
+                "google.cloud.aiplatform.vertexai._genai._agent_engines_utils",
+                fromlist=["_agent_engines_utils"],
+            ),
+            lambda: __import__(
+                "google.cloud.aiplatform.agentplatform._genai._runtimes_utils",
+                fromlist=["_runtimes_utils"],
+            ),
+        ],
+    )
+    def test_origin_pinning_rejects_cross_origin_scheme_port_and_path_traversal(
+        self, module_getter
+    ):
+        """All SDK modules enforce strict scheme, host, port, and path prefix pinning."""
+        import httpx
+
+        mod = module_getter()
+        auth_fn, event_hooks = mod._create_origin_pinned_auth(
+            self._EXPECTED_URL, "pinned-token"
+        )
+        hook_fn = event_hooks["request"][0]
+
+        for valid_url in (
+            self._EXPECTED_URL,
+            f"{self._EXPECTED_URL}/message:send",
+            (
+                "https://us-central1-aiplatform.googleapis.com:443/v1beta1/"
+                f"{_TEST_AGENT_ENGINE_RESOURCE_NAME}/a2a/message:send"
+            ),
+        ):
+            req = httpx.Request("POST", valid_url)
+            auth_fn(req)
+            assert req.headers["Authorization"] == "Bearer pinned-token"
+            req.headers.pop("Authorization")
+            asyncio.run(hook_fn(req))
+            assert req.headers["Authorization"] == "Bearer pinned-token"
+
+        for untrusted_url in (
+            "https://attacker.example.com/a2a/extendedAgentCard",
+            (
+                "http://us-central1-aiplatform.googleapis.com/v1beta1/"
+                f"{_TEST_AGENT_ENGINE_RESOURCE_NAME}/a2a"
+            ),
+            (
+                "https://us-central1-aiplatform.googleapis.com:8443/v1beta1/"
+                f"{_TEST_AGENT_ENGINE_RESOURCE_NAME}/a2a"
+            ),
+            (
+                "https://evil-us-central1-aiplatform.googleapis.com/v1beta1/"
+                f"{_TEST_AGENT_ENGINE_RESOURCE_NAME}/a2a"
+            ),
+            (
+                "https://us-central1-aiplatform.googleapis.com/v1beta1/"
+                "projects/other/locations/us-central1/reasoningEngines/999/a2a"
+            ),
+            (
+                f"{self._EXPECTED_URL}/../../../../v1/projects/victim/"
+                "locations/us-central1/endpoints"
+            ),
+            f"{self._EXPECTED_URL}/%2e%2e/other",
+        ):
+            req = httpx.Request(
+                "GET",
+                untrusted_url,
+                headers={"Authorization": "Bearer pinned-token"},
+            )
+            with pytest.raises(ValueError, match="does not match expected origin"):
+                auth_fn(req)
+            assert "Authorization" not in req.headers
+
+            req.headers["Authorization"] = "Bearer pinned-token"
+            with pytest.raises(ValueError, match="does not match expected origin"):
+                asyncio.run(hook_fn(req))
+            assert "Authorization" not in req.headers
+
+        assert mod._get_url_origin("http://example.com/path") == (
+            "http",
+            "example.com",
+            80,
+        )
+        assert mod._get_url_origin("https://example.com:invalid/path") == (
+            "",
+            "",
+            None,
+        )
