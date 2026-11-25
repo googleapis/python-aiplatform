@@ -92,6 +92,15 @@ logger = logging.getLogger("agentplatform_genai.types")
 MetricSubclass = TypeVar("MetricSubclass", bound="Metric")
 
 
+class ImportMode(_common.CaseInSensitiveEnum):
+    """If set, `evaluation_set.name` selects an existing EvaluationSet to import into, and its other fields are ignored."""
+
+    IMPORT_MODE_UNSPECIFIED = "IMPORT_MODE_UNSPECIFIED"
+    """Creates a new EvaluationSet. `evaluation_set.name` is ignored."""
+    OVERWRITE = "OVERWRITE"
+    """Replaces the items of the EvaluationSet named by `evaluation_set.name`. Supported only for `harbor_dataset`, into a set that was imported from a Harbor dataset."""
+
+
 class Strategy(_common.CaseInSensitiveEnum):
     """This determines which type of scheduling strategy to use."""
 
@@ -6413,7 +6422,8 @@ class _ImportEvaluationSetParameters(_common.BaseModel):
     gcs_destination: Optional[genai_types.GcsDestination] = Field(
         default=None,
         description="""The Cloud Storage location where the resulting EvaluationItem
-      payloads will be stored.""",
+      payloads will be stored. Required for every source except
+      'harbor_dataset', which must not set it.""",
     )
     gcs_source: Optional[EvaluationSetGcsSource] = Field(
         default=None, description="""Google Cloud Storage location."""
@@ -6424,6 +6434,17 @@ class _ImportEvaluationSetParameters(_common.BaseModel):
     cloud_trace_source: Optional[EvaluationSetCloudTraceSource] = Field(
         default=None,
         description="""Source for loading data directly from Cloud Trace.""",
+    )
+    harbor_dataset: Optional[HarborDataset] = Field(
+        default=None,
+        description="""A Harbor dataset in Cloud Storage. 'gcs_destination' must not be
+      set with this source.""",
+    )
+    import_mode: Optional[ImportMode] = Field(
+        default=None,
+        description="""The mode of the import. If set, 'evaluation_set.name' selects an
+      existing EvaluationSet to import into, and its other fields are
+      ignored.""",
     )
     config: Optional[ImportEvaluationSetConfig] = Field(
         default=None, description=""""""
@@ -6440,7 +6461,8 @@ class _ImportEvaluationSetParametersDict(TypedDict, total=False):
 
     gcs_destination: Optional[genai_types.GcsDestination]
     """The Cloud Storage location where the resulting EvaluationItem
-      payloads will be stored."""
+      payloads will be stored. Required for every source except
+      'harbor_dataset', which must not set it."""
 
     gcs_source: Optional[EvaluationSetGcsSourceDict]
     """Google Cloud Storage location."""
@@ -6450,6 +6472,15 @@ class _ImportEvaluationSetParametersDict(TypedDict, total=False):
 
     cloud_trace_source: Optional[EvaluationSetCloudTraceSourceDict]
     """Source for loading data directly from Cloud Trace."""
+
+    harbor_dataset: Optional[HarborDatasetDict]
+    """A Harbor dataset in Cloud Storage. 'gcs_destination' must not be
+      set with this source."""
+
+    import_mode: Optional[ImportMode]
+    """The mode of the import. If set, 'evaluation_set.name' selects an
+      existing EvaluationSet to import into, and its other fields are
+      ignored."""
 
     config: Optional[ImportEvaluationSetConfigDict]
     """"""

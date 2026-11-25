@@ -921,6 +921,12 @@ def _ImportEvaluationSetParameters_to_vertex(
     if getv(from_object, ["cloud_trace_source"]) is not None:
         setv(to_object, ["cloudTraceSource"], getv(from_object, ["cloud_trace_source"]))
 
+    if getv(from_object, ["harbor_dataset"]) is not None:
+        setv(to_object, ["harborDataset"], getv(from_object, ["harbor_dataset"]))
+
+    if getv(from_object, ["import_mode"]) is not None:
+        setv(to_object, ["importMode"], getv(from_object, ["import_mode"]))
+
     if getv(from_object, ["config"]) is not None:
         setv(to_object, ["config"], getv(from_object, ["config"]))
 
@@ -2661,10 +2667,12 @@ class Evals(_api_module.BaseModule):
         self,
         *,
         evaluation_set: types.EvaluationSetOrDict,
-        gcs_destination: genai_types.GcsDestinationOrDict,
+        gcs_destination: Optional[genai_types.GcsDestinationOrDict] = None,
         gcs_source: Optional[types.EvaluationSetGcsSourceOrDict] = None,
         inline_source: Optional[types.EvaluationSetInlineSourceOrDict] = None,
         cloud_trace_source: Optional[types.EvaluationSetCloudTraceSourceOrDict] = None,
+        harbor_dataset: Optional[types.HarborDatasetOrDict] = None,
+        import_mode: Optional[types.ImportMode] = None,
         config: Optional[types.ImportEvaluationSetConfigOrDict] = None,
     ) -> types.ImportEvaluationSetOperation:
         """
@@ -2677,6 +2685,8 @@ class Evals(_api_module.BaseModule):
             gcs_source=gcs_source,
             inline_source=inline_source,
             cloud_trace_source=cloud_trace_source,
+            harbor_dataset=harbor_dataset,
+            import_mode=import_mode,
             config=config,
         )
 
@@ -3982,58 +3992,100 @@ class Evals(_api_module.BaseModule):
             name = name.split("/")[-1]
         self._delete_evaluation_set(name=name, config=config)
 
+    @staticmethod
+    def _validate_import_evaluation_set_sources(
+        *,
+        gcs_destination: object,
+        gcs_source: object,
+        inline_source: object,
+        cloud_trace_source: object,
+        harbor_dataset: object,
+    ) -> None:
+        """Checks the source and the destination of an import.
+
+        Shared by the sync and async surfaces.
+
+        Raises:
+          ValueError: If not exactly one source is set, or if `gcs_destination`
+            does not match the source.
+        """
+        sources = (gcs_source, inline_source, cloud_trace_source, harbor_dataset)
+        if sum(source is not None for source in sources) != 1:
+            raise ValueError(
+                "Exactly one of gcs_source, inline_source, cloud_trace_source, or"
+                " harbor_dataset must be provided."
+            )
+        if harbor_dataset is not None and gcs_destination is not None:
+            raise ValueError("gcs_destination must not be set with harbor_dataset.")
+        if harbor_dataset is None and gcs_destination is None:
+            raise ValueError(
+                "gcs_destination is required unless harbor_dataset is provided."
+            )
+
     def import_evaluation_set(
         self,
         *,
         evaluation_set: types.EvaluationSetOrDict,
-        gcs_destination: genai_types.GcsDestinationOrDict,
+        gcs_destination: Optional[genai_types.GcsDestinationOrDict] = None,
         gcs_source: Optional[types.EvaluationSetGcsSourceOrDict] = None,
         inline_source: Optional[types.EvaluationSetInlineSourceOrDict] = None,
         cloud_trace_source: Optional[types.EvaluationSetCloudTraceSourceOrDict] = None,
+        harbor_dataset: Optional[types.HarborDatasetOrDict] = None,
+        import_mode: Optional[types.ImportMode] = None,
         config: Optional[types.ImportEvaluationSetConfigOrDict] = None,
     ) -> types.ImportEvaluationSetOperation:
         """Imports data into an EvaluationSet.
 
-        This is a long-running operation that imports data from a source (such as
-        OpenTelemetry traces) into a managed EvaluationSet.
+        This starts a long-running operation that imports data from a source (such
+        as OpenTelemetry traces or a Harbor dataset) into a managed EvaluationSet.
+        Exactly one of ``gcs_source``, ``inline_source``, ``cloud_trace_source``,
+        or ``harbor_dataset`` must be provided.
 
         Args:
           evaluation_set: The EvaluationSet to create. Used to specify
             ``display_name`` and ``metadata``. The ``evaluation_items`` field is
-            ignored and populated by the import process.
+            ignored and populated by the import process. If ``import_mode`` is
+            set, ``name`` selects the existing EvaluationSet to import into, in the
+            form
+            ``projects/{project}/locations/{location}/evaluationSets/{evaluation_set}``,
+            and the other fields are ignored.
           gcs_destination: The Cloud Storage location where the resulting
-            EvaluationItem payloads will be stored.
-          gcs_source: The Cloud Storage source of the input data. Exactly one of
-            ``gcs_source``, ``inline_source``, or ``cloud_trace_source`` must be
-            provided.
-          inline_source: The inline source for small payloads (< 4MB). Exactly one
-            of ``gcs_source``, ``inline_source``, or ``cloud_trace_source`` must be
-            provided.
+            EvaluationItem payloads will be stored. Required for every source
+            except ``harbor_dataset``, which must not set it.
+          gcs_source: The Cloud Storage source of the input data.
+          inline_source: The inline source for small payloads (< 4MB).
           cloud_trace_source: The Cloud Trace source for loading traces directly
-            from Cloud Trace. Exactly one of ``gcs_source``, ``inline_source``, or
-            ``cloud_trace_source`` must be provided.
+            from Cloud Trace.
+          harbor_dataset: A Harbor dataset in Cloud Storage. The import creates one
+            EvaluationItem of type ``HARBOR_TASK`` for each task in the
+            ``dataset.toml`` file of the dataset.
+          import_mode: The mode of the import. ``ImportMode.OVERWRITE`` replaces
+            the items of the EvaluationSet named by ``evaluation_set.name``. It is
+            supported only for ``harbor_dataset``, into an EvaluationSet that was
+            imported from a Harbor dataset.
           config: The optional configuration for the import operation.
 
         Returns:
           The long-running operation for the import.
+
+        Raises:
+          ValueError: If the sources or ``gcs_destination`` are not valid.
         """
-        if (
-            sum(
-                source is not None
-                for source in (gcs_source, inline_source, cloud_trace_source)
-            )
-            != 1
-        ):
-            raise ValueError(
-                "Exactly one of gcs_source, inline_source, or cloud_trace_source"
-                " must be provided."
-            )
+        Evals._validate_import_evaluation_set_sources(
+            gcs_destination=gcs_destination,
+            gcs_source=gcs_source,
+            inline_source=inline_source,
+            cloud_trace_source=cloud_trace_source,
+            harbor_dataset=harbor_dataset,
+        )
         return self._import_evaluation_set(
             evaluation_set=evaluation_set,
             gcs_destination=gcs_destination,
             gcs_source=gcs_source,
             inline_source=inline_source,
             cloud_trace_source=cloud_trace_source,
+            harbor_dataset=harbor_dataset,
+            import_mode=import_mode,
             config=config,
         )
 
@@ -5693,10 +5745,12 @@ class AsyncEvals(_api_module.BaseModule):
         self,
         *,
         evaluation_set: types.EvaluationSetOrDict,
-        gcs_destination: genai_types.GcsDestinationOrDict,
+        gcs_destination: Optional[genai_types.GcsDestinationOrDict] = None,
         gcs_source: Optional[types.EvaluationSetGcsSourceOrDict] = None,
         inline_source: Optional[types.EvaluationSetInlineSourceOrDict] = None,
         cloud_trace_source: Optional[types.EvaluationSetCloudTraceSourceOrDict] = None,
+        harbor_dataset: Optional[types.HarborDatasetOrDict] = None,
+        import_mode: Optional[types.ImportMode] = None,
         config: Optional[types.ImportEvaluationSetConfigOrDict] = None,
     ) -> types.ImportEvaluationSetOperation:
         """
@@ -5709,6 +5763,8 @@ class AsyncEvals(_api_module.BaseModule):
             gcs_source=gcs_source,
             inline_source=inline_source,
             cloud_trace_source=cloud_trace_source,
+            harbor_dataset=harbor_dataset,
+            import_mode=import_mode,
             config=config,
         )
 
@@ -6633,54 +6689,66 @@ class AsyncEvals(_api_module.BaseModule):
         self,
         *,
         evaluation_set: types.EvaluationSetOrDict,
-        gcs_destination: genai_types.GcsDestinationOrDict,
+        gcs_destination: Optional[genai_types.GcsDestinationOrDict] = None,
         gcs_source: Optional[types.EvaluationSetGcsSourceOrDict] = None,
         inline_source: Optional[types.EvaluationSetInlineSourceOrDict] = None,
         cloud_trace_source: Optional[types.EvaluationSetCloudTraceSourceOrDict] = None,
+        harbor_dataset: Optional[types.HarborDatasetOrDict] = None,
+        import_mode: Optional[types.ImportMode] = None,
         config: Optional[types.ImportEvaluationSetConfigOrDict] = None,
     ) -> types.ImportEvaluationSetOperation:
         """Imports data into an EvaluationSet.
 
-        This is a long-running operation that imports data from a source (such as
-        OpenTelemetry traces) into a managed EvaluationSet.
+        This starts a long-running operation that imports data from a source (such
+        as OpenTelemetry traces or a Harbor dataset) into a managed EvaluationSet.
+        Exactly one of ``gcs_source``, ``inline_source``, ``cloud_trace_source``,
+        or ``harbor_dataset`` must be provided.
 
         Args:
           evaluation_set: The EvaluationSet to create. Used to specify
             ``display_name`` and ``metadata``. The ``evaluation_items`` field is
-            ignored and populated by the import process.
+            ignored and populated by the import process. If ``import_mode`` is
+            set, ``name`` selects the existing EvaluationSet to import into, in the
+            form
+            ``projects/{project}/locations/{location}/evaluationSets/{evaluation_set}``,
+            and the other fields are ignored.
           gcs_destination: The Cloud Storage location where the resulting
-            EvaluationItem payloads will be stored.
-          gcs_source: The Cloud Storage source of the input data. Exactly one of
-            ``gcs_source``, ``inline_source``, or ``cloud_trace_source`` must be
-            provided.
-          inline_source: The inline source for small payloads (< 4MB). Exactly one
-            of ``gcs_source``, ``inline_source``, or ``cloud_trace_source`` must be
-            provided.
+            EvaluationItem payloads will be stored. Required for every source
+            except ``harbor_dataset``, which must not set it.
+          gcs_source: The Cloud Storage source of the input data.
+          inline_source: The inline source for small payloads (< 4MB).
           cloud_trace_source: The Cloud Trace source for loading traces directly
-            from Cloud Trace. Exactly one of ``gcs_source``, ``inline_source``, or
-            ``cloud_trace_source`` must be provided.
+            from Cloud Trace.
+          harbor_dataset: A Harbor dataset in Cloud Storage. The import creates one
+            EvaluationItem of type ``HARBOR_TASK`` for each task in the
+            ``dataset.toml`` file of the dataset.
+          import_mode: The mode of the import. ``ImportMode.OVERWRITE`` replaces
+            the items of the EvaluationSet named by ``evaluation_set.name``. It is
+            supported only for ``harbor_dataset``, into an EvaluationSet that was
+            imported from a Harbor dataset.
           config: The optional configuration for the import operation.
 
         Returns:
           The long-running operation for the import.
+
+        Raises:
+          ValueError: If the sources or ``gcs_destination`` are not valid.
         """
-        if (
-            sum(
-                source is not None
-                for source in (gcs_source, inline_source, cloud_trace_source)
-            )
-            != 1
-        ):
-            raise ValueError(
-                "Exactly one of gcs_source, inline_source, or cloud_trace_source"
-                " must be provided."
-            )
+        Evals._validate_import_evaluation_set_sources(
+            gcs_destination=gcs_destination,
+            gcs_source=gcs_source,
+            inline_source=inline_source,
+            cloud_trace_source=cloud_trace_source,
+            harbor_dataset=harbor_dataset,
+        )
         result = await self._import_evaluation_set(
             evaluation_set=evaluation_set,
             gcs_destination=gcs_destination,
             gcs_source=gcs_source,
             inline_source=inline_source,
             cloud_trace_source=cloud_trace_source,
+            harbor_dataset=harbor_dataset,
+            import_mode=import_mode,
             config=config,
         )
         return result

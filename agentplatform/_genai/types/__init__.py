@@ -1043,6 +1043,7 @@ from .common import ImportEvaluationSetConfigOrDict
 from .common import ImportEvaluationSetOperation
 from .common import ImportEvaluationSetOperationDict
 from .common import ImportEvaluationSetOperationOrDict
+from .common import ImportMode
 from .common import ImportRagFilesConfig
 from .common import ImportRagFilesConfigDict
 from .common import ImportRagFilesConfigOrDict
@@ -4526,6 +4527,7 @@ __all__ = [
     "RuntimeRevision",
     "RuntimeRevisionDict",
     "RuntimeRevisionOrDict",
+    "ImportMode",
     "Strategy",
     "AcceleratorType",
     "Type",

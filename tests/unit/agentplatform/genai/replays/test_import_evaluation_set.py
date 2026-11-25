@@ -21,6 +21,12 @@ import pytest
 
 
 _GCS_OUTPUT_PREFIX = "gs://agent-eval-datasets/eval-import-replay/output/"
+# The Harbor tests are recorded against autopush, which serves the Harbor import.
+_AUTOPUSH_BASE_URL = "https://us-central1-autopush-aiplatform.sandbox.googleapis.com/"
+_HARBOR_DATASET_GCS_URI = (
+    "gs://agent-eval-fishfood/harbor-swebench-verified-mini/import/"
+    "swebench-verified-mini"
+)
 
 
 def test_import_eval_set(client):
@@ -37,6 +43,19 @@ def test_import_eval_set(client):
     )
     assert isinstance(operation, types.ImportEvaluationSetOperation)
     assert operation.name is not None
+    assert "/operations/" in operation.name
+
+
+def test_import_eval_set_from_harbor_dataset(client):
+    """Tests import_evaluation_set() from a Harbor dataset."""
+    client._api_client._http_options.base_url = _AUTOPUSH_BASE_URL
+
+    operation = client.evals.import_evaluation_set(
+        evaluation_set=types.EvaluationSet(display_name="replay-test-harbor-set"),
+        harbor_dataset=types.HarborDataset(gcs_uri=_HARBOR_DATASET_GCS_URI),
+    )
+
+    assert isinstance(operation, types.ImportEvaluationSetOperation)
     assert "/operations/" in operation.name
 
 
@@ -58,6 +77,20 @@ async def test_import_eval_set_async(client):
     )
     assert isinstance(operation, types.ImportEvaluationSetOperation)
     assert operation.name is not None
+    assert "/operations/" in operation.name
+
+
+@pytest.mark.asyncio
+async def test_import_eval_set_from_harbor_dataset_async(client):
+    """Tests import_evaluation_set() from a Harbor dataset on the async client."""
+    client._api_client._http_options.base_url = _AUTOPUSH_BASE_URL
+
+    operation = await client.aio.evals.import_evaluation_set(
+        evaluation_set=types.EvaluationSet(display_name="replay-test-harbor-set"),
+        harbor_dataset=types.HarborDataset(gcs_uri=_HARBOR_DATASET_GCS_URI),
+    )
+
+    assert isinstance(operation, types.ImportEvaluationSetOperation)
     assert "/operations/" in operation.name
 
 
