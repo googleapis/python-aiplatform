@@ -16,6 +16,2276 @@
       "clientMethod": {
         "async": true,
         "client": {
+          "fullName": "google.cloud.aiplatform_v1.AgentAnomalyDetectionServiceAsyncClient",
+          "shortName": "AgentAnomalyDetectionServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1.AgentAnomalyDetectionServiceAsyncClient.aggregate_analyzed_sessions",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1.AgentAnomalyDetectionService.AggregateAnalyzedSessions",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1.AgentAnomalyDetectionService",
+            "shortName": "AgentAnomalyDetectionService"
+          },
+          "shortName": "AggregateAnalyzedSessions"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1.types.AggregateAnalyzedSessionsRequest"
+          },
+          {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, Union[str, bytes]]]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1.services.agent_anomaly_detection_service.pagers.AggregateAnalyzedSessionsAsyncPager",
+        "shortName": "aggregate_analyzed_sessions"
+      },
+      "description": "Sample for AggregateAnalyzedSessions",
+      "file": "aiplatform_v1_generated_agent_anomaly_detection_service_aggregate_analyzed_sessions_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1_generated_AgentAnomalyDetectionService_AggregateAnalyzedSessions_async",
+      "segments": [
+        {
+          "end": 52,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 52,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 53,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1_generated_agent_anomaly_detection_service_aggregate_analyzed_sessions_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1.AgentAnomalyDetectionServiceClient",
+          "shortName": "AgentAnomalyDetectionServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1.AgentAnomalyDetectionServiceClient.aggregate_analyzed_sessions",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1.AgentAnomalyDetectionService.AggregateAnalyzedSessions",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1.AgentAnomalyDetectionService",
+            "shortName": "AgentAnomalyDetectionService"
+          },
+          "shortName": "AggregateAnalyzedSessions"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1.types.AggregateAnalyzedSessionsRequest"
+          },
+          {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, Union[str, bytes]]]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1.services.agent_anomaly_detection_service.pagers.AggregateAnalyzedSessionsPager",
+        "shortName": "aggregate_analyzed_sessions"
+      },
+      "description": "Sample for AggregateAnalyzedSessions",
+      "file": "aiplatform_v1_generated_agent_anomaly_detection_service_aggregate_analyzed_sessions_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1_generated_AgentAnomalyDetectionService_AggregateAnalyzedSessions_sync",
+      "segments": [
+        {
+          "end": 52,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 52,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 53,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1_generated_agent_anomaly_detection_service_aggregate_analyzed_sessions_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1.AgentAnomalyDetectionServiceAsyncClient",
+          "shortName": "AgentAnomalyDetectionServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1.AgentAnomalyDetectionServiceAsyncClient.clear_training_data",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1.AgentAnomalyDetectionService.ClearTrainingData",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1.AgentAnomalyDetectionService",
+            "shortName": "AgentAnomalyDetectionService"
+          },
+          "shortName": "ClearTrainingData"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1.types.ClearTrainingDataRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, Union[str, bytes]]]"
+          }
+        ],
+        "resultType": "google.api_core.operation_async.AsyncOperation",
+        "shortName": "clear_training_data"
+      },
+      "description": "Sample for ClearTrainingData",
+      "file": "aiplatform_v1_generated_agent_anomaly_detection_service_clear_training_data_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1_generated_AgentAnomalyDetectionService_ClearTrainingData_async",
+      "segments": [
+        {
+          "end": 55,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 55,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 52,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 56,
+          "start": 53,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1_generated_agent_anomaly_detection_service_clear_training_data_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1.AgentAnomalyDetectionServiceClient",
+          "shortName": "AgentAnomalyDetectionServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1.AgentAnomalyDetectionServiceClient.clear_training_data",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1.AgentAnomalyDetectionService.ClearTrainingData",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1.AgentAnomalyDetectionService",
+            "shortName": "AgentAnomalyDetectionService"
+          },
+          "shortName": "ClearTrainingData"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1.types.ClearTrainingDataRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, Union[str, bytes]]]"
+          }
+        ],
+        "resultType": "google.api_core.operation.Operation",
+        "shortName": "clear_training_data"
+      },
+      "description": "Sample for ClearTrainingData",
+      "file": "aiplatform_v1_generated_agent_anomaly_detection_service_clear_training_data_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1_generated_AgentAnomalyDetectionService_ClearTrainingData_sync",
+      "segments": [
+        {
+          "end": 55,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 55,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 52,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 56,
+          "start": 53,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1_generated_agent_anomaly_detection_service_clear_training_data_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1.AgentAnomalyDetectionServiceAsyncClient",
+          "shortName": "AgentAnomalyDetectionServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1.AgentAnomalyDetectionServiceAsyncClient.create_agent_anomaly_detection_scope",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1.AgentAnomalyDetectionService.CreateAgentAnomalyDetectionScope",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1.AgentAnomalyDetectionService",
+            "shortName": "AgentAnomalyDetectionService"
+          },
+          "shortName": "CreateAgentAnomalyDetectionScope"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1.types.CreateAgentAnomalyDetectionScopeRequest"
+          },
+          {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "agent_anomaly_detection_scope",
+            "type": "google.cloud.aiplatform_v1.types.AgentAnomalyDetectionScope"
+          },
+          {
+            "name": "agent_anomaly_detection_scope_id",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, Union[str, bytes]]]"
+          }
+        ],
+        "resultType": "google.api_core.operation_async.AsyncOperation",
+        "shortName": "create_agent_anomaly_detection_scope"
+      },
+      "description": "Sample for CreateAgentAnomalyDetectionScope",
+      "file": "aiplatform_v1_generated_agent_anomaly_detection_service_create_agent_anomaly_detection_scope_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1_generated_AgentAnomalyDetectionService_CreateAgentAnomalyDetectionScope_async",
+      "segments": [
+        {
+          "end": 61,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 61,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 51,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 58,
+          "start": 52,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 62,
+          "start": 59,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1_generated_agent_anomaly_detection_service_create_agent_anomaly_detection_scope_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1.AgentAnomalyDetectionServiceClient",
+          "shortName": "AgentAnomalyDetectionServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1.AgentAnomalyDetectionServiceClient.create_agent_anomaly_detection_scope",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1.AgentAnomalyDetectionService.CreateAgentAnomalyDetectionScope",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1.AgentAnomalyDetectionService",
+            "shortName": "AgentAnomalyDetectionService"
+          },
+          "shortName": "CreateAgentAnomalyDetectionScope"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1.types.CreateAgentAnomalyDetectionScopeRequest"
+          },
+          {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "agent_anomaly_detection_scope",
+            "type": "google.cloud.aiplatform_v1.types.AgentAnomalyDetectionScope"
+          },
+          {
+            "name": "agent_anomaly_detection_scope_id",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, Union[str, bytes]]]"
+          }
+        ],
+        "resultType": "google.api_core.operation.Operation",
+        "shortName": "create_agent_anomaly_detection_scope"
+      },
+      "description": "Sample for CreateAgentAnomalyDetectionScope",
+      "file": "aiplatform_v1_generated_agent_anomaly_detection_service_create_agent_anomaly_detection_scope_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1_generated_AgentAnomalyDetectionService_CreateAgentAnomalyDetectionScope_sync",
+      "segments": [
+        {
+          "end": 61,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 61,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 51,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 58,
+          "start": 52,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 62,
+          "start": 59,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1_generated_agent_anomaly_detection_service_create_agent_anomaly_detection_scope_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1.AgentAnomalyDetectionServiceAsyncClient",
+          "shortName": "AgentAnomalyDetectionServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1.AgentAnomalyDetectionServiceAsyncClient.delete_agent_anomaly_detection_scope",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1.AgentAnomalyDetectionService.DeleteAgentAnomalyDetectionScope",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1.AgentAnomalyDetectionService",
+            "shortName": "AgentAnomalyDetectionService"
+          },
+          "shortName": "DeleteAgentAnomalyDetectionScope"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1.types.DeleteAgentAnomalyDetectionScopeRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, Union[str, bytes]]]"
+          }
+        ],
+        "resultType": "google.api_core.operation_async.AsyncOperation",
+        "shortName": "delete_agent_anomaly_detection_scope"
+      },
+      "description": "Sample for DeleteAgentAnomalyDetectionScope",
+      "file": "aiplatform_v1_generated_agent_anomaly_detection_service_delete_agent_anomaly_detection_scope_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1_generated_AgentAnomalyDetectionService_DeleteAgentAnomalyDetectionScope_async",
+      "segments": [
+        {
+          "end": 55,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 55,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 52,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 56,
+          "start": 53,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1_generated_agent_anomaly_detection_service_delete_agent_anomaly_detection_scope_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1.AgentAnomalyDetectionServiceClient",
+          "shortName": "AgentAnomalyDetectionServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1.AgentAnomalyDetectionServiceClient.delete_agent_anomaly_detection_scope",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1.AgentAnomalyDetectionService.DeleteAgentAnomalyDetectionScope",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1.AgentAnomalyDetectionService",
+            "shortName": "AgentAnomalyDetectionService"
+          },
+          "shortName": "DeleteAgentAnomalyDetectionScope"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1.types.DeleteAgentAnomalyDetectionScopeRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, Union[str, bytes]]]"
+          }
+        ],
+        "resultType": "google.api_core.operation.Operation",
+        "shortName": "delete_agent_anomaly_detection_scope"
+      },
+      "description": "Sample for DeleteAgentAnomalyDetectionScope",
+      "file": "aiplatform_v1_generated_agent_anomaly_detection_service_delete_agent_anomaly_detection_scope_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1_generated_AgentAnomalyDetectionService_DeleteAgentAnomalyDetectionScope_sync",
+      "segments": [
+        {
+          "end": 55,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 55,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 52,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 56,
+          "start": 53,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1_generated_agent_anomaly_detection_service_delete_agent_anomaly_detection_scope_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1.AgentAnomalyDetectionServiceAsyncClient",
+          "shortName": "AgentAnomalyDetectionServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1.AgentAnomalyDetectionServiceAsyncClient.disable_monitored_agent",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1.AgentAnomalyDetectionService.DisableMonitoredAgent",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1.AgentAnomalyDetectionService",
+            "shortName": "AgentAnomalyDetectionService"
+          },
+          "shortName": "DisableMonitoredAgent"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1.types.DisableMonitoredAgentRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, Union[str, bytes]]]"
+          }
+        ],
+        "resultType": "google.api_core.operation_async.AsyncOperation",
+        "shortName": "disable_monitored_agent"
+      },
+      "description": "Sample for DisableMonitoredAgent",
+      "file": "aiplatform_v1_generated_agent_anomaly_detection_service_disable_monitored_agent_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1_generated_AgentAnomalyDetectionService_DisableMonitoredAgent_async",
+      "segments": [
+        {
+          "end": 55,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 55,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 52,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 56,
+          "start": 53,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1_generated_agent_anomaly_detection_service_disable_monitored_agent_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1.AgentAnomalyDetectionServiceClient",
+          "shortName": "AgentAnomalyDetectionServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1.AgentAnomalyDetectionServiceClient.disable_monitored_agent",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1.AgentAnomalyDetectionService.DisableMonitoredAgent",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1.AgentAnomalyDetectionService",
+            "shortName": "AgentAnomalyDetectionService"
+          },
+          "shortName": "DisableMonitoredAgent"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1.types.DisableMonitoredAgentRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, Union[str, bytes]]]"
+          }
+        ],
+        "resultType": "google.api_core.operation.Operation",
+        "shortName": "disable_monitored_agent"
+      },
+      "description": "Sample for DisableMonitoredAgent",
+      "file": "aiplatform_v1_generated_agent_anomaly_detection_service_disable_monitored_agent_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1_generated_AgentAnomalyDetectionService_DisableMonitoredAgent_sync",
+      "segments": [
+        {
+          "end": 55,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 55,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 52,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 56,
+          "start": 53,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1_generated_agent_anomaly_detection_service_disable_monitored_agent_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1.AgentAnomalyDetectionServiceAsyncClient",
+          "shortName": "AgentAnomalyDetectionServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1.AgentAnomalyDetectionServiceAsyncClient.enable_monitored_agent",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1.AgentAnomalyDetectionService.EnableMonitoredAgent",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1.AgentAnomalyDetectionService",
+            "shortName": "AgentAnomalyDetectionService"
+          },
+          "shortName": "EnableMonitoredAgent"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1.types.EnableMonitoredAgentRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, Union[str, bytes]]]"
+          }
+        ],
+        "resultType": "google.api_core.operation_async.AsyncOperation",
+        "shortName": "enable_monitored_agent"
+      },
+      "description": "Sample for EnableMonitoredAgent",
+      "file": "aiplatform_v1_generated_agent_anomaly_detection_service_enable_monitored_agent_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1_generated_AgentAnomalyDetectionService_EnableMonitoredAgent_async",
+      "segments": [
+        {
+          "end": 55,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 55,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 52,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 56,
+          "start": 53,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1_generated_agent_anomaly_detection_service_enable_monitored_agent_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1.AgentAnomalyDetectionServiceClient",
+          "shortName": "AgentAnomalyDetectionServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1.AgentAnomalyDetectionServiceClient.enable_monitored_agent",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1.AgentAnomalyDetectionService.EnableMonitoredAgent",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1.AgentAnomalyDetectionService",
+            "shortName": "AgentAnomalyDetectionService"
+          },
+          "shortName": "EnableMonitoredAgent"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1.types.EnableMonitoredAgentRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, Union[str, bytes]]]"
+          }
+        ],
+        "resultType": "google.api_core.operation.Operation",
+        "shortName": "enable_monitored_agent"
+      },
+      "description": "Sample for EnableMonitoredAgent",
+      "file": "aiplatform_v1_generated_agent_anomaly_detection_service_enable_monitored_agent_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1_generated_AgentAnomalyDetectionService_EnableMonitoredAgent_sync",
+      "segments": [
+        {
+          "end": 55,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 55,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 52,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 56,
+          "start": 53,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1_generated_agent_anomaly_detection_service_enable_monitored_agent_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1.AgentAnomalyDetectionServiceAsyncClient",
+          "shortName": "AgentAnomalyDetectionServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1.AgentAnomalyDetectionServiceAsyncClient.get_agent_anomaly_detection_scope",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1.AgentAnomalyDetectionService.GetAgentAnomalyDetectionScope",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1.AgentAnomalyDetectionService",
+            "shortName": "AgentAnomalyDetectionService"
+          },
+          "shortName": "GetAgentAnomalyDetectionScope"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1.types.GetAgentAnomalyDetectionScopeRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, Union[str, bytes]]]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1.types.AgentAnomalyDetectionScope",
+        "shortName": "get_agent_anomaly_detection_scope"
+      },
+      "description": "Sample for GetAgentAnomalyDetectionScope",
+      "file": "aiplatform_v1_generated_agent_anomaly_detection_service_get_agent_anomaly_detection_scope_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1_generated_AgentAnomalyDetectionService_GetAgentAnomalyDetectionScope_async",
+      "segments": [
+        {
+          "end": 51,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 51,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 52,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1_generated_agent_anomaly_detection_service_get_agent_anomaly_detection_scope_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1.AgentAnomalyDetectionServiceClient",
+          "shortName": "AgentAnomalyDetectionServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1.AgentAnomalyDetectionServiceClient.get_agent_anomaly_detection_scope",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1.AgentAnomalyDetectionService.GetAgentAnomalyDetectionScope",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1.AgentAnomalyDetectionService",
+            "shortName": "AgentAnomalyDetectionService"
+          },
+          "shortName": "GetAgentAnomalyDetectionScope"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1.types.GetAgentAnomalyDetectionScopeRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, Union[str, bytes]]]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1.types.AgentAnomalyDetectionScope",
+        "shortName": "get_agent_anomaly_detection_scope"
+      },
+      "description": "Sample for GetAgentAnomalyDetectionScope",
+      "file": "aiplatform_v1_generated_agent_anomaly_detection_service_get_agent_anomaly_detection_scope_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1_generated_AgentAnomalyDetectionService_GetAgentAnomalyDetectionScope_sync",
+      "segments": [
+        {
+          "end": 51,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 51,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 52,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1_generated_agent_anomaly_detection_service_get_agent_anomaly_detection_scope_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1.AgentAnomalyDetectionServiceAsyncClient",
+          "shortName": "AgentAnomalyDetectionServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1.AgentAnomalyDetectionServiceAsyncClient.get_analyzed_invocation",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1.AgentAnomalyDetectionService.GetAnalyzedInvocation",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1.AgentAnomalyDetectionService",
+            "shortName": "AgentAnomalyDetectionService"
+          },
+          "shortName": "GetAnalyzedInvocation"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1.types.GetAnalyzedInvocationRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, Union[str, bytes]]]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1.types.AnalyzedInvocation",
+        "shortName": "get_analyzed_invocation"
+      },
+      "description": "Sample for GetAnalyzedInvocation",
+      "file": "aiplatform_v1_generated_agent_anomaly_detection_service_get_analyzed_invocation_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1_generated_AgentAnomalyDetectionService_GetAnalyzedInvocation_async",
+      "segments": [
+        {
+          "end": 51,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 51,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 52,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1_generated_agent_anomaly_detection_service_get_analyzed_invocation_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1.AgentAnomalyDetectionServiceClient",
+          "shortName": "AgentAnomalyDetectionServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1.AgentAnomalyDetectionServiceClient.get_analyzed_invocation",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1.AgentAnomalyDetectionService.GetAnalyzedInvocation",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1.AgentAnomalyDetectionService",
+            "shortName": "AgentAnomalyDetectionService"
+          },
+          "shortName": "GetAnalyzedInvocation"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1.types.GetAnalyzedInvocationRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, Union[str, bytes]]]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1.types.AnalyzedInvocation",
+        "shortName": "get_analyzed_invocation"
+      },
+      "description": "Sample for GetAnalyzedInvocation",
+      "file": "aiplatform_v1_generated_agent_anomaly_detection_service_get_analyzed_invocation_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1_generated_AgentAnomalyDetectionService_GetAnalyzedInvocation_sync",
+      "segments": [
+        {
+          "end": 51,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 51,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 52,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1_generated_agent_anomaly_detection_service_get_analyzed_invocation_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1.AgentAnomalyDetectionServiceAsyncClient",
+          "shortName": "AgentAnomalyDetectionServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1.AgentAnomalyDetectionServiceAsyncClient.get_analyzed_session",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1.AgentAnomalyDetectionService.GetAnalyzedSession",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1.AgentAnomalyDetectionService",
+            "shortName": "AgentAnomalyDetectionService"
+          },
+          "shortName": "GetAnalyzedSession"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1.types.GetAnalyzedSessionRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, Union[str, bytes]]]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1.types.AnalyzedSession",
+        "shortName": "get_analyzed_session"
+      },
+      "description": "Sample for GetAnalyzedSession",
+      "file": "aiplatform_v1_generated_agent_anomaly_detection_service_get_analyzed_session_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1_generated_AgentAnomalyDetectionService_GetAnalyzedSession_async",
+      "segments": [
+        {
+          "end": 51,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 51,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 52,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1_generated_agent_anomaly_detection_service_get_analyzed_session_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1.AgentAnomalyDetectionServiceClient",
+          "shortName": "AgentAnomalyDetectionServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1.AgentAnomalyDetectionServiceClient.get_analyzed_session",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1.AgentAnomalyDetectionService.GetAnalyzedSession",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1.AgentAnomalyDetectionService",
+            "shortName": "AgentAnomalyDetectionService"
+          },
+          "shortName": "GetAnalyzedSession"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1.types.GetAnalyzedSessionRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, Union[str, bytes]]]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1.types.AnalyzedSession",
+        "shortName": "get_analyzed_session"
+      },
+      "description": "Sample for GetAnalyzedSession",
+      "file": "aiplatform_v1_generated_agent_anomaly_detection_service_get_analyzed_session_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1_generated_AgentAnomalyDetectionService_GetAnalyzedSession_sync",
+      "segments": [
+        {
+          "end": 51,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 51,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 52,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1_generated_agent_anomaly_detection_service_get_analyzed_session_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1.AgentAnomalyDetectionServiceAsyncClient",
+          "shortName": "AgentAnomalyDetectionServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1.AgentAnomalyDetectionServiceAsyncClient.get_monitored_agent",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1.AgentAnomalyDetectionService.GetMonitoredAgent",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1.AgentAnomalyDetectionService",
+            "shortName": "AgentAnomalyDetectionService"
+          },
+          "shortName": "GetMonitoredAgent"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1.types.GetMonitoredAgentRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, Union[str, bytes]]]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1.types.MonitoredAgent",
+        "shortName": "get_monitored_agent"
+      },
+      "description": "Sample for GetMonitoredAgent",
+      "file": "aiplatform_v1_generated_agent_anomaly_detection_service_get_monitored_agent_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1_generated_AgentAnomalyDetectionService_GetMonitoredAgent_async",
+      "segments": [
+        {
+          "end": 51,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 51,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 52,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1_generated_agent_anomaly_detection_service_get_monitored_agent_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1.AgentAnomalyDetectionServiceClient",
+          "shortName": "AgentAnomalyDetectionServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1.AgentAnomalyDetectionServiceClient.get_monitored_agent",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1.AgentAnomalyDetectionService.GetMonitoredAgent",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1.AgentAnomalyDetectionService",
+            "shortName": "AgentAnomalyDetectionService"
+          },
+          "shortName": "GetMonitoredAgent"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1.types.GetMonitoredAgentRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, Union[str, bytes]]]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1.types.MonitoredAgent",
+        "shortName": "get_monitored_agent"
+      },
+      "description": "Sample for GetMonitoredAgent",
+      "file": "aiplatform_v1_generated_agent_anomaly_detection_service_get_monitored_agent_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1_generated_AgentAnomalyDetectionService_GetMonitoredAgent_sync",
+      "segments": [
+        {
+          "end": 51,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 51,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 52,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1_generated_agent_anomaly_detection_service_get_monitored_agent_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1.AgentAnomalyDetectionServiceAsyncClient",
+          "shortName": "AgentAnomalyDetectionServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1.AgentAnomalyDetectionServiceAsyncClient.list_agent_anomaly_detection_scopes",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1.AgentAnomalyDetectionService.ListAgentAnomalyDetectionScopes",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1.AgentAnomalyDetectionService",
+            "shortName": "AgentAnomalyDetectionService"
+          },
+          "shortName": "ListAgentAnomalyDetectionScopes"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1.types.ListAgentAnomalyDetectionScopesRequest"
+          },
+          {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, Union[str, bytes]]]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1.services.agent_anomaly_detection_service.pagers.ListAgentAnomalyDetectionScopesAsyncPager",
+        "shortName": "list_agent_anomaly_detection_scopes"
+      },
+      "description": "Sample for ListAgentAnomalyDetectionScopes",
+      "file": "aiplatform_v1_generated_agent_anomaly_detection_service_list_agent_anomaly_detection_scopes_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1_generated_AgentAnomalyDetectionService_ListAgentAnomalyDetectionScopes_async",
+      "segments": [
+        {
+          "end": 52,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 52,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 53,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1_generated_agent_anomaly_detection_service_list_agent_anomaly_detection_scopes_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1.AgentAnomalyDetectionServiceClient",
+          "shortName": "AgentAnomalyDetectionServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1.AgentAnomalyDetectionServiceClient.list_agent_anomaly_detection_scopes",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1.AgentAnomalyDetectionService.ListAgentAnomalyDetectionScopes",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1.AgentAnomalyDetectionService",
+            "shortName": "AgentAnomalyDetectionService"
+          },
+          "shortName": "ListAgentAnomalyDetectionScopes"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1.types.ListAgentAnomalyDetectionScopesRequest"
+          },
+          {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, Union[str, bytes]]]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1.services.agent_anomaly_detection_service.pagers.ListAgentAnomalyDetectionScopesPager",
+        "shortName": "list_agent_anomaly_detection_scopes"
+      },
+      "description": "Sample for ListAgentAnomalyDetectionScopes",
+      "file": "aiplatform_v1_generated_agent_anomaly_detection_service_list_agent_anomaly_detection_scopes_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1_generated_AgentAnomalyDetectionService_ListAgentAnomalyDetectionScopes_sync",
+      "segments": [
+        {
+          "end": 52,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 52,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 53,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1_generated_agent_anomaly_detection_service_list_agent_anomaly_detection_scopes_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1.AgentAnomalyDetectionServiceAsyncClient",
+          "shortName": "AgentAnomalyDetectionServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1.AgentAnomalyDetectionServiceAsyncClient.list_analyzed_invocations",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1.AgentAnomalyDetectionService.ListAnalyzedInvocations",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1.AgentAnomalyDetectionService",
+            "shortName": "AgentAnomalyDetectionService"
+          },
+          "shortName": "ListAnalyzedInvocations"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1.types.ListAnalyzedInvocationsRequest"
+          },
+          {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, Union[str, bytes]]]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1.services.agent_anomaly_detection_service.pagers.ListAnalyzedInvocationsAsyncPager",
+        "shortName": "list_analyzed_invocations"
+      },
+      "description": "Sample for ListAnalyzedInvocations",
+      "file": "aiplatform_v1_generated_agent_anomaly_detection_service_list_analyzed_invocations_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1_generated_AgentAnomalyDetectionService_ListAnalyzedInvocations_async",
+      "segments": [
+        {
+          "end": 52,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 52,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 53,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1_generated_agent_anomaly_detection_service_list_analyzed_invocations_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1.AgentAnomalyDetectionServiceClient",
+          "shortName": "AgentAnomalyDetectionServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1.AgentAnomalyDetectionServiceClient.list_analyzed_invocations",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1.AgentAnomalyDetectionService.ListAnalyzedInvocations",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1.AgentAnomalyDetectionService",
+            "shortName": "AgentAnomalyDetectionService"
+          },
+          "shortName": "ListAnalyzedInvocations"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1.types.ListAnalyzedInvocationsRequest"
+          },
+          {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, Union[str, bytes]]]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1.services.agent_anomaly_detection_service.pagers.ListAnalyzedInvocationsPager",
+        "shortName": "list_analyzed_invocations"
+      },
+      "description": "Sample for ListAnalyzedInvocations",
+      "file": "aiplatform_v1_generated_agent_anomaly_detection_service_list_analyzed_invocations_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1_generated_AgentAnomalyDetectionService_ListAnalyzedInvocations_sync",
+      "segments": [
+        {
+          "end": 52,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 52,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 53,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1_generated_agent_anomaly_detection_service_list_analyzed_invocations_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1.AgentAnomalyDetectionServiceAsyncClient",
+          "shortName": "AgentAnomalyDetectionServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1.AgentAnomalyDetectionServiceAsyncClient.list_analyzed_sessions",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1.AgentAnomalyDetectionService.ListAnalyzedSessions",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1.AgentAnomalyDetectionService",
+            "shortName": "AgentAnomalyDetectionService"
+          },
+          "shortName": "ListAnalyzedSessions"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1.types.ListAnalyzedSessionsRequest"
+          },
+          {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, Union[str, bytes]]]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1.services.agent_anomaly_detection_service.pagers.ListAnalyzedSessionsAsyncPager",
+        "shortName": "list_analyzed_sessions"
+      },
+      "description": "Sample for ListAnalyzedSessions",
+      "file": "aiplatform_v1_generated_agent_anomaly_detection_service_list_analyzed_sessions_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1_generated_AgentAnomalyDetectionService_ListAnalyzedSessions_async",
+      "segments": [
+        {
+          "end": 52,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 52,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 53,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1_generated_agent_anomaly_detection_service_list_analyzed_sessions_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1.AgentAnomalyDetectionServiceClient",
+          "shortName": "AgentAnomalyDetectionServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1.AgentAnomalyDetectionServiceClient.list_analyzed_sessions",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1.AgentAnomalyDetectionService.ListAnalyzedSessions",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1.AgentAnomalyDetectionService",
+            "shortName": "AgentAnomalyDetectionService"
+          },
+          "shortName": "ListAnalyzedSessions"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1.types.ListAnalyzedSessionsRequest"
+          },
+          {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, Union[str, bytes]]]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1.services.agent_anomaly_detection_service.pagers.ListAnalyzedSessionsPager",
+        "shortName": "list_analyzed_sessions"
+      },
+      "description": "Sample for ListAnalyzedSessions",
+      "file": "aiplatform_v1_generated_agent_anomaly_detection_service_list_analyzed_sessions_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1_generated_AgentAnomalyDetectionService_ListAnalyzedSessions_sync",
+      "segments": [
+        {
+          "end": 52,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 52,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 53,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1_generated_agent_anomaly_detection_service_list_analyzed_sessions_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1.AgentAnomalyDetectionServiceAsyncClient",
+          "shortName": "AgentAnomalyDetectionServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1.AgentAnomalyDetectionServiceAsyncClient.list_monitored_agents",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1.AgentAnomalyDetectionService.ListMonitoredAgents",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1.AgentAnomalyDetectionService",
+            "shortName": "AgentAnomalyDetectionService"
+          },
+          "shortName": "ListMonitoredAgents"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1.types.ListMonitoredAgentsRequest"
+          },
+          {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, Union[str, bytes]]]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1.services.agent_anomaly_detection_service.pagers.ListMonitoredAgentsAsyncPager",
+        "shortName": "list_monitored_agents"
+      },
+      "description": "Sample for ListMonitoredAgents",
+      "file": "aiplatform_v1_generated_agent_anomaly_detection_service_list_monitored_agents_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1_generated_AgentAnomalyDetectionService_ListMonitoredAgents_async",
+      "segments": [
+        {
+          "end": 52,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 52,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 53,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1_generated_agent_anomaly_detection_service_list_monitored_agents_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1.AgentAnomalyDetectionServiceClient",
+          "shortName": "AgentAnomalyDetectionServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1.AgentAnomalyDetectionServiceClient.list_monitored_agents",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1.AgentAnomalyDetectionService.ListMonitoredAgents",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1.AgentAnomalyDetectionService",
+            "shortName": "AgentAnomalyDetectionService"
+          },
+          "shortName": "ListMonitoredAgents"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1.types.ListMonitoredAgentsRequest"
+          },
+          {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, Union[str, bytes]]]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1.services.agent_anomaly_detection_service.pagers.ListMonitoredAgentsPager",
+        "shortName": "list_monitored_agents"
+      },
+      "description": "Sample for ListMonitoredAgents",
+      "file": "aiplatform_v1_generated_agent_anomaly_detection_service_list_monitored_agents_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1_generated_AgentAnomalyDetectionService_ListMonitoredAgents_sync",
+      "segments": [
+        {
+          "end": 52,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 52,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 53,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1_generated_agent_anomaly_detection_service_list_monitored_agents_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
           "fullName": "google.cloud.aiplatform_v1.DataFoundryServiceAsyncClient",
           "shortName": "DataFoundryServiceAsyncClient"
         },

@@ -5,6 +5,235 @@
   "protoPackage": "google.cloud.aiplatform.v1",
   "schema": "1.0",
   "services": {
+    "AgentAnomalyDetectionService": {
+      "clients": {
+        "grpc": {
+          "libraryClient": "AgentAnomalyDetectionServiceClient",
+          "rpcs": {
+            "AggregateAnalyzedSessions": {
+              "methods": [
+                "aggregate_analyzed_sessions"
+              ]
+            },
+            "ClearTrainingData": {
+              "methods": [
+                "clear_training_data"
+              ]
+            },
+            "CreateAgentAnomalyDetectionScope": {
+              "methods": [
+                "create_agent_anomaly_detection_scope"
+              ]
+            },
+            "DeleteAgentAnomalyDetectionScope": {
+              "methods": [
+                "delete_agent_anomaly_detection_scope"
+              ]
+            },
+            "DisableMonitoredAgent": {
+              "methods": [
+                "disable_monitored_agent"
+              ]
+            },
+            "EnableMonitoredAgent": {
+              "methods": [
+                "enable_monitored_agent"
+              ]
+            },
+            "GetAgentAnomalyDetectionScope": {
+              "methods": [
+                "get_agent_anomaly_detection_scope"
+              ]
+            },
+            "GetAnalyzedInvocation": {
+              "methods": [
+                "get_analyzed_invocation"
+              ]
+            },
+            "GetAnalyzedSession": {
+              "methods": [
+                "get_analyzed_session"
+              ]
+            },
+            "GetMonitoredAgent": {
+              "methods": [
+                "get_monitored_agent"
+              ]
+            },
+            "ListAgentAnomalyDetectionScopes": {
+              "methods": [
+                "list_agent_anomaly_detection_scopes"
+              ]
+            },
+            "ListAnalyzedInvocations": {
+              "methods": [
+                "list_analyzed_invocations"
+              ]
+            },
+            "ListAnalyzedSessions": {
+              "methods": [
+                "list_analyzed_sessions"
+              ]
+            },
+            "ListMonitoredAgents": {
+              "methods": [
+                "list_monitored_agents"
+              ]
+            }
+          }
+        },
+        "grpc-async": {
+          "libraryClient": "AgentAnomalyDetectionServiceAsyncClient",
+          "rpcs": {
+            "AggregateAnalyzedSessions": {
+              "methods": [
+                "aggregate_analyzed_sessions"
+              ]
+            },
+            "ClearTrainingData": {
+              "methods": [
+                "clear_training_data"
+              ]
+            },
+            "CreateAgentAnomalyDetectionScope": {
+              "methods": [
+                "create_agent_anomaly_detection_scope"
+              ]
+            },
+            "DeleteAgentAnomalyDetectionScope": {
+              "methods": [
+                "delete_agent_anomaly_detection_scope"
+              ]
+            },
+            "DisableMonitoredAgent": {
+              "methods": [
+                "disable_monitored_agent"
+              ]
+            },
+            "EnableMonitoredAgent": {
+              "methods": [
+                "enable_monitored_agent"
+              ]
+            },
+            "GetAgentAnomalyDetectionScope": {
+              "methods": [
+                "get_agent_anomaly_detection_scope"
+              ]
+            },
+            "GetAnalyzedInvocation": {
+              "methods": [
+                "get_analyzed_invocation"
+              ]
+            },
+            "GetAnalyzedSession": {
+              "methods": [
+                "get_analyzed_session"
+              ]
+            },
+            "GetMonitoredAgent": {
+              "methods": [
+                "get_monitored_agent"
+              ]
+            },
+            "ListAgentAnomalyDetectionScopes": {
+              "methods": [
+                "list_agent_anomaly_detection_scopes"
+              ]
+            },
+            "ListAnalyzedInvocations": {
+              "methods": [
+                "list_analyzed_invocations"
+              ]
+            },
+            "ListAnalyzedSessions": {
+              "methods": [
+                "list_analyzed_sessions"
+              ]
+            },
+            "ListMonitoredAgents": {
+              "methods": [
+                "list_monitored_agents"
+              ]
+            }
+          }
+        },
+        "rest": {
+          "libraryClient": "AgentAnomalyDetectionServiceClient",
+          "rpcs": {
+            "AggregateAnalyzedSessions": {
+              "methods": [
+                "aggregate_analyzed_sessions"
+              ]
+            },
+            "ClearTrainingData": {
+              "methods": [
+                "clear_training_data"
+              ]
+            },
+            "CreateAgentAnomalyDetectionScope": {
+              "methods": [
+                "create_agent_anomaly_detection_scope"
+              ]
+            },
+            "DeleteAgentAnomalyDetectionScope": {
+              "methods": [
+                "delete_agent_anomaly_detection_scope"
+              ]
+            },
+            "DisableMonitoredAgent": {
+              "methods": [
+                "disable_monitored_agent"
+              ]
+            },
+            "EnableMonitoredAgent": {
+              "methods": [
+                "enable_monitored_agent"
+              ]
+            },
+            "GetAgentAnomalyDetectionScope": {
+              "methods": [
+                "get_agent_anomaly_detection_scope"
+              ]
+            },
+            "GetAnalyzedInvocation": {
+              "methods": [
+                "get_analyzed_invocation"
+              ]
+            },
+            "GetAnalyzedSession": {
+              "methods": [
+                "get_analyzed_session"
+              ]
+            },
+            "GetMonitoredAgent": {
+              "methods": [
+                "get_monitored_agent"
+              ]
+            },
+            "ListAgentAnomalyDetectionScopes": {
+              "methods": [
+                "list_agent_anomaly_detection_scopes"
+              ]
+            },
+            "ListAnalyzedInvocations": {
+              "methods": [
+                "list_analyzed_invocations"
+              ]
+            },
+            "ListAnalyzedSessions": {
+              "methods": [
+                "list_analyzed_sessions"
+              ]
+            },
+            "ListMonitoredAgents": {
+              "methods": [
+                "list_monitored_agents"
+              ]
+            }
+          }
+        }
+      }
+    },
     "DataFoundryService": {
       "clients": {
         "grpc": {
