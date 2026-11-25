@@ -1,5 +1,34 @@
 # Changelog
 
+## [3.0.0](https://github.com/googleapis/python-aiplatform/compare/v2.10.0...v3.0.0) (2026-11-25)
+
+
+### ⚠ BREAKING CHANGES
+
+* Restrict `AG2Agent.query` to its declared arguments.
+
+### Features
+
+* GenAI Client(evals) - Add get_import_evaluation_set_operation to poll an evaluation set import ([5f33314](https://github.com/googleapis/python-aiplatform/commit/5f33314b8afacd02b390ad9c1bbf9fbd10101a94))
+* GenAI Client(evals) - Add Harbor dataset and task types to evaluation sets and items ([b90054b](https://github.com/googleapis/python-aiplatform/commit/b90054b377ba75bc0e361e7484654924758a8fd0))
+* GenAI Client(evals) - Support Harbor datasets and import modes in import_evaluation_set ([bbeab40](https://github.com/googleapis/python-aiplatform/commit/bbeab40a514a08e03d03d75b72f369df4c48bc89))
+
+
+### Bug Fixes
+
+* Canonicalize A2A agent card interfaces and pin outbound credentials to target origin ([0c72d10](https://github.com/googleapis/python-aiplatform/commit/0c72d10eb73418142b1879f49eb225f55c38bfbe))
+* Make httpx an optional import so Agent Engine modules load when httpx is not installed ([e87ca39](https://github.com/googleapis/python-aiplatform/commit/e87ca393ca578a3cf4d0f608806fd9bb5b8ee4da))
+* Raise API errors on mid-stream Agent Engine stream_query error frames ([99fd15c](https://github.com/googleapis/python-aiplatform/commit/99fd15c9bbf0d4b38100377fd50fb45f0bd87ff0))
+* Raise background task errors reliably from wait() ([8c47418](https://github.com/googleapis/python-aiplatform/commit/8c474189f813105f512e782beb477870a7d4533b))
+* Restrict `AG2Agent.query` to its declared arguments. ([acaa5a1](https://github.com/googleapis/python-aiplatform/commit/acaa5a1e6e86b0d6a6195eac922ef2c68f948ede))
+* Validate `user_id` and fetch canonical sessions in `AdkApp`. ([10e9927](https://github.com/googleapis/python-aiplatform/commit/10e9927db164dfffe1922c2d96ec05eae0df8023))
+
+
+### Documentation
+
+* Document LLM Parser supported models and locations for RAG Engine ([c3c7566](https://github.com/googleapis/python-aiplatform/commit/c3c7566bfd501986836d34298797dd6c8c27588f))
+* Update Agent Engine secret_env and runtime identity security guidance ([f1068d9](https://github.com/googleapis/python-aiplatform/commit/f1068d9ed22cb1468b6ae588b8e2d0a61826507e))
+
 ## [2.10.0](https://github.com/googleapis/python-aiplatform/compare/v2.9.0...v2.10.0) (2026-11-17)
 
 
