@@ -26,6 +26,7 @@ __version__ = package_version.__version__
 # https://docs.python.org/3.15/library/sys.html#sys.set_lazy_imports_filter
 # Older Python versions safely ignore this variable.
 __lazy_modules__ = {
+    "google.cloud.aiplatform_v1.services.agent_anomaly_detection_service",
     "google.cloud.aiplatform_v1.services.data_foundry_service",
     "google.cloud.aiplatform_v1.services.dataset_service",
     "google.cloud.aiplatform_v1.services.deployment_resource_pool_service",
@@ -61,6 +62,7 @@ __lazy_modules__ = {
     "google.cloud.aiplatform_v1.services.vertex_rag_service",
     "google.cloud.aiplatform_v1.services.vizier_service",
     "google.cloud.aiplatform_v1.types.accelerator_type",
+    "google.cloud.aiplatform_v1.types.agent_anomaly_detection_service",
     "google.cloud.aiplatform_v1.types.annotation",
     "google.cloud.aiplatform_v1.types.annotation_spec",
     "google.cloud.aiplatform_v1.types.api_auth",
@@ -187,6 +189,10 @@ __lazy_modules__ = {
 }
 
 
+from .services.agent_anomaly_detection_service import AgentAnomalyDetectionServiceClient
+from .services.agent_anomaly_detection_service import (
+    AgentAnomalyDetectionServiceAsyncClient,
+)
 from .services.data_foundry_service import DataFoundryServiceClient
 from .services.data_foundry_service import DataFoundryServiceAsyncClient
 from .services.dataset_service import DatasetServiceClient
@@ -273,6 +279,53 @@ from .services.vizier_service import VizierServiceClient
 from .services.vizier_service import VizierServiceAsyncClient
 
 from .types.accelerator_type import AcceleratorType
+from .types.agent_anomaly_detection_service import AgentAnomalyDetectionScope
+from .types.agent_anomaly_detection_service import AgentResource
+from .types.agent_anomaly_detection_service import AggregateAnalyzedSessionsRequest
+from .types.agent_anomaly_detection_service import AggregateAnalyzedSessionsResponse
+from .types.agent_anomaly_detection_service import AnalyzedInvocation
+from .types.agent_anomaly_detection_service import AnalyzedSession
+from .types.agent_anomaly_detection_service import Assessment
+from .types.agent_anomaly_detection_service import ClearTrainingDataOperationMetadata
+from .types.agent_anomaly_detection_service import ClearTrainingDataRequest
+from .types.agent_anomaly_detection_service import ClearTrainingDataResponse
+from .types.agent_anomaly_detection_service import (
+    CreateAgentAnomalyDetectionScopeOperationMetadata,
+)
+from .types.agent_anomaly_detection_service import (
+    CreateAgentAnomalyDetectionScopeRequest,
+)
+from .types.agent_anomaly_detection_service import (
+    DeleteAgentAnomalyDetectionScopeOperationMetadata,
+)
+from .types.agent_anomaly_detection_service import (
+    DeleteAgentAnomalyDetectionScopeRequest,
+)
+from .types.agent_anomaly_detection_service import (
+    DisableMonitoredAgentOperationMetadata,
+)
+from .types.agent_anomaly_detection_service import DisableMonitoredAgentRequest
+from .types.agent_anomaly_detection_service import EnableMonitoredAgentOperationMetadata
+from .types.agent_anomaly_detection_service import EnableMonitoredAgentRequest
+from .types.agent_anomaly_detection_service import GetAgentAnomalyDetectionScopeRequest
+from .types.agent_anomaly_detection_service import GetAnalyzedInvocationRequest
+from .types.agent_anomaly_detection_service import GetAnalyzedSessionRequest
+from .types.agent_anomaly_detection_service import GetMonitoredAgentRequest
+from .types.agent_anomaly_detection_service import (
+    ListAgentAnomalyDetectionScopesRequest,
+)
+from .types.agent_anomaly_detection_service import (
+    ListAgentAnomalyDetectionScopesResponse,
+)
+from .types.agent_anomaly_detection_service import ListAnalyzedInvocationsRequest
+from .types.agent_anomaly_detection_service import ListAnalyzedInvocationsResponse
+from .types.agent_anomaly_detection_service import ListAnalyzedSessionsRequest
+from .types.agent_anomaly_detection_service import ListAnalyzedSessionsResponse
+from .types.agent_anomaly_detection_service import ListMonitoredAgentsRequest
+from .types.agent_anomaly_detection_service import ListMonitoredAgentsResponse
+from .types.agent_anomaly_detection_service import MonitoredAgent
+from .types.agent_anomaly_detection_service import AnalyzedSessionView
+from .types.agent_anomaly_detection_service import Severity
 from .types.annotation import Annotation
 from .types.annotation_spec import AnnotationSpec
 from .types.api_auth import ApiAuth
@@ -1304,6 +1357,7 @@ from .types.vizier_service import SuggestTrialsRequest
 from .types.vizier_service import SuggestTrialsResponse
 
 __all__ = (
+    "AgentAnomalyDetectionServiceAsyncClient",
     "DataFoundryServiceAsyncClient",
     "DatasetServiceAsyncClient",
     "DeploymentResourcePoolServiceAsyncClient",
@@ -1347,8 +1401,16 @@ __all__ = (
     "AddExecutionEventsRequest",
     "AddExecutionEventsResponse",
     "AddTrialMeasurementRequest",
+    "AgentAnomalyDetectionScope",
+    "AgentAnomalyDetectionServiceClient",
+    "AgentResource",
+    "AggregateAnalyzedSessionsRequest",
+    "AggregateAnalyzedSessionsResponse",
     "AggregationOutput",
     "AggregationResult",
+    "AnalyzedInvocation",
+    "AnalyzedSession",
+    "AnalyzedSessionView",
     "Annotation",
     "AnnotationSpec",
     "ApiAuth",
@@ -1357,6 +1419,7 @@ __all__ = (
     "Artifact",
     "AskContextsRequest",
     "AskContextsResponse",
+    "Assessment",
     "AssignNotebookRuntimeOperationMetadata",
     "AssignNotebookRuntimeRequest",
     "AsyncQueryReasoningEngineOperationMetadata",
@@ -1427,6 +1490,9 @@ __all__ = (
     "Citation",
     "CitationMetadata",
     "Claim",
+    "ClearTrainingDataOperationMetadata",
+    "ClearTrainingDataRequest",
+    "ClearTrainingDataResponse",
     "ClientConnectionConfig",
     "CodeExecutionResult",
     "CoherenceInput",
@@ -1456,6 +1522,8 @@ __all__ = (
     "CorroborateContentResponse",
     "CountTokensRequest",
     "CountTokensResponse",
+    "CreateAgentAnomalyDetectionScopeOperationMetadata",
+    "CreateAgentAnomalyDetectionScopeRequest",
     "CreateArtifactRequest",
     "CreateBatchPredictionJobRequest",
     "CreateCachedContentRequest",
@@ -1533,6 +1601,8 @@ __all__ = (
     "DatasetServiceClient",
     "DatasetVersion",
     "DedicatedResources",
+    "DeleteAgentAnomalyDetectionScopeOperationMetadata",
+    "DeleteAgentAnomalyDetectionScopeRequest",
     "DeleteArtifactRequest",
     "DeleteBatchPredictionJobRequest",
     "DeleteCachedContentRequest",
@@ -1605,12 +1675,16 @@ __all__ = (
     "DirectRawPredictRequest",
     "DirectRawPredictResponse",
     "DirectUploadSource",
+    "DisableMonitoredAgentOperationMetadata",
+    "DisableMonitoredAgentRequest",
     "DiskSpec",
     "DnsPeeringConfig",
     "DoubleArray",
     "DynamicRetrievalConfig",
     "EmbedContentRequest",
     "EmbedContentResponse",
+    "EnableMonitoredAgentOperationMetadata",
+    "EnableMonitoredAgentRequest",
     "EncryptionSpec",
     "Endpoint",
     "EndpointServiceClient",
@@ -1724,6 +1798,9 @@ __all__ = (
     "GenerationConfig",
     "GenericOperationMetadata",
     "GenieSource",
+    "GetAgentAnomalyDetectionScopeRequest",
+    "GetAnalyzedInvocationRequest",
+    "GetAnalyzedSessionRequest",
     "GetAnnotationSpecRequest",
     "GetArtifactRequest",
     "GetBatchPredictionJobRequest",
@@ -1752,6 +1829,7 @@ __all__ = (
     "GetModelEvaluationRequest",
     "GetModelEvaluationSliceRequest",
     "GetModelRequest",
+    "GetMonitoredAgentRequest",
     "GetNasJobRequest",
     "GetNasTrialDetailRequest",
     "GetNotebookExecutionJobRequest",
@@ -1817,6 +1895,12 @@ __all__ = (
     "LLMBasedMetricSpec",
     "LargeModelReference",
     "LineageSubgraph",
+    "ListAgentAnomalyDetectionScopesRequest",
+    "ListAgentAnomalyDetectionScopesResponse",
+    "ListAnalyzedInvocationsRequest",
+    "ListAnalyzedInvocationsResponse",
+    "ListAnalyzedSessionsRequest",
+    "ListAnalyzedSessionsResponse",
     "ListAnnotationsRequest",
     "ListAnnotationsResponse",
     "ListArtifactsRequest",
@@ -1881,6 +1965,8 @@ __all__ = (
     "ListModelVersionsResponse",
     "ListModelsRequest",
     "ListModelsResponse",
+    "ListMonitoredAgentsRequest",
+    "ListMonitoredAgentsResponse",
     "ListNasJobsRequest",
     "ListNasJobsResponse",
     "ListNasTrialDetailsRequest",
@@ -1970,6 +2056,7 @@ __all__ = (
     "ModelServiceClient",
     "ModelSourceInfo",
     "ModelVersionCheckpoint",
+    "MonitoredAgent",
     "MultiSpeakerVoiceConfig",
     "MutateDeployedIndexOperationMetadata",
     "MutateDeployedIndexRequest",
@@ -2182,6 +2269,7 @@ __all__ = (
     "Session",
     "SessionEvent",
     "SessionServiceClient",
+    "Severity",
     "SharePointSources",
     "ShieldedVmConfig",
     "SlackSource",
