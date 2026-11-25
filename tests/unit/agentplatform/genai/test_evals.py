@@ -33,6 +33,7 @@ import agentplatform
 from google.cloud.aiplatform import initializer as aiplatform_initializer
 from agentplatform import _genai
 from agentplatform._genai import _evals_builtin_tools
+from agentplatform._genai import _evals_constant
 from agentplatform._genai import _evals_data_converters
 from agentplatform._genai import _evals_metric_handlers
 from agentplatform._genai import _evals_visualization
@@ -7660,6 +7661,52 @@ class TestPrebuiltMetricLoaderVersionPinning:
         lazy_metric = getattr(agentplatform_genai_types.RubricMetric, prop_name)
         assert lazy_metric.version == "v1"
         assert lazy_metric._get_api_metric_spec_name() is None
+
+
+class TestPrebuiltMetricLatestVersion:
+    """Verifies that metrics without a version resolve to the latest specs."""
+
+    @pytest.mark.parametrize(
+        "name,expected_spec",
+        [
+            ("GENERAL_QUALITY", "general_quality_v3"),
+            ("INSTRUCTION_FOLLOWING", "instruction_following_v3"),
+            ("TEXT_QUALITY", "text_quality_v3"),
+            ("GROUNDING", "grounding_v3"),
+            ("HALLUCINATION", "hallucination_v3"),
+            ("SAFETY", "safety_v4"),
+            ("MULTI_TURN_GENERAL_QUALITY", "multi_turn_general_quality_v3"),
+            ("MULTI_TURN_TEXT_QUALITY", "multi_turn_text_quality_v3"),
+            ("MULTI_TURN_TASK_SUCCESS", "multi_turn_task_success_v2"),
+            ("MULTI_TURN_TOOL_USE_QUALITY", "multi_turn_tool_use_quality_v2"),
+            ("MULTI_TURN_TRAJECTORY_QUALITY", "multi_turn_trajectory_quality_v3"),
+            ("TOOL_USE_QUALITY", "tool_use_quality_v3"),
+            ("FINAL_RESPONSE_QUALITY", "final_response_quality_v3"),
+            ("FINAL_RESPONSE_MATCH", "final_response_match_v4"),
+            ("FINAL_RESPONSE_REFERENCE_FREE", "final_response_reference_free_v3"),
+            ("GECKO_TEXT2IMAGE", "gecko_text2image_v3"),
+            ("GECKO_TEXT2VIDEO", "gecko_text2video_v3"),
+        ],
+    )
+    def test_unversioned_metric_resolves_to_latest(self, name, expected_spec):
+        lazy_metric = _evals_metric_loaders.LazyLoadedPrebuiltMetric(name=name)
+        assert lazy_metric._get_api_metric_spec_name() == expected_spec
+        assert expected_spec in _evals_constant.SUPPORTED_PREDEFINED_METRICS
+
+    @pytest.mark.parametrize(
+        "name,version,expected_spec",
+        [
+            ("GENERAL_QUALITY", "v2", "general_quality_v2"),
+            ("SAFETY", "v3", "safety_v3"),
+            ("FINAL_RESPONSE_MATCH", "v3", "final_response_match_v3"),
+            ("MULTI_TURN_TASK_SUCCESS", "v1", "multi_turn_task_success_v1"),
+        ],
+    )
+    def test_earlier_version_can_be_pinned(self, name, version, expected_spec):
+        lazy_metric = _evals_metric_loaders.LazyLoadedPrebuiltMetric(
+            name=name, version=version
+        )
+        assert lazy_metric._get_api_metric_spec_name() == expected_spec
 
 
 class TestMergeResponseDatasets:

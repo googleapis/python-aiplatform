@@ -49,31 +49,52 @@ SUPPORTED_PREDEFINED_METRICS = frozenset(
         "final_response_reference_free_v2",
         "gecko_text2image_v2",
         "gecko_text2video_v2",
+        # Latest predefined metrics. Judge calls stay in the request's data
+        # residency jurisdiction.
+        "general_quality_v3",
+        "instruction_following_v3",
+        "text_quality_v3",
+        "grounding_v3",
+        "hallucination_v3",
+        "safety_v4",
+        "multi_turn_general_quality_v3",
+        "multi_turn_text_quality_v3",
+        "multi_turn_task_success_v2",
+        "multi_turn_tool_use_quality_v2",
+        "multi_turn_trajectory_quality_v3",
+        "tool_use_quality_v3",
+        "final_response_quality_v3",
+        "final_response_match_v4",
+        "final_response_reference_free_v3",
+        "gecko_text2image_v3",
+        "gecko_text2video_v3",
     }
 )
 
 # Maps the SDK-facing base metric name to the latest API spec name.
 # When a user creates a metric without specifying a version, this resolves to
-# the latest available version (backed by Gemini 3.5 Flash).
-# Note: v2/v3 specs require Gemini 3.5 Flash, which is not available in all
-# regions (e.g. us-central1). To use v1 explicitly for full regional
-# availability:
-#   types.RubricMetric.GENERAL_QUALITY(version="v1")
+# the latest available version, whose judge calls stay in the request's data
+# residency jurisdiction (us-* -> us, EU regions -> eu). To pin an earlier
+# version:
+#   types.RubricMetric.GENERAL_QUALITY(version="v2")
 METRIC_LATEST_SPEC_NAME: dict[str, str] = {
-    "general_quality": "general_quality_v2",
-    "instruction_following": "instruction_following_v2",
-    "text_quality": "text_quality_v2",
-    "grounding": "grounding_v2",
-    "hallucination": "hallucination_v2",
-    "safety": "safety_v3",
-    "multi_turn_general_quality": "multi_turn_general_quality_v2",
-    "multi_turn_text_quality": "multi_turn_text_quality_v2",
-    "tool_use_quality": "tool_use_quality_v2",
-    "final_response_quality": "final_response_quality_v2",
-    "final_response_match": "final_response_match_v3",
-    "final_response_reference_free": "final_response_reference_free_v2",
-    "gecko_text2image": "gecko_text2image_v2",
-    "gecko_text2video": "gecko_text2video_v2",
+    "general_quality": "general_quality_v3",
+    "instruction_following": "instruction_following_v3",
+    "text_quality": "text_quality_v3",
+    "grounding": "grounding_v3",
+    "hallucination": "hallucination_v3",
+    "safety": "safety_v4",
+    "multi_turn_general_quality": "multi_turn_general_quality_v3",
+    "multi_turn_text_quality": "multi_turn_text_quality_v3",
+    "multi_turn_task_success": "multi_turn_task_success_v2",
+    "multi_turn_tool_use_quality": "multi_turn_tool_use_quality_v2",
+    "multi_turn_trajectory_quality": "multi_turn_trajectory_quality_v3",
+    "tool_use_quality": "tool_use_quality_v3",
+    "final_response_quality": "final_response_quality_v3",
+    "final_response_match": "final_response_match_v4",
+    "final_response_reference_free": "final_response_reference_free_v3",
+    "gecko_text2image": "gecko_text2image_v3",
+    "gecko_text2video": "gecko_text2video_v3",
 }
 
 SUPPORTED_VERTEX_MAAS_MODEL_PREFIXES = frozenset(
