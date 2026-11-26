@@ -15,9 +15,16 @@
 # limitations under the License.
 #
 """Unit tests for generative model prompts."""
+
 # pylint: disable=protected-access,bad-continuation
 
+from google.cloud.aiplatform import initializer as aiplatform_initializer
+from google.cloud.aiplatform.compat.types import dataset as gca_dataset
+from google.cloud.aiplatform_v1.types import (
+    dataset_version as gca_dataset_version,
+)
 from vertexai.prompts._prompts import Prompt
+from vertexai.prompts import _prompt_management
 from vertexai.generative_models import (
     Content,
     Part,
@@ -41,7 +48,6 @@ from vertexai.generative_models._generative_models import (
     types_v1 as gapic_content_types,
     types_v1 as gapic_tool_types,
 )
-
 
 _RESPONSE_TEXT_PART_STRUCT = {
     "text": "The sky appears blue due to a phenomenon called Rayleigh scattering."
@@ -304,6 +310,75 @@ def create_image():
 @pytest.mark.usefixtures("google_auth_mock")
 class TestPrompt:
     """Unit tests for generative model prompts."""
+
+    def _make_prompt_dataset_metadata(self):
+        prompt = Prompt(prompt_data="Rate the movie {movie}", model_name="gemini-pro")
+        return _prompt_management._format_dataset_metadata_dict(prompt=prompt)
+
+    @mock.patch.object(Prompt, "_dataset_client", new_callable=mock.PropertyMock)
+    def test_get_latest_prompt_populates_version_metadata(self, dataset_client_mock):
+        aiplatform_initializer.global_config.init(
+            project="test-project", location="us-central1"
+        )
+        prompt_id = "123456789"
+        dataset_name = "projects/test-project/locations/us-central1/datasets/123456789"
+        metadata = self._make_prompt_dataset_metadata()
+        dataset_client = mock.Mock()
+        dataset_client.get_dataset.return_value = gca_dataset.Dataset(
+            name=dataset_name,
+            display_name="test prompt",
+            metadata_schema_uri=_prompt_management.PROMPT_SCHEMA_URI,
+            metadata=metadata,
+            model_reference="gemini-pro",
+        )
+        dataset_client.list_dataset_versions.return_value = [
+            gca_dataset_version.DatasetVersion(
+                name=f"{dataset_name}/datasetVersions/3",
+                display_name="version 3",
+            )
+        ]
+        dataset_client_mock.return_value = dataset_client
+
+        prompt = _prompt_management.get(prompt_id=prompt_id)
+
+        assert prompt.version_id == "3"
+        assert prompt.version_name == "version 3"
+        dataset_client.list_dataset_versions.assert_called_once_with(
+            parent=dataset_name,
+            page_size=1,
+            order_by="create_time desc",
+        )
+
+    @mock.patch.object(Prompt, "_dataset_client", new_callable=mock.PropertyMock)
+    def test_get_pinned_prompt_does_not_list_latest_version(self, dataset_client_mock):
+        aiplatform_initializer.global_config.init(
+            project="test-project", location="us-central1"
+        )
+        prompt_id = "123456789"
+        version_id = "2"
+        dataset_name = "projects/test-project/locations/us-central1/datasets/123456789"
+        version_name = f"{dataset_name}/datasetVersions/{version_id}"
+        metadata = self._make_prompt_dataset_metadata()
+        dataset_client = mock.Mock()
+        dataset_client.get_dataset_version.return_value = (
+            gca_dataset_version.DatasetVersion(
+                name=version_name,
+                display_name="version 2",
+                metadata=metadata,
+                model_reference="gemini-pro",
+            )
+        )
+        dataset_client.get_dataset.return_value = gca_dataset.Dataset(
+            name=dataset_name,
+            display_name="test prompt",
+        )
+        dataset_client_mock.return_value = dataset_client
+
+        prompt = _prompt_management.get(prompt_id=prompt_id, version_id=version_id)
+
+        assert prompt.version_id == version_id
+        assert prompt.version_name == "version 2"
+        dataset_client.list_dataset_versions.assert_not_called()
 
     def test_string_prompt_constructor_string_variables(self):
         # Create string prompt with string only variable values
