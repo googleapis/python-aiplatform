@@ -477,14 +477,10 @@ class _PipelineJob(
 
         if reserved_ip_ranges:
             gca_resouce.reserved_ip_ranges = reserved_ip_ranges
-        user_project = initializer.global_config.project
-        user_location = initializer.global_config.location
-        parent = initializer.global_config.common_location_path(
-            project=user_project, location=user_location
-        )
 
         client = self._instantiate_client(
-            location=user_location,
+            location=self.location,
+            credentials=self.credentials,
             appended_user_agent=["preview-pipeline-job-submit"],
         )
         v1beta1_client = client.select_version(compat.V1BETA1)
@@ -492,12 +488,14 @@ class _PipelineJob(
         _LOGGER.log_create_with_lro(self.__class__)
 
         request = aiplatform_v1beta1.CreatePipelineJobRequest(
-            parent=parent,
+            parent=self._parent,
             pipeline_job=self._v1_beta1_pipeline_job,
             pipeline_job_id=job_id or self.job_id,
         )
 
-        response = v1beta1_client.create_pipeline_job(request=request)
+        response = v1beta1_client.create_pipeline_job(
+            request=request, timeout=create_request_timeout
+        )
 
         self._gca_resource = response
 
@@ -561,14 +559,10 @@ class _PipelineJob(
 
         if reserved_ip_ranges:
             gca_resouce.reserved_ip_ranges = reserved_ip_ranges
-        user_project = initializer.global_config.project
-        user_location = initializer.global_config.location
-        parent = initializer.global_config.common_location_path(
-            project=user_project, location=user_location
-        )
 
         client = self._instantiate_client(
-            location=user_location,
+            location=self.location,
+            credentials=self.credentials,
             appended_user_agent=["preview-pipeline-job-submit"],
         )
         v1beta1_client = client.select_version(compat.V1BETA1)
@@ -627,7 +621,7 @@ class _PipelineJob(
         )
 
         request = aiplatform_v1beta1.CreatePipelineJobRequest(
-            parent=parent,
+            parent=self._parent,
             pipeline_job=self._v1_beta1_pipeline_job,
             pipeline_job_id=job_id,
         )
