@@ -55,7 +55,7 @@ def _generate_json_schema_from_function_using_pydantic(
     function_description = func.__doc__
 
     # Parse parameter descriptions from the docstring.
-    # Also parse the function descripton in a better way.
+    # Also parse the function description in a better way.
     parameter_descriptions = {}
     if docstring_parser:
         parsed_docstring = docstring_parser.parse(func.__doc__)

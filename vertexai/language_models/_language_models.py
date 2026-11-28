@@ -1377,7 +1377,7 @@ class _TextGenerationModel(_LanguageModel):
                 The maximum value for `logprobs` is 5.
             presence_penalty:
                 Positive values penalize tokens that have appeared in the generated text,
-                thus increasing the possibility of generating more diversed topics.
+                thus increasing the possibility of generating more diverse topics.
                 Range: [-2.0, 2.0]
             frequency_penalty:
                 Positive values penalize tokens that repeatedly appear in the generated
@@ -1466,7 +1466,7 @@ class _TextGenerationModel(_LanguageModel):
                 The maximum value for `logprobs` is 5.
             presence_penalty:
                 Positive values penalize tokens that have appeared in the generated text,
-                thus increasing the possibility of generating more diversed topics.
+                thus increasing the possibility of generating more diverse topics.
                 Range: [-2.0, 2.0]
             frequency_penalty:
                 Positive values penalize tokens that repeatedly appear in the generated
@@ -1547,7 +1547,7 @@ class _TextGenerationModel(_LanguageModel):
                 The maximum value for `logprobs` is 5.
             presence_penalty:
                 Positive values penalize tokens that have appeared in the generated text,
-                thus increasing the possibility of generating more diversed topics.
+                thus increasing the possibility of generating more diverse topics.
                 Range: [-2.0, 2.0]
             frequency_penalty:
                 Positive values penalize tokens that repeatedly appear in the generated
@@ -1633,7 +1633,7 @@ class _TextGenerationModel(_LanguageModel):
                 The maximum value for `logprobs` is 5.
             presence_penalty:
                 Positive values penalize tokens that have appeared in the generated text,
-                thus increasing the possibility of generating more diversed topics.
+                thus increasing the possibility of generating more diverse topics.
                 Range: [-2.0, 2.0]
             frequency_penalty:
                 Positive values penalize tokens that repeatedly appear in the generated
@@ -1727,7 +1727,7 @@ def _create_text_generation_prediction_request(
             The maximum value for `logprobs` is 5.
         presence_penalty:
             Positive values penalize tokens that have appeared in the generated text,
-            thus increasing the possibility of generating more diversed topics.
+            thus increasing the possibility of generating more diverse topics.
             Range: [-2.0, 2.0]
         frequency_penalty:
             Positive values penalize tokens that repeatedly appear in the generated
@@ -1831,7 +1831,7 @@ def _parse_text_generation_model_multi_candidate_response(
     """Converts the raw text_generation model response to `MultiCandidateTextGenerationResponse`."""
     # The contract for the PredictionService is that there is a 1:1 mapping
     # between request `instances` and response `predictions`.
-    # Unfortunetely, the text-bison models violate this contract.
+    # Unfortunately, the text-bison models violate this contract.
 
     prediction_count = len(prediction_response.predictions)
     candidates = []
@@ -3299,7 +3299,7 @@ class ChatSession(_ChatSessionBase):
 class CodeChatSession(_ChatSessionBase):
     """CodeChatSession represents a chat session with code chat language model.
 
-    Within a code chat session, the model keeps context and remembers the previous converstion.
+    Within a code chat session, the model keeps context and remembers the previous conversation.
     """
 
     __module__ = "vertexai.language_models"

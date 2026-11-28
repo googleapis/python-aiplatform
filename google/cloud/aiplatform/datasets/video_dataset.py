@@ -111,7 +111,7 @@ class VideoDataset(datasets._Dataset):
                 compared using their binary data (bytes), not on their content.
                 If annotation labels are referenced in a schema specified by the
                 `import_schema_url` parameter, then the labels in the
-                `data_item_labels` dictionary are overriden by the annotations.
+                `data_item_labels` dictionary are overridden by the annotations.
             project (str):
                 The name of the Google Cloud project to which this
                 `VideoDataset` is uploaded. This overrides the project that
