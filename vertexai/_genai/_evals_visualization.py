@@ -20,6 +20,7 @@ import html
 import json
 import logging
 import textwrap
+import uuid
 from typing import Any, Optional
 
 import pandas as pd
@@ -248,6 +249,10 @@ def _extract_dataset_rows(dataset: types.EvaluationDataset) -> list[dict[str, An
 def get_evaluation_html(eval_result_json: str) -> str:
     """Returns a self-contained HTML for single evaluation visualization."""
     payload_b64 = _encode_to_base64(eval_result_json)
+    uid = uuid.uuid4().hex[:12]
+    root_id = f"vertex-eval-root-{uid}"
+    summary_id = f"summary-section-{uid}"
+    details_id = f"details-section-{uid}"
     return textwrap.dedent(
         f"""
 <!DOCTYPE html>
@@ -258,122 +263,144 @@ def get_evaluation_html(eval_result_json: str) -> str:
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js"></script>
     <style>
-        body {{ font-family: 'Roboto', 'Helvetica', sans-serif; margin: 2em; background-color: #f8f9fa; color: #202124; }}
-        .container {{ max-width: 1200px; margin: 20px auto; padding: 20px; background-color: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.12); }}
-        h1, h2, h3 {{ color: #3c4043; }}
-        h1 {{ border-bottom: 2px solid #4285F4; padding-bottom: 8px; }}
-        h2 {{ border-bottom: 1px solid #dadce0; padding-bottom: 8px; }}
-        table {{ border-collapse: collapse; width: 100%; margin: 1em 0; }}
-        th, td {{ border: 1px solid #dadce0; padding: 12px; text-align: left; vertical-align: top; }}
-        th {{ background-color: #f2f2f2; font-weight: 500; }}
-        details {{ border: 1px solid #dadce0; border-radius: 8px; padding: 16px; margin-bottom: 16px; background: #fff; }}
-        summary {{ font-weight: 500; font-size: 1.1em; cursor: pointer; }}
-        .prompt-container {{ background-color: #e8f0fe; padding: 16px; margin: 12px 0; border-radius: 8px; white-space: pre-wrap; word-wrap: break-word; overflow-wrap: break-word; }}
-        .reference-container {{ background-color: #fff; border: 1px solid #dadce0; padding: 16px; margin: 12px 0; border-radius: 8px; white-space: pre-wrap; word-wrap: break-word; overflow-wrap: break-word; }}
-        .agent-info-container {{ background-color: #f1f3f4; padding: 16px; margin: 12px 0; border-radius: 8px; word-wrap: break-word; overflow-wrap: break-word; font-size: 14px; }}
-        .agent-info-grid {{ display: grid; grid-template-columns: 120px 1fr; gap: 8px; margin-bottom: 12px; }}
-        .agent-info-grid dt {{ font-weight: 500; color: #3c4043; }}
-        .agent-info-grid dd {{ margin: 0; white-space: pre-wrap; word-wrap: break-word; }}
-        .intermediate-events-container {{ background-color: #f1f3f4; padding: 16px; margin: 12px 0; border-radius: 8px; word-wrap: break-word; overflow-wrap: break-word; max-height: 400px; overflow-y: auto; overflow-x: auto; }}
-        .response-container {{ background-color: #f9f9f9; padding: 12px; margin-top: 8px; border-radius: 8px; border: 1px solid #eee; white-space: pre-wrap; word-wrap: break-word; overflow-wrap: break-word; }}
-        .explanation {{ color: #5f6368; font-style: italic; font-size: 0.9em; padding-top: 6px; }}
-        .raw-json-details summary {{ font-size: 0.9em; cursor: pointer; color: #5f6368;}}
-        .raw-json-container {{ white-space: pre-wrap; word-wrap: break-word; max-height: 300px; overflow-y: auto; background-color: #f1f1f1; padding: 10px; border-radius: 4px; margin-top: 8px; }}
+        #{root_id} {{ font-family: 'Roboto', 'Helvetica', sans-serif; margin: 2em; background-color: #f8f9fa; color: #202124; }}
+        #{root_id} .container {{ max-width: 1200px; margin: 20px auto; padding: 20px; background-color: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.12); }}
+        #{root_id} h1, #{root_id} h2, #{root_id} h3 {{ color: #3c4043; }}
+        #{root_id} h1 {{ border-bottom: 2px solid #4285F4; padding-bottom: 8px; }}
+        #{root_id} h2 {{ border-bottom: 1px solid #dadce0; padding-bottom: 8px; }}
+        #{root_id} table {{ border-collapse: collapse; width: 100%; margin: 1em 0; }}
+        #{root_id} th, #{root_id} td {{ border: 1px solid #dadce0; padding: 12px; text-align: left; vertical-align: top; }}
+        #{root_id} th {{ background-color: #f2f2f2; font-weight: 500; }}
+        #{root_id} details {{ border: 1px solid #dadce0; border-radius: 8px; padding: 16px; margin-bottom: 16px; background: #fff; }}
+        #{root_id} summary {{ font-weight: 500; font-size: 1.1em; cursor: pointer; }}
+        #{root_id} .prompt-container {{ background-color: #e8f0fe; padding: 16px; margin: 12px 0; border-radius: 8px; white-space: pre-wrap; word-wrap: break-word; overflow-wrap: break-word; }}
+        #{root_id} .reference-container {{ background-color: #fff; border: 1px solid #dadce0; padding: 16px; margin: 12px 0; border-radius: 8px; white-space: pre-wrap; word-wrap: break-word; overflow-wrap: break-word; }}
+        #{root_id} .agent-info-container {{ background-color: #f1f3f4; padding: 16px; margin: 12px 0; border-radius: 8px; word-wrap: break-word; overflow-wrap: break-word; font-size: 14px; }}
+        #{root_id} .agent-info-grid {{ display: grid; grid-template-columns: 120px 1fr; gap: 8px; margin-bottom: 12px; }}
+        #{root_id} .agent-info-grid dt {{ font-weight: 500; color: #3c4043; }}
+        #{root_id} .agent-info-grid dd {{ margin: 0; white-space: pre-wrap; word-wrap: break-word; }}
+        #{root_id} .intermediate-events-container {{ background-color: #f1f3f4; padding: 16px; margin: 12px 0; border-radius: 8px; word-wrap: break-word; overflow-wrap: break-word; max-height: 400px; overflow-y: auto; overflow-x: auto; }}
+        #{root_id} .response-container {{ background-color: #f9f9f9; padding: 12px; margin-top: 8px; border-radius: 8px; border: 1px solid #eee; white-space: pre-wrap; word-wrap: break-word; overflow-wrap: break-word; }}
+        #{root_id} .explanation {{ color: #5f6368; font-style: italic; font-size: 0.9em; padding-top: 6px; }}
+        #{root_id} .raw-json-details summary {{ font-size: 0.9em; cursor: pointer; color: #5f6368;}}
+        #{root_id} .raw-json-container {{ white-space: pre-wrap; word-wrap: break-word; max-height: 300px; overflow-y: auto; background-color: #f1f1f1; padding: 10px; border-radius: 4px; margin-top: 8px; }}
 
-        .rubric-bubble-container {{ display: flex; flex-wrap: wrap; gap: 8px; }}
-        .rubric-details {{ border: none; padding: 0; margin: 0; }}
-        .rubric-bubble {{ display: inline-flex; align-items: center; background-color: #e8f0fe; color: #1967d2; border-radius: 16px; padding: 8px 12px; font-size: 0.9em; cursor: pointer; list-style: none; }}
-        .rubric-bubble::-webkit-details-marker {{ display: none; }}
-        .rubric-bubble::before {{ content: '►'; margin-right: 8px; font-size: 0.8em; transition: transform 0.2s; }}
-        .rubric-details[open] > .rubric-bubble::before {{ transform: rotate(90deg); }}
-        .pass {{ color: green; font-weight: bold; }}
-        .fail {{ color: red; font-weight: bold; }}
+        #{root_id} .rubric-bubble-container {{ display: flex; flex-wrap: wrap; gap: 8px; }}
+        #{root_id} .rubric-details {{ border: none; padding: 0; margin: 0; }}
+        #{root_id} .rubric-bubble {{ display: inline-flex; align-items: center; background-color: #e8f0fe; color: #1967d2; border-radius: 16px; padding: 8px 12px; font-size: 0.9em; cursor: pointer; list-style: none; }}
+        #{root_id} .rubric-bubble::-webkit-details-marker {{ display: none; }}
+        #{root_id} .rubric-bubble::before {{ content: '►'; margin-right: 8px; font-size: 0.8em; transition: transform 0.2s; }}
+        #{root_id} .rubric-details[open] > .rubric-bubble::before {{ transform: rotate(90deg); }}
+        #{root_id} .pass {{ color: green; font-weight: bold; }}
+        #{root_id} .fail {{ color: red; font-weight: bold; }}
 
-        .case-content-wrapper {{ display: flex; gap: 1rem; }}
-        .case-content-main {{ flex: 1; }}
-        .case-content-sidebar {{ flex: 1; min-width: 0; }}
+        #{root_id} .case-content-wrapper {{ display: flex; gap: 1rem; }}
+        #{root_id} .case-content-main {{ flex: 1; }}
+        #{root_id} .case-content-sidebar {{ flex: 1; min-width: 0; }}
 
         /* Tool Declarations */
-        .tool-declarations-container {{ background-color: #f1f1f1; padding: 10px; border-radius: 4px; margin-top: 8px; max-height: 300px; overflow-y: auto; }}
-        .tool-declaration {{ margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #ddd; }}
-        .tool-declaration:last-child {{ border-bottom: none; margin-bottom: 0; padding-bottom: 0; }}
+        #{root_id} .tool-declarations-container {{ background-color: #f1f1f1; padding: 10px; border-radius: 4px; margin-top: 8px; max-height: 300px; overflow-y: auto; }}
+        #{root_id} .tool-declaration {{ margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #ddd; }}
+        #{root_id} .tool-declaration:last-child {{ border-bottom: none; margin-bottom: 0; padding-bottom: 0; }}
 
         /* Agent Topology UI */
-        .system-topology-details {{ background: #fff; border: 1px solid #dadce0; border-radius: 8px; padding: 16px; margin-top: 16px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }}
-        .system-topology-details > summary {{ font-size: 1.1em; font-weight: 500; cursor: pointer; outline: none; margin-bottom: 12px; list-style: none; display: flex; align-items: center; color: #3c4043; }}
-        .system-topology-details > summary::-webkit-details-marker {{ display: none; }}
-        .system-topology-details > summary::before {{ content: '▼'; font-size: 0.8em; margin-right: 8px; transition: transform 0.2s; }}
-        .system-topology-details:not([open]) > summary::before {{ transform: rotate(-90deg); }}
+        #{root_id} .system-topology-details {{ background: #fff; border: 1px solid #dadce0; border-radius: 8px; padding: 16px; margin-top: 16px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }}
+        #{root_id} .system-topology-details > summary {{ font-size: 1.1em; font-weight: 500; cursor: pointer; outline: none; margin-bottom: 12px; list-style: none; display: flex; align-items: center; color: #3c4043; }}
+        #{root_id} .system-topology-details > summary::-webkit-details-marker {{ display: none; }}
+        #{root_id} .system-topology-details > summary::before {{ content: '▼'; font-size: 0.8em; margin-right: 8px; transition: transform 0.2s; }}
+        #{root_id} .system-topology-details:not([open]) > summary::before {{ transform: rotate(-90deg); }}
 
-        .topology-container {{ background: #f8f9fa; border-radius: 8px; padding: 16px; margin-top: 8px; border: 1px solid #dadce0; overflow-x: auto; }}
-        .agent-node {{ background: #fff; border: 1px solid #dadce0; border-radius: 8px; margin-bottom: 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); min-width: 300px; max-width: 600px; }}
-        .agent-node-header {{ padding: 10px 16px; border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 8px; background: #f1f3f4; border-top-left-radius: 8px; border-top-right-radius: 8px; }}
-        .agent-name {{ font-weight: 600; color: #1a73e8; }}
-        .agent-type {{ font-size: 11px; background: #e8eaed; padding: 2px 8px; border-radius: 12px; color: #5f6368; font-family: monospace; }}
-        .agent-node-body {{ padding: 12px 16px; font-size: 13px; color: #3c4043; }}
-        .agent-desc {{ margin-bottom: 8px; }}
-        .agent-inst details, .agent-tools details {{ margin-bottom: 8px; padding: 8px; }}
-        .agent-inst summary, .agent-tools summary {{ cursor: pointer; font-weight: 500; color: #5f6368; font-size: 12px; outline: none; margin-bottom: 0; }}
-        .inst-content, .tools-content {{ margin-top: 8px; padding: 8px; background: #f8f9fa; border-radius: 4px; border: 1px solid #eee; white-space: pre-wrap; word-wrap: break-word; font-family: monospace; font-size: 12px; max-height: 200px; overflow-y: auto; }}
-        .sub-agents-container {{ margin-top: 16px; padding-left: 24px; border-left: 2px solid #dadce0; position: relative; }}
-        .sub-agents-container::before {{ content: ''; position: absolute; top: -16px; left: -2px; width: 2px; height: 16px; background: #dadce0; }}
+        #{root_id} .topology-container {{ background: #f8f9fa; border-radius: 8px; padding: 16px; margin-top: 8px; border: 1px solid #dadce0; overflow-x: auto; }}
+        #{root_id} .agent-node {{ background: #fff; border: 1px solid #dadce0; border-radius: 8px; margin-bottom: 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); min-width: 300px; max-width: 600px; }}
+        #{root_id} .agent-node-header {{ padding: 10px 16px; border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 8px; background: #f1f3f4; border-top-left-radius: 8px; border-top-right-radius: 8px; }}
+        #{root_id} .agent-name {{ font-weight: 600; color: #1a73e8; }}
+        #{root_id} .agent-type {{ font-size: 11px; background: #e8eaed; padding: 2px 8px; border-radius: 12px; color: #5f6368; font-family: monospace; }}
+        #{root_id} .agent-node-body {{ padding: 12px 16px; font-size: 13px; color: #3c4043; }}
+        #{root_id} .agent-desc {{ margin-bottom: 8px; }}
+        #{root_id} .agent-inst details, #{root_id} .agent-tools details {{ margin-bottom: 8px; padding: 8px; }}
+        #{root_id} .agent-inst summary, #{root_id} .agent-tools summary {{ cursor: pointer; font-weight: 500; color: #5f6368; font-size: 12px; outline: none; margin-bottom: 0; }}
+        #{root_id} .inst-content, #{root_id} .tools-content {{ margin-top: 8px; padding: 8px; background: #f8f9fa; border-radius: 4px; border: 1px solid #eee; white-space: pre-wrap; word-wrap: break-word; font-family: monospace; font-size: 12px; max-height: 200px; overflow-y: auto; }}
+        #{root_id} .sub-agents-container {{ margin-top: 16px; padding-left: 24px; border-left: 2px solid #dadce0; position: relative; }}
+        #{root_id} .sub-agents-container::before {{ content: ''; position: absolute; top: -16px; left: -2px; width: 2px; height: 16px; background: #dadce0; }}
 
         /* Multi-turn Agent Trace UI */
-        .conversation-trace-details {{ background: #fff; border: 1px solid #dadce0; border-radius: 8px; padding: 16px; margin-top: 0; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }}
-        .conversation-trace-details > summary {{ font-size: 1.1em; font-weight: 500; cursor: pointer; outline: none; margin-bottom: 8px; list-style: none; display: flex; align-items: center; color: #3c4043; }}
-        .conversation-trace-details > summary::-webkit-details-marker {{ display: none; }}
-        .conversation-trace-details > summary::before {{ content: '▼'; font-size: 0.8em; margin-right: 8px; transition: transform 0.2s; }}
-        .conversation-trace-details:not([open]) > summary::before {{ transform: rotate(-90deg); }}
+        #{root_id} .conversation-trace-details {{ background: #fff; border: 1px solid #dadce0; border-radius: 8px; padding: 16px; margin-top: 0; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }}
+        #{root_id} .conversation-trace-details > summary {{ font-size: 1.1em; font-weight: 500; cursor: pointer; outline: none; margin-bottom: 8px; list-style: none; display: flex; align-items: center; color: #3c4043; }}
+        #{root_id} .conversation-trace-details > summary::-webkit-details-marker {{ display: none; }}
+        #{root_id} .conversation-trace-details > summary::before {{ content: '▼'; font-size: 0.8em; margin-right: 8px; transition: transform 0.2s; }}
+        #{root_id} .conversation-trace-details:not([open]) > summary::before {{ transform: rotate(-90deg); }}
 
-        .agent-timeline {{ position: relative; padding-left: 32px; margin-top: 16px; font-family: 'Roboto', sans-serif; }}
-        .agent-timeline::before {{ content: ''; position: absolute; top: 0; bottom: 0; left: 11px; width: 2px; background: #e8eaed; }}
+        #{root_id} .agent-timeline {{ position: relative; padding-left: 32px; margin-top: 16px; font-family: 'Roboto', sans-serif; }}
+        #{root_id} .agent-timeline::before {{ content: ''; position: absolute; top: 0; bottom: 0; left: 11px; width: 2px; background: #e8eaed; }}
 
-        .turn-details {{ margin-bottom: 16px; padding: 0; border: none; }}
-        .turn-summary {{ list-style: none; outline: none; cursor: pointer; display: block; margin-left: -32px; padding-left: 32px; }}
-        .turn-summary::-webkit-details-marker {{ display: none; }}
-        .turn-header {{ margin: 16px 0 16px -32px; position: relative; z-index: 1; display: inline-flex; align-items: center; }}
+        #{root_id} .turn-details {{ margin-bottom: 16px; padding: 0; border: none; }}
+        #{root_id} .turn-summary {{ list-style: none; outline: none; cursor: pointer; display: block; margin-left: -32px; padding-left: 32px; }}
+        #{root_id} .turn-summary::-webkit-details-marker {{ display: none; }}
+        #{root_id} .turn-header {{ margin: 16px 0 16px -32px; position: relative; z-index: 1; display: inline-flex; align-items: center; }}
 
-        .turn-badge {{ display: inline-flex; align-items: center; background: #f8f9fa; color: #5f6368; padding: 4px 12px; border-radius: 16px; font-size: 11px; font-weight: 600; border: 1px solid #dadce0; letter-spacing: 0.5px; }}
-        .turn-divider {{ color: #dadce0; margin: 0 6px; font-weight: normal; }}
-        .turn-badge::before {{ content: '▼'; margin-right: 6px; font-size: 0.8em; display: inline-block; transition: transform 0.2s; }}
-        .turn-details:not([open]) .turn-badge::before {{ transform: rotate(-90deg); }}
+        #{root_id} .turn-badge {{ display: inline-flex; align-items: center; background: #f8f9fa; color: #5f6368; padding: 4px 12px; border-radius: 16px; font-size: 11px; font-weight: 600; border: 1px solid #dadce0; letter-spacing: 0.5px; }}
+        #{root_id} .turn-divider {{ color: #dadce0; margin: 0 6px; font-weight: normal; }}
+        #{root_id} .turn-badge::before {{ content: '▼'; margin-right: 6px; font-size: 0.8em; display: inline-block; transition: transform 0.2s; }}
+        #{root_id} .turn-details:not([open]) .turn-badge::before {{ transform: rotate(-90deg); }}
 
-        .timeline-item {{ position: relative; margin-bottom: 16px; }}
-        .timeline-icon {{ position: absolute; left: -32px; top: 0; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: #e8f0fe; border: 2px solid #fff; color: #1a73e8; z-index: 1; box-sizing: border-box; margin-left: 0; }}
-        .timeline-icon.user {{ background: #f3e8fd; color: #9334e6; }}
-        .timeline-icon.tool {{ background: #e6f4ea; color: #1e8e3e; }}
-        .timeline-content {{ background: #fff; border: 1px solid #dadce0; border-radius: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); overflow: hidden; }}
-        .event-header {{ padding: 12px 16px 8px; font-size: 12px; font-weight: 600; display: flex; align-items: baseline; gap: 8px; }}
-        .event-author {{ color: #1a73e8; letter-spacing: 0.5px; text-transform: uppercase; }}
-        .event-author.user {{ color: #9334e6; }}
-        .event-author.tool {{ color: #1e8e3e; }}
-        .event-role {{ color: #80868b; font-weight: normal; font-size: 11px; font-family: monospace;}}
-        .event-body {{ padding: 0 16px 12px; font-size: 14px; color: #202124; line-height: 1.5; }}
-        .dark-code-block {{ background: #0e111a; color: #d4d4d4; padding: 12px; border-radius: 6px; font-family: 'Consolas', 'Courier New', monospace; font-size: 13px; margin: 8px 0 0 0; overflow-x: auto; border: 1px solid #3c4043; }}
-        .function-call-title {{ color: #e37400; font-weight: 600; font-size: 12px; margin-top: 8px; display: flex; align-items: center; gap: 4px; }}
-        .function-response-title {{ color: #0f9d58; font-weight: 600; font-size: 12px; margin-top: 8px; display: flex; align-items: center; gap: 4px; }}
-        .agent-trace-container {{ max-height: 600px; overflow-x: auto; overflow-y: auto; padding-right: 8px; border: 1px solid #eee; padding: 12px; border-radius: 8px; background: #fafafa; }}
+        #{root_id} .timeline-item {{ position: relative; margin-bottom: 16px; }}
+        #{root_id} .timeline-icon {{ position: absolute; left: -32px; top: 0; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: #e8f0fe; border: 2px solid #fff; color: #1a73e8; z-index: 1; box-sizing: border-box; margin-left: 0; }}
+        #{root_id} .timeline-icon.user {{ background: #f3e8fd; color: #9334e6; }}
+        #{root_id} .timeline-icon.tool {{ background: #e6f4ea; color: #1e8e3e; }}
+        #{root_id} .timeline-content {{ background: #fff; border: 1px solid #dadce0; border-radius: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); overflow: hidden; }}
+        #{root_id} .event-header {{ padding: 12px 16px 8px; font-size: 12px; font-weight: 600; display: flex; align-items: baseline; gap: 8px; }}
+        #{root_id} .event-author {{ color: #1a73e8; letter-spacing: 0.5px; text-transform: uppercase; }}
+        #{root_id} .event-author.user {{ color: #9334e6; }}
+        #{root_id} .event-author.tool {{ color: #1e8e3e; }}
+        #{root_id} .event-role {{ color: #80868b; font-weight: normal; font-size: 11px; font-family: monospace;}}
+        #{root_id} .event-body {{ padding: 0 16px 12px; font-size: 14px; color: #202124; line-height: 1.5; }}
+        #{root_id} .dark-code-block {{ background: #0e111a; color: #d4d4d4; padding: 12px; border-radius: 6px; font-family: 'Consolas', 'Courier New', monospace; font-size: 13px; margin: 8px 0 0 0; overflow-x: auto; border: 1px solid #3c4043; }}
+        #{root_id} .function-call-title {{ color: #e37400; font-weight: 600; font-size: 12px; margin-top: 8px; display: flex; align-items: center; gap: 4px; }}
+        #{root_id} .function-response-title {{ color: #0f9d58; font-weight: 600; font-size: 12px; margin-top: 8px; display: flex; align-items: center; gap: 4px; }}
+        #{root_id} .agent-trace-container {{ max-height: 600px; overflow-x: auto; overflow-y: auto; padding-right: 8px; border: 1px solid #eee; padding: 12px; border-radius: 8px; background: #fafafa; }}
 
         /* Collapsible Metrics */
-        .metric-details {{ background: #fff; border: 1px solid #dadce0; border-radius: 8px; margin-bottom: 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); overflow: hidden; }}
-        .metric-summary {{ list-style: none; cursor: pointer; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; background: #f8f9fa; margin: 0; outline: none; }}
-        .metric-summary::-webkit-details-marker {{ display: none; }}
-        .metric-details[open] .metric-summary {{ border-bottom: 1px solid #dadce0; }}
-        .metric-name-wrapper {{ display: flex; align-items: center; font-weight: 600; color: #3c4043; font-size: 14px; }}
-        .metric-name-wrapper::before {{ content: '►'; font-size: 0.8em; margin-right: 8px; transition: transform 0.2s; color: #5f6368; }}
-        .metric-details[open] .metric-name-wrapper::before {{ transform: rotate(90deg); }}
-        .metric-score {{ font-weight: bold; font-size: 16px; color: #1a73e8; }}
-        .metric-body {{ padding: 16px; }}
+        #{root_id} .metric-details {{ background: #fff; border: 1px solid #dadce0; border-radius: 8px; margin-bottom: 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); overflow: hidden; }}
+        #{root_id} .metric-summary {{ list-style: none; cursor: pointer; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; background: #f8f9fa; margin: 0; outline: none; }}
+        #{root_id} .metric-summary::-webkit-details-marker {{ display: none; }}
+        #{root_id} .metric-details[open] .metric-summary {{ border-bottom: 1px solid #dadce0; }}
+        #{root_id} .metric-name-wrapper {{ display: flex; align-items: center; font-weight: 600; color: #3c4043; font-size: 14px; }}
+        #{root_id} .metric-name-wrapper::before {{ content: '►'; font-size: 0.8em; margin-right: 8px; transition: transform 0.2s; color: #5f6368; }}
+        #{root_id} .metric-details[open] .metric-name-wrapper::before {{ transform: rotate(90deg); }}
+        #{root_id} .metric-score {{ font-weight: bold; font-size: 16px; color: #1a73e8; }}
+        #{root_id} .metric-body {{ padding: 16px; }}
     </style>
 </head>
 <body>
-    <div class="container">
+    <div id="{root_id}"><div class="container">
         <h1>Evaluation Report</h1>
-        <div id="summary-section"></div>
-        <div id="details-section"></div>
-    </div>
+        <div id="{summary_id}"></div>
+        <div id="{details_id}"></div>
+    </div></div>
     <script>
-        var vizData_vertex_eval_sdk = JSON.parse(new TextDecoder().decode(Uint8Array.from(atob("{payload_b64}"), c => c.charCodeAt(0))));
+    (function() {{
+        const vizData_vertex_eval_sdk = JSON.parse(new TextDecoder().decode(Uint8Array.from(atob("{payload_b64}"), c => c.charCodeAt(0))));
+        function _escapeHtml(s) {{
+            return String(s)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }}
+        function _sanitize(s) {{
+            return typeof DOMPurify !== 'undefined' ? DOMPurify.sanitize(s) : _escapeHtml(s);
+        }}
+        function _markedParse(s) {{
+            return typeof marked !== 'undefined' ? marked.parse(String(s)) : _escapeHtml(s);
+        }}
+        function _runWhenReady(fn, attempts) {{
+            if ((typeof DOMPurify !== 'undefined' && typeof marked !== 'undefined') || attempts <= 0) {{
+                fn();
+            }} else {{
+                setTimeout(function() {{ _runWhenReady(fn, attempts - 1); }}, 50);
+            }}
+        }}
 
         function formatDictVals(obj) {{
             if (typeof obj === 'string') return obj;
@@ -399,7 +426,7 @@ def get_evaluation_html(eval_result_json: str) -> str:
             }}
 
             if (functions.length === 0) {{
-                 return `<pre class="raw-json-container">${{DOMPurify.sanitize(JSON.stringify(toolDeclarations, null, 2))}}</pre>`;
+                 return `<pre class="raw-json-container">${{_sanitize(JSON.stringify(toolDeclarations, null, 2))}}</pre>`;
             }}
 
             let html = '<div class="tool-declarations-container">';
@@ -407,12 +434,12 @@ def get_evaluation_html(eval_result_json: str) -> str:
                 html += '<div class="tool-declaration">';
                 const params = func.parameters && func.parameters.properties ? func.parameters.properties : {{}};
                 const requiredParams = func.parameters && func.parameters.required ? new Set(func.parameters.required) : new Set();
-                const paramStrings = Object.keys(params).map(p => `${{DOMPurify.sanitize(p)}}: ${{DOMPurify.sanitize(params[p].type)}}`).join(', ');
-                html += `<strong>${{DOMPurify.sanitize(func.name)}}</strong>(${{paramStrings}})<br>`;
-                if(func.description) html += `<em>${{DOMPurify.sanitize(func.description)}}</em><br>`;
+                const paramStrings = Object.keys(params).map(p => `${{_sanitize(p)}}: ${{_sanitize(params[p].type)}}`).join(', ');
+                html += `<strong>${{_sanitize(func.name)}}</strong>(${{paramStrings}})<br>`;
+                if(func.description) html += `<em>${{_sanitize(func.description)}}</em><br>`;
                 if(Object.keys(params).length > 0) html += 'Parameters:<br>';
                 Object.keys(params).forEach(p => {{
-                    html += `&nbsp;&nbsp;- ${{DOMPurify.sanitize(p)}}: ${{DOMPurify.sanitize(params[p].description || '')}} ${{requiredParams.has(p) ? '<strong>(required)</strong>' : ''}}<br>`;
+                    html += `&nbsp;&nbsp;- ${{_sanitize(p)}}: ${{_sanitize(params[p].description || '')}} ${{requiredParams.has(p) ? '<strong>(required)</strong>' : ''}}<br>`;
                 }});
                 html += '</div>';
             }});
@@ -447,19 +474,19 @@ def get_evaluation_html(eval_result_json: str) -> str:
                 let nodeHtml = `<div class="agent-node">`;
                 nodeHtml += `<div class="agent-node-header">
                                <span style="font-size:16px;">🤖</span>
-                               <span class="agent-name">${{DOMPurify.sanitize(agentId)}}</span>
-                               ${{agent.agent_type ? `<span class="agent-type">${{DOMPurify.sanitize(agent.agent_type)}}</span>` : ''}}
+                               <span class="agent-name">${{_sanitize(agentId)}}</span>
+                               ${{agent.agent_type ? `<span class="agent-type">${{_sanitize(agent.agent_type)}}</span>` : ''}}
                              </div>`;
 
                 nodeHtml += `<div class="agent-node-body">`;
                 if (agent.description) {{
-                    nodeHtml += `<div class="agent-desc"><strong>Role:</strong> ${{DOMPurify.sanitize(agent.description)}}</div>`;
+                    nodeHtml += `<div class="agent-desc"><strong>Role:</strong> ${{_sanitize(agent.description)}}</div>`;
                 }}
                 if (agent.instruction) {{
                     nodeHtml += `<div class="agent-inst">
                                     <details>
                                         <summary>System Instructions</summary>
-                                        <div class="inst-content">${{DOMPurify.sanitize(agent.instruction)}}</div>
+                                        <div class="inst-content">${{_sanitize(agent.instruction)}}</div>
                                     </details>
                                  </div>`;
                 }}
@@ -504,7 +531,7 @@ def get_evaluation_html(eval_result_json: str) -> str:
             let html = '<div class="agent-timeline">';
             data.turns.forEach((turn, idx) => {{
                 const tIndex = turn.turn_index !== undefined ? turn.turn_index : (idx + 1);
-                const tId = turn.turn_id ? DOMPurify.sanitize(String(turn.turn_id)) : `turn-${{String(tIndex).padStart(3, '0')}}`;
+                const tId = turn.turn_id ? _sanitize(String(turn.turn_id)) : `turn-${{String(tIndex).padStart(3, '0')}}`;
 
                 html += `<details open class="turn-details">`;
                 html += `<summary class="turn-summary"><div class="turn-header"><span class="turn-badge">TURN ${{tIndex}} <span class="turn-divider">|</span> ID: ${{tId}}</span></div></summary>`;
@@ -531,20 +558,20 @@ def get_evaluation_html(eval_result_json: str) -> str:
                                     <div class="timeline-icon ${{iconClass}}">${{svgIcon}}</div>
                                     <div class="timeline-content">
                                         <div class="event-header">
-                                            <span class="event-author ${{iconClass}}">${{DOMPurify.sanitize(author)}}</span>
-                                            <span class="event-role">${{DOMPurify.sanitize(role)}}</span>
+                                            <span class="event-author ${{iconClass}}">${{_sanitize(author)}}</span>
+                                            <span class="event-role">${{_sanitize(role)}}</span>
                                         </div>
                                         <div class="event-body">`;
 
                         if (event.content && event.content.parts) {{
                             event.content.parts.forEach(part => {{
                                 if (part.text) {{
-                                    html += `<div>${{DOMPurify.sanitize(marked.parse(String(part.text)))}}</div>`;
+                                    html += `<div>${{_sanitize(_markedParse(String(part.text)))}}</div>`;
                                 }} else if (part.function_call) {{
                                     const fnName = part.function_call.name;
                                     const fnArgs = JSON.stringify(part.function_call.args, null, 2);
-                                    html += `<div class="function-call-title">&gt;_ Function Call: ${{DOMPurify.sanitize(fnName)}}</div>
-                                             <pre class="dark-code-block">${{DOMPurify.sanitize(fnArgs)}}</pre>`;
+                                    html += `<div class="function-call-title">&gt;_ Function Call: ${{_sanitize(fnName)}}</div>
+                                             <pre class="dark-code-block">${{_sanitize(fnArgs)}}</pre>`;
                                 }} else if (part.function_response) {{
                                     const fnName = part.function_response.name;
                                     let fnRes = part.function_response.response;
@@ -554,13 +581,13 @@ def get_evaluation_html(eval_result_json: str) -> str:
                                     const fnResStr = JSON.stringify(fnRes, null, 2);
                                     html += `<div class="function-response-title">
                                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-                                                Tool Output: ${{DOMPurify.sanitize(fnName)}}
+                                                Tool Output: ${{_sanitize(fnName)}}
                                              </div>
-                                             <pre class="dark-code-block">${{DOMPurify.sanitize(fnResStr)}}</pre>`;
+                                             <pre class="dark-code-block">${{_sanitize(fnResStr)}}</pre>`;
                                 }}
                             }});
                         }} else {{
-                             html += `<div><pre class="raw-json-container">${{DOMPurify.sanitize(JSON.stringify(event.content, null, 2))}}</pre></div>`;
+                             html += `<div><pre class="raw-json-container">${{_sanitize(JSON.stringify(event.content, null, 2))}}</pre></div>`;
                         }}
 
                         html += `</div></div></div>`;
@@ -573,7 +600,7 @@ def get_evaluation_html(eval_result_json: str) -> str:
         }}
 
         function renderSummary(summaryMetrics) {{
-            const container = document.getElementById('summary-section');
+            const container = document.getElementById('{summary_id}');
             let content = '<h2>Summary Metrics</h2>';
             if (!summaryMetrics || summaryMetrics.length === 0) {{ container.innerHTML = content + '<p>No summary metrics.</p>'; return; }}
             let table = '<table><thead><tr><th>Metric</th><th>Mean Score</th><th>Std. Dev.</th></tr></thead><tbody>';
@@ -584,7 +611,7 @@ def get_evaluation_html(eval_result_json: str) -> str:
         }}
 
         function renderDetails(caseResults, metadata) {{
-            const container = document.getElementById('details-section');
+            const container = document.getElementById('{details_id}');
             container.innerHTML = '<h2>Detailed Results</h2>';
             if (!caseResults || caseResults.length === 0) {{ container.innerHTML += '<p>No detailed results.</p>'; return; }}
 
@@ -630,18 +657,18 @@ def get_evaluation_html(eval_result_json: str) -> str:
                 }}
 
                 if (promptText) {{
-                    card += `<div class="prompt-container"><strong>Prompt:</strong><br>${{DOMPurify.sanitize(marked.parse(String(promptText)))}}</div>`;
+                    card += `<div class="prompt-container"><strong>Prompt:</strong><br>${{_sanitize(_markedParse(String(promptText)))}}</div>`;
                 }}
                 if (promptJson && promptJson !== '""' && promptJson !== 'null' && promptJson !== '{{}}') {{
-                    card += `<details class="raw-json-details"><summary>View Raw Prompt JSON</summary><pre class="raw-json-container">${{DOMPurify.sanitize(promptJson)}}</pre></details>`;
+                    card += `<details class="raw-json-details"><summary>View Raw Prompt JSON</summary><pre class="raw-json-container">${{_sanitize(promptJson)}}</pre></details>`;
                 }}
 
                 if (responseText) {{
                     const responseTitle = isAgentEval ? 'Final Response' : 'Candidate Response';
-                    card += `<div class="response-container"><h4>${{responseTitle}}</h4>${{DOMPurify.sanitize(marked.parse(String(responseText)))}}</div>`;
+                    card += `<div class="response-container"><h4>${{responseTitle}}</h4>${{_sanitize(_markedParse(String(responseText)))}}</div>`;
                 }}
                 if (responseJson && responseJson !== '""' && responseJson !== 'null' && responseJson !== '{{}}') {{
-                    card += `<details class="raw-json-details"><summary>View Raw Response JSON</summary><pre class="raw-json-container">${{DOMPurify.sanitize(responseJson)}}</pre></details>`;
+                    card += `<details class="raw-json-details"><summary>View Raw Response JSON</summary><pre class="raw-json-container">${{_sanitize(responseJson)}}</pre></details>`;
                 }}
 
                 let hasTrace = isAgentEval && agentData.turns;
@@ -671,7 +698,7 @@ def get_evaluation_html(eval_result_json: str) -> str:
                                         <div class="agent-trace-container">${{refTraceContent}}</div>
                                      </details>`;
                         }} else {{
-                            card += `<div class="reference-container" style="margin: 0; height: 100%;"><strong>Reference</strong><br>${{DOMPurify.sanitize(marked.parse(String(reference)))}}</div>`;
+                            card += `<div class="reference-container" style="margin: 0; height: 100%;"><strong>Reference</strong><br>${{_sanitize(_markedParse(String(reference)))}}</div>`;
                         }}
                         card += `</div>`;
                     }}
@@ -715,9 +742,9 @@ def get_evaluation_html(eval_result_json: str) -> str:
                                             const itemJson = JSON.stringify(item, null, 2);
                                             bubbles += `
                                                 <details class="rubric-details">
-                                                    <summary class="rubric-bubble">${{verdictText}}: ${{DOMPurify.sanitize(sentence)}}</summary>
-                                                    <div class="explanation" style="padding: 10px 0 0 20px;">${{DOMPurify.sanitize(rationale)}}</div>
-                                                    <pre class="raw-json-container">${{DOMPurify.sanitize(itemJson)}}</pre>
+                                                    <summary class="rubric-bubble">${{verdictText}}: ${{_sanitize(sentence)}}</summary>
+                                                    <div class="explanation" style="padding: 10px 0 0 20px;">${{_sanitize(rationale)}}</div>
+                                                    <pre class="raw-json-container">${{_sanitize(itemJson)}}</pre>
                                                 </details>`;
                                         }});
                                         bubbles += '</div>';
@@ -736,8 +763,8 @@ def get_evaluation_html(eval_result_json: str) -> str:
                             const itemJson = JSON.stringify(val, null, 2);
                             bubbles += `
                                 <details class="rubric-details">
-                                    <summary class="rubric-bubble">${{verdictText}}: ${{DOMPurify.sanitize(explanation)}}</summary>
-                                    <pre class="raw-json-container">${{DOMPurify.sanitize(itemJson)}}</pre>
+                                    <summary class="rubric-bubble">${{verdictText}}: ${{_sanitize(explanation)}}</summary>
+                                    <pre class="raw-json-container">${{_sanitize(itemJson)}}</pre>
                                 </details>`;
                             bubbles += '</div>';
                             explanationHandled = true;
@@ -754,8 +781,8 @@ def get_evaluation_html(eval_result_json: str) -> str:
                             const verdictJson = JSON.stringify(verdict, null, 2);
                             bubbles += `
                                 <details class="rubric-details">
-                                    <summary class="rubric-bubble">${{verdictText}}: ${{DOMPurify.sanitize(rubricDescription)}}</summary>
-                                    <pre class="raw-json-container">${{DOMPurify.sanitize(verdictJson)}}</pre>
+                                    <summary class="rubric-bubble">${{verdictText}}: ${{_sanitize(rubricDescription)}}</summary>
+                                    <pre class="raw-json-container">${{_sanitize(verdictJson)}}</pre>
                                 </details>`;
                         }});
                         bubbles += '</div>';
@@ -765,7 +792,7 @@ def get_evaluation_html(eval_result_json: str) -> str:
                     let metricContent = '';
 
                     if (val.explanation && !explanationHandled) {{
-                        metricContent += `<div class="explanation" style="margin-top:0; margin-bottom: 12px;">${{DOMPurify.sanitize(marked.parse(String(val.explanation)))}}</div>`;
+                        metricContent += `<div class="explanation" style="margin-top:0; margin-bottom: 12px;">${{_sanitize(_markedParse(String(val.explanation)))}}</div>`;
                     }}
                     if (bubbles) {{
                         metricContent += bubbles;
@@ -777,8 +804,8 @@ def get_evaluation_html(eval_result_json: str) -> str:
                     metricTable += `
                         <details class="metric-details" open>
                             <summary class="metric-summary">
-                                <div class="metric-name-wrapper">${{DOMPurify.sanitize(name)}}</div>
-                                <div class="metric-score">${{DOMPurify.sanitize(scoreDisplay)}}</div>
+                                <div class="metric-name-wrapper">${{_sanitize(name)}}</div>
+                                <div class="metric-score">${{_sanitize(scoreDisplay)}}</div>
                             </summary>
                             <div class="metric-body">
                                 ${{metricContent}}
@@ -792,8 +819,11 @@ def get_evaluation_html(eval_result_json: str) -> str:
             }});
         }}
 
-        renderSummary(vizData_vertex_eval_sdk.summary_metrics);
-        renderDetails(vizData_vertex_eval_sdk.eval_case_results, vizData_vertex_eval_sdk.metadata);
+        _runWhenReady(function() {{
+            renderSummary(vizData_vertex_eval_sdk.summary_metrics);
+            renderDetails(vizData_vertex_eval_sdk.eval_case_results, vizData_vertex_eval_sdk.metadata);
+        }}, 40);
+    }})();
     </script>
 </body>
 </html>
@@ -804,6 +834,10 @@ def get_evaluation_html(eval_result_json: str) -> str:
 def get_comparison_html(eval_result_json: str) -> str:
     """Returns a self-contained HTML for a side-by-side eval comparison."""
     payload_b64 = _encode_to_base64(eval_result_json)
+    uid = uuid.uuid4().hex[:12]
+    root_id = f"vertex-eval-comp-root-{uid}"
+    summary_id = f"summary-section-{uid}"
+    details_id = f"details-section-{uid}"
     return textwrap.dedent(
         f"""
 <!DOCTYPE html>
@@ -815,115 +849,137 @@ def get_comparison_html(eval_result_json: str) -> str:
     <script src="https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js"></script>
     <style>
 
-        body {{ font-family: 'Roboto', 'Helvetica', sans-serif; margin: 2em; background-color: #f8f9fa; color: #202124; }}
-        .container {{ max-width: 95%; margin: 20px auto; padding: 20px; background: #fff; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.12); }}
-        h1, h2, h3, h4 {{ color: #3c4043; }}
-        h1 {{ border-bottom: 2px solid #4285F4; padding-bottom: 8px; }}
-        h2 {{ border-bottom: 1px solid #dadce0; padding-bottom: 8px; }}
-        table {{ border-collapse: collapse; width: 100%; margin: 1em 0; }}
-        th, td {{ border: 1px solid #dadce0; padding: 12px; text-align: left; vertical-align: top; }}
-        th {{ background-color: #f2f2f2; font-weight: 500; }}
-        details {{ border: 1px solid #dadce0; border-radius: 8px; padding: 24px; margin-bottom: 24px; background: #fff; }}
-        summary {{ font-weight: 500; font-size: 1.2em; cursor: pointer; }}
-        .prompt-container {{ background-color: #e8f0fe; padding: 16px; margin-bottom: 16px; border-radius: 8px; white-space: pre-wrap; word-wrap: break-word; overflow-wrap: break-word; }}
-        .reference-container {{ background-color: #fff; border: 1px solid #dadce0; padding: 16px; margin-bottom: 16px; border-radius: 8px; white-space: pre-wrap; word-wrap: break-word; overflow-wrap: break-word; }}
-        .responses-grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 20px; margin-top: 16px;}}
-        .response-column {{ border: 1px solid #e0e0e0; padding: 16px; border-radius: 8px; background: #f9f9f9; }}
-        .response-text-container {{ background-color: #fff; padding: 12px; margin-top: 8px; border-radius: 4px; border: 1px solid #eee; white-space: pre-wrap; word-wrap: break-word; max-height: 400px; overflow-y: auto; overflow-wrap: break-word; }}
-        .explanation {{ color: #5f6368; font-style: italic; font-size: 0.9em; padding-top: 8px; }}
-        .raw-json-details summary {{ font-size: 0.9em; cursor: pointer; color: #5f6368;}}
-        .raw-json-container {{ white-space: pre-wrap; word-wrap: break-word; max-height: 300px; overflow-y: auto; background-color: #f1f1f1; padding: 10px; border-radius: 4px; margin-top: 8px; }}
+        #{root_id} {{ font-family: 'Roboto', 'Helvetica', sans-serif; margin: 2em; background-color: #f8f9fa; color: #202124; }}
+        #{root_id} .container {{ max-width: 95%; margin: 20px auto; padding: 20px; background: #fff; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.12); }}
+        #{root_id} h1, #{root_id} h2, #{root_id} h3, #{root_id} h4 {{ color: #3c4043; }}
+        #{root_id} h1 {{ border-bottom: 2px solid #4285F4; padding-bottom: 8px; }}
+        #{root_id} h2 {{ border-bottom: 1px solid #dadce0; padding-bottom: 8px; }}
+        #{root_id} table {{ border-collapse: collapse; width: 100%; margin: 1em 0; }}
+        #{root_id} th, #{root_id} td {{ border: 1px solid #dadce0; padding: 12px; text-align: left; vertical-align: top; }}
+        #{root_id} th {{ background-color: #f2f2f2; font-weight: 500; }}
+        #{root_id} details {{ border: 1px solid #dadce0; border-radius: 8px; padding: 24px; margin-bottom: 24px; background: #fff; }}
+        #{root_id} summary {{ font-weight: 500; font-size: 1.2em; cursor: pointer; }}
+        #{root_id} .prompt-container {{ background-color: #e8f0fe; padding: 16px; margin-bottom: 16px; border-radius: 8px; white-space: pre-wrap; word-wrap: break-word; overflow-wrap: break-word; }}
+        #{root_id} .reference-container {{ background-color: #fff; border: 1px solid #dadce0; padding: 16px; margin-bottom: 16px; border-radius: 8px; white-space: pre-wrap; word-wrap: break-word; overflow-wrap: break-word; }}
+        #{root_id} .responses-grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 20px; margin-top: 16px;}}
+        #{root_id} .response-column {{ border: 1px solid #e0e0e0; padding: 16px; border-radius: 8px; background: #f9f9f9; }}
+        #{root_id} .response-text-container {{ background-color: #fff; padding: 12px; margin-top: 8px; border-radius: 4px; border: 1px solid #eee; white-space: pre-wrap; word-wrap: break-word; max-height: 400px; overflow-y: auto; overflow-wrap: break-word; }}
+        #{root_id} .explanation {{ color: #5f6368; font-style: italic; font-size: 0.9em; padding-top: 8px; }}
+        #{root_id} .raw-json-details summary {{ font-size: 0.9em; cursor: pointer; color: #5f6368;}}
+        #{root_id} .raw-json-container {{ white-space: pre-wrap; word-wrap: break-word; max-height: 300px; overflow-y: auto; background-color: #f1f1f1; padding: 10px; border-radius: 4px; margin-top: 8px; }}
 
-        .rubric-bubble-container {{ display: flex; flex-wrap: wrap; gap: 8px; }}
-        .rubric-details {{ border: none; padding: 0; margin: 0; }}
-        .rubric-bubble {{ display: inline-flex; align-items: center; background-color: #e8f0fe; color: #1967d2; border-radius: 16px; padding: 8px 12px; font-size: 0.9em; cursor: pointer; list-style: none; }}
-        .rubric-bubble::-webkit-details-marker {{ display: none; }}
-        .rubric-bubble::before {{ content: '►'; margin-right: 8px; font-size: 0.8em; transition: transform 0.2s; }}
-        .rubric-details[open] > .rubric-bubble::before {{ transform: rotate(90deg); }}
-        .pass {{ color: green; font-weight: bold; }}
-        .fail {{ color: red; font-weight: bold; }}
+        #{root_id} .rubric-bubble-container {{ display: flex; flex-wrap: wrap; gap: 8px; }}
+        #{root_id} .rubric-details {{ border: none; padding: 0; margin: 0; }}
+        #{root_id} .rubric-bubble {{ display: inline-flex; align-items: center; background-color: #e8f0fe; color: #1967d2; border-radius: 16px; padding: 8px 12px; font-size: 0.9em; cursor: pointer; list-style: none; }}
+        #{root_id} .rubric-bubble::-webkit-details-marker {{ display: none; }}
+        #{root_id} .rubric-bubble::before {{ content: '►'; margin-right: 8px; font-size: 0.8em; transition: transform 0.2s; }}
+        #{root_id} .rubric-details[open] > .rubric-bubble::before {{ transform: rotate(90deg); }}
+        #{root_id} .pass {{ color: green; font-weight: bold; }}
+        #{root_id} .fail {{ color: red; font-weight: bold; }}
 
         /* Tool Declarations */
-        .tool-declarations-container {{ background-color: #f1f1f1; padding: 10px; border-radius: 4px; margin-top: 8px; max-height: 300px; overflow-y: auto; }}
-        .tool-declaration {{ margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #ddd; }}
-        .tool-declaration:last-child {{ border-bottom: none; margin-bottom: 0; padding-bottom: 0; }}
+        #{root_id} .tool-declarations-container {{ background-color: #f1f1f1; padding: 10px; border-radius: 4px; margin-top: 8px; max-height: 300px; overflow-y: auto; }}
+        #{root_id} .tool-declaration {{ margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #ddd; }}
+        #{root_id} .tool-declaration:last-child {{ border-bottom: none; margin-bottom: 0; padding-bottom: 0; }}
 
         /* Agent Topology UI */
-        .system-topology-details {{ background: #fff; border: 1px solid #dadce0; border-radius: 8px; padding: 16px; margin-top: 16px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }}
-        .system-topology-details > summary {{ font-size: 1.1em; font-weight: 500; cursor: pointer; outline: none; margin-bottom: 12px; list-style: none; display: flex; align-items: center; color: #3c4043; }}
-        .system-topology-details > summary::-webkit-details-marker {{ display: none; }}
-        .system-topology-details > summary::before {{ content: '▼'; font-size: 0.8em; margin-right: 8px; transition: transform 0.2s; }}
-        .system-topology-details:not([open]) > summary::before {{ transform: rotate(-90deg); }}
+        #{root_id} .system-topology-details {{ background: #fff; border: 1px solid #dadce0; border-radius: 8px; padding: 16px; margin-top: 16px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }}
+        #{root_id} .system-topology-details > summary {{ font-size: 1.1em; font-weight: 500; cursor: pointer; outline: none; margin-bottom: 12px; list-style: none; display: flex; align-items: center; color: #3c4043; }}
+        #{root_id} .system-topology-details > summary::-webkit-details-marker {{ display: none; }}
+        #{root_id} .system-topology-details > summary::before {{ content: '▼'; font-size: 0.8em; margin-right: 8px; transition: transform 0.2s; }}
+        #{root_id} .system-topology-details:not([open]) > summary::before {{ transform: rotate(-90deg); }}
 
-        .topology-container {{ background: #f8f9fa; border-radius: 8px; padding: 16px; margin-top: 8px; border: 1px solid #dadce0; overflow-x: auto; }}
-        .agent-node {{ background: #fff; border: 1px solid #dadce0; border-radius: 8px; margin-bottom: 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); min-width: 300px; max-width: 600px; }}
-        .agent-node-header {{ padding: 10px 16px; border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 8px; background: #f1f3f4; border-top-left-radius: 8px; border-top-right-radius: 8px; }}
-        .agent-name {{ font-weight: 600; color: #1a73e8; }}
-        .agent-type {{ font-size: 11px; background: #e8eaed; padding: 2px 8px; border-radius: 12px; color: #5f6368; font-family: monospace; }}
-        .agent-node-body {{ padding: 12px 16px; font-size: 13px; color: #3c4043; }}
-        .agent-desc {{ margin-bottom: 8px; }}
-        .agent-inst details, .agent-tools details {{ margin-bottom: 8px; padding: 8px; }}
-        .agent-inst summary, .agent-tools summary {{ cursor: pointer; font-weight: 500; color: #5f6368; font-size: 12px; outline: none; margin-bottom: 0; }}
-        .inst-content, .tools-content {{ margin-top: 8px; padding: 8px; background: #f8f9fa; border-radius: 4px; border: 1px solid #eee; white-space: pre-wrap; word-wrap: break-word; font-family: monospace; font-size: 12px; max-height: 200px; overflow-y: auto; }}
-        .sub-agents-container {{ margin-top: 16px; padding-left: 24px; border-left: 2px solid #dadce0; position: relative; }}
-        .sub-agents-container::before {{ content: ''; position: absolute; top: -16px; left: -2px; width: 2px; height: 16px; background: #dadce0; }}
+        #{root_id} .topology-container {{ background: #f8f9fa; border-radius: 8px; padding: 16px; margin-top: 8px; border: 1px solid #dadce0; overflow-x: auto; }}
+        #{root_id} .agent-node {{ background: #fff; border: 1px solid #dadce0; border-radius: 8px; margin-bottom: 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); min-width: 300px; max-width: 600px; }}
+        #{root_id} .agent-node-header {{ padding: 10px 16px; border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 8px; background: #f1f3f4; border-top-left-radius: 8px; border-top-right-radius: 8px; }}
+        #{root_id} .agent-name {{ font-weight: 600; color: #1a73e8; }}
+        #{root_id} .agent-type {{ font-size: 11px; background: #e8eaed; padding: 2px 8px; border-radius: 12px; color: #5f6368; font-family: monospace; }}
+        #{root_id} .agent-node-body {{ padding: 12px 16px; font-size: 13px; color: #3c4043; }}
+        #{root_id} .agent-desc {{ margin-bottom: 8px; }}
+        #{root_id} .agent-inst details, #{root_id} .agent-tools details {{ margin-bottom: 8px; padding: 8px; }}
+        #{root_id} .agent-inst summary, #{root_id} .agent-tools summary {{ cursor: pointer; font-weight: 500; color: #5f6368; font-size: 12px; outline: none; margin-bottom: 0; }}
+        #{root_id} .inst-content, #{root_id} .tools-content {{ margin-top: 8px; padding: 8px; background: #f8f9fa; border-radius: 4px; border: 1px solid #eee; white-space: pre-wrap; word-wrap: break-word; font-family: monospace; font-size: 12px; max-height: 200px; overflow-y: auto; }}
+        #{root_id} .sub-agents-container {{ margin-top: 16px; padding-left: 24px; border-left: 2px solid #dadce0; position: relative; }}
+        #{root_id} .sub-agents-container::before {{ content: ''; position: absolute; top: -16px; left: -2px; width: 2px; height: 16px; background: #dadce0; }}
 
         /* Multi-turn Agent Trace UI */
-        .conversation-trace-details {{ background: #fff; border: 1px solid #dadce0; border-radius: 8px; padding: 16px; margin-top: 0; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }}
-        .conversation-trace-details > summary {{ font-size: 1.1em; font-weight: 500; cursor: pointer; outline: none; margin-bottom: 8px; list-style: none; display: flex; align-items: center; color: #3c4043; }}
-        .conversation-trace-details > summary::-webkit-details-marker {{ display: none; }}
-        .conversation-trace-details > summary::before {{ content: '▼'; font-size: 0.8em; margin-right: 8px; transition: transform 0.2s; }}
-        .conversation-trace-details:not([open]) > summary::before {{ transform: rotate(-90deg); }}
+        #{root_id} .conversation-trace-details {{ background: #fff; border: 1px solid #dadce0; border-radius: 8px; padding: 16px; margin-top: 0; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }}
+        #{root_id} .conversation-trace-details > summary {{ font-size: 1.1em; font-weight: 500; cursor: pointer; outline: none; margin-bottom: 8px; list-style: none; display: flex; align-items: center; color: #3c4043; }}
+        #{root_id} .conversation-trace-details > summary::-webkit-details-marker {{ display: none; }}
+        #{root_id} .conversation-trace-details > summary::before {{ content: '▼'; font-size: 0.8em; margin-right: 8px; transition: transform 0.2s; }}
+        #{root_id} .conversation-trace-details:not([open]) > summary::before {{ transform: rotate(-90deg); }}
 
-        .agent-timeline {{ position: relative; padding-left: 32px; margin-top: 16px; font-family: 'Roboto', sans-serif; }}
-        .agent-timeline::before {{ content: ''; position: absolute; top: 0; bottom: 0; left: 11px; width: 2px; background: #e8eaed; }}
+        #{root_id} .agent-timeline {{ position: relative; padding-left: 32px; margin-top: 16px; font-family: 'Roboto', sans-serif; }}
+        #{root_id} .agent-timeline::before {{ content: ''; position: absolute; top: 0; bottom: 0; left: 11px; width: 2px; background: #e8eaed; }}
 
-        .turn-details {{ margin-bottom: 16px; padding: 0; border: none; }}
-        .turn-summary {{ list-style: none; outline: none; cursor: pointer; display: block; margin-left: -32px; padding-left: 32px; }}
-        .turn-summary::-webkit-details-marker {{ display: none; }}
-        .turn-header {{ margin: 16px 0 16px -32px; position: relative; z-index: 1; display: inline-flex; align-items: center; }}
+        #{root_id} .turn-details {{ margin-bottom: 16px; padding: 0; border: none; }}
+        #{root_id} .turn-summary {{ list-style: none; outline: none; cursor: pointer; display: block; margin-left: -32px; padding-left: 32px; }}
+        #{root_id} .turn-summary::-webkit-details-marker {{ display: none; }}
+        #{root_id} .turn-header {{ margin: 16px 0 16px -32px; position: relative; z-index: 1; display: inline-flex; align-items: center; }}
 
-        .turn-badge {{ display: inline-flex; align-items: center; background: #f8f9fa; color: #5f6368; padding: 4px 12px; border-radius: 16px; font-size: 11px; font-weight: 600; border: 1px solid #dadce0; letter-spacing: 0.5px; }}
-        .turn-divider {{ color: #dadce0; margin: 0 6px; font-weight: normal; }}
-        .turn-badge::before {{ content: '▼'; margin-right: 6px; font-size: 0.8em; display: inline-block; transition: transform 0.2s; }}
-        .turn-details:not([open]) .turn-badge::before {{ transform: rotate(-90deg); }}
+        #{root_id} .turn-badge {{ display: inline-flex; align-items: center; background: #f8f9fa; color: #5f6368; padding: 4px 12px; border-radius: 16px; font-size: 11px; font-weight: 600; border: 1px solid #dadce0; letter-spacing: 0.5px; }}
+        #{root_id} .turn-divider {{ color: #dadce0; margin: 0 6px; font-weight: normal; }}
+        #{root_id} .turn-badge::before {{ content: '▼'; margin-right: 6px; font-size: 0.8em; display: inline-block; transition: transform 0.2s; }}
+        #{root_id} .turn-details:not([open]) .turn-badge::before {{ transform: rotate(-90deg); }}
 
-        .timeline-item {{ position: relative; margin-bottom: 16px; }}
-        .timeline-icon {{ position: absolute; left: -32px; top: 0; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: #e8f0fe; border: 2px solid #fff; color: #1a73e8; z-index: 1; box-sizing: border-box; margin-left: 0; }}
-        .timeline-icon.user {{ background: #f3e8fd; color: #9334e6; }}
-        .timeline-icon.tool {{ background: #e6f4ea; color: #1e8e3e; }}
-        .timeline-content {{ background: #fff; border: 1px solid #dadce0; border-radius: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); overflow: hidden; }}
-        .event-header {{ padding: 12px 16px 8px; font-size: 12px; font-weight: 600; display: flex; align-items: baseline; gap: 8px; }}
-        .event-author {{ color: #1a73e8; letter-spacing: 0.5px; text-transform: uppercase; }}
-        .event-author.user {{ color: #9334e6; }}
-        .event-author.tool {{ color: #1e8e3e; }}
-        .event-role {{ color: #80868b; font-weight: normal; font-size: 11px; font-family: monospace;}}
-        .event-body {{ padding: 0 16px 12px; font-size: 14px; color: #202124; line-height: 1.5; }}
-        .dark-code-block {{ background: #0e111a; color: #d4d4d4; padding: 12px; border-radius: 6px; font-family: 'Consolas', 'Courier New', monospace; font-size: 13px; margin: 8px 0 0 0; overflow-x: auto; border: 1px solid #3c4043; }}
-        .function-call-title {{ color: #e37400; font-weight: 600; font-size: 12px; margin-top: 8px; display: flex; align-items: center; gap: 4px; }}
-        .function-response-title {{ color: #0f9d58; font-weight: 600; font-size: 12px; margin-top: 8px; display: flex; align-items: center; gap: 4px; }}
-        .agent-trace-container {{ max-height: 600px; overflow-x: auto; overflow-y: auto; padding-right: 8px; border: 1px solid #eee; padding: 12px; border-radius: 8px; background: #fafafa; }}
+        #{root_id} .timeline-item {{ position: relative; margin-bottom: 16px; }}
+        #{root_id} .timeline-icon {{ position: absolute; left: -32px; top: 0; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: #e8f0fe; border: 2px solid #fff; color: #1a73e8; z-index: 1; box-sizing: border-box; margin-left: 0; }}
+        #{root_id} .timeline-icon.user {{ background: #f3e8fd; color: #9334e6; }}
+        #{root_id} .timeline-icon.tool {{ background: #e6f4ea; color: #1e8e3e; }}
+        #{root_id} .timeline-content {{ background: #fff; border: 1px solid #dadce0; border-radius: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); overflow: hidden; }}
+        #{root_id} .event-header {{ padding: 12px 16px 8px; font-size: 12px; font-weight: 600; display: flex; align-items: baseline; gap: 8px; }}
+        #{root_id} .event-author {{ color: #1a73e8; letter-spacing: 0.5px; text-transform: uppercase; }}
+        #{root_id} .event-author.user {{ color: #9334e6; }}
+        #{root_id} .event-author.tool {{ color: #1e8e3e; }}
+        #{root_id} .event-role {{ color: #80868b; font-weight: normal; font-size: 11px; font-family: monospace;}}
+        #{root_id} .event-body {{ padding: 0 16px 12px; font-size: 14px; color: #202124; line-height: 1.5; }}
+        #{root_id} .dark-code-block {{ background: #0e111a; color: #d4d4d4; padding: 12px; border-radius: 6px; font-family: 'Consolas', 'Courier New', monospace; font-size: 13px; margin: 8px 0 0 0; overflow-x: auto; border: 1px solid #3c4043; }}
+        #{root_id} .function-call-title {{ color: #e37400; font-weight: 600; font-size: 12px; margin-top: 8px; display: flex; align-items: center; gap: 4px; }}
+        #{root_id} .function-response-title {{ color: #0f9d58; font-weight: 600; font-size: 12px; margin-top: 8px; display: flex; align-items: center; gap: 4px; }}
+        #{root_id} .agent-trace-container {{ max-height: 600px; overflow-x: auto; overflow-y: auto; padding-right: 8px; border: 1px solid #eee; padding: 12px; border-radius: 8px; background: #fafafa; }}
 
         /* Collapsible Metrics */
-        .metric-details {{ background: #fff; border: 1px solid #dadce0; border-radius: 8px; margin-bottom: 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); overflow: hidden; }}
-        .metric-summary {{ list-style: none; cursor: pointer; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; background: #f8f9fa; margin: 0; outline: none; }}
-        .metric-summary::-webkit-details-marker {{ display: none; }}
-        .metric-details[open] .metric-summary {{ border-bottom: 1px solid #dadce0; }}
-        .metric-name-wrapper {{ display: flex; align-items: center; font-weight: 600; color: #3c4043; font-size: 14px; }}
-        .metric-name-wrapper::before {{ content: '►'; font-size: 0.8em; margin-right: 8px; transition: transform 0.2s; color: #5f6368; }}
-        .metric-details[open] .metric-name-wrapper::before {{ transform: rotate(90deg); }}
-        .metric-score {{ font-weight: bold; font-size: 16px; color: #1a73e8; }}
-        .metric-body {{ padding: 16px; }}
+        #{root_id} .metric-details {{ background: #fff; border: 1px solid #dadce0; border-radius: 8px; margin-bottom: 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); overflow: hidden; }}
+        #{root_id} .metric-summary {{ list-style: none; cursor: pointer; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; background: #f8f9fa; margin: 0; outline: none; }}
+        #{root_id} .metric-summary::-webkit-details-marker {{ display: none; }}
+        #{root_id} .metric-details[open] .metric-summary {{ border-bottom: 1px solid #dadce0; }}
+        #{root_id} .metric-name-wrapper {{ display: flex; align-items: center; font-weight: 600; color: #3c4043; font-size: 14px; }}
+        #{root_id} .metric-name-wrapper::before {{ content: '►'; font-size: 0.8em; margin-right: 8px; transition: transform 0.2s; color: #5f6368; }}
+        #{root_id} .metric-details[open] .metric-name-wrapper::before {{ transform: rotate(90deg); }}
+        #{root_id} .metric-score {{ font-weight: bold; font-size: 16px; color: #1a73e8; }}
+        #{root_id} .metric-body {{ padding: 16px; }}
     </style>
 </head>
 <body>
-    <div class="container">
+    <div id="{root_id}"><div class="container">
         <h1>Eval Comparison Report</h1>
-        <div id="summary-section"></div>
-        <div id="details-section"></div>
-    </div>
+        <div id="{summary_id}"></div>
+        <div id="{details_id}"></div>
+    </div></div>
     <script>
-        var vizData_vertex_eval_sdk = JSON.parse(new TextDecoder().decode(Uint8Array.from(atob("{payload_b64}"), c => c.charCodeAt(0))));
+    (function() {{
+        const vizData_vertex_eval_sdk = JSON.parse(new TextDecoder().decode(Uint8Array.from(atob("{payload_b64}"), c => c.charCodeAt(0))));
+        function _escapeHtml(s) {{
+            return String(s)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }}
+        function _sanitize(s) {{
+            return typeof DOMPurify !== 'undefined' ? DOMPurify.sanitize(s) : _escapeHtml(s);
+        }}
+        function _markedParse(s) {{
+            return typeof marked !== 'undefined' ? marked.parse(String(s)) : _escapeHtml(s);
+        }}
+        function _runWhenReady(fn, attempts) {{
+            if ((typeof DOMPurify !== 'undefined' && typeof marked !== 'undefined') || attempts <= 0) {{
+                fn();
+            }} else {{
+                setTimeout(function() {{ _runWhenReady(fn, attempts - 1); }}, 50);
+            }}
+        }}
 
         function formatToolDeclarations(toolDeclarations) {{
             if (!toolDeclarations) return '';
@@ -941,7 +997,7 @@ def get_comparison_html(eval_result_json: str) -> str:
             }}
 
             if (functions.length === 0) {{
-                 return `<pre class="raw-json-container">${{DOMPurify.sanitize(JSON.stringify(toolDeclarations, null, 2))}}</pre>`;
+                 return `<pre class="raw-json-container">${{_sanitize(JSON.stringify(toolDeclarations, null, 2))}}</pre>`;
             }}
 
             let html = '<div class="tool-declarations-container">';
@@ -949,12 +1005,12 @@ def get_comparison_html(eval_result_json: str) -> str:
                 html += '<div class="tool-declaration">';
                 const params = func.parameters && func.parameters.properties ? func.parameters.properties : {{}};
                 const requiredParams = func.parameters && func.parameters.required ? new Set(func.parameters.required) : new Set();
-                const paramStrings = Object.keys(params).map(p => `${{DOMPurify.sanitize(p)}}: ${{DOMPurify.sanitize(params[p].type)}}`).join(', ');
-                html += `<strong>${{DOMPurify.sanitize(func.name)}}</strong>(${{paramStrings}})<br>`;
-                if(func.description) html += `<em>${{DOMPurify.sanitize(func.description)}}</em><br>`;
+                const paramStrings = Object.keys(params).map(p => `${{_sanitize(p)}}: ${{_sanitize(params[p].type)}}`).join(', ');
+                html += `<strong>${{_sanitize(func.name)}}</strong>(${{paramStrings}})<br>`;
+                if(func.description) html += `<em>${{_sanitize(func.description)}}</em><br>`;
                 if(Object.keys(params).length > 0) html += 'Parameters:<br>';
                 Object.keys(params).forEach(p => {{
-                    html += `&nbsp;&nbsp;- ${{DOMPurify.sanitize(p)}}: ${{DOMPurify.sanitize(params[p].description || '')}} ${{requiredParams.has(p) ? '<strong>(required)</strong>' : ''}}<br>`;
+                    html += `&nbsp;&nbsp;- ${{_sanitize(p)}}: ${{_sanitize(params[p].description || '')}} ${{requiredParams.has(p) ? '<strong>(required)</strong>' : ''}}<br>`;
                 }});
                 html += '</div>';
             }});
@@ -989,19 +1045,19 @@ def get_comparison_html(eval_result_json: str) -> str:
                 let nodeHtml = `<div class="agent-node">`;
                 nodeHtml += `<div class="agent-node-header">
                                <span style="font-size:16px;">🤖</span>
-                               <span class="agent-name">${{DOMPurify.sanitize(agentId)}}</span>
-                               ${{agent.agent_type ? `<span class="agent-type">${{DOMPurify.sanitize(agent.agent_type)}}</span>` : ''}}
+                               <span class="agent-name">${{_sanitize(agentId)}}</span>
+                               ${{agent.agent_type ? `<span class="agent-type">${{_sanitize(agent.agent_type)}}</span>` : ''}}
                              </div>`;
 
                 nodeHtml += `<div class="agent-node-body">`;
                 if (agent.description) {{
-                    nodeHtml += `<div class="agent-desc"><strong>Role:</strong> ${{DOMPurify.sanitize(agent.description)}}</div>`;
+                    nodeHtml += `<div class="agent-desc"><strong>Role:</strong> ${{_sanitize(agent.description)}}</div>`;
                 }}
                 if (agent.instruction) {{
                     nodeHtml += `<div class="agent-inst">
                                     <details>
                                         <summary>System Instructions</summary>
-                                        <div class="inst-content">${{DOMPurify.sanitize(agent.instruction)}}</div>
+                                        <div class="inst-content">${{_sanitize(agent.instruction)}}</div>
                                     </details>
                                  </div>`;
                 }}
@@ -1046,7 +1102,7 @@ def get_comparison_html(eval_result_json: str) -> str:
             let html = '<div class="agent-timeline">';
             data.turns.forEach((turn, idx) => {{
                 const tIndex = turn.turn_index !== undefined ? turn.turn_index : (idx + 1);
-                const tId = turn.turn_id ? DOMPurify.sanitize(String(turn.turn_id)) : `turn-${{String(tIndex).padStart(3, '0')}}`;
+                const tId = turn.turn_id ? _sanitize(String(turn.turn_id)) : `turn-${{String(tIndex).padStart(3, '0')}}`;
 
                 html += `<details open class="turn-details">`;
                 html += `<summary class="turn-summary"><div class="turn-header"><span class="turn-badge">TURN ${{tIndex}} <span class="turn-divider">|</span> ID: ${{tId}}</span></div></summary>`;
@@ -1073,20 +1129,20 @@ def get_comparison_html(eval_result_json: str) -> str:
                                     <div class="timeline-icon ${{iconClass}}">${{svgIcon}}</div>
                                     <div class="timeline-content">
                                         <div class="event-header">
-                                            <span class="event-author ${{iconClass}}">${{DOMPurify.sanitize(author)}}</span>
-                                            <span class="event-role">${{DOMPurify.sanitize(role)}}</span>
+                                            <span class="event-author ${{iconClass}}">${{_sanitize(author)}}</span>
+                                            <span class="event-role">${{_sanitize(role)}}</span>
                                         </div>
                                         <div class="event-body">`;
 
                         if (event.content && event.content.parts) {{
                             event.content.parts.forEach(part => {{
                                 if (part.text) {{
-                                    html += `<div>${{DOMPurify.sanitize(marked.parse(String(part.text)))}}</div>`;
+                                    html += `<div>${{_sanitize(_markedParse(String(part.text)))}}</div>`;
                                 }} else if (part.function_call) {{
                                     const fnName = part.function_call.name;
                                     const fnArgs = JSON.stringify(part.function_call.args, null, 2);
-                                    html += `<div class="function-call-title">&gt;_ Function Call: ${{DOMPurify.sanitize(fnName)}}</div>
-                                             <pre class="dark-code-block">${{DOMPurify.sanitize(fnArgs)}}</pre>`;
+                                    html += `<div class="function-call-title">&gt;_ Function Call: ${{_sanitize(fnName)}}</div>
+                                             <pre class="dark-code-block">${{_sanitize(fnArgs)}}</pre>`;
                                 }} else if (part.function_response) {{
                                     const fnName = part.function_response.name;
                                     let fnRes = part.function_response.response;
@@ -1096,13 +1152,13 @@ def get_comparison_html(eval_result_json: str) -> str:
                                     const fnResStr = JSON.stringify(fnRes, null, 2);
                                     html += `<div class="function-response-title">
                                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-                                                Tool Output: ${{DOMPurify.sanitize(fnName)}}
+                                                Tool Output: ${{_sanitize(fnName)}}
                                              </div>
-                                             <pre class="dark-code-block">${{DOMPurify.sanitize(fnResStr)}}</pre>`;
+                                             <pre class="dark-code-block">${{_sanitize(fnResStr)}}</pre>`;
                                 }}
                             }});
                         }} else {{
-                             html += `<div><pre class="raw-json-container">${{DOMPurify.sanitize(JSON.stringify(event.content, null, 2))}}</pre></div>`;
+                             html += `<div><pre class="raw-json-container">${{_sanitize(JSON.stringify(event.content, null, 2))}}</pre></div>`;
                         }}
 
                         html += `</div></div></div>`;
@@ -1115,7 +1171,7 @@ def get_comparison_html(eval_result_json: str) -> str:
         }}
 
         function renderSummary(summaryMetrics, metadata) {{
-            const container = document.getElementById('summary-section');
+            const container = document.getElementById('{summary_id}');
             if (!summaryMetrics || summaryMetrics.length === 0) {{ container.innerHTML = '<h2>Summary Metrics</h2><p>No summary metrics.</p>'; return; }}
             const candidateNames = (metadata.candidate_names && metadata.candidate_names.length) ? metadata.candidate_names : null;
             let table = '<h2>Summary Metrics</h2><table><thead><tr><th>Metric</th><th>Mean Score</th><th>Std Dev</th><th>Win/Tie Rates</th></tr></thead><tbody>';
@@ -1131,7 +1187,7 @@ def get_comparison_html(eval_result_json: str) -> str:
         }}
 
         function renderDetails(caseResults, metadata) {{
-            const container = document.getElementById('details-section');
+            const container = document.getElementById('{details_id}');
             container.innerHTML = '<h2>Detailed Comparison</h2>';
             if (!caseResults || caseResults.length === 0) {{ container.innerHTML += '<p>No detailed results.</p>'; return; }}
 
@@ -1173,11 +1229,11 @@ def get_comparison_html(eval_result_json: str) -> str:
                 }}
 
                 if (promptText) {{
-                    card += `<div class="prompt-container"><strong>Prompt:</strong><br>${{DOMPurify.sanitize(marked.parse(String(promptText)))}}</div>`;
+                    card += `<div class="prompt-container"><strong>Prompt:</strong><br>${{_sanitize(_markedParse(String(promptText)))}}</div>`;
                 }}
 
                 if (promptJson && promptJson !== '""' && promptJson !== 'null' && promptJson !== '{{}}') {{
-                    card += `<details class="raw-json-details"><summary>View Raw Prompt JSON</summary><pre class="raw-json-container">${{DOMPurify.sanitize(promptJson)}}</pre></details>`;
+                    card += `<details class="raw-json-details"><summary>View Raw Prompt JSON</summary><pre class="raw-json-container">${{_sanitize(promptJson)}}</pre></details>`;
                 }}
 
                 let hasTrace = agentData && agentData.turns;
@@ -1207,7 +1263,7 @@ def get_comparison_html(eval_result_json: str) -> str:
                                         <div class="agent-trace-container">${{refTraceContent}}</div>
                                      </details>`;
                         }} else {{
-                            card += `<div class="reference-container" style="margin: 0; height: 100%;"><strong>Reference</strong><br>${{DOMPurify.sanitize(marked.parse(String(reference)))}}</div>`;
+                            card += `<div class="reference-container" style="margin: 0; height: 100%;"><strong>Reference</strong><br>${{_sanitize(_markedParse(String(reference)))}}</div>`;
                         }}
                         card += `</div>`;
                     }}
@@ -1225,11 +1281,11 @@ def get_comparison_html(eval_result_json: str) -> str:
                     card += `<div class="response-column"><h4>${{candidateName}}</h4>`;
 
                     if (displayText) {{
-                        card += `<div class="response-text-container">${{DOMPurify.sanitize(marked.parse(String(displayText)))}}</div>`;
+                        card += `<div class="response-text-container">${{_sanitize(_markedParse(String(displayText)))}}</div>`;
                     }}
 
                     if (rawJsonResponse && rawJsonResponse !== '""' && rawJsonResponse !== 'null' && rawJsonResponse !== '{{}}') {{
-                        card += `<details class="raw-json-details"><summary>View Raw Response JSON</summary><pre class="raw-json-container">${{DOMPurify.sanitize(rawJsonResponse)}}</pre></details>`;
+                        card += `<details class="raw-json-details"><summary>View Raw Response JSON</summary><pre class="raw-json-container">${{_sanitize(rawJsonResponse)}}</pre></details>`;
                     }}
 
                     card += `<h5 style="margin-top: 16px; margin-bottom: 8px; font-size: 1.1em; color: #3c4043;">Metrics</h5><div class="metrics-list">`;
@@ -1245,8 +1301,8 @@ def get_comparison_html(eval_result_json: str) -> str:
                                 const verdictJson = JSON.stringify(verdict, null, 2);
                                 bubbles += `
                                     <details class="rubric-details">
-                                        <summary class="rubric-bubble">${{verdictText}}: ${{DOMPurify.sanitize(rubricDescription)}}</summary>
-                                        <pre class="raw-json-container">${{DOMPurify.sanitize(verdictJson)}}</pre>
+                                        <summary class="rubric-bubble">${{verdictText}}: ${{_sanitize(rubricDescription)}}</summary>
+                                        <pre class="raw-json-container">${{_sanitize(verdictJson)}}</pre>
                                     </details>`;
                             }});
                             bubbles += '</div>';
@@ -1256,7 +1312,7 @@ def get_comparison_html(eval_result_json: str) -> str:
                         let metricContent = '';
 
                         if (val.explanation && !explanationHandled) {{
-                            metricContent += `<div class="explanation" style="margin-top:0; margin-bottom: 12px;">${{DOMPurify.sanitize(marked.parse(String(val.explanation)))}}</div>`;
+                            metricContent += `<div class="explanation" style="margin-top:0; margin-bottom: 12px;">${{_sanitize(_markedParse(String(val.explanation)))}}</div>`;
                         }}
                         if (bubbles) {{
                             metricContent += bubbles;
@@ -1268,8 +1324,8 @@ def get_comparison_html(eval_result_json: str) -> str:
                         card += `
                             <details class="metric-details" open>
                                 <summary class="metric-summary">
-                                    <div class="metric-name-wrapper">${{DOMPurify.sanitize(name)}}</div>
-                                    <div class="metric-score">${{DOMPurify.sanitize(scoreDisplay)}}</div>
+                                    <div class="metric-name-wrapper">${{_sanitize(name)}}</div>
+                                    <div class="metric-score">${{_sanitize(scoreDisplay)}}</div>
                                 </summary>
                                 <div class="metric-body">
                                     ${{metricContent}}
@@ -1282,8 +1338,11 @@ def get_comparison_html(eval_result_json: str) -> str:
                 container.innerHTML += card + '</div></details>';
             }});
         }}
-        renderSummary(vizData_vertex_eval_sdk.summary_metrics, vizData_vertex_eval_sdk.metadata);
-        renderDetails(vizData_vertex_eval_sdk.eval_case_results, vizData_vertex_eval_sdk.metadata);
+        _runWhenReady(function() {{
+            renderSummary(vizData_vertex_eval_sdk.summary_metrics, vizData_vertex_eval_sdk.metadata);
+            renderDetails(vizData_vertex_eval_sdk.eval_case_results, vizData_vertex_eval_sdk.metadata);
+        }}, 40);
+    }})();
     </script>
 </body>
 </html>
@@ -1294,6 +1353,9 @@ def get_comparison_html(eval_result_json: str) -> str:
 def get_inference_html(dataframe_json: str) -> str:
     """Returns a self-contained HTML for displaying inference results."""
     payload_b64 = _encode_to_base64(dataframe_json)
+    uid = uuid.uuid4().hex[:12]
+    root_id = f"vertex-eval-inf-root-{uid}"
+    table_id = f"results-table-{uid}"
     return textwrap.dedent(
         f"""
 <!DOCTYPE html>
@@ -1304,19 +1366,19 @@ def get_inference_html(dataframe_json: str) -> str:
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js"></script>
     <style>
-        body {{ font-family: 'Roboto', sans-serif; margin: 2em; background-color: #f8f9fa; color: #202124;}}
-        .container {{ max-width: 95%; margin: 20px auto; padding: 20px; background: #fff; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.12); }}
-        h1 {{ color: #3c4043; border-bottom: 2px solid #4285F4; padding-bottom: 8px; }}
-        table {{ border-collapse: collapse; width: 100%; table-layout: fixed; }}
-        th, td {{ border: 1px solid #dadce0; padding: 12px; text-align: left; vertical-align: top; }}
-        th {{ background-color: #f2f2f2; font-weight: 500;}}
-        td > div {{ white-space: pre-wrap; word-wrap: break-word; max-height: 400px; overflow-y: auto; overflow-wrap: break-word; }}
-        .raw-json-details summary {{ font-size: 0.9em; cursor: pointer; color: #5f6368; }}
-        .raw-json-container {{ white-space: pre-wrap; word-wrap: break-word; max-height: 300px; overflow-y: auto; background-color: #f1f1f1; padding: 10px; border-radius: 4px; margin-top: 8px; }}
-        .rubric-group-title {{ font-weight: bold; margin-bottom: 10px; display: block; }}
-        .rubric-bubble-container {{ display: flex; flex-wrap: wrap; gap: 8px; }}
-        .rubric-details {{ border: none; padding: 0; margin: 0; }}
-        .rubric-bubble {{
+        #{root_id} {{ font-family: 'Roboto', sans-serif; margin: 2em; background-color: #f8f9fa; color: #202124;}}
+        #{root_id} .container {{ max-width: 95%; margin: 20px auto; padding: 20px; background: #fff; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.12); }}
+        #{root_id} h1 {{ color: #3c4043; border-bottom: 2px solid #4285F4; padding-bottom: 8px; }}
+        #{root_id} table {{ border-collapse: collapse; width: 100%; table-layout: fixed; }}
+        #{root_id} th, #{root_id} td {{ border: 1px solid #dadce0; padding: 12px; text-align: left; vertical-align: top; }}
+        #{root_id} th {{ background-color: #f2f2f2; font-weight: 500;}}
+        #{root_id} td > div {{ white-space: pre-wrap; word-wrap: break-word; max-height: 400px; overflow-y: auto; overflow-wrap: break-word; }}
+        #{root_id} .raw-json-details summary {{ font-size: 0.9em; cursor: pointer; color: #5f6368; }}
+        #{root_id} .raw-json-container {{ white-space: pre-wrap; word-wrap: break-word; max-height: 300px; overflow-y: auto; background-color: #f1f1f1; padding: 10px; border-radius: 4px; margin-top: 8px; }}
+        #{root_id} .rubric-group-title {{ font-weight: bold; margin-bottom: 10px; display: block; }}
+        #{root_id} .rubric-bubble-container {{ display: flex; flex-wrap: wrap; gap: 8px; }}
+        #{root_id} .rubric-details {{ border: none; padding: 0; margin: 0; }}
+        #{root_id} .rubric-bubble {{
             display: inline-flex;
             align-items: center;
             background-color: #e8f0fe;
@@ -1327,26 +1389,48 @@ def get_inference_html(dataframe_json: str) -> str:
             cursor: pointer;
             list-style: none; /* Hide default marker in Safari */
         }}
-        .rubric-bubble::-webkit-details-marker {{ display: none; }} /* Hide default marker in Chrome */
-        .rubric-bubble::before {{
+        #{root_id} .rubric-bubble::-webkit-details-marker {{ display: none; }} /* Hide default marker in Chrome */
+        #{root_id} .rubric-bubble::before {{
             content: '►';
             margin-right: 8px;
             font-size: 0.8em;
             transition: transform 0.2s;
         }}
-        .rubric-details[open] > .rubric-bubble::before {{
+        #{root_id} .rubric-details[open] > .rubric-bubble::before {{
             transform: rotate(90deg);
         }}
     </style>
 </head>
 <body>
-    <div class="container">
+    <div id="{root_id}"><div class="container">
         <h1>Evaluation Dataset</h1>
-        <div id="results-table"></div>
-    </div>
+        <div id="{table_id}"></div>
+    </div></div>
     <script>
-        var vizData_vertex_eval_sdk = JSON.parse(new TextDecoder().decode(Uint8Array.from(atob("{payload_b64}"), c => c.charCodeAt(0))));
-        var container_vertex_eval_sdk = document.getElementById('results-table');
+    (function() {{
+        const vizData_vertex_eval_sdk = JSON.parse(new TextDecoder().decode(Uint8Array.from(atob("{payload_b64}"), c => c.charCodeAt(0))));
+        const container_vertex_eval_sdk = document.getElementById('{table_id}');
+        function _escapeHtml(s) {{
+            return String(s)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }}
+        function _sanitize(s) {{
+            return typeof DOMPurify !== 'undefined' ? DOMPurify.sanitize(s) : _escapeHtml(s);
+        }}
+        function _markedParse(s) {{
+            return typeof marked !== 'undefined' ? marked.parse(String(s)) : _escapeHtml(s);
+        }}
+        function _runWhenReady(fn, attempts) {{
+            if ((typeof DOMPurify !== 'undefined' && typeof marked !== 'undefined') || attempts <= 0) {{
+                fn();
+            }} else {{
+                setTimeout(function() {{ _runWhenReady(fn, attempts - 1); }}, 50);
+            }}
+        }}
 
         function renderRubrics(cellValue) {{
             let content = '';
@@ -1374,8 +1458,8 @@ def get_inference_html(dataframe_json: str) -> str:
                         const description = rubric.content && rubric.content.property ? rubric.content.property.description : 'N/A';
                         content += `
                             <details class="rubric-details">
-                                <summary class="rubric-bubble">${{DOMPurify.sanitize(description)}}</summary>
-                                <pre class="raw-json-container">${{DOMPurify.sanitize(rubricJson)}}</pre>
+                                <summary class="rubric-bubble">${{_sanitize(description)}}</summary>
+                                <pre class="raw-json-container">${{_sanitize(rubricJson)}}</pre>
                             </details>`;
                     }});
                     content += '</div>';
@@ -1391,32 +1475,35 @@ def get_inference_html(dataframe_json: str) -> str:
             }}
 
             if (cellValue && typeof cellValue === 'object' && cellValue.display_text !== undefined) {{
-                cellContent += `<div>${{DOMPurify.sanitize(marked.parse(String(cellValue.display_text)))}}</div>`;
+                cellContent += `<div>${{_sanitize(_markedParse(String(cellValue.display_text)))}}</div>`;
                 if (cellValue.raw_json) {{
-                    cellContent += `<details class="raw-json-details"><summary>View Raw JSON</summary><pre class="raw-json-container">${{DOMPurify.sanitize(cellValue.raw_json)}}</pre></details>`;
+                    cellContent += `<details class="raw-json-details"><summary>View Raw JSON</summary><pre class="raw-json-container">${{_sanitize(cellValue.raw_json)}}</pre></details>`;
                 }}
             }} else {{
                 const cellDisplay = cellValue === null || cellValue === undefined ? '' : String(cellValue);
-                cellContent = `<div>${{DOMPurify.sanitize(marked.parse(cellDisplay))}}</div>`;
+                cellContent = `<div>${{_sanitize(_markedParse(cellDisplay))}}</div>`;
             }}
             return `<td>${{cellContent}}</td>`;
         }}
 
-        if (!vizData_vertex_eval_sdk || vizData_vertex_eval_sdk.length === 0) {{ container_vertex_eval_sdk.innerHTML = "<p>No data.</p>"; }}
-        else {{
-            let table = '<table><thead><tr>';
-            const headers = Object.keys(vizData_vertex_eval_sdk[0] || {{}});
-            headers.forEach(h => table += `<th>${{h}}</th>`);
-            table += '</tr></thead><tbody>';
-            vizData_vertex_eval_sdk.forEach(row => {{
-                table += '<tr>';
-                headers.forEach(header => {{
-                    table += renderCell(row[header], header);
+        _runWhenReady(function() {{
+            if (!vizData_vertex_eval_sdk || vizData_vertex_eval_sdk.length === 0) {{ container_vertex_eval_sdk.innerHTML = "<p>No data.</p>"; }}
+            else {{
+                let table = '<table><thead><tr>';
+                const headers = Object.keys(vizData_vertex_eval_sdk[0] || {{}});
+                headers.forEach(h => table += `<th>${{_escapeHtml(h)}}</th>`);
+                table += '</tr></thead><tbody>';
+                vizData_vertex_eval_sdk.forEach(row => {{
+                    table += '<tr>';
+                    headers.forEach(header => {{
+                        table += renderCell(row[header], header);
+                    }});
+                    table += '</tr>';
                 }});
-                table += '</tr>';
-            }});
-            container_vertex_eval_sdk.innerHTML = table + '</tbody></table>';
-        }}
+                container_vertex_eval_sdk.innerHTML = table + '</tbody></table>';
+            }}
+        }}, 40);
+    }})();
     </script>
 </body>
 </html>
@@ -1574,6 +1661,9 @@ def display_evaluation_dataset(eval_dataset_obj: types.EvaluationDataset) -> Non
 def get_loss_analysis_html(loss_analysis_json: str) -> str:
     """Returns self-contained HTML for loss pattern analysis visualization."""
     payload_b64 = _encode_to_base64(loss_analysis_json)
+    uid = uuid.uuid4().hex[:12]
+    root_id = f"vertex-eval-loss-root-{uid}"
+    content_id = f"loss-analysis-root-{uid}"
     return textwrap.dedent(
         f"""
 <!DOCTYPE html>
@@ -1583,59 +1673,80 @@ def get_loss_analysis_html(loss_analysis_json: str) -> str:
     <title>Loss Pattern Analysis</title>
     <script src="https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js"></script>
     <style>
-        body {{ font-family: 'Roboto', 'Helvetica', sans-serif; margin: 2em; background-color: #f8f9fa; color: #202124; }}
-        .container {{ max-width: 1200px; margin: 20px auto; padding: 20px; background-color: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.12); }}
-        h1, h2, h3 {{ color: #3c4043; }}
-        h1 {{ border-bottom: 2px solid #4285F4; padding-bottom: 8px; }}
-        h2 {{ border-bottom: 1px solid #dadce0; padding-bottom: 8px; }}
-        table {{ border-collapse: collapse; width: 100%; margin: 1em 0; }}
-        th, td {{ border: 1px solid #dadce0; padding: 12px; text-align: left; vertical-align: top; }}
-        th {{ background-color: #f2f2f2; font-weight: 500; }}
-        details {{ border: 1px solid #dadce0; border-radius: 8px; padding: 16px; margin-bottom: 16px; background: #fff; }}
-        summary {{ font-weight: 500; font-size: 1.1em; cursor: pointer; }}
+        #{root_id} {{ font-family: 'Roboto', 'Helvetica', sans-serif; margin: 2em; background-color: #f8f9fa; color: #202124; }}
+        #{root_id} .container {{ max-width: 1200px; margin: 20px auto; padding: 20px; background-color: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.12); }}
+        #{root_id} h1, #{root_id} h2, #{root_id} h3 {{ color: #3c4043; }}
+        #{root_id} h1 {{ border-bottom: 2px solid #4285F4; padding-bottom: 8px; }}
+        #{root_id} h2 {{ border-bottom: 1px solid #dadce0; padding-bottom: 8px; }}
+        #{root_id} table {{ border-collapse: collapse; width: 100%; margin: 1em 0; }}
+        #{root_id} th, #{root_id} td {{ border: 1px solid #dadce0; padding: 12px; text-align: left; vertical-align: top; }}
+        #{root_id} th {{ background-color: #f2f2f2; font-weight: 500; }}
+        #{root_id} details {{ border: 1px solid #dadce0; border-radius: 8px; padding: 16px; margin-bottom: 16px; background: #fff; }}
+        #{root_id} summary {{ font-weight: 500; font-size: 1.1em; cursor: pointer; }}
 
-        .metric-header {{ display: flex; align-items: baseline; gap: 12px; margin-bottom: 4px; }}
-        .metric-label {{ color: #1a73e8; font-weight: 600; font-size: 1.1em; }}
-        .candidate-label {{ color: #5f6368; font-size: 0.95em; }}
-        .item-count {{ font-weight: bold; font-size: 16px; color: #1a73e8; }}
+        #{root_id} .metric-header {{ display: flex; align-items: baseline; gap: 12px; margin-bottom: 4px; }}
+        #{root_id} .metric-label {{ color: #1a73e8; font-weight: 600; font-size: 1.1em; }}
+        #{root_id} .candidate-label {{ color: #5f6368; font-size: 0.95em; }}
+        #{root_id} .item-count {{ font-weight: bold; font-size: 16px; color: #1a73e8; }}
 
-        .cluster-card {{ background: #fff; border: 1px solid #dadce0; border-radius: 8px; margin-bottom: 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); overflow: hidden; }}
-        .cluster-summary {{ list-style: none; cursor: pointer; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; background: #f8f9fa; margin: 0; outline: none; }}
-        .cluster-summary::-webkit-details-marker {{ display: none; }}
-        .cluster-card[open] .cluster-summary {{ border-bottom: 1px solid #dadce0; }}
+        #{root_id} .cluster-card {{ background: #fff; border: 1px solid #dadce0; border-radius: 8px; margin-bottom: 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); overflow: hidden; }}
+        #{root_id} .cluster-summary {{ list-style: none; cursor: pointer; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; background: #f8f9fa; margin: 0; outline: none; }}
+        #{root_id} .cluster-summary::-webkit-details-marker {{ display: none; }}
+        #{root_id} .cluster-card[open] .cluster-summary {{ border-bottom: 1px solid #dadce0; }}
 
-        .cluster-name {{ display: flex; align-items: center; font-weight: 600; color: #3c4043; font-size: 14px; }}
-        .cluster-name::before {{ content: '\\25B6'; font-size: 0.8em; margin-right: 8px; transition: transform 0.2s; color: #5f6368; }}
-        .cluster-card[open] .cluster-name::before {{ transform: rotate(90deg); }}
+        #{root_id} .cluster-name {{ display: flex; align-items: center; font-weight: 600; color: #3c4043; font-size: 14px; }}
+        #{root_id} .cluster-name::before {{ content: '\\25B6'; font-size: 0.8em; margin-right: 8px; transition: transform 0.2s; color: #5f6368; }}
+        #{root_id} .cluster-card[open] .cluster-name::before {{ transform: rotate(90deg); }}
 
-        .l1-pill {{ display: inline-block; background-color: #e8f0fe; color: #1967d2; border-radius: 16px; padding: 2px 10px; font-size: 0.85em; font-weight: 500; margin-right: 6px; }}
-        .cluster-body {{ padding: 16px; }}
-        .cluster-description {{ color: #5f6368; font-size: 0.95em; margin-bottom: 12px; line-height: 1.5; }}
+        #{root_id} .l1-pill {{ display: inline-block; background-color: #e8f0fe; color: #1967d2; border-radius: 16px; padding: 2px 10px; font-size: 0.85em; font-weight: 500; margin-right: 6px; }}
+        #{root_id} .cluster-body {{ padding: 16px; }}
+        #{root_id} .cluster-description {{ color: #5f6368; font-size: 0.95em; margin-bottom: 12px; line-height: 1.5; }}
 
-        .example-card {{ background: #f8f9fa; border: 1px solid #eee; border-radius: 6px; padding: 12px; margin-bottom: 8px; }}
-        .example-label {{ font-weight: 600; font-size: 0.9em; color: #3c4043; margin-bottom: 6px; padding-bottom: 6px; border-bottom: 1px solid #eee; }}
-        .example-scenario {{ background: #e8f0fe; border-radius: 6px; padding: 8px 12px; margin: 6px 0; font-size: 0.9em; color: #1967d2; display: flex; align-items: flex-start; gap: 6px; }}
-        .example-scenario-icon {{ flex-shrink: 0; margin-top: 1px; }}
-        .example-scenario-text {{ word-break: break-word; }}
-        .example-rubric {{ display: inline-block; background-color: #fce8e6; color: #c5221f; border-radius: 12px; padding: 2px 10px; font-size: 0.85em; font-weight: 500; margin-right: 6px; margin-bottom: 4px; }}
-        .example-rationale {{ color: #5f6368; font-size: 0.9em; line-height: 1.5; margin-top: 6px; background: #f1f1f1; padding: 8px 12px; border-radius: 4px; white-space: pre-wrap; word-wrap: break-word; }}
-        .example-section-label {{ font-size: 0.8em; font-weight: 500; color: #5f6368; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; margin-top: 8px; }}
-        .rubric-description {{ color: #5f6368; font-size: 0.9em; margin: 4px 0 6px 0; line-height: 1.4; }}
-        .examples-details {{ border: none; padding: 0; margin-top: 8px; }}
-        .examples-details > summary {{ font-size: 0.95em; color: #1a73e8; cursor: pointer; }}
-        .no-data {{ color: #5f6368; font-style: italic; padding: 16px; text-align: center; }}
+        #{root_id} .example-card {{ background: #f8f9fa; border: 1px solid #eee; border-radius: 6px; padding: 12px; margin-bottom: 8px; }}
+        #{root_id} .example-label {{ font-weight: 600; font-size: 0.9em; color: #3c4043; margin-bottom: 6px; padding-bottom: 6px; border-bottom: 1px solid #eee; }}
+        #{root_id} .example-scenario {{ background: #e8f0fe; border-radius: 6px; padding: 8px 12px; margin: 6px 0; font-size: 0.9em; color: #1967d2; display: flex; align-items: flex-start; gap: 6px; }}
+        #{root_id} .example-scenario-icon {{ flex-shrink: 0; margin-top: 1px; }}
+        #{root_id} .example-scenario-text {{ word-break: break-word; }}
+        #{root_id} .example-rubric {{ display: inline-block; background-color: #fce8e6; color: #c5221f; border-radius: 12px; padding: 2px 10px; font-size: 0.85em; font-weight: 500; margin-right: 6px; margin-bottom: 4px; }}
+        #{root_id} .example-rationale {{ color: #5f6368; font-size: 0.9em; line-height: 1.5; margin-top: 6px; background: #f1f1f1; padding: 8px 12px; border-radius: 4px; white-space: pre-wrap; word-wrap: break-word; }}
+        #{root_id} .example-section-label {{ font-size: 0.8em; font-weight: 500; color: #5f6368; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; margin-top: 8px; }}
+        #{root_id} .rubric-description {{ color: #5f6368; font-size: 0.9em; margin: 4px 0 6px 0; line-height: 1.4; }}
+        #{root_id} .examples-details {{ border: none; padding: 0; margin-top: 8px; }}
+        #{root_id} .examples-details > summary {{ font-size: 0.95em; color: #1a73e8; cursor: pointer; }}
+        #{root_id} .no-data {{ color: #5f6368; font-style: italic; padding: 16px; text-align: center; }}
     </style>
 </head>
 <body>
-<div class="container">
-<div id="loss-analysis-root"></div>
-</div>
+<div id="{root_id}"><div class="container">
+<div id="{content_id}"></div>
+</div></div>
 <script>
 (function() {{
     var data = JSON.parse(new TextDecoder().decode(Uint8Array.from(atob("{payload_b64}"), c => c.charCodeAt(0))));
 
-    const root = document.getElementById('loss-analysis-root');
+
+    function _escapeHtml(s) {{
+        return String(s)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }}
+    function _sanitize(s) {{
+        return typeof DOMPurify !== 'undefined' ? DOMPurify.sanitize(s) : _escapeHtml(s);
+    }}
+    function _runWhenReady(fn, attempts) {{
+        if (typeof DOMPurify !== 'undefined' || attempts <= 0) {{
+            fn();
+        }} else {{
+            setTimeout(function() {{ _runWhenReady(fn, attempts - 1); }}, 50);
+        }}
+    }}
+    const root = document.getElementById('{content_id}');
     const results = data.results || [];
+
+    function renderLossAnalysis() {{
 
     if (results.length === 0) {{
         root.innerHTML = '<h1>Loss Pattern Analysis</h1><p class="no-data">No loss analysis results found.</p>';
@@ -1652,8 +1763,8 @@ def get_loss_analysis_html(loss_analysis_json: str) -> str:
             const clusters = r.clusters || [];
             const totalItems = clusters.reduce((sum, c) => sum + (c.item_count || 0), 0);
             html += '<tr>';
-            html += '<td>' + DOMPurify.sanitize(cfg.metric || 'N/A') + '</td>';
-            html += '<td>' + DOMPurify.sanitize(cfg.candidate || 'N/A') + '</td>';
+            html += '<td>' + _sanitize(cfg.metric || 'N/A') + '</td>';
+            html += '<td>' + _sanitize(cfg.candidate || 'N/A') + '</td>';
             html += '<td>' + clusters.length + '</td>';
             html += '<td class="item-count">' + totalItems + '</td>';
             html += '</tr>';
@@ -1668,8 +1779,8 @@ def get_loss_analysis_html(loss_analysis_json: str) -> str:
         const totalItems = clusters.reduce((sum, c) => sum + (c.item_count || 0), 0);
 
         html += '<h2>';
-        html += '<span class="metric-label">' + DOMPurify.sanitize(cfg.metric || 'Unknown Metric') + '</span>';
-        if (cfg.candidate) html += ' <span class="candidate-label">/ ' + DOMPurify.sanitize(cfg.candidate) + '</span>';
+        html += '<span class="metric-label">' + _sanitize(cfg.metric || 'Unknown Metric') + '</span>';
+        if (cfg.candidate) html += ' <span class="candidate-label">/ ' + _sanitize(cfg.candidate) + '</span>';
         html += '</h2>';
 
         if (clusters.length === 0) {{
@@ -1691,8 +1802,8 @@ def get_loss_analysis_html(loss_analysis_json: str) -> str:
             html += '<details class="cluster-card"' + (isFirst ? ' open' : '') + '>';
             html += '<summary class="cluster-summary">';
             html += '<div class="cluster-name">';
-            html += '<span class="l1-pill">' + DOMPurify.sanitize(entry.l1_category || '') + '</span> ';
-            html += DOMPurify.sanitize(entry.l2_category || 'Cluster ' + (ci + 1));
+            html += '<span class="l1-pill">' + _sanitize(entry.l1_category || '') + '</span> ';
+            html += _sanitize(entry.l2_category || 'Cluster ' + (ci + 1));
             html += '</div>';
             html += '<span class="item-count">' + count + ' items (' + pct + '%)</span>';
             html += '</summary>';
@@ -1700,7 +1811,7 @@ def get_loss_analysis_html(loss_analysis_json: str) -> str:
             html += '<div class="cluster-body">';
 
             if (entry.description) {{
-                html += '<div class="cluster-description">' + DOMPurify.sanitize(entry.description) + '</div>';
+                html += '<div class="cluster-description">' + _sanitize(entry.description) + '</div>';
             }}
 
             // Examples section
@@ -1721,7 +1832,7 @@ def get_loss_analysis_html(loss_analysis_json: str) -> str:
                         html += '<span class="example-scenario-icon">';
                         html += '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>';
                         html += '</span>';
-                        html += '<span class="example-scenario-text">' + DOMPurify.sanitize(scenario) + '</span>';
+                        html += '<span class="example-scenario-text">' + _sanitize(scenario) + '</span>';
                         html += '</div>';
                     }}
                     const rubrics = ex.failed_rubrics || [];
@@ -1732,13 +1843,13 @@ def get_loss_analysis_html(loss_analysis_json: str) -> str:
                         rubrics.forEach(fr => {{
                             const rubricDesc = fr.rubric_id ? (rubricDescMap[fr.rubric_id] || lookupRubricDescription(ex, fr.rubric_id)) : null;
                             if (rubricDesc) {{
-                                html += '<div class="rubric-description"><span class="example-rubric">Fail</span> ' + DOMPurify.sanitize(rubricDesc) + '</div>';
+                                html += '<div class="rubric-description"><span class="example-rubric">Fail</span> ' + _sanitize(rubricDesc) + '</div>';
                             }} else if (fr.rubric_id) {{
-                                html += '<div class="rubric-description"><span class="example-rubric">Fail</span> ' + DOMPurify.sanitize(fr.rubric_id) + '</div>';
+                                html += '<div class="rubric-description"><span class="example-rubric">Fail</span> ' + _sanitize(fr.rubric_id) + '</div>';
                             }}
                             if (fr.classification_rationale) {{
                                 html += '<div class="example-section-label" style="margin-top: 6px;">Rationale</div>';
-                                html += '<div class="example-rationale">' + DOMPurify.sanitize(fr.classification_rationale) + '</div>';
+                                html += '<div class="example-rationale">' + _sanitize(fr.classification_rationale) + '</div>';
                             }}
                         }});
                         html += '</div>';
@@ -1753,6 +1864,8 @@ def get_loss_analysis_html(loss_analysis_json: str) -> str:
     }});
 
     root.innerHTML = html;
+    }}
+    _runWhenReady(renderLossAnalysis, 40);
 
     function lookupRubricDescription(ex, rubricId) {{
         // Look up the rubric description from evaluation_result.candidate_results
